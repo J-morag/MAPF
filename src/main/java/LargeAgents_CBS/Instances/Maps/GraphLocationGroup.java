@@ -1,13 +1,10 @@
-package LargeAgents_CBS.Solvers.LowLevel;
-
+package LargeAgents_CBS.Instances.Maps;
 
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.GraphMapVertex;
 import BasicCBS.Instances.Maps.I_Location;
-import LargeAgents_CBS.Instances.Maps.Coordinate_2D_LargeAgent;
-import LargeAgents_CBS.Instances.Maps.Enum_direction;
-import LargeAgents_CBS.Instances.Maps.GraphMapVertex_LargeAgents;
 
 import java.util.*;
 
@@ -19,8 +16,8 @@ public class GraphLocationGroup implements I_Location {
     private List<GraphMapVertex_LargeAgents> innerCells = new ArrayList<>();
     private Queue<GraphMapVertex_LargeAgents> outerCells = new PriorityQueue<>(new Comparator<GraphMapVertex_LargeAgents>() {
         @Override
-        public int compare(GraphMapVertex_LargeAgents vertex_1, GraphMapVertex_LargeAgents vertex_2) {
-            if( vertex_1.getNeighbors().size() <=  vertex_2.getNeighbors().size()){
+        public int compare(GraphMapVertex_LargeAgents cell_1, GraphMapVertex_LargeAgents cell_2) {
+            if( cell_1.getNeighbors().size() <=  cell_2.getNeighbors().size()){
                 return 1;
             }
             return -1;
@@ -45,6 +42,7 @@ public class GraphLocationGroup implements I_Location {
                 this.mapCells[i][j] = (GraphMapVertex_LargeAgents) this.mapCells[i][j].getLocationByDirection(direction);
             }
         }
+
         this.addCellsToInnerOuter(); // Set Inner Outer lists
     }
 
@@ -99,6 +97,7 @@ public class GraphLocationGroup implements I_Location {
                 validNeighborsWithAllCells.add(new GraphLocationGroup(this, direction));
             }
         }
+
         return validNeighborsWithAllCells;
     }
 
