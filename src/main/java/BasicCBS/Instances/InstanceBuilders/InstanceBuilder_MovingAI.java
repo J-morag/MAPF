@@ -15,25 +15,25 @@ import java.util.*;
 public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
-    public static final MapDimensions.Enum_mapOrientation ENUMMAP_ORIENTATION = MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL;
+    public static final MapDimensions.Enum_mapOrientation MAP_ORIENTATION = MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL;
 
 
     public static final String FILE_TYPE_MAP = ".map";
     public static final String FILE_TYPE_SCENARIO = ".scen";
 
     // Indicators
-    private final String INDICATOR_MAP = "map";
-    private final String INDICATOR_HEIGHT = "height";
-    private final String INDICATOR_WIDTH = "width";
+    protected final String INDICATOR_MAP = "map";
+    protected final String INDICATOR_HEIGHT = "height";
+    protected final String INDICATOR_WIDTH = "width";
 
     // Separators
-    private final String SEPARATOR_DIMENSIONS = " ";
-    private final String SEPARATOR_MAP = "";
-    private final String SEPARATOR_SCENARIO = "\t";
+    protected final String SEPARATOR_DIMENSIONS = " ";
+    protected final String SEPARATOR_MAP = "";
+    protected final String SEPARATOR_SCENARIO = "\t";
 
     // Skip Lines
-    private final int SKIP_LINES_MAP = 1;
-    private final int SKIP_LINES_SCENARIO = 1;
+    protected final int SKIP_LINES_MAP = 1;
+    protected final int SKIP_LINES_SCENARIO = 2;
 
 
     /*  =Default Values=    */
@@ -45,10 +45,10 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     // Line example: "1	maps/rooms/8room_000.map	512	512	500	366	497	371	6.24264"
     //    Start: ( 500 , 366 )
     //    Goal: ( 497 , 371 )
-    private final int INDEX_AGENT_SOURCE_XVALUE = 4;
-    private final int INDEX_AGENT_SOURCE_YVALUE = 5;
-    private final int INDEX_AGENT_TARGET_XVALUE = 6;
-    private final int INDEX_AGENT_TARGET_YVALUE = 7;
+    protected final int INDEX_AGENT_SOURCE_XVALUE = 4;
+    protected final int INDEX_AGENT_SOURCE_YVALUE = 5;
+    protected final int INDEX_AGENT_TARGET_XVALUE = 6;
+    protected final int INDEX_AGENT_TARGET_YVALUE = 7;
 
     private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
 
@@ -149,14 +149,14 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         /*  =Get data from reader=  */
-        String nextLine = reader.skipFirstLines(this.SKIP_LINES_SCENARIO); // First line
+        String nextLine = reader.skipFirstLines(this.getSKIP_LINES_SCENARIO()); // First line
 
         ArrayList<String> agentsLines = new ArrayList<>(); // Init queue of agents lines
 
         // Add lines as the num of needed agents
         for (int i = 0; nextLine != null && i < numOfNeededAgents ; i++) {
-            nextLine = reader.getNextLine(); // next line
             agentsLines.add(nextLine);
+            nextLine = reader.getNextLine(); // next line
         }
 
         reader.closeFile();
@@ -179,7 +179,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         /*  =Get data from reader=  */
-        String nextLine = reader.skipFirstLines(this.SKIP_LINES_MAP); // First line
+        String nextLine = reader.skipFirstLines(this.getSKIP_LINES_MAP()); // First line
 
         while ( nextLine != null ){
 
@@ -233,7 +233,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
     @Override
     public MapDimensions.Enum_mapOrientation getMapOrientation() {
-        return ENUMMAP_ORIENTATION;
+        return MAP_ORIENTATION;
     }
 
 
@@ -257,6 +257,15 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
             pathArray[i] = list.get(i);
         }
         return pathArray;
+    }
+
+    /*  = Skip getters =  */
+    protected int getSKIP_LINES_MAP(){
+        return this.SKIP_LINES_MAP;
+    }
+
+    protected int getSKIP_LINES_SCENARIO(){
+        return this.SKIP_LINES_SCENARIO;
     }
 
 

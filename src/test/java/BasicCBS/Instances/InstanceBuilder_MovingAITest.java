@@ -30,9 +30,6 @@ public class InstanceBuilder_MovingAITest {
         // Check that instance was created successfully and added to the list
         MAPF_Instance nextInstance = this.instanceBuilder_movingAI.getNextExistingInstance();
         Assert.assertNotNull(nextInstance);
-
-
-
     }
 
 
@@ -102,8 +99,6 @@ public class InstanceBuilder_MovingAITest {
         expectedSecondAgentList.add(new Agent( 1  , new Coordinate_2D(437, 42) , new Coordinate_2D(442, 30)));
 
 
-
-
         String instanceName = "Instances\\MovingAI\\8room_000";
         String expectedMapPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP});
         String expectedScenarioPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP + InstanceBuilder_MovingAI.FILE_TYPE_SCENARIO});
@@ -117,16 +112,11 @@ public class InstanceBuilder_MovingAITest {
         MAPF_Instance firstInstance = this.instanceBuilder_movingAI.getNextExistingInstance();
         MAPF_Instance secondInstance = this.instanceBuilder_movingAI.getNextExistingInstance();
 
-
         List<Agent> actualFirstAgentList = firstInstance.agents;
         List<Agent> actualSecondAgentList = secondInstance.agents;
-
 
         /*  = Test Actual Values   = */
         Assert.assertEquals(expectedFirstAgentList, actualFirstAgentList);
         Assert.assertEquals(expectedSecondAgentList, actualSecondAgentList);
-
-
-
     }
 }
