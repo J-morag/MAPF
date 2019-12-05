@@ -1,0 +1,78 @@
+Commenting:
+  General:
+    add standard Javadoc documentation to classes and methods.
+  Tags:
+    * Go to settings -> Editor -> _TODO
+    * '_' is used only in this document, so that these tags won't pop up in the _TODO window
+    _todo - general to do tag.
+    _imp - needs to be implemented.
+    _BLOCKING - unimplemented code blocks work elsewhere.
+    _fixme - implemented code with bugs that needs to be fixed.
+    _testme - code is ready to be tested.
+    _done - code that works and has passed its tests.
+    _missingdoc - not fully documented.
+    _nicetohave - unimplemented improvements/expantions/features that are not "must have"s.
+  Headlines (section markers):
+    Can be used to mark code sections, to increase the readability of large classes.
+    Format: /*SPACESPACE=HEADLINE=SPACESPACE*/
+      SPACE is replaced by a ' ' (space character)
+      HEADLINE is replaced by whatever text you would like to describe the following section with.
+    Hierarchy:
+      If you need hierarchical headlines, add more 'SPACESPACE=' at the beginning to make sub headlines.
+      Shorter headlines will be used to mark bigger sections, with longer headlines marking subsections.
+    Example:
+      /*  =Class Fields=  */
+      /*  =  =Private Fields=  */
+      code...code...code...
+      /*  =  =Public Fields=  */
+      code...code...code...
+
+Naming:
+  general:
+    * The naming of classes, methods, fields, etc. will follow standard Java conventions.
+    * Use this.something when possible
+    * Write if statements always with brackets like: if( something ){ }
+  Interfaces:
+    Interface names will be prefaced with an 'I'. e.g. I_Name.
+  Abstract classes:
+    Abstract class names will be prefaced with an 'A'. e.g. A_Name.
+
+
+Testing:
+
+    @Test
+    public void <Test name>() {
+        // test body
+    }
+
+    In every test:
+        1. /*   = Expected  values =   */
+        2. /*   = Actual    values =   */
+        3. /*   = Test      values =   */
+
+    Before: add @Before to init the tested class
+            * the before() method runs before each test
+
+
+    Assert:
+        * Assert.assertTrue(condition)
+        * Assert.assertFalse(condition)
+        * Assert.assertNull(condition)
+        * Assert.assertNotNull(condition)
+        * Assert.assertEquals(Expected, Actual)
+
+
+
+Map Arrays - CellTypeMap:
+  In arrays that represent maps, dimensions will be ordered as follows:
+    arr[x][y][z]...
+    So that arr.length is equal to the x length (the width) of the represented map.
+
+    Naming:
+    1. arr.length -> xAxis_length
+    2. arr[0].length -> yAxis_length
+    3. int i -> xIndex , int j -> yIndex
+    Example of a standard for i for j iteration:
+      for (int xIndex = 0; xIndex < xAxis_length; xIndex++)
+          for (int yIndex = 0; yIndex < yAxis_length; yIndex++)
+                CellTypeMap[xIndex][yIndex]

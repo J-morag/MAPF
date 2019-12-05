@@ -1,0 +1,71 @@
+Enum_MapCellType[][] map_2D_1Cell_middle = {
+        {w, w, w, w, w, w},
+        {w, e, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+};
+
+Enum_MapCellType[][] map_2D_1Cell_fringe = {
+        {w, w, w, w, w, w},
+        {e, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+};
+
+Enum_MapCellType[][] map_2D_2Cells_middle = {
+        {w, w, w, w, w, w},
+        {w, w, w, e, e, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+};
+
+Enum_MapCellType[][] map_2D_2Cells_fringe = {
+        {w, w, w, w, e, w},
+        {w, w, w, w, e, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+};
+
+Enum_MapCellType[][] map_2D_3Cells_line = {
+        {w, w, w, e, w, w},
+        {w, w, w, e, w, w},
+        {w, w, w, e, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+};
+
+Enum_MapCellType[][] map_2D_4cells_clump = {
+        {w, w, w, w, w, w},
+        {w, w, w, e, e, w},
+        {w, w, w, e, e, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+};
+
+Enum_MapCellType[][] map_2D_circle = {
+        {w, w, w, w, w, w},
+        {w, w, e, e, e, w},
+        {w, w, e, w, e, w},
+        {w, w, e, e, e, w},
+        {w, w, w, w, w, w},
+        {w, w, w, w, w, w},
+};
+
+Enum_MapCellType[][] map_2D_empty = {
+        {e, e, e, e, e, e},
+        {e, e, e, e, e, e},
+        {e, e, e, e, e, e},
+        {e, e, e, e, e, e},
+        {e, e, e, e, e, e},
+        {e, e, e, e, e, e},
+};
