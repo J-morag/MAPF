@@ -111,7 +111,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         // Iterate over all the agents in numOfAgentsByBatches
         for (int id = 0; !agentLinesList.isEmpty() && id < numOfAgentsByBatches * this.defaultNumOfAgentsInSingleBatch; id++) {
 
-            if( id < numOfAgents ){
+            if( id < arrayOfAgents.length ){
                 Agent agentToAdd = buildSingleAgent(id ,agentLinesList.remove(0));
                 arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
             }else {
@@ -121,7 +121,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         return arrayOfAgents;
     }
 
-    private Agent buildSingleAgent(int id, String agentLine) {
+    protected Agent buildSingleAgent(int id, String agentLine) {
 
         String[] splitLine = agentLine.split(this.SEPARATOR_SCENARIO);
         // Init coordinates
