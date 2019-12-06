@@ -1,13 +1,10 @@
-package LargeAgents_CBS.Solvers.LowLevel;
-
+package LargeAgents_CBS.Instances.Maps;
 
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.GraphMapVertex;
 import BasicCBS.Instances.Maps.I_Location;
-import LargeAgents_CBS.Instances.Maps.Coordinate_2D_LargeAgent;
-import LargeAgents_CBS.Instances.Maps.Enum_direction;
-import LargeAgents_CBS.Instances.Maps.GraphMapVertex_LargeAgents;
 
 import java.util.*;
 
@@ -19,17 +16,16 @@ public class GraphLocationGroup implements I_Location {
     private List<GraphMapVertex_LargeAgents> innerCells = new ArrayList<>();
     private Queue<GraphMapVertex_LargeAgents> outerCells = new PriorityQueue<>(new Comparator<GraphMapVertex_LargeAgents>() {
         @Override
-        public int compare(GraphMapVertex_LargeAgents vertex_1, GraphMapVertex_LargeAgents vertex_2) {
-            if( vertex_1.getNeighbors().size() <=  vertex_2.getNeighbors().size()){
-                return 1;
+        public int compare(GraphMapVertex_LargeAgents cell_1, GraphMapVertex_LargeAgents cell_2) {
+            if( cell_1.getNeighbors().size() <=  cell_2.getNeighbors().size()){
+                return 1; // One is equals/greater than Two
             }
-            return -1;
+            return -1; // Two is greater that One
         }
     });
 
 
     public GraphLocationGroup(GraphMapVertex_LargeAgents[][] mapCells) {
-
         this.mapCells = mapCells;
         this.addCellsToInnerOuter();
     }
@@ -104,8 +100,6 @@ public class GraphLocationGroup implements I_Location {
 
 
 
-
-
     @Override
     public I_Coordinate getCoordinate() {
 
@@ -145,4 +139,20 @@ public class GraphLocationGroup implements I_Location {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GraphLocationGroup)) return false;
+        GraphLocationGroup that = (GraphLocationGroup) o;
+        return Arrays.equals(mapCells, that.mapCells) &&
+                Objects.equals(innerCells, that.innerCells) &&
+                Objects.equals(outerCells, that.outerCells);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(innerCells, outerCells);
+        result = 31 * result + Arrays.hashCode(mapCells);
+        return result;
+    }
 }

@@ -16,8 +16,9 @@ public abstract class A_RunManager {
     protected List<I_Solver> solvers = new ArrayList<>();
     protected List<Experiment> experiments = new ArrayList<>();
 
-    abstract void setSolvers();
-    abstract void setExperiments();
+    // todo - protected
+    protected abstract void setSolvers();
+    protected abstract void setExperiments();
 
     public void runAllExperiments(){
 
