@@ -167,8 +167,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         return agentsLines;
     }
 
-    // todo - protected , I_Map
-    protected I_Map getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
+    private GraphMap getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
 
         Reader reader = new Reader();
         Enum_IO enum_io = reader.openFile(instancePath.path);
@@ -215,7 +214,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                 String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, dimensionsFromFile);
 
                 // build map
-                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.cellTypeHashMap, instanceProperties.obstacles);
+                graphMap = buildGraphMap(mapAsStrings, dimensionsFromFile, instanceProperties.obstacles);
                 break;
             }
             nextLine = reader.getNextLine();
@@ -223,6 +222,11 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
         reader.closeFile(); // No more data in the file
         return graphMap;
+    }
+
+    // todo - protected
+    protected GraphMap buildGraphMap(String[] mapAsStrings, MapDimensions dimensionsFromFile, InstanceProperties.ObstacleWrapper obstacles){
+        return I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.cellTypeHashMap, obstacles);
     }
 
 

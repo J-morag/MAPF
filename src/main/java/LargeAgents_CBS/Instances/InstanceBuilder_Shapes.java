@@ -3,10 +3,17 @@ package LargeAgents_CBS.Instances;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
+import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicCBS.Instances.Maps.Enum_MapCellType;
 import BasicCBS.Instances.Maps.MapDimensions;
 import Environment.IO_Package.IO_Manager;
+import GraphMapPackage.GraphMap;
+import GraphMapPackage.I_InstanceBuilder;
+import GraphMapPackage.MapFactory;
 import LargeAgents_CBS.Instances.Maps.Coordinate_2D_LargeAgent;
+
+import java.util.HashMap;
 
 public class InstanceBuilder_Shapes extends InstanceBuilder_MovingAI {
 
@@ -65,6 +72,21 @@ public class InstanceBuilder_Shapes extends InstanceBuilder_MovingAI {
             }
         }
         return new Coordinate_2D_LargeAgent(coordinates);
+    }
+
+
+    protected GraphMap buildGraphMap(String[] mapAsStrings, MapDimensions dimensionsFromFile, InstanceProperties.ObstacleWrapper obstacles){
+        return buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.cellTypeHashMap, obstacles);
+    }
+
+    private GraphMap buildGraphMap(String[] mapAsStrings, String mapSeparator, MapDimensions mapDimensions, HashMap<Character, Enum_MapCellType> cellTypeHashMap, InstanceProperties.ObstacleWrapper obstacle) {
+
+        Character[][] mapAsCharacters_2d = I_InstanceBuilder.build2D_CharacterMap(mapAsStrings,mapDimensions,mapSeparator);
+        Enum_MapCellType[][] mapAsCellType_2D = I_InstanceBuilder.build_2D_cellTypeMap(mapAsCharacters_2d, cellTypeHashMap, mapDimensions.mapOrientation, obstacle);
+        if( mapAsCellType_2D == null){
+            return null; // Error while building the map
+        }
+        return MapFactory.newSimple4Connected2D_GraphMap_LargeAgents(mapAsCellType_2D);
     }
 
 
