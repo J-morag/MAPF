@@ -4,15 +4,13 @@ import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Instances.Maps.I_Map;
+import GraphMapPackage.MapFactory;
 import LargeAgents_CBS.Instances.Maps.GraphLocationGroup;
-import LargeAgents_CBS.Instances.Maps.GraphMapVertex_LargeAgents;
-import LargeAgents_CBS.Instances.Maps.MapFactory_LargeAgents;
+import GraphMapPackage.GraphMapVertex_LargeAgents;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GraphLocationGroupTest {
 
@@ -26,7 +24,7 @@ class GraphLocationGroupTest {
             { e, e, e},
             { e, e, e},
     };
-    private I_Map map5 = MapFactory_LargeAgents.newSimple4Connected2D_GraphMap(map_3By5);
+    private I_Map map5 = MapFactory.newSimple4Connected2D_GraphMap_LargeAgents(map_3By5);
 
 
 

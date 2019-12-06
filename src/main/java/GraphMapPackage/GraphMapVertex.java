@@ -1,6 +1,8 @@
-package BasicCBS.Instances.Maps;
+package GraphMapPackage;
 
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
+import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.I_Location;
 
 import java.util.List;
 

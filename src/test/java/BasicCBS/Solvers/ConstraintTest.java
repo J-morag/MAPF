@@ -5,6 +5,7 @@ import BasicCBS.Instances.Maps.*;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import GraphMapPackage.MapFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

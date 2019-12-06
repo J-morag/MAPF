@@ -1,12 +1,11 @@
-package BasicCBS.Instances.InstanceBuilders;
+package GraphMapPackage;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
 import Environment.IO_Package.Reader;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
-import BasicCBS.Instances.Maps.GraphMap;
 import BasicCBS.Instances.Maps.MapDimensions;
-import BasicCBS.Instances.Maps.MapFactory;
+import GraphMapPackage.MapFactory;
 import java.util.HashMap;
 
 /*  An Interface for parsing instance files   */
@@ -86,7 +85,7 @@ public interface I_InstanceBuilder {
             case 3:
                 Character[][][] mapAsCharacters_3d = new Character[][][]{};
                 Enum_MapCellType[][][] mapAsCellType_3D = build_3D_cellTypeMap(mapAsCharacters_3d, cellTypeHashMap, obstacle);
-                return null; // niceToHave - change to newSimple 4Connected 3D_GraphMap if exists in MapFactory
+                return null; // niceToHave - change to newSimple 4Connected 3D_GraphMap if exists in GraphMapPackage
         }
 
         return null; // If something went wrong ( should return in switch-case )

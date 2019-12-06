@@ -3,9 +3,9 @@ package LargeAgents_CBS.Instances.Maps;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
-import BasicCBS.Instances.Maps.GraphMapVertex;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Instances.Maps.I_Map;
+import GraphMapPackage.GraphMapVertex_LargeAgents;
 
 import java.util.*;
 

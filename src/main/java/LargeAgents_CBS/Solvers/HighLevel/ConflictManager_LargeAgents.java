@@ -4,7 +4,7 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManag
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocation;
 import BasicCBS.Solvers.SingleAgentPlan;
 import LargeAgents_CBS.Instances.Maps.GraphLocationGroup;
-import LargeAgents_CBS.Instances.Maps.GraphMapVertex_LargeAgents;
+import GraphMapPackage.GraphMapVertex_LargeAgents;
 
 public class ConflictManager_LargeAgents extends ConflictManager {
 

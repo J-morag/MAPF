@@ -1,6 +1,6 @@
 package BasicCBS.Instances;
 
-import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
+import GraphMapPackage.I_InstanceBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;

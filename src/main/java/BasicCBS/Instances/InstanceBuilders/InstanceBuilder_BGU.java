@@ -9,6 +9,9 @@ import Environment.IO_Package.IO_Manager;
 import Environment.IO_Package.Reader;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.*;
+import GraphMapPackage.GraphMap;
+import GraphMapPackage.I_InstanceBuilder;
+
 import java.util.HashMap;
 import java.util.Stack;
 
