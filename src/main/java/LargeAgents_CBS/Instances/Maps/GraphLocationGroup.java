@@ -18,15 +18,14 @@ public class GraphLocationGroup implements I_Location {
         @Override
         public int compare(GraphMapVertex_LargeAgents cell_1, GraphMapVertex_LargeAgents cell_2) {
             if( cell_1.getNeighbors().size() <=  cell_2.getNeighbors().size()){
-                return 1;
+                return 1; // One is equals/greater than Two
             }
-            return -1;
+            return -1; // Two is greater that One
         }
     });
 
 
     public GraphLocationGroup(GraphMapVertex_LargeAgents[][] mapCells) {
-
         this.mapCells = mapCells;
         this.addCellsToInnerOuter();
     }
@@ -42,7 +41,6 @@ public class GraphLocationGroup implements I_Location {
                 this.mapCells[i][j] = (GraphMapVertex_LargeAgents) this.mapCells[i][j].getLocationByDirection(direction);
             }
         }
-
         this.addCellsToInnerOuter(); // Set Inner Outer lists
     }
 
@@ -97,11 +95,8 @@ public class GraphLocationGroup implements I_Location {
                 validNeighborsWithAllCells.add(new GraphLocationGroup(this, direction));
             }
         }
-
         return validNeighborsWithAllCells;
     }
-
-
 
 
 
@@ -144,4 +139,20 @@ public class GraphLocationGroup implements I_Location {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GraphLocationGroup)) return false;
+        GraphLocationGroup that = (GraphLocationGroup) o;
+        return Arrays.equals(mapCells, that.mapCells) &&
+                Objects.equals(innerCells, that.innerCells) &&
+                Objects.equals(outerCells, that.outerCells);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(innerCells, outerCells);
+        result = 31 * result + Arrays.hashCode(mapCells);
+        return result;
+    }
 }

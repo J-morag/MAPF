@@ -100,8 +100,9 @@ public class ConflictManager implements I_ConflictManager {
      * 3. All of plan's {@link TimeLocation} to {@link #timeLocationTables}
      * 4. All Conflicts regarding the goal of {@link SingleAgentPlan}
      * @param singleAgentPlan - {@inheritDoc}
+     * todo - protected
      */
-    private void addAgentNewPlan(SingleAgentPlan singleAgentPlan) {
+    protected void addAgentNewPlan(SingleAgentPlan singleAgentPlan) {
 
         if ( singleAgentPlan == null ){ return; }
 
@@ -135,8 +136,9 @@ public class ConflictManager implements I_ConflictManager {
      * Add the goal timeLocation to {@link #timeLocationTables}
      * @param goalTime - The time of the last move in plan
      * @param singleAgentPlan - Agent's new plan
+     * todo - protected
      */
-    private void manageGoalLocationFromPlan(int goalTime, SingleAgentPlan singleAgentPlan) {
+    protected void manageGoalLocationFromPlan(int goalTime, SingleAgentPlan singleAgentPlan) {
 
         I_Location goalLocation = singleAgentPlan.moveAt(goalTime).currLocation;
 
@@ -157,8 +159,9 @@ public class ConflictManager implements I_ConflictManager {
      * Adds the conflicts {@link #addVertexConflicts(TimeLocation, Agent, Set)}
      * @param timeLocation - {@inheritDoc}
      * @param singleAgentPlan - {@inheritDoc}
+     * todo - protected
      */
-    private void checkAddVertexConflictsWithGoal(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan){
+    protected void checkAddVertexConflictsWithGoal(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan){
 
         I_Location location = timeLocation.location;
         // A Set of time that at least one agent is occupying
@@ -183,8 +186,9 @@ public class ConflictManager implements I_ConflictManager {
      * Check for {@link VertexConflict} with agents at their goal
      * @param timeLocation - {@inheritDoc}
      * @param singleAgentPlan - {@inheritDoc}
+     * todo - protected
      */
-    private void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan) {
+    protected void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan) {
 
         Set<Agent> agentsAtTimeLocation = this.timeLocationTables.getAgentsAtTimeLocation(timeLocation);
         this.addVertexConflicts(timeLocation, singleAgentPlan.agent, agentsAtTimeLocation);
@@ -210,8 +214,9 @@ public class ConflictManager implements I_ConflictManager {
      *      2. Add conflicts to both agents in {@link #allConflicts}
      * @param time - The move's time.
      * @param singleAgentPlan - {@inheritDoc}
+     * todo - protected
      */
-    private void checkAddSwappingConflicts(int time, SingleAgentPlan singleAgentPlan) {
+    protected void checkAddSwappingConflicts(int time, SingleAgentPlan singleAgentPlan) {
         if( time < 1 ){ return;}
         I_Location previousLocation = singleAgentPlan.moveAt(time).prevLocation;
         I_Location nextLocation = singleAgentPlan.moveAt(time).currLocation;

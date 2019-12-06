@@ -1,32 +1,22 @@
-package BasicCBS.Solvers.AStar;
+package LargeAgents_CBS.Solvers.LowLevel;
 
 import BasicCBS.Instances.Agent;
-import BasicCBS.Instances.Maps.*;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
+import BasicCBS.Instances.Maps.I_Location;
+import BasicCBS.Instances.Maps.I_Map;
+import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-/**
- * A {@link AStarHeuristic} that uses a pre-calculated dictionary of distances from possible goal locations to every
- * accessible {@link I_Location location} to provide a perfectly tight heuristic.
- */
-public class DistanceTableAStarHeuristic implements AStarHeuristic {
-    // nicetohave avoid duplicates (when two agents have the same goal)
+public class DistanceTableHeuristic_LargeAgents extends DistanceTableAStarHeuristic {
 
-    // todo - protected
-    protected Map<Agent, Map<I_Location, Integer>> distanceDictionaries;
 
-    public Map<Agent, Map<I_Location, Integer>> getDistanceDictionaries() {
-        return distanceDictionaries;
-    }
+    public DistanceTableHeuristic_LargeAgents(List<? extends Agent> agents, I_Map map) {
 
-    protected DistanceTableAStarHeuristic(){
-        this.distanceDictionaries = new HashMap<>();
-    }
-
-    public DistanceTableAStarHeuristic(List<? extends Agent> agents, I_Map map) {
-
-        this.distanceDictionaries = new HashMap<>();
+        super.distanceDictionaries = new HashMap<>();
         for (int i = 0; i < agents.size(); i++) {
 
             //this map will entered to distanceDictionaries for every agent
@@ -34,6 +24,8 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
             this.distanceDictionaries.put(agents.get(i), mapForAgent);
             LinkedList<I_Location> queue = new LinkedList<>();
             I_Coordinate i_coordinate = agents.get(i).target;
+
+            // imp - change to LargeAgents
             I_Location mapCell = map.getMapCell(i_coordinate);
 
             //distance of a graphMapCell from itself
@@ -69,10 +61,6 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
         }
     }
 
-    @Override
-    public float getH(SingleAgentAStar_Solver.AStarState state) {
-        Map<I_Location, Integer> relevantDictionary = this.distanceDictionaries.get(state.getMove().agent);
-        return relevantDictionary.get(state.getMove().currLocation);
-    }
+
 
 }
