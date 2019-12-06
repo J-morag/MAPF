@@ -5,6 +5,7 @@ import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
 import BasicCBS.Instances.Maps.GraphMapVertex;
 import BasicCBS.Instances.Maps.I_Location;
+import BasicCBS.Instances.Maps.I_Map;
 
 import java.util.*;
 
@@ -24,6 +25,20 @@ public class GraphLocationGroup implements I_Location {
         }
     });
 
+
+    public GraphLocationGroup(Coordinate_2D[][] coordinate_2D, I_Map map) {
+
+        GraphMapVertex_LargeAgents[][] mapCells = new GraphMapVertex_LargeAgents[coordinate_2D.length][coordinate_2D[0].length];
+
+        for (int i = 0; i < coordinate_2D.length; i++) {
+            for (int j = 0; j < coordinate_2D[i].length; j++) {
+                I_Location location = map.getMapCell(coordinate_2D[i][j]);
+                mapCells[i][j] = (GraphMapVertex_LargeAgents) location;
+            }
+        }
+        this.mapCells = mapCells;
+        this.addCellsToInnerOuter();
+    }
 
     public GraphLocationGroup(GraphMapVertex_LargeAgents[][] mapCells) {
         this.mapCells = mapCells;

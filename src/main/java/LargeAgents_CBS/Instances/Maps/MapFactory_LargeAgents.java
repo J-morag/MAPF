@@ -3,7 +3,6 @@ package LargeAgents_CBS.Instances.Maps;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
-import BasicCBS.Instances.Maps.GraphMapVertex;
 import BasicCBS.Instances.Maps.I_Location;
 
 import java.util.HashMap;
@@ -11,7 +10,7 @@ import java.util.Map;
 
 public class MapFactory_LargeAgents {
 
-    public static GraphMap newSimple4Connected2D_GraphMap(Enum_MapCellType[][] rectangle_2D_Map) {
+    public static GraphMap_LargeAgents newSimple4Connected2D_GraphMap(Enum_MapCellType[][] rectangle_2D_Map) {
         int xAxis_length = rectangle_2D_Map.length;
         int yAxis_length = rectangle_2D_Map[0].length;
         GraphMapVertex_LargeAgents[][] cells = new GraphMapVertex_LargeAgents[xAxis_length][yAxis_length]; //rectangle map
@@ -57,7 +56,7 @@ public class MapFactory_LargeAgents {
                 }
             }
         }
-        return new GraphMap(allCells);
+        return new GraphMap_LargeAgents(allCells);
     }
 
 

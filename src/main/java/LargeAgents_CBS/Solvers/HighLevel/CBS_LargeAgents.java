@@ -1,6 +1,7 @@
 package LargeAgents_CBS.Solvers.HighLevel;
 
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -17,13 +18,13 @@ public class CBS_LargeAgents extends CBS_Solver {
 
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
-        super.init(instance, runParameters);
+        //super.init(instance, runParameters);
         this.initialConstraints = Objects.requireNonNullElseGet(runParameters.constraints, ConstraintSet::new);
         this.currentConstraints = new ConstraintSet();
         this.generatedNodes = 0;
         this.expandedNodes = 0;
         this.instance = instance;
-        this.aStarHeuristic = this.lowLevelSolver instanceof AStar_LargeAgents ?
+        this.aStarHeuristic = this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
                 new DistanceTableHeuristic_LargeAgents(new ArrayList<>(this.instance.agents), this.instance.map) :
                 null;
     }

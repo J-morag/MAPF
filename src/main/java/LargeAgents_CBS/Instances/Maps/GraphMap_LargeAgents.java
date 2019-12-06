@@ -16,7 +16,7 @@ import java.util.HashMap;
  * pose a space complexity challenge. Example: A 1000x1000x1000 map with just one agent, whose source and target are
  * adjacent.
  */
-public class GraphMap implements I_Map {
+public class GraphMap_LargeAgents implements I_Map {
 
     private HashMap<I_Coordinate, GraphMapVertex_LargeAgents> allGraphCells;
 
@@ -24,7 +24,7 @@ public class GraphMap implements I_Map {
      * Initialization in {@link MapFactory}.
      * @param allGraphCells a {@link HashMap} containing all cells in the graph.
      */
-    GraphMap(HashMap<I_Coordinate, GraphMapVertex_LargeAgents> allGraphCells) {
+    GraphMap_LargeAgents(HashMap<I_Coordinate, GraphMapVertex_LargeAgents> allGraphCells) {
         this.allGraphCells = allGraphCells;
     }
 

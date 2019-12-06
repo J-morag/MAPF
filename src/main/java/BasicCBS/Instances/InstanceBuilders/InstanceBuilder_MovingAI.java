@@ -59,7 +59,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     private final char TREE = 'T';
 
     /*  Mapping from char to Cell type */
-    private HashMap<Character, Enum_MapCellType> cellTypeHashMap = new HashMap<Character, Enum_MapCellType>(){{
+
+    protected HashMap<Character, Enum_MapCellType> cellTypeHashMap = new HashMap<Character, Enum_MapCellType>(){{
         put(EMPTY,Enum_MapCellType.EMPTY);
         put(WALL,Enum_MapCellType.WALL);
         put(TREE,Enum_MapCellType.TREE);
@@ -77,7 +78,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         MAPF_Instance mapf_instance = null;
-        GraphMap graphMap = getMap(moving_ai_path, instanceProperties);
+        // todo - cast to graph map
+        I_Map graphMap = getMap(moving_ai_path, instanceProperties);
         if( graphMap == null ){ return; }
 
         // create agent properties
@@ -163,8 +165,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         return agentsLines;
     }
 
-
-    private GraphMap getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
+    // todo - protected , I_Map
+    protected I_Map getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
 
         Reader reader = new Reader();
         Enum_IO enum_io = reader.openFile(instancePath.path);
