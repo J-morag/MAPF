@@ -11,6 +11,7 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.MinTimeConfli
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.RemovableConflictManager;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
+import GraphMapPackage.MapFactory;
 import org.junit.Assert;
 import org.junit.Test;
 

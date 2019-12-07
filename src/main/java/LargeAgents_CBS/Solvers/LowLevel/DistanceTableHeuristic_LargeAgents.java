@@ -5,6 +5,8 @@ import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Instances.Maps.I_Map;
 import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
+import LargeAgents_CBS.Instances.Maps.Coordinate_2D_LargeAgent;
+import LargeAgents_CBS.Instances.Maps.GraphLocationGroup;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,16 +25,17 @@ public class DistanceTableHeuristic_LargeAgents extends DistanceTableAStarHeuris
             Map<I_Location, Integer> mapForAgent = new HashMap<>();
             this.distanceDictionaries.put(agents.get(i), mapForAgent);
             LinkedList<I_Location> queue = new LinkedList<>();
-            I_Coordinate i_coordinate = agents.get(i).target;
+            Coordinate_2D_LargeAgent coordinate_2D_largeAgent = (Coordinate_2D_LargeAgent) agents.get(i).target;
 
+            GraphLocationGroup graphLocationGroup = new GraphLocationGroup(coordinate_2D_largeAgent.getCoordinates(), map);
             // imp - change to LargeAgents
-            I_Location mapCell = map.getMapCell(i_coordinate);
+            I_Location locationGroup = graphLocationGroup;
 
             //distance of a graphMapCell from itself
-            this.distanceDictionaries.get(agents.get(i)).put(mapCell, 0);
+            this.distanceDictionaries.get(agents.get(i)).put(locationGroup, 0);
 
             //all the neighbors of a graphMapCell
-            List<I_Location> neighbors = mapCell.getNeighbors();
+            List<I_Location> neighbors = locationGroup.getNeighbors();
             for (int j = 0; j < neighbors.size(); j++) {
                 queue.add(neighbors.get(j));
             }

@@ -24,4 +24,12 @@ public class Coordinate_2D_LargeAgent implements I_Coordinate {
     public float distance(I_Coordinate other) {
         return 0;
     }
+
+    public Coordinate_2D[][] getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(Coordinate_2D[][] coordinates) {
+        this.coordinates = coordinates;
+    }
 }

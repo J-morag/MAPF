@@ -4,6 +4,7 @@ import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.*;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
+import GraphMapPackage.MapFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

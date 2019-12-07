@@ -1,9 +1,7 @@
-package LargeAgents_CBS.Instances.Maps;
+package GraphMapPackage;
 
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
-import BasicCBS.Instances.Maps.GraphMapVertex;
 import BasicCBS.Instances.Maps.I_Map;
-import BasicCBS.Instances.Maps.MapFactory;
 
 import java.util.HashMap;
 
@@ -18,13 +16,14 @@ import java.util.HashMap;
  */
 public class GraphMap implements I_Map {
 
-    private HashMap<I_Coordinate, GraphMapVertex_LargeAgents> allGraphCells;
+    private HashMap<I_Coordinate, ? extends GraphMapVertex> allGraphCells;
 
     /**
      * Initialization in {@link MapFactory}.
      * @param allGraphCells a {@link HashMap} containing all cells in the graph.
      */
-    GraphMap(HashMap<I_Coordinate, GraphMapVertex_LargeAgents> allGraphCells) {
+    // todo - protected
+    protected GraphMap(HashMap<I_Coordinate, ? extends GraphMapVertex> allGraphCells) {
         this.allGraphCells = allGraphCells;
     }
 
@@ -34,7 +33,7 @@ public class GraphMap implements I_Map {
      * @return the {@link GraphMapVertex} for the given {@link I_Coordinate}.
      */
     @Override
-    public GraphMapVertex_LargeAgents getMapCell(I_Coordinate coordinate) {
+    public GraphMapVertex getMapCell(I_Coordinate coordinate) {
         return allGraphCells.get(coordinate);
     }
 

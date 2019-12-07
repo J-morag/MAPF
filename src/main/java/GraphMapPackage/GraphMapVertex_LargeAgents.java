@@ -1,24 +1,19 @@
-package LargeAgents_CBS.Instances.Maps;
+package GraphMapPackage;
 
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
-import BasicCBS.Instances.Maps.GraphMapVertex;
 import BasicCBS.Instances.Maps.I_Location;
+import LargeAgents_CBS.Instances.Maps.Enum_direction;
 
 import java.util.*;
 
 
-public class GraphMapVertex_LargeAgents implements I_Location {
+public class GraphMapVertex_LargeAgents extends GraphMapVertex {
 
-
-    public final Enum_MapCellType cellType;
     public Map<I_Location, Enum_direction> neighbors;
-    public final I_Coordinate coordinate;
-
 
     GraphMapVertex_LargeAgents(Enum_MapCellType cellType, I_Coordinate coordinate) {
-        this.cellType = cellType;
-        this.coordinate = coordinate;
+        super(cellType, coordinate);
         this.neighbors = new HashMap<>();
     }
 

@@ -1,6 +1,6 @@
 package LargeAgents;
 
-import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
+import GraphMapPackage.I_InstanceBuilder;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
@@ -9,8 +9,6 @@ import Environment.IO_Package.IO_Manager;
 import LargeAgents_CBS.Instances.InstanceBuilder_Shapes;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class InstanceBuilder_ShapesTest {
 

@@ -9,6 +9,8 @@ import Environment.IO_Package.IO_Manager;
 import Environment.IO_Package.Reader;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.*;
+import GraphMapPackage.GraphMap;
+import GraphMapPackage.I_InstanceBuilder;
 
 import java.util.*;
 
@@ -59,7 +61,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     private final char TREE = 'T';
 
     /*  Mapping from char to Cell type */
-    private HashMap<Character, Enum_MapCellType> cellTypeHashMap = new HashMap<Character, Enum_MapCellType>(){{
+
+    protected HashMap<Character, Enum_MapCellType> cellTypeHashMap = new HashMap<Character, Enum_MapCellType>(){{
         put(EMPTY,Enum_MapCellType.EMPTY);
         put(WALL,Enum_MapCellType.WALL);
         put(TREE,Enum_MapCellType.TREE);
@@ -77,7 +80,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         MAPF_Instance mapf_instance = null;
-        GraphMap graphMap = getMap(moving_ai_path, instanceProperties);
+        // todo - cast to graph map
+        I_Map graphMap = getMap(moving_ai_path, instanceProperties);
         if( graphMap == null ){ return; }
 
         // create agent properties
@@ -163,7 +167,6 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         return agentsLines;
     }
 
-
     private GraphMap getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
 
         Reader reader = new Reader();
@@ -211,7 +214,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                 String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, dimensionsFromFile);
 
                 // build map
-                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.cellTypeHashMap, instanceProperties.obstacles);
+                graphMap = buildGraphMap(mapAsStrings, dimensionsFromFile, instanceProperties.obstacles);
                 break;
             }
             nextLine = reader.getNextLine();
@@ -219,6 +222,11 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
         reader.closeFile(); // No more data in the file
         return graphMap;
+    }
+
+    // todo - protected
+    protected GraphMap buildGraphMap(String[] mapAsStrings, MapDimensions dimensionsFromFile, InstanceProperties.ObstacleWrapper obstacles){
+        return I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.cellTypeHashMap, obstacles);
     }
 
 

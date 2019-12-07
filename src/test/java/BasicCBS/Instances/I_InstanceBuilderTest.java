@@ -1,6 +1,6 @@
 package BasicCBS.Instances;
 
-import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
+import GraphMapPackage.I_InstanceBuilder;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
 import BasicCBS.Instances.Maps.MapDimensions;
 import org.junit.Assert;

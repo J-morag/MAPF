@@ -12,6 +12,7 @@ import BasicCBS.Instances.Maps.*;
 import BasicCBS.Solvers.*;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import GraphMapPackage.MapFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

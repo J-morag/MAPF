@@ -1,6 +1,6 @@
 package Environment;
 
-import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
+import GraphMapPackage.I_InstanceBuilder;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
