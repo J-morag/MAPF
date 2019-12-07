@@ -17,7 +17,7 @@ import java.util.HashMap;
 
 public class InstanceBuilder_Shapes extends InstanceBuilder_MovingAI {
 
-    protected static final MapDimensions.Enum_mapOrientation mapOrientation = MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL;
+    protected static final MapDimensions.Enum_mapOrientation MAP_ORIENTATION = MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL;
 
 
     private final int INDEX_AGENT_SOURCE_XVALUE = 1;
@@ -89,6 +89,11 @@ public class InstanceBuilder_Shapes extends InstanceBuilder_MovingAI {
         return MapFactory.newSimple4Connected2D_GraphMap_LargeAgents(mapAsCellType_2D);
     }
 
+
+    @Override
+    public MapDimensions.Enum_mapOrientation getMapOrientation() {
+        return MAP_ORIENTATION;
+    }
 
     /*  = Skip getters =  */
     protected int getSKIP_LINES_MAP(){

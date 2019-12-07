@@ -84,6 +84,8 @@ public class MapFactory {
         HashMap<I_Coordinate, GraphMapVertex_LargeAgents> allCells = new HashMap<>(); //to be used for GraphMap constructor
         //connect cells to their neighbors (4-connected)
         Map<I_Location, Enum_direction> neighbors = new HashMap<>(4);
+
+        // Note that map orientation is Y_HORIZONTAL_X_VERTICAL
         for (int xIndex = 0; xIndex < xAxis_length; xIndex++) {
             for (int yIndex = 0; yIndex < yAxis_length; yIndex++) {
                 GraphMapVertex_LargeAgents currentCell = cells[xIndex][yIndex];
