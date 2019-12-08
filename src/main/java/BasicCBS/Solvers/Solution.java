@@ -15,7 +15,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
     /**
      * A {@link Map}, mapping {@link Agent agents} to their {@link SingleAgentPlan plans}.
      */
-    private final Map<Agent, SingleAgentPlan> agentPlans;
+    protected final Map<Agent, SingleAgentPlan> agentPlans;
 
     public Solution(Map<Agent, SingleAgentPlan> agentPlans) {
         this.agentPlans = new HashMap<>(agentPlans);

@@ -224,7 +224,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @param maxTime the maximum time at which both plans have moves.
      * @return a conflict if one of the plans ends, and then the other plan makes a move that conflicts with the ended plan's agent staying at its goal. else null.
      */
-    private A_Conflict firstConflictAtGoal(SingleAgentPlan other, int maxTime) {
+    protected A_Conflict firstConflictAtGoal(SingleAgentPlan other, int maxTime) {
         if(this.getEndTime() != other.getEndTime()){
             SingleAgentPlan lateEndingPlan = this.getEndTime() > maxTime ? this : other;
             SingleAgentPlan earlyEndingPlan = this.getEndTime() <= maxTime ? this : other;

@@ -30,5 +30,19 @@ public class OnlineSolution extends Solution{
         return merged;
     }
 
-
+    /**
+     * Agents don't stay at goal, so those are no longer collisions.
+     * @return {@inheritDoc}
+     */
+    @Override
+    public boolean isValidSolution() {
+        Solution tmpSolution = new Solution();
+        for (SingleAgentPlan plan :
+                this) {
+            // replace the original plans with online plans, which check validity without agents staying at goal.
+            OnlineSingleAgentPlan onlinePlan = new OnlineSingleAgentPlan(plan);
+            tmpSolution.putPlan(onlinePlan);
+        }
+        return tmpSolution.isValidSolution();
+    }
 }
