@@ -37,6 +37,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     private Set<AStarState> closed;
     private Agent agent;
     private I_Map map;
+    private I_Location agentStartLocation;
     private SingleAgentPlan existingPlan;
     private Solution existingSolution;
     /**
@@ -88,6 +89,14 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
         else{
             this.heuristicFunction = new defaultHeuristic();
+        }
+        if(runParameters instanceof  RunParameters_SAAStar
+                && ((RunParameters_SAAStar) runParameters).agentStartLocation != null){
+            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
+            this.agentStartLocation = parameters.agentStartLocation;
+        }
+        else{
+            this.agentStartLocation = this.map.getMapCell(this.agent.source);
         }
         if(runParameters instanceof  RunParameters_SAAStar
                 && ((RunParameters_SAAStar) runParameters).problemStartTime >= 0){
@@ -177,7 +186,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
         else { // the existing plan is empty (no existing plan)
 
-            I_Location sourceCell = map.getMapCell(agent.source);
+            I_Location sourceCell = this.agentStartLocation;
             // can move to neighboring cells or stay put
             List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(sourceCell.getNeighbors());
             neighborCellsIncludingCurrent.add(sourceCell);
