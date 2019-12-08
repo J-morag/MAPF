@@ -5,12 +5,11 @@ import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.*;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
+import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Metrics.InstanceReport;
-import OnlineMAPF.OnlineAgent;
-import OnlineMAPF.OnlineSolution;
-import OnlineMAPF.PrivateGarage;
+import OnlineMAPF.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -35,6 +34,9 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
      */
     public OnlinePP_Solver(I_Solver lowLevelSolver) {
         super(lowLevelSolver);
+        if(! (lowLevelSolver instanceof OnlineSingleAgentAStar_Solver) ) {
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + " requires an online low level solver.");
+        }
     }
 
 
@@ -51,6 +53,25 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
                 : this.arrivalTimeForOfflineAgents;
     }
 
+    @Override
+    protected void init(MAPF_Instance instance, RunParameters parameters) {
+        super.init(instance, parameters);
+        for (Agent agent :
+                instance.agents) {
+            if (! (agent instanceof OnlineAgent) )
+                throw new IllegalArgumentException(this.getClass().getSimpleName() + " is an online solver and accepts only Online Agents.");
+        }
+
+        if(parameters.constraints != null){
+            if (! (parameters.constraints instanceof OnlineConstraintSet) ) {
+                throw new IllegalArgumentException(this.getClass().getSimpleName() + " is an online solver and accepts only Online Constraint Sets.");
+            }
+            super.constraints = parameters.constraints;
+        }
+        else{
+            super.constraints = new OnlineConstraintSet();
+        }
+    }
 
     @Override
     protected Solution solvePrioritisedPlanning(List<? extends Agent> agents, MAPF_Instance instance, ConstraintSet initialConstraints) {
@@ -72,7 +93,7 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
 
     @Override
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints) {
-        RunParameters parameters = super.getSubproblemParameters(subproblem, subproblemReport, constraints);
+        RunParameters parameters = new RunParameters(-1, new OnlineConstraintSet(constraints), subproblemReport, null);
 
         // set start time for when the agent arrives
         Agent agent = subproblem.agents.get(0);
@@ -81,10 +102,15 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
         int startTime = onlineAgent.arrivalTime;
         RunParameters_SAAStar onlineParameters = new RunParameters_SAAStar(parameters, startTime);
 
-        // set the agent to start at its private garage
-        onlineParameters.agentStartLocation = ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source));
+//        // set the agent to start at its private garage
+//        onlineParameters.agentStartLocation = ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source));
 
         return onlineParameters;
+    }
+
+    @Override
+    protected void addConstraintsAtGoal(SingleAgentPlan planForAgent, List<Constraint> constraints) {
+        // do nothing
     }
 
     private void trimOutdatedConstraints(ConstraintSet initialConstraints, int minTime) {

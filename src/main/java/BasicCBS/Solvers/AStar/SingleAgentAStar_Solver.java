@@ -31,21 +31,21 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     public boolean agentsStayAtGoal = true;
 
-    private ConstraintSet constraints;
+    protected ConstraintSet constraints;
     private AStarHeuristic heuristicFunction;
-    private I_OpenList<AStarState> openList;
+    protected I_OpenList<AStarState> openList;
     private Set<AStarState> closed;
-    private Agent agent;
-    private I_Map map;
-    private I_Location agentStartLocation;
+    protected Agent agent;
+    protected I_Map map;
+    protected I_Location agentStartLocation;
     private SingleAgentPlan existingPlan;
     private Solution existingSolution;
     /**
      * Not real-world time. The problem's start time.
      */
-    private int problemStartTime;
+    protected int problemStartTime;
     private int expandedNodes;
-    private int generatedNodes;
+    protected int generatedNodes;
 
     public SingleAgentAStar_Solver() {
         super.DEFAULT_TIMEOUT = SingleAgentAStar_Solver.DEFAULT_TIMEOUT;
@@ -185,25 +185,27 @@ public class SingleAgentAStar_Solver extends A_Solver {
             openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null, /*g=number of moves*/existingPlan.size()));
         }
         else { // the existing plan is empty (no existing plan)
-
-            I_Location sourceCell = this.agentStartLocation;
-            // can move to neighboring cells or stay put
-            List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(sourceCell.getNeighbors());
-            neighborCellsIncludingCurrent.add(sourceCell);
-
-            for (I_Location destination: neighborCellsIncludingCurrent) {
-                Move possibleMove = new Move(agent, problemStartTime + 1, sourceCell, destination);
-                if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    AStarState rootState = new AStarState(possibleMove, null, 1);
-                    openList.add(rootState);
-                    generatedNodes++;
-                }
-            }
-
+            fillOpenWithRoots();
         }
 
         // if none of the root nodes was valid, OPEN will be empty, and thus uninitialised.
         return !openList.isEmpty();
+    }
+
+    protected void fillOpenWithRoots() {
+        I_Location sourceCell = this.agentStartLocation;
+        // can move to neighboring cells or stay put
+        List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(sourceCell.getNeighbors());
+        neighborCellsIncludingCurrent.add(sourceCell);
+
+        for (I_Location destination: neighborCellsIncludingCurrent) {
+            Move possibleMove = new Move(agent, problemStartTime + 1, sourceCell, destination);
+            if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
+                AStarState rootState = new AStarState(possibleMove, null, 1);
+                openList.add(rootState);
+                generatedNodes++;
+            }
+        }
     }
 
     private boolean isGoalState(AStarState state) {

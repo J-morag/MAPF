@@ -28,7 +28,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     /*  =  = Fields related to the run =  */
 
-    private ConstraintSet constraints;
+    protected ConstraintSet constraints;
 
     /*  =  = Fields related to the class instance =  */
 
@@ -210,13 +210,17 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             constraints.add(vertexConstraintsForMove(move));
             constraints.add(swappingConstraintsForMove(move));
         }
+        addConstraintsAtGoal(planForAgent, constraints);
+
+        return constraints;
+    }
+
+    protected void addConstraintsAtGoal(SingleAgentPlan planForAgent, List<Constraint> constraints) {
         // protect the agent at goal. add vertex constraints for three times the length of the plan.
         Move lastMove = planForAgent.moveAt(planForAgent.getEndTime());
         for (int time = lastMove.timeNow + 1; time < lastMove.timeNow + (planForAgent.size() * 2 ); time++) {
             constraints.add(new Constraint(null, time, lastMove.currLocation));
         }
-
-        return constraints;
     }
 
     /*  = wind down =  */

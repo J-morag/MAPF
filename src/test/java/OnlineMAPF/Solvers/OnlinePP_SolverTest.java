@@ -17,6 +17,7 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
+import OnlineMAPF.OnlineSingleAgentAStar_Solver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -104,6 +105,21 @@ class OnlinePP_SolverTest {
     private OnlineAgent agent00to10 = new OnlineAgent(new Agent(5, coor00, coor10), 1);
     private OnlineAgent agent10to00 = new OnlineAgent(new Agent(6, coor10, coor00), 1);
 
+    private OnlineAgent agent12to33t0 = new OnlineAgent(new Agent(1, coor12, coor33), 0);
+    private OnlineAgent agent12to34t0 = new OnlineAgent(new Agent(2, coor12, coor33), 0);
+    private OnlineAgent agent11to33t0 = new OnlineAgent(new Agent(3, coor12, coor33), 0);
+
+    private OnlineAgent agent12to33t1 = new OnlineAgent(new Agent(4, coor12, coor33), 1);
+    private OnlineAgent agent12to33t3 = new OnlineAgent(new Agent(5, coor12, coor33), 3);
+    private OnlineAgent agent12to33t6 = new OnlineAgent(new Agent(6, coor12, coor33), 6);
+    private OnlineAgent agent12to33t7 = new OnlineAgent(new Agent(7, coor12, coor33), 7);
+    private OnlineAgent agent53to05t1 = new OnlineAgent(new Agent(8, coor53, coor05), 1);
+    private OnlineAgent agent53to05t4 = new OnlineAgent(new Agent(9, coor53, coor05), 4);
+    private OnlineAgent agent53to05t5 = new OnlineAgent(new Agent(10,  coor53, coor05), 5);
+    private OnlineAgent agent53to05t6 = new OnlineAgent(new Agent(11, coor53, coor05), 6);
+    private OnlineAgent agent53to05t7 = new OnlineAgent(new Agent(12, coor53, coor05), 7);
+    private OnlineAgent agent12to33t0anotherOne = new OnlineAgent(new Agent(13, coor12, coor33), 0);
+
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
@@ -112,8 +128,15 @@ class OnlinePP_SolverTest {
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
+    private MAPF_Instance instanceMultipleAgentsSameSource = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
+            {agent12to33t0, agent12to34t0});
+    private MAPF_Instance instanceMultipleAgentsSameTarget = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
+            {agent12to33t0, agent11to33t0});
+    private MAPF_Instance instanceMultipleAgentsSameSourcesTargets = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
+            {agent12to33t0, agent12to34t0, agent11to33t0, agent12to33t1, agent12to33t3, agent12to33t6, agent12to33t7, agent53to05t1,
+                    agent53to05t4, agent53to05t5, agent53to05t6, agent53to05t7, agent12to33t0anotherOne});
 
-    I_Solver ppSolver = new OnlinePP_Solver(new SingleAgentAStar_Solver());
+    I_Solver ppSolver = new OnlinePP_Solver(new OnlineSingleAgentAStar_Solver());
 
 
     InstanceReport instanceReport;
@@ -134,7 +157,6 @@ class OnlinePP_SolverTest {
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
         assertTrue(solved.isValidSolution());
-        System.out.println(solved.readableToString());
     }
 
     @Test
@@ -159,6 +181,9 @@ class OnlinePP_SolverTest {
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
         assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        // check that they don't, however, arrive at goal at the same time, since that should be a collision
+        assertEquals(4, solved.sumIndividualCosts());
     }
 
     @Test
@@ -170,4 +195,27 @@ class OnlinePP_SolverTest {
         assertNotNull(solved);
     }
 
+    @Test
+    void handlesMultipleAgentsSameSource() {
+        MAPF_Instance testInstance = instanceMultipleAgentsSameSource;
+        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+        assertTrue(solved.isValidSolution());
+    }
+
+    @Test
+    void handlesMultipleAgentsSameTarget() {
+        MAPF_Instance testInstance = instanceMultipleAgentsSameTarget;
+        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+        assertTrue(solved.isValidSolution());
+    }
+
+    @Test
+    void handlesMultipleAgentsSameSourcesTargets() {
+        MAPF_Instance testInstance = instanceMultipleAgentsSameSourcesTargets;
+        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+        assertTrue(solved.isValidSolution());
+    }
 }

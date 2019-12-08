@@ -55,13 +55,28 @@ public class PrivateGarage implements I_Location {
         return mapEntryPoint.equals(other);
     }
 
-    // does not override equals() and hashCode(). since every agent has a unique and private garage, address equality is good.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PrivateGarage)) return false;
+
+        PrivateGarage that = (PrivateGarage) o;
+
+        return ownerID == that.ownerID;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return ownerID;
+    }
 
     private class GarageCoordinate implements I_Coordinate{
 
         @Override
         public float distance(I_Coordinate other) {
-            return other == PrivateGarage.this.mapEntryPoint.getCoordinate() ? 0 : -1;
+            // has to jump to the entry point and then go from there to the goal.
+            return 1 + PrivateGarage.this.mapEntryPoint.getCoordinate().distance(other) ;
         }
 
         @Override
@@ -69,8 +84,6 @@ public class PrivateGarage implements I_Location {
 //            return "(agent" + PrivateGarage.this.owner.iD + "'s garage)";
             return "(garage " + PrivateGarage.this.ownerID + ")";
         }
-
-        // address equality is good enough, since these are supposed to be unique
 
     }
 }
