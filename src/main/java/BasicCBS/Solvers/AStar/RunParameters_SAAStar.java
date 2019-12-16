@@ -88,8 +88,16 @@ public class RunParameters_SAAStar extends RunParameters {
         this.problemStartTime = problemStartTime;
     }
 
+    public RunParameters_SAAStar(I_Location agentStartLocation, int problemStartTime) {
+        this.agentStartLocation = agentStartLocation;
+        this.problemStartTime = problemStartTime;
+    }
+
     public RunParameters_SAAStar(AStarHeuristic heuristicFunction) {
         this.heuristicFunction = heuristicFunction;
     }
 
+    public RunParameters_SAAStar(InstanceReport instanceReport) {
+        super(instanceReport);
+    }
 }

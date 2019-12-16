@@ -2,6 +2,8 @@ package BasicCBS.Solvers.PrioritisedPlanning;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
+import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicCBS.Solvers.*;
@@ -148,14 +150,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         }
     }
 
-    private static InstanceReport initSubproblemReport(MAPF_Instance instance) {
+    protected static InstanceReport initSubproblemReport(MAPF_Instance instance) {
         InstanceReport subproblemReport = S_Metrics.newInstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
         return subproblemReport;
     }
 
-    private void digestSubproblemReport(InstanceReport subproblemReport) {
+    protected void digestSubproblemReport(InstanceReport subproblemReport) {
         Integer statesGenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
         this.totalLowLevelStatesGenerated += statesGenerated==null ? 0 : statesGenerated;
         Integer statesExpanded = subproblemReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
@@ -165,7 +167,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints) {
-        return new RunParameters(-1, new ConstraintSet(constraints), subproblemReport, null);
+        RunParameters runParameters = new RunParameters(-1, new ConstraintSet(constraints), subproblemReport, null);
+        // add a perfectly tight heuristic
+        runParameters = new RunParameters_SAAStar(runParameters, new DistanceTableAStarHeuristic(subproblem.agents, subproblem.map));
+        return  runParameters;
     }
 
     private List<Constraint> vertexConstraintsForPlan(SingleAgentPlan planForAgent) {

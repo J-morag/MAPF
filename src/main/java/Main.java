@@ -1,3 +1,4 @@
+import BasicCBS.Solvers.I_Solver;
 import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
 import Environment.RunManagerSimpleExample;
@@ -10,6 +11,9 @@ import Environment.Metrics.S_Metrics;
 import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
+import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import OnlineMAPF.Solvers.OnlineSingleAgentAStar_Solver;
+import OnlineMAPF.Solvers.OnlinePP_Solver;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,15 +41,39 @@ public class Main {
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
-            // will solve a single instance and print the solution
-            solveOneInstanceExample();
-            // will solve multiple instances and print a simple report for each instance
-            runMultipleExperimentsExample();
-            // will solve a set of instances. These instances have known optimal solution costs (found at
-            // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
-            runTestingBenchmarkExperiment();
-            // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
+            solveOneInstance();
+//            // will solve a single instance and print the solution
+//            solveOneInstanceExample();
+//            // will solve multiple instances and print a simple report for each instance
+//            runMultipleExperimentsExample();
+//            // will solve a set of instances. These instances have known optimal solution costs (found at
+//            // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
+//            runTestingBenchmarkExperiment();
+//            // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
         }
+    }
+
+    private static void solveOneInstance() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "Instances\\\\Online\\\\den520d-20-0"});
+        InstanceManager.InstancePath instancePath = new InstanceManager.InstancePath(path);
+
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(null, new OnlineInstanceBuilder_BGU());
+
+        MAPF_Instance instance = RunManagerSimpleExample.getInstanceFromPath(instanceManager, instancePath);
+
+        // Solve
+//        CBS_Solver solver = new CBS_Solver();
+        I_Solver solver = new OnlinePP_Solver(new OnlineSingleAgentAStar_Solver());
+        RunParameters runParameters = new RunParameters();
+        Solution solution = solver.solve(instance, runParameters);
+
+        //output results
+        System.out.println(solution.readableToString());
+        outputResults();
     }
 
     private static boolean verifyOutputPath() {

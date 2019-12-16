@@ -8,16 +8,15 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.*;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
-import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import BasicCBS.Solvers.I_Solver;
-import BasicCBS.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
-import OnlineMAPF.OnlineSingleAgentAStar_Solver;
+import OnlineMAPF.OnlineInstanceBuilder_BGU;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -120,9 +119,9 @@ class OnlinePP_SolverTest {
     private OnlineAgent agent53to05t7 = new OnlineAgent(new Agent(12, coor53, coor05), 7);
     private OnlineAgent agent12to33t0anotherOne = new OnlineAgent(new Agent(13, coor12, coor33), 0);
 
-    InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
-            new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
+    InstanceBuilder_BGU builder = new OnlineInstanceBuilder_BGU();
+    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online"}),
+            builder, new InstanceProperties());
 
     private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
@@ -178,12 +177,18 @@ class OnlinePP_SolverTest {
     @Test
     void wasUnsolvableNowSolvableWithWaitBeforeEntering() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+        // set start location to the agent's private garage
+        RunParameters_SAAStar parameters = new RunParameters_SAAStar(instanceReport);
+        OnlineAgent agent = ((OnlineAgent)testInstance.agents.get(0) );
+        parameters.agentStartLocation = agent.getPrivateGarage(testInstance.map.getMapCell(agent.source));
+
+        Solution solved = ppSolver.solve(testInstance, parameters);
 
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        // check that they don't, however, arrive at goal at the same time, since that should be a collision
-        assertEquals(4, solved.sumIndividualCosts());
+        // the latter agent (6) will stay at its garage and wait for the former agent (5) to get to its destination and disappear
+        assertEquals(6, solved.sumIndividualCosts());
     }
 
     @Test
@@ -218,4 +223,17 @@ class OnlinePP_SolverTest {
 
         assertTrue(solved.isValidSolution());
     }
+
+    @Test
+    void biggerInstancesFromDisk() {
+        MAPF_Instance testInstance = null;
+        while((testInstance = im.getNextInstance()) != null){
+            System.out.println("------------ solving " + testInstance.name);
+            Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+            assertTrue(solved.isValidSolution());
+            System.out.println(solved.readableToString());
+        }
+    }
+
 }

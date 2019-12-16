@@ -1,14 +1,10 @@
-package OnlineMAPF;
+package OnlineMAPF.Solvers;
 
-import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
-import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.RunParameters;
-
-import java.util.ArrayList;
-import java.util.List;
+import OnlineMAPF.OnlineAgent;
+import OnlineMAPF.OnlineConstraintSet;
 
 public class OnlineSingleAgentAStar_Solver extends SingleAgentAStar_Solver {
 
@@ -34,21 +30,21 @@ public class OnlineSingleAgentAStar_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-
-    /**
-     * Adds a possible stay move at the garage.
-     */
-    @Override
-    protected void fillOpenWithRoots() {
-        super.fillOpenWithRoots();
-        I_Location garage = ((OnlineAgent) super.agent).getPrivateGarage(super.map.getMapCell(super.agent.source));
-        if(! (garage.equals(super.agentStartLocation))){
-            // can stay at the garage instead of coming into the map. if the agent wants to come into the map on its first
-            // move, it won't start in the garage, but will instead start at the location on the map, and it can move from there.
-            Move stayAtGarage = new Move(super.agent, super.problemStartTime + 1, garage, garage);
-            openList.add(new AStarState(stayAtGarage, null, 1));
-            super.generatedNodes++;
-        }
-
-    }
+//
+//    /**
+//     * Adds a possible stay move at the garage.
+//     */
+//    @Override
+//    protected void fillOpenWithRoots() {
+//        super.fillOpenWithRoots();
+//        I_Location garage = ((OnlineAgent) super.agent).getPrivateGarage(super.map.getMapCell(super.agent.source));
+//        if(! (garage.equals(super.agentStartLocation))){
+//            // can stay at the garage instead of coming into the map. if the agent wants to come into the map on its first
+//            // move, it won't start in the garage, but will instead start at the location on the map, and it can move from there.
+//            Move stayAtGarage = new Move(super.agent, super.problemStartTime + 1, garage, garage);
+//            openList.add(new AStarState(stayAtGarage, null, 1));
+//            super.generatedNodes++;
+//        }
+//
+//    }
 }

@@ -73,6 +73,8 @@ public class PrivateGarage implements I_Location {
 
     private class GarageCoordinate implements I_Coordinate{
 
+        public int getID(){return PrivateGarage.this.ownerID;}
+
         @Override
         public float distance(I_Coordinate other) {
             // has to jump to the entry point and then go from there to the goal.
@@ -85,5 +87,20 @@ public class PrivateGarage implements I_Location {
             return "(garage " + PrivateGarage.this.ownerID + ")";
         }
 
+        @Override
+        public int hashCode() {
+            return getID();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof GarageCoordinate)) return false;
+
+            GarageCoordinate that = (GarageCoordinate) o;
+
+            return this.getID() == that.getID();
+
+        }
     }
 }

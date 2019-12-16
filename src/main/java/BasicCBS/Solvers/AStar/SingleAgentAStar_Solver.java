@@ -67,7 +67,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.existingSolution = runParameters.existingSolution;
             if(runParameters.existingSolution.getPlanFor(this.agent) != null){
                 this.existingPlan = runParameters.existingSolution.getPlanFor(this.agent);
-                this.problemStartTime = this.existingPlan.getEndTime();
+                if(this.existingPlan.size() > 0){
+                    this.problemStartTime = this.existingPlan.getEndTime();
+                }
             }
             else {
                 this.existingPlan = new SingleAgentPlan(this.agent);

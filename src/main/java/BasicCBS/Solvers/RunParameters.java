@@ -27,7 +27,7 @@ public class RunParameters {
      * A {@link I_Solver solver} that uses this field should start its solution process with these constraints, but may
      * later add or remove constraints, depending on the algorithm being used. @Nullable
      */
-    public final ConstraintSet constraints;
+    public ConstraintSet constraints;
 
     /**
      * An {@link InstanceReport} where to {@link I_Solver} will write metrics generated from the run.

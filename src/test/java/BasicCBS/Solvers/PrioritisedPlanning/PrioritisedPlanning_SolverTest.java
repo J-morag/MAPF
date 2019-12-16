@@ -102,7 +102,7 @@ class PrioritisedPlanning_SolverTest {
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
-            new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
+            builder, new InstanceProperties(new MapDimensions(257, 256), -1, new int[]{10}));
 
     private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
@@ -156,5 +156,17 @@ class PrioritisedPlanning_SolverTest {
         assertNull(solved);
     }
 
+
+    @Test
+    void biggerInstanceFromDisk() {
+        MAPF_Instance testInstance = null;
+        while((testInstance = im.getNextInstance()) != null){
+            System.out.println("------------ solving " + testInstance.name);
+            Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+            assertTrue(solved.isValidSolution());
+            System.out.println(solved.readableToString());
+        }
+    }
 
 }

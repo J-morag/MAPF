@@ -4,6 +4,7 @@ package OnlineMAPF.Solvers;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.*;
+import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -93,19 +94,23 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
 
     @Override
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints) {
-        RunParameters parameters = new RunParameters(-1, new OnlineConstraintSet(constraints), subproblemReport, null);
+        RunParameters parameters = super.getSubproblemParameters(subproblem, subproblemReport, constraints);
+        parameters.constraints = new OnlineConstraintSet(constraints);
+
 
         // set start time for when the agent arrives
         Agent agent = subproblem.agents.get(0);
-        // assumes all agents are online agent, and throws an exception if they aren't
+        // assumes agents are online agents, and throws an exception if they aren't
         OnlineAgent onlineAgent = ((OnlineAgent) agent);
-        int startTime = onlineAgent.arrivalTime;
-        RunParameters_SAAStar onlineParameters = new RunParameters_SAAStar(parameters, startTime);
+        RunParameters_SAAStar astarParameters = ((RunParameters_SAAStar)parameters);
 
-//        // set the agent to start at its private garage
-//        onlineParameters.agentStartLocation = ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source));
+        astarParameters.problemStartTime = onlineAgent.arrivalTime;
+        astarParameters.heuristicFunction = new OnlineDistanceTableAStarHeuristic(((DistanceTableAStarHeuristic)astarParameters.heuristicFunction));
 
-        return onlineParameters;
+        // set the agent to start at its private garage
+        astarParameters.agentStartLocation = ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source));
+
+        return astarParameters;
     }
 
     @Override

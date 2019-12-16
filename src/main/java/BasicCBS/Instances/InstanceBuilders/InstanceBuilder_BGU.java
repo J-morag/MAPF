@@ -29,10 +29,10 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
 
 
     /*  =  Agent line Indexing =   */
-    private final int INDEX_AGENT_SOURCE_XVALUE = 3;
-    private final int INDEX_AGENT_SOURCE_YVALUE = 4;
-    private final int INDEX_AGENT_TARGET_XVALUE = 1;
-    private final int INDEX_AGENT_TARGET_YVALUE = 2;
+    protected final int INDEX_AGENT_SOURCE_XVALUE = 3;
+    protected final int INDEX_AGENT_SOURCE_YVALUE = 4;
+    protected final int INDEX_AGENT_TARGET_XVALUE = 1;
+    protected final int INDEX_AGENT_TARGET_YVALUE = 2;
 
 
     /*      =Cell Types=   */
@@ -184,13 +184,14 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
     /***  =Build Agents=  ***/
 
     private Agent buildSingleAgent(int dimensions, String line){
+        return agentFromStringArray(dimensions, line.split(this.SEPARATOR_AGENTS));
+    }
 
-        String[] agentLine = line.split(this.SEPARATOR_AGENTS);
-
+    protected Agent agentFromStringArray (int dimensions, String[] agentLine){
         if( agentLine.length < 1){ return null; /* invalid agent line */ }
 
         int agentID = Integer.parseInt(agentLine[0]);
-        dimensions = ( dimensions == 0 ? dimensions = this.defaultNumOfDimensions : dimensions);
+        dimensions = ( dimensions == 0 ? this.defaultNumOfDimensions : dimensions);
 
         if(dimensions == 2) {
             /*      source values    */

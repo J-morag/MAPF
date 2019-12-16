@@ -11,7 +11,7 @@ import BasicCBS.Solvers.SingleAgentPlan;
 import java.util.*;
 
 public class ConflictManager implements I_ConflictManager {
-
+//todo online
     /*  = Data structures =   */
     private final Set<A_Conflict> allConflicts; // Keeps all conflicts
 

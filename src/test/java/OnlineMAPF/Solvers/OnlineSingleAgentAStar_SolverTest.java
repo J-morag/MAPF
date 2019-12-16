@@ -1,20 +1,26 @@
-package BasicCBS.Solvers.AStar;
+package OnlineMAPF.Solvers;
 
-import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
-import Environment.IO_Package.IO_Manager;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.*;
+import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Solvers.*;
+import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
+import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
+import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
+import OnlineMAPF.OnlineConstraintSet;
+import OnlineMAPF.OnlineDistanceTableAStarHeuristic;
+import OnlineMAPF.OnlineInstanceBuilder_BGU;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +30,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SingleAgentAStar_SolverTest {
+class OnlineSingleAgentAStar_SolverTest {
 
     private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
     private final Enum_MapCellType w = Enum_MapCellType.WALL;
@@ -92,14 +98,14 @@ class SingleAgentAStar_SolverTest {
     private I_Location cell04 = mapCircle.getMapCell(coor04);
     private I_Location cell00 = mapCircle.getMapCell(coor00);
 
-    private Agent agent33to12 = new Agent(0, coor33, coor12);
-    private Agent agent12to33 = new Agent(1, coor12, coor33);
-    private Agent agent53to05 = new Agent(0, coor53, coor05);
-    private Agent agent43to11 = new Agent(0, coor43, coor11);
-    private Agent agent04to00 = new Agent(0, coor04, coor00);
+    private Agent agent33to12 = new OnlineAgent(0, coor33, coor12, 0);
+    private Agent agent12to33 = new OnlineAgent(1, coor12, coor33, 0);
+    private Agent agent53to05 = new OnlineAgent(2, coor53, coor05, 0);
+    private Agent agent43to11 = new OnlineAgent(3, coor43, coor11, 0);
+    private Agent agent04to00 = new OnlineAgent(4, coor04, coor00, 0);
 
-    String instancesPath = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"});
-    InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
+    String instancesPath = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online"});
+    InstanceBuilder_BGU builder = new OnlineInstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(instancesPath, builder, new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent53to05});
@@ -109,7 +115,7 @@ class SingleAgentAStar_SolverTest {
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent04to00});
 
-    I_Solver aStar = new SingleAgentAStar_Solver();
+    I_Solver aStar = new OnlineSingleAgentAStar_Solver();
 
     @BeforeEach
     void setUp() {
@@ -158,7 +164,7 @@ class SingleAgentAStar_SolverTest {
 
         //constraint
         Constraint vertexConstraint = new Constraint(null, 1, null, cell32Circle);
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new OnlineConstraintSet();
         constraints.add(vertexConstraint);
         RunParameters parameters = new RunParameters(constraints);
 
@@ -184,7 +190,7 @@ class SingleAgentAStar_SolverTest {
 
         //constraint
         Constraint vertexConstraint = new Constraint(agent, 1, null, cell32Circle);
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new OnlineConstraintSet();
         constraints.add(vertexConstraint);
         RunParameters parameters = new RunParameters(constraints);
 
@@ -209,7 +215,7 @@ class SingleAgentAStar_SolverTest {
 
         //constraint
         Constraint swappingConstraint = new Constraint(agent, 1, cell33Circle, cell32Circle);
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new OnlineConstraintSet();
         constraints.add(swappingConstraint);
         RunParameters parameters = new RunParameters(constraints);
 
@@ -236,7 +242,7 @@ class SingleAgentAStar_SolverTest {
         Constraint swappingConstraint1 = new Constraint(null, 1, cell33Circle, cell32Circle);
         Constraint swappingConstraint2 = new Constraint(null, 2, cell33Circle, cell32Circle);
         Constraint swappingConstraint3 = new Constraint(null, 3, cell33Circle, cell32Circle);
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new OnlineConstraintSet();
         constraints.add(swappingConstraint1);
         constraints.add(swappingConstraint2);
         constraints.add(swappingConstraint3);
@@ -303,28 +309,28 @@ class SingleAgentAStar_SolverTest {
     }
 
     @Test
-    void accountsForConstraintAfterReachingGoal() {
+    void ignoresConstraintAfterReachingGoal() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
         Constraint constraintAtTimeAfterReachingGoal = new Constraint(agent,9, null, instanceEmpty1.map.getMapCell(coor05));
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new OnlineConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal);
         RunParameters runParameters = new RunParameters(constraints);
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
 
         //was made longer because it has to come back to goal after avoiding the constraint
-        assertEquals(10, solved1.getPlanFor(agent).size());
+        assertNotEquals(10, solved1.getPlanFor(agent).size());
     }
 
     @Test
-    void accountsForMultipleConstraintsAfterReachingGoal() {
+    void ignoresMultipleConstraintsAfterReachingGoal() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapCell(coor05));
         Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,13, null, instanceEmpty1.map.getMapCell(coor05));
         Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,14, null, instanceEmpty1.map.getMapCell(coor05));
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new OnlineConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal1);
         constraints.add(constraintAtTimeAfterReachingGoal2);
         constraints.add(constraintAtTimeAfterReachingGoal3);
@@ -333,18 +339,18 @@ class SingleAgentAStar_SolverTest {
         Solution solved1 = aStar.solve(testInstance, runParameters);
 
         //was made longer because it has to come back to goal after avoiding the constraint
-        assertEquals(15, solved1.getPlanFor(agent).size());
+        assertNotEquals(15, solved1.getPlanFor(agent).size());
     }
 
     @Test
-    void accountsForMultipleConstraintsAfterReachingGoal2() {
+    void ignoresMultipleConstraintsAfterReachingGoal2() {
         // now with an expected plan
 
         MAPF_Instance testInstance = instanceCircle2;
         Agent agent = testInstance.agents.get(0);
 
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,5, null, cell33Circle);
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new OnlineConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal1);
         RunParameters runParameters = new RunParameters(constraints);
 
@@ -370,8 +376,8 @@ class SingleAgentAStar_SolverTest {
         Solution expected2 = new Solution();
         expected2.putPlan(plan2);
 
-        assertEquals(6, solved.getPlanFor(agent).size());
-        assertTrue(expected1.equals(solved) || expected2.equals(solved));
+        assertNotEquals(6, solved.getPlanFor(agent).size());
+        assertFalse(expected1.equals(solved) || expected2.equals(solved));
     }
 
     @Test
@@ -409,16 +415,18 @@ class SingleAgentAStar_SolverTest {
         InstanceManager im = new InstanceManager(instancesPath, builder,
                 new InstanceProperties(
                         new MapDimensions(257, 256), -1f, new int[]{5}
-                ));
+                        ));
         MAPF_Instance fullInstance;
 
         while( (fullInstance = im.getNextInstance()) != null ){
             int numAgents = fullInstance.agents.size(); //is also the number of instances we will test.
             long sumRuntimes = 0;
             for (int i = 0; i < numAgents; i++) {
-                Agent agent = fullInstance.agents.get(i);
+                OnlineAgent agent = ((OnlineAgent) fullInstance.agents.get(i) );
                 MAPF_Instance singleAgentInstance = fullInstance.getSubproblemFor(agent);
                 RunParameters_SAAStar runParameters = new RunParameters_SAAStar(0);
+
+                runParameters.agentStartLocation = agent.getPrivateGarage(singleAgentInstance.map.getMapCell(agent.source));
 
                 long timeBefore = System.currentTimeMillis();
                 Solution solved = aStar.solve(singleAgentInstance, runParameters);
@@ -448,12 +456,14 @@ class SingleAgentAStar_SolverTest {
             int numAgents = fullInstance.agents.size(); //is also the number of instances we will test.
             long sumRuntimes = 0;
             for (int i = 0; i < numAgents; i++) {
-                Agent agent = fullInstance.agents.get(i);
+                OnlineAgent agent = ((OnlineAgent) fullInstance.agents.get(i) );
                 MAPF_Instance singleAgentInstance = fullInstance.getSubproblemFor(agent);
                 RunParameters_SAAStar runParameters = new RunParameters_SAAStar(0);
 
+                runParameters.agentStartLocation = agent.getPrivateGarage(singleAgentInstance.map.getMapCell(agent.source));
+
                 long timeBefore = System.currentTimeMillis();
-                runParameters.heuristicFunction = new DistanceTableAStarHeuristic(new ArrayList<>(singleAgentInstance.agents), singleAgentInstance.map);
+                runParameters.heuristicFunction = new OnlineDistanceTableAStarHeuristic(new DistanceTableAStarHeuristic(new ArrayList<>(singleAgentInstance.agents), singleAgentInstance.map));
                 Solution solved = aStar.solve(singleAgentInstance, runParameters);
                 sumRuntimes += (System.currentTimeMillis() - timeBefore);
 

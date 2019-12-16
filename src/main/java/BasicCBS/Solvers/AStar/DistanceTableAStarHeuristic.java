@@ -66,8 +66,13 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
 
     @Override
     public float getH(SingleAgentAStar_Solver.AStarState state) {
-        Map<I_Location, Integer> relevantDictionary = this.distanceDictionaries.get(state.getMove().agent);
-        return relevantDictionary.get(state.getMove().currLocation);
+        return getHForAgentAndCurrentLocation(state.getMove().agent, state.getMove().currLocation);
+    }
+
+    // todo work only with locations
+    public float getHForAgentAndCurrentLocation(Agent agent, I_Location currLocation){
+        Map<I_Location, Integer> relevantDictionary = this.distanceDictionaries.get(agent);
+        return relevantDictionary.get(currLocation);
     }
 
 }
