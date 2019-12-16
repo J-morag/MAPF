@@ -11,6 +11,12 @@ import java.util.List;
 public class NaiveConflictDetection implements I_ConflictManager {
 
     private final HashMap<Agent, SingleAgentPlan> plans = new HashMap<>();
+    private final boolean checkGoal;
+
+    public NaiveConflictDetection(boolean checkGoal) {
+        this.checkGoal = checkGoal;
+    }
+
 
     @Override
     public void addPlan(SingleAgentPlan singleAgentPlan) {
@@ -29,7 +35,7 @@ public class NaiveConflictDetection implements I_ConflictManager {
             SingleAgentPlan plan1 = l_plans.get(i);
             for (int j = i+1; j < l_plans.size(); j++) {
                 SingleAgentPlan plan2 = l_plans.get(j);
-                A_Conflict firstConflict = plan1.firstConflict(plan2);
+                A_Conflict firstConflict = plan1.firstConflict(plan2, checkGoal);
                 if(minTimeConflict == null ||
                         (firstConflict != null && firstConflict.time < minTimeConflict.time)){
                     minTimeConflict = firstConflict;
@@ -41,7 +47,7 @@ public class NaiveConflictDetection implements I_ConflictManager {
 
     @Override
     public I_ConflictManager copy() {
-        NaiveConflictDetection copy = new NaiveConflictDetection();
+        NaiveConflictDetection copy = new NaiveConflictDetection(this.checkGoal);
         for (SingleAgentPlan plan :
                 this.plans.values()) {
             copy.addPlan(plan);

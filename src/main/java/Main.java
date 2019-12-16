@@ -12,7 +12,7 @@ import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 import OnlineMAPF.OnlineInstanceBuilder_BGU;
-import OnlineMAPF.Solvers.OnlineSingleAgentAStar_Solver;
+import OnlineMAPF.Solvers.OnlineAStar;
 import OnlineMAPF.Solvers.OnlinePP_Solver;
 
 import java.io.File;
@@ -67,7 +67,7 @@ public class Main {
 
         // Solve
 //        CBS_Solver solver = new CBS_Solver();
-        I_Solver solver = new OnlinePP_Solver(new OnlineSingleAgentAStar_Solver());
+        I_Solver solver = new OnlinePP_Solver(new OnlineAStar());
         RunParameters runParameters = new RunParameters();
         Solution solution = solver.solve(instance, runParameters);
 

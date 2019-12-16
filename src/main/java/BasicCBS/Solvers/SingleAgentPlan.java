@@ -186,7 +186,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @param other another {@link SingleAgentPlan}.
      * @return the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
      */
-    public A_Conflict firstConflict(SingleAgentPlan other){
+    public A_Conflict firstConflict(SingleAgentPlan other, boolean checkGoal){
         // find lower and upper bound for time, and check only in that range
         //the min time to check is the max first move time
         int minTime = Math.max(this.getFirstMoveTime(), other.getFirstMoveTime());
@@ -205,7 +205,10 @@ public class SingleAgentPlan implements Iterable<Move> {
 
         // if we've made it all the way here, the plans don't conflict in their shared timespan.
         // now check if one plan ended and then the other plan had a move that conflicts with the first plan's last position (goal)
-        return firstConflictAtGoal(other, maxTime);
+        if(!checkGoal) { return null; }
+        else{
+            return firstConflictAtGoal(other, maxTime);
+        }
     }
 
     /**
@@ -214,8 +217,8 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @param other
      * @return true if a conflict exists between the plans.
      */
-    public boolean conflictsWith(SingleAgentPlan other){
-        return firstConflict(other) != null;
+    public boolean conflictsWith(SingleAgentPlan other, boolean checkGoal){
+        return firstConflict(other, checkGoal) != null;
     }
 
     /**

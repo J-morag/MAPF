@@ -61,7 +61,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
             SingleAgentPlan plan1 = allPlans.get(i);
             for (int j = i+1; j < allPlans.size(); j++) {
                 SingleAgentPlan plan2 = allPlans.get(j);
-                if(plan1.conflictsWith(plan2)) {
+                if(plan1.conflictsWith(plan2, true)) {
                     return false;
                 }
             }

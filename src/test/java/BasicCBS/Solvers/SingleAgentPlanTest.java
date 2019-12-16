@@ -261,8 +261,8 @@ class SingleAgentPlanTest {
         planAgent2.addMove(new Move(agent2, 3, cell22, cell12));
         planAgent2.addMove(new Move(agent2, 4, cell12, cell13));
 
-        assertTrue(planAgent1.conflictsWith(planAgent2));
-        assertTrue(planAgent2.conflictsWith(planAgent1));
+        assertTrue(planAgent1.conflictsWith(planAgent2, true));
+        assertTrue(planAgent2.conflictsWith(planAgent1, true));
 
         SingleAgentPlan alternateAgent2 = new SingleAgentPlan(agent2);
         alternateAgent2.addMove(new Move(agent2, 1, cell33, cell34));
@@ -270,7 +270,7 @@ class SingleAgentPlanTest {
         alternateAgent2.addMove(new Move(agent2, 3, cell24, cell14));
         alternateAgent2.addMove(new Move(agent2, 4, cell14, cell13));
 
-        assertFalse(planAgent1.conflictsWith(alternateAgent2));
-        assertFalse(alternateAgent2.conflictsWith(planAgent1));
+        assertFalse(planAgent1.conflictsWith(alternateAgent2, true));
+        assertFalse(alternateAgent2.conflictsWith(planAgent1, true));
     }
 }

@@ -6,9 +6,9 @@ import BasicCBS.Solvers.RunParameters;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineConstraintSet;
 
-public class OnlineSingleAgentAStar_Solver extends SingleAgentAStar_Solver {
+public class OnlineAStar extends SingleAgentAStar_Solver {
 
-    public OnlineSingleAgentAStar_Solver() {
+    public OnlineAStar() {
         super(false);
     }
 

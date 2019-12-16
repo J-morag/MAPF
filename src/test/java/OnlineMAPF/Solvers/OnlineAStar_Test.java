@@ -11,12 +11,9 @@ import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Solvers.*;
 import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
-import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.IO_Package.IO_Manager;
-import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineConstraintSet;
 import OnlineMAPF.OnlineDistanceTableAStarHeuristic;
@@ -30,7 +27,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OnlineSingleAgentAStar_SolverTest {
+class OnlineAStar_Test {
 
     private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
     private final Enum_MapCellType w = Enum_MapCellType.WALL;
@@ -115,7 +112,7 @@ class OnlineSingleAgentAStar_SolverTest {
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent04to00});
 
-    I_Solver aStar = new OnlineSingleAgentAStar_Solver();
+    I_Solver aStar = new OnlineAStar();
 
     @BeforeEach
     void setUp() {

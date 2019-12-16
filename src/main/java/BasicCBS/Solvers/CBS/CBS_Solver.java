@@ -35,7 +35,7 @@ public class CBS_Solver extends A_Solver {
     /**
      * A {@link AStarHeuristic heuristic} for the low level solver.
      */
-    private AStarHeuristic aStarHeuristic;
+    protected AStarHeuristic aStarHeuristic;
     /**
      * Initial constraints given to the solver to work with.
      */
@@ -66,7 +66,7 @@ public class CBS_Solver extends A_Solver {
     /**
      * A {@link I_Solver solver}, to be used for solving single-{@link Agent agent} sub-problems.
      */
-    private final I_Solver lowLevelSolver;
+    protected final I_Solver lowLevelSolver;
     /**
      * Cost may be more complicated than a simple SOC (Sum of Individual Costs), so retrieve it through this method.
      */
@@ -192,7 +192,8 @@ public class CBS_Solver extends A_Solver {
      * @param node a {@link CBS_Node node} that contains an out of date {@link ConflictManager}.
      * @return a {@link I_ConflictManager} for the solution in this node.
      */
-    private I_ConflictManager getConflictAvoidanceTableFor(CBS_Node node) {
+    protected I_ConflictManager getConflictAvoidanceTableFor(CBS_Node node) {
+        // we no longer keep the tables in nodes, instead creating them on the fly.
         I_ConflictManager cat = new ConflictManager();
         for (SingleAgentPlan plan :
                 node.getSolution()) {
@@ -306,13 +307,14 @@ public class CBS_Solver extends A_Solver {
      */
     private Solution solveSubproblem(Agent agent, Solution currentSolution, ConstraintSet constraints) {
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport);
-        Solution subproblemSolution = this.lowLevelSolver.solve(this.instance.getSubproblemFor(agent), subproblemParameters);
+        MAPF_Instance subproblem = this.instance.getSubproblemFor(agent);
+        RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport, subproblem);
+        Solution subproblemSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
         digestSubproblemReport(instanceReport);
         return subproblemSolution;
     }
 
-    private RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport) {
+    protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport, MAPF_Instance subproblem) {
         long timeLeftToTimeout = super.maximumRuntime - (System.currentTimeMillis() - super.startTime);
         RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport, currentSolution);
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
@@ -392,7 +394,7 @@ public class CBS_Solver extends A_Solver {
      * A data type for representing a single node in the CBS search tree.
      * Try to keep most logic in {@link CBS_Solver}, avoiding methods in this class.
      */
-    private class CBS_Node implements Comparable<CBS_Node>{
+    protected class CBS_Node implements Comparable<CBS_Node>{
 
         /*  =  = fields =  */
 

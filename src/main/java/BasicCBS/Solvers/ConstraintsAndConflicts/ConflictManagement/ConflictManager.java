@@ -11,7 +11,7 @@ import BasicCBS.Solvers.SingleAgentPlan;
 import java.util.*;
 
 public class ConflictManager implements I_ConflictManager {
-//todo online
+
     /*  = Data structures =   */
     private final Set<A_Conflict> allConflicts; // Keeps all conflicts
 
@@ -158,7 +158,7 @@ public class ConflictManager implements I_ConflictManager {
      * @param timeLocation - {@inheritDoc}
      * @param singleAgentPlan - {@inheritDoc}
      */
-    private void checkAddVertexConflictsWithGoal(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan){
+    protected void checkAddVertexConflictsWithGoal(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan){
 
         I_Location location = timeLocation.location;
         // A Set of time that at least one agent is occupying
