@@ -3,7 +3,7 @@ package BasicCBS.Solvers;
 import BasicCBS.Instances.MAPF_Instance;
 
 /**
- * A class which implements {@link I_Solver} is called a solver.
+ * A class that implements {@link I_Solver} is called a solver.
  *
  * A solver is a class that solves {@link MAPF_Instance problem instances}. These are most commonly multi agent problems.
  * Single agent solvers will also implement this interface, but will only consider the first agent in the instance.

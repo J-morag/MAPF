@@ -18,7 +18,7 @@ import java.util.Comparator;
  * An version of {@link CBS_Solver CBS} where agents have arrival times.
  *
  * Agents disappear at their goal, and start at a private garage. Solves optimally, knowing the future arrival times of
- * all agents in advance.
+ * all agents in advance. This mean that this solver is actually offline, solving the entire problem at once.
  */
 public class OnlineOracleCBS extends CBS_Solver {
 

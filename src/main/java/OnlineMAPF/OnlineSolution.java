@@ -8,6 +8,12 @@ import BasicCBS.Solvers.Solution;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A solution to an online problem.
+ *
+ * Contains the solutions that were returned by the solver at different times. Also contains (at {@link Solution}) a merged
+ * solution, representing just the paths that agents ended up following.
+ */
 public class OnlineSolution extends Solution{
 
     public final Map<Integer, Solution> solutionsAtTimes;
