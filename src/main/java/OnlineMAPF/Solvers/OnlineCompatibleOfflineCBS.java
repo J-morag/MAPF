@@ -2,6 +2,7 @@ package OnlineMAPF.Solvers;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.*;
 import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
@@ -12,19 +13,31 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import OnlineMAPF.*;
 
-import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * An version of {@link CBS_Solver CBS} where agents have arrival times.
  *
  * Agents disappear at their goal, and start at a private garage. Solves optimally, knowing the future arrival times of
- * all agents in advance. This mean that this solver is actually offline, solving the entire problem at once.
+ * all agents in advance. This means that this solver is actually offline, solving the entire problem at once.
  */
-public class OnlineOracleCBS extends CBS_Solver {
+public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
-    public OnlineOracleCBS() {
+    /**
+     * Custom locations to start the agents at.
+     */
+    private Map<Agent, I_Location> customStartLocations;
+
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations) {
         // use online aStar.
         super(new OnlineAStar(), null, null, null, null);
+        this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
+    }
+
+    public OnlineCompatibleOfflineCBS(){
+        this(null);
     }
 
     @Override
@@ -79,8 +92,13 @@ public class OnlineOracleCBS extends CBS_Solver {
         // set start time for when the agent arrives
         astarParameters.problemStartTime = onlineAgent.arrivalTime;
 
-        // set the agent to start at its private garage
-        astarParameters.agentStartLocation = ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source));
+        // set the agent to start at its private garage or the custom location
+        if(this.customStartLocations.containsKey(agent)){
+            astarParameters.agentStartLocation = this.customStartLocations.get(agent);
+        }
+        else{
+            astarParameters.agentStartLocation = ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source));
+        }
 
         return astarParameters;
     }

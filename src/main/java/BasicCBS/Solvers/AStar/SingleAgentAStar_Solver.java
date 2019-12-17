@@ -38,7 +38,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     protected Agent agent;
     protected I_Map map;
     protected I_Location agentStartLocation;
-    private SingleAgentPlan existingPlan;
+    protected SingleAgentPlan existingPlan;
     private Solution existingSolution;
     /**
      * Not real-world time. The problem's start time.
@@ -214,6 +214,12 @@ public class SingleAgentAStar_Solver extends A_Solver {
         return state.move.currLocation.getCoordinate().equals(agent.target);
     }
 
+    protected void updateExistingPlanWithFoundPlan(List<Move> moves){
+        //if there was an existing plan before solving, then we started from its last move, and don't want to duplicate it.
+        if(existingPlan.size() > 0) {moves.remove(0);}
+        existingPlan.addMoves(moves);
+    }
+
     /*  = wind down =  */
 
     protected void writeMetricsToReport(Solution solution) {
@@ -325,9 +331,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             }
             Collections.reverse(moves); //reorder moves because they were reversed
 
-            //if there was an existing plan before solving, then we started from its last move, and don't want to duplicate it.
-            if(existingPlan.size() > 0) {moves.remove(0);}
-            /*containing class.*/ existingPlan.addMoves(moves);
+            updateExistingPlanWithFoundPlan(moves);
             return existingPlan;
         }
 

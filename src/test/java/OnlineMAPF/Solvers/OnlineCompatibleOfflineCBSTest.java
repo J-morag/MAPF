@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OnlineOracleCBSTest {
+class OnlineCompatibleOfflineCBSTest {
 
     private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
     private final Enum_MapCellType w = Enum_MapCellType.WALL;
@@ -131,7 +131,7 @@ class OnlineOracleCBSTest {
             {agent12to33t0, agent12to34t0, agent11to33t0, agent12to33t1, agent12to33t3, agent12to33t6, agent12to33t7, agent53to05t1,
                     agent53to05t4, agent53to05t5, agent53to05t6, agent53to05t7, agent12to33t0anotherOne});
 
-    I_Solver cbsSolver = new OnlineOracleCBS();
+    I_Solver cbsSolver = new OnlineCompatibleOfflineCBS();
 
     InstanceReport instanceReport;
 

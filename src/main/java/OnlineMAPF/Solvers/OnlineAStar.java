@@ -2,9 +2,12 @@ package OnlineMAPF.Solvers;
 
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.RunParameters;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineConstraintSet;
+
+import java.util.List;
 
 public class OnlineAStar extends SingleAgentAStar_Solver {
 
@@ -30,7 +33,17 @@ public class OnlineAStar extends SingleAgentAStar_Solver {
         }
     }
 
-//
+    @Override
+    protected void updateExistingPlanWithFoundPlan(List<Move> moves) {
+        // if there was an existing plan before solving, then we started from its last move, and don't want to duplicate it.
+        if(super.existingPlan.size() > 0) {moves.remove(0);}
+        // if there is only one move, then it is a stay move at goal, and it is redundant.
+        if(moves.size() > 1){
+            existingPlan.addMoves(moves);
+        }
+    }
+
+    //
 //    /**
 //     * Adds a possible stay move at the garage.
 //     */

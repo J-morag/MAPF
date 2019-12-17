@@ -14,10 +14,13 @@ import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.IO_Package.IO_Manager;
+import Environment.Metrics.InstanceReport;
+import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineConstraintSet;
 import OnlineMAPF.OnlineDistanceTableAStarHeuristic;
 import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -114,9 +117,16 @@ class OnlineAStar_Test {
 
     I_Solver aStar = new OnlineAStar();
 
+    InstanceReport instanceReport;
+
     @BeforeEach
     void setUp() {
+        instanceReport = S_Metrics.newInstanceReport();
+    }
 
+    @AfterEach
+    void tearDown() {
+        S_Metrics.removeReport(instanceReport);
     }
 
     @Test
@@ -127,7 +137,6 @@ class OnlineAStar_Test {
         Map<Agent, SingleAgentPlan> plans = new HashMap<>();
         SingleAgentPlan plan = new SingleAgentPlan(testInstance.agents.get(0));
         I_Location cell = testInstance.map.getMapCell(new Coordinate_2D(4,5));
-        plan.addMove(new Move(testInstance.agents.get(0), 1, cell, cell));
         plans.put(testInstance.agents.get(0), plan);
         Solution expected = new Solution(plans);
 
@@ -442,7 +451,7 @@ class OnlineAStar_Test {
 
     @Test
     void reasonableRuntimeDistanceTable() {
-        long reasonableAverageRuntimeManhattanDistance = 100;
+        long reasonableAverageRuntimeManhattanDistance = 200;
         InstanceManager im = new InstanceManager(instancesPath, builder,
                 new InstanceProperties(
 //                        new MapDimensions(257, 256), -1f, new int[]{5}
@@ -455,7 +464,7 @@ class OnlineAStar_Test {
             for (int i = 0; i < numAgents; i++) {
                 OnlineAgent agent = ((OnlineAgent) fullInstance.agents.get(i) );
                 MAPF_Instance singleAgentInstance = fullInstance.getSubproblemFor(agent);
-                RunParameters_SAAStar runParameters = new RunParameters_SAAStar(0);
+                RunParameters_SAAStar runParameters = new RunParameters_SAAStar(0, instanceReport);
 
                 runParameters.agentStartLocation = agent.getPrivateGarage(singleAgentInstance.map.getMapCell(agent.source));
 

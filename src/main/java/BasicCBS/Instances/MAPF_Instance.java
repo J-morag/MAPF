@@ -2,6 +2,7 @@ package BasicCBS.Instances;
 
 import BasicCBS.Instances.Maps.I_Map;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -50,6 +51,19 @@ public class MAPF_Instance {
     public MAPF_Instance getSubproblemFor(Agent agent){
         if(agent == null || !this.agents.contains(agent)){throw new IllegalArgumentException("Agent not present in instance.");}
         return new MAPF_Instance(name+"-agent" + agent.iD, map, new Agent[]{agent});
+    }
+
+    public MAPF_Instance getSubproblemFor(Collection<? extends Agent> agents){
+        if(agents == null || !this.agents.containsAll(agents)){throw new IllegalArgumentException("Agent not present in instance.");}
+        StringBuilder instanceName = new StringBuilder();
+        instanceName.append(name);
+        instanceName.append("-subsetAgents: ");
+        for (Agent agent :
+                agents) {
+            instanceName.append(agent.iD);
+            instanceName.append(',');
+        }
+        return new MAPF_Instance(instanceName.toString(), map, agents.toArray(Agent[]::new));
     }
 
     public void setObstaclePercentage(int obstaclePercentage){

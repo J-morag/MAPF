@@ -70,16 +70,22 @@ public class OnlineSolution extends Solution{
      */
     private static SingleAgentPlan mergePlans(SingleAgentPlan oldPlan, SingleAgentPlan newPlan){
         SingleAgentPlan merged = new SingleAgentPlan(oldPlan.agent);
-        // add every move before the time where the new plan starts
-        for (int time = oldPlan.getFirstMoveTime(); time < newPlan.getFirstMoveTime(); time++) {
-            merged.addMove(oldPlan.moveAt(time));
+        // if the new plan is empty (agent had just arrived at its goal at the time of the new plan's start)
+        if(newPlan.size() == 0){
+            return oldPlan;
         }
-        // add all of the moves in the new plan
-        for (Move move :
-                newPlan) {
-            merged.addMove(move);
+        else {
+            // add every move before the time where the new plan starts
+            for (int time = oldPlan.getFirstMoveTime(); time < newPlan.getFirstMoveTime(); time++) {
+                merged.addMove(oldPlan.moveAt(time));
+            }
+            // add all of the moves in the new plan
+            for (Move move :
+                    newPlan) {
+                merged.addMove(move);
+            }
+            return merged;
         }
-        return merged;
     }
 
     /**
