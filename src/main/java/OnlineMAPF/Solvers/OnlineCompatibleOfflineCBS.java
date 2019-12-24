@@ -29,6 +29,15 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
      * Custom locations to start the agents at.
      */
     private Map<Agent, I_Location> customStartLocations;
+    /**
+     * A start time to use for all agents instead of their arrival times.
+     */
+    private int customStartTime = -1;
+
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime) {
+        this(customStartLocations);
+        this.customStartTime = customStartTime;
+    }
 
     public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations) {
         // use online aStar.
@@ -57,7 +66,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        return new OnlineSolution(super.runAlgorithm(instance, parameters));
+        return super.runAlgorithm(instance, parameters);
     }
 
     /**
@@ -90,7 +99,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
         RunParameters_SAAStar astarParameters = ((RunParameters_SAAStar)parameters);
 
         // set start time for when the agent arrives
-        astarParameters.problemStartTime = onlineAgent.arrivalTime;
+        astarParameters.problemStartTime = customStartTime >= 0 ? customStartTime : onlineAgent.arrivalTime;
 
         // set the agent to start at its private garage or the custom location
         if(this.customStartLocations.containsKey(agent)){

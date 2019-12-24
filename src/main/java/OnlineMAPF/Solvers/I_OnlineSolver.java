@@ -23,7 +23,7 @@ public interface I_OnlineSolver {
     /**
      * Initialises the solver. Mostly just keeps the map. {@link MAPF_Instance#agents} should be ignored, since agents
      * are expected to arrive over time.
-     * @param instance an instance to solve on. The agents contained in the instance will be ignored.
+     * @param instance an instance to solve on. The agent data contained in the instance should be ignored (spoilers).
      * @param parameters {@link RunParameters} for this instance.
      */
     void setEnvironment(MAPF_Instance instance, RunParameters parameters);

@@ -9,7 +9,6 @@ import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
-import OnlineMAPF.OnlineSolution;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
 //     */
 //    private OnlineCompatibleOfflineCBS offlineSolver;
 
-    private Solution currentSolution;
+    private Solution latestSolution;
     private MAPF_Instance baseInstance;
 
     private long totalRuntime;
@@ -36,7 +35,7 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
 
     @Override
     public void setEnvironment(MAPF_Instance instance, RunParameters parameters) {
-        currentSolution = new Solution();
+        latestSolution = new Solution();
         this.baseInstance = instance;
         totalRuntime = 0;
     }
@@ -49,21 +48,21 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
         // new agents will start at their private garages.
         addNewAgents(agents, currentAgentLocations);
 
-        OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations);
+        OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time);
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
         RunParameters runParameters = new RunParameters(S_Metrics.newInstanceReport());
-        Solution solution = offlineSolver.solve(subProblem, runParameters);
+        latestSolution = offlineSolver.solve(subProblem, runParameters);
         digestSubproblemReport(runParameters.instanceReport);
 
-        return solution;
+        return latestSolution;
     }
 
     private void addExistingAgents(int time, HashMap<Agent, I_Location> currentAgentLocations) {
         for (SingleAgentPlan plan :
-                currentSolution) {
+                latestSolution) {
             Agent agent = plan.agent;
             // if the agent's plan doesn't already finish before the new agents arrive
-            if(plan.getEndTime() >= time){
+            if(plan.getEndTime() > time){
                 // existing agents will start where the current solution had them at time
                 currentAgentLocations.put(agent, plan.moveAt(time).currLocation);
             }
@@ -87,7 +86,7 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
     @Override
     public void writeReportAndClearData() {
         //todo implement
-        this.currentSolution = null;
+        this.latestSolution = null;
         this.baseInstance = null;
     }
 }

@@ -22,13 +22,17 @@ public class OnlineSolution extends Solution{
         //make unified solution for super
         super(mergeSolutions(solutionsAtTimes));
         this.solutionsAtTimes = solutionsAtTimes;
+        super.checkGoalInValidation = false;
     }
 
     public OnlineSolution(Solution offlineSolution) {
-        super(offlineSolution);
+        this(putOfflineSolutionInMap(offlineSolution));
+    }
+
+    private static Map<Integer, Solution> putOfflineSolutionInMap(Solution offlineSolution){
         Map<Integer, Solution> solutionsAtTimes = new HashMap<>();
         solutionsAtTimes.put(0, offlineSolution);
-        this.solutionsAtTimes = solutionsAtTimes;
+        return solutionsAtTimes;
     }
 
     /**
@@ -88,20 +92,5 @@ public class OnlineSolution extends Solution{
         }
     }
 
-    /**
-     * Agents don't stay at goal, so those are no longer collisions.
-     * @return {@inheritDoc}
-     */
-    @Override
-    public boolean isValidSolution() {
-        Solution tmpSolution = new Solution();
-        for (SingleAgentPlan plan :
-                this) {
-            // replace the original plans with online plans, which check validity without agents staying at goal.
-            OnlineSingleAgentPlan onlinePlan = new OnlineSingleAgentPlan(plan);
-            tmpSolution.putPlan(onlinePlan);
-        }
-        return tmpSolution.isValidSolution();
-    }
 
 }

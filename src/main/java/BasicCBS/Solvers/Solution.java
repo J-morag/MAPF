@@ -16,6 +16,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * A {@link Map}, mapping {@link Agent agents} to their {@link SingleAgentPlan plans}.
      */
     protected final Map<Agent, SingleAgentPlan> agentPlans;
+    protected boolean checkGoalInValidation = true;
 
     public Solution(Map<Agent, SingleAgentPlan> agentPlans) {
         this.agentPlans = new HashMap<>(agentPlans);
@@ -61,7 +62,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
             SingleAgentPlan plan1 = allPlans.get(i);
             for (int j = i+1; j < allPlans.size(); j++) {
                 SingleAgentPlan plan2 = allPlans.get(j);
-                if(plan1.conflictsWith(plan2, true)) {
+                if(plan1.conflictsWith(plan2, checkGoalInValidation)) {
                     return false;
                 }
             }

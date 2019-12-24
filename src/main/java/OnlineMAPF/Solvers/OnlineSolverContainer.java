@@ -65,7 +65,7 @@ public class OnlineSolverContainer implements I_Solver {
             // store the solution
             solutionsAtTimes.put(timestepWithNewAgents, solutionAtTime);
         }
-        //clear the solver and writes its report
+        //clears the solver and writes its report
         onlineSolver.writeReportAndClearData();
 
         // combine the stored solutions at times into a single online solution

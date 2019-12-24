@@ -193,7 +193,7 @@ public class SingleAgentPlan implements Iterable<Move> {
         //the max time to check is the min last move time
         int maxTime = Math.min(this.getEndTime(), other.getEndTime());
 
-        for(int time = minTime; time<= maxTime; time++){
+        for(int time = minTime; time <= maxTime && time >= 0 /*both times are -1 if both plans are empty*/; time++){
             Move localMove = this.moveAt(time);
             Move otherMoveAtTime = other.moveAt(time);
 
@@ -205,10 +205,7 @@ public class SingleAgentPlan implements Iterable<Move> {
 
         // if we've made it all the way here, the plans don't conflict in their shared timespan.
         // now check if one plan ended and then the other plan had a move that conflicts with the first plan's last position (goal)
-        if(!checkGoal) { return null; }
-        else{
-            return firstConflictAtGoal(other, maxTime);
-        }
+        return checkGoal ? firstConflictAtGoal(other, maxTime) : null;
     }
 
     /**
@@ -222,7 +219,7 @@ public class SingleAgentPlan implements Iterable<Move> {
     }
 
     /**
-     * helper function for {@link #firstConflict(SingleAgentPlan)}.
+     * helper function for {@link #firstConflict(SingleAgentPlan, boolean)}.
      * @param other another plan.
      * @param maxTime the maximum time at which both plans have moves.
      * @return a conflict if one of the plans ends, and then the other plan makes a move that conflicts with the ended plan's agent staying at its goal. else null.
