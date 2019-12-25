@@ -49,6 +49,7 @@ public class OnlineSolverContainer implements I_Solver {
      */
     @Override
     public Solution solve(MAPF_Instance instance, RunParameters parameters) {
+        verifyAgentsUniqueId(instance.agents);
         Map<Integer, Solution> solutionsAtTimes = new HashMap<>();
         Map<Integer, List<OnlineAgent>> agentsForTimes = OnlineSolverContainer.getAgentsByTime(instance.agents);
         // must initialize the solver because later we will only be giving it new agents, no other data
@@ -70,6 +71,17 @@ public class OnlineSolverContainer implements I_Solver {
 
         // combine the stored solutions at times into a single online solution
         return new OnlineSolution(solutionsAtTimes);
+    }
+
+    private void verifyAgentsUniqueId(List<Agent> agents) {
+        HashSet<Integer> ids = new HashSet<>(agents.size());
+        for (Agent agent :
+                agents) {
+            if(ids.contains(agent.iD)){
+                throw new IllegalArgumentException("OnlineSolverContainer: Online solvers require all agents to have unique IDs");
+            }
+            else ids.add(agent.iD);
+        }
     }
 
     /**

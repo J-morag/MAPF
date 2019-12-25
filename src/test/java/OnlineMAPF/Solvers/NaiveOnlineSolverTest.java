@@ -2,6 +2,7 @@ package OnlineMAPF.Solvers;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
@@ -19,6 +20,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
 import OnlineMAPF.OnlineSolution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,8 +116,11 @@ class NaiveOnlineSolverTest {
     private OnlineAgent agent12to33t0anotherOne = new OnlineAgent(new Agent(13, coor12, coor33), 0);
 
     InstanceBuilder_BGU builder = new OnlineInstanceBuilder_BGU();
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online"}),
+    InstanceManager im_BGU = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online"}),
             builder, new InstanceProperties());
+    InstanceBuilder_MovingAI builderMovingAI = new OnlineInstanceBuilder_MovingAI();
+    InstanceManager im_MovingAI = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online", "MovingAI"}),
+            builderMovingAI, new InstanceProperties(null, -1, new int[]{100}));
 
     private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty,
             new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to54, agent00to10, agent10to00});
@@ -242,9 +247,21 @@ class NaiveOnlineSolverTest {
     }
 
     @Test
-    void biggerInstancesFromDisk() {
+    void biggerInstancesFromDiskBGU() {
         MAPF_Instance testInstance = null;
-        while((testInstance = im.getNextInstance()) != null){
+        while((testInstance = im_BGU.getNextInstance()) != null){
+            System.out.println("------------ solving " + testInstance.name);
+            Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+
+            assertTrue(solved.isValidSolution());
+            System.out.println(solved.readableToString());
+        }
+    }
+
+    @Test
+    void biggerInstancesFromDiskMovingAI() {
+        MAPF_Instance testInstance = null;
+        while((testInstance = im_MovingAI.getNextInstance()) != null){
             System.out.println("------------ solving " + testInstance.name);
             Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 

@@ -104,6 +104,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     private Agent[] getAgents(ArrayList<String> agentLinesList, int numOfAgents) {
 
         if( agentLinesList == null ){ return null; }
+        agentLinesList.removeIf(Objects::isNull);
 
         Agent[] arrayOfAgents = new Agent[Math.min(numOfAgents,agentLinesList.size())];
         int numOfAgentsByBatches = this.getNumOfBatches(new int[]{numOfAgents});
@@ -122,8 +123,12 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     }
 
     private Agent buildSingleAgent(int id, String agentLine) {
-
         String[] splitLine = agentLine.split(this.SEPARATOR_SCENARIO);
+
+        return agentFromStringArray(id, splitLine);
+    }
+
+    protected Agent agentFromStringArray(int id, String[] splitLine){
         // Init coordinates
         int source_xValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_XVALUE]);
         int source_yValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_YVALUE]);

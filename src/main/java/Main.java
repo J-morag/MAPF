@@ -1,6 +1,7 @@
 import BasicCBS.Solvers.I_Solver;
 import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
+import Environment.RunManagerOnline;
 import Environment.RunManagerSimpleExample;
 import Environment.TestingBenchmarkRunManager;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -51,6 +52,12 @@ public class Main {
 //            runTestingBenchmarkExperiment();
 //            // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
         }
+    }
+
+    public static void runOnlineExperiment(){
+        RunManagerOnline runManagerOnline = new RunManagerOnline();
+        runManagerOnline.runAllExperiments();
+
     }
 
     private static void solveOneInstance() {
