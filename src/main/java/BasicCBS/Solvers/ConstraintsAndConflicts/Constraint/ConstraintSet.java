@@ -18,7 +18,7 @@ public class ConstraintSet{
      * Basically a dictionary from [time,location] to agents who can't go there at that time, and locations from which
      * they can't go there at that time.
      */
-    private final Map<ConstraintWrapper, ConstraintWrapper> constraints = new HashMap<>();
+    private final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
 
     public ConstraintSet() {
     }
@@ -44,75 +44,47 @@ public class ConstraintSet{
         return constraints.isEmpty();
     }
 
-    /**
-     *
-     * @param constraint
-     * @return true if this caused the set to change.
-     */
-    public boolean add(Constraint constraint){
-        // using this instead of ConstraintWrapper(Constraint) because this doesn't create an unnecessary Set<Constraint>s
-        // for every dummy we create.
-        ConstraintWrapper dummy = new ConstraintWrapper(constraint.location, constraint.time);
+    public void add(Constraint constraint){
+        I_ConstraintGroupingKey dummy = new TimeLocation(constraint);
 
-        if(!this.constraints.containsKey(dummy)){
-            this.constraints.put(dummy, dummy);
-        }
+        this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
 
-        return this.constraints.get(dummy).add(constraint);
+        add(this.constraints.get(dummy), constraint);
     }
 
-    /**
-     *
-     * @param constraints
-     * @return true if this caused the set to change.
-     */
-    public boolean addAll(Collection<? extends Constraint> constraints) {
-        boolean changed = false;
+    protected void add(Set<Constraint> constraintSet, Constraint constraint){
+        constraintSet.add(constraint);
+    }
+
+    public void addAll(Collection<? extends Constraint> constraints) {
         for (Constraint cons :
                 constraints) {
-            changed |= this.add(cons);
+            this.add(cons);
         }
-        return changed;
     }
 
-    /**
-     *
-     * @param other a constraint set whose constraints we would like to copy.
-     * @return true if this caused the set to change.
-     */
-    public boolean addAll(ConstraintSet other) {
-        boolean changed = false;
-        for (ConstraintWrapper cw :
+    public void addAll(ConstraintSet other) {
+        for (I_ConstraintGroupingKey cw :
                 other.constraints.keySet()) {
             for (Constraint cons :
-                    cw.relevantConstraints) {
-                changed |= this.add(cons);
+                    other.constraints.get(cw)) {
+                this.add(cons);
             }
         }
-        return changed;
     }
 
-    /**
-     *
-     * @param constraint
-     * @return true if this caused the set to change.
-     */
-    public boolean remove(Constraint constraint){
+    public void remove(Constraint constraint){
         // using this instead of ConstraintWrapper(Constraint) because this doesn't create an unnecessary Set<Constraint>s
         // for every dummy we create.
-        ConstraintWrapper dummy = new ConstraintWrapper(constraint.location, constraint.time);
+        I_ConstraintGroupingKey dummy = new TimeLocation(constraint);
 
-        if(!this.constraints.containsKey(dummy)){
-            return false;
-        }
-        else{
-            ConstraintWrapper constraintWrapper = this.constraints.get(dummy);
-            boolean changed = constraintWrapper.remove(constraint);
-            if(constraintWrapper.isEmpty()){
-                // if we've emptied the constraint wrapper, there is no more reason to keep it.
-                this.constraints.remove(constraintWrapper);
+        if(this.constraints.containsKey(dummy)){
+            Set<Constraint> constraints = this.constraints.get(dummy);
+            constraints.remove(constraint);
+            if(constraints.isEmpty()){
+                // if we've emptied the constraints, there is no more reason to keep an entry.
+                this.constraints.remove(dummy);
             }
-            return changed;
         }
     }
 
@@ -121,13 +93,11 @@ public class ConstraintSet{
      * @param constraints
      * @return true if this caused the set to change.
      */
-    public boolean removeAll(Collection<? extends Constraint> constraints) {
-        boolean changed = false;
+    public void removeAll(Collection<? extends Constraint> constraints) {
         for (Constraint cons :
                 constraints) {
-            changed |= this.remove(cons);
+            this.remove(cons);
         }
-        return changed;
     }
 
     public void clear() {
@@ -151,11 +121,18 @@ public class ConstraintSet{
      *          conflict with the given {@link Move}.
      */
     public boolean rejects(Move move){
-        ConstraintWrapper dummy = new ConstraintWrapper(move.currLocation, move.timeNow);
+        I_ConstraintGroupingKey dummy = new TimeLocation(move);
         if(!constraints.containsKey(dummy)) {return false;}
         else {
-            return constraints.get(dummy).rejects(move);
+            return rejects(constraints.get(dummy), move);
         }
+    }
+
+    protected boolean rejects(Set<Constraint> constraints, Move move){
+        for (Constraint constraint : constraints){
+            if(constraint.rejects(move)) return true;
+        }
+        return false;
     }
 
     /**
@@ -171,17 +148,18 @@ public class ConstraintSet{
     public int rejectsEventually(Move finalMove){
         int firstRejectionTime = Integer.MAX_VALUE;
         // traverses the entire data structure. expensive.
-        for (ConstraintWrapper cw :
+        for (I_ConstraintGroupingKey cw :
                 constraints.keySet()) {
             //found constraint for this location, sometime in the future. Should be rare.
-            if(cw.time > finalMove.timeNow && cw.location.equals(finalMove.currLocation)){
+            if(cw.relevantInTheFuture(finalMove)){
                 for (Constraint constraint :
-                        cw.relevantConstraints) {
+                        constraints.get(cw)) {
                     // make an artificial "stay" move for the relevant time.
                     // In practice, this should happen very rarely, so not very expensive.
-                    if(constraint.rejects(new Move(finalMove.agent, cw.time, finalMove.currLocation, finalMove.currLocation))
-                            && cw.time < firstRejectionTime){
-                        firstRejectionTime = cw.time;
+                    int constraintTime = ((TimeLocation)cw).time;
+                    if(constraint.rejects(new Move(finalMove.agent, constraintTime, finalMove.currLocation, finalMove.currLocation))
+                            && constraintTime < firstRejectionTime){
+                        firstRejectionTime = constraintTime;
                     }
                 }
             }
@@ -242,7 +220,7 @@ public class ConstraintSet{
      * @param maxTime the maximum time (exclusive).
      */
     public void trimToTimeRange(int minTime, int maxTime){
-        this.constraints.keySet().removeIf(constraintWrapper -> constraintWrapper.time < minTime || constraintWrapper.time >= maxTime);
+        this.constraints.keySet().removeIf(cw -> ((TimeLocation)cw).time < minTime || ((TimeLocation)cw).time >= maxTime);
     }
 
     @Override
@@ -261,89 +239,4 @@ public class ConstraintSet{
         return constraints.hashCode();
     }
 
-    /**
-     * replaces the constraint with a simple wrapper that is quick to find in a set.
-     */
-    private static class ConstraintWrapper{
-        private I_Location location;
-        private int time;
-        private Set<Constraint> relevantConstraints;
-
-        public ConstraintWrapper(I_Location location, int time) {
-            this.location = location;
-            this.time = time;
-        }
-
-        public ConstraintWrapper(Constraint constraint) {
-            this(constraint.location, constraint.time);
-            this.add(constraint);
-        }
-
-        public ConstraintWrapper(ConstraintWrapper toCopy){
-            this.location = toCopy.location;
-            this.time = toCopy.time;
-            this.relevantConstraints = toCopy.relevantConstraints;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            ConstraintWrapper that = (ConstraintWrapper) o;
-
-            if (time != that.time) return false;
-            return location.equals(that.location);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = location.hashCode();
-            result = 31 * result + time;
-            return result;
-        }
-
-        /**
-         *
-         * @param constraint
-         * @return true if this caused a change in the wrapper.
-         */
-        public boolean remove(Constraint constraint){
-            if(constraint == null || this.relevantConstraints == null || !this.relevantConstraints.contains(constraint)){
-                return false;
-            }
-            else{
-                return this.relevantConstraints.remove(constraint);
-            }
-        }
-
-        /**
-         *
-         * @param constraint a {@link Constraint} with the same time and location as this wrapper.
-         * @return true if this caused a change in the wrapper.
-         */
-        public boolean add(Constraint constraint){
-            if(constraint.time != this.time || constraint.location != this.location){return false;}
-            if (this.relevantConstraints == null) {
-                this.relevantConstraints = new HashSet<>();
-            }
-            return this.relevantConstraints.add(constraint);
-        }
-
-        public boolean rejects(Move move){
-            for (Constraint constraint : this.relevantConstraints){
-                if(constraint.rejects(move)) return true;
-            }
-            return false;
-        }
-
-        public boolean accepts(Move move){
-            return !this.rejects(move);
-        }
-
-        public boolean isEmpty(){
-            return this.relevantConstraints == null || this.relevantConstraints.isEmpty();
-        }
-    }
 }
