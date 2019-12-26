@@ -257,7 +257,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
             if ( instancePath.path.endsWith(this.FILE_TYPE_MAP) ){
 
                 String[] splitPath = instancePath.path.split("\\\\");
-                String mapPrefix = splitPath[splitPath.length-1];
+                String mapPrefix = splitPath[splitPath.length-1].replace(this.FILE_TYPE_MAP, "");
                 for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
                     if(scenarioCandidate.path.contains(mapPrefix) && scenarioCandidate.path.endsWith(this.FILE_TYPE_SCENARIO)){
 

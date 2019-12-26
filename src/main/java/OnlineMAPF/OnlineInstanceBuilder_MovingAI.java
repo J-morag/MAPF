@@ -25,10 +25,9 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
         InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path)instancePath;
         String scenarioName = moving_ai_path.scenarioPath;
         // trim to the portion where relevant field are
-        scenarioName = scenarioName.split(".scen")[0];
-        scenarioName = scenarioName.split(".map")[1];
+        scenarioName = scenarioName.split("&")[1];
         // split into fields
         String[] fields = scenarioName.split("_");
-        return new OnlineMAPF_Instance(instanceName, graphMap, agents, fields[1], fields[2], fields[3]);
+        return new OnlineMAPF_Instance(instanceName, graphMap, agents, fields[0], fields[1], fields[2]);
     }
 }
