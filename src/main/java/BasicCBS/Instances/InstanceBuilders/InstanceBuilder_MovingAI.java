@@ -93,10 +93,14 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
             if (instanceName == null || agents == null) { continue; /* Invalid parameters */ }
 
-            mapf_instance = new MAPF_Instance(instanceName, graphMap, agents);
+            mapf_instance = makeInstance(instanceName, graphMap, agents, instancePath);
             mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
             this.instanceList.add(mapf_instance);
         }
+    }
+
+    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.InstancePath instancePath){
+        return new MAPF_Instance(instanceName, graphMap, agents);
     }
 
 

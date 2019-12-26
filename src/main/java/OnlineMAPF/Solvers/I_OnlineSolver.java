@@ -4,6 +4,7 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 import OnlineMAPF.OnlineAgent;
+import OnlineMAPF.OnlineSolution;
 
 import java.util.List;
 
@@ -42,5 +43,5 @@ public interface I_OnlineSolver {
      * Clears any persistent data that the solver was keeping, such as the {@link BasicCBS.Instances.Maps.I_Map map},
      * or the previous {@link Solution}.
      */
-    void writeReportAndClearData();
+    void writeReportAndClearData(OnlineSolution solution);
 }

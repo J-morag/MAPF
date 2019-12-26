@@ -9,9 +9,12 @@ import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
+import OnlineMAPF.OnlineSolution;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Solves online problems naively, by delegating to a standard offline solver, and solving a brand new offline problem
@@ -27,6 +30,7 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
 
     private Solution latestSolution;
     private MAPF_Instance baseInstance;
+    private InstanceReport instanceReport;
 
     private long totalRuntime;
 
@@ -38,6 +42,7 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
         latestSolution = new Solution();
         this.baseInstance = instance;
         totalRuntime = 0;
+        this.instanceReport = parameters.instanceReport != null ? parameters.instanceReport : S_Metrics.newInstanceReport();
     }
 
     @Override
@@ -84,8 +89,19 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
     }
 
     @Override
-    public void writeReportAndClearData() {
-        //todo implement
+    public void writeReportAndClearData(OnlineSolution solution) {
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)totalRuntime);
+        instanceReport.putStringValue(InstanceReport.StandardFields.solver, this.getClass().getSimpleName());
+
+//        instanceReport.putIntegerValue(InstanceReport.StandardFields.timeoutThresholdMS, (int) this.maximumRuntime);
+//        instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startTime).toString());
+//        instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));
+
+//        instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.totalLowLevelStatesGenerated);
+//        instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.totalLowLevelStatesExpanded);
+
+
+        this.totalRuntime = 0;
         this.latestSolution = null;
         this.baseInstance = null;
     }

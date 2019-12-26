@@ -66,7 +66,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        return super.runAlgorithm(instance, parameters);
+        return new OnlineSolution(super.runAlgorithm(instance, parameters));
     }
 
     /**

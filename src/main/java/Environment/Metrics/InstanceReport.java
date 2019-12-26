@@ -43,6 +43,9 @@ public class InstanceReport {
         public final static String solutionCost = "Solution Cost";
         public final static String solutionCostFunction = "Cost Function";
         public final static String solution = "Solution";
+        public final static String agentSelection = "Agent Selection Policy";
+        public final static String arrivalDistribution = "Agent Arrival Distribution";
+        public final static String arrivalRate = "Agent Arrival Rate";
     }
 
     /**

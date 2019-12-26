@@ -55,6 +55,8 @@ public class OnlineSolverContainer implements I_Solver {
         // must initialize the solver because later we will only be giving it new agents, no other data
         onlineSolver.setEnvironment(instance, parameters);
         // feed the solver with new agents for every timestep when new agents arrive
+//        Integer[] timestepsWithNewAgents = agentsForTimes.keySet().toArray(Integer[]::new);
+//        Arrays.sort(timestepsWithNewAgents);
         for (int timestepWithNewAgents :
                 agentsForTimes.keySet()) {
             List<OnlineAgent> newArrivals = agentsForTimes.get(timestepWithNewAgents);
@@ -66,11 +68,22 @@ public class OnlineSolverContainer implements I_Solver {
             // store the solution
             solutionsAtTimes.put(timestepWithNewAgents, solutionAtTime);
         }
-        //clears the solver and writes its report
-        onlineSolver.writeReportAndClearData();
+        OnlineSolution solution = new OnlineSolution(solutionsAtTimes);
+
+        //clear the solver and write the report
+        onlineSolver.writeReportAndClearData(solution);
+        parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+        if(solution != null){
+            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
+            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
+            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
+        }
+        else{
+            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
+        }
 
         // combine the stored solutions at times into a single online solution
-        return new OnlineSolution(solutionsAtTimes);
+        return solution;
     }
 
     private void verifyAgentsUniqueId(List<Agent> agents) {
@@ -91,7 +104,7 @@ public class OnlineSolverContainer implements I_Solver {
      * @return
      */
     public static Map<Integer, List<OnlineAgent>> getAgentsByTime(List<? extends Agent> agents) {
-        Map<Integer, List<OnlineAgent>> result = new HashMap<>();
+        Map<Integer, List<OnlineAgent>> result = new TreeMap<>(); //tree map to preserve order of arrival times
         ArrayList<OnlineAgent> onlineAgents = offlineToOnlineAgents(agents);
 
         //sort by time. Should already be sorted, so just in case.

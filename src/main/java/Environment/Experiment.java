@@ -9,6 +9,8 @@ import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 
+import java.io.IOException;
+
 /**
  * Experiment class lets the user to specify the instances it needs for the experiment.
  * A_RunManager holds a list of Experiments, each Experiment receives Name and {@link InstanceManager}
@@ -73,6 +75,12 @@ public  class Experiment {
       Integer elapsedTime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
       if(elapsedTime != null){
         System.out.println("Elapsed time (ms): " + elapsedTime);
+      }
+
+      try {
+        instanceReport.commit();
+      } catch (IOException e) {
+        e.printStackTrace();
       }
 
     }

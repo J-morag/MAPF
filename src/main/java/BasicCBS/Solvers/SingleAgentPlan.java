@@ -230,7 +230,7 @@ public class SingleAgentPlan implements Iterable<Move> {
             SingleAgentPlan earlyEndingPlan = this.getEndTime() <= maxTime ? this : other;
             I_Location goalLocation = earlyEndingPlan.moveAt(maxTime).currLocation;
 
-            for (int time = maxTime+1; time <= lateEndingPlan.getEndTime(); time++) {
+            for (int time = Math.max(maxTime+1, lateEndingPlan.getFirstMoveTime()); time <= lateEndingPlan.getEndTime(); time++) {
                 Move stayMove = new Move(earlyEndingPlan.agent, time, goalLocation, goalLocation);
                 A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(time), stayMove);
                 if(goalConflict != null){

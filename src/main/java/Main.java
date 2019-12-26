@@ -1,7 +1,7 @@
 import BasicCBS.Solvers.I_Solver;
 import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
-import Environment.RunManagerOnline;
+import OnlineMAPF.RunManagerOnline;
 import Environment.RunManagerSimpleExample;
 import Environment.TestingBenchmarkRunManager;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -42,7 +42,7 @@ public class Main {
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
-            solveOneInstance();
+            runOnlineExperiment();
 //            // will solve a single instance and print the solution
 //            solveOneInstanceExample();
 //            // will solve multiple instances and print a simple report for each instance
