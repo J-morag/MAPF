@@ -95,7 +95,7 @@ public class RunManagerOnline extends A_RunManager {
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\unique_agents_poisson"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{50});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{20});
 
 
         /*  =   Set Instance Manager   =  */
