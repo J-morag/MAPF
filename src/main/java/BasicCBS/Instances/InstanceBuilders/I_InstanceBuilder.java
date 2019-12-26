@@ -9,7 +9,9 @@ import BasicCBS.Instances.Maps.MapDimensions;
 import BasicCBS.Instances.Maps.MapFactory;
 import java.util.HashMap;
 
-/*  An Interface for parsing instance files   */
+/**
+ *  An Interface for parsing instance files
+ */
 public interface I_InstanceBuilder {
 
 
@@ -106,12 +108,19 @@ public interface I_InstanceBuilder {
         int yAxis_length = mapDimensions.yAxis_length;
 
         Character[][] mapAsCharacters_2d = new Character[xAxis_length][yAxis_length];
-        for (int yAxis_oldValue = 0; yAxis_oldValue < mapAsStrings.length; yAxis_oldValue++) {
-            String[] yAxisLine = mapAsStrings[yAxis_oldValue].split(mapSeparator); // split line
+        MapDimensions.Enum_mapOrientation orientation = mapDimensions.mapOrientation;
+
+
+        for (int lineIndex = 0; lineIndex < mapAsStrings.length; lineIndex++) {
+            String[] splitLine = mapAsStrings[lineIndex].split(mapSeparator); // split line
 
             // set array's value a char in line
-            for (int yAxis_newValue = 0; yAxis_newValue < yAxisLine.length ; yAxis_newValue++) {
-                mapAsCharacters_2d[yAxis_oldValue][yAxis_newValue] = yAxisLine[yAxis_newValue].charAt(0);
+            for (int charIndex = 0; charIndex < splitLine.length ; charIndex++) {
+                if (orientation.equals(MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL)) {
+                    mapAsCharacters_2d[charIndex][lineIndex] = splitLine[charIndex].charAt(0);
+                }else if(orientation.equals(MapDimensions.Enum_mapOrientation.Y_HORIZONTAL_X_VERTICAL)) {
+                    mapAsCharacters_2d[lineIndex][charIndex] = splitLine[charIndex].charAt(0);
+                }
             }
         }
         return mapAsCharacters_2d;
@@ -145,12 +154,7 @@ public interface I_InstanceBuilder {
             for (int yIndex = 0; yIndex < yAxis_length; yIndex++) {
 
                 Character character = null;
-                // Checking the map's orientation
-                if( mapOrientation.equals(MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL)){
-                    character = mapAsCharacters[yIndex][xIndex];
-                }else if( mapOrientation.equals(MapDimensions.Enum_mapOrientation.Y_HORIZONTAL_X_VERTICAL)){
-                    character = mapAsCharacters[xIndex][yIndex];
-                }
+                character = mapAsCharacters[xIndex][yIndex];
 
                 Enum_MapCellType cellType = cellTypeHashMap.get(character);
 
