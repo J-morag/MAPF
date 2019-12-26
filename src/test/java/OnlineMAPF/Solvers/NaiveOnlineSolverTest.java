@@ -26,6 +26,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaiveOnlineSolverTest {
@@ -72,6 +75,16 @@ class NaiveOnlineSolverTest {
     };
     private I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
 
+    Enum_MapCellType[][] map_2D_corridors = {
+            {w, w, e, e, e, w},
+            {w, w, e, w, e, w},
+            {w, w, e, w, e, w},
+            {w, w, e, w, e, w},
+            {w, w, e, w, e, w},
+            {w, w, e, e, e, w},
+    };
+    private I_Map mapCorridors = MapFactory.newSimple4Connected2D_GraphMap(map_2D_corridors);
+
     private I_Coordinate coor12 = new Coordinate_2D(1,2);
     private I_Coordinate coor13 = new Coordinate_2D(1,3);
     private I_Coordinate coor14 = new Coordinate_2D(1,4);
@@ -91,6 +104,8 @@ class NaiveOnlineSolverTest {
     private I_Coordinate coor00 = new Coordinate_2D(0,0);
     private I_Coordinate coor01 = new Coordinate_2D(0,1);
     private I_Coordinate coor10 = new Coordinate_2D(1,0);
+
+    private I_Coordinate coor02 = new Coordinate_2D(0, 2);
 
     private OnlineAgent agent33to12 = new OnlineAgent(0, coor33, coor12, 0);
     private OnlineAgent agent12to33 = new OnlineAgent(1, coor12, coor33, 0);
@@ -244,6 +259,30 @@ class NaiveOnlineSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
         assertTrue(solved.isValidSolution());
+    }
+
+    @Test
+    void isOnlySnapshotOptimalNotOptimal(){
+        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
+        OnlineAgent agent12to53at4 = new OnlineAgent(1, coor12, coor53, 4);
+        OnlineAgent agent22to53at4 = new OnlineAgent(2, coor22, coor53, 4);
+        OnlineAgent[] agents = new OnlineAgent[3];
+        agents[0] = (agent53to02at0);
+        agents[1] = (agent12to53at4);
+        agents[2] = (agent22to53at4);
+        MAPF_Instance testInstance = new MAPF_Instance("corridors snapshot optimal", MapFactory.newSimple4Connected2D_GraphMap(map_2D_corridors), agents);
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+
+        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS();
+        InstanceReport tmpInstanceReport = S_Metrics.newInstanceReport();
+        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
+        S_Metrics.removeReport(tmpInstanceReport);
+
+        assertTrue(solved.isValidSolution());
+        int optimalCost = solvedOffline.sumIndividualCosts();
+        int snapshotOptimalCpst = solved.sumIndividualCosts();
+        assertTrue(snapshotOptimalCpst > optimalCost);
+        assertEquals(21 , solved.sumIndividualCosts());
     }
 
     @Test
