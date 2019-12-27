@@ -50,4 +50,9 @@
             
                 2.3 numOfInstances - You can choose how many instances you want for the experiment
                                      Note: there is a default number of instances, Integer.MAX_VALUE
-                                
+
+### Acknowledgements 
+    Designed by Jonathan Morag and Yonatan Zax.
+    Created in 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
+    Conflict Based Search is based on:
+        Sharon, G., Stern, R., Felner, A., & Sturtevant, N. R. (2015). Conflict-based search for optimal multi-agent pathfinding. Artificial Intelligence, 219, 40-66.
