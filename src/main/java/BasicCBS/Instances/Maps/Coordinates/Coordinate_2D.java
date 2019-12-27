@@ -67,6 +67,6 @@ public class Coordinate_2D implements I_Coordinate {
 
     @Override
     public float distance(I_Coordinate other) {
-        return euclideanDistance(other);
+        return manhattanDistance(other);
     }
 }
