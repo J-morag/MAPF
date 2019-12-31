@@ -242,4 +242,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.agents = null;
         this.instanceReport = null;
     }
+
+    @Override
+    public String name() {
+        return "Prioritised Planning";
+    }
 }

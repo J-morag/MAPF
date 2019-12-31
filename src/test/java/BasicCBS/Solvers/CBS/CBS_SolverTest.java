@@ -195,7 +195,7 @@ class CBS_SolverTest {
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.getClass().getSimpleName());
+                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
                 RunParameters runParameters = new RunParameters(timeout, null, report, null);
 
