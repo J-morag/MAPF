@@ -168,6 +168,7 @@ class CBS_SolverTest {
 
     @Test
     void TestingBenchmark(){
+        S_Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = cbsSolver;
@@ -195,7 +196,7 @@ class CBS_SolverTest {
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.getClass().getSimpleName());
+                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
                 RunParameters runParameters = new RunParameters(timeout, null, report, null);
 
@@ -249,7 +250,7 @@ class CBS_SolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd-HH-mm-ss");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){

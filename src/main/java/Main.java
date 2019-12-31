@@ -141,7 +141,7 @@ public class Main {
      * Note that you can easily add other metrics which are not currently collected. see {@link S_Metrics}.
      */
     private static void outputResults() {
-        DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd-HH-mm-ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
@@ -157,6 +157,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        S_Metrics.clearAll();
     }
 
 }

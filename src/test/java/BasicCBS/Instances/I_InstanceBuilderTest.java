@@ -49,7 +49,7 @@ public class I_InstanceBuilderTest {
                                                 "@..@@..."
 
                                             };
-        MapDimensions mapDimensions = new MapDimensions(8,8);
+        MapDimensions mapDimensions = new MapDimensions(new int[]{8,8}, MapDimensions.Enum_mapOrientation.Y_HORIZONTAL_X_VERTICAL);
 
         Character[][] actualMap = I_InstanceBuilder.build2D_CharacterMap(mapAsString,mapDimensions,"");
 

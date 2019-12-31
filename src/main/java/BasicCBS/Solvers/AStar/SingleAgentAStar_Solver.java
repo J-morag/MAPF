@@ -26,7 +26,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     protected static final long DEFAULT_TIMEOUT = 3 * 1000;
     protected static final int DEFAULT_PROBLEM_START_TIME = 0;
-    private static final Comparator<AStarState> stateFComparator = Comparator.comparing(AStarState::getF);
+    private static final Comparator<AStarState> stateFComparator = new TieBreakingForHigherGComparator();
     private static final Comparator<AStarState> stateGComparator = Comparator.comparing(AStarState::getG);
 
     public boolean agentsStayAtGoal = true;
@@ -244,6 +244,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.existingPlan = null;
     }
 
+    @Override
+    public String name() {
+        return "AStar";
+    }
+
     /*  = inner classes =  */
 
     public class AStarState implements Comparable<AStarState>{
@@ -364,6 +369,23 @@ public class SingleAgentAStar_Solver extends A_Solver {
         @Override
         public float getH(AStarState state) {
             return state.move.currLocation.getCoordinate().distance(state.move.agent.target);
+        }
+    }
+
+    private static class TieBreakingForHigherGComparator implements Comparator<AStarState>{
+
+        Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
+
+        @Override
+        public int compare(AStarState o1, AStarState o2) {
+            if(Math.abs(o1.getF() - o2.getF()) < 0.001){ // floats are equal
+                // if f() value is equal, we consider the state with higher g() to be better (smaller). Therefore, we
+                // want to return a negative integer if o1.g is bigger than o2.g
+                return o2.g - o1.g;
+            }
+            else {
+                return fComparator.compare(o1, o2);
+            }
         }
     }
 }

@@ -380,6 +380,11 @@ public class CBS_Solver extends A_Solver {
         this.aStarHeuristic = null;
     }
 
+    @Override
+    public String name() {
+        return "CBS";
+    }
+
 
     /*  = internal classes and interfaces =  */
 
