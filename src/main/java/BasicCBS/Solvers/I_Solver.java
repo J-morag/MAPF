@@ -26,4 +26,10 @@ public interface I_Solver {
      * @return a {@link Solution} to the given problem, or null if a timeout occurred before it was solved.
      */
     Solution solve(MAPF_Instance instance, RunParameters parameters);
+
+    /**
+     * returns a uniquely identifying name for the solver.
+     * @return a uniquely identifying name for the solver.
+     */
+    String name();
 }

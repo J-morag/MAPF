@@ -225,6 +225,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.existingPlan = null;
     }
 
+    @Override
+    public String name() {
+        return "AStar";
+    }
+
     /*  = inner classes =  */
 
     public class AStarState implements Comparable<AStarState>{

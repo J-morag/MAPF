@@ -40,6 +40,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     private final int defaultNumOfAgents = 10;
     private final int defaultNumOfBatches = 5;
     private final int defaultNumOfAgentsInSingleBatch = 10;
+    public boolean reuseAgents = true;
 
     /*  =Default Index Values=    */
     // Line example: "1	maps/rooms/8room_000.map	512	512	500	366	497	371	6.24264"
@@ -102,23 +103,38 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
     // Returns an array of agents using the line queue
     private Agent[] getAgents(ArrayList<String> agentLinesList, int numOfAgents) {
-
-        if( agentLinesList == null ){ return null; }
-
+        if( agentLinesList == null){ return null; }
+        agentLinesList.removeIf(Objects::isNull);
         Agent[] arrayOfAgents = new Agent[Math.min(numOfAgents,agentLinesList.size())];
-        int numOfAgentsByBatches = this.getNumOfBatches(new int[]{numOfAgents});
 
-        // Iterate over all the agents in numOfAgentsByBatches
-        for (int id = 0; !agentLinesList.isEmpty() && id < numOfAgentsByBatches * this.defaultNumOfAgentsInSingleBatch; id++) {
+        if(reuseAgents){
+            if(agentLinesList.isEmpty()){ return null; }
 
-            if( id < numOfAgents ){
-                Agent agentToAdd = buildSingleAgent(id ,agentLinesList.remove(0));
-                arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
-            }else {
-                agentLinesList.remove(0);
+            // Iterate over all the agents in numOfAgentsByBatches
+            for (int id = 0; id < numOfAgents; id++) {
+
+                if( id < arrayOfAgents.length ){
+                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id));
+                    arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
+                }
             }
+            return arrayOfAgents;
         }
-        return arrayOfAgents;
+        else {
+            int numOfAgentsByBatches = this.getNumOfBatches(new int[]{numOfAgents});
+
+            // Iterate over all the agents in numOfAgentsByBatches
+            for (int id = 0; !agentLinesList.isEmpty() && id < numOfAgentsByBatches * this.defaultNumOfAgentsInSingleBatch; id++) {
+
+                if( id < numOfAgents ){
+                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.remove(0));
+                    arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
+                }else {
+                    agentLinesList.remove(0);
+                }
+            }
+            return arrayOfAgents;
+        }
     }
 
     private Agent buildSingleAgent(int id, String agentLine) {

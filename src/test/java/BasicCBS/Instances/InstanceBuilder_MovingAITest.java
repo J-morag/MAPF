@@ -110,6 +110,7 @@ public class InstanceBuilder_MovingAITest {
         InstanceManager.Moving_AI_Path expectedMovingAiPath = new InstanceManager.Moving_AI_Path(expectedMapPath,expectedScenarioPath);
 
         InstanceProperties properties = new InstanceProperties(new MapDimensions(new int[]{512,512}),(float)-1, new int[]{12,2});
+        this.instanceBuilder_movingAI.reuseAgents = false;
         this.instanceBuilder_movingAI.prepareInstances("8Room_map", expectedMovingAiPath,properties);
 
 
