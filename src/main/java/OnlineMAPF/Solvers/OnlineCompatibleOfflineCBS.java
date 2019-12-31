@@ -113,4 +113,9 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
         return astarParameters;
     }
+
+    @Override
+    public String name() {
+        return "OnlineCompatibleOfflineCBS";
+    }
 }

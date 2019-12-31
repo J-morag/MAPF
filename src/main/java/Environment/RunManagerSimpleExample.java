@@ -15,14 +15,14 @@ public class RunManagerSimpleExample extends A_RunManager {
 
     /*  = Set BasicCBS.Solvers =  */
     @Override
-    void setSolvers() {
+    protected void setSolvers() {
         this.solvers.add(new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver()));
         this.solvers.add(new CBS_Solver());
     }
 
     /*  = Set Experiments =  */
     @Override
-    void setExperiments() {
+    protected void setExperiments() {
         addExperiment_16_7();
         addExperimentMovingAI_8room();
     }

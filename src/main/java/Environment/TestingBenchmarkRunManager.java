@@ -14,12 +14,12 @@ public class TestingBenchmarkRunManager extends A_RunManager {
                                                                 "TestingBenchmark"});
 
     @Override
-    void setSolvers() {
+    protected void setSolvers() {
         this.solvers.add( new CBS_Solver());
     }
 
     @Override
-    void setExperiments() {
+    protected void setExperiments() {
 
          this.addAllInstancesExperiment();
 

@@ -63,6 +63,7 @@ public class OnlineSolverContainer implements I_Solver {
             // get a solution for the agents to follow as of this timestep
             Solution solutionAtTime = onlineSolver.newArrivals(timestepWithNewAgents, newArrivals);
             if(solutionAtTime == null){
+                wrapUp(parameters, null);
                 return null; //probably as timeout
             }
             // store the solution
@@ -71,19 +72,15 @@ public class OnlineSolverContainer implements I_Solver {
         OnlineSolution solution = new OnlineSolution(solutionsAtTimes);
 
         //clear the solver and write the report
-        onlineSolver.writeReportAndClearData(solution);
-        parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
-        if(solution != null){
-            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
-            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
-            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
-        }
-        else{
-            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
-        }
+        wrapUp(parameters, solution);
 
         // combine the stored solutions at times into a single online solution
         return solution;
+    }
+
+    @Override
+    public String name() {
+        return onlineSolver.name();
     }
 
     private void verifyAgentsUniqueId(List<Agent> agents) {
@@ -141,4 +138,18 @@ public class OnlineSolverContainer implements I_Solver {
         }
         return onlineAgents;
     }
+
+    private void wrapUp(RunParameters parameters, OnlineSolution solution) {
+        onlineSolver.writeReportAndClearData(solution);
+        parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+        if(solution != null){
+            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
+            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
+            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
+        }
+        else{
+            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
+        }
+    }
+
 }

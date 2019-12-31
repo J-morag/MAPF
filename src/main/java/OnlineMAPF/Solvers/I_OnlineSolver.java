@@ -16,7 +16,7 @@ import java.util.List;
  * Implementing classes will have to keep persistent dat, so when a solver is used, the following protocol should be followed:
  * 1. call {@link #setEnvironment(MAPF_Instance, RunParameters)}.
  * 2. while(new agents arriving) call {@link #newArrivals(int, List)}.
- * 3. call {@link #writeReportAndClearData()} ()}.
+ * 3. call {@link #writeReportAndClearData(OnlineSolution)}.
  * The solver can then be reused.
  */
 public interface I_OnlineSolver {
@@ -44,4 +44,10 @@ public interface I_OnlineSolver {
      * or the previous {@link Solution}.
      */
     void writeReportAndClearData(OnlineSolution solution);
+
+    /**
+     * returns a uniquely identifying name for the solver.
+     * @return a uniquely identifying name for the solver.
+     */
+    String name();
 }

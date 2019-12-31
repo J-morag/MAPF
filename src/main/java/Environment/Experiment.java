@@ -63,7 +63,7 @@ public  class Experiment {
       if (instance == null) { break; }
 
       InstanceReport instanceReport = this.setReport(instance, solver);
-      RunParameters runParameters = new RunParameters(instanceReport);
+      RunParameters runParameters = new RunParameters(5*60*1000, null, instanceReport, null);
 
       System.out.println("---------- solving "  + instance.name + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name() );
       Solution solution = solver.solve(instance, runParameters);
@@ -76,9 +76,12 @@ public  class Experiment {
       if(elapsedTime != null){
         System.out.println("Elapsed time (ms): " + elapsedTime);
       }
+      // remove the solution because they take too much space when solving many large instances
+      instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
 
       try {
         instanceReport.commit();
+//        S_Metrics.removeReport(instanceReport);
       } catch (IOException e) {
         e.printStackTrace();
       }

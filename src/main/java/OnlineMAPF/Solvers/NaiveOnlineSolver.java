@@ -105,4 +105,9 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
         this.latestSolution = null;
         this.baseInstance = null;
     }
+
+    @Override
+    public String name() {
+        return "NaiveOnlineSolver";
+    }
 }

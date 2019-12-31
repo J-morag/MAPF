@@ -57,7 +57,7 @@ public class RunManagerOnline extends A_RunManager {
             e.printStackTrace();
         }
 
-        DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd-HH-mm-ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String pathWithStartTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
         try {
             S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
@@ -95,7 +95,7 @@ public class RunManagerOnline extends A_RunManager {
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\unique_agents_poisson"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{20});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80, 100});
 
 
         /*  =   Set Instance Manager   =  */
