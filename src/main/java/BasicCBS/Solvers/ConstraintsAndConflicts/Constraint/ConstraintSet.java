@@ -45,7 +45,7 @@ public class ConstraintSet{
     }
 
     public void add(Constraint constraint){
-        I_ConstraintGroupingKey dummy = new TimeLocation(constraint);
+        I_ConstraintGroupingKey dummy = createDummy(constraint);
 
         this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
 
@@ -76,7 +76,7 @@ public class ConstraintSet{
     public void remove(Constraint constraint){
         // using this instead of ConstraintWrapper(Constraint) because this doesn't create an unnecessary Set<Constraint>s
         // for every dummy we create.
-        I_ConstraintGroupingKey dummy = new TimeLocation(constraint);
+        I_ConstraintGroupingKey dummy = createDummy(constraint);
 
         if(this.constraints.containsKey(dummy)){
             Set<Constraint> constraints = this.constraints.get(dummy);
@@ -121,7 +121,7 @@ public class ConstraintSet{
      *          conflict with the given {@link Move}.
      */
     public boolean rejects(Move move){
-        I_ConstraintGroupingKey dummy = new TimeLocation(move);
+        I_ConstraintGroupingKey dummy = createDummy(move);
         if(!constraints.containsKey(dummy)) {return false;}
         else {
             return rejects(constraints.get(dummy), move);
@@ -212,6 +212,14 @@ public class ConstraintSet{
             result &= this.accepts(move);
         }
         return result;
+    }
+
+    protected I_ConstraintGroupingKey createDummy(Constraint constraint) {
+        return new TimeLocation(constraint);
+    }
+
+    protected I_ConstraintGroupingKey createDummy(Move move) {
+        return new TimeLocation(move);
     }
 
     /**
