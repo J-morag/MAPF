@@ -94,10 +94,14 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
             if (instanceName == null || agents == null) { continue; /* Invalid parameters */ }
 
-            mapf_instance = new MAPF_Instance(instanceName, graphMap, agents);
+            mapf_instance = makeInstance(instanceName, graphMap, agents, instancePath);
             mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
             this.instanceList.add(mapf_instance);
         }
+    }
+
+    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.InstancePath instancePath){
+        return new MAPF_Instance(instanceName, graphMap, agents);
     }
 
 
@@ -138,8 +142,12 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     }
 
     private Agent buildSingleAgent(int id, String agentLine) {
-
         String[] splitLine = agentLine.split(this.SEPARATOR_SCENARIO);
+
+        return agentFromStringArray(id, splitLine);
+    }
+
+    protected Agent agentFromStringArray(int id, String[] splitLine){
         // Init coordinates
         int source_xValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_XVALUE]);
         int source_yValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_YVALUE]);
@@ -264,7 +272,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
             if ( instancePath.path.endsWith(this.FILE_TYPE_MAP) ){
 
                 String[] splitPath = instancePath.path.split("\\\\");
-                String mapPrefix = splitPath[splitPath.length-1];
+                String mapPrefix = splitPath[splitPath.length-1].replace(this.FILE_TYPE_MAP, "");
                 for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
                     if(scenarioCandidate.path.contains(mapPrefix) && scenarioCandidate.path.endsWith(this.FILE_TYPE_SCENARIO)){
 
