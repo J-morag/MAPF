@@ -9,6 +9,10 @@ import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Experiment class lets the user to specify the instances it needs for the experiment.
  * A_RunManager holds a list of Experiments, each Experiment receives Name and {@link InstanceManager}
@@ -21,6 +25,22 @@ public  class Experiment {
   public final String experimentName;
   public final int numOfInstances;
   protected InstanceManager instanceManager;
+  /**
+   * When the experiment encounters an instance that was already tried with the same solver, and failed, and is now
+   * being attempted with even more agents, that instance will be skipped.
+   */
+  public boolean skipAfterFail = true;
+
+  /**
+   * If set to false, the solution wil lbe removed from reports before committing them. Solutions can be very large strings,
+   * so removing them will save space in long experiments.
+   */
+  public boolean keepSolutionInReport = false;
+  /**
+   * If reports are written to an {@link java.io.OutputStream} (through {@link S_Metrics}) immediately upon being committed,
+   * it may be preferred to just remove them afterwards, rather than keep accumulating them.
+   */
+  public boolean keepReportAfterCommit = true;
 
   public Experiment(String experimentName, InstanceManager instanceManager){
     this.experimentName = experimentName;
@@ -53,15 +73,20 @@ public  class Experiment {
     if( solver == null ){ return; }
 
     instanceManager.resetPathIndex();
+    /*
+     * Keeps a record of failed instances (by the string {@link MAPF_Instance#name} field) and the minimum number of
+     * agents attempted on that instance that produced a failure.
+     */
+    Map<String, Integer> minNumFailedAgentsForInstance = new HashMap<>();
 
     for (int i = 0; i < this.numOfInstances; i++) {
 
       MAPF_Instance instance = instanceManager.getNextInstance();
 
-      if (instance == null) { break; }
+      if (instance == null || (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance)) ) { break; }
 
       InstanceReport instanceReport = this.setReport(instance, solver);
-      RunParameters runParameters = new RunParameters(instanceReport);
+      RunParameters runParameters = new RunParameters(5*60*1000, null, instanceReport, null);
 
       System.out.println("---------- solving "  + instance.name + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name() );
       Solution solution = solver.solve(instance, runParameters);
@@ -70,14 +95,43 @@ public  class Experiment {
         System.out.println("Solution is " + (solution.isValidSolution() ? "valid!" : "invalid!!!"));
         System.out.println("Sum of Individual Costs: " + solution.sumIndividualCosts());
       }
+      else { // failed to solve
+        recordFailure(instance, minNumFailedAgentsForInstance);
+      }
+
       Integer elapsedTime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
       if(elapsedTime != null){
         System.out.println("Elapsed time (ms): " + elapsedTime);
       }
 
+      if(!keepSolutionInReport){
+        instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
+      }
+
+      // Now that the report is complete, commit it
+      try {
+        instanceReport.commit();
+        if (!keepReportAfterCommit) {
+          S_Metrics.removeReport(instanceReport);
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
     }
 
+  }
 
+  private void recordFailure(MAPF_Instance instance, Map<String, Integer> failedInstances) {
+    Integer prevFailNumAgents = failedInstances.get(instance.name);
+    if(prevFailNumAgents == null || prevFailNumAgents > instance.agents.size()){
+      failedInstances.put(instance.name, instance.agents.size());
+    }
+  }
+
+  private boolean hasFailedWithLessAgents(MAPF_Instance instance, Map<String, Integer> failedInstances) {
+    Integer prevFailNumAgents = failedInstances.get(instance.name);
+    return prevFailNumAgents != null && prevFailNumAgents < instance.agents.size();
   }
 
 
