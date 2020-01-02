@@ -94,9 +94,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
             // check start and end at source and target
-            if (!plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapCell(plan.agent.source)) /*start at source*/
-                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target))) /*end at target*/
-            {
+            if (!planStartsAtSourceEndsAtTarget(plan, instance)){
                 return false;
             }
             // agents always move from a vertex to its neighbor
@@ -119,6 +117,11 @@ public class Solution implements Iterable<SingleAgentPlan>{
             }
         }
         return true;
+    }
+
+    protected boolean planStartsAtSourceEndsAtTarget(SingleAgentPlan plan, MAPF_Instance instance){
+        return plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapCell(plan.agent.source)) /*start at source*/
+                && plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target)) /*end at target*/;
     }
 
     /**

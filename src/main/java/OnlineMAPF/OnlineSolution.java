@@ -1,6 +1,7 @@
 package OnlineMAPF;
 
 import BasicCBS.Instances.Agent;
+import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
@@ -92,5 +93,10 @@ public class OnlineSolution extends Solution{
         }
     }
 
-
+    @Override
+    protected boolean planStartsAtSourceEndsAtTarget(SingleAgentPlan plan, MAPF_Instance instance) {
+        return plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(     /*start at source*/
+                ((OnlineAgent)plan.agent).getPrivateGarage(instance.map.getMapCell(plan.agent.source))) /*convert to online (private garage)*/
+                && plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target)) /*end at target*/;
+    }
 }
