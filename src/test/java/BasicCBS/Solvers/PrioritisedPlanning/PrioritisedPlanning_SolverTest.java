@@ -129,7 +129,7 @@ class PrioritisedPlanning_SolverTest {
         MAPF_Instance testInstance = instanceEmpty1;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -137,7 +137,7 @@ class PrioritisedPlanning_SolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -145,7 +145,7 @@ class PrioritisedPlanning_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
