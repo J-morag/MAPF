@@ -114,8 +114,9 @@ class CBS_SolverTest {
 
     }
 
-    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan){
+    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
         assertTrue(solution.isValidSolution()); //is valid (no conflicts)
+        assertTrue(solution.solves(instance));
 
         assertEquals(numAgents, solution.size()); // solution includes all agents
         assertEquals(optimalSOC, solution.sumIndividualCosts()); // SOC is optimal
@@ -130,7 +131,7 @@ class CBS_SolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 7, solved.sumIndividualCosts(),solved.makespan()); //need to find actual optimal costs
+        validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
     }
 
     @Test
@@ -141,7 +142,7 @@ class CBS_SolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5);
+        validate(solved, 2, 8, 5, testInstance);
 
     }
 
@@ -153,7 +154,7 @@ class CBS_SolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5);
+        validate(solved, 2, 8, 5, testInstance);
     }
 
     @Test
@@ -218,7 +219,7 @@ class CBS_SolverTest {
                 else numFailed++;
 
                 if(solution != null){
-                    boolean valid = solution.isValidSolution();
+                    boolean valid = solution.solves(instance);
                     System.out.println("Valid?: " + (valid ? "yes" : "no"));
                     if (useAsserts) assertTrue(valid);
 
