@@ -93,6 +93,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
             return false;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
+            if(plan.size() == 0) continue;
             // check start and end at source and target
             if (!planStartsAtSourceEndsAtTarget(plan, instance)){
                 return false;

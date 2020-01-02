@@ -95,8 +95,9 @@ public class OnlineSolution extends Solution{
 
     @Override
     protected boolean planStartsAtSourceEndsAtTarget(SingleAgentPlan plan, MAPF_Instance instance) {
-        return plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(     /*start at source*/
-                ((OnlineAgent)plan.agent).getPrivateGarage(instance.map.getMapCell(plan.agent.source))) /*convert to online (private garage)*/
-                && plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target)) /*end at target*/;
+        return plan.size() == 0 || (
+                plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(     /*start at source*/
+                ((OnlineAgent)(plan.agent)).getPrivateGarage(instance.map.getMapCell(plan.agent.source))) /*convert to online (private garage)*/
+                && plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target)) )/*end at target*/;
     }
 }

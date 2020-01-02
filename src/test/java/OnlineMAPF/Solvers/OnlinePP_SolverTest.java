@@ -155,7 +155,7 @@ class OnlinePP_SolverTest {
         MAPF_Instance testInstance = instanceEmpty1;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -163,7 +163,7 @@ class OnlinePP_SolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -171,7 +171,7 @@ class OnlinePP_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -205,7 +205,7 @@ class OnlinePP_SolverTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameSource;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -213,7 +213,7 @@ class OnlinePP_SolverTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameTarget;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -221,7 +221,7 @@ class OnlinePP_SolverTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameSourcesTargets;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -231,7 +231,7 @@ class OnlinePP_SolverTest {
             System.out.println("------------ solving " + testInstance.name);
             Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
-            assertTrue(solved.isValidSolution());
+            assertTrue(solved.solves(testInstance));
             System.out.println(solved.readableToString());
         }
     }

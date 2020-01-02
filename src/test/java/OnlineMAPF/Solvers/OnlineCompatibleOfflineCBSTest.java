@@ -145,8 +145,8 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
     }
 
-    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan){
-        assertTrue(solution.isValidSolution()); //is valid (no conflicts)
+    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
+        assertTrue(solution.solves(instance)); //is valid (no conflicts)
 
         assertEquals(numAgents, solution.size()); // solution includes all agents
         assertEquals(optimalSOC, solution.sumIndividualCosts()); // SOC is optimal
@@ -161,7 +161,7 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 7, solved.sumIndividualCosts(),solved.makespan()); //need to find actual optimal costs
+        validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
     }
 
     @Test
@@ -172,7 +172,7 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6);
+        validate(solved, 2, 10, 6, testInstance);
 
     }
 
@@ -184,7 +184,7 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6);
+        validate(solved, 2, 10, 6, testInstance);
     }
 
     @Test
@@ -196,7 +196,7 @@ class OnlineCompatibleOfflineCBSTest {
 
         assertNotNull(solved);
         solved = new OnlineSolution(solved); // for the correct validation function
-        validate(solved, 2, 6, 4);
+        validate(solved, 2, 6, 4, testInstance);
     }
 
     @Test
@@ -230,7 +230,7 @@ class OnlineCompatibleOfflineCBSTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameSource;
         Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -238,7 +238,7 @@ class OnlineCompatibleOfflineCBSTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameTarget;
         Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -246,7 +246,7 @@ class OnlineCompatibleOfflineCBSTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameSourcesTargets;
         Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -256,7 +256,7 @@ class OnlineCompatibleOfflineCBSTest {
             System.out.println("------------ solving " + testInstance.name);
             Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
 
-            assertTrue(solved.isValidSolution());
+            assertTrue(solved.solves(testInstance));
             System.out.println(solved.readableToString());
         }
     }

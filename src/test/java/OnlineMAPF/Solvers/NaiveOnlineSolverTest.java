@@ -165,8 +165,8 @@ class NaiveOnlineSolverTest {
         S_Metrics.removeReport(instanceReport);
     }
 
-    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan){
-        assertTrue(solution.isValidSolution()); //is valid (no conflicts)
+    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
+        assertTrue(solution.solves(instance)); //is valid
 
         assertEquals(numAgents, solution.size()); // solution includes all agents
         assertEquals(optimalSOC, solution.sumIndividualCosts()); // SOC is optimal
@@ -179,7 +179,7 @@ class NaiveOnlineSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
         System.out.println(solved.readableToString());
-        validate(solved, 7, solved.sumIndividualCosts(),solved.makespan()); //need to find actual optimal costs
+        validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
     }
 
     @Test
@@ -188,7 +188,7 @@ class NaiveOnlineSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(System.currentTimeMillis() + (60*60*1000), null, instanceReport, null));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6);
+        validate(solved, 2, 10, 6, testInstance);
 
     }
 
@@ -198,7 +198,7 @@ class NaiveOnlineSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6);
+        validate(solved, 2, 10, 6, testInstance);
     }
 
     @Test
@@ -208,7 +208,7 @@ class NaiveOnlineSolverTest {
 
         assertNotNull(solved);
         solved = new OnlineSolution(solved); // for the correct validation function
-        validate(solved, 2, 6, 4);
+        validate(solved, 2, 6, 4, testInstance);
     }
 
     @Test
@@ -242,7 +242,7 @@ class NaiveOnlineSolverTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameSource;
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -250,7 +250,7 @@ class NaiveOnlineSolverTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameTarget;
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -258,7 +258,7 @@ class NaiveOnlineSolverTest {
         MAPF_Instance testInstance = instanceMultipleAgentsSameSourcesTargets;
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
@@ -278,7 +278,7 @@ class NaiveOnlineSolverTest {
         Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
         S_Metrics.removeReport(tmpInstanceReport);
 
-        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
         int optimalCost = solvedOffline.sumIndividualCosts();
         int snapshotOptimalCpst = solved.sumIndividualCosts();
         assertTrue(snapshotOptimalCpst > optimalCost);
@@ -292,7 +292,7 @@ class NaiveOnlineSolverTest {
             System.out.println("------------ solving " + testInstance.name);
             Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
-            assertTrue(solved.isValidSolution());
+            assertTrue(solved.solves(testInstance));
             System.out.println(solved.readableToString());
         }
     }
@@ -304,7 +304,7 @@ class NaiveOnlineSolverTest {
             System.out.println("------------ solving " + testInstance.name);
             Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
-            assertTrue(solved.isValidSolution());
+            assertTrue(solved.solves(testInstance));
             System.out.println(solved.readableToString());
         }
     }

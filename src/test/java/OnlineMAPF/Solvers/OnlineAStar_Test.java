@@ -16,10 +16,7 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.OnlineAgent;
-import OnlineMAPF.OnlineConstraintSet;
-import OnlineMAPF.OnlineDistanceTableAStarHeuristic;
-import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import OnlineMAPF.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,7 +138,7 @@ class OnlineAStar_Test {
         Solution expected = new Solution(plans);
 
         assertEquals(s, expected);
-        assertTrue(s.isValidSolution());
+        assertTrue(new OnlineSolution(s).solves(testInstance));
     }
 
     @Test
@@ -438,7 +435,7 @@ class OnlineAStar_Test {
                 Solution solved = aStar.solve(singleAgentInstance, runParameters);
                 sumRuntimes += (System.currentTimeMillis() - timeBefore);
 
-                assertTrue(solved.isValidSolution());
+                assertTrue(new OnlineSolution(solved).solves(singleAgentInstance));
             }
             long averageRuntime = sumRuntimes/numAgents;
             System.out.println("instance: " + fullInstance.name);
@@ -473,7 +470,7 @@ class OnlineAStar_Test {
                 Solution solved = aStar.solve(singleAgentInstance, runParameters);
                 sumRuntimes += (System.currentTimeMillis() - timeBefore);
 
-                assertTrue(solved.isValidSolution());
+                assertTrue(new OnlineSolution(solved).solves(singleAgentInstance));
             }
             long averageRuntime = sumRuntimes/numAgents;
             System.out.println("instance: " + fullInstance.name);
