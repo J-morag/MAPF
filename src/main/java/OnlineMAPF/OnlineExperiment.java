@@ -25,4 +25,10 @@ public class OnlineExperiment extends Experiment {
         instanceReport.putStringValue(InstanceReport.StandardFields.arrivalRate, onlineMAPF_instance.arrivalRate);
         return instanceReport;
     }
+
+    @Override
+    protected String instanceStringRepresentation(MAPF_Instance instance) {
+        OnlineMAPF_Instance onlineInstance = (OnlineMAPF_Instance) instance;
+        return super.instanceStringRepresentation(instance) + onlineInstance.agentSelection+onlineInstance.arrivalDistribution+onlineInstance.arrivalRate;
+    }
 }
