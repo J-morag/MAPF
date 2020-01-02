@@ -64,6 +64,11 @@ public class RunManagerOnline extends A_RunManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        try {
+            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         super.runAllExperiments();
         String pathWithEndTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
