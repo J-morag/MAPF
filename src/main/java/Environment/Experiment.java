@@ -92,7 +92,7 @@ public  class Experiment {
       Solution solution = solver.solve(instance, runParameters);
       System.out.println("Solved?: " + (solution != null ? "yes" : "no"));
       if(solution != null){
-        System.out.println("Solution is " + (solution.isValidSolution() ? "valid!" : "invalid!!!"));
+        System.out.println("Solution is " + (solution.solves(instance) ? "valid!" : "invalid!!!"));
         System.out.println("Sum of Individual Costs: " + solution.sumIndividualCosts());
       }
       else { // failed to solve

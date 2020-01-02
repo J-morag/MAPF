@@ -125,7 +125,6 @@ class SingleAgentAStar_SolverTest {
         Solution expected = new Solution(plans);
 
         assertEquals(s, expected);
-        assertTrue(s.isValidSolution());
     }
 
     @Test
