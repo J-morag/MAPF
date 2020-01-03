@@ -141,8 +141,8 @@ public class OnlineSolverContainer implements I_Solver {
 
     private void wrapUp(RunParameters parameters, OnlineSolution solution) {
         onlineSolver.writeReportAndClearData(solution);
-        parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         if(solution != null){
+            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
             parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
             parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
