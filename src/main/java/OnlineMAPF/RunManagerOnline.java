@@ -112,45 +112,37 @@ public class RunManagerOnline extends A_RunManager {
     }
 
     private void addExperimentUniformRepeating() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\repeatingUniform_agents_poisson"});
 
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80, 100});
+
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        Experiment gridExperiment = new OnlineExperiment("repeatingUniform_agents_poisson", instanceManager);
+        this.experiments.add(gridExperiment);
     }
 
     private void addExperimentStandardNormalDistribution() {
-
-    }
-
-
-    private void addExperiment_16_7(){
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\BGU_Instances"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\repeatingNormal_agents_poisson"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(new MapDimensions(16,16), 0, new int[]{7});
-        int numOfInstances = 1;
-
-        /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU(),properties);
-
-        /*  =   Add new experiment   =  */
-        Experiment gridExperiment = new Experiment("Experiment_16_7", instanceManager,numOfInstances);
-        this.experiments.add(gridExperiment);
-    }
-
-    private void addExperimentMovingAI_8room(){
-        /*  =   Set Path   =*/
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\MovingAI_Instances"});
-
-        /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(new MapDimensions(512,512), -1, new int[]{7,10,15});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80, 100});
 
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(), properties);
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        Experiment gridExperiment = new Experiment("Experiment_8_Room", instanceManager);
+        Experiment gridExperiment = new OnlineExperiment("repeatingNormal_agents_poisson", instanceManager);
         this.experiments.add(gridExperiment);
     }
+
 }
