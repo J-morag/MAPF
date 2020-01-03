@@ -50,6 +50,7 @@ public class RunManagerOnline extends A_RunManager {
                     InstanceReport.StandardFields.numAgents,
                     InstanceReport.StandardFields.solver,
                     InstanceReport.StandardFields.solved,
+                    "valid",
                     InstanceReport.StandardFields.elapsedTimeMS,
                     InstanceReport.StandardFields.solutionCost,
                     InstanceReport.StandardFields.solution});
