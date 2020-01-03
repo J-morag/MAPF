@@ -9,6 +9,7 @@ import BasicCBS.Instances.Maps.I_Map;
 public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
 
     protected final int INDEX_AGENT_ARRIVAL_TIME = 9;
+    private final String onlineFieldsFilenameDelimiter = "#";
 
     @Override
     protected Agent agentFromStringArray(int id, String[] agentLine) {
@@ -25,7 +26,7 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
         InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path)instancePath;
         String scenarioName = moving_ai_path.scenarioPath;
         // trim to the portion where relevant fields are
-        String[] splitScenarioName = scenarioName.split("&");
+        String[] splitScenarioName = scenarioName.split(onlineFieldsFilenameDelimiter);
         if(splitScenarioName.length == 1){ // no online descriptors
             return new OnlineMAPF_Instance(instanceName, graphMap, agents, null, null, null);
 
