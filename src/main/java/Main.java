@@ -116,6 +116,7 @@ public class Main {
                                     InstanceReport.StandardFields.obstacleRate,
                                     InstanceReport.StandardFields.solver,
                                     InstanceReport.StandardFields.solved,
+                                    InstanceReport.StandardFields.valid,
                                     InstanceReport.StandardFields.elapsedTimeMS,
                                     InstanceReport.StandardFields.solutionCost,
                                     InstanceReport.StandardFields.solution});
