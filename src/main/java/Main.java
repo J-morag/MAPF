@@ -37,6 +37,8 @@ public class Main {
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
+            // write the reports to System.out
+            addConsoleAsOutputStream();
             // will solve a single instance and print the solution
             solveOneInstanceExample();
             // will solve multiple instances and print a simple report for each instance
@@ -45,6 +47,14 @@ public class Main {
             // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
             runTestingBenchmarkExperiment();
             // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
+        }
+    }
+
+    private static void addConsoleAsOutputStream() {
+        try {
+            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -123,7 +133,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        S_Metrics.clearAll();
+        S_Metrics.clearReports();
     }
 
 }
