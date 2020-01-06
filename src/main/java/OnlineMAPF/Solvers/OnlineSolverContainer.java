@@ -50,13 +50,12 @@ public class OnlineSolverContainer implements I_Solver {
     @Override
     public Solution solve(MAPF_Instance instance, RunParameters parameters) {
         verifyAgentsUniqueId(instance.agents);
-        Map<Integer, Solution> solutionsAtTimes = new HashMap<>();
-        Map<Integer, List<OnlineAgent>> agentsForTimes = OnlineSolverContainer.getAgentsByTime(instance.agents);
+        SortedMap<Integer, Solution> solutionsAtTimes = new TreeMap<>();
+        SortedMap<Integer, List<OnlineAgent>> agentsForTimes = OnlineSolverContainer.getAgentsByTime(instance.agents);
         // must initialize the solver because later we will only be giving it new agents, no other data
         onlineSolver.setEnvironment(instance, parameters);
         // feed the solver with new agents for every timestep when new agents arrive
-//        Integer[] timestepsWithNewAgents = agentsForTimes.keySet().toArray(Integer[]::new);
-//        Arrays.sort(timestepsWithNewAgents);
+        // agentsForTimes should be a sorted map
         for (int timestepWithNewAgents :
                 agentsForTimes.keySet()) {
             List<OnlineAgent> newArrivals = agentsForTimes.get(timestepWithNewAgents);
@@ -100,8 +99,8 @@ public class OnlineSolverContainer implements I_Solver {
      * @param agents agents to group
      * @return
      */
-    public static Map<Integer, List<OnlineAgent>> getAgentsByTime(List<? extends Agent> agents) {
-        Map<Integer, List<OnlineAgent>> result = new TreeMap<>(); //tree map to preserve order of arrival times
+    public static SortedMap<Integer, List<OnlineAgent>> getAgentsByTime(List<? extends Agent> agents) {
+        SortedMap<Integer, List<OnlineAgent>> result = new TreeMap<>(); //tree map to preserve order of arrival times
         ArrayList<OnlineAgent> onlineAgents = offlineToOnlineAgents(agents);
 
         //sort by time. Should already be sorted, so just in case.

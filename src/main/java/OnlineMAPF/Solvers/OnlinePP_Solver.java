@@ -56,8 +56,8 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
 
     @Override
     protected Solution solvePrioritisedPlanning(List<? extends Agent> agents, MAPF_Instance instance, ConstraintSet initialConstraints) {
-        Map<Integer, Solution> solutionsAtTimes = new HashMap<>();
-        Map<Integer, List<OnlineAgent>> agentsForTimes = OnlineSolverContainer.getAgentsByTime(agents);
+        SortedMap<Integer, Solution> solutionsAtTimes = new TreeMap<>();
+        SortedMap<Integer, List<OnlineAgent>> agentsForTimes = OnlineSolverContainer.getAgentsByTime(agents);
         for (int timestepWithNewAgents :
                 agentsForTimes.keySet()) {
             if(super.checkTimeout()) break;

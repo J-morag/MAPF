@@ -6,8 +6,7 @@ import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A solution to an online problem.
@@ -17,11 +16,12 @@ import java.util.Map;
  */
 public class OnlineSolution extends Solution{
 
-    public final Map<Integer, Solution> solutionsAtTimes;
+    public final SortedMap<Integer, Solution> solutionsAtTimes;
 
-    public OnlineSolution(Map<Integer, Solution> solutionsAtTimes) {
+    public OnlineSolution(SortedMap<Integer, Solution> solutionsAtTimes) {
         //make unified solution for super
         super(mergeSolutions(solutionsAtTimes));
+
         this.solutionsAtTimes = solutionsAtTimes;
         super.checkGoalInValidation = false;
     }
@@ -30,8 +30,8 @@ public class OnlineSolution extends Solution{
         this(putOfflineSolutionInMap(offlineSolution));
     }
 
-    private static Map<Integer, Solution> putOfflineSolutionInMap(Solution offlineSolution){
-        Map<Integer, Solution> solutionsAtTimes = new HashMap<>();
+    private static SortedMap<Integer, Solution> putOfflineSolutionInMap(Solution offlineSolution){
+        SortedMap<Integer, Solution> solutionsAtTimes = new TreeMap<>();
         solutionsAtTimes.put(0, offlineSolution);
         return solutionsAtTimes;
     }
@@ -42,7 +42,7 @@ public class OnlineSolution extends Solution{
      * @param solutionsAtTimes solutions that the solver produced at different times
      * @return a merged solution
      */
-    private static Map<Agent, SingleAgentPlan> mergeSolutions(Map<Integer, Solution> solutionsAtTimes) {
+    private static Map<Agent, SingleAgentPlan> mergeSolutions(SortedMap<Integer, Solution> solutionsAtTimes) {
         Map<Agent, SingleAgentPlan> agentPlans = new HashMap<>();
         // for every time where new agents arrived (and so the existing plans were changed)
         for (int time :

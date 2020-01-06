@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.SortedMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -301,6 +302,25 @@ class NaiveOnlineSolverTest {
     void biggerInstancesFromDiskMovingAI() {
         MAPF_Instance testInstance = null;
         while((testInstance = im_MovingAI.getNextInstance()) != null){
+            System.out.println("------------ solving " + testInstance.name);
+            Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+
+            assertTrue(solved.solves(testInstance));
+            System.out.println(solved.readableToString());
+        }
+    }
+
+    /**
+     * This instance returned an invalid (contains conflicts) solution when {@link OnlineSolution} was using a {@link java.util.Map}
+     * as if it were a {@link SortedMap}. All improper uses of unsorted maps were replaced with sorted maps ({@link java.util.TreeMap}).
+     */
+    @Test
+    void iteratesOverTimesInProperOrder(){
+        MAPF_Instance testInstance = null;
+        InstanceManager instanceManager = new InstanceManager(
+                IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online", "MovingAI", "Boston"}),
+                builderMovingAI, new InstanceProperties(null, -1, new int[]{20}));
+        while((testInstance = instanceManager.getNextInstance()) != null){
             System.out.println("------------ solving " + testInstance.name);
             Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
