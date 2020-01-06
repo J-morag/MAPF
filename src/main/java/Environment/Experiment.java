@@ -10,6 +10,8 @@ import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +43,14 @@ public class Experiment {
      * it may be preferred to just remove them afterwards, rather than keep accumulating them.
      */
     public boolean keepReportAfterCommit = true;
+    /**
+     * If set to true, will prompt {@link System} to collect garbage before every instance is attempted. This will reduce
+     * average heap use (as it will be cleared often), and give every run a more similar starting point. The main thread
+     * will sleep for 100 ms after calling for garbage collection, so that solver performance would not be affected by
+     * garbage collection.
+     */
+    public boolean proactiveGarbageCollection = true;
+    public int sleepTimeAfterGarbageCollection = 100;
 
     public Experiment(String experimentName, InstanceManager instanceManager) {
         this.experimentName = experimentName;
@@ -85,6 +95,15 @@ public class Experiment {
 
             MAPF_Instance instance = instanceManager.getNextInstance();
 
+            if (proactiveGarbageCollection) {
+                System.gc();
+                try {
+                    Thread.sleep(sleepTimeAfterGarbageCollection);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
             if (instance == null) {
                 break;
             }
@@ -95,18 +114,20 @@ public class Experiment {
             InstanceReport instanceReport = this.setReport(instance, solver);
             RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
 
-      System.out.println("---------- solving " + instance.name + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name() );
-      Solution solution = solver.solve(instance, runParameters);
-      System.out.println("Solved?: " + (solution != null ? "yes" : "no"));
-      if(solution != null){
-          boolean validSolution = solution.solves(instance);
-        System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
-        instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
-        System.out.println("Sum of Individual Costs: " + solution.sumIndividualCosts());
-      }
-      else { // failed to solve
-        recordFailure(instance, minNumFailedAgentsForInstance);
-      }
+            System.out.println("---------- solving " + instance.name + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
+            System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
+
+            Solution solution = solver.solve(instance, runParameters);
+
+            System.out.println("Solved?: " + (solution != null ? "yes" : "no"));
+            if (solution != null) {
+                boolean validSolution = solution.solves(instance);
+                System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
+                instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
+                System.out.println("Sum of Individual Costs: " + solution.sumIndividualCosts());
+            } else { // failed to solve
+                recordFailure(instance, minNumFailedAgentsForInstance);
+            }
 
             Integer elapsedTime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
             if (elapsedTime != null) {
