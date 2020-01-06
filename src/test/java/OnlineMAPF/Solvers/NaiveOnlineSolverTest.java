@@ -311,14 +311,14 @@ class NaiveOnlineSolverTest {
     }
 
     /**
-     * This instance returned an invalid (contains conflicts) solution when {@link OnlineSolution} was using a {@link java.util.Map}
+     * These instances returned an invalid (contains conflicts) solution when {@link OnlineSolution} was using a {@link java.util.Map}
      * as if it were a {@link SortedMap}. All improper uses of unsorted maps were replaced with sorted maps ({@link java.util.TreeMap}).
      */
     @Test
     void iteratesOverTimesInProperOrder(){
         MAPF_Instance testInstance = null;
         InstanceManager instanceManager = new InstanceManager(
-                IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online", "MovingAI", "Boston"}),
+                IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online", "MovingAI", "more_instances"}),
                 builderMovingAI, new InstanceProperties(null, -1, new int[]{20}));
         while((testInstance = instanceManager.getNextInstance()) != null){
             System.out.println("------------ solving " + testInstance.name);
