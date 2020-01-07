@@ -1,16 +1,12 @@
 package OnlineMAPF;
 
-import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
-import BasicCBS.Instances.Maps.MapDimensions;
 import Environment.A_RunManager;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
 import OnlineMAPF.Solvers.NaiveOnlineSolver;
 import OnlineMAPF.Solvers.OnlineCompatibleOfflineCBS;
 import OnlineMAPF.Solvers.OnlineSolverContainer;
@@ -34,15 +30,17 @@ public class RunManagerOnline extends A_RunManager {
     /*  = Set Experiments =  */
     @Override
     protected void setExperiments() {
-        addExperimentsUniqueAgentsPoissonDistribution();
-        addExperimentUniformRepeating();
-        addExperimentStandardNormalDistribution();
+        addExperimentsUniqueAgents();
+        addExperimentRepeatingUniform();
+        addExperimentRepeatingNormal();
+        addExperimentsSmallMazes();
     }
 
     @Override
     public void runAllExperiments() {
         try {
-            S_Metrics.setHeader(new String[]{   InstanceReport.StandardFields.experimentName,
+            S_Metrics.setHeader(new String[]{
+                    InstanceReport.StandardFields.experimentName,
                     InstanceReport.StandardFields.mapName,
                     InstanceReport.StandardFields.agentSelection,
                     InstanceReport.StandardFields.arrivalDistribution,
@@ -50,7 +48,7 @@ public class RunManagerOnline extends A_RunManager {
                     InstanceReport.StandardFields.numAgents,
                     InstanceReport.StandardFields.solver,
                     InstanceReport.StandardFields.solved,
-                    "valid",
+                    InstanceReport.StandardFields.valid,
                     InstanceReport.StandardFields.elapsedTimeMS,
                     InstanceReport.StandardFields.solutionCost,
                     InstanceReport.StandardFields.solution});
@@ -84,6 +82,7 @@ public class RunManagerOnline extends A_RunManager {
 //                            InstanceReport.StandardFields.numAgents,
 //                            InstanceReport.StandardFields.solver,
 //                            InstanceReport.StandardFields.solved,
+//                            InstanceReport.StandardFields.valid,
 //                            InstanceReport.StandardFields.elapsedTimeMS,
 //                            InstanceReport.StandardFields.solutionCost,
 //                            InstanceReport.StandardFields.solution}
@@ -93,46 +92,61 @@ public class RunManagerOnline extends A_RunManager {
         }
     }
 
+
     /* = Experiments =  */
 
-    private void addExperimentsUniqueAgentsPoissonDistribution() {
+    private void addExperimentsUniqueAgents() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\unique_agents_poisson"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80, 100});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80});
 
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        Experiment gridExperiment = new OnlineExperiment("unique_agents_poisson", instanceManager);
-        this.experiments.add(gridExperiment);
+        this.experiments.add(new OnlineExperiment("unique_agents_poisson", instanceManager));
     }
 
-    private void addExperimentUniformRepeating() {
+    private void addExperimentRepeatingUniform() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\repeatingUniform_agents_poisson"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80, 100});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80});
 
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        Experiment gridExperiment = new OnlineExperiment("repeatingUniform_agents_poisson", instanceManager);
-        this.experiments.add(gridExperiment);
+        this.experiments.add(new OnlineExperiment("repeatingUniform_agents_poisson", instanceManager));
     }
 
-    private void addExperimentStandardNormalDistribution() {
+    private void addExperimentRepeatingNormal() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\repeatingNormal_agents_poisson"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80});
+
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        this.experiments.add(new OnlineExperiment("repeatingNormal_agents_poisson", instanceManager));
+    }
+
+    private void addExperimentsSmallMazes() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\small_mazes"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80, 100});
@@ -142,8 +156,7 @@ public class RunManagerOnline extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        Experiment gridExperiment = new OnlineExperiment("repeatingNormal_agents_poisson", instanceManager);
-        this.experiments.add(gridExperiment);
+        this.experiments.add(new OnlineExperiment("smallMazes", instanceManager));
     }
 
 }

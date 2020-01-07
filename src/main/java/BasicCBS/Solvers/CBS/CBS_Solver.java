@@ -320,7 +320,7 @@ public class CBS_Solver extends A_Solver {
         return subproblemSolution;
     }
 
-    protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport) {
+    protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport, MAPF_Instance subproblem) {
         // if there was already a timeout while solving a node, we will get a negative time left, which would be
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.currentTimeMillis() - super.startTime), 0);
