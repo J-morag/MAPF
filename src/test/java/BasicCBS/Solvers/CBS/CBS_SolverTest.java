@@ -2,6 +2,8 @@ package BasicCBS.Solvers.CBS;
 
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
+import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.IO_Package.IO_Manager;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -88,6 +90,7 @@ class CBS_SolverTest {
     private I_Coordinate coor00 = new Coordinate_2D(0,0);
     private I_Coordinate coor01 = new Coordinate_2D(0,1);
     private I_Coordinate coor10 = new Coordinate_2D(1,0);
+    private I_Coordinate coor15 = new Coordinate_2D(1,5);
 
     private Agent agent33to12 = new Agent(0, coor33, coor12);
     private Agent agent12to33 = new Agent(1, coor12, coor33);
@@ -96,6 +99,7 @@ class CBS_SolverTest {
     private Agent agent04to54 = new Agent(4, coor04, coor54);
     private Agent agent00to10 = new Agent(5, coor00, coor10);
     private Agent agent10to00 = new Agent(6, coor10, coor00);
+    private Agent agent04to00 = new Agent(7, coor04, coor00);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
@@ -106,6 +110,7 @@ class CBS_SolverTest {
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
+    private MAPF_Instance instanceSmallMaze = new MAPF_Instance("instanceUnsolvable2", mapSmallMaze, new Agent[]{agent04to00, agent00to10});
 
     I_Solver cbsSolver = new CBS_Solver();
 
@@ -158,10 +163,38 @@ class CBS_SolverTest {
     }
 
     @Test
-    void unsolvableShouldBeInvalid() {
+    void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = cbsSolver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldReturnNull1() {
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapCell(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapCell(coor14)));
+        Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldReturnNull2() {
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor14)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor13)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor15)));
+        Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);

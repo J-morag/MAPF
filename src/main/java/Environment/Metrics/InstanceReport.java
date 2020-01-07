@@ -40,6 +40,7 @@ public class InstanceReport {
         public final static String totalLowLevelTimeMS = "Total Low Level Time (ms)";
         public final static String timeoutThresholdMS = "Timeout Threshold";
         public final static String solved = "Solved";
+        public final static String valid = "Valid";
         public final static String solutionCost = "Solution Cost";
         public final static String solutionCostFunction = "Cost Function";
         public final static String solution = "Solution";

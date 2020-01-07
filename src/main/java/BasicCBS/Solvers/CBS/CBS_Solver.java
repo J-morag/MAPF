@@ -158,6 +158,10 @@ public class CBS_Solver extends A_Solver {
         for (Agent agent :
                 this.instance.agents) {
             solution = solveSubproblem(agent, solution, initialConstraints);
+            if (solution == null){
+                // failed to solve for some agent
+                return null;
+            }
         }
 
         return new CBS_Node(solution, costFunction.solutionCost(solution, this));
@@ -219,9 +223,6 @@ public class CBS_Solver extends A_Solver {
         node.leftChild = generateNode(node, constraints[0], true);
         node.rightChild = generateNode(node, constraints[1], false);
 
-        if(node.leftChild == null || node.rightChild == null){
-            return; //probably a timeout in the low level. should abort.
-        }
         addToOpen(node.leftChild);
         addToOpen(node.rightChild);
     }
@@ -232,6 +233,11 @@ public class CBS_Solver extends A_Solver {
      * @return true if {@link #openList OPEN} changed as a result of the call.
      */
     private boolean addToOpen(CBS_Node node) {
+        if(node == null){
+            // either the low level encountered a timeout (in which case we will also timeout very soon), or the low
+            // level was unsolvable (in which case we prune this node and continue).
+            return false;
+        }
         return openList.add(node);
     }
 
@@ -314,8 +320,10 @@ public class CBS_Solver extends A_Solver {
         return subproblemSolution;
     }
 
-    protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport, MAPF_Instance subproblem) {
-        long timeLeftToTimeout = super.maximumRuntime - (System.currentTimeMillis() - super.startTime);
+    protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport) {
+        // if there was already a timeout while solving a node, we will get a negative time left, which would be
+        // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
+        long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.currentTimeMillis() - super.startTime), 0);
         RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport, currentSolution);
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
             subproblemParametes = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);

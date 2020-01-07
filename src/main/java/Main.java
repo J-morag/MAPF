@@ -43,6 +43,8 @@ public class Main {
     public static void main(String[] args) {
         if(verifyOutputPath()){
             runOnlineExperiment();
+//            // write the reports to System.out
+//            addConsoleAsOutputStream();
 //            // will solve a single instance and print the solution
 //            solveOneInstanceExample();
 //            // will solve multiple instances and print a simple report for each instance
@@ -81,6 +83,14 @@ public class Main {
         //output results
         System.out.println(solution.readableToString());
         outputResults();
+    }
+
+    private static void addConsoleAsOutputStream() {
+        try {
+            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static boolean verifyOutputPath() {
@@ -151,13 +161,14 @@ public class Main {
                                     InstanceReport.StandardFields.obstacleRate,
                                     InstanceReport.StandardFields.solver,
                                     InstanceReport.StandardFields.solved,
+                                    InstanceReport.StandardFields.valid,
                                     InstanceReport.StandardFields.elapsedTimeMS,
                                     InstanceReport.StandardFields.solutionCost,
                                     InstanceReport.StandardFields.solution});
         } catch (IOException e) {
             e.printStackTrace();
         }
-        S_Metrics.clearAll();
+        S_Metrics.clearReports();
     }
 
 }
