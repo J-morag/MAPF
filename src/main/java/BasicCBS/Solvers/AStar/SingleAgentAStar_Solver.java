@@ -357,14 +357,19 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     private static class TieBreakingForHigherGComparator implements Comparator<AStarState>{
 
-        Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
+        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
 
         @Override
         public int compare(AStarState o1, AStarState o2) {
-            if(Math.abs(o1.getF() - o2.getF()) < 0.001){ // floats are equal
+            if(Math.abs(o1.getF() - o2.getF()) < 0.1){ // floats are equal
                 // if f() value is equal, we consider the state with higher g() to be better (smaller). Therefore, we
                 // want to return a negative integer if o1.g is bigger than o2.g
-                return o2.g - o1.g;
+                if (o2.g == o1.g){
+                    return o1.hashCode() - o2.hashCode();
+                }
+                else {
+                    return o2.g - o1.g;
+                }
             }
             else {
                 return fComparator.compare(o1, o2);
