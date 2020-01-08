@@ -30,9 +30,9 @@ public class RunManagerOnline extends A_RunManager {
     /*  = Set Experiments =  */
     @Override
     protected void setExperiments() {
-        addExperimentsUniqueAgents();
-        addExperimentRepeatingUniform();
-        addExperimentRepeatingNormal();
+//        addExperimentsUniqueAgents();
+//        addExperimentRepeatingUniform();
+//        addExperimentRepeatingNormal();
         addExperimentsSmallMazes();
     }
 
@@ -41,7 +41,7 @@ public class RunManagerOnline extends A_RunManager {
         try {
             S_Metrics.setHeader(new String[]{
                     InstanceReport.StandardFields.experimentName,
-                    InstanceReport.StandardFields.mapName,
+                    InstanceReport.StandardFields.instanceName,
                     InstanceReport.StandardFields.agentSelection,
                     InstanceReport.StandardFields.arrivalDistribution,
                     InstanceReport.StandardFields.arrivalRate,

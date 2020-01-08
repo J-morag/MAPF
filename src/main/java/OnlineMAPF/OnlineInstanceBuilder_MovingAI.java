@@ -22,7 +22,7 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
     }
 
     @Override
-    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.InstancePath instancePath) {
+    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath) {
         InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path)instancePath;
         String scenarioName = moving_ai_path.scenarioPath;
         // trim to the portion where relevant fields are
