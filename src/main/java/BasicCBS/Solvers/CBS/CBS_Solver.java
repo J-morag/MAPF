@@ -95,7 +95,7 @@ public class CBS_Solver extends A_Solver {
         clearOPEN();
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
         this.costFunction = costFunction != null ? costFunction : (solution, cbs) -> solution.sumIndividualCosts();
-        this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : Comparator.comparing(CBS_Node::getSolutionCost);
+        this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
     }
 
     /**
@@ -528,7 +528,22 @@ public class CBS_Solver extends A_Solver {
             return Objects.compare(this, o, CBS_Solver.this.CBSNodeComparator);
         }
 
+    }
 
+    public static class CBSNodeComparatorForcedTotalOrdering implements Comparator<CBS_Node>{
+
+        private static final Comparator<CBS_Node> costComparator = Comparator.comparing(CBS_Node::getSolutionCost);
+
+        @Override
+        public int compare(CBS_Node o1, CBS_Node o2) {
+            if(Math.abs(o1.getSolutionCost() - o2.getSolutionCost()) < 0.1){ // floats are equal
+                // if f() value is equal, we force a total ordering with hashCode() to remain deterministic
+                return o1.hashCode() - o2.hashCode();
+            }
+            else {
+                return costComparator.compare(o1, o2);
+            }
+        }
     }
 
 
