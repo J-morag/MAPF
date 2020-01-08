@@ -228,7 +228,7 @@ class CBS_SolverTest {
                 //build report
                 InstanceReport report = S_Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
-                report.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
+                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
@@ -294,7 +294,7 @@ class CBS_SolverTest {
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
-                                InstanceReport.StandardFields.mapName,
+                                InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,
                                 InstanceReport.StandardFields.timeoutThresholdMS,
                                 InstanceReport.StandardFields.solved,

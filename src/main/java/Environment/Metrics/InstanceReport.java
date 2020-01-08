@@ -26,7 +26,7 @@ public class InstanceReport {
      */
     public static class StandardFields{
         public final static String experimentName = "Experiment Name";
-        public final static String mapName = "Map Name";
+        public final static String instanceName = "Instance Name";
         public final static String numAgents = "# Agents";
         public final static String obstacleRate = "% Obstacles";
         public final static String solver = "Solver";

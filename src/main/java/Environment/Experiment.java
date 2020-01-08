@@ -10,7 +10,6 @@ import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class Experiment {
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         /*  = Put values in report =  */
         instanceReport.putStringValue(InstanceReport.StandardFields.experimentName, this.experimentName);
-        instanceReport.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
+        instanceReport.putStringValue(InstanceReport.StandardFields.instanceName, instance.extendedName);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
         instanceReport.putIntegerValue(InstanceReport.StandardFields.obstacleRate, instance.getObstaclePercentage());
         instanceReport.putStringValue(InstanceReport.StandardFields.solver, solver.name());
