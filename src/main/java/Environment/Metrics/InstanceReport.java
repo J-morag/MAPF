@@ -44,6 +44,7 @@ public class InstanceReport {
         public final static String solutionCost = "Solution Cost";
         public final static String solutionCostFunction = "Cost Function";
         public final static String solution = "Solution";
+        public final static String skipped = "Skipped";
     }
 
     /**
