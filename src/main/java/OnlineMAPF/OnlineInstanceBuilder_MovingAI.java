@@ -23,8 +23,8 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
 
     @Override
     protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath) {
-        InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path)instancePath;
-        String scenarioName = moving_ai_path.scenarioPath;
+        MAPF_Instance offlineInstance = super.makeInstance(instanceName, graphMap, agents, instancePath);
+        String scenarioName = instancePath.scenarioPath;
         // trim to the portion where relevant fields are
         String[] splitScenarioName = scenarioName.split(onlineFieldsFilenameDelimiter);
         if(splitScenarioName.length == 1){ // no online descriptors
@@ -34,6 +34,6 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
         scenarioName = splitScenarioName[1];
         // split into fields
         String[] fields = scenarioName.split("_");
-        return new OnlineMAPF_Instance(instanceName, graphMap, agents, fields[0], fields[1], fields[2]);
+        return new OnlineMAPF_Instance(offlineInstance, fields[0], fields[1], fields[2]);
     }
 }

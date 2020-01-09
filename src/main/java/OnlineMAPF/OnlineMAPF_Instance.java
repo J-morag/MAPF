@@ -19,4 +19,8 @@ public class OnlineMAPF_Instance extends MAPF_Instance {
         this.arrivalRate = arrivalRate != null ? arrivalRate : DEFAULT_VALUE;
     }
 
+    public OnlineMAPF_Instance(MAPF_Instance offlineInstance, String agentSelection, String arrivalDistribution, String arrivalRate) {
+        this(offlineInstance.name, offlineInstance.map, offlineInstance.agents.toArray(Agent[]::new), agentSelection,
+                arrivalDistribution, arrivalRate);
+    }
 }
