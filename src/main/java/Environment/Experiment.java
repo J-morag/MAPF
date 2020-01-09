@@ -106,11 +106,14 @@ public class Experiment {
             if (instance == null) {
                 break;
             }
+
+            // create report before skipping, so that output will be easier to read
+            InstanceReport instanceReport = this.setReport(instance, solver);
             if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance)) {
+                instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 1);
                 continue;
             }
 
-            InstanceReport instanceReport = this.setReport(instance, solver);
             RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
 
             System.out.println("---------- solving " + instance.name + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
