@@ -304,7 +304,9 @@ class CBS_SolverTest {
                                 "Cost Delta",
                                 InstanceReport.StandardFields.totalLowLevelTimeMS,
                                 InstanceReport.StandardFields.generatedNodes,
-                                InstanceReport.StandardFields.expandedNodes});
+                                InstanceReport.StandardFields.expandedNodes,
+                                InstanceReport.StandardFields.generatedNodesLowLevel,
+                                InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
             }

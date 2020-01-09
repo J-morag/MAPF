@@ -151,8 +151,6 @@ public class CBS_Solver extends A_Solver {
      * Creates a root node.
      */
     private CBS_Node generateRoot(ConstraintSet initialConstraints) {
-        this.generatedNodes++;
-
         Solution solution = new Solution(); // init an empty solution
         // for every agent, add its plan to the solution
         for (Agent agent :
@@ -248,8 +246,6 @@ public class CBS_Solver extends A_Solver {
      * @return a new {@link CBS_Node}.
      */
     private CBS_Node generateNode(CBS_Node parent, Constraint constraint, boolean copyDatastructures) {
-        this.generatedNodes++;
-
         Agent agent = constraint.agent;
 
         Solution solution = parent.solution;
@@ -428,6 +424,11 @@ public class CBS_Solver extends A_Solver {
          * A {@link A_Conflict conflict}, selected to be solved by new constraints in child nodes.
          */
         private A_Conflict selectedConflict;
+        /**
+         * Needed to enforce total ordering on nodes, which is needed to make node expansions fully deterministic. That
+         * is to say, if all tie breaking methods still result in equality, tie break for using serialID.
+         */
+        private final int serialID = CBS_Solver.this.generatedNodes++; // take and increment
 
         /*  =  =  = CBS tree branches =  =  */
 
@@ -537,8 +538,8 @@ public class CBS_Solver extends A_Solver {
         @Override
         public int compare(CBS_Node o1, CBS_Node o2) {
             if(Math.abs(o1.getSolutionCost() - o2.getSolutionCost()) < 0.1){ // floats are equal
-                // if f() value is equal, we force a total ordering with hashCode() to remain deterministic
-                return o1.hashCode() - o2.hashCode();
+                // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to force a total ordering and remain deterministic
+                return o2.serialID- o1.serialID;
             }
             else {
                 return costComparator.compare(o1, o2);

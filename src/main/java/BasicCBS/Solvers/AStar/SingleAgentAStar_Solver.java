@@ -187,7 +187,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
                     AStarState rootState = new AStarState(possibleMove, null, 1);
                     openList.add(rootState);
-                    generatedNodes++;
                 }
             }
 
@@ -234,10 +233,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     public class AStarState implements Comparable<AStarState>{
 
-        private Move move;
-        private AStarState prev;
-        private int g;
-        private float h;
+        /**
+         * Needed to enforce total ordering on nodes, which is needed to make node expansions fully deterministic. That
+         * is to say, if all tie breaking methods still result in equality, tie break for using serialID.
+         */
+        private final int serialID = SingleAgentAStar_Solver.this.generatedNodes++; // take and increment
+        private final Move move;
+        private final AStarState prev;
+        private final int g;
+        private final float h;
 
         public AStarState(Move move, AStarState prevState, int g) {
             this.move = move;
@@ -282,7 +286,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 Move possibleMove = new Move(this.move.agent, this.move.timeNow+1, this.move.currLocation, destination);
                 if(constraints.accepts(possibleMove)){ //move not prohibited by existing constraint
                     AStarState child = new AStarState(possibleMove, this, this.g + 1);
-                    generatedNodes++; //field in containing class
 
                     AStarState existingState;
                     if(closed.contains(child)){ // state visited already
@@ -365,10 +368,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 // if f() value is equal, we consider the state with higher g() to be better (smaller). Therefore, we
                 // want to return a negative integer if o1.g is bigger than o2.g
                 if (o2.g == o1.g){
-                    return o1.hashCode() - o2.hashCode();
+                    // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to force a total ordering and remain deterministic
+                    return o2.serialID - o1.serialID;
                 }
                 else {
-                    return o2.g - o1.g;
+                    return o2.g - o1.g; //higher g is better
                 }
             }
             else {
