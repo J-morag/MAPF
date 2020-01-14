@@ -28,7 +28,7 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
         // trim to the portion where relevant fields are
         String[] splitScenarioName = scenarioName.split(onlineFieldsFilenameDelimiter);
         if(splitScenarioName.length == 1){ // no online descriptors
-            return new OnlineMAPF_Instance(instanceName, graphMap, agents, null, null, null);
+            return new OnlineMAPF_Instance(offlineInstance, null, null, null);
 
         }
         scenarioName = splitScenarioName[1];

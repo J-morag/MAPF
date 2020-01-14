@@ -33,7 +33,8 @@ public class RunManagerOnline extends A_RunManager {
 //        addExperimentsUniqueAgents();
 //        addExperimentRepeatingUniform();
 //        addExperimentRepeatingNormal();
-        addExperimentsSmallMazes();
+//        addExperimentsSmallMazes();
+        addExperimentsSmallCustom();
     }
 
     @Override
@@ -157,6 +158,22 @@ public class RunManagerOnline extends A_RunManager {
 
         /*  =   Add new experiment   =  */
         this.experiments.add(new OnlineExperiment("smallMazes", instanceManager));
+    }
+
+    private void addExperimentsSmallCustom() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\small_custom"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 20, 40, 60, 80, 100});
+
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        this.experiments.add(new OnlineExperiment("smallCustom", instanceManager));
     }
 
 }
