@@ -116,7 +116,7 @@ public class Experiment {
 
             RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
 
-            System.out.println("---------- solving " + instance.name + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
+            System.out.println("---------- solving " + instance.extendedName + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
             System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
 
             Solution solution = solver.solve(instance, runParameters);
