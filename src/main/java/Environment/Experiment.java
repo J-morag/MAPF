@@ -12,6 +12,7 @@ import BasicCBS.Solvers.Solution;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,15 +79,14 @@ public class Experiment {
 
 
     public void runExperiment(I_Solver solver) {
-
         if (solver == null) {
             return;
         }
 
         instanceManager.resetPathIndex();
         /*
-         * Keeps a record of failed instances (by the string {@link MAPF_Instance#name} field) and the minimum number of
-         * agents attempted on that instance that produced a failure.
+         * Keeps a record of failed instances attempted by a solver, and the minimum number of agents attempted on that
+         *  instance that produced a failure.
          */
         Map<String, Integer> minNumFailedAgentsForInstance = new HashMap<>();
 
@@ -94,79 +94,109 @@ public class Experiment {
 
             MAPF_Instance instance = instanceManager.getNextInstance();
 
-            if (proactiveGarbageCollection) {
-                System.gc();
-                try {
-                    Thread.sleep(sleepTimeAfterGarbageCollection);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            if (instance == null) {
+                break;
             }
+
+            runInstanceOnSolver(solver, minNumFailedAgentsForInstance, instance);
+        }
+    }
+
+    public void runExperiment(List<I_Solver> solvers) {
+        if (solvers == null) {
+            return;
+        }
+
+        instanceManager.resetPathIndex();
+        /*
+         * Keeps a record of failed instances attempted by a solver, and the minimum number of agents attempted on that
+         *  instance that produced a failure.
+         */
+        Map<String, Integer> minNumFailedAgentsForInstance = new HashMap<>();
+
+        for (int i = 0; i < this.numOfInstances; i++) {
+
+            MAPF_Instance instance = instanceManager.getNextInstance();
 
             if (instance == null) {
                 break;
             }
 
-            // create report before skipping, so that output will be easier to read
-            InstanceReport instanceReport = this.setReport(instance, solver);
-            if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance)) {
-                instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 1);
-                continue;
+            for (I_Solver solver :
+                    solvers) {
+                runInstanceOnSolver(solver, minNumFailedAgentsForInstance, instance);
             }
+        }
 
-            RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
+    }
 
-            System.out.println("---------- solving " + instance.extendedName + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
-            System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
-
-            Solution solution = solver.solve(instance, runParameters);
-
-            System.out.println("Solved?: " + (solution != null ? "yes" : "no"));
-            if (solution != null) {
-                boolean validSolution = solution.solves(instance);
-                System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
-                instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
-                System.out.println("Sum of Individual Costs: " + solution.sumIndividualCosts());
-            } else { // failed to solve
-                recordFailure(instance, minNumFailedAgentsForInstance);
-            }
-
-            Integer elapsedTime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-            if (elapsedTime != null) {
-                System.out.println("Elapsed time (ms): " + elapsedTime);
-            }
-
-            if (!keepSolutionInReport) {
-                instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
-            }
-
-            // Now that the report is complete, commit it
+    protected void runInstanceOnSolver(I_Solver solver, Map<String, Integer> minNumFailedAgentsForInstance, MAPF_Instance instance) {
+        if (proactiveGarbageCollection) {
+            System.gc();
             try {
-                instanceReport.commit();
-                if (!keepReportAfterCommit) {
-                    S_Metrics.removeReport(instanceReport);
-                }
-            } catch (IOException e) {
+                Thread.sleep(sleepTimeAfterGarbageCollection);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
 
+        // create report before skipping, so that output will be easier to read
+        InstanceReport instanceReport = this.setReport(instance, solver);
+        if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance, solver)) {
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 1);
+            return;
+        }
+
+        RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
+
+        System.out.println("---------- solving " + instance.extendedName + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
+        System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
+
+        Solution solution = solver.solve(instance, runParameters);
+
+        System.out.println("Solved?: " + (solution != null ? "yes" : "no"));
+        if (solution != null) {
+            boolean validSolution = solution.solves(instance);
+            System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
+            System.out.println("Sum of Individual Costs: " + solution.sumIndividualCosts());
+        } else { // failed to solve
+            recordFailure(instance, minNumFailedAgentsForInstance, solver);
+        }
+
+        Integer elapsedTime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        if (elapsedTime != null) {
+            System.out.println("Elapsed time (ms): " + elapsedTime);
+        }
+
+        if (!keepSolutionInReport) {
+            instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
+        }
+
+        // Now that the report is complete, commit it
+        try {
+            instanceReport.commit();
+            if (!keepReportAfterCommit) {
+                S_Metrics.removeReport(instanceReport);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void recordFailure(MAPF_Instance instance, Map<String, Integer> failedInstances) {
-        Integer prevFailNumAgents = failedInstances.get(instanceStringRepresentation(instance));
+    private void recordFailure(MAPF_Instance instance, Map<String, Integer> failedInstances, I_Solver solver) {
+        Integer prevFailNumAgents = failedInstances.get(instanceAndSolverStringRepresentation(instance, solver));
         if (prevFailNumAgents == null || prevFailNumAgents > instance.agents.size()) {
-            failedInstances.put(instanceStringRepresentation(instance), instance.agents.size());
+            failedInstances.put(instanceAndSolverStringRepresentation(instance, solver), instance.agents.size());
         }
     }
 
-    private boolean hasFailedWithLessAgents(MAPF_Instance instance, Map<String, Integer> failedInstances) {
-        Integer prevFailNumAgents = failedInstances.get(instanceStringRepresentation(instance));
+    private boolean hasFailedWithLessAgents(MAPF_Instance instance, Map<String, Integer> failedInstances, I_Solver solver) {
+        Integer prevFailNumAgents = failedInstances.get(instanceAndSolverStringRepresentation(instance, solver));
         return prevFailNumAgents != null && prevFailNumAgents < instance.agents.size();
     }
 
-    protected String instanceStringRepresentation(MAPF_Instance instance) {
-        return instance.name;
+    protected String instanceAndSolverStringRepresentation(MAPF_Instance instance, I_Solver solver) {
+        return instance.extendedName + solver.name();
     }
 }

@@ -26,13 +26,10 @@ public abstract class A_RunManager {
 
         for ( Experiment experiment : experiments ) {
 
-            for ( I_Solver solver : solvers ) {
-                experiment.runExperiment(solver);
-            }
+            experiment.runExperiment(solvers);
 
             System.out.println(experiment.experimentName + " - Done!");
         }
-
 
         System.out.println("RunAllExperiments - Done!");
     }
