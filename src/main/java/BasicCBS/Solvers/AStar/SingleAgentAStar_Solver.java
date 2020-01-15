@@ -26,7 +26,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     protected static final long DEFAULT_TIMEOUT = 3 * 1000;
     protected static final int DEFAULT_PROBLEM_START_TIME = 0;
-    private static final Comparator<AStarState> stateFComparator = new TieBreakingForHigherGComparator();
+    private Comparator<AStarState> stateFComparator;
     private static final Comparator<AStarState> stateGComparator = Comparator.comparing(AStarState::getG);
 
     public boolean agentsStayAtGoal = true;
@@ -111,6 +111,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.expandedNodes = 0;
         this.closed = new HashSet<>();
         this.generatedNodes = 0;
+
+//        if(agentsStayAtGoal){
+//            this.stateFComparator = new TargetConflictFixingComparator(this.constraints,this.map.getMapCell(this.agent.target), this.agent);
+//        }
+//        else{
+            this.stateFComparator = new TieBreakingForHigherGComparator();
+//        }
     }
 
     /*  = A* algorithm =  */
@@ -153,12 +160,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     return this.existingSolution; // the goal is good and we can return the plan.
                 }
                 else{ // we are rejected from the goal at some point in the future.
-                    // We clear OPEN because we have already found an optimal plan to the goal.
-                    openList.clear();
-                    /*
-                    We then solve a smaller search problem where we make a plan from the goal at time t[x], to the goal
-                    at time t[y+1], where y is the time of the future constraint.
-                     */
                     currentState.expand();
                 }
             }
@@ -386,10 +387,43 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 // want to return a negative integer if o1.g is bigger than o2.g
                 if (o2.g == o1.g){
                     // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to force a total ordering and remain deterministic
-                    return o2.serialID - o1.serialID;
+                    return o1.serialID - o2.serialID;
                 }
                 else {
                     return o2.g - o1.g; //higher g is better
+                }
+            }
+            else {
+                return fComparator.compare(o1, o2);
+            }
+        }
+    }
+
+    private static class TargetConflictFixingComparator implements Comparator<AStarState>{
+
+        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
+        private final int maxConstraintAtTargetTime;
+
+        private TargetConflictFixingComparator(ConstraintSet constraintSet, I_Location target, Agent agent) {
+            this.maxConstraintAtTargetTime = constraintSet.lastRejectAt(target, agent);
+        }
+
+        @Override
+        public int compare(AStarState o1, AStarState o2) {
+            //  the cost of all nodes is at least the time of the last constraint at target + 1
+            float f1Adjusted = Math.max(o1.getF(), maxConstraintAtTargetTime+1);
+            float f2Adjusted = Math.max(o2.getF(), maxConstraintAtTargetTime+1);
+
+            if(Math.abs(f1Adjusted - f2Adjusted) < 0.1){ // floats are equal
+                // if equal (will be equal for all states until we get to states that pass the time of the constraint),
+                // we want to prefer lower h to direct the search towards the target
+
+                if (Math.abs(o2.h - o1.h) < 0.1){
+                    // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to force a total ordering and remain deterministic
+                    return o1.serialID - o2.serialID;
+                }
+                else {
+                    return (int)Math.floor(o1.h - o2.h); //lower h is better
                 }
             }
             else {

@@ -247,4 +247,35 @@ public class ConstraintSet{
         return constraints.hashCode();
     }
 
+    /**
+     * Find the last time when the agent is prevented from being at its goal.
+     *
+     * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
+     * @param target the agent's target.
+     * @param agent the agent.
+     * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
+     */
+    public int lastRejectAt(I_Location target, Agent agent) {
+        int lastRejectionTime = Integer.MIN_VALUE;
+        Move fakeFinalMove = new Move(agent, 1, target, target);
+        // traverses the entire data structure. expensive.
+        for (I_ConstraintGroupingKey cw :
+                constraints.keySet()) {
+            //found constraint for this location, sometime in the future. Should be rare.
+            if(cw.relevantInTheFuture(fakeFinalMove)){
+                for (Constraint constraint :
+                        constraints.get(cw)) {
+                    // make an artificial "stay" move for the relevant time.
+                    // In practice, this should happen very rarely, so not very expensive.
+                    int constraintTime = ((TimeLocation)cw).time;
+                    if(constraint.rejects(new Move(agent, constraintTime, target, target))
+                            && constraintTime > lastRejectionTime){
+                        lastRejectionTime = constraintTime;
+                    }
+                }
+            }
+        }
+
+        return lastRejectionTime == Integer.MIN_VALUE ? -1 : lastRejectionTime;
+    }
 }
