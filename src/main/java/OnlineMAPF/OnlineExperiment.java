@@ -26,9 +26,4 @@ public class OnlineExperiment extends Experiment {
         return instanceReport;
     }
 
-    @Override
-    protected String instanceStringRepresentation(MAPF_Instance instance) {
-        OnlineMAPF_Instance onlineInstance = (OnlineMAPF_Instance) instance;
-        return super.instanceStringRepresentation(instance) + onlineInstance.agentSelection+onlineInstance.arrivalDistribution+onlineInstance.arrivalRate;
-    }
 }
