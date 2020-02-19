@@ -48,6 +48,7 @@ public class InstanceReport {
         public final static String arrivalDistribution = "Arrival Distribution";
         public final static String arrivalRate = "Arrival Rate";
         public final static String skipped = "Skipped";
+        public final static String numReroutes = "# Reroutes";
     }
 
     /**

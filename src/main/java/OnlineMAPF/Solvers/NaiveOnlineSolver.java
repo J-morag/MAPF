@@ -93,6 +93,10 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)totalRuntime);
         instanceReport.putStringValue(InstanceReport.StandardFields.solver, this.getClass().getSimpleName());
 
+        if(solution != null){
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.numReroutes, solution.numReroutes());
+        }
+
 //        instanceReport.putIntegerValue(InstanceReport.StandardFields.timeoutThresholdMS, (int) this.maximumRuntime);
 //        instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startTime).toString());
 //        instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));

@@ -52,6 +52,7 @@ public class RunManagerOnline extends A_RunManager {
                     InstanceReport.StandardFields.valid,
                     InstanceReport.StandardFields.elapsedTimeMS,
                     InstanceReport.StandardFields.solutionCost,
+                    InstanceReport.StandardFields.numReroutes,
                     InstanceReport.StandardFields.solution});
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,7 +77,7 @@ public class RunManagerOnline extends A_RunManager {
         try {
             S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)
 //                    ,new String[]{   InstanceReport.StandardFields.experimentName,
-//                            InstanceReport.StandardFields.mapName,
+//                            InstanceReport.StandardFields.experimentName,
 //                            InstanceReport.StandardFields.agentSelection,
 //                            InstanceReport.StandardFields.arrivalDistribution,
 //                            InstanceReport.StandardFields.arrivalRate,
@@ -86,6 +87,7 @@ public class RunManagerOnline extends A_RunManager {
 //                            InstanceReport.StandardFields.valid,
 //                            InstanceReport.StandardFields.elapsedTimeMS,
 //                            InstanceReport.StandardFields.solutionCost,
+//                            InstanceReport.StandardFields.numReroutes,
 //                            InstanceReport.StandardFields.solution}
                             );
         } catch (IOException e) {

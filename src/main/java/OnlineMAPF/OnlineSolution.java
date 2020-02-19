@@ -43,7 +43,7 @@ public class OnlineSolution extends Solution{
      * @return a merged solution
      */
     private static Map<Agent, SingleAgentPlan> mergeSolutions(SortedMap<Integer, Solution> solutionsAtTimes) {
-        Map<Agent, SingleAgentPlan> agentPlans = new HashMap<>();
+        Map<Agent, SingleAgentPlan> mergedAgentPlans = new HashMap<>();
         // for every time where new agents arrived (and so the existing plans were changed)
         for (int time :
                 solutionsAtTimes.keySet()) {
@@ -53,18 +53,18 @@ public class OnlineSolution extends Solution{
             for (SingleAgentPlan plan :
                     solution) {
                 Agent agent = plan.agent;
-                if(! agentPlans.containsKey(agent)){ // agent arrived at time
-                    agentPlans.put(agent, plan);
+                if(! mergedAgentPlans.containsKey(agent)){ // agent arrived at time
+                    mergedAgentPlans.put(agent, plan);
                 }
                 else{ // agent was already around, merge the plans to represent what it actually ended up doing.
-                    SingleAgentPlan previousPlan = agentPlans.get(agent);
+                    SingleAgentPlan previousPlan = mergedAgentPlans.get(agent);
                     SingleAgentPlan newPlan = solution.getPlanFor(agent);
                     SingleAgentPlan mergedPlan = mergePlans(previousPlan, newPlan);
-                    agentPlans.put(agent, mergedPlan);
+                    mergedAgentPlans.put(agent, mergedPlan);
                 }
             }
         }
-        return agentPlans;
+        return mergedAgentPlans;
     }
 
     /**
@@ -99,5 +99,41 @@ public class OnlineSolution extends Solution{
                 plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(     /*start at source*/
                 ((OnlineAgent)(plan.agent)).getPrivateGarage(instance.map.getMapCell(plan.agent.source))) /*convert to online (private garage)*/
                 && plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target)) )/*end at target*/;
+    }
+
+    public int numReroutes(){
+        int numReroutes = 0;
+        Solution prevSolution = null;
+        // for every time where new agents arrived (and so the existing plans were possibly changed)
+        for (int time :
+                solutionsAtTimes.keySet()) {
+            Solution solution = solutionsAtTimes.get(time);
+            // every agent included in this solution. meaning it arrived at/before time (the solution's start time), and
+            // hasn't reached its goal yet.
+            if(prevSolution != null){
+                for (SingleAgentPlan plan :
+                        solution) {
+                    Agent agent = plan.agent;
+                    if(prevSolution.getPlanFor(agent) != null){ // agent already had a plan
+                        SingleAgentPlan previousPlan = prevSolution.getPlanFor(agent);
+                        SingleAgentPlan newPlan = solution.getPlanFor(agent);
+                        //check if the plan changed and count it as a reroute if it did
+                        if(previousPlan.getEndTime() != newPlan.getEndTime()){
+                            numReroutes++;
+                        }
+                        else {
+                            for (int t = newPlan.getFirstMoveTime(); t < newPlan.getEndTime(); t++) {
+                                if( ! previousPlan.moveAt(t).equals(newPlan.moveAt(t))){
+                                    numReroutes++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            prevSolution = solution;
+        }
+        return numReroutes;
     }
 }
