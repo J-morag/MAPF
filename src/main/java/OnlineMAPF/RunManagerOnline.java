@@ -34,7 +34,8 @@ public class RunManagerOnline extends A_RunManager {
 //        addExperimentRepeatingUniform();
 //        addExperimentRepeatingNormal();
 //        addExperimentsSmallMazes();
-        addExperimentsSmallCustom();
+//        addExperimentsSmallCustom();
+        addExperimentWaitingForGodot();
     }
 
     @Override
@@ -177,5 +178,25 @@ public class RunManagerOnline extends A_RunManager {
         /*  =   Add new experiment   =  */
         this.experiments.add(new OnlineExperiment("smallCustom", instanceManager));
     }
+
+
+    private void addExperimentWaitingForGodot() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\waitingForGodot"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{21, 31, 41, 51, 61, 71});
+
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        OnlineExperiment experiment = new OnlineExperiment("WaitingForGodot", instanceManager);
+        experiment.keepSolutionInReport = true;
+        this.experiments.add(experiment);
+    }
+
 
 }
