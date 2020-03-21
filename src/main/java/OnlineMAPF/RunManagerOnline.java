@@ -3,11 +3,10 @@ package OnlineMAPF;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import Environment.A_RunManager;
-import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.Solvers.NaiveOnlineSolver;
+import OnlineMAPF.Solvers.OnlineSolver;
 import OnlineMAPF.Solvers.OnlineCompatibleOfflineCBS;
 import OnlineMAPF.Solvers.OnlineSolverContainer;
 
@@ -24,7 +23,7 @@ public class RunManagerOnline extends A_RunManager {
     @Override
     protected void setSolvers() {
         this.solvers.add(new OnlineCompatibleOfflineCBS());
-        this.solvers.add(new OnlineSolverContainer(new NaiveOnlineSolver()));
+        this.solvers.add(new OnlineSolverContainer(new OnlineSolver()));
     }
 
     /*  = Set Experiments =  */

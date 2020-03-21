@@ -4,20 +4,38 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.RunParameters;
+import BasicCBS.Solvers.SingleAgentPlan;
+import BasicCBS.Solvers.Solution;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineConstraintSet;
+import OnlineMAPF.OnlineSolution;
 
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * A single agent AStar implementation for online agents.
+ */
 public class OnlineAStar extends SingleAgentAStar_Solver {
 
-    public OnlineAStar() {
+    private int costOfReroute = 0;
+    private Solution previousSolution;
+    private SingleAgentPlan previousPlan;
+
+    public OnlineAStar(int costOfReroute, Solution previousSolution) {
         super(false);
+        this.costOfReroute = costOfReroute;
+        this.previousSolution = Objects.requireNonNullElseGet(previousSolution, Solution::new);
+    }
+
+    public OnlineAStar() {
+        this(0, null);
     }
 
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
+        this.previousPlan = previousSolution.getPlanFor(super.agent);
         if (! (super.agent instanceof OnlineAgent) ) {
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " is an online solver and accepts only Online Agents.");
         }
@@ -47,21 +65,32 @@ public class OnlineAStar extends SingleAgentAStar_Solver {
         return move.prevLocation.equals(move.currLocation);
     }
 
-    //
-//    /**
-//     * Adds a possible stay move at the garage.
-//     */
-//    @Override
-//    protected void fillOpenWithRoots() {
-//        super.fillOpenWithRoots();
-//        I_Location garage = ((OnlineAgent) super.agent).getPrivateGarage(super.map.getMapCell(super.agent.source));
-//        if(! (garage.equals(super.agentStartLocation))){
-//            // can stay at the garage instead of coming into the map. if the agent wants to come into the map on its first
-//            // move, it won't start in the garage, but will instead start at the location on the map, and it can move from there.
-//            Move stayAtGarage = new Move(super.agent, super.problemStartTime + 1, garage, garage);
-//            openList.add(new AStarState(stayAtGarage, null, 1));
-//            super.generatedNodes++;
-//        }
-//
-//    }
+    @Override
+    protected AStarState newState(Move move, AStarState prevState, int g) {
+        return new OnlineAStarState(move, (OnlineAStarState)prevState, g);
+    }
+
+
+    public class OnlineAStarState extends AStarState {
+
+        /**
+         * Indicates if this or a previous state had a reroute already.
+         */
+        boolean hadReroutes;
+
+        public OnlineAStarState(Move move, OnlineAStarState prevState, int g) {
+            super(move, prevState,
+                    /*
+                    Add the cost of reroute to g if this is the first occurrence of a reroute on this route.
+                    If some parent was already a reroute, then the whole route is a reroute and the cost is only added once.
+                     */
+                    g + (( previousPlan != null
+                               && (prevState == null || !prevState.hadReroutes)
+                               && OnlineSolution.isAReroute(previousPlan, move)) ?
+                               OnlineAStar.this.costOfReroute : 0) );
+            this.hadReroutes = previousPlan != null &&
+                    ((prevState != null && prevState.hadReroutes) || OnlineSolution.isAReroute(previousPlan, move));
+        }
+    }
+
 }

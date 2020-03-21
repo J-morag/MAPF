@@ -10,6 +10,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineSolution;
+import OnlineMAPF.RunParametersOnline;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import java.util.Objects;
  * Solves online problems naively, by delegating to a standard offline solver, and solving a brand new offline problem
  * every time new agents arrive.
  */
-public class NaiveOnlineSolver implements I_OnlineSolver {
+public class OnlineSolver implements I_OnlineSolver {
 
 //    /**
 //     * An offline solver used to solve the new problem created every time new agents join. This offline solver must be
@@ -31,10 +32,11 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
     private Solution latestSolution;
     private MAPF_Instance baseInstance;
     private InstanceReport instanceReport;
+    private int costOfReroute = 0;
 
     private long totalRuntime;
 
-    public NaiveOnlineSolver() {
+    public OnlineSolver() {
     }
 
     @Override
@@ -43,6 +45,10 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
         this.baseInstance = instance;
         totalRuntime = 0;
         this.instanceReport = parameters.instanceReport != null ? parameters.instanceReport : S_Metrics.newInstanceReport();
+        if(parameters instanceof RunParametersOnline){
+            this.costOfReroute = ((RunParametersOnline)parameters).costOfReroute;
+            if (this.costOfReroute < 0) throw new IllegalArgumentException("cost of reroute must be non negative");
+        }
     }
 
     @Override
@@ -53,7 +59,8 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
         // new agents will start at their private garages.
         addNewAgents(agents, currentAgentLocations);
 
-        OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time);
+        OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time,
+                new COR_CBS_CostFunction(this.costOfReroute, latestSolution), new OnlineAStar(this.costOfReroute, latestSolution));
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
         RunParameters runParameters = new RunParameters(S_Metrics.newInstanceReport());
         latestSolution = offlineSolver.solve(subProblem, runParameters);
@@ -112,6 +119,6 @@ public class NaiveOnlineSolver implements I_OnlineSolver {
 
     @Override
     public String name() {
-        return "NaiveOnlineSolver";
+        return "OnlineSolver";
     }
 }

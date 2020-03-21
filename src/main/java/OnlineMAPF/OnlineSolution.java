@@ -5,6 +5,7 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
+import jdk.jshell.spi.ExecutionControl;
 
 import java.util.*;
 
@@ -111,29 +112,73 @@ public class OnlineSolution extends Solution{
             // every agent included in this solution. meaning it arrived at/before time (the solution's start time), and
             // hasn't reached its goal yet.
             if(prevSolution != null){
-                for (SingleAgentPlan plan :
-                        solution) {
-                    Agent agent = plan.agent;
-                    if(prevSolution.getPlanFor(agent) != null){ // agent already had a plan
-                        SingleAgentPlan previousPlan = prevSolution.getPlanFor(agent);
-                        SingleAgentPlan newPlan = solution.getPlanFor(agent);
-                        //check if the plan changed and count it as a reroute if it did
-                        if(previousPlan.getEndTime() != newPlan.getEndTime()){
-                            numReroutes++;
-                        }
-                        else {
-                            for (int t = newPlan.getFirstMoveTime(); t < newPlan.getEndTime(); t++) {
-                                if( ! previousPlan.moveAt(t).equals(newPlan.moveAt(t))){
-                                    numReroutes++;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                numReroutes += numReroutes(prevSolution, solution);
             }
             prevSolution = solution;
         }
         return numReroutes;
     }
+
+    /**
+     * Counts the number reroutes to get from the existing solution to the new solution. That is, the number of plans
+     * in the new solution that are different from the corresponding plan in the existing solution, starting from the
+     * start time of the new solution.
+     * @param existingSolution the existing (old) solution.
+     * @param newSolution the new solution.
+     * @return the number of reroutes in the new solution.
+     */
+    public static int numReroutes(Solution existingSolution, Solution newSolution){
+        int numReroutes = 0;
+        for (SingleAgentPlan plan :
+                newSolution) {
+            Agent agent = plan.agent;
+            if(existingSolution.getPlanFor(agent) != null){ // agent already had a plan
+                SingleAgentPlan previousPlan = existingSolution.getPlanFor(agent);
+                SingleAgentPlan newPlan = newSolution.getPlanFor(agent);
+                //check if the plan changed and count it as a reroute if it did
+                if(previousPlan.getEndTime() != newPlan.getEndTime()){
+                    numReroutes++;
+                }
+                else {
+                    for (int t = newPlan.getFirstMoveTime(); t < newPlan.getEndTime(); t++) {
+                        if( isAReroute(previousPlan, newPlan.moveAt(t)) ){
+                            numReroutes++;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return numReroutes;
+    }
+
+    /**
+     * Returns true if the given move is different from the planned move at that time, meaning a reroute.
+     * @param previousPlan - a previously existing plan.
+     * @param move a move an agent may want to make in a new plan that is being considered.
+     * @return true if the given move is different from the planned move at that time, meaning a reroute.
+     */
+    public static boolean isAReroute(SingleAgentPlan previousPlan, Move move) {
+        return ! Objects.equals(previousPlan.moveAt(move.timeNow), move);
+    }
+
+    /**
+     * The cost of all reroutes that happened in the online solution.
+     * @return the cost of all reroutes that happened in the online solution
+     */
+    public int costOfReroutes(int costOfSingleReroute) {
+        return numReroutes() * costOfSingleReroute;
+    }
+
+    /**
+     * The cost of all the reroutes between an old and a new solution.
+     * @param existingSolution -
+     * @param existingSolution the existing (old) solution.
+     * @param newSolution the new solution.
+     * @return the cost of reroutes in the new solution.
+     */
+    public static int costOfReroutes(Solution existingSolution, Solution newSolution, int costOfSingleReroute){
+        return costOfSingleReroute * numReroutes(existingSolution, newSolution);
+    }
+
 }
