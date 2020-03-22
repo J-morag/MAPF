@@ -121,6 +121,12 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
     @Override
     public String name() {
-        return "OnlineOracle";
+        return "Oracle";
+    }
+
+    @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.totalReroutesCost, 0);
     }
 }

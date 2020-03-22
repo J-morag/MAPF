@@ -26,6 +26,7 @@ public class Experiment {
 
     public final String experimentName;
     public final int numOfInstances;
+    public final int DEFAULT_TIMEOUT = 300 * 1000;
     protected InstanceManager instanceManager;
     /**
      * When the experiment encounters an instance that was already tried with the same solver, and failed, and is now
@@ -34,7 +35,7 @@ public class Experiment {
     public boolean skipAfterFail = true;
 
     /**
-     * If set to false, the solution wil lbe removed from reports before committing them. Solutions can be very large strings,
+     * If set to false, the solution will be removed from reports before committing them. Solutions can be very large strings,
      * so removing them will save space in long experiments.
      */
     public boolean keepSolutionInReport = false;
@@ -142,12 +143,12 @@ public class Experiment {
 
         // create report before skipping, so that output will be easier to read
         InstanceReport instanceReport = this.setReport(instance, solver);
-        if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance, solver)) {
+        if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance, null)) {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 1);
             return;
         }
 
-        RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
+        RunParameters runParameters = getRunParameters(DEFAULT_TIMEOUT, instanceReport);
 
         System.out.println("---------- solving " + instance.extendedName + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
         System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
@@ -184,6 +185,10 @@ public class Experiment {
         }
     }
 
+    protected RunParameters getRunParameters(int timeout, InstanceReport instanceReport){
+        return new RunParameters(timeout, null, instanceReport, null);
+    }
+
     private void recordFailure(MAPF_Instance instance, Map<String, Integer> failedInstances, I_Solver solver) {
         Integer prevFailNumAgents = failedInstances.get(instanceAndSolverStringRepresentation(instance, solver));
         if (prevFailNumAgents == null || prevFailNumAgents > instance.agents.size()) {
@@ -197,6 +202,6 @@ public class Experiment {
     }
 
     protected String instanceAndSolverStringRepresentation(MAPF_Instance instance, I_Solver solver) {
-        return instance.extendedName + solver.name();
+        return instance.extendedName + (solver != null ? solver.name() : "");
     }
 }

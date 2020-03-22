@@ -144,10 +144,12 @@ public class OnlineSolverContainer implements I_Solver {
 
     private void wrapUp(RunParameters parameters, OnlineSolution solution) {
         onlineSolver.writeReportAndClearData(solution);
+        parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
+        parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.COR, costOfReroute);
+
         if(solution != null){
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
-            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
-            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.reroutesCost, solution.costOfReroutes(costOfReroute));
+            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.totalReroutesCost, solution.costOfReroutes(costOfReroute));
             parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
         }

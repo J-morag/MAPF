@@ -42,7 +42,8 @@ public class InstanceReport {
         public final static String solved = "Solved";
         public final static String valid = "Valid";
         public final static String solutionCost = "Solution Cost";
-        public final static String reroutesCost = "cost of Reroutes";
+        public final static String totalReroutesCost = "Total Cost of Reroutes";
+        public final static String COR = "cost of reroute";
         public final static String solutionCostFunction = "Cost Function";
         public final static String solution = "Solution";
         public final static String agentSelection = "Agent Selection Policy";

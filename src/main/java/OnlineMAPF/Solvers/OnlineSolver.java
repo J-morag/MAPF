@@ -12,10 +12,8 @@ import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineSolution;
 import OnlineMAPF.RunParametersOnline;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Solves online problems naively, by delegating to a standard offline solver, and solving a brand new offline problem
@@ -33,6 +31,7 @@ public class OnlineSolver implements I_OnlineSolver {
     private MAPF_Instance baseInstance;
     private InstanceReport instanceReport;
     private int costOfReroute = 0;
+    private long timeoutThreshold;
 
     private long totalRuntime;
 
@@ -44,6 +43,7 @@ public class OnlineSolver implements I_OnlineSolver {
         latestSolution = new Solution();
         this.baseInstance = instance;
         totalRuntime = 0;
+        timeoutThreshold = parameters.timeout;
         this.instanceReport = parameters.instanceReport != null ? parameters.instanceReport : S_Metrics.newInstanceReport();
         if(parameters instanceof RunParametersOnline){
             this.costOfReroute = ((RunParametersOnline)parameters).costOfReroute;
@@ -62,7 +62,7 @@ public class OnlineSolver implements I_OnlineSolver {
         OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time,
                 new COR_CBS_CostFunction(this.costOfReroute, latestSolution), new OnlineAStar(this.costOfReroute, latestSolution));
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
-        RunParameters runParameters = new RunParameters(S_Metrics.newInstanceReport());
+        RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), null);
         latestSolution = offlineSolver.solve(subProblem, runParameters);
         digestSubproblemReport(runParameters.instanceReport);
 
@@ -98,10 +98,12 @@ public class OnlineSolver implements I_OnlineSolver {
     @Override
     public void writeReportAndClearData(OnlineSolution solution) {
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)totalRuntime);
-        instanceReport.putStringValue(InstanceReport.StandardFields.solver, this.getClass().getSimpleName());
+        instanceReport.putStringValue(InstanceReport.StandardFields.solver, this.name());
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.COR, costOfReroute);
 
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.numReroutes, solution.numReroutes());
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.totalReroutesCost, solution.costOfReroutes(costOfReroute));
         }
 
 //        instanceReport.putIntegerValue(InstanceReport.StandardFields.timeoutThresholdMS, (int) this.maximumRuntime);
@@ -115,6 +117,7 @@ public class OnlineSolver implements I_OnlineSolver {
         this.totalRuntime = 0;
         this.latestSolution = null;
         this.baseInstance = null;
+        this.costOfReroute = 0;
     }
 
     @Override
