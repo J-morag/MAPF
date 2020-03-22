@@ -26,6 +26,7 @@ import java.util.Objects;
  */
 public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
+    public String name = "Oracle";
     /**
      * Custom locations to start the agents at.
      */
@@ -34,6 +35,11 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
      * A start time to use for all agents instead of their arrival times.
      */
     private int customStartTime = -1;
+
+    /**
+     * A solution which was previously found for a subset of an instance's agents.
+     */
+    private Solution existingSolution;
 
     public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, CBSCostFunction costFunction, OnlineAStar onlineAStar) {
         // use online aStar.
@@ -67,6 +73,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
         if(super.aStarHeuristic != null && super.aStarHeuristic instanceof DistanceTableAStarHeuristic){
             super.aStarHeuristic = new OnlineDistanceTableAStarHeuristic((DistanceTableAStarHeuristic)super.aStarHeuristic);
         }
+        this.existingSolution = Objects.requireNonNullElseGet(runParameters.existingSolution, Solution::new);
     }
 
     @Override
@@ -74,6 +81,29 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
         Solution solution = super.runAlgorithm(instance, parameters);
         if(solution == null) return null;
         return new OnlineSolution(solution);
+    }
+
+    @Override
+    protected CBS_Node generateRoot(ConstraintSet initialConstraints) {
+        CBS_Node rootNode = super.generateRoot(initialConstraints);
+        // try to use existing plans in the root, if such plans are available
+        for(Agent agent : super.instance.agents){
+            SingleAgentPlan existingPlan = existingSolution.getPlanFor(agent);
+            if(existingPlan != null){
+                SingleAgentPlan trimmedPlanCopy;
+                if(customStartTime < 1){
+                    trimmedPlanCopy = new SingleAgentPlan(existingPlan);
+                }
+                else{
+                    trimmedPlanCopy = new SingleAgentPlan(agent);
+                    for(int time = customStartTime; time <= existingPlan.getEndTime(); time++){
+                        trimmedPlanCopy.addMove(existingPlan.moveAt(time));
+                    }
+                }
+                rootNode.getSolution().putPlan(trimmedPlanCopy);
+            }
+        }
+        return rootNode;
     }
 
     /**
@@ -121,7 +151,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
     @Override
     public String name() {
-        return "Oracle";
+        return name;
     }
 
     @Override

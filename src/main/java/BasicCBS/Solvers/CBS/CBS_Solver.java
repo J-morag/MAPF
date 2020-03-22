@@ -28,7 +28,7 @@ public class CBS_Solver extends A_Solver {
 
     /*  =  = Fields related to the MAPF instance  =  */
 
-    private MAPF_Instance instance;
+    protected MAPF_Instance instance;
 
     /*  =  = Fields related to the run =  */
 
@@ -150,7 +150,7 @@ public class CBS_Solver extends A_Solver {
     /**
      * Creates a root node.
      */
-    private CBS_Node generateRoot(ConstraintSet initialConstraints) {
+    protected CBS_Node generateRoot(ConstraintSet initialConstraints) {
         Solution solution = new Solution(); // init an empty solution
         // for every agent, add its plan to the solution
         for (Agent agent :

@@ -13,6 +13,7 @@ import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import OnlineMAPF.RunManagerOnlineRuntimes;
 import OnlineMAPF.Solvers.OnlineAStar;
 import OnlineMAPF.Solvers.OnlinePP_Solver;
 
@@ -42,7 +43,9 @@ public class Main {
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
-            runOnlineExperiment();
+//            runOnlineExperiment();
+            runOnlineRuntimesExperiment();
+
 //            // write the reports to System.out
 //            addConsoleAsOutputStream();
 //            // will solve a single instance and print the solution
@@ -59,7 +62,11 @@ public class Main {
     public static void runOnlineExperiment(){
         RunManagerOnline runManagerOnline = new RunManagerOnline();
         runManagerOnline.runAllExperiments();
+    }
 
+    public static void runOnlineRuntimesExperiment(){
+        RunManagerOnlineRuntimes runManagerOnlineRuntimes = new RunManagerOnlineRuntimes();
+        runManagerOnlineRuntimes.runAllExperiments();
     }
 
     private static void solveOneInstance() {

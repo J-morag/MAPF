@@ -21,11 +21,7 @@ import java.util.List;
  */
 public class OnlineSolver implements I_OnlineSolver {
 
-//    /**
-//     * An offline solver used to solve the new problem created every time new agents join. This offline solver must be
-//     * compatible with online problems - i.e. agents disappearing at goal and starting at private garages.
-//     */
-//    private OnlineCompatibleOfflineCBS offlineSolver;
+    public String name = "OnlineSolver";
 
     private Solution latestSolution;
     private MAPF_Instance baseInstance;
@@ -62,7 +58,7 @@ public class OnlineSolver implements I_OnlineSolver {
         OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time,
                 new COR_CBS_CostFunction(this.costOfReroute, latestSolution), new OnlineAStar(this.costOfReroute, latestSolution));
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
-        RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), null);
+        RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), new Solution(latestSolution));
         latestSolution = offlineSolver.solve(subProblem, runParameters);
         digestSubproblemReport(runParameters.instanceReport);
 
@@ -122,6 +118,6 @@ public class OnlineSolver implements I_OnlineSolver {
 
     @Override
     public String name() {
-        return "OnlineSolver";
+        return name;
     }
 }

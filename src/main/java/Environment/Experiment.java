@@ -26,7 +26,7 @@ public class Experiment {
 
     public final String experimentName;
     public final int numOfInstances;
-    public final int DEFAULT_TIMEOUT = 300 * 1000;
+    public int timeout = 300 * 1000;
     protected InstanceManager instanceManager;
     /**
      * When the experiment encounters an instance that was already tried with the same solver, and failed, and is now
@@ -70,6 +70,7 @@ public class Experiment {
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         /*  = Put values in report =  */
         instanceReport.putStringValue(InstanceReport.StandardFields.experimentName, this.experimentName);
+        instanceReport.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
         instanceReport.putStringValue(InstanceReport.StandardFields.instanceName, instance.extendedName);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
         instanceReport.putIntegerValue(InstanceReport.StandardFields.obstacleRate, instance.getObstaclePercentage());
@@ -143,12 +144,12 @@ public class Experiment {
 
         // create report before skipping, so that output will be easier to read
         InstanceReport instanceReport = this.setReport(instance, solver);
-        if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance, null)) {
+        if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance, solver)) {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 1);
             return;
         }
 
-        RunParameters runParameters = getRunParameters(DEFAULT_TIMEOUT, instanceReport);
+        RunParameters runParameters = getRunParameters(timeout, instanceReport);
 
         System.out.println("---------- solving " + instance.extendedName + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
         System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
