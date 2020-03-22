@@ -2,14 +2,13 @@ package OnlineMAPF.Solvers;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
-import BasicCBS.Solvers.A_Solver;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineSolution;
+import OnlineMAPF.RunParametersOnline;
 
 import java.util.*;
 
@@ -30,6 +29,10 @@ public class OnlineSolverContainer implements I_Solver {
      * Defaults to {@link OnlineAgent#DEFAULT_ARRIVAL_TIME}.
      */
     private static final int ARRIVAL_TIME_FOR_OFFLINE_AGENTS = OnlineAgent.DEFAULT_ARRIVAL_TIME;
+    /**
+     * The cost of rerouting an agent.
+     */
+    private int costOfReroute;
 
     public OnlineSolverContainer(I_OnlineSolver onlineSolver) {
         if(onlineSolver == null) {
@@ -52,6 +55,7 @@ public class OnlineSolverContainer implements I_Solver {
         verifyAgentsUniqueId(instance.agents);
         SortedMap<Integer, Solution> solutionsAtTimes = new TreeMap<>();
         SortedMap<Integer, List<OnlineAgent>> agentsForTimes = OnlineSolverContainer.getAgentsByTime(instance.agents);
+        this.costOfReroute = parameters instanceof RunParametersOnline ? ((RunParametersOnline)parameters).costOfReroute : 0;
         // must initialize the solver because later we will only be giving it new agents, no other data
         onlineSolver.setEnvironment(instance, parameters);
         // feed the solver with new agents for every timestep when new agents arrive
@@ -140,11 +144,14 @@ public class OnlineSolverContainer implements I_Solver {
 
     private void wrapUp(RunParameters parameters, OnlineSolution solution) {
         onlineSolver.writeReportAndClearData(solution);
+        parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
+        parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.COR, costOfReroute);
+
         if(solution != null){
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.totalReroutesCost, solution.costOfReroutes(costOfReroute));
             parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
-            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
         }
         else{
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);

@@ -13,6 +13,7 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import OnlineMAPF.*;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -34,15 +35,19 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
      */
     private int customStartTime = -1;
 
-    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime) {
-        this(customStartLocations);
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, CBSCostFunction costFunction, OnlineAStar onlineAStar) {
+        // use online aStar.
+        super(Objects.requireNonNullElseGet(onlineAStar, OnlineAStar::new), null, null, costFunction, null);
+        this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
         this.customStartTime = customStartTime;
     }
 
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime) {
+        this(customStartLocations, customStartTime, null, null);
+    }
+
     public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations) {
-        // use online aStar.
-        super(new OnlineAStar(), null, null, null, null);
-        this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
+        this(customStartLocations, -1, null, null);
     }
 
     public OnlineCompatibleOfflineCBS(){
@@ -116,6 +121,12 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
 
     @Override
     public String name() {
-        return "OnlineCompatibleOfflineCBS";
+        return "Oracle";
+    }
+
+    @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.totalReroutesCost, 0);
     }
 }

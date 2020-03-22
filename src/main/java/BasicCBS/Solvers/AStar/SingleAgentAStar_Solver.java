@@ -185,7 +185,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // We assume that we cannot change the existing plan, so if it is rejected by constraints, we can't initialise OPEN.
             if(constraints.rejects(lastExistingMove)) {return false;}
 
-            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null, /*g=number of moves*/existingPlan.size()));
+            openList.add(newState(existingPlan.moveAt(existingPlan.getEndTime()), null, /*g=number of moves*/ existingPlan.size()));
         }
         else { // the existing plan is empty (no existing plan)
             fillOpenWithRoots();
@@ -194,6 +194,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
         // if none of the root nodes was valid, OPEN will be empty, and thus uninitialised.
         return !openList.isEmpty();
     }
+
+    protected AStarState newState(Move move, AStarState prevState, int g) {
+        return new AStarState(move, prevState, g);
+    }
+
 
     protected void fillOpenWithRoots() {
         I_Location sourceCell = this.agentStartLocation;
@@ -204,7 +209,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         for (I_Location destination: neighborCellsIncludingCurrent) {
             Move possibleMove = new Move(agent, problemStartTime + 1, sourceCell, destination);
             if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                AStarState rootState = new AStarState(possibleMove, null, 1);
+                AStarState rootState = newState(possibleMove, null, 1);
                 openList.add(rootState);
             }
         }
@@ -305,7 +310,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             for (I_Location destination: neighborCellsIncludingCurrent){
                 Move possibleMove = new Move(this.move.agent, this.move.timeNow+1, this.move.currLocation, destination);
                 if(constraints.accepts(possibleMove)){ //move not prohibited by existing constraint
-                    AStarState child = new AStarState(possibleMove, this, this.g + 1);
+                    AStarState child = newState(possibleMove, this, this.g + 1);
 
                     AStarState existingState;
                     if(closed.contains(child)){ // state visited already
@@ -325,10 +330,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         private void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
             openList.keepOne(existingState, newState, stateGComparator);
-//            boolean shouldSwap = newState.g < existingState.g;
-//            if(shouldSwap){
-//                openList.replace(existingState, newState);
-//            }
         }
 
         public SingleAgentPlan backTracePlan() {

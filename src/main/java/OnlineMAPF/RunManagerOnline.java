@@ -3,11 +3,10 @@ package OnlineMAPF;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import Environment.A_RunManager;
-import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.Solvers.NaiveOnlineSolver;
+import OnlineMAPF.Solvers.OnlineSolver;
 import OnlineMAPF.Solvers.OnlineCompatibleOfflineCBS;
 import OnlineMAPF.Solvers.OnlineSolverContainer;
 
@@ -24,7 +23,7 @@ public class RunManagerOnline extends A_RunManager {
     @Override
     protected void setSolvers() {
         this.solvers.add(new OnlineCompatibleOfflineCBS());
-        this.solvers.add(new OnlineSolverContainer(new NaiveOnlineSolver()));
+        this.solvers.add(new OnlineSolverContainer(new OnlineSolver()));
     }
 
     /*  = Set Experiments =  */
@@ -35,7 +34,8 @@ public class RunManagerOnline extends A_RunManager {
 //        addExperimentRepeatingNormal();
 //        addExperimentsSmallMazes();
 //        addExperimentsSmallCustom();
-        addExperimentWaitingForGodot();
+//        addExperimentWaitingForGodot();
+        addExperimentExtensiveWithCOR();
     }
 
     @Override
@@ -53,6 +53,9 @@ public class RunManagerOnline extends A_RunManager {
                     InstanceReport.StandardFields.valid,
                     InstanceReport.StandardFields.elapsedTimeMS,
                     InstanceReport.StandardFields.solutionCost,
+                    InstanceReport.StandardFields.numReroutes,
+                    InstanceReport.StandardFields.COR,
+                    InstanceReport.StandardFields.totalReroutesCost,
                     InstanceReport.StandardFields.numReroutes,
                     InstanceReport.StandardFields.solution});
         } catch (IOException e) {
@@ -89,6 +92,9 @@ public class RunManagerOnline extends A_RunManager {
 //                            InstanceReport.StandardFields.elapsedTimeMS,
 //                            InstanceReport.StandardFields.solutionCost,
 //                            InstanceReport.StandardFields.numReroutes,
+//                            InstanceReport.StandardFields.COR,
+//                            InstanceReport.StandardFields.totalReroutesCost,
+//                            InstanceReport.StandardFields.numReroutes,
 //                            InstanceReport.StandardFields.solution}
                             );
         } catch (IOException e) {
@@ -112,7 +118,7 @@ public class RunManagerOnline extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        this.experiments.add(new OnlineExperiment("unique_agents_poisson", instanceManager));
+        this.experiments.add(new OnlineExperiment("unique_agents_poisson", instanceManager, null));
     }
 
     private void addExperimentRepeatingUniform() {
@@ -128,7 +134,7 @@ public class RunManagerOnline extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        this.experiments.add(new OnlineExperiment("repeatingUniform_agents_poisson", instanceManager));
+        this.experiments.add(new OnlineExperiment("repeatingUniform_agents_poisson", instanceManager, null));
     }
 
     private void addExperimentRepeatingNormal() {
@@ -144,7 +150,7 @@ public class RunManagerOnline extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        this.experiments.add(new OnlineExperiment("repeatingNormal_agents_poisson", instanceManager));
+        this.experiments.add(new OnlineExperiment("repeatingNormal_agents_poisson", instanceManager, null));
     }
 
     private void addExperimentsSmallMazes() {
@@ -160,7 +166,7 @@ public class RunManagerOnline extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        this.experiments.add(new OnlineExperiment("smallMazes", instanceManager));
+        this.experiments.add(new OnlineExperiment("smallMazes", instanceManager, null));
     }
 
     private void addExperimentsSmallCustom() {
@@ -176,7 +182,7 @@ public class RunManagerOnline extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        this.experiments.add(new OnlineExperiment("smallCustom", instanceManager));
+        this.experiments.add(new OnlineExperiment("smallCustom", instanceManager, null));
     }
 
 
@@ -193,8 +199,26 @@ public class RunManagerOnline extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("WaitingForGodot", instanceManager);
+        OnlineExperiment experiment = new OnlineExperiment("WaitingForGodot", instanceManager, null);
         experiment.keepSolutionInReport = true;
+        this.experiments.add(experiment);
+    }
+
+    private void addExperimentExtensiveWithCOR() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40, 50});
+
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        OnlineExperiment experiment = new OnlineExperiment("Extensive With COR", instanceManager, new int[]{0, 1, 2, 3, 10, 50, 100});
+        experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
     }
 
