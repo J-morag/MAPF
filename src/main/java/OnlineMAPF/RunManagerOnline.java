@@ -222,5 +222,21 @@ public class RunManagerOnline extends A_RunManager {
         this.experiments.add(experiment);
     }
 
+    private void addExperimentCompareRuntimes() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\kiva"});
 
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40, 50});
+
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        OnlineExperiment experiment = new OnlineExperiment("Compare Run-times", instanceManager, new int[]{0, 1, 2, 3, 10, 50, 100});
+        experiment.keepSolutionInReport = false;
+        this.experiments.add(experiment);
+    }
 }
