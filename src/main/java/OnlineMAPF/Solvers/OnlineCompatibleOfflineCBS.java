@@ -86,6 +86,9 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
     @Override
     protected CBS_Node generateRoot(ConstraintSet initialConstraints) {
         CBS_Node rootNode = super.generateRoot(initialConstraints);
+        if (rootNode == null) {
+            return null;
+        }
         // try to use existing plans in the root, if such plans are available
         for(Agent agent : super.instance.agents){
             SingleAgentPlan existingPlan = existingSolution.getPlanFor(agent);
