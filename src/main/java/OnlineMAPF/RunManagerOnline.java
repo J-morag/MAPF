@@ -100,6 +100,7 @@ public class RunManagerOnline extends A_RunManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        S_Metrics.clearAll();
     }
 
 
