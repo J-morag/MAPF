@@ -43,7 +43,7 @@ public class Main {
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
-            runOnlineRuntimesExperiment();
+//            runOnlineRuntimesExperiment();
             runOnlineExperiment();
 
 //            // write the reports to System.out

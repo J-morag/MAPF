@@ -28,10 +28,18 @@ public class OnlineSolver implements I_OnlineSolver {
     private InstanceReport instanceReport;
     private int costOfReroute = 0;
     private long timeoutThreshold;
+    /**
+     * If set to true, will start every new CBS with the plans from the previous solution as its root
+     */
+    private boolean preserveSolutionsInNewRoots = false;
 
     private long totalRuntime;
 
     public OnlineSolver() {
+    }
+
+    public OnlineSolver(boolean preserveSolutionsInNewRoots) {
+        this.preserveSolutionsInNewRoots = preserveSolutionsInNewRoots;
     }
 
     @Override
@@ -55,10 +63,12 @@ public class OnlineSolver implements I_OnlineSolver {
         // new agents will start at their private garages.
         addNewAgents(agents, currentAgentLocations);
 
+        OnlineAStar onlineAStar = preserveSolutionsInNewRoots ? new OnlineAStar(this.costOfReroute, latestSolution) : new OnlineAStar(costOfReroute);
         OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time,
-                new COR_CBS_CostFunction(this.costOfReroute, latestSolution), new OnlineAStar(this.costOfReroute, latestSolution));
+                new COR_CBS_CostFunction(this.costOfReroute, latestSolution), onlineAStar);
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
-        RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), new Solution(latestSolution));
+        Solution previousSolution = preserveSolutionsInNewRoots ? new Solution(latestSolution) : null;
+        RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), previousSolution);
         latestSolution = offlineSolver.solve(subProblem, runParameters);
         digestSubproblemReport(runParameters.instanceReport);
 

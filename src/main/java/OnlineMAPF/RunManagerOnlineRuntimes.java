@@ -24,9 +24,9 @@ public class RunManagerOnlineRuntimes extends A_RunManager {
     /*  = Set Solvers =  */
     @Override
     protected void setSolvers() {
-        OnlineSolver preservingRootSolver = new OnlineSolver();
+        OnlineSolver preservingRootSolver = new OnlineSolver(true);
         preservingRootSolver.name = "Preserving Root Online";
-        OnlineSolver naiveOnline = new OnlineSolver();
+        OnlineSolver naiveOnline = new OnlineSolver(false);
         naiveOnline.name = "Naive Online";
         this.solvers.add(new OnlineSolverContainer(preservingRootSolver));
         this.solvers.add(new OnlineSolverContainer(naiveOnline));
@@ -113,7 +113,11 @@ public class RunManagerOnlineRuntimes extends A_RunManager {
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\kiva"});
 
         /*  =   Set Properties   =  */
-        int[] agentAmounts = new int[]{10, 20, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80};
+        int biggestNumAgents = 100;
+        int[] agentAmounts = new int[biggestNumAgents];
+        for (int i = 1; i <= biggestNumAgents; i++) {
+            agentAmounts[i-1] = i;
+        }
         InstanceProperties properties = new InstanceProperties(null, -1, agentAmounts);
 
 
@@ -121,7 +125,7 @@ public class RunManagerOnlineRuntimes extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("Compare Run-times", instanceManager, null);
+        OnlineExperiment experiment = new OnlineExperiment("Compare Run-times", instanceManager, new int[]{0, 20});
         experiment.timeout = 5 * 60 * 1000;
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);

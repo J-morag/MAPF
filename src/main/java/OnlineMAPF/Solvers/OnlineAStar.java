@@ -28,6 +28,10 @@ public class OnlineAStar extends SingleAgentAStar_Solver {
         this.previousSolution = Objects.requireNonNullElseGet(previousSolution, Solution::new);
     }
 
+    public OnlineAStar(int costOfReroute) {
+        this(costOfReroute, null);
+    }
+
     public OnlineAStar() {
         this(0, null);
     }
