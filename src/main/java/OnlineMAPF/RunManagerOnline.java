@@ -44,6 +44,7 @@ public class RunManagerOnline extends A_RunManager {
             S_Metrics.setHeader(new String[]{
                     InstanceReport.StandardFields.experimentName,
                     InstanceReport.StandardFields.instanceName,
+                    InstanceReport.StandardFields.mapName,
                     InstanceReport.StandardFields.agentSelection,
                     InstanceReport.StandardFields.arrivalDistribution,
                     InstanceReport.StandardFields.arrivalRate,

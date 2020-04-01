@@ -44,6 +44,7 @@ public class RunManagerOnlineRuntimes extends A_RunManager {
             S_Metrics.setHeader(new String[]{
                     InstanceReport.StandardFields.experimentName,
                     InstanceReport.StandardFields.instanceName,
+                    InstanceReport.StandardFields.mapName,
                     InstanceReport.StandardFields.agentSelection,
                     InstanceReport.StandardFields.arrivalDistribution,
                     InstanceReport.StandardFields.arrivalRate,
@@ -112,7 +113,8 @@ public class RunManagerOnlineRuntimes extends A_RunManager {
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\kiva"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40, 50, 60});
+        int[] agentAmounts = new int[]{10, 20, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80};
+        InstanceProperties properties = new InstanceProperties(null, -1, agentAmounts);
 
 
         /*  =   Set Instance Manager   =  */
