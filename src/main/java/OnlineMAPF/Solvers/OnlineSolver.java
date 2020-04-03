@@ -31,7 +31,7 @@ public class OnlineSolver implements I_OnlineSolver {
     /**
      * If set to true, will start every new CBS with the plans from the previous solution as its root
      */
-    private boolean preserveSolutionsInNewRoots = false;
+    private boolean preserveSolutionsInNewRoots = true;
 
     private long totalRuntime;
 
