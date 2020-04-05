@@ -4,6 +4,7 @@ import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.SingleUseConflictAvoidanceTable;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
@@ -310,19 +311,22 @@ public class CBS_Solver extends A_Solver {
     private Solution solveSubproblem(Agent agent, Solution currentSolution, ConstraintSet constraints) {
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         MAPF_Instance subproblem = this.instance.getSubproblemFor(agent);
-        RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport, subproblem);
+        RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport, subproblem, agent);
         Solution subproblemSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
         digestSubproblemReport(instanceReport);
         return subproblemSolution;
     }
 
-    protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport, MAPF_Instance subproblem) {
+    protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport, MAPF_Instance subproblem, Agent agent) {
         // if there was already a timeout while solving a node, we will get a negative time left, which would be
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.currentTimeMillis() - super.startTime), 0);
         RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport, currentSolution);
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
-            subproblemParametes = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
+            RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
+            astarSbuproblemParameters.conflictAvoidanceTable = new SingleUseConflictAvoidanceTable(currentSolution, agent);
+            astarSbuproblemParameters.conflictAvoidanceTable.checkGoals = false;
+            subproblemParametes = astarSbuproblemParameters;
         }
         return subproblemParametes;
     }

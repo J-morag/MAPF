@@ -146,7 +146,11 @@ public class Experiment {
         InstanceReport instanceReport = this.setReport(instance, solver);
         if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance, solver)) {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 1);
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
             return;
+        }
+        else{
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 0);
         }
 
         RunParameters runParameters = getRunParameters(timeout, instanceReport);

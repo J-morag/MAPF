@@ -1,6 +1,7 @@
 package BasicCBS.Solvers.AStar;
 
 import BasicCBS.Instances.Maps.I_Location;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.RunParameters;
@@ -12,6 +13,7 @@ public class RunParameters_SAAStar extends RunParameters {
      */
     public AStarHeuristic heuristicFunction;
     public int problemStartTime = 0;
+    public I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Location agentStartLocation = null;
 
     public RunParameters_SAAStar(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, AStarHeuristic heuristicFunction, int problemStartTime) {
