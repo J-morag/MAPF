@@ -325,7 +325,6 @@ public class CBS_Solver extends A_Solver {
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
             RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
             astarSbuproblemParameters.conflictAvoidanceTable = new SingleUseConflictAvoidanceTable(currentSolution, agent);
-            astarSbuproblemParameters.conflictAvoidanceTable.checkGoals = false;
             subproblemParametes = astarSbuproblemParameters;
         }
         return subproblemParametes;

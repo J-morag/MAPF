@@ -70,8 +70,8 @@ public class OnlineAStar extends SingleAgentAStar_Solver {
     }
 
     @Override
-    protected AStarState newState(Move move, AStarState prevState, int g) {
-        return new OnlineAStarState(move, (OnlineAStarState)prevState, g);
+    protected AStarState newState(Move move, AStarState prevState, int g, int conflicts) {
+        return new OnlineAStarState(move, (OnlineAStarState)prevState, g, conflicts);
     }
 
 
@@ -82,7 +82,7 @@ public class OnlineAStar extends SingleAgentAStar_Solver {
          */
         boolean hadReroutes;
 
-        public OnlineAStarState(Move move, OnlineAStarState prevState, int g) {
+        public OnlineAStarState(Move move, OnlineAStarState prevState, int g, int conflicts) {
             super(move, prevState,
                     /*
                     Add the cost of reroute to g if this is the first occurrence of a reroute on this route.
@@ -91,7 +91,8 @@ public class OnlineAStar extends SingleAgentAStar_Solver {
                     g + (( previousPlan != null
                                && (prevState == null || !prevState.hadReroutes)
                                && OnlineSolution.isAReroute(previousPlan, move)) ?
-                               OnlineAStar.this.costOfReroute : 0) );
+                               OnlineAStar.this.costOfReroute : 0),
+                    conflicts);
             this.hadReroutes = previousPlan != null &&
                     ((prevState != null && prevState.hadReroutes) || OnlineSolution.isAReroute(previousPlan, move));
         }
