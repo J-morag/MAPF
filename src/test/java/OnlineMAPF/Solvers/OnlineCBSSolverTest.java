@@ -27,7 +27,7 @@ import java.util.SortedMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OnlineSolverTest {
+class OnlineCBSSolverTest {
 
     private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
     private final Enum_MapCellType w = Enum_MapCellType.WALL;
@@ -147,7 +147,7 @@ class OnlineSolverTest {
             {agent12to33t0, agent12to34t0, agent11to33t0, agent12to33t1, agent12to33t3, agent12to33t6, agent12to33t7, agent53to05t1,
                     agent53to05t4, agent53to05t5, agent53to05t6, agent53to05t7, agent12to33t0anotherOne});
 
-    private I_Solver solver = new OnlineSolverContainer(new OnlineSolver());
+    private I_Solver solver = new OnlineSolverContainer(new OnlineCBSSolver());
 
     private InstanceReport instanceReport;
 
