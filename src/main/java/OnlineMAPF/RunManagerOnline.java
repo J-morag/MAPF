@@ -6,7 +6,7 @@ import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.Solvers.OnlineSolver;
+import OnlineMAPF.Solvers.OnlineCBSSolver;
 import OnlineMAPF.Solvers.OnlineCompatibleOfflineCBS;
 import OnlineMAPF.Solvers.OnlineSolverContainer;
 
@@ -23,7 +23,7 @@ public class RunManagerOnline extends A_RunManager {
     @Override
     protected void setSolvers() {
         this.solvers.add(new OnlineCompatibleOfflineCBS());
-        this.solvers.add(new OnlineSolverContainer(new OnlineSolver()));
+        this.solvers.add(new OnlineSolverContainer(new OnlineCBSSolver()));
     }
 
     /*  = Set Experiments =  */

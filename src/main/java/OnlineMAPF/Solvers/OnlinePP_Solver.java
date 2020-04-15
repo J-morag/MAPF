@@ -61,15 +61,19 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
         for (int timestepWithNewAgents :
                 agentsForTimes.keySet()) {
             if(super.checkTimeout()) break;
-            List<OnlineAgent> newArrivals = agentsForTimes.get(timestepWithNewAgents);
-            // no need to change the starting positions of old agents or modify their plans, since their plans will be avoided, not modified.
-            trimOutdatedConstraints(initialConstraints, timestepWithNewAgents); //avoid huge constraint sets in problems with many agents
-            Solution subgroupSolution = super.solvePrioritisedPlanning(newArrivals, instance, initialConstraints);
-            solutionsAtTimes.put(timestepWithNewAgents, subgroupSolution);
+            solveAtTimeStep(instance, initialConstraints, solutionsAtTimes, agentsForTimes, timestepWithNewAgents);
         }
 
         super.endTime = System.currentTimeMillis();
         return new OnlineSolution(solutionsAtTimes);
+    }
+
+    protected void solveAtTimeStep(MAPF_Instance instance, ConstraintSet constraints, SortedMap<Integer, Solution> solutionsAtTimes, SortedMap<Integer, List<OnlineAgent>> agentsForTimes, int timestepWithNewAgents) {
+        List<OnlineAgent> newArrivals = agentsForTimes.get(timestepWithNewAgents);
+        // no need to change the starting positions of old agents or modify their plans, since their plans will be avoided, not modified.
+        trimOutdatedConstraints(constraints, timestepWithNewAgents); //avoid huge constraint sets in problems with many agents
+        Solution subgroupSolution = super.solvePrioritisedPlanning(newArrivals, instance, constraints);
+        solutionsAtTimes.put(timestepWithNewAgents, subgroupSolution);
     }
 
     @Override
@@ -98,7 +102,7 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
         // do nothing
     }
 
-    private void trimOutdatedConstraints(ConstraintSet initialConstraints, int minTime) {
+    protected void trimOutdatedConstraints(ConstraintSet initialConstraints, int minTime) {
         initialConstraints.trimToTimeRange(minTime, Integer.MAX_VALUE);
     }
 

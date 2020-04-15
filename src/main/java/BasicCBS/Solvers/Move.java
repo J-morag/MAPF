@@ -2,6 +2,7 @@ package BasicCBS.Solvers;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
+import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 
 /**
  * A single move for a single agent. Immutable.
@@ -37,6 +38,25 @@ public class Move {
         this.timeNow = timeNow;
         this.prevLocation = prevLocation;
         this.currLocation = currLocation;
+    }
+
+    /**
+     *
+     * @param agent the agent that this constraint will apply to. @Nullable
+     * @return a vertex constraint for this move.
+     */
+    public Constraint vertexConstraintsForMove(Agent agent){
+        return new Constraint(agent, this.timeNow, this.currLocation);
+    }
+
+    /**
+     *
+     * @param agent the agent that this constraint will apply to. @Nullable
+     * @return a swapping constraint for this move.
+     */
+    public Constraint swappingConstraintsForMove(Agent agent){
+        return new Constraint(agent, this.timeNow,
+                /*the constraint is in opposite direction of the move*/ this.currLocation, this.prevLocation);
     }
 
     @Override
