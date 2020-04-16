@@ -32,7 +32,7 @@ public class RunManagerOnline extends A_RunManager {
 //        addExperimentsSmallMazes();
 //        addExperimentsSmallCustom();
 //        addExperimentWaitingForGodot();
-//        addExperimentExtensiveWithCOR();
+        addExperimentExtensiveWithCOR();
         addExperimentLongTime();
     }
 
