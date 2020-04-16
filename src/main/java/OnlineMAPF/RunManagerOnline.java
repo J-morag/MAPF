@@ -55,7 +55,6 @@ public class RunManagerOnline extends A_RunManager {
                     InstanceReport.StandardFields.numReroutes,
                     InstanceReport.StandardFields.COR,
                     InstanceReport.StandardFields.totalReroutesCost,
-                    InstanceReport.StandardFields.numReroutes,
                     InstanceReport.StandardFields.solution});
         } catch (IOException e) {
             e.printStackTrace();

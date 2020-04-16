@@ -108,6 +108,8 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
 
     @Override
     protected void writeMetricsToReport(Solution solution) {
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.numReroutes, 0 );
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.totalReroutesCost, 0 );
         boolean commit = commitReport;
         commitReport = false;
         super.writeMetricsToReport(solution);
