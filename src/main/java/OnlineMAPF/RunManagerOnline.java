@@ -6,9 +6,7 @@ import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.Solvers.OnlineCBSSolver;
-import OnlineMAPF.Solvers.OnlineCompatibleOfflineCBS;
-import OnlineMAPF.Solvers.OnlineSolverContainer;
+import OnlineMAPF.Solvers.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,8 +20,7 @@ public class RunManagerOnline extends A_RunManager {
     /*  = Set Solvers =  */
     @Override
     protected void setSolvers() {
-        this.solvers.add(new OnlineCompatibleOfflineCBS());
-        this.solvers.add(new OnlineSolverContainer(new OnlineCBSSolver()));
+
     }
 
     /*  = Set Experiments =  */
@@ -35,7 +32,8 @@ public class RunManagerOnline extends A_RunManager {
 //        addExperimentsSmallMazes();
 //        addExperimentsSmallCustom();
 //        addExperimentWaitingForGodot();
-        addExperimentExtensiveWithCOR();
+//        addExperimentExtensiveWithCOR();
+        addExperimentLongTime();
     }
 
     @Override
@@ -206,24 +204,6 @@ public class RunManagerOnline extends A_RunManager {
         this.experiments.add(experiment);
     }
 
-    private void addExperimentExtensiveWithCOR() {
-        /*  =   Set Path   =*/
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive"});
-
-        /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40, 50});
-
-
-        /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
-
-        /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("Extensive With COR", instanceManager, new int[]{0, 1, 2, 3, 10, 50, 100});
-        experiment.keepSolutionInReport = false;
-        this.experiments.add(experiment);
-    }
-
     private void addExperimentCompareRuntimes() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
@@ -232,12 +212,53 @@ public class RunManagerOnline extends A_RunManager {
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40, 50});
 
-
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
         OnlineExperiment experiment = new OnlineExperiment("Compare Run-times", instanceManager, new int[]{0, 1, 2, 3, 10, 50, 100});
+        experiment.keepSolutionInReport = false;
+        this.experiments.add(experiment);
+    }
+
+    private void addExperimentExtensiveWithCOR() {
+        this.solvers.clear();
+        this.solvers.add(new OnlineSolverContainer(new OnlineCBSSolver()));
+        this.solvers.add(new ReplanSingle(new OnlineAStar()));
+
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40, 50});
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        OnlineExperiment experiment = new OnlineExperiment("Extensive With COR", instanceManager, new int[]{0, 1, 2, 3, 4, 50, 100});
+        experiment.keepSolutionInReport = false;
+        this.experiments.add(experiment);
+    }
+
+    private void addExperimentLongTime() {
+        this.solvers.clear();
+        this.solvers.add(new OnlineSolverContainer(new OnlineCBSSolver()));
+        this.solvers.add(new ReplanSingle(new OnlineAStar()));
+
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\Random-32-32-20"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{10, 20, 30, 40, 50, 60, 70, 80, 90, 100});
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        OnlineExperiment experiment = new OnlineExperiment("Long Time", instanceManager, null);
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
     }
