@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class OnlineCBSSolver implements I_OnlineSolver {
 
-    public String name = "OnlineSolver";
+    public String name = "OnlineCBSSolver";
 
     protected Solution latestSolution;
     protected MAPF_Instance baseInstance;
