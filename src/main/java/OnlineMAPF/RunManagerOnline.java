@@ -227,6 +227,7 @@ public class RunManagerOnline extends A_RunManager {
         this.solvers.add(new OnlineSolverContainer(withCORSolver));
         OnlineCBSSolver withoutCORSolver = new OnlineCBSSolver();
         withoutCORSolver.name = "blind to COR";
+        this.solvers.add(new OnlineSolverContainer(withoutCORSolver));
         withoutCORSolver.ignoreCOR = true;
         this.solvers.add(new ReplanSingle(new OnlineAStar()));
 
