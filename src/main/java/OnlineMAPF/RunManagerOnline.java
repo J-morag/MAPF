@@ -33,7 +33,7 @@ public class RunManagerOnline extends A_RunManager {
 //        addExperimentsSmallCustom();
 //        addExperimentWaitingForGodot();
         addExperimentExtensiveWithCOR();
-        addExperimentLongTime();
+//        addExperimentLongTime();
     }
 
     @Override
@@ -222,7 +222,12 @@ public class RunManagerOnline extends A_RunManager {
 
     private void addExperimentExtensiveWithCOR() {
         this.solvers.clear();
-        this.solvers.add(new OnlineSolverContainer(new OnlineCBSSolver()));
+        OnlineCBSSolver withCORSolver = new OnlineCBSSolver();
+        withCORSolver.name = "COR solver";
+        this.solvers.add(new OnlineSolverContainer(withCORSolver));
+        OnlineCBSSolver withoutCORSolver = new OnlineCBSSolver();
+        withoutCORSolver.name = "blind to COR";
+        withoutCORSolver.ignoreCOR = true;
         this.solvers.add(new ReplanSingle(new OnlineAStar()));
 
         /*  =   Set Path   =*/

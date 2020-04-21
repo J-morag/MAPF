@@ -26,6 +26,7 @@ public class OnlineCBSSolver implements I_OnlineSolver {
     protected Solution latestSolution;
     protected MAPF_Instance baseInstance;
     private InstanceReport instanceReport;
+    public boolean ignoreCOR = false;
     protected int costOfReroute = 0;
     protected long timeoutThreshold;
     /**
@@ -49,9 +50,12 @@ public class OnlineCBSSolver implements I_OnlineSolver {
         totalRuntime = 0;
         timeoutThreshold = parameters.timeout;
         this.instanceReport = parameters.instanceReport != null ? parameters.instanceReport : S_Metrics.newInstanceReport();
-        if(parameters instanceof RunParametersOnline){
+        if(parameters instanceof RunParametersOnline && !this.ignoreCOR){
             this.costOfReroute = ((RunParametersOnline)parameters).costOfReroute;
             if (this.costOfReroute < 0) throw new IllegalArgumentException("cost of reroute must be non negative");
+        }
+        else{
+            this.costOfReroute = 0;
         }
     }
 
