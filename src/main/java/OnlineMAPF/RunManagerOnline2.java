@@ -16,20 +16,14 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class RunManagerOnline extends A_RunManager {
+public class RunManagerOnline2 extends A_RunManager {
 
     String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
 
     /*  = Set Solvers =  */
     @Override
     protected void setSolvers() {
-        OnlineCBSSolver withCORSolver = new OnlineCBSSolver();
-        withCORSolver.name = "COR solver";
-        this.solvers.add(new OnlineSolverContainer(withCORSolver));
-        OnlineCBSSolver withoutCORSolver = new OnlineCBSSolver();
-        withoutCORSolver.name = "blind to COR";
-        this.solvers.add(new OnlineSolverContainer(withoutCORSolver));
-        withoutCORSolver.ignoreCOR = true;
+        this.solvers.add(new OnlineSolverContainer(new OnlineCBSSolver()));
         this.solvers.add(new ReplanSingle(new OnlineAStar()));
     }
 
@@ -42,8 +36,8 @@ public class RunManagerOnline extends A_RunManager {
 //        addExperimentsSmallMazes();
 //        addExperimentsSmallCustom();
 //        addExperimentWaitingForGodot();
-        addExperimentExtensiveWithCOR();
-//        addExperimentLongTime();
+//        addExperimentExtensiveWithCOR();
+        addExperimentLongTime();
     }
 
     @Override
@@ -104,7 +98,7 @@ public class RunManagerOnline extends A_RunManager {
 //                            InstanceReport.StandardFields.totalReroutesCost,
 //                            InstanceReport.StandardFields.numReroutes,
 //                            InstanceReport.StandardFields.solution}
-                            );
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,19 +108,21 @@ public class RunManagerOnline extends A_RunManager {
 
     /* = Experiments =  */
 
-    private void addExperimentExtensiveWithCOR() {
+
+    private void addExperimentLongTime() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\Random-32-32-20"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{60});
+        InstanceProperties properties = new InstanceProperties(null, -1,
+                new int[]{10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150});
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("Extensive With COR", instanceManager, new int[]{0, 1, 2, 3, 4, 50, 100});
+        OnlineExperiment experiment = new OnlineExperiment("Long Time", instanceManager, null);
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
     }
