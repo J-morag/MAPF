@@ -46,6 +46,11 @@ public class Main {
         if(verifyOutputPath()){
 //            runOnlineRuntimesExperiment();
             runOnlineExperiment();
+            try {
+                Thread.sleep(1100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             runOnlineExperiment2();
 
 //            // write the reports to System.out
