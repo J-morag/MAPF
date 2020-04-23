@@ -19,26 +19,27 @@ import java.util.List;
  * Solves online problems naively, by delegating to a standard offline solver, and solving a brand new offline problem
  * every time new agents arrive.
  */
-public class OnlineSolver implements I_OnlineSolver {
+public class OnlineCBSSolver implements I_OnlineSolver {
 
-    public String name = "OnlineSolver";
+    public String name = "OnlineCBSSolver";
 
-    private Solution latestSolution;
-    private MAPF_Instance baseInstance;
+    protected Solution latestSolution;
+    protected MAPF_Instance baseInstance;
     private InstanceReport instanceReport;
-    private int costOfReroute = 0;
-    private long timeoutThreshold;
+    public boolean ignoreCOR = false;
+    protected int costOfReroute = 0;
+    protected long timeoutThreshold;
     /**
      * If set to true, will start every new CBS with the plans from the previous solution as its root
      */
-    private boolean preserveSolutionsInNewRoots = true;
+    protected boolean preserveSolutionsInNewRoots = true;
 
-    private long totalRuntime;
+    protected long totalRuntime;
 
-    public OnlineSolver() {
+    public OnlineCBSSolver() {
     }
 
-    public OnlineSolver(boolean preserveSolutionsInNewRoots) {
+    public OnlineCBSSolver(boolean preserveSolutionsInNewRoots) {
         this.preserveSolutionsInNewRoots = preserveSolutionsInNewRoots;
     }
 
@@ -49,9 +50,12 @@ public class OnlineSolver implements I_OnlineSolver {
         totalRuntime = 0;
         timeoutThreshold = parameters.timeout;
         this.instanceReport = parameters.instanceReport != null ? parameters.instanceReport : S_Metrics.newInstanceReport();
-        if(parameters instanceof RunParametersOnline){
+        if(parameters instanceof RunParametersOnline && !this.ignoreCOR){
             this.costOfReroute = ((RunParametersOnline)parameters).costOfReroute;
             if (this.costOfReroute < 0) throw new IllegalArgumentException("cost of reroute must be non negative");
+        }
+        else{
+            this.costOfReroute = 0;
         }
     }
 
@@ -63,6 +67,10 @@ public class OnlineSolver implements I_OnlineSolver {
         // new agents will start at their private garages.
         addNewAgents(agents, currentAgentLocations);
 
+        return solveForNewArrivals(time, currentAgentLocations);
+    }
+
+    protected Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations) {
         OnlineAStar onlineAStar = preserveSolutionsInNewRoots ? new OnlineAStar(this.costOfReroute, latestSolution) : new OnlineAStar(costOfReroute);
         OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time,
                 new COR_CBS_CostFunction(this.costOfReroute, latestSolution), onlineAStar);
@@ -71,7 +79,6 @@ public class OnlineSolver implements I_OnlineSolver {
         RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), previousSolution);
         latestSolution = offlineSolver.solve(subProblem, runParameters);
         digestSubproblemReport(runParameters.instanceReport);
-
         return latestSolution;
     }
 
@@ -87,14 +94,14 @@ public class OnlineSolver implements I_OnlineSolver {
         }
     }
 
-    private void addNewAgents(List<? extends OnlineAgent> agents, HashMap<Agent, I_Location> currentAgentLocations) {
+    protected void addNewAgents(List<? extends OnlineAgent> agents, HashMap<Agent, I_Location> currentAgentLocations) {
         for (OnlineAgent agent :
                 agents) {
             currentAgentLocations.put(agent, agent.getPrivateGarage(baseInstance.map.getMapCell(agent.source)));
         }
     }
 
-    private void digestSubproblemReport(InstanceReport instanceReport) {
+    protected void digestSubproblemReport(InstanceReport instanceReport) {
         // todo implement
         this.totalRuntime += instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
 

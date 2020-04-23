@@ -2,14 +2,11 @@ package OnlineMAPF;
 
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
-import BasicCBS.Solvers.I_Solver;
 import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.Solvers.I_OnlineSolver;
-import OnlineMAPF.Solvers.OnlineCompatibleOfflineCBS;
-import OnlineMAPF.Solvers.OnlineSolver;
+import OnlineMAPF.Solvers.OnlineCBSSolver;
 import OnlineMAPF.Solvers.OnlineSolverContainer;
 
 import java.io.FileOutputStream;
@@ -24,9 +21,9 @@ public class RunManagerOnlineRuntimes extends A_RunManager {
     /*  = Set Solvers =  */
     @Override
     protected void setSolvers() {
-        OnlineSolver preservingRootSolver = new OnlineSolver(true);
+        OnlineCBSSolver preservingRootSolver = new OnlineCBSSolver(true);
         preservingRootSolver.name = "Preserving Root Online";
-        OnlineSolver naiveOnline = new OnlineSolver(false);
+        OnlineCBSSolver naiveOnline = new OnlineCBSSolver(false);
         naiveOnline.name = "Naive Online";
         this.solvers.add(new OnlineSolverContainer(preservingRootSolver));
         this.solvers.add(new OnlineSolverContainer(naiveOnline));

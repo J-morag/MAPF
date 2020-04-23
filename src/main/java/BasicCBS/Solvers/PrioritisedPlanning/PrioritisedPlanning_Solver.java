@@ -207,7 +207,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param planForAgent
      * @return
      */
-    private List<Constraint> allConstraintsForPlan(SingleAgentPlan planForAgent) {
+    protected List<Constraint> allConstraintsForPlan(SingleAgentPlan planForAgent) {
         List<Constraint> constraints = new LinkedList<>();
         // protect the agent's plan
         for (Move move :

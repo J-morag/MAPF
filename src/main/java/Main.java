@@ -1,18 +1,19 @@
-import BasicCBS.Solvers.I_Solver;
-import Environment.A_RunManager;
-import Environment.IO_Package.IO_Manager;
-import OnlineMAPF.RunManagerOnline;
-import Environment.RunManagerSimpleExample;
-import Environment.TestingBenchmarkRunManager;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.MAPF_Instance;
-import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import BasicCBS.Solvers.CBS.CBS_Solver;
+import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
+import Environment.A_RunManager;
+import Environment.IO_Package.IO_Manager;
+import Environment.Metrics.InstanceReport;
+import Environment.Metrics.S_Metrics;
+import Environment.RunManagerSimpleExample;
+import Environment.TestingBenchmarkRunManager;
 import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import OnlineMAPF.RunManagerOnline;
+import OnlineMAPF.RunManagerOnline2;
 import OnlineMAPF.RunManagerOnlineRuntimes;
 import OnlineMAPF.Solvers.OnlineAStar;
 import OnlineMAPF.Solvers.OnlinePP_Solver;
@@ -44,7 +45,8 @@ public class Main {
     public static void main(String[] args) {
         if(verifyOutputPath()){
 //            runOnlineRuntimesExperiment();
-//            runOnlineExperiment();
+            runOnlineExperiment();
+            runOnlineExperiment2();
 
 //            // write the reports to System.out
 //            addConsoleAsOutputStream();
@@ -61,6 +63,11 @@ public class Main {
 
     public static void runOnlineExperiment(){
         RunManagerOnline runManagerOnline = new RunManagerOnline();
+        runManagerOnline.runAllExperiments();
+    }
+
+    public static void runOnlineExperiment2(){
+        RunManagerOnline2 runManagerOnline = new RunManagerOnline2();
         runManagerOnline.runAllExperiments();
     }
 
