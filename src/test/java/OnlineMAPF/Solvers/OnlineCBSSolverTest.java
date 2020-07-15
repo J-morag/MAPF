@@ -184,7 +184,7 @@ class OnlineCBSSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(System.currentTimeMillis() + (60*60*1000), null, instanceReport, null));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6, testInstance);
+        validate(solved, 2, 8, 5, testInstance);
 
     }
 
@@ -194,7 +194,7 @@ class OnlineCBSSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6, testInstance);
+        validate(solved, 2, 8, 5, testInstance);
     }
 
     @Test
@@ -204,7 +204,7 @@ class OnlineCBSSolverTest {
 
         assertNotNull(solved);
         solved = new OnlineSolution(solved); // for the correct validation function
-        validate(solved, 2, 6, 4, testInstance);
+        validate(solved, 2, 4, 3, testInstance);
     }
 
     @Test
@@ -221,7 +221,7 @@ class OnlineCBSSolverTest {
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         // the latter agent (6) will stay at its garage and wait for the former agent (5) to get to its destination and disappear
-        assertEquals(6, solved.sumIndividualCosts());
+        assertEquals(4, solved.sumIndividualCosts());
     }
 
     @Test
@@ -284,7 +284,7 @@ class OnlineCBSSolverTest {
         int optimalCost = solvedOffline.sumIndividualCosts();
         int snapshotOptimalCost = solved.sumIndividualCosts();
         assertTrue(snapshotOptimalCost > optimalCost);
-        assertEquals(21 , solved.sumIndividualCosts());
+        assertEquals(18 , solved.sumIndividualCosts());
     }
 
     @Test
@@ -317,9 +317,10 @@ class OnlineCBSSolverTest {
         int optimalCost = solvedOffline.sumIndividualCosts();
         int snapshotOptimalCost = solved.sumIndividualCosts();
         assertTrue(snapshotOptimalCost > optimalCost);
-        assertEquals(22 , solved.sumIndividualCosts());
+        assertEquals(19 , solved.sumIndividualCosts());
 
         // check that the reroute happened rather than the less efficient option of having both new agents wait or go around.
+        // these costs include the cost of mocing out of the garage, which is not included in SOC
         assertEquals(11, solved.getPlanFor(agent53to02at0).size());
         assertEquals(6, solved.getPlanFor(agent12to53at2).size());
         assertEquals(5, solved.getPlanFor(agent22to53at2).size());
@@ -401,7 +402,7 @@ class OnlineCBSSolverTest {
         int costOfReroute = 17;
         int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
         // there was a single reroute, so cost should be SOC + the cost of a single reroute.
-        assertEquals(22 + costOfReroute, costIncludingReroutes);
+        assertEquals(19 + costOfReroute, costIncludingReroutes);
         // reroutes don't happen when solving offline, so should be 0.
         int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
         assertEquals(0, rerouteCostsWhenOffline);
@@ -473,13 +474,14 @@ class OnlineCBSSolverTest {
          */
         int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
         // no reroutes, and a higher SOC than without reroutes.
+        // these costs include the cost of mocing out of the garage, which is not included in SOC
         int expectedAgent1Cost = 7;
         int expectedAgent2Cost = 10;
         int expectedAgent3Cost = 8;
         assertEquals(expectedAgent1Cost, solved.getPlanFor(agent53to02at0).size());
         assertEquals(expectedAgent2Cost, solved.getPlanFor(agent12to53at2).size());
         assertEquals(expectedAgent3Cost, solved.getPlanFor(agent22to53at2).size());
-        assertEquals(expectedAgent1Cost + expectedAgent2Cost + expectedAgent3Cost, costIncludingReroutes);
+        assertEquals((expectedAgent1Cost-solved.size()) + expectedAgent2Cost + expectedAgent3Cost, costIncludingReroutes);
         // reroutes don't happen when solving offline, so should be 0.
         int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
         assertEquals(0, rerouteCostsWhenOffline);

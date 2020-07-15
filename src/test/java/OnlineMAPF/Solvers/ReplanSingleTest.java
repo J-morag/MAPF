@@ -18,12 +18,13 @@ import BasicCBS.Solvers.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.*;
+import OnlineMAPF.OnlineAgent;
+import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
+import OnlineMAPF.OnlineSolution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.SortedMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -184,7 +185,7 @@ class ReplanSingleTest {
         Solution solved = solver.solve(testInstance, new RunParameters(System.currentTimeMillis() + (60*60*1000), null, instanceReport, null));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6, testInstance);
+        validate(solved, 2, 8, 5, testInstance);
 
     }
 
@@ -194,7 +195,7 @@ class ReplanSingleTest {
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6, testInstance);
+        validate(solved, 2, 8, 5, testInstance);
     }
 
     @Test
@@ -204,7 +205,7 @@ class ReplanSingleTest {
 
         assertNotNull(solved);
         solved = new OnlineSolution(solved); // for the correct validation function
-        validate(solved, 2, 6, 4, testInstance);
+        validate(solved, 2, 4, 3, testInstance);
     }
 
     @Test
@@ -221,7 +222,7 @@ class ReplanSingleTest {
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         // the latter agent (6) will stay at its garage and wait for the former agent (5) to get to its destination and disappear
-        assertEquals(6, solved.sumIndividualCosts());
+        assertEquals(4, solved.sumIndividualCosts());
     }
 
     @Test

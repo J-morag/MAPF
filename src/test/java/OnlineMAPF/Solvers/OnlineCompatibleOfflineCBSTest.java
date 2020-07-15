@@ -172,7 +172,7 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6, testInstance);
+        validate(solved, 2, 8, 5, testInstance);
 
     }
 
@@ -184,7 +184,7 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 10, 6, testInstance);
+        validate(solved, 2, 8, 5, testInstance);
     }
 
     @Test
@@ -196,7 +196,7 @@ class OnlineCompatibleOfflineCBSTest {
 
         assertNotNull(solved);
         solved = new OnlineSolution(solved); // for the correct validation function
-        validate(solved, 2, 6, 4, testInstance);
+        validate(solved, 2, 4, 3, testInstance);
     }
 
     @Test
@@ -213,7 +213,7 @@ class OnlineCompatibleOfflineCBSTest {
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         // the latter agent (6) will stay at its garage and wait for the former agent (5) to get to its destination and disappear
-        assertEquals(6, solved.sumIndividualCosts());
+        assertEquals(4, solved.sumIndividualCosts());
     }
 
     @Test

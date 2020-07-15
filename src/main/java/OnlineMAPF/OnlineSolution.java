@@ -101,6 +101,27 @@ public class OnlineSolution extends Solution{
                 && plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target)) )/*end at target*/;
     }
 
+    /**
+     * @see Solution
+     * Removes the cost of the move from the garage to the map.
+     * @return {@inheritDoc}
+     */
+    @Override
+    public int sumIndividualCosts() {
+        // remove 1 from cost per plan
+        return super.sumIndividualCosts()-super.size();
+    }
+
+    /**
+     * @see Solution
+     * Removes the cost of the move from the garage to the map.
+     * @return {@inheritDoc}
+     */
+    @Override
+    public int makespan() {
+        return super.makespan()-1;
+    }
+
     public int numReroutes(){
         int numReroutes = 0;
         Solution prevSolution = null;

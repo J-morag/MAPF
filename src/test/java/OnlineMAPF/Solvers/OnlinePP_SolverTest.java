@@ -188,7 +188,7 @@ class OnlinePP_SolverTest {
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         // the latter agent (6) will stay at its garage and wait for the former agent (5) to get to its destination and disappear
-        assertEquals(6, solved.sumIndividualCosts());
+        assertEquals(4, solved.sumIndividualCosts());
     }
 
     @Test
