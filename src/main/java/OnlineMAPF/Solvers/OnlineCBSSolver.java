@@ -32,7 +32,7 @@ public class OnlineCBSSolver implements I_OnlineSolver {
     /**
      * If set to true, will start every new CBS with the plans from the previous solution as its root
      */
-    protected boolean preserveSolutionsInNewRoots = true;
+    final protected boolean preserveSolutionsInNewRoots = false;
 
     protected long totalRuntime;
 
@@ -40,7 +40,7 @@ public class OnlineCBSSolver implements I_OnlineSolver {
     }
 
     public OnlineCBSSolver(boolean preserveSolutionsInNewRoots) {
-        this.preserveSolutionsInNewRoots = preserveSolutionsInNewRoots;
+//        this.preserveSolutionsInNewRoots = preserveSolutionsInNewRoots;
     }
 
     @Override
