@@ -83,9 +83,9 @@ public class Constraint {
         if(move == null) throw new IllegalArgumentException();
         return this.location != move.currLocation || this.time != move.timeNow
                 /*the constraint is limited to a specific agent, and that agent is different*/
-                || (this.agent != null && !this.agent.equals(move.agent)
+                || (this.agent != null && !this.agent.equals(move.agent) )
                 /*the previous location is not null, and different*/
-                || (this.prevLocation != null &&  !move.prevLocation.equals(this.prevLocation) ));
+                || (this.prevLocation != null &&  !move.prevLocation.equals(this.prevLocation) );
     }
 
     /**
