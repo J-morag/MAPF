@@ -2,7 +2,7 @@ package BasicCBS.Instances.Maps;
 
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Represents a {@link I_Map map} as an abstract graph. This implementation can, in principle, support any domain -
@@ -19,10 +19,10 @@ public class GraphMap implements I_Map {
 
     /**
      * Initialization in {@link MapFactory}.
-     * @param allGraphCells a {@link HashMap} containing all cells in the graph.
+     * @param allGraphVertices a {@link HashMap} containing all cells in the graph.
      */
-    GraphMap(HashMap<I_Coordinate, GraphMapVertex> allGraphCells) {
-        this.allGraphCells = allGraphCells;
+    GraphMap(HashMap<I_Coordinate, GraphMapVertex> allGraphVertices) {
+        this.allGraphCells = allGraphVertices;
     }
 
     /**
@@ -38,6 +38,36 @@ public class GraphMap implements I_Map {
     @Override
     public boolean isValidCoordinate(I_Coordinate coordinate) {
         return this.allGraphCells.containsKey(coordinate);
+    }
+
+    @Override
+    public I_Map getSubmapWithout(Collection<? extends I_Location> mapLocations) {
+        // have to rebuild the entire map to remove the removed vertices from the neighbour lists of remaining vertices.
+
+        HashMap<I_Coordinate, GraphMapVertex> vertexMappings = new HashMap<>();
+        // populate with stub vertices (copies), except for vertices that we want to remove
+        for (Map.Entry<I_Coordinate, GraphMapVertex> pair : this.allGraphCells.entrySet()) {
+            if(!mapLocations.contains(pair.getValue())){
+                vertexMappings.put(pair.getKey(), new GraphMapVertex(pair.getValue().cellType, pair.getKey()));
+            }
+        }
+        // now iterate over original vertices and copy over their neighbors, except for neighbors that were removed.
+        for (Map.Entry<I_Coordinate, GraphMapVertex> pair : this.allGraphCells.entrySet()) {
+            I_Coordinate coor = pair.getKey();
+            GraphMapVertex originalVertex = pair.getValue();
+            if(!mapLocations.contains(originalVertex)){
+                GraphMapVertex newVertex = vertexMappings.get(coor);
+                List<GraphMapVertex> neighbors = new ArrayList<>();
+                for (I_Location neighbor : originalVertex.neighbors) {
+                    if (! mapLocations.contains(neighbor)){
+                        // getting the neighbor from the new vertices, not the original ones.
+                        neighbors.add(vertexMappings.get(neighbor.getCoordinate()));
+                    }
+                }
+                newVertex.setNeighbors(neighbors.toArray(new GraphMapVertex[0]));
+            }
+        }
+        return new GraphMap(vertexMappings);
     }
 
     public int getNumMapCells(){

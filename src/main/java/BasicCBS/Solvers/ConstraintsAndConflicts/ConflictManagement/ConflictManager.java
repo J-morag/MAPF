@@ -14,7 +14,6 @@ public class ConflictManager implements I_ConflictManager {
 
     /*  = Data structures =   */
     private final Set<A_Conflict> allConflicts; // Keeps all conflicts
-
     /**
      * TimeLocationTables mapping:
      *      1. Time&location to relevant agents
@@ -24,9 +23,11 @@ public class ConflictManager implements I_ConflictManager {
     public final TimeLocationTables timeLocationTables;
     public final Map<Agent, SingleAgentPlan> agent_plan; // BasicCBS.Maps from Agent to Agent's plan
 
-    // Strategy for selecting conflicts
+    /*  = instance variables =   */
+    /**
+     * Strategy for selecting conflicts
+     */
     public final ConflictSelectionStrategy conflictSelectionStrategy;
-
 
 
     /**
@@ -55,9 +56,8 @@ public class ConflictManager implements I_ConflictManager {
      * @param other another {@link ConflictManager} to copy.
      */
     public ConflictManager(ConflictManager other){
-
         this.allConflicts = new HashSet<>();
-        this.allConflicts.addAll(other.allConflicts);
+        this.addConflicts(other.allConflicts);
         this.timeLocationTables = other.timeLocationTables.copy();
         this.agent_plan = new HashMap<>();
         for ( Map.Entry<Agent,SingleAgentPlan> agentPlanFromOther: other.agent_plan.entrySet()){
@@ -70,6 +70,8 @@ public class ConflictManager implements I_ConflictManager {
     public I_ConflictManager copy() {
         return new ConflictManager(this);
     }
+
+    /*  = Add methods =  */
 
     /***
      * This method adds a new plan for SingleAgentPlan.
@@ -85,14 +87,9 @@ public class ConflictManager implements I_ConflictManager {
      */
     @Override
     public void addPlan(SingleAgentPlan singleAgentPlan) {
-
-        /*  = Add methods =  */
-        this.addAgentNewPlan(singleAgentPlan);
         this.agent_plan.put(singleAgentPlan.agent, singleAgentPlan); // Updates if already exists
+        this.addAgentNewPlan(singleAgentPlan);
     }
-
-
-    /*  = Add methods =  */
 
     /**
      * = Adds =
@@ -241,8 +238,8 @@ public class ConflictManager implements I_ConflictManager {
 
 
                 // Add conflicts to both of the agents
-                this.allConflicts.add(swappingConflict_addedAgentFirst);
-                this.allConflicts.add(swappingConflict_addedAgentSecond);
+                this.addConflict(swappingConflict_addedAgentFirst);
+                this.addConflict(swappingConflict_addedAgentSecond);
             }
         }
     }
@@ -264,10 +261,21 @@ public class ConflictManager implements I_ConflictManager {
             VertexConflict vertexConflict = new VertexConflict(agent,agentConflictsWith,timeLocation);
 
             // Add conflict to both of the agents
-            this.allConflicts.add(vertexConflict);
+            addConflict(vertexConflict);
         }
     }
 
+    protected boolean addConflict(A_Conflict conflict) {
+        return this.allConflicts.add(conflict);
+    }
+
+    protected boolean addConflicts(Collection<A_Conflict> conflicts) {
+        boolean changed = false;
+        for (A_Conflict conflict : conflicts) {
+            changed |= this.addConflict(conflict);
+        }
+        return changed;
+    }
 
     public Set<A_Conflict> getAllConflicts(){
         return this.allConflicts;

@@ -14,4 +14,10 @@ public interface I_ConstraintGroupingKey {
      * @return true if constraints under this key may be relevant at some point in the future
      */
     boolean relevantInTheFuture(Move finalMove);
+
+    /**
+     * return the time of the key.
+     * @return the time of the key.
+     */
+    int getTime();
 }

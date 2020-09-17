@@ -86,4 +86,5 @@ public class GraphMapVertex implements I_Location {
                 "coordinate=" + coordinate +
                 '}';
     }
+
 }

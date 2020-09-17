@@ -11,7 +11,7 @@ import java.util.Objects;
  * Represents a conflict between 2 {@link Agent}s which are swapping their {@link I_Location locations} at a certain time.
  * This is known as s Swapping Conflict or an Edge Conflict.
  *
- * The order of agents is not unimportant, but the destinations must correctly correspond to their agents - {@link #location}
+ * The order of agents is unimportant, but the destinations must correctly correspond to their agents - {@link #location}
  * for {@link #agent1}'s destination, and {@link #agent2_destination} for {@link #agent2}'s destination.
  * An equivalent conflict would have both agents and destinations reversed.
  */
