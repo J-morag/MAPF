@@ -12,7 +12,7 @@ import java.util.SortedSet;
  */
 public class MinTimeConflictSelectionStrategy implements ConflictSelectionStrategy {
     @Override
-    public A_Conflict selectConflict(Collection<A_Conflict> conflicts) {
+    public A_Conflict selectConflict(Collection<? extends A_Conflict> conflicts) {
         if(conflicts == null || conflicts.isEmpty()) {return null;}
 
         //if a sorted Collection, assume it is sorted by time, and select the first
@@ -25,7 +25,7 @@ public class MinTimeConflictSelectionStrategy implements ConflictSelectionStrate
             return sortedConflicts.peek();
         }
 
-        Iterator<A_Conflict> iter = conflicts.iterator();
+        Iterator<? extends A_Conflict> iter = conflicts.iterator();
         if(!iter.hasNext()){return null;} //might be empty (no conflicts)
         else{
             // find minimum

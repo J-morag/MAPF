@@ -3,6 +3,7 @@ package BasicCBS.Solvers.ConstraintsAndConflicts.Constraint;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.Move;
+import BasicCBS.Solvers.SingleAgentPlan;
 
 /**
  * A constraint on a {@link I_Location location}, at a specific time. It may or may not apply to all agents.
@@ -73,9 +74,7 @@ public class Constraint {
     }
 
     /**
-     * Returns true iff the given {@link Move} conflicts with this constraint. Checking if a move if accepted is faster,
-     * than checking if it is rejected, since a single difference is enough to resolve the check. Therefore, this method
-     * is implemented in full, whereas {@link #rejects(Move)} uses this method for its implementation.
+     * Returns true iff the given {@link Move} conflicts with this constraint.
      * @param move a move that might conflict with this constraint
      * @return true iff the given {@link Move} conflicts with this constraint.
      */
@@ -96,6 +95,32 @@ public class Constraint {
      */
     public boolean rejects(Move move){
         return !this.accepts(move);
+    }
+
+    /**
+     * Returns true iff the given {@link SingleAgentPlan} conflicts with this constraint. Iterates over all moves in the
+     * plan to resolve.
+     * @param plan a plan that might contain a {@link Move} that conflicts with this constraint.
+     * @return true iff the given {@link SingleAgentPlan} conflicts with this constraint. Iterates over all moves in the
+     *      plan to resolve.
+     */
+    public boolean accepts(SingleAgentPlan plan){
+        for (Move move : plan) {
+            if (this.rejects(move)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns false iff the given {@link SingleAgentPlan} conflicts with this constraint. This returns the opposite of
+     * {@link #accepts(SingleAgentPlan)}, and is only present for convenience.
+     * @param plan a plan that might contain a {@link Move} that conflicts with this constraint.
+     * @return false iff the given {@link SingleAgentPlan} conflicts with this constraint.
+     */
+    public boolean rejects(SingleAgentPlan plan){
+        return !this.accepts(plan);
     }
 
     @Override

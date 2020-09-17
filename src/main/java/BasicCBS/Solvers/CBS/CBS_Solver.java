@@ -3,10 +3,12 @@ package BasicCBS.Solvers.CBS;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.SingleUseConflictAvoidanceTable;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.RangeConstraint;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicCBS.Solvers.*;
@@ -76,6 +78,11 @@ public class CBS_Solver extends A_Solver {
      * Determines how to sort {@link #openList OPEN}.
      */
     private final Comparator<? super CBS_Node> CBSNodeComparator;
+    /**
+     * Whether or not to use corridor reasoning.
+     * @see <a href="jiaoyangli.me/files/2020-ICAPS.pdf#page=1&zoom=180,-78,792">New Techniques for Pairwise Symmetry Breaking in Multi-Agent Path Finding</a>
+     */
+    private final boolean corridorReasoning;
 
     /*  = Constructors =  */
 
@@ -87,12 +94,14 @@ public class CBS_Solver extends A_Solver {
      * @param openListManagementMode @see {@link OpenListManagementMode}. @Nullable
      * @param costFunction a cost function for solutions. @Nullable
      * @param cbsNodeComparator determines how to sort {@link #openList OPEN}. @Nullable
+     * @param useCorridorReasoning whether or not to use corridor reasoning.
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
-                      CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator) {
+                      CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, boolean useCorridorReasoning) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenList::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
+        this.corridorReasoning = useCorridorReasoning;
         clearOPEN();
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
         this.costFunction = costFunction != null ? costFunction : (solution, cbs) -> solution.sumIndividualCosts();
@@ -103,7 +112,16 @@ public class CBS_Solver extends A_Solver {
      * Default constructor.
      */
     public CBS_Solver() {
-        this(null, null, null, null, null);
+        this(null, null, null, null,
+                null, true);
+    }
+
+    /**
+     * constructor that uses default value for {@link #corridorReasoning}
+     */
+    public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
+                      CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator){
+        this(lowLevelSolver, openList, openListManagementMode, costFunction, cbsNodeComparator, true);
     }
 
     /*  = initialization =  */
@@ -175,7 +193,7 @@ public class CBS_Solver extends A_Solver {
             CBS_Node node = openList.poll();
 
             // verify solution (find conflicts)
-            I_ConflictManager cat = getConflictAvoidanceTableFor(node);
+            I_ConflictManager cat = getConflictManagerFor(node);
             node.setSelectedConflict(cat.selectConflict());
 
             if(isGoal(node)){
@@ -195,8 +213,9 @@ public class CBS_Solver extends A_Solver {
      * @param node a {@link CBS_Node node} that contains an out of date {@link ConflictManager}.
      * @return a {@link I_ConflictManager} for the solution in this node.
      */
-    private I_ConflictManager getConflictAvoidanceTableFor(CBS_Node node) {
-        I_ConflictManager cat = new ConflictManager();
+    private I_ConflictManager getConflictManagerFor(CBS_Node node) {
+        I_ConflictManager cat = this.corridorReasoning ?
+                new CorridorConflictManager(buildConstraintSet(node,null), this.instance) : new ConflictManager();
         for (SingleAgentPlan plan :
                 node.getSolution()) {
             cat.addPlan(plan);
@@ -296,7 +315,9 @@ public class CBS_Solver extends A_Solver {
             constraintSet.add(currentNode.addedConstraint);
             currentNode = currentNode.parent;
         }
-        constraintSet.add(newConstraint);
+        if(newConstraint != null){
+            constraintSet.add(newConstraint);
+        }
         return constraintSet;
     }
 

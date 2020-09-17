@@ -1,7 +1,9 @@
 package BasicCBS.Instances;
 
+import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Instances.Maps.I_Map;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -63,6 +65,16 @@ public class MAPF_Instance {
     public MAPF_Instance getSubproblemFor(Agent agent){
         if(agent == null || !this.agents.contains(agent)){throw new IllegalArgumentException("Agent not present in instance.");}
         return new MAPF_Instance(name+"-agent" + agent.iD, map, new Agent[]{agent});
+    }
+
+    /**
+     * Creates a new {@link MAPF_Instance} from this {@link MAPF_Instance}, where some of the locations in the map are removed.
+     * @param mapLocations a collection of location to remove from the instance's map
+     * @return a new {@link MAPF_Instance} from this {@link MAPF_Instance}, where some of the locations in the map are removed.
+     */
+    public MAPF_Instance getSubproblemWithout(Collection<? extends I_Location> mapLocations){
+        if(mapLocations == null){throw new IllegalArgumentException("mapLocations can't be null");}
+        return new MAPF_Instance(name+"-reducedMap", map.getSubmapWithout(mapLocations), agents);
     }
 
     public void setObstaclePercentage(int obstaclePercentage){

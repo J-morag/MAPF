@@ -5,17 +5,14 @@ import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.Move;
 import java.util.Objects;
 
+/**
+ * Implements range constraints from:
+ * Atzmon, Dor, et al. "Robust multi-agent path finding." Eleventh Annual Symposium on Combinatorial Search. 2018.
+ */
 public class RangeConstraint extends Constraint {
 
     int upperBound;
     int lowerBound;
-
-    // depracated
-    public RangeConstraint(Agent agent, int time, int range, I_Location prevLocation, I_Location location) {
-        super(agent, time, prevLocation, location);
-        this.setBounds(range);
-    }
-
 
     public RangeConstraint(Agent agent, int time, int range, I_Location location) {
         super(agent, time, location);
@@ -23,19 +20,17 @@ public class RangeConstraint extends Constraint {
     }
 
     private void setBounds(int range){
-        this.upperBound = this.time;
-//        this.upperBound = this.time + ((RobustAgent)this.agent).k;
-//        this.lowerBound = this.time;
-        this.lowerBound = Math.max(0,this.time - range) ;
+        this.lowerBound = this.time;
+        this.upperBound = this.time + range;
     }
 
     public boolean accepts(Move move){
         if(move == null) throw new IllegalArgumentException();
-        if( move.prevLocation.equals(this.prevLocation) && this.time == 1){
+        if( move.prevLocation.equals(this.prevLocation) && this.upperBound == 1){
             return false;
         }
 //        boolean intersectsWithPrev = this.location.intersectsWith(move.prevLocation);
-        boolean intersectsWithCur = move.prevLocation.equals(this.prevLocation);
+        boolean intersectsWithCur = move.currLocation.equals(this.location);
         boolean timeAgent = this.inRange(move.timeNow) && this.agent.equals(move.agent);
         return !((intersectsWithCur) && timeAgent);
     }
