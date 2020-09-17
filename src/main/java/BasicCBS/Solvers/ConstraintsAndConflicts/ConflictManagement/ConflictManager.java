@@ -181,7 +181,7 @@ public class ConflictManager implements I_ConflictManager {
      * @param timeLocation - {@inheritDoc}
      * @param singleAgentPlan - {@inheritDoc}
      */
-    private void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan) {
+    protected void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan) {
 
         Set<Agent> agentsAtTimeLocation = this.timeLocationTables.getAgentsAtTimeLocation(timeLocation);
         this.addVertexConflicts(timeLocation, singleAgentPlan.agent, agentsAtTimeLocation);
@@ -208,7 +208,7 @@ public class ConflictManager implements I_ConflictManager {
      * @param time - The move's time.
      * @param singleAgentPlan - {@inheritDoc}
      */
-    private void checkAddSwappingConflicts(int time, SingleAgentPlan singleAgentPlan) {
+    protected void checkAddSwappingConflicts(int time, SingleAgentPlan singleAgentPlan) {
         if( time < 1 ){ return;}
         I_Location previousLocation = singleAgentPlan.moveAt(time).prevLocation;
         I_Location nextLocation = singleAgentPlan.moveAt(time).currLocation;
@@ -252,7 +252,7 @@ public class ConflictManager implements I_ConflictManager {
      * @param agent - {@inheritDoc}
      * @param agentsAtTimeLocation - {@inheritDoc}
      */
-    private void addVertexConflicts(TimeLocation timeLocation, Agent agent, Set<Agent> agentsAtTimeLocation) {
+    protected void addVertexConflicts(TimeLocation timeLocation, Agent agent, Set<Agent> agentsAtTimeLocation) {
 
         if( agentsAtTimeLocation == null ){ return; }
 
