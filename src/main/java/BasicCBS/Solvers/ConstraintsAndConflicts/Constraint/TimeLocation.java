@@ -45,4 +45,9 @@ public class TimeLocation implements I_ConstraintGroupingKey {
     public boolean relevantInTheFuture(Move finalMove) {
         return this.time > finalMove.timeNow && this.location.equals(finalMove.currLocation);
     }
+
+    @Override
+    public int getTime() {
+        return this.time;
+    }
 }

@@ -18,7 +18,7 @@ public class ConstraintSet{
      * Basically a dictionary from [time,location] to agents who can't go there at that time, and locations from which
      * they can't go there at that time.
      */
-    private final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
+    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
 
     public ConstraintSet() {
     }
@@ -45,11 +45,20 @@ public class ConstraintSet{
     }
 
     public void add(Constraint constraint){
-        I_ConstraintGroupingKey dummy = createDummy(constraint);
+        if(constraint instanceof  RangeConstraint){
+            // add an individual constraint for each of the times covered by the range constraint
+            RangeConstraint rangeConstraint = (RangeConstraint) constraint;
 
-        this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
+            for (int time = rangeConstraint.lowerBound; time <= rangeConstraint.upperBound; time++) {
+                this.add(rangeConstraint.getConstraint(time));
+            }
+        }
+        else{ // regular constraint
+            I_ConstraintGroupingKey dummy = createDummy(constraint);
+            this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
+            add(this.constraints.get(dummy), constraint);
+        }
 
-        add(this.constraints.get(dummy), constraint);
     }
 
     protected void add(Set<Constraint> constraintSet, Constraint constraint){
@@ -57,33 +66,34 @@ public class ConstraintSet{
     }
 
     public void addAll(Collection<? extends Constraint> constraints) {
-        for (Constraint cons :
-                constraints) {
+        for (Constraint cons : constraints) {
             this.add(cons);
         }
     }
 
     public void addAll(ConstraintSet other) {
-        for (I_ConstraintGroupingKey cw :
-                other.constraints.keySet()) {
-            for (Constraint cons :
-                    other.constraints.get(cw)) {
+        for (I_ConstraintGroupingKey cw : other.constraints.keySet()) {
+            for (Constraint cons : other.constraints.get(cw)) {
                 this.add(cons);
             }
         }
     }
 
     public void remove(Constraint constraint){
-        // using this instead of ConstraintWrapper(Constraint) because this doesn't create an unnecessary Set<Constraint>s
-        // for every dummy we create.
-        I_ConstraintGroupingKey dummy = createDummy(constraint);
+        if(constraint instanceof  RangeConstraint){
+            // there is a problem with removing range constraints, since they may overlap.
+            throw new UnsupportedOperationException();
+        }
+        else { // regular constraint
+            I_ConstraintGroupingKey dummy = createDummy(constraint);
 
-        if(this.constraints.containsKey(dummy)){
-            Set<Constraint> constraints = this.constraints.get(dummy);
-            constraints.remove(constraint);
-            if(constraints.isEmpty()){
-                // if we've emptied the constraints, there is no more reason to keep an entry.
-                this.constraints.remove(dummy);
+            if (this.constraints.containsKey(dummy)) {
+                Set<Constraint> constraints = this.constraints.get(dummy);
+                constraints.remove(constraint);
+                if (constraints.isEmpty()) {
+                    // if we've emptied the constraints, there is no more reason to keep an entry.
+                    this.constraints.remove(dummy);
+                }
             }
         }
     }
@@ -94,8 +104,7 @@ public class ConstraintSet{
      * @return true if this caused the set to change.
      */
     public void removeAll(Collection<? extends Constraint> constraints) {
-        for (Constraint cons :
-                constraints) {
+        for (Constraint cons : constraints) {
             this.remove(cons);
         }
     }
@@ -122,7 +131,9 @@ public class ConstraintSet{
      */
     public boolean rejects(Move move){
         I_ConstraintGroupingKey dummy = createDummy(move);
-        if(!constraints.containsKey(dummy)) {return false;}
+        if(!constraints.containsKey(dummy)) {
+            return false;
+        }
         else {
             return rejects(constraints.get(dummy), move);
         }
@@ -130,7 +141,8 @@ public class ConstraintSet{
 
     protected boolean rejects(Set<Constraint> constraints, Move move){
         for (Constraint constraint : constraints){
-            if(constraint.rejects(move)) return true;
+            if(constraint.rejects(move))
+                return true;
         }
         return false;
     }
@@ -148,15 +160,13 @@ public class ConstraintSet{
     public int rejectsEventually(Move finalMove){
         int firstRejectionTime = Integer.MAX_VALUE;
         // traverses the entire data structure. expensive.
-        for (I_ConstraintGroupingKey cw :
-                constraints.keySet()) {
+        for (I_ConstraintGroupingKey cw : constraints.keySet()) {
             //found constraint for this location, sometime in the future. Should be rare.
             if(cw.relevantInTheFuture(finalMove)){
-                for (Constraint constraint :
-                        constraints.get(cw)) {
+                for (Constraint constraint : constraints.get(cw)) {
                     // make an artificial "stay" move for the relevant time.
                     // In practice, this should happen very rarely, so not very expensive.
-                    int constraintTime = ((TimeLocation)cw).time;
+                    int constraintTime = cw.getTime();
                     if(constraint.rejects(new Move(finalMove.agent, constraintTime, finalMove.currLocation, finalMove.currLocation))
                             && constraintTime < firstRejectionTime){
                         firstRejectionTime = constraintTime;
@@ -189,8 +199,7 @@ public class ConstraintSet{
      */
     public boolean rejectsAll(Collection<? extends Move> moves){
         boolean result = true;
-        for (Move move :
-                moves) {
+        for (Move move : moves) {
             result &= this.rejects(move);
         }
         return result;
@@ -207,19 +216,10 @@ public class ConstraintSet{
      */
     public boolean acceptsAll(Collection<? extends Move> moves){
         boolean result = true;
-        for (Move move :
-                moves) {
+        for (Move move : moves) {
             result &= this.accepts(move);
         }
         return result;
-    }
-
-    protected I_ConstraintGroupingKey createDummy(Constraint constraint) {
-        return new TimeLocation(constraint);
-    }
-
-    protected I_ConstraintGroupingKey createDummy(Move move) {
-        return new TimeLocation(move);
     }
 
     /**
@@ -231,21 +231,14 @@ public class ConstraintSet{
         this.constraints.keySet().removeIf(cw -> ((TimeLocation)cw).time < minTime || ((TimeLocation)cw).time >= maxTime);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ConstraintSet)) return false;
-
-        ConstraintSet that = (ConstraintSet) o;
-
-        return constraints.equals(that.constraints);
-
+    protected I_ConstraintGroupingKey createDummy(Constraint constraint){
+        return new TimeLocation(constraint);
     }
 
-    @Override
-    public int hashCode() {
-        return constraints.hashCode();
+    protected I_ConstraintGroupingKey createDummy(Move move){
+        return new TimeLocation(move);
     }
+
 
     /**
      * Find the last time when the agent is prevented from being at its goal.
@@ -278,4 +271,21 @@ public class ConstraintSet{
 
         return lastRejectionTime == Integer.MIN_VALUE ? -1 : lastRejectionTime;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ConstraintSet)) return false;
+
+        ConstraintSet that = (ConstraintSet) o;
+
+        return constraints.equals(that.constraints);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return constraints.hashCode();
+    }
+
 }

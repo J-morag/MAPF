@@ -1,5 +1,6 @@
 package BasicCBS.Instances;
 
+import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Instances.Maps.I_Map;
 
 import java.util.Collection;
@@ -78,6 +79,17 @@ public class MAPF_Instance {
         }
         return new MAPF_Instance(instanceName.toString(), map, agents.toArray(Agent[]::new));
     }
+
+    /**
+     * Creates a new {@link MAPF_Instance} from this {@link MAPF_Instance}, where some of the locations in the map are removed.
+     * @param mapLocations a collection of location to remove from the instance's map
+     * @return a new {@link MAPF_Instance} from this {@link MAPF_Instance}, where some of the locations in the map are removed.
+     */
+    public MAPF_Instance getSubproblemWithout(Collection<? extends I_Location> mapLocations){
+        if(mapLocations == null){throw new IllegalArgumentException("mapLocations can't be null");}
+        return new MAPF_Instance(name+"-reducedMap", map.getSubmapWithout(mapLocations), agents);
+    }
+
 
     public void setObstaclePercentage(int obstaclePercentage){
         this.ObstaclePercentage = obstaclePercentage;

@@ -167,7 +167,7 @@ public class SingleAgentPlan implements Iterable<Move> {
     public int size(){return moves.size();}
 
     /**
-     * The cost of the plan is the size of the plan, which is the number of operators ({@link Move moes}) made.
+     * The cost of the plan is the size of the plan, which is the number of operators ({@link Move moves}) made.
      * When an agent starts at its goal it makes a single stay move which is its entire plan. This move is unnecessary,
      * so such a plan will have a cost of 0.
      * @return the cost of the plan.
