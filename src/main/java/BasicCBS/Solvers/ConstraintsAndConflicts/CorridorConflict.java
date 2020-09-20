@@ -105,8 +105,9 @@ public class CorridorConflict extends A_Conflict {
         else{
             // get time to farther side with bypass with state-time A Star
             SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
-            Solution solution = astar.solve(trimmedInstance.getSubproblemFor(agent),
-                    new RunParameters_SAAStar(constraints, new InstanceReport(),null, null));
+            RunParameters_SAAStar runParameters = new RunParameters_SAAStar(constraints, new InstanceReport(),null, null);
+            runParameters.targetCoor = fartherSide.getCoordinate();
+            Solution solution = astar.solve(trimmedInstance.getSubproblemFor(agent), runParameters);
             return getTimeOfMoveTo(fartherSide, solution.getPlanFor(agent));
         }
     }
