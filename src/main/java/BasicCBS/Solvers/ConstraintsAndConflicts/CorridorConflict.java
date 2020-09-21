@@ -32,6 +32,8 @@ public class CorridorConflict extends A_Conflict {
     private final HashSet<I_Location> corridorVertices;
     private final int agent1MinTimeToEnd;
     private final int agent2MinTimeToBeginning;
+    private final int agent1StartTime;
+    private final int agent2StartTime;
     /**
      * Since finding the preventing constraints is expensive, once they are found they should be kept for future use.
      */
@@ -39,12 +41,14 @@ public class CorridorConflict extends A_Conflict {
 
     public CorridorConflict(Agent agent1, Agent agent2, int time, I_Location begin, I_Location end,
                             HashSet<I_Location> corridorVertices, ConstraintSet constraints, MAPF_Instance instance,
-                            SingleAgentPlan agent1CurrentPlan, SingleAgentPlan agent2CurrentPlan) {
+                            SingleAgentPlan agent1CurrentPlan, SingleAgentPlan agent2CurrentPlan, int agent1StartTime, int agent2StartTime) {
         super(agent1, agent2, time, begin);
         this.end = end;
         this.constraints = constraints;
         this.instance = instance;
         this.corridorVertices = corridorVertices;
+        this.agent1StartTime = agent1StartTime;
+        this.agent2StartTime = agent2StartTime;
         corridorVertices.remove(begin);
         corridorVertices.remove(end);
         this.agent1MinTimeToEnd = getTimeOfMoveTo(end, agent1CurrentPlan);
@@ -74,14 +78,14 @@ public class CorridorConflict extends A_Conflict {
         int corridorLength = this.corridorVertices.size() + 1;
 
         // find bypasses (also check if they exist)
-        int agent1MinTimeToEndBypass = getMinTimeToCorridorFartherSideBypass(agent1, end, trimmedInstance);
-        int agent2MinTimeToBeginningBypass = getMinTimeToCorridorFartherSideBypass(agent2, location, trimmedInstance);
+        int agent1MinTimeToEndBypass = getMinTimeToCorridorFartherSideBypass(agent1, agent1StartTime, end, trimmedInstance);
+        int agent2MinTimeToBeginningBypass = getMinTimeToCorridorFartherSideBypass(agent2, agent2StartTime, location, trimmedInstance);
 
         // derive constraints
         // see the cited article, under "Resolving Corridor Conflicts"
         return new Constraint[]{
-                new RangeConstraint(agent1, 0, Math.min(getBypassCase(agent1MinTimeToEndBypass), agent2MinTimeToBeginning + corridorLength), end),
-                new RangeConstraint(agent2, 0, Math.min(getBypassCase(agent2MinTimeToBeginningBypass), agent1MinTimeToEnd + corridorLength), this.location)
+                new RangeConstraint(agent1, agent1StartTime, Math.min(getBypassCase(agent1MinTimeToEndBypass), agent2MinTimeToBeginning + corridorLength), end),
+                new RangeConstraint(agent2, agent2StartTime, Math.min(getBypassCase(agent2MinTimeToBeginningBypass), agent1MinTimeToEnd + corridorLength), this.location)
         };
     }
 
@@ -97,16 +101,16 @@ public class CorridorConflict extends A_Conflict {
      * @return the time for this agent to get to the farther side of the corridor, using a bypass. If impossible,
      *          return {@link Integer#MAX_VALUE}.
      */
-    private int getMinTimeToCorridorFartherSideBypass(Agent agent, I_Location fartherSide, MAPF_Instance trimmedInstance) {
+    private int getMinTimeToCorridorFartherSideBypass(Agent agent, int agentStartTime, I_Location fartherSide, MAPF_Instance trimmedInstance) {
         // must make sure that it is reachable first. if unreachable, state-time A Star will not halt.
-        if(!reachableFrom(fartherSide, trimmedInstance.map.getMapCell(agent.source))){
+        if(!reachableFrom(fartherSide, getAgentSource(agent, trimmedInstance))){
             return Integer.MAX_VALUE;
         }
         else{
             // get time to farther side with bypass with state-time A Star
             SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
             Solution solution = astar.solve(trimmedInstance.getSubproblemFor(agent),
-                    new RunParameters_SAAStar(constraints, new InstanceReport(),null, null));
+                    new RunParameters_SAAStar(constraints, new InstanceReport(),null, null, agentStartTime));
             return getTimeOfMoveTo(fartherSide, solution.getPlanFor(agent));
         }
     }
@@ -132,6 +136,10 @@ public class CorridorConflict extends A_Conflict {
         }
         // they are in disjoint graph components
         return false;
+    }
+
+    protected I_Location getAgentSource(Agent agent, MAPF_Instance instance){
+        return instance.map.getMapCell(agent.source);
     }
 
     @Override

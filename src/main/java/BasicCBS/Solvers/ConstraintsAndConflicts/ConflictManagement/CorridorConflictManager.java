@@ -9,7 +9,6 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.ConstraintsAndConflicts.CorridorConflict;
 import BasicCBS.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicCBS.Solvers.Move;
-import BasicCBS.Solvers.SingleAgentPlan;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -22,8 +21,8 @@ import java.util.Set;
  */
 public class CorridorConflictManager extends ConflictManager {
 
-    private final ConstraintSet constraints;
-    private final MAPF_Instance instance;
+    protected final ConstraintSet constraints;
+    protected final MAPF_Instance instance;
     private final Set<CorridorConflict> corridorConflicts = new HashSet<>();
 
     public CorridorConflictManager(ConflictSelectionStrategy conflictSelectionStrategy, ConstraintSet constraints, MAPF_Instance instance) {
@@ -99,8 +98,12 @@ public class CorridorConflictManager extends ConflictManager {
             // in this case it is really just a swapping conflict
             return null;
         }
+        return getCorridorConflict(conflict, corridorVertices, beginning, end);
+    }
+
+    protected CorridorConflict getCorridorConflict(A_Conflict conflict, HashSet<I_Location> corridorVertices, I_Location beginning, I_Location end) {
         return new CorridorConflict(conflict.agent1, conflict.agent2, conflict.time, beginning, end, corridorVertices,
-                constraints, instance, this.agent_plan.get(conflict.agent1), this.agent_plan.get(conflict.agent2));
+                constraints, instance, this.agent_plan.get(conflict.agent1), this.agent_plan.get(conflict.agent2), 0, 0);
     }
 
     /**
@@ -125,8 +128,12 @@ public class CorridorConflictManager extends ConflictManager {
             someDirNeighbor = newNeighbour;
         }
         // then add that last vertex
-        corridorVertices.add(someDirNeighbor);
-        return someDirNeighbor;
+        return addLastVertexOneDirection(corridorVertices, someDirNeighbor, anchor);
+    }
+
+    protected I_Location addLastVertexOneDirection(HashSet<I_Location> corridorVertices, I_Location lastNeighbor, I_Location prevLocation) {
+        corridorVertices.add(lastNeighbor);
+        return lastNeighbor;
     }
 
     private boolean isDegree2(I_Location location){

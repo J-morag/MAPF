@@ -464,12 +464,12 @@ class OnlineCBSSolverTest {
         RunParameters runParameters = new RunParametersOnline(instanceReport, costOfReroute);
         Solution solved = solver.solve(testInstance, runParameters);
 
-        I_Solver offlineSolverGivenReroutes = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null));
+        I_Solver offlineSolverGivenReroutes = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null), true);
         InstanceReport tmpInstanceReport1 = S_Metrics.newInstanceReport();
         Solution solvedOfflineGivenReroutes = offlineSolverGivenReroutes.solve(testInstance, new RunParameters(tmpInstanceReport1));
         S_Metrics.removeReport(tmpInstanceReport1);
 
-        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null));
+        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null), true);
         InstanceReport tmpInstanceReport2 = S_Metrics.newInstanceReport();
         Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport2));
         S_Metrics.removeReport(tmpInstanceReport2);
@@ -535,13 +535,13 @@ class OnlineCBSSolverTest {
         assertEquals(0, rerouteCostsWhenOffline);
     }
 
-    @Test
-    void optimalWhenUsingPreserveSolutionInRoot() {
-        MAPF_Instance testInstance = instanceDiameter5;
-        I_Solver solverWithRootPreservation = new OnlineSolverContainer(new OnlineCBSSolver(true));
-        Solution solved = solverWithRootPreservation.solve(testInstance, new RunParameters(instanceReport));
-
-        System.out.println(solved.readableToString());
-        validate(solved, 2, 9, 5, testInstance);
-    }
+//    @Test
+//    void optimalWhenUsingPreserveSolutionInRoot() {
+//        MAPF_Instance testInstance = instanceDiameter5;
+//        I_Solver solverWithRootPreservation = new OnlineSolverContainer(new OnlineCBSSolver(true));
+//        Solution solved = solverWithRootPreservation.solve(testInstance, new RunParameters(instanceReport));
+//
+//        System.out.println(solved.readableToString());
+//        validate(solved, 2, 9, 5, testInstance);
+//    }
 }

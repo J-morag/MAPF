@@ -2,21 +2,20 @@ package BasicCBS.Solvers.CBS;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Solvers.AStar.AStarHeuristic;
+import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
+import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
+import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicCBS.Solvers.*;
+import BasicCBS.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.SingleUseConflictAvoidanceTable;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.RangeConstraint;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import BasicCBS.Solvers.*;
-import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
-import BasicCBS.Solvers.AStar.AStarHeuristic;
-import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
-import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicCBS.Solvers.ConstraintsAndConflicts.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -82,7 +81,7 @@ public class CBS_Solver extends A_Solver {
      * Whether or not to use corridor reasoning.
      * @see <a href="jiaoyangli.me/files/2020-ICAPS.pdf#page=1&zoom=180,-78,792">New Techniques for Pairwise Symmetry Breaking in Multi-Agent Path Finding</a>
      */
-    private final boolean corridorReasoning;
+    protected final boolean corridorReasoning;
 
     /*  = Constructors =  */
 
@@ -303,7 +302,7 @@ public class CBS_Solver extends A_Solver {
      * @param newConstraint the constraint that this new node adds.
      * @return a {@link ConstraintSet} of all the constraints from parentNode to the root, plus newConstraint.
      */
-    private ConstraintSet buildConstraintSet(CBS_Node parentNode, Constraint newConstraint) {
+    protected ConstraintSet buildConstraintSet(CBS_Node parentNode, Constraint newConstraint) {
         // clear currentConstraints. we reuse this object every time.
         this.currentConstraints.clear();
         ConstraintSet constraintSet = this.currentConstraints;

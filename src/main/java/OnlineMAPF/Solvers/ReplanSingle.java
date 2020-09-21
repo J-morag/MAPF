@@ -1,20 +1,13 @@
 package OnlineMAPF.Solvers;
 
-import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
-import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.I_Solver;
-import BasicCBS.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
-import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
-import OnlineMAPF.OnlineSolution;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.SortedMap;
 
@@ -29,7 +22,7 @@ public class ReplanSingle extends OnlinePP_Solver {
                                    SortedMap<Integer, List<OnlineAgent>> agentsForTimes, int timestepWithNewAgents) {
         // solve the initial set of agents with CBS
         if(timestepWithNewAgents == 0){
-            OnlineCompatibleOfflineCBS cbs = new OnlineCompatibleOfflineCBS(null, 0, null, new OnlineAStar());
+            OnlineCompatibleOfflineCBS cbs = new OnlineCompatibleOfflineCBS(null, 0, null, new OnlineAStar(), true);
             MAPF_Instance subproblem = instance.getSubproblemFor(agentsForTimes.get(timestepWithNewAgents));
             InstanceReport instanceReport = new InstanceReport();
             Solution initialSolution = cbs.solve(subproblem, super.getSubproblemParameters(subproblem, instanceReport, super.constraints));

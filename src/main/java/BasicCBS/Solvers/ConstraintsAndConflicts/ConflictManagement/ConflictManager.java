@@ -133,7 +133,7 @@ public class ConflictManager implements I_ConflictManager {
      * @param goalTime - The time of the last move in plan
      * @param singleAgentPlan - Agent's new plan
      */
-    private void manageGoalLocationFromPlan(int goalTime, SingleAgentPlan singleAgentPlan) {
+    protected void manageGoalLocationFromPlan(int goalTime, SingleAgentPlan singleAgentPlan) {
 
         I_Location goalLocation = singleAgentPlan.moveAt(goalTime).currLocation;
 
@@ -209,7 +209,7 @@ public class ConflictManager implements I_ConflictManager {
      * @param singleAgentPlan - {@inheritDoc}
      */
     protected void checkAddSwappingConflicts(int time, SingleAgentPlan singleAgentPlan) {
-        if( time < 1 ){ return;}
+        if( time < 1 || singleAgentPlan.moveAt(time) == null){ return;}
         I_Location previousLocation = singleAgentPlan.moveAt(time).prevLocation;
         I_Location nextLocation = singleAgentPlan.moveAt(time).currLocation;
         Set<Agent> agentsMovingToPrevLocations = this.timeLocationTables.timeLocation_Agents.get(new TimeLocation(time,previousLocation));

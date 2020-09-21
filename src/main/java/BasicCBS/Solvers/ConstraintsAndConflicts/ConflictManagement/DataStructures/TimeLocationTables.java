@@ -18,7 +18,7 @@ public class TimeLocationTables {
     // BasicCBS.Maps from GoalLocation to Agent&time
     public final Map<I_Location, SingleAgentPlan> goal_plan;
 
-
+    public boolean ignoreGoals = false;
 
     public TimeLocationTables(){
         this.timeLocation_Agents = new HashMap<>();
@@ -69,6 +69,9 @@ public class TimeLocationTables {
 
         this.addTimeLocation(new TimeLocation(goalTimeLocation.time, goalTimeLocation.location), singleAgentPlan);
 
+        if(ignoreGoals){
+            return;
+        }
         // Add to goal_agentTime, 'put' method will update it's value if already exists
         this.goal_plan.put(goalTimeLocation.location, singleAgentPlan);
 
