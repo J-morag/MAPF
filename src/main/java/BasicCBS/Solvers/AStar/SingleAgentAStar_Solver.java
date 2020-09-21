@@ -109,6 +109,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.sourceCoor = parameters.sourceCoor != null ? parameters.sourceCoor : agent.source;
             this.targetCoor = parameters.targetCoor != null ? parameters.targetCoor : agent.target;
         }
+        else{
+            this.sourceCoor = agent.source;
+            this.targetCoor = agent.target;
+        }
 
         this.openList = new OpenList<>(stateFComparator);
         this.expandedNodes = 0;
