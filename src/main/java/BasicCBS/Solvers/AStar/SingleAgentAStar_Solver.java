@@ -156,7 +156,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 }
 
                 if(firstRejectionAtGoalTime == -1){ // no rejections
-                    currentState.backTracePlan(); // updates this.existingPlan which is contained in this.existingSolution
+                    // update this.existingPlan which is contained in this.existingSolution
+                    currentState.backTracePlan(this.existingPlan);
                     return this.existingSolution; // the goal is good and we can return the plan.
                 }
                 else{ // we are rejected from the goal at some point in the future.
@@ -334,7 +335,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
 //            }
         }
 
-        public SingleAgentPlan backTracePlan() {
+        /**
+         * Trace back a plan from this state, return the plan after it was updates with the moves found by going back
+         * from this state.
+         * @param existingPlan an existing plan which we are continuing.
+         * @return the existingPlan after updating it with the plan that this state represents.
+         */
+        public SingleAgentPlan backTracePlan(SingleAgentPlan existingPlan) {
             List<Move> moves = new LinkedList<>();
             AStarState currentState = this;
             while (currentState != null){
@@ -345,7 +352,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
             //if there was an existing plan before solving, then we started from its last move, and don't want to duplicate it.
             if(existingPlan.size() > 0) {moves.remove(0);}
-            /*containing class.*/ existingPlan.addMoves(moves);
+            existingPlan.addMoves(moves);
             return existingPlan;
         }
 
@@ -370,6 +377,17 @@ public class SingleAgentAStar_Solver extends A_Solver {
         @Override
         public int compareTo(AStarState o) {
             return stateFComparator.compare(this, o);
+        }
+
+        @Override
+        public String toString() {
+            return "AStarState{" +
+                    "serialID=" + serialID +
+                    ", g=" + g +
+                    ", h=" + h +
+                    ", conflicts=" + conflicts +
+                    ", plan=\n" + this.backTracePlan(new SingleAgentPlan(this.move.agent)).toString() +
+                    '}';
         }
     }
 
