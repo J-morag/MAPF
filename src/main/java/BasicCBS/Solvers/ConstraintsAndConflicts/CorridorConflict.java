@@ -14,6 +14,7 @@ import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Stack;
 
 /**
@@ -84,9 +85,16 @@ public class CorridorConflict extends A_Conflict {
         // derive constraints
         // see the cited article, under "Resolving Corridor Conflicts"
         return new Constraint[]{
-                new RangeConstraint(agent1, agent1StartTime, Math.min(getBypassCase(agent1MinTimeToEndBypass), agent2MinTimeToBeginning + corridorLength), end),
-                new RangeConstraint(agent2, agent2StartTime, Math.min(getBypassCase(agent2MinTimeToBeginningBypass), agent1MinTimeToEnd + corridorLength), this.location)
+                new RangeConstraint(agent1, agent1StartTime, getRange(agent1StartTime, corridorLength, agent1MinTimeToEndBypass, agent2MinTimeToBeginning), end),
+                new RangeConstraint(agent2, agent2StartTime, getRange(agent2StartTime, corridorLength, agent2MinTimeToBeginningBypass, agent1MinTimeToEnd), this.location)
         };
+    }
+
+    private int getRange(int agentStartTime, int corridorLength, int agentMinTimeToFartherSideBypass, int otherAgentMinTimeToThisSide) {
+        // min(t1'-1,t2+k)
+        int timeUpperBound = Math.min(getBypassCase(agentMinTimeToFartherSideBypass), otherAgentMinTimeToThisSide + corridorLength);
+        // since we give a range for the range constraint, not an upper bound
+        return timeUpperBound - agentStartTime;
     }
 
     protected int getBypassCase(int agentMinTimeWithBypass) {
@@ -147,22 +155,28 @@ public class CorridorConflict extends A_Conflict {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CorridorConflict)) return false;
-        if (!super.equals(o)) return false;
 
         CorridorConflict that = (CorridorConflict) o;
 
-        if (agent1MinTimeToEnd != that.agent1MinTimeToEnd) return false;
-        if (agent2MinTimeToBeginning != that.agent2MinTimeToBeginning) return false;
-        return end != null ? end.equals(that.end) : that.end == null;
-
+        return this.time == that.time &&
+                ( // all equals
+                    Objects.equals(agent1, that.agent1) &&
+                    Objects.equals(agent2, that.agent2)
+//                    Objects.equals(location, that.location) &&
+//                    Objects.equals(end, that.end)
+                )
+                ||
+                ( // mirror image
+                    Objects.equals(agent1, that.agent2) &&
+                    Objects.equals(agent2, that.agent1)
+//                    Objects.equals(location, that.end) &&
+//                    Objects.equals(end, that.location)
+                );
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (end != null ? end.hashCode() : 0);
-        result = 31 * result + agent1MinTimeToEnd;
-        result = 31 * result + agent2MinTimeToBeginning;
-        return result;
+//        return Objects.hash(time, (Objects.hash(agent2, location) + Objects.hash(agent1, end)) );
+        return Objects.hash(time, (Objects.hash(agent2) + Objects.hash(agent1)) );
     }
 }

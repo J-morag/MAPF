@@ -295,6 +295,7 @@ class OnlineCBSSolverTest {
          */
         int optimalCost = solvedOffline.sumIndividualCosts();
         int snapshotOptimalCost = solved.sumIndividualCosts();
+        assertEquals(17 , solvedOffline.sumIndividualCosts());
         assertTrue(snapshotOptimalCost > optimalCost);
         assertEquals(18 , solved.sumIndividualCosts());
     }

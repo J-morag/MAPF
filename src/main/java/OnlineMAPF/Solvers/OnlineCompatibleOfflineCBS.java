@@ -8,6 +8,7 @@ import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.NaiveConflictDetection;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.SingleUseConflictAvoidanceTable;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.SingleAgentPlan;
@@ -119,7 +120,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
     @Override
     protected I_ConflictManager getConflictManagerFor(CBS_Solver.CBS_Node node) {
         I_ConflictManager cat = super.corridorReasoning ?
-                new OnlineCorridorConflictManager(buildConstraintSet(node,null), this.instance) : new NaiveConflictDetection(false);
+                new OnlineCorridorConflictManager(buildConstraintSet(node,null), this.instance, customStartLocations) : new NaiveConflictDetection(false);
         for (SingleAgentPlan plan :
                 node.getSolution()) {
             cat.addPlan(plan);
@@ -134,8 +135,8 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
         // convert the constraint set to an online constraint set.
         parameters.constraints = new OnlineConstraintSet(constraints);
         // make the conflict avoidance table ignore target conflicts
-//        ((SingleUseConflictAvoidanceTable)((RunParameters_SAAStar)parameters).conflictAvoidanceTable).checkGoals = false;
-        ((RunParameters_SAAStar)parameters).conflictAvoidanceTable = null;
+        ((SingleUseConflictAvoidanceTable)((RunParameters_SAAStar)parameters).conflictAvoidanceTable).checkGoals = false;
+//        ((RunParameters_SAAStar)parameters).conflictAvoidanceTable = null;
 
         // assumes agents are online agents, and throws an exception if they aren't
         OnlineAgent onlineAgent = ((OnlineAgent) agent);

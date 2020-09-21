@@ -45,15 +45,14 @@ class OnlineCorridorConflictManagerTest {
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-        long timeout = 30 /*seconds*/   *1000L;
-//        long timeout = 10 /*seconds*/   *1000L;
+//        long timeout = 30 /*seconds*/   *1000L;
+        long timeout = 10 /*seconds*/   *1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
         int runtimeExperimental = 0;
         while ((instance = instanceManager.getNextInstance()) != null) {
-            if(! instance.name.equals("maze-32-32-4.map")) continue;
-            System.out.println("---------- solving "  + instance.name + " with " + instance.agents.size() + " agents ----------");
+            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
 
             // run baseline (without the improvement)
             //build report
