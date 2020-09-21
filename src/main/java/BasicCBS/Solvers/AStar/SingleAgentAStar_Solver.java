@@ -27,8 +27,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     protected static final long DEFAULT_TIMEOUT = 3 * 1000;
     protected static final int DEFAULT_PROBLEM_START_TIME = 0;
-    private Comparator<AStarState> stateFComparator = new TieBreakingForHigherGAndLessConflicts();
-    private static final Comparator<AStarState> stateGComparator = Comparator.comparing(AStarState::getG);
+    private Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
+    private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
 
     public boolean agentsStayAtGoal = true;
 
@@ -290,6 +290,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return g;
         }
 
+        public int getConflicts() {
+            return conflicts;
+        }
+
         /*  = other methods =  */
 
         public float getF(){
@@ -328,11 +332,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
         private void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
-            openList.keepOne(existingState, newState, stateGComparator);
-//            boolean shouldSwap = newState.g < existingState.g;
-//            if(shouldSwap){
-//                openList.replace(existingState, newState);
-//            }
+            // decide which state to keep, seeing as how they are both equal and in open.
+            openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
         }
 
         /**
@@ -389,7 +390,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     ", plan=\n" + this.backTracePlan(new SingleAgentPlan(this.move.agent)).toString() +
                     '}';
         }
-    }
+
+    } ////////// end AStarState
 
     private class defaultHeuristic implements AStarHeuristic{
 
@@ -399,30 +401,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
     }
 
-    private static class TieBreakingForHigherGComparator implements Comparator<AStarState>{
 
-        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
-
-        @Override
-        public int compare(AStarState o1, AStarState o2) {
-            if(Math.abs(o1.getF() - o2.getF()) < 0.1){ // floats are equal
-                // if f() value is equal, we consider the state with higher g() to be better (smaller). Therefore, we
-                // want to return a negative integer if o1.g is bigger than o2.g
-                if (o2.g == o1.g){
-                    // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to force a total ordering and remain deterministic
-                    return o1.serialID - o2.serialID;
-                }
-                else {
-                    return o2.g - o1.g; //higher g is better
-                }
-            }
-            else {
-                return fComparator.compare(o1, o2);
-            }
-        }
-    }
-
-    private static class TieBreakingForHigherGAndLessConflicts implements Comparator<AStarState>{
+    /**
+     * For sorting the open list.
+     */
+    private static class TieBreakingForLessConflictsAndHigherG implements Comparator<AStarState>{
 
         private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
 
@@ -448,6 +431,36 @@ public class SingleAgentAStar_Solver extends A_Solver {
             }
             else {
                 return fComparator.compare(o1, o2);
+            }
+        }
+    }
+
+    /**
+     * For deciding which state to keep between two equal states in open.
+     */
+    private static class TieBreakingForLowerGAndLessConflicts implements Comparator<AStarState>{
+
+        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
+
+        @Override
+        public int compare(AStarState o1, AStarState o2) {
+            // if the heuristic is monotone increasing, we should never actually find a new state with lower G than
+            // existing equal state in open.
+            // we break ties for lower g. Therefore, we want to return a positive integer if o1.g is bigger than o2.g.
+            // g should be equal in practice since G=state-time. and state equality is also defined by state-time.
+            if (o2.g == o1.g){
+                // if G() value is equal, we consider the state with less conflicts to be better.
+                if(o1.conflicts == o2.conflicts){
+                    // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to remain deterministic
+                    return o1.serialID - o2.serialID;
+                }
+                else{
+                    return o1.conflicts - o2.conflicts; // less conflicts is better
+                }
+
+            }
+            else {
+                return o1.g - o2.g; //lower g is better
             }
         }
     }
