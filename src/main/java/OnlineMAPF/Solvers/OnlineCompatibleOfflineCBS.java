@@ -120,8 +120,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
      * @return {@inheritDoc}
      */
     @Override
-    protected I_ConflictManager getConflictAvoidanceTableFor(CBS_Solver.CBS_Node node) {
-//        I_ConflictManager cat = new OnlineConflictManager();
+    protected I_ConflictManager getConflictManagerFor(CBS_Solver.CBS_Node node) {
         I_ConflictManager cat = new NaiveConflictDetection(false);
         for (SingleAgentPlan plan :
                 node.getSolution()) {

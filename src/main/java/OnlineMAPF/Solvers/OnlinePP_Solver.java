@@ -113,7 +113,7 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
         boolean commit = commitReport;
         commitReport = false;
         super.writeMetricsToReport(solution);
-        instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
+        instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
         commitReport = commit;
         if(commitReport){
             try {
