@@ -150,7 +150,7 @@ public class OnlineSolverContainer implements I_Solver {
         if(solution != null){
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.totalReroutesCost, solution.costOfReroutes(costOfReroute));
-            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
+            parameters.instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
             parameters.instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
         }
         else{

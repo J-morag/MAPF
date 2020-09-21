@@ -61,12 +61,17 @@ public class Move {
 
     @Override
     public String toString() {
-        return "Move{" +
-//                "agent=" + agent +
-                "timeNow=" + timeNow +
-                ", prevLocation=" + prevLocation +
-                ", currLocation=" + currLocation +
-                '}';
+        return this.readableToString().toString();
+    }
+
+    /**
+     * A string output that is easier for humans to read.
+     * @return a string output that is easier for humans to read.
+     */
+    public StringBuilder readableToString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append('\n').append(this.timeNow).append(": ").append(this.prevLocation.getCoordinate()).append(" -> ").append(this.currLocation.getCoordinate());
+        return sb;
     }
 
     /**

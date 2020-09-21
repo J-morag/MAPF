@@ -153,7 +153,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
 
     @Override
     public String toString() {
-        return this.readableToString();
+        return this.readableToString().toString();
     }
 
     //nicetohave JSON toString
@@ -162,19 +162,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * A string output that is easier for humans to read.
      * @return a string output that is easier for humans to read.
      */
-    public String readableToString(){
+    public StringBuilder readableToString(){
         StringBuilder sb = new StringBuilder();
         List<Agent> agents = new ArrayList<>(this.agentPlans.keySet());
         Collections.sort(agents, Comparator.comparing(agent -> agent.iD));
         for(Agent agent : agents){
-            sb.append("Plan for agent ").append(agent.iD);
-            for(Move move : this.agentPlans.get(agent)){
-                sb.append('\n').append(move.timeNow).append(": ").append(move.prevLocation.getCoordinate()).append(" -> ").append(move.currLocation.getCoordinate());
-            }
-            sb.append("\n");
+            sb.append(this.agentPlans.get(agent));
         }
         sb.append('\n');
-        return sb.toString();
+        return sb;
     }
 
     @Override

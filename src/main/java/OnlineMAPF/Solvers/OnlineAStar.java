@@ -56,12 +56,12 @@ public class OnlineAStar extends SingleAgentAStar_Solver {
     }
 
     @Override
-    protected void updateExistingPlanWithFoundPlan(List<Move> moves) {
+    protected void updateExistingPlanWithFoundPlan(List<Move> moves, SingleAgentPlan existingPlan) {
         // if there was an existing plan before solving, then we started from its last move, and don't want to duplicate it.
         if(super.existingPlan.size() > 0) {moves.remove(0);}
         // if there is only one move, then it may be just a stay move at goal, and therefore redundant.
         if(! (moves.size() == 1 && isStayMove(moves.get(0)))){
-            existingPlan.addMoves(moves);
+            this.existingPlan.addMoves(moves);
         }
     }
 

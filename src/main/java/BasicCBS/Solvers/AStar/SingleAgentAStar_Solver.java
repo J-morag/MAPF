@@ -27,8 +27,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     protected static final long DEFAULT_TIMEOUT = 3 * 1000;
     protected static final int DEFAULT_PROBLEM_START_TIME = 0;
-    private Comparator<AStarState> stateFComparator = new TieBreakingForHigherGAndLessConflicts();
-    private static final Comparator<AStarState> stateGComparator = Comparator.comparing(AStarState::getG);
+    private Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
+    private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
 
     public boolean agentsStayAtGoal = true;
 
@@ -42,6 +42,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
     protected SingleAgentPlan existingPlan;
     private Solution existingSolution;
     private I_ConflictAvoidanceTable conflictAvoidanceTable;
+    public I_Coordinate sourceCoor;
+    public I_Coordinate targetCoor;
     /**
      * Not real-world time. The problem's start time.
      */
@@ -113,6 +115,16 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.conflictAvoidanceTable = parameters.conflictAvoidanceTable;
         }
         // else keep the value that it has already been initialised with (above)
+        if(runParameters instanceof  RunParameters_SAAStar){
+            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
+            this.sourceCoor = parameters.sourceCoor != null ? parameters.sourceCoor : agent.source;
+            this.targetCoor = parameters.targetCoor != null ? parameters.targetCoor : agent.target;
+        }
+        else{
+            this.sourceCoor = agent.source;
+            this.targetCoor = agent.target;
+        }
+        if(this.agentStartLocation == null){this.agentStartLocation = map.getMapCell(this.sourceCoor);}
 
         this.openList = new OpenList<>(stateFComparator);
         this.expandedNodes = 0;
@@ -156,7 +168,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 }
 
                 if(firstRejectionAtGoalTime == -1){ // no rejections
-                    currentState.backTracePlan(); // updates this.existingPlan which is contained in this.existingSolution
+                    // update this.existingPlan which is contained in this.existingSolution
+                    currentState.backTracePlan(this.existingPlan);
                     return this.existingSolution; // the goal is good and we can return the plan.
                 }
                 else{ // we are rejected from the goal at some point in the future.
@@ -217,10 +230,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
     }
 
     private boolean isGoalState(AStarState state) {
-        return state.move.currLocation.getCoordinate().equals(agent.target);
+        return state.move.currLocation.getCoordinate().equals(this.targetCoor);
     }
 
-    protected void updateExistingPlanWithFoundPlan(List<Move> moves){
+    protected void updateExistingPlanWithFoundPlan(List<Move> moves, SingleAgentPlan existingPlan){
         //if there was an existing plan before solving, then we started from its last move, and don't want to duplicate it.
         if(existingPlan.size() > 0) {moves.remove(0);}
         existingPlan.addMoves(moves);
@@ -302,6 +315,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return g;
         }
 
+        public int getConflicts() {
+            return conflicts;
+        }
+
         /*  = other methods =  */
 
         public float getF(){
@@ -340,10 +357,17 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
         private void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
-            openList.keepOne(existingState, newState, stateGComparator);
+            // decide which state to keep, seeing as how they are both equal and in open.
+            openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
         }
 
-        public SingleAgentPlan backTracePlan() {
+        /**
+         * Trace back a plan from this state, return the plan after it was updates with the moves found by going back
+         * from this state.
+         * @param existingPlan an existing plan which we are continuing.
+         * @return the existingPlan after updating it with the plan that this state represents.
+         */
+        public SingleAgentPlan backTracePlan(SingleAgentPlan existingPlan) {
             List<Move> moves = new LinkedList<>();
             AStarState currentState = this;
             while (currentState != null){
@@ -352,7 +376,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
             }
             Collections.reverse(moves); //reorder moves because they were reversed
 
-            updateExistingPlanWithFoundPlan(moves);
+            //if there was an existing plan before solving, then we started from its last move, and don't want to duplicate it.
+            updateExistingPlanWithFoundPlan(moves, existingPlan);
             return existingPlan;
         }
 
@@ -378,40 +403,33 @@ public class SingleAgentAStar_Solver extends A_Solver {
         public int compareTo(AStarState o) {
             return stateFComparator.compare(this, o);
         }
-    }
+
+        @Override
+        public String toString() {
+            return "AStarState{" +
+                    "serialID=" + serialID +
+                    ", g=" + g +
+                    ", h=" + h +
+                    ", conflicts=" + conflicts +
+                    ", plan=\n" + this.backTracePlan(new SingleAgentPlan(this.move.agent)).toString() +
+                    '}';
+        }
+
+    } ////////// end AStarState
 
     private class defaultHeuristic implements AStarHeuristic{
 
         @Override
         public float getH(AStarState state) {
-            return state.move.currLocation.getCoordinate().distance(state.move.agent.target);
+            return state.move.currLocation.getCoordinate().distance(SingleAgentAStar_Solver.this.targetCoor);
         }
     }
 
-    private static class TieBreakingForHigherGComparator implements Comparator<AStarState>{
 
-        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
-
-        @Override
-        public int compare(AStarState o1, AStarState o2) {
-            if(Math.abs(o1.getF() - o2.getF()) < 0.1){ // floats are equal
-                // if f() value is equal, we consider the state with higher g() to be better (smaller). Therefore, we
-                // want to return a negative integer if o1.g is bigger than o2.g
-                if (o2.g == o1.g){
-                    // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to force a total ordering and remain deterministic
-                    return o1.serialID - o2.serialID;
-                }
-                else {
-                    return o2.g - o1.g; //higher g is better
-                }
-            }
-            else {
-                return fComparator.compare(o1, o2);
-            }
-        }
-    }
-
-    private static class TieBreakingForHigherGAndLessConflicts implements Comparator<AStarState>{
+    /**
+     * For sorting the open list.
+     */
+    private static class TieBreakingForLessConflictsAndHigherG implements Comparator<AStarState>{
 
         private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
 
@@ -437,6 +455,36 @@ public class SingleAgentAStar_Solver extends A_Solver {
             }
             else {
                 return fComparator.compare(o1, o2);
+            }
+        }
+    }
+
+    /**
+     * For deciding which state to keep between two equal states in open.
+     */
+    private static class TieBreakingForLowerGAndLessConflicts implements Comparator<AStarState>{
+
+        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
+
+        @Override
+        public int compare(AStarState o1, AStarState o2) {
+            // if the heuristic is monotone increasing, we should never actually find a new state with lower G than
+            // existing equal state in open.
+            // we break ties for lower g. Therefore, we want to return a positive integer if o1.g is bigger than o2.g.
+            // g should be equal in practice since G=state-time. and state equality is also defined by state-time.
+            if (o2.g == o1.g){
+                // if G() value is equal, we consider the state with less conflicts to be better.
+                if(o1.conflicts == o2.conflicts){
+                    // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to remain deterministic
+                    return o1.serialID - o2.serialID;
+                }
+                else{
+                    return o1.conflicts - o2.conflicts; // less conflicts is better
+                }
+
+            }
+            else {
+                return o1.g - o2.g; //lower g is better
             }
         }
     }
