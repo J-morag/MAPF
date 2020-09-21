@@ -243,10 +243,21 @@ public class SingleAgentPlan implements Iterable<Move> {
 
     @Override
     public String toString() {
-        return "SingleAgentPlan{" +
-                "agent=" + agent +
-                ", moves=" + moves +
-                '}';
+        return this.readableToString().toString();
+    }
+
+    /**
+     * A string output that is easier for humans to read.
+     * @return a string output that is easier for humans to read.
+     */
+    public StringBuilder readableToString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Plan for agent ").append(agent.iD);
+        for(Move move : this){
+            sb.append(move.readableToString());
+        }
+        sb.append("\n");
+        return sb;
     }
 
     @Override
