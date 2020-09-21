@@ -82,7 +82,7 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startTime).toString());
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));
         if(solution != null){
-            instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.readableToString());
+            instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
         }
         else{

@@ -1,10 +1,15 @@
 package BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement;
 
-import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
+import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.I_Map;
+import BasicCBS.Instances.Maps.MapFactory;
 import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
@@ -19,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,6 +31,47 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests by comparing solutions when using CBS with and without corridor reasoning.
  */
 class CorridorConflictManagerTest {
+
+    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
+    private final Enum_MapCellType w = Enum_MapCellType.WALL;
+    Enum_MapCellType[][] map_2D_H = {
+            {e, w, w, e},
+            {e, w, w, e},
+            {e, e, e, e},
+            {e, w, w, e},
+            {e, w, w, e},
+    };
+    private I_Map mapH = MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
+    private I_Coordinate coor30 = new Coordinate_2D(3,0);
+    private I_Coordinate coor33 = new Coordinate_2D(3,3);
+    private I_Coordinate coor13 = new Coordinate_2D(1,3);
+    private I_Coordinate coor10 = new Coordinate_2D(1,0);
+    private Agent agent30to33 = new Agent(0, coor30, coor33);
+    private Agent agent13to10 = new Agent(1, coor13, coor10);
+    private MAPF_Instance instanceHFromPaper = new MAPF_Instance("instanceHFromPaper", mapH,
+            new Agent[]{agent30to33, agent13to10});
+    I_Solver corridorSolver = new CBS_Solver(null,null,null,null,null,true);
+
+    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
+        assertTrue(solution.isValidSolution()); //is valid (no conflicts)
+        assertTrue(solution.solves(instance));
+
+        assertEquals(numAgents, solution.size()); // solution includes all agents
+        assertEquals(optimalSOC, solution.sumIndividualCosts()); // SOC is optimal
+        assertEquals(optimalMakespan, solution.makespan()); // makespan is optimal
+    }
+
+    @Test
+    void HMapFromPaperUsesCorridorReasoning() {
+        MAPF_Instance testInstance = instanceHFromPaper;
+        InstanceReport instanceReport = new InstanceReport();
+        Solution solved = corridorSolver.solve(testInstance, new RunParameters(instanceReport));
+
+        System.out.println(solved.readableToString());
+        validate(solved, 2, 14, 9, testInstance);
+        // did it correctly use corridor reasoning?
+        assertEquals(1, instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+    }
 
     /**
      * This contains diverse instances
@@ -57,7 +102,7 @@ class CorridorConflictManagerTest {
         int runtimeBaseline = 0;
         int runtimeExperimental = 0;
         while ((instance = instanceManager.getNextInstance()) != null) {
-            System.out.println("---------- solving "  + instance.name + " with " + instance.agents.size() + " agents ----------");
+            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
 
             // run baseline (without the improvement)
             //build report
