@@ -464,8 +464,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     private static class TieBreakingForLowerGAndLessConflicts implements Comparator<AStarState>{
 
-        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
-
         @Override
         public int compare(AStarState o1, AStarState o2) {
             // if the heuristic is monotone increasing, we should never actually find a new state with lower G than

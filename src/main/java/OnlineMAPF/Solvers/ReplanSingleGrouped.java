@@ -35,7 +35,7 @@ public class ReplanSingleGrouped extends OnlineCBSSolver {
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
         // protect existing agents with constraints
         ConstraintSet constraints = new ConstraintSet(allConstraintsForSolution(latestSolution));
-        OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time, null, onlineAStar);
+        OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time, null, onlineAStar, true);
         RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, constraints,
                 S_Metrics.newInstanceReport(), null);
         Solution solutionForNewAgents = offlineSolver.solve(subProblem, runParameters);

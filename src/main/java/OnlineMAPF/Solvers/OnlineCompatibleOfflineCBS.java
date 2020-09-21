@@ -8,15 +8,13 @@ import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.NaiveConflictDetection;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.SingleUseConflictAvoidanceTable;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
-import OnlineMAPF.OnlineAgent;
-import OnlineMAPF.OnlineConstraintSet;
-import OnlineMAPF.OnlineDistanceTableAStarHeuristic;
-import OnlineMAPF.OnlineSolution;
+import OnlineMAPF.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,23 +43,23 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
      */
     private Solution existingSolution;
 
-    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, CBSCostFunction costFunction, OnlineAStar onlineAStar) {
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, CBSCostFunction costFunction, OnlineAStar onlineAStar, boolean useCorridorReasoning) {
         // use online aStar.
-        super(Objects.requireNonNullElseGet(onlineAStar, OnlineAStar::new), null, null, costFunction, null);
+        super(Objects.requireNonNullElseGet(onlineAStar, OnlineAStar::new), null, null, costFunction, null, useCorridorReasoning);
         this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
         this.customStartTime = customStartTime;
     }
 
-    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime) {
-        this(customStartLocations, customStartTime, null, null);
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, boolean useCorridorReasoning) {
+        this(customStartLocations, customStartTime, null, null, useCorridorReasoning);
     }
 
-    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations) {
-        this(customStartLocations, -1, null, null);
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, boolean useCorridorReasoning) {
+        this(customStartLocations, -1, null, null, useCorridorReasoning);
     }
 
     public OnlineCompatibleOfflineCBS(){
-        this(null);
+        this(null, true);
     }
 
     @Override
@@ -121,7 +119,8 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
      */
     @Override
     protected I_ConflictManager getConflictManagerFor(CBS_Solver.CBS_Node node) {
-        I_ConflictManager cat = new NaiveConflictDetection(false);
+        I_ConflictManager cat = super.corridorReasoning ?
+                new OnlineCorridorConflictManager(buildConstraintSet(node,null), this.instance, customStartLocations) : new NaiveConflictDetection(false);
         for (SingleAgentPlan plan :
                 node.getSolution()) {
             cat.addPlan(plan);
@@ -136,8 +135,8 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
         // convert the constraint set to an online constraint set.
         parameters.constraints = new OnlineConstraintSet(constraints);
         // make the conflict avoidance table ignore target conflicts
-//        ((SingleUseConflictAvoidanceTable)((RunParameters_SAAStar)parameters).conflictAvoidanceTable).checkGoals = false;
-        ((RunParameters_SAAStar)parameters).conflictAvoidanceTable = null;
+        ((SingleUseConflictAvoidanceTable)((RunParameters_SAAStar)parameters).conflictAvoidanceTable).checkGoals = false;
+//        ((RunParameters_SAAStar)parameters).conflictAvoidanceTable = null;
 
         // assumes agents are online agents, and throws an exception if they aren't
         OnlineAgent onlineAgent = ((OnlineAgent) agent);

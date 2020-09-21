@@ -33,14 +33,20 @@ public class OnlineCBSSolver implements I_OnlineSolver {
      * If set to true, will start every new CBS with the plans from the previous solution as its root
      */
     final protected boolean preserveSolutionsInNewRoots = false;
+    final protected boolean useCorridorReasoning;
 
     protected long totalRuntime;
 
     public OnlineCBSSolver() {
+        this.useCorridorReasoning = true;
     }
 
-    public OnlineCBSSolver(boolean preserveSolutionsInNewRoots) {
+//    public OnlineCBSSolver(boolean preserveSolutionsInNewRoots) {
 //        this.preserveSolutionsInNewRoots = preserveSolutionsInNewRoots;
+//    }
+
+    public OnlineCBSSolver(boolean useCorridorReasoning) {
+        this.useCorridorReasoning = useCorridorReasoning;
     }
 
     @Override
@@ -73,7 +79,7 @@ public class OnlineCBSSolver implements I_OnlineSolver {
     protected Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations) {
         OnlineAStar onlineAStar = preserveSolutionsInNewRoots ? new OnlineAStar(this.costOfReroute, latestSolution) : new OnlineAStar(costOfReroute);
         OnlineCompatibleOfflineCBS offlineSolver = new OnlineCompatibleOfflineCBS(currentAgentLocations, time,
-                new COR_CBS_CostFunction(this.costOfReroute, latestSolution), onlineAStar);
+                new COR_CBS_CostFunction(this.costOfReroute, latestSolution), onlineAStar, useCorridorReasoning);
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
         Solution previousSolution = preserveSolutionsInNewRoots ? new Solution(latestSolution) : null;
         RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), previousSolution);

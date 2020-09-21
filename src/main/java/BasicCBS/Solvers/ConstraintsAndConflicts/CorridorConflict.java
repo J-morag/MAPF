@@ -14,6 +14,7 @@ import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Stack;
 
 /**
@@ -32,6 +33,8 @@ public class CorridorConflict extends A_Conflict {
     private final HashSet<I_Location> corridorVertices;
     private final int agent1MinTimeToEnd;
     private final int agent2MinTimeToBeginning;
+    private final int agent1StartTime;
+    private final int agent2StartTime;
     /**
      * Since finding the preventing constraints is expensive, once they are found they should be kept for future use.
      */
@@ -39,12 +42,14 @@ public class CorridorConflict extends A_Conflict {
 
     public CorridorConflict(Agent agent1, Agent agent2, int time, I_Location begin, I_Location end,
                             HashSet<I_Location> corridorVertices, ConstraintSet constraints, MAPF_Instance instance,
-                            SingleAgentPlan agent1CurrentPlan, SingleAgentPlan agent2CurrentPlan) {
+                            SingleAgentPlan agent1CurrentPlan, SingleAgentPlan agent2CurrentPlan, int agent1StartTime, int agent2StartTime) {
         super(agent1, agent2, time, begin);
         this.end = end;
         this.constraints = constraints;
         this.instance = instance;
         this.corridorVertices = corridorVertices;
+        this.agent1StartTime = agent1StartTime;
+        this.agent2StartTime = agent2StartTime;
         corridorVertices.remove(begin);
         corridorVertices.remove(end);
         this.agent1MinTimeToEnd = getTimeOfMoveTo(end, agent1CurrentPlan);
@@ -74,15 +79,22 @@ public class CorridorConflict extends A_Conflict {
         int corridorLength = this.corridorVertices.size() + 1;
 
         // find bypasses (also check if they exist)
-        int agent1MinTimeToEndBypass = getMinTimeToCorridorFartherSideBypass(agent1, end, trimmedInstance);
-        int agent2MinTimeToBeginningBypass = getMinTimeToCorridorFartherSideBypass(agent2, location, trimmedInstance);
+        int agent1MinTimeToEndBypass = getMinTimeToCorridorFartherSideBypass(agent1, agent1StartTime, end, trimmedInstance);
+        int agent2MinTimeToBeginningBypass = getMinTimeToCorridorFartherSideBypass(agent2, agent2StartTime, location, trimmedInstance);
 
         // derive constraints
         // see the cited article, under "Resolving Corridor Conflicts"
         return new Constraint[]{
-                new RangeConstraint(agent1, 0, Math.min(getBypassCase(agent1MinTimeToEndBypass), agent2MinTimeToBeginning + corridorLength), end),
-                new RangeConstraint(agent2, 0, Math.min(getBypassCase(agent2MinTimeToBeginningBypass), agent1MinTimeToEnd + corridorLength), this.location)
+                new RangeConstraint(agent1, agent1StartTime, getRange(agent1StartTime, corridorLength, agent1MinTimeToEndBypass, agent2MinTimeToBeginning), end),
+                new RangeConstraint(agent2, agent2StartTime, getRange(agent2StartTime, corridorLength, agent2MinTimeToBeginningBypass, agent1MinTimeToEnd), this.location)
         };
+    }
+
+    private int getRange(int agentStartTime, int corridorLength, int agentMinTimeToFartherSideBypass, int otherAgentMinTimeToThisSide) {
+        // min(t1'-1,t2+k)
+        int timeUpperBound = Math.min(getBypassCase(agentMinTimeToFartherSideBypass), otherAgentMinTimeToThisSide + corridorLength);
+        // since we give a range for the range constraint, not an upper bound
+        return timeUpperBound - agentStartTime;
     }
 
     protected int getBypassCase(int agentMinTimeWithBypass) {
@@ -97,15 +109,15 @@ public class CorridorConflict extends A_Conflict {
      * @return the time for this agent to get to the farther side of the corridor, using a bypass. If impossible,
      *          return {@link Integer#MAX_VALUE}.
      */
-    private int getMinTimeToCorridorFartherSideBypass(Agent agent, I_Location fartherSide, MAPF_Instance trimmedInstance) {
+    private int getMinTimeToCorridorFartherSideBypass(Agent agent, int agentStartTime, I_Location fartherSide, MAPF_Instance trimmedInstance) {
         // must make sure that it is reachable first. if unreachable, state-time A Star will not halt.
-        if(!reachableFrom(fartherSide, trimmedInstance.map.getMapCell(agent.source))){
+        if(!reachableFrom(fartherSide, getAgentSource(agent, trimmedInstance))){
             return Integer.MAX_VALUE;
         }
         else{
             // get time to farther side with bypass with state-time A Star
             SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
-            RunParameters_SAAStar runParameters = new RunParameters_SAAStar(constraints, new InstanceReport(),null, null, 0);
+            RunParameters_SAAStar runParameters = new RunParameters_SAAStar(constraints, new InstanceReport(),null, null, agentStartTime);
             runParameters.targetCoor = fartherSide.getCoordinate();
             Solution solution = astar.solve(trimmedInstance.getSubproblemFor(agent), runParameters);
             return getTimeOfMoveTo(fartherSide, solution.getPlanFor(agent));
@@ -135,26 +147,36 @@ public class CorridorConflict extends A_Conflict {
         return false;
     }
 
+    protected I_Location getAgentSource(Agent agent, MAPF_Instance instance){
+        return instance.map.getMapCell(agent.source);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CorridorConflict)) return false;
-        if (!super.equals(o)) return false;
 
         CorridorConflict that = (CorridorConflict) o;
 
-        if (agent1MinTimeToEnd != that.agent1MinTimeToEnd) return false;
-        if (agent2MinTimeToBeginning != that.agent2MinTimeToBeginning) return false;
-        return end != null ? end.equals(that.end) : that.end == null;
-
+        return this.time == that.time &&
+                ( // all equals
+                    Objects.equals(agent1, that.agent1) &&
+                    Objects.equals(agent2, that.agent2)
+//                    Objects.equals(location, that.location) &&
+//                    Objects.equals(end, that.end)
+                )
+                ||
+                ( // mirror image
+                    Objects.equals(agent1, that.agent2) &&
+                    Objects.equals(agent2, that.agent1)
+//                    Objects.equals(location, that.end) &&
+//                    Objects.equals(end, that.location)
+                );
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (end != null ? end.hashCode() : 0);
-        result = 31 * result + agent1MinTimeToEnd;
-        result = 31 * result + agent2MinTimeToBeginning;
-        return result;
+//        return Objects.hash(time, (Objects.hash(agent2, location) + Objects.hash(agent1, end)) );
+        return Objects.hash(time, (Objects.hash(agent2) + Objects.hash(agent1)) );
     }
 }

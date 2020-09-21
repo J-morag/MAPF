@@ -53,6 +53,21 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
         }
     }
 
+    /**
+     * Constructor
+     * @param plans plans to put into maps so we can find conflicts with them. Will not be modified.
+     * @param targetAgent an agent who's plan is to be ignored (optional).
+     * @param checkGoals whether or not to check goals
+     */
+    public SingleUseConflictAvoidanceTable(Iterable<? extends SingleAgentPlan> plans, Agent targetAgent, boolean checkGoals) {
+        for (SingleAgentPlan plan: plans){
+            if(targetAgent == null || ! targetAgent.equals(plan.agent)){
+                addPlan(plan);
+            }
+        }
+        this.checkGoals = checkGoals;
+    }
+
     private void addPlan(SingleAgentPlan plan){
         for (Move move : plan){
             TimeLocation from = new TimeLocation(move.timeNow - 1, move.prevLocation);
