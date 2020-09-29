@@ -1,4 +1,4 @@
-package OnlineMAPF;
+package OnlineMAPF.RunManaagers;
 
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
@@ -6,6 +6,8 @@ import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import OnlineMAPF.OnlineExperiment;
+import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
 import OnlineMAPF.Solvers.*;
 
 import java.io.FileOutputStream;
@@ -31,7 +33,7 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
     /*  = Set Experiments =  */
     @Override
     protected void setExperiments() {
-        addExperimentsSnapshotVSOracle();
+        addExperimentsSnapshotVSOracleDecreasingMaze();
     }
 
     @Override
@@ -116,6 +118,25 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
         /*  =   Add new experiment   =  */
         OnlineExperiment experiment = new OnlineExperiment("Snapshot VS Oracle", instanceManager, null);
         experiment.keepSolutionInReport = false;
+        this.experiments.add(experiment);
+
+    }
+
+    private void addExperimentsSnapshotVSOracleDecreasingMaze() {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\small_mazes"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
+
+        /*  =   Add new experiment   =  */
+        OnlineExperiment experiment = new OnlineExperiment("DecreasingMaze", instanceManager, null);
+        experiment.keepSolutionInReport = false;
+        experiment.timeout = 60 * 1000;
         this.experiments.add(experiment);
 
     }

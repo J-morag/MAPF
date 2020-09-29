@@ -1,4 +1,4 @@
-package OnlineMAPF;
+package OnlineMAPF.RunManaagers;
 
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
@@ -6,6 +6,8 @@ import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import OnlineMAPF.OnlineExperiment;
+import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
 import OnlineMAPF.Solvers.OnlineCBSSolver;
 import OnlineMAPF.Solvers.OnlineSolverContainer;
 
