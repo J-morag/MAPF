@@ -12,8 +12,8 @@ import Environment.Metrics.S_Metrics;
 import Environment.RunManagerSimpleExample;
 import Environment.TestingBenchmarkRunManager;
 import OnlineMAPF.*;
-import OnlineMAPF.RunManaagers.RunManagerOnlineCOR;
-import OnlineMAPF.RunManaagers.RunManagerSnapshotVSOracle;
+import OnlineMAPF.RunManagers.RunManagerOnlineCOR;
+import OnlineMAPF.RunManagers.RunManagerSnapshotVSOracle;
 import OnlineMAPF.Solvers.OnlineAStar;
 import OnlineMAPF.Solvers.OnlinePP_Solver;
 

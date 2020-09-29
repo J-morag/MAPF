@@ -1,4 +1,4 @@
-package OnlineMAPF.RunManaagers;
+package OnlineMAPF.RunManagers;
 
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
@@ -8,32 +8,37 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineExperiment;
 import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
-import OnlineMAPF.Solvers.*;
+import OnlineMAPF.Solvers.OnlineAStar;
+import OnlineMAPF.Solvers.OnlineCBSSolver;
+import OnlineMAPF.Solvers.OnlineSolverContainer;
+import OnlineMAPF.Solvers.ReplanSingle;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class RunManagerSnapshotVSOracle extends A_RunManager {
+public class RunManagerOnlineCOR extends A_RunManager {
 
     String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
 
     /*  = Set Solvers =  */
     @Override
     protected void setSolvers() {
-        OnlineCBSSolver snapshot = new OnlineCBSSolver();
-        snapshot.name = "OnlineCBSSolver";
-        this.solvers.add(new OnlineSolverContainer(snapshot));
-        OnlineCompatibleOfflineCBS oracle =  new OnlineCompatibleOfflineCBS();
-        oracle.name = "Oracle";
-        this.solvers.add(oracle);
+        OnlineCBSSolver withCORSolver = new OnlineCBSSolver();
+        withCORSolver.name = "COR solver";
+        this.solvers.add(new OnlineSolverContainer(withCORSolver));
+        OnlineCBSSolver withoutCORSolver = new OnlineCBSSolver();
+        withoutCORSolver.name = "blind to COR";
+        this.solvers.add(new OnlineSolverContainer(withoutCORSolver));
+        withoutCORSolver.ignoreCOR = true;
+        this.solvers.add(new ReplanSingle(new OnlineAStar()));
     }
 
     /*  = Set Experiments =  */
     @Override
     protected void setExperiments() {
-        addExperimentsSnapshotVSOracleDecreasingMaze();
+        addExperimentCOR();
     }
 
     @Override
@@ -94,7 +99,7 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
 //                            InstanceReport.StandardFields.totalReroutesCost,
 //                            InstanceReport.StandardFields.numReroutes,
 //                            InstanceReport.StandardFields.solution}
-            );
+                            );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -104,41 +109,21 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
 
     /* = Experiments =  */
 
-    private void addExperimentsSnapshotVSOracle() {
+    private void addExperimentCOR() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{60});
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("Snapshot VS Oracle", instanceManager, null);
+        OnlineExperiment experiment = new OnlineExperiment("COR", instanceManager, new int[]{0, 1, 2, 3, 4, 5});
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
-
-    }
-
-    private void addExperimentsSnapshotVSOracleDecreasingMaze() {
-        /*  =   Set Path   =*/
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\small_mazes"});
-
-        /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
-
-        /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
-
-        /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("DecreasingMaze", instanceManager, null);
-        experiment.keepSolutionInReport = false;
-        experiment.timeout = 60 * 1000;
-        this.experiments.add(experiment);
-
     }
 
 }

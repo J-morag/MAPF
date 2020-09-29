@@ -1,4 +1,4 @@
-package OnlineMAPF.RunManaagers;
+package OnlineMAPF.RunManagers;
 
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
@@ -8,37 +8,33 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineExperiment;
 import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
-import OnlineMAPF.Solvers.OnlineAStar;
 import OnlineMAPF.Solvers.OnlineCBSSolver;
 import OnlineMAPF.Solvers.OnlineSolverContainer;
-import OnlineMAPF.Solvers.ReplanSingle;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class RunManagerOnlineCOR extends A_RunManager {
+public class RunManagerOnlineRuntimes extends A_RunManager {
 
     String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
 
     /*  = Set Solvers =  */
     @Override
     protected void setSolvers() {
-        OnlineCBSSolver withCORSolver = new OnlineCBSSolver();
-        withCORSolver.name = "COR solver";
-        this.solvers.add(new OnlineSolverContainer(withCORSolver));
-        OnlineCBSSolver withoutCORSolver = new OnlineCBSSolver();
-        withoutCORSolver.name = "blind to COR";
-        this.solvers.add(new OnlineSolverContainer(withoutCORSolver));
-        withoutCORSolver.ignoreCOR = true;
-        this.solvers.add(new ReplanSingle(new OnlineAStar()));
+        OnlineCBSSolver preservingRootSolver = new OnlineCBSSolver(true);
+        preservingRootSolver.name = "Preserving Root Online";
+        OnlineCBSSolver naiveOnline = new OnlineCBSSolver(false);
+        naiveOnline.name = "Naive Online";
+        this.solvers.add(new OnlineSolverContainer(preservingRootSolver));
+        this.solvers.add(new OnlineSolverContainer(naiveOnline));
     }
 
     /*  = Set Experiments =  */
     @Override
     protected void setExperiments() {
-        addExperimentCOR();
+        addExperimentCompareRuntimes();
     }
 
     @Override
@@ -60,6 +56,7 @@ public class RunManagerOnlineCOR extends A_RunManager {
                     InstanceReport.StandardFields.numReroutes,
                     InstanceReport.StandardFields.COR,
                     InstanceReport.StandardFields.totalReroutesCost,
+                    InstanceReport.StandardFields.numReroutes,
                     InstanceReport.StandardFields.solution});
         } catch (IOException e) {
             e.printStackTrace();
@@ -99,7 +96,7 @@ public class RunManagerOnlineCOR extends A_RunManager {
 //                            InstanceReport.StandardFields.totalReroutesCost,
 //                            InstanceReport.StandardFields.numReroutes,
 //                            InstanceReport.StandardFields.solution}
-                            );
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,21 +106,27 @@ public class RunManagerOnlineCOR extends A_RunManager {
 
     /* = Experiments =  */
 
-    private void addExperimentCOR() {
+    private void addExperimentCompareRuntimes() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\kiva"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{60});
+        int biggestNumAgents = 100;
+        int[] agentAmounts = new int[biggestNumAgents];
+        for (int i = 1; i <= biggestNumAgents; i++) {
+            agentAmounts[i-1] = i;
+        }
+        InstanceProperties properties = new InstanceProperties(null, -1, agentAmounts);
+
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("COR", instanceManager, new int[]{0, 1, 2, 3, 4, 5});
+        OnlineExperiment experiment = new OnlineExperiment("Compare Run-times", instanceManager, new int[]{0, 20});
+        experiment.timeout = 5 * 60 * 1000;
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
     }
-
 }

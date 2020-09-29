@@ -1,4 +1,4 @@
-package OnlineMAPF.RunManaagers;
+package OnlineMAPF.RunManagers;
 
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
