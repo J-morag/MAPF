@@ -95,6 +95,12 @@ public class CorridorConflictManager extends ConflictManager {
         I_Location dir2neighbor = super.agent_plan.get(conflict.agent2).moveAt(conflict.time).prevLocation;
         I_Location end = exploreCorridorOneDirection(corridorVertices, dir2anchor, dir2neighbor, conflict.agent1, conflict.agent2);
 
+        if (equalsSourceOrTarget(dir1anchor, conflict.agent1) || equalsSourceOrTarget(dir2anchor, conflict.agent2)){
+            // agent could have left its source and then returned, in which case they may conflict on its source,
+            // so it can't be treated as a corridor conflict
+            return null;
+        }
+
         if (corridorVertices.size() == 2){
             // in this case it is really just a swapping conflict
             return null;
@@ -112,10 +118,8 @@ public class CorridorConflictManager extends ConflictManager {
     private I_Location exploreCorridorOneDirection(HashSet<I_Location> corridorVertices, I_Location anchor, I_Location someDirNeighbor,
                                                    Agent agent1, Agent agent2) {
         // run until we find a vertex not of degree, or the source or the target of one of the agents
-        while(isDegree2(someDirNeighbor) && ! someDirNeighbor.getCoordinate().equals(agent1.source)
-                && ! someDirNeighbor.getCoordinate().equals(agent1.target)
-                && ! someDirNeighbor.getCoordinate().equals(agent2.source)
-                && ! someDirNeighbor.getCoordinate().equals(agent2.target)){
+        while(isDegree2(someDirNeighbor) && ! equalsSourceOrTarget(someDirNeighbor, agent1)
+                && ! equalsSourceOrTarget(someDirNeighbor, agent2)){
             // might add an existing vertex but it's fine since this is a set.
             corridorVertices.add(someDirNeighbor);
             // get the neighbor of the current neighbor that is not the anchor (so it is in the right direction)
@@ -127,6 +131,10 @@ public class CorridorConflictManager extends ConflictManager {
         // then add that last vertex
         corridorVertices.add(someDirNeighbor);
         return someDirNeighbor;
+    }
+
+    private boolean equalsSourceOrTarget(I_Location location, Agent agent){
+        return location.getCoordinate().equals(agent.source) || location.getCoordinate().equals(agent.target);
     }
 
     private boolean isDegree2(I_Location location){
