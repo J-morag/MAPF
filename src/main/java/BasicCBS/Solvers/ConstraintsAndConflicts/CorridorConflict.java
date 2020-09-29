@@ -119,6 +119,7 @@ public class CorridorConflict extends A_Conflict {
             SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
             RunParameters_SAAStar runParameters = new RunParameters_SAAStar(constraints, new InstanceReport(),null, null, agentStartTime);
             runParameters.targetCoor = fartherSide.getCoordinate();
+            runParameters.agentStartLocation = getAgentSource(agent, trimmedInstance);
             Solution solution = astar.solve(trimmedInstance.getSubproblemFor(agent), runParameters);
             return getTimeOfMoveTo(fartherSide, solution.getPlanFor(agent));
         }
