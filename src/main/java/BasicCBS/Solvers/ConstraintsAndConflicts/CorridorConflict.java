@@ -5,6 +5,7 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicCBS.Solvers.BreadthFirstSearch;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.RangeConstraint;
@@ -126,26 +127,7 @@ public class CorridorConflict extends A_Conflict {
     }
 
     private boolean reachableFrom(I_Location fartherSide, I_Location source) {
-        // DFS
-        HashSet<I_Location> visited = new HashSet<>();
-        Stack<I_Location> open = new Stack<>();
-        open.push(source);
-        while(!open.empty()){
-            I_Location location = open.pop();
-            visited.add(location);
-            for (I_Location neighbour: location.getNeighbors()) {
-                // must compare coordinates since these locations might come from different copies of the map and thus won't be equal
-                if(neighbour.getCoordinate().equals(fartherSide.getCoordinate())){
-                    // found (reachable)
-                    return true;
-                }
-                if(!visited.contains(neighbour)){
-                    open.push(neighbour);
-                }
-            }
-        }
-        // they are in disjoint graph components
-        return false;
+        return BreadthFirstSearch.reachableFrom(fartherSide, source);
     }
 
     protected I_Location getAgentSource(Agent agent, MAPF_Instance instance){
