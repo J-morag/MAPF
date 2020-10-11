@@ -54,6 +54,7 @@ public class OpenList<E> implements I_OpenList<E> {
     }
 
     private E replace(E e1, E e2) {
+        // todo reduce the runtime of this method from O(N) + O(logN) to O(1)
         boolean removed = this.remove(e1);
         this.add(e2);
         return removed ? e1 : null;
@@ -61,10 +62,48 @@ public class OpenList<E> implements I_OpenList<E> {
 
     @Override
     public E keepOne(E e1, E e2, Comparator<E> criteria) {
-        E keepElem = criteria.compare(e1, e2) <= 0 ? e1 : e2;
+        int compared = criteria.compare(e1, e2);
+        if(compared == 0){
+            boolean containsE1 = this.map.containsKey(e1);
+            boolean containsE2 = this.map.containsKey(e2);
+            if (containsE1 && !containsE2){
+                return e2;
+            }
+            else if(containsE2 && !containsE1){
+                return e1;
+            }
+            else if (!containsE1){ // and !contains(e2)
+                this.add(e1);
+                return e2;
+            }
+        }
+        // if they are not equal, or it contains both
+        E keepElem = compared <= 0 ? e1 : e2;
         E discardElem = keepElem == e1 ? e2 : e1;
         return this.replace(discardElem, keepElem);
     }
+//    @Override
+//    public E keepOne(E e1, E e2, Comparator<E> criteria) {
+//        int compared = criteria.compare(e1, e2);
+//        if(compared == 0){
+//            boolean containsE1 = this.map.containsKey(e1);
+//            boolean containsE2 = this.map.containsKey(e2);
+//            if (containsE1 && !containsE2){
+//                return e2;
+//            }
+//            else if(containsE2 && !containsE1){
+//                return e1;
+//            }
+//            else if (!containsE1){ // and !contains(e2)
+//                this.add(e1);
+//                return e2;
+//            }
+//        }
+//        // if they are not equal, or it contains both
+//        E keepElem = compared <= 0 ? e1 : e2;
+//        E discardElem = keepElem == e1 ? e2 : e1;
+//        return this.replace(discardElem, keepElem);
+//    }
 
     @Override
     public int size() {
