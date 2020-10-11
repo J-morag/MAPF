@@ -225,9 +225,6 @@ class CBS_SolverTest {
             // run all benchmark instances. this code is mostly copied from Environment.Experiment.
             while ((instance = instanceManager.getNextInstance()) != null) {
 
-                // brc202d-20-6 is harder so it is commented out to make regression tests faster
-                if(instance.name.equals("brc202d-20-6")) continue;
-
                 //build report
                 InstanceReport report = S_Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");

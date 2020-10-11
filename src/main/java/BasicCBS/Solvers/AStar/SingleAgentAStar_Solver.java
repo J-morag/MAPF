@@ -34,7 +34,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     private ConstraintSet constraints;
     private AStarHeuristic heuristicFunction;
-    private final I_OpenList<AStarState> openList = new OpenList<>(stateFComparator);
+    private final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
     private final Set<AStarState> closed = new HashSet<>();
     private Agent agent;
     private I_Map map;
