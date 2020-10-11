@@ -45,18 +45,39 @@ public class RangeConstraint extends Constraint {
         return new Constraint(this.agent, time, this.prevLocation, this.location);
     }
 
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof RangeConstraint)) return false;
+//        if (!super.equals(o)) return false;
+//        RangeConstraint that = (RangeConstraint) o;
+//        return upperBound == that.upperBound &&
+//                lowerBound == that.lowerBound;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(super.hashCode(), upperBound, lowerBound);
+//    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof RangeConstraint)) return false;
         if (!super.equals(o)) return false;
+
         RangeConstraint that = (RangeConstraint) o;
-        return upperBound == that.upperBound &&
-                lowerBound == that.lowerBound;
+
+        if (upperBound != that.upperBound) return false;
+        return lowerBound == that.lowerBound;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), upperBound, lowerBound);
+        int result = super.hashCode();
+        result = 31 * result + upperBound;
+        result = 31 * result + lowerBound;
+        return result;
     }
 }

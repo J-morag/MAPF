@@ -57,20 +57,25 @@ public abstract class A_Conflict {
         return null;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof A_Conflict)) return false;
-        A_Conflict conflict = (A_Conflict) o;
-        return  time == conflict.time &&
-                agent1.equals(conflict.agent1) &&
-                agent2.equals(conflict.agent2) &&
-                location.equals(conflict.location);
+
+        A_Conflict that = (A_Conflict) o;
+
+        if (time != that.time) return false;
+        if (!agent1.equals(that.agent1)) return false;
+        if (!agent2.equals(that.agent2)) return false;
+        return location.equals(that.location);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(agent1, agent2, time, location);
+        int result = agent1.hashCode();
+        result = 31 * result + agent2.hashCode();
+        result = 31 * result + time;
+        result = 31 * result + location.hashCode();
+        return result;
     }
 }

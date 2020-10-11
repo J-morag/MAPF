@@ -24,15 +24,20 @@ public class Agent {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Agent)) return false;
+
         Agent agent = (Agent) o;
-        return iD == agent.iD &&
-                Objects.equals(source, agent.source) &&
-                Objects.equals(target, agent.target);
+
+        if (iD != agent.iD) return false;
+        if (!source.equals(agent.source)) return false;
+        return target.equals(agent.target);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(iD, source, target);
+        int result = iD;
+        result = 31 * result + source.hashCode();
+        result = 31 * result + target.hashCode();
+        return result;
     }
 
     @Override

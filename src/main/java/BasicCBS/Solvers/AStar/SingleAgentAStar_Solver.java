@@ -34,8 +34,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     private ConstraintSet constraints;
     private AStarHeuristic heuristicFunction;
-    private I_OpenList<AStarState> openList;
-    private Set<AStarState> closed;
+    private final I_OpenList<AStarState> openList = new OpenList<>(stateFComparator);
+    private final Set<AStarState> closed = new HashSet<>();
     private Agent agent;
     private I_Map map;
     private SingleAgentPlan existingPlan;
@@ -114,9 +114,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.targetCoor = agent.target;
         }
 
-        this.openList = new OpenList<>(stateFComparator);
+//        this.openList = new OpenList<>(stateFComparator);
+//        this.closed = new HashSet<>();
         this.expandedNodes = 0;
-        this.closed = new HashSet<>();
         this.generatedNodes = 0;
     }
 
@@ -230,8 +230,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
         super.releaseMemory();
         this.constraints = null;
         this.instanceReport = null;
-        this.openList = null;
-        this.closed = null;
+        // todo clear instead
+        this.openList.clear();
+        this.closed.clear();
         this.agent = null;
         this.map = null;
         this.existingSolution = null;
@@ -357,6 +358,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return existingPlan;
         }
 
+
         /**
          * equality is determined by location (current), and time.
          * @param o {@inheritDoc}
@@ -365,14 +367,19 @@ public class SingleAgentAStar_Solver extends A_Solver {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof AStarState)) return false;
+
             AStarState that = (AStarState) o;
-            return move.currLocation.equals(that.move.currLocation) && move.timeNow == that.move.timeNow;
+
+            if (move.timeNow != that.move.timeNow) return false;
+            return move.currLocation.equals(that.move.currLocation);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(move.currLocation.hashCode(), move.timeNow);
+            int result = move.currLocation.hashCode();
+            result = 31 * result + move.timeNow;
+            return result;
         }
 
         @Override
@@ -439,8 +446,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
      * For deciding which state to keep between two equal states in open.
      */
     private static class TieBreakingForLowerGAndLessConflicts implements Comparator<AStarState>{
-
-        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
 
         @Override
         public int compare(AStarState o1, AStarState o2) {
