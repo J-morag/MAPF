@@ -37,7 +37,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * existing {@link BasicCBS.Solvers.SingleAgentPlan plans} for other {@link Agent}s are to be avoided.
      */
     private final I_Solver lowLevelSolver;
-
+    /**
+     * How to sort the agents. This sort determines their priority. The first agent will be treated as having
+     * the highest priority, the one after will have the second highest priority, and so forth.
+     */
+    private final Comparator<Agent> agentComparator;
     /*  = Constructors =  */
 
     /**
@@ -47,7 +51,25 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
+        this(lowLevelSolver, null);
+    }
+
+    /**
+     * Constructor.
+     * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
+     */
+    public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
+        this(null, agentComparator);
+    }
+
+    /**
+     * Constructor.
+     * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
+     * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
+     */
+    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
+        this.agentComparator = agentComparator;
     }
 
     /*  = initialization =  */
@@ -62,9 +84,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         super.init(instance, parameters);
 
         this.agents = new ArrayList<>(instance.agents);
-
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-
+        // if we were given a comparator for agents, sort the agents according to this priority order.
+        if (this.agentComparator != null){
+            this.agents.sort(this.agentComparator);
+        }
+        // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
         if(parameters instanceof RunParameters_PP){
             RunParameters_PP parametersPP = (RunParameters_PP)parameters;
 

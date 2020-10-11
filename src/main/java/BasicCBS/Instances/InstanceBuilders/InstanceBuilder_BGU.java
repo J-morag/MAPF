@@ -50,7 +50,15 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
     private final MapDimensions defaultDimensions = new MapDimensions();
     private final int[] defaultNumOfAgents = new int[0];
 
+    private final Priorities priorities;
 
+    public InstanceBuilder_BGU() {
+        priorities = new Priorities();
+    }
+
+    public InstanceBuilder_BGU(Priorities priorities) {
+        this.priorities = priorities;
+    }
 
     private MAPF_Instance getInstance(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
 
@@ -183,7 +191,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
 
     /***  =Build Agents=  ***/
 
-    private Agent buildSingleAgent(int dimensions, String line){
+    private Agent buildSingleAgent(int dimensions, String line, int numAgents){
 
         String[] agentLine = line.split(this.SEPARATOR_AGENTS);
 
@@ -202,7 +210,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
             int target_yValue = Integer.valueOf(agentLine[this.INDEX_AGENT_TARGET_YVALUE]);
             Coordinate_2D target = new Coordinate_2D(target_xValue, target_yValue);
 
-            return new Agent(agentID, source, target);
+            return new Agent(agentID, source, target, priorities.getPriorityForAgent(agentID, numAgents));
         }
 
         if(dimensions == 3) {/* nicetohave */ }
@@ -224,7 +232,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
         for (int i = 0; i < agents.length; i++) {
             nextLine = reader.getNextLine();
 
-            Agent agentToAdd = buildSingleAgent(dimensions, nextLine);
+            Agent agentToAdd = buildSingleAgent(dimensions, nextLine, agents.length);
             if ( agentToAdd == null ){ return null; /* Bad agent line */ }
             agents[i] = agentToAdd;
         }

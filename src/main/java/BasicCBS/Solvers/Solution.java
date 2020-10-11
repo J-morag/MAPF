@@ -137,6 +137,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return SOC;
     }
 
+    public int sumIndividualCostsWithPriorities(){
+        int SOC = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            SOC += plan.getCost() * plan.agent.priority;
+        }
+        return SOC;
+    }
+
     public int makespan(){
         int maxCost = 0;
         for (SingleAgentPlan plan :
