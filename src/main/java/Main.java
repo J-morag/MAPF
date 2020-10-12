@@ -82,7 +82,7 @@ public class Main {
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(null, new InstanceBuilder_BGU());
 
-        MAPF_Instance instance = RunManagerSimpleExample.getInstanceFromPath(instanceManager, instancePath);
+        MAPF_Instance instance = A_RunManager.getInstanceFromPath(instanceManager, instancePath);
 
         // Solve
         CBS_Solver solver = new CBS_Solver();
