@@ -41,22 +41,25 @@ public class Coordinate_3D implements I_Coordinate {
     }
 
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Coordinate_3D)) return false;
+
         Coordinate_3D that = (Coordinate_3D) o;
-        return getX_value() == that.getX_value() &&
-                getY_value() == that.getY_value() &&
-                getZ_value() == that.getZ_value();
+
+        if (x_value != that.x_value) return false;
+        if (y_value != that.y_value) return false;
+        return z_value == that.z_value;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getX_value(), getY_value(), getZ_value());
+        int result = x_value;
+        result = 31 * result + y_value;
+        result = 31 * result + z_value;
+        return result;
     }
-
 
     @Override
     public String toString() {

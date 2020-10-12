@@ -1,5 +1,6 @@
 package BasicCBS.Solvers.CBS;
 
+import BasicCBS.Instances.InstanceBuilders.Priorities;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -143,7 +144,7 @@ class CBS_SolverTest {
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(System.currentTimeMillis() + (60*60*1000), null, instanceReport, null));
+        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -201,6 +202,76 @@ class CBS_SolverTest {
     }
 
     @Test
+    void cbsWithPriorities() {
+        I_Solver solver = new CBS_Solver(null, null, null,
+                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null);
+        InstanceReport instanceReport = new InstanceReport();
+
+        Agent agent0 = new Agent(0, coor33, coor12, 10);
+        Agent agent1 = new Agent(1, coor12, coor33, 1);
+
+        MAPF_Instance agent0prioritisedInstance = new MAPF_Instance("agent0prioritised", mapCircle, new Agent[]{agent0, agent1});
+        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParameters(instanceReport));
+
+        agent0 = new Agent(0, coor33, coor12, 1);
+        agent1 = new Agent(1, coor12, coor33, 10);
+
+        MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
+        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
+
+        System.out.println(agent0prioritisedSolution.readableToString());
+        validate(agent0prioritisedSolution, 2, 8, 5, agent0prioritisedInstance);
+
+        System.out.println(agent1prioritisedSolution.readableToString());
+        validate(agent1prioritisedSolution, 2, 8, 5, agent1prioritisedInstance);
+
+        // check that agents were logically prioritised to minimise cost with priorities
+
+        assertEquals(agent0prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
+        assertEquals(agent0prioritisedSolution.getPlanFor(agent0).size(), 3);
+
+        assertEquals(agent1prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
+        assertEquals(agent1prioritisedSolution.getPlanFor(agent1).size(), 3);
+    }
+
+    @Test
+    void cbsWithPrioritiesUsingBuilder() {
+        boolean useAsserts = true;
+
+        I_Solver solver = new CBS_Solver(null, null, null,
+                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null);
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "TestingBenchmark"});
+        InstanceManager instanceManager = new InstanceManager(path,
+                new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.HEAVY_FIRST, new int[]{1, 3, 5})));
+
+        MAPF_Instance instance = null;
+        long timeout = 30 /*seconds*/
+                *1000L;
+
+        // run all benchmark instances. this code is mostly copied from Environment.Experiment.
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            InstanceReport report = new InstanceReport();
+
+            RunParameters runParameters = new RunParameters(timeout, null, report, null);
+
+            //solve
+            System.out.println("---------- solving "  + instance.name + " ----------");
+            Solution solution = solver.solve(instance, runParameters);
+
+            // validate
+            boolean solved = solution != null;
+            System.out.println("Solved?: " + (solved ? "yes" : "no"));
+
+            if(solution != null){
+                boolean valid = solution.solves(instance);
+                System.out.println("Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+        }
+    }
+
+    @Test
     void TestingBenchmark(){
         S_Metrics.clearAll();
         boolean useAsserts = true;
@@ -224,9 +295,6 @@ class CBS_SolverTest {
             int numInvalidOptimal = 0;
             // run all benchmark instances. this code is mostly copied from Environment.Experiment.
             while ((instance = instanceManager.getNextInstance()) != null) {
-
-                // brc202d-20-6 is harder so it is commented out to make regression tests faster
-                if(instance.name.equals("brc202d-20-6")) continue;
 
                 //build report
                 InstanceReport report = S_Metrics.newInstanceReport();

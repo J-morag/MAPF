@@ -18,18 +18,21 @@ public class AgentAtGoal{
         this.time = time;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AgentAtGoal)) return false;
+
         AgentAtGoal that = (AgentAtGoal) o;
-        return time == that.time &&
-                Objects.equals(agent, that.agent);
+
+        if (time != that.time) return false;
+        return agent.equals(that.agent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(agent, time);
+        int result = agent.hashCode();
+        result = 31 * result + time;
+        return result;
     }
 }

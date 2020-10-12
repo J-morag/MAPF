@@ -72,11 +72,12 @@ public class VertexConflict extends A_Conflict {
                     Objects.equals(location, conflict.location);
     }
 
-
     @Override
     public int hashCode() {
-        return agent1.hashCode() + agent2.hashCode() + Objects.hash( time, location );
+        int result = agent1.hashCode() + agent2.hashCode();
+        result = 31 * result + time;
+        result = 31 * result + location.hashCode();
+        return result;
     }
-
 
 }

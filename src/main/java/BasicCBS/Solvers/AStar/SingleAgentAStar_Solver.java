@@ -34,8 +34,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     protected ConstraintSet constraints;
     private AStarHeuristic heuristicFunction;
-    protected I_OpenList<AStarState> openList;
-    private Set<AStarState> closed;
+    protected I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
+    private final Set<AStarState> closed = new HashSet<>();
     protected Agent agent;
     protected I_Map map;
     protected I_Location agentStartLocation;
@@ -126,9 +126,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
         if(this.agentStartLocation == null){this.agentStartLocation = map.getMapCell(this.sourceCoor);}
 
-        this.openList = new OpenList<>(stateFComparator);
+//        this.openList = new OpenList<>(stateFComparator);
+//        this.closed = new HashSet<>();
         this.expandedNodes = 0;
-        this.closed = new HashSet<>();
         this.generatedNodes = 0;
     }
 
@@ -255,8 +255,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
         super.releaseMemory();
         this.constraints = null;
         this.instanceReport = null;
-        this.openList = null;
-        this.closed = null;
+        // todo clear instead
+        this.openList.clear();
+        this.closed.clear();
         this.agent = null;
         this.map = null;
         this.existingSolution = null;
@@ -381,6 +382,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return existingPlan;
         }
 
+
         /**
          * equality is determined by location (current), and time.
          * @param o {@inheritDoc}
@@ -389,14 +391,19 @@ public class SingleAgentAStar_Solver extends A_Solver {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof AStarState)) return false;
+
             AStarState that = (AStarState) o;
-            return move.currLocation.equals(that.move.currLocation) && move.timeNow == that.move.timeNow;
+
+            if (move.timeNow != that.move.timeNow) return false;
+            return move.currLocation.equals(that.move.currLocation);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(move.currLocation.hashCode(), move.timeNow);
+            int result = move.currLocation.hashCode();
+            result = 31 * result + move.timeNow;
+            return result;
         }
 
         @Override
