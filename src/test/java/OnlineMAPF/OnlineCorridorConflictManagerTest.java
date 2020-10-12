@@ -41,12 +41,12 @@ class OnlineCorridorConflictManagerTest {
                 "OnlineComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
 //                new InstanceProperties(null, -1d, new int[]{5, 10, 15, 20, 25}));
-                new InstanceProperties(null, -1d, new int[]{10, 15}));
+                new InstanceProperties(null, -1d, new int[]{7}));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
 //        long timeout = 30 /*seconds*/   *1000L;
-        long timeout = 10 /*seconds*/   *1000L;
+        long timeout = 5 /*seconds*/   *1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
