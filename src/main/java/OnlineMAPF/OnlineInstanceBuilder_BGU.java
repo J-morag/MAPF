@@ -8,8 +8,8 @@ public class OnlineInstanceBuilder_BGU extends InstanceBuilder_BGU {
     protected final int INDEX_AGENT_ARRIVAL_TIME = 5;
 
     @Override
-    protected Agent agentFromStringArray(int dimensions, String[] agentLine) {
-        Agent offlineAgent = super.agentFromStringArray(dimensions, agentLine);
+    protected Agent agentFromStringArray(int dimensions, String[] agentLine, int numAgents) {
+        Agent offlineAgent = super.agentFromStringArray(dimensions, agentLine, numAgents);
         if(dimensions == 2){
             // will throw an IndexOutOfBoundsException if this instance isn't online
             return new OnlineAgent(offlineAgent,

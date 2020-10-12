@@ -12,8 +12,8 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
     private final String onlineFieldsFilenameDelimiter = "#";
 
     @Override
-    protected Agent agentFromStringArray(int id, String[] agentLine) {
-        Agent offlineAgent = super.agentFromStringArray(id, agentLine);
+    protected Agent agentFromStringArray(int id, String[] agentLine, int numAgents) {
+        Agent offlineAgent = super.agentFromStringArray(id, agentLine, numAgents);
 
         return new OnlineAgent(offlineAgent,
                 Integer.parseInt(agentLine[INDEX_AGENT_ARRIVAL_TIME]) // add the agent's arrival time

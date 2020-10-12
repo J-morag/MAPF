@@ -144,10 +144,6 @@ public class CorridorConflictManager extends ConflictManager {
         return location.getCoordinate().equals(agent.source) || location.getCoordinate().equals(agent.target);
     }
 
-    private boolean equalsSourceOrTarget(I_Location location, Agent agent){
-        return location.getCoordinate().equals(agent.source) || location.getCoordinate().equals(agent.target);
-    }
-
     private boolean isDegree2(I_Location location){
         return location.getNeighbors().size() == 2;
     }
