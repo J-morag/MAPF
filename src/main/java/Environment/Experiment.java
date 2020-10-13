@@ -163,7 +163,7 @@ public class Experiment {
             boolean validSolution = solution.solves(instance);
             System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
-            System.out.println("Sum of Individual Costs: " + solution.sumIndividualCosts());
+            System.out.println("Sum of Individual Costs: " + getSolutionCost(solution));
         } else { // failed to solve
             recordFailure(instance, minNumFailedAgentsForInstance, solver);
         }
@@ -186,6 +186,10 @@ public class Experiment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    protected int getSolutionCost(Solution solution) {
+        return solution.sumIndividualCostsWithPriorities();
     }
 
     private void recordFailure(MAPF_Instance instance, Map<String, Integer> failedInstances, I_Solver solver) {

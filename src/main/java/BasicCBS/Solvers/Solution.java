@@ -128,6 +128,10 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return agentPlans.size();
     }
 
+    /**
+     * Calculates the sum of individual costs (SOC), typically defined as the sum of path lengths.
+     * @return the sum of individual costs (SOC).
+     */
     public int sumIndividualCosts(){
         int SOC = 0;
         for (SingleAgentPlan plan :
@@ -137,6 +141,11 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return SOC;
     }
 
+    /**
+     * Calculates the sum of individual costs with the priorities ({{@link Agent#priority}} modifier.
+     * If the priority of all agents is set to 1, this method behaves the same as {{@link #sumIndividualCosts()}}.
+     * @return sum of individual costs with the priorities ({{@link Agent#priority}} modifier
+     */
     public int sumIndividualCostsWithPriorities(){
         int SOC = 0;
         for (SingleAgentPlan plan :
