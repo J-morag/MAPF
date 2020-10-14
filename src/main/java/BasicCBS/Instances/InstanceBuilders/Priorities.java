@@ -36,7 +36,7 @@ public class Priorities {
     public int getPriorityForAgent(int agentIndex, int numAgents){
         int numPriorities = priorities.length;
         if (policy == PrioritiesPolicy.ROUND_ROBIN){
-            return priorities[agentIndex - (agentIndex % numPriorities) * numPriorities];
+            return priorities[agentIndex - (Math.floorDiv(agentIndex, numPriorities)) * numPriorities];
         }
         else if (policy == PrioritiesPolicy.HEAVY_FIRST || policy == PrioritiesPolicy.LIGHT_FIRST){
             int agentsPerPriority = Math.floorDiv(numAgents, numPriorities);

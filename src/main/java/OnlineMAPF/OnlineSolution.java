@@ -108,8 +108,23 @@ public class OnlineSolution extends Solution{
      */
     @Override
     public int sumIndividualCosts() {
-        // remove 1 from cost per plan
-        return super.sumIndividualCosts()-super.size();
+        return sumIndividualCostsWithPriorities();
+//        // remove cost of first move per plan
+//        int result = super.sumIndividualCosts();
+//        for (Agent agent : super.agentPlans.keySet()){
+//            result -= agent.priority;
+//        }
+//        return result;
+    }
+
+    @Override
+    public int sumIndividualCostsWithPriorities() {
+        // remove cost of first move per plan
+        int result = super.sumIndividualCostsWithPriorities();
+        for (Agent agent : super.agentPlans.keySet()){
+            result -= agent.priority;
+        }
+        return result;
     }
 
     /**

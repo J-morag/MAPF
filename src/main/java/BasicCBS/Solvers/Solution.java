@@ -134,12 +134,13 @@ public class Solution implements Iterable<SingleAgentPlan>{
     }
 
     public int sumIndividualCosts(){
-        int SOC = 0;
-        for (SingleAgentPlan plan :
-                agentPlans.values()) {
-            SOC += plan.getCost();
-        }
-        return SOC;
+        return sumIndividualCostsWithPriorities();
+//        int SOC = 0;
+//        for (SingleAgentPlan plan :
+//                agentPlans.values()) {
+//            SOC += plan.getCost();
+//        }
+//        return SOC;
     }
 
     public int sumIndividualCostsWithPriorities(){

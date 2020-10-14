@@ -242,31 +242,35 @@ class CBS_SolverTest {
                 (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path,
-                new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.HEAVY_FIRST, new int[]{1, 3, 5})));
 
-        MAPF_Instance instance = null;
-        long timeout = 30 /*seconds*/
-                *1000L;
+        for (Priorities.PrioritiesPolicy policy : Priorities.PrioritiesPolicy.values()){
+            InstanceManager instanceManager = new InstanceManager(path,
+                    new InstanceBuilder_BGU(new Priorities(policy, new int[]{1, 3, 5})));
 
-        // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-        while ((instance = instanceManager.getNextInstance()) != null) {
-            InstanceReport report = new InstanceReport();
+            MAPF_Instance instance = null;
+            long timeout = 30 /*seconds*/
+                    *1000L;
+            int i= 0;
+            int max = 15;
+            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
+            while ((instance = instanceManager.getNextInstance()) != null && max > i++) {
+                InstanceReport report = new InstanceReport();
 
-            RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParameters(timeout, null, report, null);
 
-            //solve
-            System.out.println("---------- solving "  + instance.name + " ----------");
-            Solution solution = solver.solve(instance, runParameters);
+                //solve
+                System.out.println("---------- solving "  + instance.name + " ----------");
+                Solution solution = solver.solve(instance, runParameters);
 
-            // validate
-            boolean solved = solution != null;
-            System.out.println("Solved?: " + (solved ? "yes" : "no"));
+                // validate
+                boolean solved = solution != null;
+                System.out.println("Solved?: " + (solved ? "yes" : "no"));
 
-            if(solution != null){
-                boolean valid = solution.solves(instance);
-                System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
+                if(solution != null){
+                    boolean valid = solution.solves(instance);
+                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
+                    if (useAsserts) assertTrue(valid);
+                }
             }
         }
     }
