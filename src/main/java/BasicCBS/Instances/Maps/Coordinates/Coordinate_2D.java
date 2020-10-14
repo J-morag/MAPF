@@ -19,15 +19,19 @@ public class Coordinate_2D implements I_Coordinate {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Coordinate_2D)) return false;
+
         Coordinate_2D that = (Coordinate_2D) o;
-        return x_value == that.x_value &&
-                y_value == that.y_value;
+
+        if (x_value != that.x_value) return false;
+        return y_value == that.y_value;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.x_value, this.y_value);
+        int result = x_value;
+        result = 31 * result + y_value;
+        return result;
     }
 
     @Override

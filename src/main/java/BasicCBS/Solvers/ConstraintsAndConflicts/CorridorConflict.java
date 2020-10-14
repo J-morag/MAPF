@@ -22,8 +22,11 @@ import java.util.Stack;
  * Implements Corridor conflicts from:
  * Li, Jiaoyang, et al. "New techniques for pairwise symmetry breaking in multi-agent path finding."
  * Proceedings of the International Conference on Automated Planning and Scheduling. Vol. 30. 2020.
+ * Not Thread safe!
  */
 public class CorridorConflict extends A_Conflict {
+
+    private static final SingleAgentAStar_Solver aStar = new SingleAgentAStar_Solver();
 
     /**
      * The end vertex of the corridor. The beginning vertex is stored in {@link #location}.
@@ -74,7 +77,6 @@ public class CorridorConflict extends A_Conflict {
     public Constraint[] getPreventingConstraints() {
         if(this.preventingConstraints != null){return this.preventingConstraints;}
 
-        SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
         // create an instance without the corridor (the beginning and end will remain)
         MAPF_Instance trimmedInstance = instance.getSubproblemWithout(corridorVertices);
         int corridorLength = this.corridorVertices.size() + 1;
@@ -117,11 +119,10 @@ public class CorridorConflict extends A_Conflict {
         }
         else{
             // get time to farther side with bypass with state-time A Star
-            SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
-            RunParameters_SAAStar runParameters = new RunParameters_SAAStar(constraints, new InstanceReport(),null, null, agentStartTime);
+            RunParameters_SAAStar runParameters = new RunParameters_SAAStar(constraints, new InstanceReport(),null, agentStartTime);
             runParameters.targetCoor = fartherSide.getCoordinate();
             runParameters.agentStartLocation = getAgentSource(agent, trimmedInstance);
-            Solution solution = astar.solve(trimmedInstance.getSubproblemFor(agent), runParameters);
+            Solution solution = aStar.solve(trimmedInstance.getSubproblemFor(agent), runParameters);
             return getTimeOfMoveTo(fartherSide, solution.getPlanFor(agent));
         }
     }

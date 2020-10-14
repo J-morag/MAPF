@@ -3,43 +3,31 @@ package BasicCBS.Solvers;
 import java.util.*;
 
 /**
- * An implementation of {@link I_OpenList} that supports priority queue operations and runtimes using an instance
- * of {@link PriorityQueue}, while also using a {@link HashMap} to support a O(1) {@link #get(E)} operation.
+ * An implementation of {@link I_OpenList} that supports PriorityQueue-like operations, using an instance
+ * of {@link TreeSet} (instead of {@link PriorityQueue}), while also using a {@link HashMap} to support a O(1)
+ * {@link #get(E)} operation. Unlike PriorityQueue, {{@link #poll()}} and {{@link #peek()}} are O(logN) time, but
+ * {{@link #keepOne(Object, Object, Comparator)}} has O(logN) time instead of O(N).
  *
  * @param <E>
  */
-public class OpenList<E> implements I_OpenList<E> {
-    private Queue<E> queue;
+public class OpenListTree<E> implements I_OpenList<E> {
+    private TreeSet<E> queue;
     private Map<E, E> map;
 
-    /*  = constructors like in PriorityQueue =  */
+    /*  = constructors =  */
 
-    public OpenList() {
-        this.queue = new PriorityQueue<>();
+    public OpenListTree() {
+        this.queue = new TreeSet<>();
         this.map = new HashMap<>();
     }
 
-    public OpenList(int initialCapacity) {
-        this(initialCapacity, null);
-    }
-
-    public OpenList(Comparator<? super E> comparator) {
-        this.queue = new PriorityQueue<>(comparator);
+    public OpenListTree(Comparator<? super E> comparator) {
+        this.queue = new TreeSet<>(comparator);
         this.map = new HashMap<>();
     }
 
-    public OpenList(int initialCapacity,
-                         Comparator<? super E> comparator) {
-        // Note: This restriction of at least one is not actually needed,
-        // but continues for 1.5 compatibility
-        if (initialCapacity < 1)
-            throw new IllegalArgumentException();
-        this.queue = new PriorityQueue<>(initialCapacity, comparator);
-        this.map = new HashMap<>(initialCapacity);
-    }
-
-    public OpenList(Collection<? extends E> c) {
-        this.queue = new PriorityQueue<>(c);
+    public OpenListTree(Collection<? extends E> c) {
+        this.queue = new TreeSet<>(c);
         this.map = new HashMap<>();
         for(E elem : c){
             this.map.put(elem, elem);
@@ -61,10 +49,48 @@ public class OpenList<E> implements I_OpenList<E> {
 
     @Override
     public E keepOne(E e1, E e2, Comparator<E> criteria) {
-        E keepElem = criteria.compare(e1, e2) <= 0 ? e1 : e2;
+        int compared = criteria.compare(e1, e2);
+        if(compared == 0){
+            boolean containsE1 = this.map.containsKey(e1);
+            boolean containsE2 = this.map.containsKey(e2);
+            if (containsE1 && !containsE2){
+                return e2;
+            }
+            else if(containsE2 && !containsE1){
+                return e1;
+            }
+            else if (!containsE1){ // and !contains(e2)
+                this.add(e1);
+                return e2;
+            }
+        }
+        // if they are not equal, or it contains both
+        E keepElem = compared <= 0 ? e1 : e2;
         E discardElem = keepElem == e1 ? e2 : e1;
         return this.replace(discardElem, keepElem);
     }
+//    @Override
+//    public E keepOne(E e1, E e2, Comparator<E> criteria) {
+//        int compared = criteria.compare(e1, e2);
+//        if(compared == 0){
+//            boolean containsE1 = this.map.containsKey(e1);
+//            boolean containsE2 = this.map.containsKey(e2);
+//            if (containsE1 && !containsE2){
+//                return e2;
+//            }
+//            else if(containsE2 && !containsE1){
+//                return e1;
+//            }
+//            else if (!containsE1){ // and !contains(e2)
+//                this.add(e1);
+//                return e2;
+//            }
+//        }
+//        // if they are not equal, or it contains both
+//        E keepElem = compared <= 0 ? e1 : e2;
+//        E discardElem = keepElem == e1 ? e2 : e1;
+//        return this.replace(discardElem, keepElem);
+//    }
 
     @Override
     public int size() {
@@ -193,7 +219,7 @@ public class OpenList<E> implements I_OpenList<E> {
      */
     @Override
     public E remove() {
-        E e = queue.remove();
+        E e = queue.pollFirst();
         map.remove(e);
         return e;
     }
@@ -204,19 +230,19 @@ public class OpenList<E> implements I_OpenList<E> {
      */
     @Override
     public E poll() {
-        E e = queue.poll();
+        E e = queue.pollFirst();
         map.remove(e);
         return e;
     }
 
     @Override
     public E element() {
-        return queue.element();
+        return queue.first();
     }
 
     @Override
     public E peek() {
-        return queue.peek();
+        return queue.first();
     }
 
 }

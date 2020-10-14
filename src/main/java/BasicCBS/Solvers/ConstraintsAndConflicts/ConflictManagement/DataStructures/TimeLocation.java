@@ -24,13 +24,17 @@ public class TimeLocation {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TimeLocation)) return false;
+
         TimeLocation that = (TimeLocation) o;
-        return time == that.time &&
-                location.equals(that.location);
+
+        if (time != that.time) return false;
+        return location.equals(that.location);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(time, location);
+        int result = time;
+        result = 31 * result + location.hashCode();
+        return result;
     }
 }

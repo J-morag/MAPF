@@ -98,7 +98,7 @@ public class CBS_Solver extends A_Solver {
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
                       CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, boolean useCorridorReasoning) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
-        this.openList = Objects.requireNonNullElseGet(openList, OpenList::new);
+        this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
         this.corridorReasoning = useCorridorReasoning;
         clearOPEN();

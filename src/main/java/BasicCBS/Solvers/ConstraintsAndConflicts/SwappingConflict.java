@@ -99,6 +99,12 @@ public class SwappingConflict extends A_Conflict{
 
     @Override
     public int hashCode() {
-        return Objects.hash(time, (Objects.hash(agent2, agent2_destination) + Objects.hash(agent1, location)) );
+        int result = agent1.hashCode();
+        result = 31 * result + location.hashCode();
+        // order between the pairs doesn't matter
+        result = result +
+                (agent2.hashCode() * 31 + agent2_destination.hashCode());
+        result = 31 * result + time;
+        return result;
     }
 }

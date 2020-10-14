@@ -271,7 +271,9 @@ public class SingleAgentPlan implements Iterable<Move> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(moves, agent);
+        int result = moves.hashCode();
+        result = 31 * result + agent.hashCode();
+        return result;
     }
 
     /*  = Iterable Interface =  */

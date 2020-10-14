@@ -66,7 +66,15 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         put(TREE,Enum_MapCellType.TREE);
     }};
 
+    private final Priorities priorities;
 
+    public InstanceBuilder_MovingAI() {
+        priorities = new Priorities();
+    }
+
+    public InstanceBuilder_MovingAI(Priorities priorities) {
+        this.priorities = priorities;
+    }
 
     @Override
     public void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
@@ -119,7 +127,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
             for (int id = 0; id < numOfAgents; id++) {
 
                 if( id < arrayOfAgents.length ){
-                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id));
+                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id), numOfAgents);
                     arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
                 }
             }
@@ -132,7 +140,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
             for (int id = 0; !agentLinesList.isEmpty() && id < numOfAgentsByBatches * this.defaultNumOfAgentsInSingleBatch; id++) {
 
                 if( id < numOfAgents ){
-                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.remove(0));
+                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.remove(0), numOfAgentsByBatches * this.defaultNumOfAgentsInSingleBatch);
                     arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
                 }else {
                     agentLinesList.remove(0);
@@ -142,13 +150,13 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         }
     }
 
-    private Agent buildSingleAgent(int id, String agentLine) {
+    private Agent buildSingleAgent(int id, String agentLine, int numAgents) {
         String[] splitLine = agentLine.split(this.SEPARATOR_SCENARIO);
 
-        return agentFromStringArray(id, splitLine);
+        return agentFromStringArray(id, splitLine, numAgents);
     }
 
-    protected Agent agentFromStringArray(int id, String[] splitLine){
+    protected Agent agentFromStringArray(int id, String[] splitLine, int numAgents){
         // Init coordinates
         int source_xValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_XVALUE]);
         int source_yValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_YVALUE]);
@@ -157,7 +165,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         int target_yValue = Integer.parseInt(splitLine[this.INDEX_AGENT_TARGET_YVALUE]);
         Coordinate_2D target = new Coordinate_2D(target_xValue, target_yValue);
 
-        return new Agent(id, source, target);
+        return new Agent(id, source, target, priorities.getPriorityForAgent(id, numAgents));
     }
 
 

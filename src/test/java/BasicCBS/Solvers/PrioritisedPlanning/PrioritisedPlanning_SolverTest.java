@@ -18,6 +18,9 @@ import BasicCBS.Solvers.Solution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Comparator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PrioritisedPlanning_SolverTest {
@@ -156,6 +159,32 @@ class PrioritisedPlanning_SolverTest {
         assertNull(solved);
     }
 
+    @Test
+    void sortAgents() {
+        MAPF_Instance testInstance = instanceCircle1;
+        I_Solver solver = new PrioritisedPlanning_Solver((Agent a1, Agent a2) -> a2.priority - a1.priority);
+
+        Agent agent0 = new Agent(0, coor33, coor12, 10);
+        Agent agent1 = new Agent(1, coor12, coor33, 1);
+
+        MAPF_Instance agent0prioritisedInstance = new MAPF_Instance("agent0prioritised", mapCircle, new Agent[]{agent0, agent1});
+        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParameters(instanceReport));
+
+        agent0 = new Agent(0, coor33, coor12, 1);
+        agent1 = new Agent(1, coor12, coor33, 10);
+
+        MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
+        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
+
+        assertTrue(agent0prioritisedSolution.solves(testInstance));
+        assertTrue(agent1prioritisedSolution.solves(testInstance));
+
+        assertEquals(agent0prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
+        assertEquals(agent0prioritisedSolution.getPlanFor(agent0).size(), 3);
+
+        assertEquals(agent1prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
+        assertEquals(agent1prioritisedSolution.getPlanFor(agent1).size(), 3);
+    }
 
     @Test
     void biggerInstanceFromDisk() {
@@ -168,5 +197,4 @@ class PrioritisedPlanning_SolverTest {
             System.out.println(solved.readableToString());
         }
     }
-
 }

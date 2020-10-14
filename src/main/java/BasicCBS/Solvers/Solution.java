@@ -134,10 +134,20 @@ public class Solution implements Iterable<SingleAgentPlan>{
     }
 
     public int sumIndividualCosts(){
+        return sumIndividualCostsWithPriorities();
+//        int SOC = 0;
+//        for (SingleAgentPlan plan :
+//                agentPlans.values()) {
+//            SOC += plan.getCost();
+//        }
+//        return SOC;
+    }
+
+    public int sumIndividualCostsWithPriorities(){
         int SOC = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            SOC += plan.getCost();
+            SOC += plan.getCost() * plan.agent.priority;
         }
         return SOC;
     }
@@ -176,14 +186,16 @@ public class Solution implements Iterable<SingleAgentPlan>{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Solution that = (Solution) o;
-        return agentPlans.equals(that.agentPlans);
+        if (!(o instanceof Solution)) return false;
+
+        Solution solution = (Solution) o;
+
+        return agentPlans.equals(solution.agentPlans);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(agentPlans);
+        return agentPlans.hashCode();
     }
 
     /*  = Iterator Interface =  */

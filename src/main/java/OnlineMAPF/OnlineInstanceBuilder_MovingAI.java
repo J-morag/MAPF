@@ -2,6 +2,7 @@ package OnlineMAPF;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
+import BasicCBS.Instances.InstanceBuilders.Priorities;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Map;
@@ -11,9 +12,17 @@ public class OnlineInstanceBuilder_MovingAI extends InstanceBuilder_MovingAI {
     protected final int INDEX_AGENT_ARRIVAL_TIME = 9;
     private final String onlineFieldsFilenameDelimiter = "#";
 
+    public OnlineInstanceBuilder_MovingAI() {
+        super();
+    }
+
+    public OnlineInstanceBuilder_MovingAI(Priorities priorities) {
+        super(priorities);
+    }
+
     @Override
-    protected Agent agentFromStringArray(int id, String[] agentLine) {
-        Agent offlineAgent = super.agentFromStringArray(id, agentLine);
+    protected Agent agentFromStringArray(int id, String[] agentLine, int numAgents) {
+        Agent offlineAgent = super.agentFromStringArray(id, agentLine, numAgents);
 
         return new OnlineAgent(offlineAgent,
                 Integer.parseInt(agentLine[INDEX_AGENT_ARRIVAL_TIME]) // add the agent's arrival time
