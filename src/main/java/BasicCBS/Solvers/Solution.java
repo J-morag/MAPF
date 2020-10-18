@@ -2,8 +2,10 @@ package BasicCBS.Solvers;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicCBS.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicCBS.Solvers.ConstraintsAndConflicts.VertexConflict;
+import Environment.Metrics.InstanceReport;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -133,6 +135,10 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return agentPlans.size();
     }
 
+    /**
+     * Calculates the sum of individual costs (SOC), typically defined as the sum of path lengths.
+     * @return the sum of individual costs (SOC).
+     */
     public int sumIndividualCosts(){
         return sumIndividualCostsWithPriorities();
 //        int SOC = 0;
@@ -143,11 +149,53 @@ public class Solution implements Iterable<SingleAgentPlan>{
 //        return SOC;
     }
 
+    /**
+     * Calculates the sum of individual costs with the priorities ({{@link Agent#priority}} modifier.
+     * If the priority of all agents is set to 1, this method behaves the same as {{@link #sumIndividualCosts()}}.
+     * @return sum of individual costs with the priorities ({{@link Agent#priority}} modifier
+     */
     public int sumIndividualCostsWithPriorities(){
         int SOC = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            SOC += plan.getCost() * plan.agent.priority;
+            SOC += getPlanCost(plan) * plan.agent.priority;
+        }
+        return SOC;
+    }
+
+    protected int getPlanCost(SingleAgentPlan plan) {
+        return plan.getCost();
+    }
+
+    /**
+     * Expensive!
+     * The priorities are on the delta between the optimal free-space plan for each agent, and its plan in this solution.
+     * So essentially, what matters is how much the agent was delayed, and that is affected by its priority.
+     * @return sum of delays with priorities.
+     */
+    public int sumDelaysWithPriorities(MAPF_Instance instance){
+        A_Solver aStar = new SingleAgentAStar_Solver();
+        int sum = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            int freeSpaceCost = getPlanCost(aStar.solve(instance.getSubproblemFor(plan.agent), new RunParameters(new InstanceReport()))
+                    .getPlanFor(plan.agent));
+            sum += ( getPlanCost(plan) - freeSpaceCost ) * plan.agent.priority;
+        }
+        return sum;
+    }
+
+    /**
+     * gets the SOC for all the agents of a certain priority (regular SOC).
+     * @return the SOC for all the agents of a certain priority (regular SOC).
+     */
+    public int SOCOfPriorityLevel(int priorityLevel){
+        int SOC = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            if (plan.agent.priority == priorityLevel){
+                SOC += getPlanCost(plan);
+            }
         }
         return SOC;
     }
@@ -156,7 +204,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int maxCost = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            maxCost = Math.max(maxCost, plan.getCost());
+            maxCost = Math.max(maxCost, getPlanCost(plan));
         }
         return maxCost;
     }

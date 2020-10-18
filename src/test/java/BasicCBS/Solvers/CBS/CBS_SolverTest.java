@@ -219,11 +219,10 @@ class CBS_SolverTest {
         MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
         Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
 
-        System.out.println(agent0prioritisedSolution.readableToString());
-        validate(agent0prioritisedSolution, 2, 8, 5, agent0prioritisedInstance);
+        validate(agent0prioritisedSolution, 2, 35, 5, agent0prioritisedInstance);
 
         System.out.println(agent1prioritisedSolution.readableToString());
-        validate(agent1prioritisedSolution, 2, 8, 5, agent1prioritisedInstance);
+        validate(agent1prioritisedSolution, 2, 35, 5, agent1prioritisedInstance);
 
         // check that agents were logically prioritised to minimise cost with priorities
 

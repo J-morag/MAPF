@@ -172,7 +172,7 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5, testInstance);
+        validate(solved, 2, 8, 4, testInstance);
 
     }
 
@@ -184,7 +184,7 @@ class OnlineCompatibleOfflineCBSTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5, testInstance);
+        validate(solved, 2, 8, 4, testInstance);
     }
 
     @Test
@@ -196,7 +196,7 @@ class OnlineCompatibleOfflineCBSTest {
 
         assertNotNull(solved);
         solved = new OnlineSolution(solved); // for the correct validation function
-        validate(solved, 2, 4, 3, testInstance);
+        validate(solved, 2, 4, 2, testInstance);
     }
 
     @Test
