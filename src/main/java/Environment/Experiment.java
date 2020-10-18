@@ -190,7 +190,7 @@ public class Experiment {
         }
     }
 
-    private int getSolutionCost(Solution solution) {
+    protected int getSolutionCost(Solution solution) {
         return solution.sumIndividualCostsWithPriorities();
     }
 

@@ -5,7 +5,7 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicCBS.Solvers.BreadthFirstSearch;
+import BasicCBS.Solvers.NoStateTimeSearches;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.RangeConstraint;
@@ -128,7 +128,7 @@ public class CorridorConflict extends A_Conflict {
     }
 
     private boolean reachableFrom(I_Location fartherSide, I_Location source) {
-        return BreadthFirstSearch.reachableFrom(fartherSide, source);
+        return NoStateTimeSearches.PHSReachableFrom(fartherSide, source);
     }
 
     protected I_Location getAgentSource(Agent agent, MAPF_Instance instance){
