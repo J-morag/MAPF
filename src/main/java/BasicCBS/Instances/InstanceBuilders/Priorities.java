@@ -30,6 +30,14 @@ public class Priorities {
         }
     }
 
+    public PrioritiesPolicy getPolicy() {
+        return policy;
+    }
+
+    public int[] getPriorities() {
+        return Arrays.copyOf(priorities, priorities.length);
+    }
+
     private void setPolicy(PrioritiesPolicy policy, int[] priorities){
         if (policy == PrioritiesPolicy.FOUR_TO_ONE_ROBIN){
             List<Integer> newPrioritiesImbalanced = new ArrayList<>();

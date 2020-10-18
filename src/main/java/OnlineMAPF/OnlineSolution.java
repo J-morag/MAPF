@@ -102,29 +102,13 @@ public class OnlineSolution extends Solution{
     }
 
     /**
-     * @see Solution
-     * Removes the cost of the move from the garage to the map.
+     * Removes the cost of the move from the garage into the map.
+     * @param plan {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
-    public int sumIndividualCosts() {
-        return sumIndividualCostsWithPriorities();
-//        // remove cost of first move per plan
-//        int result = super.sumIndividualCosts();
-//        for (Agent agent : super.agentPlans.keySet()){
-//            result -= agent.priority;
-//        }
-//        return result;
-    }
-
-    @Override
-    public int sumIndividualCostsWithPriorities() {
-        // remove cost of first move per plan
-        int result = super.sumIndividualCostsWithPriorities();
-        for (Agent agent : super.agentPlans.keySet()){
-            result -= agent.priority;
-        }
-        return result;
+    protected int getPlanCost(SingleAgentPlan plan) {
+        return plan.getCost() - 1;
     }
 
     /**

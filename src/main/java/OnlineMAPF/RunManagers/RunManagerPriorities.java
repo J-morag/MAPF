@@ -36,7 +36,7 @@ public class RunManagerPriorities extends A_RunManager {
     /*  = Set Experiments =  */
     @Override
     protected void setExperiments() {
-        Priorities.PrioritiesPolicy policy = Priorities.PrioritiesPolicy.ROUND_ROBIN;
+        Priorities.PrioritiesPolicy policy = Priorities.PrioritiesPolicy.FOUR_TO_ONE_ROBIN;
         addExperimentsPrioritiesHalfAndHalf(1, 1000, policy);
 //        addExperimentsPrioritiesHalfAndHalf(1, 100, policy);
     }
@@ -58,6 +58,10 @@ public class RunManagerPriorities extends A_RunManager {
                     InstanceReport.StandardFields.elapsedTimeMS,
                     InstanceReport.StandardFields.solutionCost,
                     InstanceReport.StandardFields.numReroutes,
+                    "priority policy",
+                    "SOC priority1",
+                    "SOC priority1000",
+                    "sum delays",
                     InstanceReport.StandardFields.COR,
                     InstanceReport.StandardFields.totalReroutesCost,
                     InstanceReport.StandardFields.solution});
@@ -123,7 +127,7 @@ public class RunManagerPriorities extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(priorities), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("PrioritiesHalfAndHalfLightFirst_" + light + "_" + heavy, instanceManager, null);
+        OnlineExperiment experiment = new OnlineExperiment("PrioritiesHalfAndHalfLightFirst_" + light + "_" + heavy, instanceManager, priorities, null);
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
     }

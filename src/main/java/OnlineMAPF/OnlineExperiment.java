@@ -1,5 +1,6 @@
 package OnlineMAPF;
 
+import BasicCBS.Instances.InstanceBuilders.Priorities;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Solvers.I_Solver;
@@ -40,6 +41,31 @@ public class OnlineExperiment extends Experiment {
      */
     public OnlineExperiment(String experimentName, InstanceManager instanceManager, int numOfInstances, int[] coRs) {
         super(experimentName, instanceManager, numOfInstances);
+        CORs = Objects.requireNonNullElse(coRs, new int[]{0});
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param experimentName {@inheritDoc}
+     * @param instanceManager {@inheritDoc}
+     * @param coRs an array of COR (Cost Of Reroute) to run each instance under
+     * @param priorities
+     */
+    public OnlineExperiment(String experimentName, InstanceManager instanceManager, Priorities priorities, int[] coRs) {
+        super(experimentName, instanceManager, priorities);
+        CORs = Objects.requireNonNullElse(coRs, new int[]{0});
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param experimentName {@inheritDoc}
+     * @param instanceManager {@inheritDoc}
+     * @param numOfInstances {@inheritDoc}
+     * @param coRs an array of COR (Cost Of Reroute) to run each instance under
+     * @param priorities
+     */
+    public OnlineExperiment(String experimentName, InstanceManager instanceManager, int numOfInstances, Priorities priorities, int[] coRs) {
+        super(experimentName, instanceManager, numOfInstances, priorities);
         CORs = Objects.requireNonNullElse(coRs, new int[]{0});
     }
 

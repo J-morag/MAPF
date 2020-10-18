@@ -196,7 +196,7 @@ class OnlineCBSSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(System.currentTimeMillis() + (60*60*1000), null, instanceReport, null));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5, testInstance);
+        validate(solved, 2, 8, 4, testInstance);
 
     }
 
@@ -206,7 +206,7 @@ class OnlineCBSSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5, testInstance);
+        validate(solved, 2, 8, 4, testInstance);
     }
 
     @Test
@@ -216,7 +216,7 @@ class OnlineCBSSolverTest {
 
         assertNotNull(solved);
         solved = new OnlineSolution(solved); // for the correct validation function
-        validate(solved, 2, 4, 3, testInstance);
+        validate(solved, 2, 4, 2, testInstance);
     }
 
     @Test

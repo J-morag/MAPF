@@ -158,9 +158,13 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int SOC = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            SOC += plan.getCost() * plan.agent.priority;
+            SOC += getPlanCost(plan) * plan.agent.priority;
         }
         return SOC;
+    }
+
+    protected int getPlanCost(SingleAgentPlan plan) {
+        return plan.getCost();
     }
 
     /**
@@ -174,9 +178,9 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int sum = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            int freeSpaceCost = aStar.solve(instance.getSubproblemFor(plan.agent), new RunParameters(new InstanceReport()))
-                    .getPlanFor(plan.agent).getCost();
-            sum += ( plan.getCost() - freeSpaceCost ) * plan.agent.priority;
+            int freeSpaceCost = getPlanCost(aStar.solve(instance.getSubproblemFor(plan.agent), new RunParameters(new InstanceReport()))
+                    .getPlanFor(plan.agent));
+            sum += ( getPlanCost(plan) - freeSpaceCost ) * plan.agent.priority;
         }
         return sum;
     }
@@ -190,7 +194,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
             if (plan.agent.priority == priorityLevel){
-                SOC += plan.getCost();
+                SOC += getPlanCost(plan);
             }
         }
         return SOC;
@@ -200,7 +204,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int maxCost = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            maxCost = Math.max(maxCost, plan.getCost());
+            maxCost = Math.max(maxCost, getPlanCost(plan));
         }
         return maxCost;
     }
