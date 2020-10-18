@@ -2,8 +2,10 @@ package BasicCBS.Solvers;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicCBS.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicCBS.Solvers.ConstraintsAndConflicts.VertexConflict;
+import Environment.Metrics.InstanceReport;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -151,6 +153,39 @@ public class Solution implements Iterable<SingleAgentPlan>{
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
             SOC += plan.getCost() * plan.agent.priority;
+        }
+        return SOC;
+    }
+
+    /**
+     * Expensive!
+     * The priorities are on the delta between the optimal free-space plan for each agent, and its plan in this solution.
+     * So essentially, what matters is how much the agent was delayed, and that is affected by its priority.
+     * @return sum of delays with priorities.
+     */
+    public int sumDelaysWithPriorities(MAPF_Instance instance){
+        A_Solver aStar = new SingleAgentAStar_Solver();
+        int sum = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            int freeSpaceCost = aStar.solve(instance.getSubproblemFor(plan.agent), new RunParameters(new InstanceReport()))
+                    .getPlanFor(plan.agent).getCost();
+            sum += ( plan.getCost() - freeSpaceCost ) * plan.agent.priority;
+        }
+        return sum;
+    }
+
+    /**
+     * gets the SOC for all the agents of a certain priority (regular SOC).
+     * @return the SOC for all the agents of a certain priority (regular SOC).
+     */
+    public int SOCOfPriorityLevel(int priorityLevel){
+        int SOC = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            if (plan.agent.priority == priorityLevel){
+                SOC += plan.getCost();
+            }
         }
         return SOC;
     }

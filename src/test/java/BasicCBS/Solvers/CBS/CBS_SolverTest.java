@@ -243,7 +243,7 @@ class CBS_SolverTest {
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
-                new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.HEAVY_FIRST, new int[]{1, 3, 5})));
+                new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.ROUND_ROBIN, new int[]{1, 3, 5})));
 
         MAPF_Instance instance = null;
         long timeout = 30 /*seconds*/
