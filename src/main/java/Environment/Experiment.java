@@ -1,6 +1,7 @@
 package Environment;
 
 import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
+import BasicCBS.Instances.InstanceBuilders.Priorities;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
@@ -52,6 +53,7 @@ public class Experiment {
      */
     public boolean proactiveGarbageCollection = true;
     public int sleepTimeAfterGarbageCollection = 100;
+    private Priorities priorities;
 
     public Experiment(String experimentName, InstanceManager instanceManager) {
         this.experimentName = experimentName;
@@ -63,6 +65,20 @@ public class Experiment {
         this.experimentName = experimentName;
         this.instanceManager = instanceManager;
         this.numOfInstances = numOfInstances;
+    }
+
+    public Experiment(String experimentName, InstanceManager instanceManager, Priorities priorities) {
+        this.experimentName = experimentName;
+        this.instanceManager = instanceManager;
+        this.numOfInstances = Integer.MAX_VALUE;
+        this.priorities = priorities;
+    }
+
+    public Experiment(String experimentName, InstanceManager instanceManager, int numOfInstances, Priorities priorities) {
+        this.experimentName = experimentName;
+        this.instanceManager = instanceManager;
+        this.numOfInstances = numOfInstances;
+        this.priorities = priorities;
     }
 
 
@@ -166,6 +182,15 @@ public class Experiment {
             System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
             System.out.println("Sum of Individual Costs: " + getSolutionCost(solution));
+
+            if(priorities != null){
+                instanceReport.putStringValue("priority policy", priorities.getPolicy().name());
+                instanceReport.putIntegerValue("sum delays", solution.sumDelaysWithPriorities(instance));
+                for(int priority : priorities.getPriorities()){
+                    instanceReport.putIntegerValue("SOC priority" + priority, solution.SOCOfPriorityLevel(priority));
+                }
+            }
+
         } else { // failed to solve
             recordFailure(instance, minNumFailedAgentsForInstance, solver);
         }
