@@ -108,7 +108,8 @@ public class OnlineSolution extends Solution{
      */
     @Override
     protected int getPlanCost(SingleAgentPlan plan) {
-        return plan.getCost() - 1;
+        return plan.moveAt(plan.getFirstMoveTime()).prevLocation instanceof PrivateGarage ?
+                plan.getCost() - 1  :  plan.getCost();
     }
 
     /**
