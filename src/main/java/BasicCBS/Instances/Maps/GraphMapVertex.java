@@ -7,11 +7,14 @@ import java.util.List;
 /**
  * A single cell in a {@link GraphMap}. Represents a unique location in the graph.
  * Immutable beyond first initialization (First with a constructor, and then with {@link #setNeighbors(GraphMapVertex[])}.
- * Equals and HashCode are not overridden, because the implementation of {@link GraphMap} and this class does not allow
- * duplicate instances of the same {@link GraphMapVertex}. If an extending class wished to override these, it would be
- * best to use all fields, not just the {@link #coordinate}.
  */
 public class GraphMapVertex implements I_Location {
+
+    private static int IDCounter = 0;
+    /**
+     * Unique ID. This exists for creating good and deterministic hash codes.
+     */
+    private final int UniqueID = IDCounter++;
 
     /**
      * The type of the cell. The type could determine whether or not an agent can traverse or occupy a cell.
@@ -87,4 +90,19 @@ public class GraphMapVertex implements I_Location {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GraphMapVertex)) return false;
+
+        GraphMapVertex that = (GraphMapVertex) o;
+
+        return UniqueID == that.UniqueID;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return UniqueID;
+    }
 }
