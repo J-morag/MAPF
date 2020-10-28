@@ -87,7 +87,7 @@ public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver 
     }
 
     protected I_ConflictManager getConflictManager(Set<AgentsGroup> agentGroups) {
-        I_ConflictManager conflictManager = new NaiveConflictDetection(true);
+        I_ConflictManager conflictManager = new NaiveConflictDetection();
         for (AgentsGroup ag : agentGroups){
             for (SingleAgentPlan plan : ag.getSolution()){
                 conflictManager.addPlan(plan);
