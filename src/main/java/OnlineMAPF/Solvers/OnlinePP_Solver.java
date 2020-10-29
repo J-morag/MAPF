@@ -3,6 +3,7 @@ package OnlineMAPF.Solvers;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.*;
 import BasicCBS.Solvers.AStar.DistanceTableAStarHeuristic;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
@@ -20,18 +21,36 @@ import java.util.*;
  */
 public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
 
+    private final int customStartTime;
+    private HashMap<Agent, I_Location> customStartLocations;
+
     /**
      * Constructor.
      *
      * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to
      *                       be planned for, and the existing {@link SingleAgentPlan plans} for other
      *                       {@link Agent}s are to be avoided.
+     * @param customStartLocations agents will start at the locations provided here. @Nullable
+     * @param customStartTime custom time for all agents to start at. set to -1 to not use.
      */
-    public OnlinePP_Solver(I_Solver lowLevelSolver) {
+    public OnlinePP_Solver(I_Solver lowLevelSolver, HashMap<Agent, I_Location> customStartLocations, int customStartTime) {
         super(lowLevelSolver);
+        this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
+        this.customStartTime =  customStartTime;
         if(! (lowLevelSolver instanceof OnlineAStar) ) {
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " requires an online low level solver.");
         }
+    }
+    /**
+     * Constructor.
+     *
+     * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to
+     *                       be planned for, and the existing {@link SingleAgentPlan plans} for other
+     *                       {@link Agent}s are to be avoided.
+     * @param customStartLocations agents will start at the locations provided here. @Nullable
+     */
+    public OnlinePP_Solver(I_Solver lowLevelSolver, HashMap<Agent, I_Location> customStartLocations) {
+        this(lowLevelSolver, customStartLocations, -1);
     }
 
     @Override
@@ -61,19 +80,23 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
         for (int timestepWithNewAgents :
                 agentsForTimes.keySet()) {
             if(super.checkTimeout()) break;
-            solveAtTimeStep(instance, initialConstraints, solutionsAtTimes, agentsForTimes, timestepWithNewAgents);
+            Solution solution = solveAtTimeStep(instance, initialConstraints, solutionsAtTimes, agentsForTimes, timestepWithNewAgents);
+            if (solution == null){
+                return null;
+            }
         }
 
         super.endTime = System.currentTimeMillis();
         return new OnlineSolution(solutionsAtTimes);
     }
 
-    protected void solveAtTimeStep(MAPF_Instance instance, ConstraintSet constraints, SortedMap<Integer, Solution> solutionsAtTimes, SortedMap<Integer, List<OnlineAgent>> agentsForTimes, int timestepWithNewAgents) {
+    protected Solution solveAtTimeStep(MAPF_Instance instance, ConstraintSet constraints, SortedMap<Integer, Solution> solutionsAtTimes, SortedMap<Integer, List<OnlineAgent>> agentsForTimes, int timestepWithNewAgents) {
         List<OnlineAgent> newArrivals = agentsForTimes.get(timestepWithNewAgents);
         // no need to change the starting positions of old agents or modify their plans, since their plans will be avoided, not modified.
         trimOutdatedConstraints(constraints, timestepWithNewAgents); //avoid huge constraint sets in problems with many agents
         Solution subgroupSolution = super.solvePrioritisedPlanning(newArrivals, instance, constraints);
         solutionsAtTimes.put(timestepWithNewAgents, subgroupSolution);
+        return subgroupSolution;
     }
 
     @Override
@@ -87,12 +110,13 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
         OnlineAgent onlineAgent = ((OnlineAgent) agent);
         RunParameters_SAAStar astarParameters = ((RunParameters_SAAStar)parameters);
 
-        // set start time for when the agent arrives
-        astarParameters.problemStartTime = onlineAgent.arrivalTime;
+        // set start time for to the custom start time, or to when the agent arrives
+        astarParameters.problemStartTime = this.customStartTime >= 0 ? this.customStartTime : onlineAgent.arrivalTime;
         astarParameters.heuristicFunction = new OnlineDistanceTableAStarHeuristic(((DistanceTableAStarHeuristic)astarParameters.heuristicFunction));
 
-        // set the agent to start at its private garage
-        astarParameters.agentStartLocation = ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source));
+        // set the agent to start at custom start location if available, or else, its private garage.
+        astarParameters.agentStartLocation = Objects.requireNonNullElse(customStartLocations.get(agent),
+                ((OnlineAgent) agent).getPrivateGarage(subproblem.map.getMapCell(agent.source)));
 
         return astarParameters;
     }
@@ -113,7 +137,9 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
         boolean commit = commitReport;
         commitReport = false;
         super.writeMetricsToReport(solution);
-        instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
+        if (solution != null) {
+            instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
+        }
         commitReport = commit;
         if(commitReport){
             try {

@@ -25,6 +25,10 @@ public class RunManagerPriorities extends A_RunManager {
     protected void setSolvers() {
         ReplanSingle replanSingle = new ReplanSingle(new OnlineAStar());
         this.solvers.add(replanSingle);
+        StratifiedPrioritiesOnlineSolver stratifiedReplanSingle = new StratifiedPrioritiesOnlineSolver(StratifiedPrioritiesOnlineSolver.OfflineSolverStrategy.PRIORITISED_PLANNING);
+        this.solvers.add(new OnlineSolverContainer(stratifiedReplanSingle));
+        StratifiedPrioritiesOnlineSolver stratifiedSnapshot= new StratifiedPrioritiesOnlineSolver(StratifiedPrioritiesOnlineSolver.OfflineSolverStrategy.CBS);
+        this.solvers.add(new OnlineSolverContainer(stratifiedSnapshot));
         OnlineCBSSolver snapshot = new OnlineCBSSolver();
         snapshot.name = "OnlineCBSSolver";
         this.solvers.add(new OnlineSolverContainer(snapshot));
@@ -37,7 +41,7 @@ public class RunManagerPriorities extends A_RunManager {
     @Override
     protected void setExperiments() {
         Priorities.PrioritiesPolicy policy = Priorities.PrioritiesPolicy.FOUR_TO_ONE_ROBIN;
-        addExperimentsPrioritiesHalfAndHalf(1, 1000, policy);
+        addExperimentsPriorities(1, 1000, policy);
 //        addExperimentsPrioritiesHalfAndHalf(1, 100, policy);
     }
 
@@ -113,7 +117,7 @@ public class RunManagerPriorities extends A_RunManager {
 
     /* = Experiments =  */
 
-    private void addExperimentsPrioritiesHalfAndHalf(int light, int heavy, Priorities.PrioritiesPolicy policy) {
+    private void addExperimentsPriorities(int light, int heavy, Priorities.PrioritiesPolicy policy) {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
                 "Instances\\\\Online\\\\MovingAI_Instances\\\\islands_maze"});
@@ -127,7 +131,7 @@ public class RunManagerPriorities extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(priorities), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("PrioritiesHalfAndHalfLightFirst_" + light + "_" + heavy, instanceManager, priorities, null);
+        OnlineExperiment experiment = new OnlineExperiment("Priorities_" + policy.name() + "_" + light + "_" + heavy, instanceManager, priorities, null);
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
     }
