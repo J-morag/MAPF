@@ -14,11 +14,11 @@ import java.util.SortedMap;
 public class ReplanSingle extends OnlinePP_Solver {
 
     public ReplanSingle(I_Solver lowLevelSolver) {
-        super(lowLevelSolver);
+        super(lowLevelSolver, null);
     }
 
     @Override
-    protected void solveAtTimeStep(MAPF_Instance instance, ConstraintSet constraints, SortedMap<Integer, Solution> solutionsAtTimes,
+    protected Solution solveAtTimeStep(MAPF_Instance instance, ConstraintSet constraints, SortedMap<Integer, Solution> solutionsAtTimes,
                                    SortedMap<Integer, List<OnlineAgent>> agentsForTimes, int timestepWithNewAgents) {
         // solve the initial set of agents with CBS
         if(timestepWithNewAgents == 0){
@@ -31,10 +31,11 @@ public class ReplanSingle extends OnlinePP_Solver {
                 constraints.addAll(super.allConstraintsForPlan(plan));
             }
             digestSubproblemReport(instanceReport);
+            return initialSolution;
         }
         //solve the rest like prioritised planning
         else {
-            super.solveAtTimeStep(instance, constraints, solutionsAtTimes, agentsForTimes, timestepWithNewAgents);
+            return super.solveAtTimeStep(instance, constraints, solutionsAtTimes, agentsForTimes, timestepWithNewAgents);
         }
     }
 

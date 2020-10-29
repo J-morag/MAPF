@@ -84,7 +84,7 @@ public class Main {
 
         // Solve
 //        CBS_Solver solver = new CBS_Solver();
-        I_Solver solver = new OnlinePP_Solver(new OnlineAStar());
+        I_Solver solver = new OnlinePP_Solver(new OnlineAStar(), null);
         RunParameters runParameters = new RunParameters();
         Solution solution = solver.solve(instance, runParameters);
 
