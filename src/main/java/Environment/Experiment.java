@@ -140,11 +140,16 @@ public class Experiment {
             }
         }
 
-        // create report before skipping, so that output will be easier to read
+        // create a report before skipping, so that output will be easier to read (more consistent)
         InstanceReport instanceReport = this.setReport(instance, solver);
         if (skipAfterFail && hasFailedWithLessAgents(instance, minNumFailedAgentsForInstance, solver)) {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 1);
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
+            try {
+                instanceReport.commit();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return;
         }
         else{
