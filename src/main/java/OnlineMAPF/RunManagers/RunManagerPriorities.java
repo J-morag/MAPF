@@ -41,7 +41,8 @@ public class RunManagerPriorities extends A_RunManager {
     @Override
     protected void setExperiments() {
         Priorities.PrioritiesPolicy policy = Priorities.PrioritiesPolicy.FOUR_TO_ONE_ROBIN;
-        addExperimentsPriorities(1, 1000, policy);
+        addExperimentsPriorities(1, 10, policy);
+        addExperimentsPriorities(1, 3, 5, policy);
 //        addExperimentsPrioritiesHalfAndHalf(1, 100, policy);
     }
 
@@ -64,6 +65,9 @@ public class RunManagerPriorities extends A_RunManager {
                     InstanceReport.StandardFields.numReroutes,
                     "priority policy",
                     "SOC priority1",
+                    "SOC priority3",
+                    "SOC priority5",
+                    "SOC priority10",
                     "SOC priority1000",
                     "sum delays",
                     InstanceReport.StandardFields.COR,
@@ -120,7 +124,7 @@ public class RunManagerPriorities extends A_RunManager {
     private void addExperimentsPriorities(int light, int heavy, Priorities.PrioritiesPolicy policy) {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\islands_maze"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\priorities"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
@@ -132,6 +136,26 @@ public class RunManagerPriorities extends A_RunManager {
 
         /*  =   Add new experiment   =  */
         OnlineExperiment experiment = new OnlineExperiment("Priorities_" + policy.name() + "_" + light + "_" + heavy, instanceManager, priorities, null);
+        experiment.keepSolutionInReport = false;
+        this.experiments.add(experiment);
+    }
+
+
+    private void addExperimentsPriorities(int light, int medium, int heavy, Priorities.PrioritiesPolicy policy) {
+        /*  =   Set Path   =*/
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\priorities"});
+
+        /*  =   Set Properties   =  */
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
+
+        Priorities priorities = new Priorities(policy, new int[]{light, medium, heavy});
+
+        /*  =   Set Instance Manager   =  */
+        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(priorities), properties);
+
+        /*  =   Add new experiment   =  */
+        OnlineExperiment experiment = new OnlineExperiment("Priorities_" + policy.name() + "_" + light +  "_" + medium + "_" + heavy, instanceManager, priorities, null);
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
     }
