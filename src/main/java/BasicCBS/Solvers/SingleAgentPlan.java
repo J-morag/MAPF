@@ -228,13 +228,29 @@ public class SingleAgentPlan implements Iterable<Move> {
         if(this.getEndTime() != other.getEndTime()){
             SingleAgentPlan lateEndingPlan = this.getEndTime() > maxTime ? this : other;
             SingleAgentPlan earlyEndingPlan = this.getEndTime() <= maxTime ? this : other;
-            I_Location goalLocation = earlyEndingPlan.moveAt(maxTime).currLocation;
 
-            for (int time = Math.max(maxTime+1, lateEndingPlan.getFirstMoveTime()); time <= lateEndingPlan.getEndTime(); time++) {
-                Move stayMove = new Move(earlyEndingPlan.agent, time, goalLocation, goalLocation);
-                A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(time), stayMove);
-                if(goalConflict != null){
-                    return goalConflict;
+            // if plans for "start at goal and and stay there" are represented as an empty plan, we will have to make this check
+            if (earlyEndingPlan.getEndTime() == -1){
+                // can skip late ending plan's start location, since if they conflict on start locations it is an
+                // impossible instance (so we shouldn't get one)
+                for (int t = 1; t < lateEndingPlan.getEndTime(); t++) {
+                    I_Location steppingIntoLocation = lateEndingPlan.moveAt(t).currLocation;
+                    if (steppingIntoLocation.getCoordinate().equals(earlyEndingPlan.agent.target)){
+                        Move stayMove = new Move(earlyEndingPlan.agent, t, steppingIntoLocation, steppingIntoLocation);
+                        A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(t), stayMove);
+                        return goalConflict;
+                    }
+                }
+            }
+            else{
+                // look for the late ending plan stepping into the agent from the early ending plan, sitting at its goal.
+                I_Location goalLocation = earlyEndingPlan.moveAt(maxTime).currLocation;
+                for (int time = Math.max(maxTime+1, lateEndingPlan.getFirstMoveTime()); time <= lateEndingPlan.getEndTime(); time++) {
+                    Move stayMove = new Move(earlyEndingPlan.agent, time, goalLocation, goalLocation);
+                    A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(time), stayMove);
+                    if(goalConflict != null){
+                        return goalConflict;
+                    }
                 }
             }
         }
