@@ -94,6 +94,10 @@ public class Solution implements Iterable<SingleAgentPlan>{
             return false;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
+            // if start at goal is represented as empty plan, that plan is always internally consistent
+            if (plan.size() == 0){
+                continue;
+            }
             // check start and end at source and target
             if (!plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapCell(plan.agent.source)) /*start at source*/
                 || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapCell(plan.agent.target))) /*end at target*/
