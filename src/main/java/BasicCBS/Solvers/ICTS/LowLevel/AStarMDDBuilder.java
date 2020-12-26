@@ -1,14 +1,13 @@
 package BasicCBS.Solvers.ICTS.LowLevel;
 
 import BasicCBS.Instances.Agent;
-import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.ICTS.GeneralStuff.MDD;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 import java.util.*;
 
-public class AStar extends A_LowLevelSearcher {
+public class AStarMDDBuilder extends A_LowLevelSearcher {
 
     private Queue<Node> openList;
     /**
@@ -17,29 +16,17 @@ public class AStar extends A_LowLevelSearcher {
      */
     protected Map<Node, Node> contentOfOpen;
     protected Map<Node, Node> closeList;
-    private MAPF_Instance instance;
-    private Agent agent;
     private DistanceTableAStarHeuristicICTS heuristic;
     protected int maxDepthOfSolution;
 
     /**
      * Constructor for the AStar searcher
      *
-     * @param instance - we assume that it is a "subproblem" used the function "getSubproblemFor" in "MAPF_Instance" class
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public AStar(ICTS_Solver highLevelSearcher, MAPF_Instance instance, DistanceTableAStarHeuristicICTS heuristic) {
-        super(highLevelSearcher);
-        this.instance = instance;
-        /*
-        initOpenList();
-        contentOfOpen = new HashMap<>();
-        closeList = new HashMap<>();
-         */
-        agent = instance.agents.get(0); //only one agent in the instance
+    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
+        super(highLevelSearcher, source, target, agent);
         this.heuristic = heuristic;
-
-        //initializeSearch();
     }
 
     protected void initOpenList(){
@@ -47,7 +34,7 @@ public class AStar extends A_LowLevelSearcher {
     }
 
     private void initializeSearch() {
-        Node start = new Node(agent, instance.map.getMapCell(agent.source), 0, heuristic);
+        Node start = new Node(agent, super.getSource(), 0, heuristic);
         addToOpen(start);
     }
 
