@@ -1,21 +1,21 @@
 package BasicCBS.Solvers.ICTS.LowLevel;
 
-import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Instances.Agent;
+import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 import java.util.Stack;
 
-public class DFS extends AStar {
+public class DFS extends AStarMDDBuilder {
     private Stack<Node> openList;
     /**
      * Constructor for the AStar searcher
      *
      * @param highLevelSearcher
-     * @param instance          - we assume that it is a "subproblem" used the function "getSubproblemFor" in "MAPF_Instance" class
      * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public DFS(ICTS_Solver highLevelSearcher, MAPF_Instance instance, DistanceTableAStarHeuristicICTS heuristic) {
-        super(highLevelSearcher, instance, heuristic);
+    public DFS(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
+        super(highLevelSearcher, source, target, agent, heuristic);
     }
 
     @Override

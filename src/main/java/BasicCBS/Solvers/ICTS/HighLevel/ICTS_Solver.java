@@ -5,7 +5,6 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.A_Solver;
 import BasicCBS.Solvers.ICTS.GeneralStuff.*;
-import BasicCBS.Solvers.ICTS.LowLevel.A_LowLevelSearcher;
 import BasicCBS.Solvers.ICTS.LowLevel.DFSFactory;
 import BasicCBS.Solvers.ICTS.LowLevel.DistanceTableAStarHeuristicICTS;
 import BasicCBS.Solvers.ICTS.LowLevel.I_LowLevelSearcherFactory;
@@ -23,6 +22,9 @@ public class ICTS_Solver extends A_Solver {
     private I_LowLevelSearcherFactory searcherFactory;
     private I_MergedMDDFactory mergedMDDFactory;
     private boolean usePairWiseGoalTest;
+    protected MDDManager mddManager;
+    protected DistanceTableAStarHeuristicICTS heuristicICTS;
+    protected MAPF_Instance instance;
 
     private int expandedHighLevelNodesNum;
     private int generatedHighLevelNodesNum;
@@ -48,7 +50,7 @@ public class ICTS_Solver extends A_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        instance = ICTS_MAPFInstance.Copy(instance);
+//        instance = getICTS_MAPF_instance(instance);
         if (!initializeSearch(instance))
             return null;
 
@@ -62,9 +64,9 @@ public class ICTS_Solver extends A_Solver {
             }
             if (!checkPairWiseMDDs || pairFlag) {
                 Map<Agent, MDD> mdds = new HashMap<>();
-                for (Agent a : instance.agents) {
-                    ICTSAgent agent = (ICTSAgent) a;
-                    MDD mdd = agent.getMDD(current.getCost(agent));
+                for (Agent agent : instance.agents) {
+//                    ICTSAgent agent = (ICTSAgent) a;
+                    MDD mdd = getMDD(agent, current.getCost(agent));
                     if(mdd == null)
                         return null;
                     mdds.put(agent, mdd);
@@ -72,7 +74,7 @@ public class ICTS_Solver extends A_Solver {
                 Solution mergedMDDSolution = mergedMDDFactory.create(mdds, this);
                 if (mergedMDDSolution != null) {
                     //We found the goal!
-                    updateExpandedAndGeneratedNum(instance);
+                    updateExpandedAndGeneratedNum();
                     return mergedMDDSolution;
                 }
             }
@@ -81,23 +83,25 @@ public class ICTS_Solver extends A_Solver {
         }
 
         //Got here because of timeout
-        updateExpandedAndGeneratedNum(instance);
+        updateExpandedAndGeneratedNum();
         return null;
     }
+
+    protected MDD getMDD(Agent agent, int cost) {
+        return mddManager.getMDD(getSource(agent), getTarget(agent), agent, cost);
+    }
+//
+//    protected MAPF_Instance getICTS_MAPF_instance(MAPF_Instance instance) {
+//        return ICTS_MAPFInstance.Copy(instance);
+//    }
 
     public boolean reachedTimeout(){
         return checkTimeout();
     }
 
-    private void updateExpandedAndGeneratedNum(MAPF_Instance instance) {
-        int totalLowLevelExpanded = 0;
-        int totalLowLevelGenerated = 0;
-        for (Agent agent : instance.agents) {
-            totalLowLevelExpanded += ((ICTSAgent) agent).getExpandedNodesNum();
-            totalLowLevelGenerated += ((ICTSAgent) agent).getGeneratedNodesNum();
-        }
-        super.totalLowLevelStatesExpanded = totalLowLevelExpanded;
-        super.totalLowLevelStatesGenerated = totalLowLevelGenerated;
+    private void updateExpandedAndGeneratedNum() {
+        super.totalLowLevelStatesExpanded = mddManager.getExpandedNodesNum();
+        super.totalLowLevelStatesGenerated = mddManager.getGeneratedNodesNum();
     }
 
     @Override
@@ -123,16 +127,16 @@ public class ICTS_Solver extends A_Solver {
 
     private boolean pairWiseGoalTest(MAPF_Instance instance, ICT_Node current) {
         for (int i = 0; i < instance.agents.size(); i++) {
-            Agent aI = instance.agents.get(i);
+            Agent agentI = instance.agents.get(i);
             for (int j = i + 1; j < instance.agents.size(); j++) {
-                Agent aJ = instance.agents.get(j);
+                Agent agentJ = instance.agents.get(j);
 
-                ICTSAgent agentI = (ICTSAgent) aI;
-                ICTSAgent agentJ = (ICTSAgent) aJ;
-                MDD mddI = agentI.getMDD(current.getCost(agentI));
+//                ICTSAgent agentI = (ICTSAgent) aI;
+//                ICTSAgent agentJ = (ICTSAgent) aJ;
+                MDD mddI = getMDD(agentI, current.getCost(agentI));
                 if(mddI == null)
                     return false;
-                MDD mddJ = agentJ.getMDD(current.getCost(agentJ));
+                MDD mddJ = getMDD(agentJ, current.getCost(agentJ));
                 if(mddJ == null)
                     return false;
                 Map<Agent, MDD> pairwiseMap = new HashMap<>();
@@ -164,23 +168,17 @@ public class ICTS_Solver extends A_Solver {
         closedList = createClosedList();
         expandedHighLevelNodesNum = 0;
         generatedHighLevelNodesNum = 0;
-
-        DistanceTableAStarHeuristicICTS heuristicICTS = new DistanceTableAStarHeuristicICTS(instance.agents, instance.map);
+        heuristicICTS = new DistanceTableAStarHeuristicICTS(instance.agents, instance.map);
         Map<Agent, Integer> startCosts = new HashMap<>();
+        this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
+        this.instance = instance;
+
         for (Agent agent : instance.agents) {
-            if (!(agent instanceof ICTSAgent)) {
-                try {
-                    throw new InputMismatchException("The agents of the ICTS_Searcher must be of type ICTSAgent");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return false;
-            }
-            MAPF_Instance agentInstance = instance.getSubproblemFor(agent);
-            A_LowLevelSearcher searcher = searcherFactory.createSearcher(this, agentInstance, heuristicICTS);
-            ((ICTSAgent) agent).setSearcher(searcher);
-            I_Location start = instance.map.getMapCell(agent.source);
-            Integer depth = heuristicICTS.getDistanceDictionaries().get(agent).get(start);
+//            MAPF_Instance agentInstance = instance.getSubproblemFor(agent);
+//            A_LowLevelSearcher searcher = searcherFactory.createSearcher(this, agentInstance, heuristicICTS);
+//            ((ICTSAgent) agent).setSearcher(searcher);
+//            I_Location start = instance.map.getMapCell(agent.source);
+            Integer depth = heuristicICTS.getDistanceDictionaries().get(agent).get(getSource(agent));
             if (depth == null) {
                 //The single agent path does not exist
                 try {
@@ -195,6 +193,14 @@ public class ICTS_Solver extends A_Solver {
         ICT_Node startNode = new ICT_Node(startCosts);
         addToOpen(startNode);
         return true;
+    }
+
+    protected I_Location getSource(Agent agent){
+        return instance.map.getMapCell(agent.source);
+    }
+
+    protected I_Location getTarget(Agent agent){
+        return instance.map.getMapCell(agent.target);
     }
 
     private ICT_Node pollFromOpen() {
@@ -217,6 +223,8 @@ public class ICTS_Solver extends A_Solver {
         this.contentOfOpen = null;
         this.openList = null;
         this.closedList = null;
+        this.mddManager = null;
+        this.instance = null;
     }
 
     @Override
