@@ -114,7 +114,7 @@ class ReplanSingleGroupedTest {
 
     private OnlineAgent agent12to33t0 = new OnlineAgent(new Agent(1, coor12, coor33), 0);
     private OnlineAgent agent12to34t0 = new OnlineAgent(new Agent(2, coor12, coor33), 0);
-    private OnlineAgent agent11to33t0 = new OnlineAgent(new Agent(3, coor12, coor33), 0);
+    private OnlineAgent agent11to33t0 = new OnlineAgent(new Agent(3, coor11, coor33), 0);
 
     private OnlineAgent agent12to33t1 = new OnlineAgent(new Agent(4, coor12, coor33), 1);
     private OnlineAgent agent12to33t3 = new OnlineAgent(new Agent(5, coor12, coor33), 3);
