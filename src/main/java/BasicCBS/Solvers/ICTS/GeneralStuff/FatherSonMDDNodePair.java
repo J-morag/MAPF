@@ -5,10 +5,15 @@ import java.util.Objects;
 public class FatherSonMDDNodePair{
     private MDDNode father;
     private MDDNode son;
+    private boolean disappearAtGoal;
 
-    public FatherSonMDDNodePair(MDDNode father, MDDNode son) {
+    public FatherSonMDDNodePair(MDDNode father, MDDNode son, boolean disappearAtGoal) {
         this.father = father;
         this.son = son;
+        this.disappearAtGoal = disappearAtGoal;
+    }
+    public FatherSonMDDNodePair(MDDNode father, MDDNode son) {
+        this(father, son, false);
     }
 
     public MDDNode getFather() {
@@ -38,10 +43,24 @@ public class FatherSonMDDNodePair{
     }
 
     private boolean edgeCollision(FatherSonMDDNodePair other) {
-        return this.son.sameLocation(other.father) && this.father.sameLocation(other.son);
+        if (disappearAtGoal && (isStayAtGoal(this) || isStayAtGoal(other))){
+            return false;
+        }
+        else{
+            return this.son.sameLocation(other.father) && this.father.sameLocation(other.son);
+        }
     }
 
     private boolean sonCollision(FatherSonMDDNodePair other) {
-        return this.son.sameLocation(other.son);
+        if (disappearAtGoal && (isStayAtGoal(this) || isStayAtGoal(other))){
+            return false;
+        }
+        else{
+            return this.son.sameLocation(other.son);
+        }
+    }
+
+    private boolean isStayAtGoal(FatherSonMDDNodePair other) {
+        return other.father.equals(other.son);
     }
 }

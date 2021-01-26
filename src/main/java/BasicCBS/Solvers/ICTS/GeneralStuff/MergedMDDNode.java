@@ -12,12 +12,17 @@ public class MergedMDDNode {
     private Map<Agent, MDDNode> values;
     private List<MergedMDDNode> parents;
     private int depth;
+    private boolean disappearAtGoal;
 
-    public MergedMDDNode(int depth) {
+    public MergedMDDNode(int depth, boolean disappearAtGoal) {
         neighbors = new LinkedList<>();
         values = new HashMap<>();
         parents = new LinkedList<>();
         this.depth = depth;
+        this.disappearAtGoal = disappearAtGoal;
+    }
+    public MergedMDDNode(int depth) {
+        this(depth, false);
     }
 
     public void addParent(MergedMDDNode parent){
@@ -77,11 +82,12 @@ public class MergedMDDNode {
             List<MDDNode> currentChildren = father.getNeighbors();
             List<FatherSonMDDNodePair> currentFatherSonPairs = new LinkedList<>();
             for (MDDNode children : currentChildren) {
-                FatherSonMDDNodePair fatherSonMDDNodePair = new FatherSonMDDNodePair(father, children);
+                FatherSonMDDNodePair fatherSonMDDNodePair = new FatherSonMDDNodePair(father, children, disappearAtGoal);
                 currentFatherSonPairs.add(fatherSonMDDNodePair);
             }
             if(currentFatherSonPairs.isEmpty()){
-                FatherSonMDDNodePair goalPair = new FatherSonMDDNodePair(father, father);
+                // we are at the deepest node of the MDD
+                FatherSonMDDNodePair goalPair = new FatherSonMDDNodePair(father, father, disappearAtGoal);
                 currentFatherSonPairs.add(goalPair);
             }
             fatherSonPairs.put(agent, currentFatherSonPairs);

@@ -18,6 +18,7 @@ public class AStarMDDBuilder extends A_LowLevelSearcher {
     protected Map<Node, Node> closeList;
     private DistanceTableAStarHeuristicICTS heuristic;
     protected int maxDepthOfSolution;
+    private boolean disappearAtGoal = false;
 
     /**
      * Constructor for the AStar searcher
@@ -27,6 +28,17 @@ public class AStarMDDBuilder extends A_LowLevelSearcher {
     public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
         super(highLevelSearcher, source, target, agent);
         this.heuristic = heuristic;
+    }
+
+    /**
+     * Constructor for the AStar searcher
+     *
+     * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
+     */
+    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic,
+                           boolean disappearAtGoal) {
+        this(highLevelSearcher, source, target, agent, heuristic);
+        this.disappearAtGoal = disappearAtGoal;
     }
 
     protected void initOpenList(){
@@ -127,8 +139,13 @@ public class AStarMDDBuilder extends A_LowLevelSearcher {
         return openList.isEmpty();
     }
 
-    private void expand(Node node){
+    protected void expand(Node node){
         List<I_Location> neighborLocations = node.getNeighborLocations();
+        if (disappearAtGoal){
+            // filter neighbors. Only allow generation of goal node if the goal node is at the target depth.
+            neighborLocations.removeIf(location -> node.getG() + 1 < maxDepthOfSolution &&
+                    location.getCoordinate().equals(target.getCoordinate()));
+        }
         for (I_Location location : neighborLocations) {
             Node neighbor = new Node(agent, location, node.getG() + 1, heuristic);
             neighbor.addParent(node);
@@ -137,7 +154,7 @@ public class AStarMDDBuilder extends A_LowLevelSearcher {
         addToClose(node);
     }
 
-    private boolean isGoalState(Node node) {
-        return node.getLocation().getCoordinate().equals(agent.target);
+    protected boolean isGoalState(Node node) {
+        return node.getLocation().getCoordinate().equals(target.getCoordinate());
     }
 }

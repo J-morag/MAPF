@@ -24,7 +24,7 @@ public abstract class SearchBased_MergedMDDFactory implements I_MergedMDDFactory
 
         MergedMDD mergedMDD = new MergedMDD();
 
-        MergedMDDNode start = new MergedMDDNode(0);
+        MergedMDDNode start = getMergedMDDNode(0);
         mergedMDD.setStart(start);
 
         goalDepth = 0;
@@ -54,11 +54,11 @@ public abstract class SearchBased_MergedMDDFactory implements I_MergedMDDFactory
         return null;
     }
 
-    protected static void combinationUtil(List<List<FatherSonMDDNodePair>> agentFatherSonPairs, List<FatherSonMDDNodePair> currentCombination, List<MergedMDDNode> neighbors, int index, int mddNodeDepth) {
+    protected void combinationUtil(List<List<FatherSonMDDNodePair>> agentFatherSonPairs, List<FatherSonMDDNodePair> currentCombination, List<MergedMDDNode> neighbors, int index, int mddNodeDepth) {
         // Current combination is ready to be checked. check if it is a valid combination
         if (index == agentFatherSonPairs.size()) {
             if (isValidCombination(currentCombination)) {
-                MergedMDDNode current = new MergedMDDNode(mddNodeDepth);
+                MergedMDDNode current = getMergedMDDNode(mddNodeDepth);
                 for (FatherSonMDDNodePair pair : currentCombination) {
                     current.addValue(pair.getSon());
                 }
@@ -73,6 +73,10 @@ public abstract class SearchBased_MergedMDDFactory implements I_MergedMDDFactory
             nextCombination.add(possiblePair);
             combinationUtil(agentFatherSonPairs, nextCombination, neighbors, index + 1, mddNodeDepth);
         }
+    }
+
+    protected MergedMDDNode getMergedMDDNode(int mddNodeDepth) {
+        return new MergedMDDNode(mddNodeDepth);
     }
 
     protected static boolean isValidCombination(List<FatherSonMDDNodePair> currentCombination) {

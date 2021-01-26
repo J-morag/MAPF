@@ -13,10 +13,11 @@ public abstract class IndependenceDetection_MergedMDDFactory extends SearchBased
 
         List<AgentsGroup> agentsCollidingGroups = new ArrayList<>();
         for (Agent agent : agentMDDs.keySet()) {
+            // find an arbitrary solution for each agent and put each agent in a singleton group
             Set<Agent> set = new HashSet<>();
             set.add(agent);
-            Solution solution = agentMDDs.get(agent).getPossibleSolution();
-            AgentsGroup group = new AgentsGroup(set, solution);
+            Solution solution = getPossibleSolution(agentMDDs, agent);
+            AgentsGroup group = getAgentsGroup(set, solution);
 
             agentsCollidingGroups.add(group);
         }
@@ -30,7 +31,7 @@ public abstract class IndependenceDetection_MergedMDDFactory extends SearchBased
                     AgentsGroup groupJ = agentsCollidingGroups.get(j);
                     if (conflicts && groupI.isConflictedWith(groupJ)) //no need to check them if they already conflict with each other
                         continue;
-                    Solution mergedSolution = new Solution(groupI.getSolution());
+                    Solution mergedSolution = getSolution(groupI);
                     for (SingleAgentPlan plan : groupJ.getSolution()) {
                         mergedSolution.putPlan(plan);
                     }
@@ -55,17 +56,17 @@ public abstract class IndependenceDetection_MergedMDDFactory extends SearchBased
                             currentMergingGroup.put(agent, agentMDDs.get(agent));
                         }
                     }
-                    Solution mergedGroupSolution = super.create(currentMergingGroup, highLevelSolver);
+                    Solution mergedGroupSolution = getSolution(super.create(currentMergingGroup, highLevelSolver));
                     if(mergedGroupSolution == null)
                         return null; //if a group don't have a solution, then there is surely no solution.
-                    AgentsGroup mergedGroup = new AgentsGroup(mergedAgents, mergedGroupSolution);
+                    AgentsGroup mergedGroup = getAgentsGroup(mergedAgents, mergedGroupSolution);
                     agentsCollidingGroups.removeAll(allInConflict);
                     agentsCollidingGroups.add(mergedGroup);
                 }
             }
         }
-        //If we got here, then there is a solution for each group that does'nt collide with the other groups.
-        Solution totalSolution = new Solution();
+        //If we got here, then there is a solution for each group that doesn't collide with the other groups.
+        Solution totalSolution = getSolution();
         for (AgentsGroup group : agentsCollidingGroups){
             for(SingleAgentPlan plan : group.getSolution()){
                 totalSolution.putPlan(plan);
@@ -81,4 +82,26 @@ public abstract class IndependenceDetection_MergedMDDFactory extends SearchBased
         }
         return totalSolution;
     }
+
+    protected Solution getPossibleSolution(Map<Agent, MDD> agentMDDs, Agent agent) {
+        return agentMDDs.get(agent).getPossibleSolution();
+    }
+
+    protected AgentsGroup getAgentsGroup(Set<Agent> agents, Solution solution) {
+        return new AgentsGroup(agents, solution);
+    }
+
+    protected Solution getSolution(AgentsGroup ag){
+        return new Solution(ag.getSolution());
+    }
+
+    protected Solution getSolution(){
+        return new Solution();
+    }
+
+    protected Solution getSolution(Solution solution){
+        return solution;
+    }
+
+
 }

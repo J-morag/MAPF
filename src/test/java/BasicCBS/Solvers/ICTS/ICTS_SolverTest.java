@@ -3,7 +3,6 @@ package BasicCBS.Solvers.ICTS;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicCBS.Instances.InstanceBuilders.Priorities;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
@@ -14,8 +13,6 @@ import BasicCBS.Instances.Maps.I_Map;
 import BasicCBS.Instances.Maps.MapDimensions;
 import BasicCBS.Instances.Maps.MapFactory;
 import BasicCBS.Solvers.CBS.CBS_Solver;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
@@ -404,7 +401,7 @@ class ICTS_SolverTest {
 
 
     /**
-     * This contains diverse instances
+     * This contains diverse instances, and compares two optimal solvers
      */
     @Test
     void comparativeDiverseTest(){

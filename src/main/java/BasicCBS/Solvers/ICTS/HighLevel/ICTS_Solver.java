@@ -19,7 +19,7 @@ public class ICTS_Solver extends A_Solver {
     private Queue<ICT_Node> openList;
     private Set<ICT_Node> closedList;
     private ICT_NodeComparator comparator;
-    private I_LowLevelSearcherFactory searcherFactory;
+    protected I_LowLevelSearcherFactory searcherFactory;
     private I_MergedMDDFactory mergedMDDFactory;
     private boolean usePairWiseGoalTest;
     protected MDDManager mddManager;
@@ -60,8 +60,10 @@ public class ICTS_Solver extends A_Solver {
             expandedHighLevelNodesNum++;
             boolean pairFlag = true;
             if (checkPairWiseMDDs) {
+                // false = no solution for these two agents at these costs
                 pairFlag = pairWiseGoalTest(instance, current);
             }
+            // if pairwise is turned off, or we didn't manage to prune in pairwise (no cardinal pairwise conflict)
             if (!checkPairWiseMDDs || pairFlag) {
                 Map<Agent, MDD> mdds = new HashMap<>();
                 for (Agent agent : instance.agents) {
@@ -168,7 +170,7 @@ public class ICTS_Solver extends A_Solver {
         closedList = createClosedList();
         expandedHighLevelNodesNum = 0;
         generatedHighLevelNodesNum = 0;
-        heuristicICTS = new DistanceTableAStarHeuristicICTS(instance.agents, instance.map);
+        getHeuristic(instance);
         Map<Agent, Integer> startCosts = new HashMap<>();
         this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
         this.instance = instance;
@@ -178,7 +180,7 @@ public class ICTS_Solver extends A_Solver {
 //            A_LowLevelSearcher searcher = searcherFactory.createSearcher(this, agentInstance, heuristicICTS);
 //            ((ICTSAgent) agent).setSearcher(searcher);
 //            I_Location start = instance.map.getMapCell(agent.source);
-            Integer depth = heuristicICTS.getDistanceDictionaries().get(agent).get(getSource(agent));
+            Integer depth = Math.round(heuristicICTS.getHForAgentAndCurrentLocation(agent, getSource(agent)));
             if (depth == null) {
                 //The single agent path does not exist
                 try {
@@ -193,6 +195,10 @@ public class ICTS_Solver extends A_Solver {
         ICT_Node startNode = new ICT_Node(startCosts);
         addToOpen(startNode);
         return true;
+    }
+
+    protected void getHeuristic(MAPF_Instance instance) {
+        heuristicICTS = new DistanceTableAStarHeuristicICTS(instance.agents, instance.map);
     }
 
     protected I_Location getSource(Agent agent){

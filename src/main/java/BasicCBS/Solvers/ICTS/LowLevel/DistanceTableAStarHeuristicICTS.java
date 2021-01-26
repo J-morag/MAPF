@@ -17,4 +17,9 @@ public class DistanceTableAStarHeuristicICTS extends DistanceTableAStarHeuristic
         Map<I_Location, Integer> relevantDictionary = getDistanceDictionaries().get(node.getAgent());
         node.setH(relevantDictionary.get(node.getLocation()));
     }
+
+    @Override
+    public float getHForAgentAndCurrentLocation(Agent agent, I_Location currLocation) {
+        return super.getHForAgentAndCurrentLocation(agent, currLocation);
+    }
 }

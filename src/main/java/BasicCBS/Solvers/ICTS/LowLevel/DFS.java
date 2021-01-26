@@ -17,6 +17,16 @@ public class DFS extends AStarMDDBuilder {
     public DFS(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
         super(highLevelSearcher, source, target, agent, heuristic);
     }
+    /**
+     * Constructor for the AStar searcher
+     *
+     * @param highLevelSearcher
+     * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
+     */
+    public DFS(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent,
+               DistanceTableAStarHeuristicICTS heuristic, boolean disappearAtGoal) {
+        super(highLevelSearcher, source, target, agent, heuristic, disappearAtGoal);
+    }
 
     @Override
     protected void initOpenList() {
