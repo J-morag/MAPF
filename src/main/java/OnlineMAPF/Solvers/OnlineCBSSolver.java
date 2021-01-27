@@ -25,7 +25,7 @@ public class OnlineCBSSolver implements I_OnlineSolver {
 
     protected Solution latestSolution;
     protected MAPF_Instance baseInstance;
-    private InstanceReport instanceReport;
+    protected InstanceReport instanceReport;
     public boolean ignoreCOR = false;
     protected int costOfReroute = 0;
     protected long timeoutThreshold;

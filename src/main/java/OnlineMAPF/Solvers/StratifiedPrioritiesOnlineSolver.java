@@ -7,6 +7,7 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.*;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineConstraintSet;
+import OnlineMAPF.OnlineSolution;
 
 import java.util.*;
 
@@ -18,6 +19,8 @@ public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
     }
 
     private OfflineSolverStrategy offlineSolverStrategy = OfflineSolverStrategy.CBS;
+
+    private int timesPriorityGroupsMerged;
 
     public StratifiedPrioritiesOnlineSolver() {
         super.name = this.getClass().getSimpleName() + "_" + offlineSolverStrategy.name();
@@ -39,6 +42,11 @@ public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
         this.offlineSolverStrategy = offlineSolverStrategy;
     }
 
+    @Override
+    public void setEnvironment(MAPF_Instance instance, RunParameters parameters) {
+        super.setEnvironment(instance, parameters);
+        this.timesPriorityGroupsMerged = 0;
+    }
 
     protected Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations) {
         OnlineAStar onlineAStar = preserveSolutionsInNewRoots ? new OnlineAStar(this.costOfReroute, latestSolution) : new OnlineAStar(costOfReroute);
@@ -83,6 +91,7 @@ public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
                 else{ // null because unsolvable
                     // merge with higher priority group
                     groupedByPriority.get(i-1).addAll(groupedByPriority.get(i));
+                    this.timesPriorityGroupsMerged++;
                     // remove old
                     groupedByPriority.remove(i);
                     // recursion
@@ -150,6 +159,13 @@ public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
             res.add(groupedByPriority.get(priority));
         }
         return res;
+    }
+
+    @Override
+    public void writeReportAndClearData(OnlineSolution solution) {
+        super.writeReportAndClearData(solution);
+        super.instanceReport.putIntegerValue("priority group mergers", this.timesPriorityGroupsMerged);
+        this.timesPriorityGroupsMerged = 0;
     }
 
 }

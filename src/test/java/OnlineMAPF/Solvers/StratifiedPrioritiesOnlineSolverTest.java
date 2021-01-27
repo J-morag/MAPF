@@ -41,6 +41,11 @@ class StratifiedPrioritiesOnlineSolverTest {
                 // run all benchmark instances. this code is mostly copied from Environment.Experiment.
                 while ((instance = instanceManager.getNextInstance()) != null && max > i++) {
                     InstanceReport report = new InstanceReport();
+//                    InstanceReport report = S_Metrics.newInstanceReport();
+//                    report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
+//                    report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+//                    report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+//                    report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
                     RunParameters runParameters = new RunParameters(timeout, null, report, null);
 
@@ -60,6 +65,21 @@ class StratifiedPrioritiesOnlineSolverTest {
                 }
             }
         }
+//
+//        //save results
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+//        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+//        File directory = new File(resultsOutputDir);
+//        if (! directory.exists()){
+//            directory.mkdir();
+//        }
+//        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+//        try {
+//            S_Metrics.exportCSV(new FileOutputStream(updatedPath));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
     }
 
 }

@@ -70,6 +70,7 @@ public class RunManagerPriorities extends A_RunManager {
                     "SOC priority10",
                     "SOC priority1000",
                     "sum delays",
+                    "priority group mergers",
                     InstanceReport.StandardFields.COR,
                     InstanceReport.StandardFields.totalReroutesCost,
                     InstanceReport.StandardFields.solution});
