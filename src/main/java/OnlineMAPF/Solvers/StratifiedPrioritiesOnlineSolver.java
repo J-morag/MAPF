@@ -10,21 +10,11 @@ import OnlineMAPF.OnlineConstraintSet;
 
 import java.util.*;
 
-public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
-
-    public enum OfflineSolverStrategy {
-        CBS,
-        PRIORITISED_PLANNING
-    }
+public class StratifiedPrioritiesOnlineSolver extends A_OnlineSolver {
 
     private OfflineSolverStrategy offlineSolverStrategy = OfflineSolverStrategy.CBS;
 
     public StratifiedPrioritiesOnlineSolver() {
-        super.name = this.getClass().getSimpleName() + "_" + offlineSolverStrategy.name();
-    }
-
-    public StratifiedPrioritiesOnlineSolver(boolean useCorridorReasoning) {
-        super(useCorridorReasoning);
         super.name = this.getClass().getSimpleName() + "_" + offlineSolverStrategy.name();
     }
 
@@ -33,17 +23,10 @@ public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
         super.name = this.getClass().getSimpleName() + "_" + offlineSolverStrategy.name();
     }
 
-    public StratifiedPrioritiesOnlineSolver(boolean useCorridorReasoning, OfflineSolverStrategy offlineSolverStrategy) {
-        super(useCorridorReasoning);
-        super.name = this.getClass().getSimpleName() + "_" + offlineSolverStrategy.name();
-        this.offlineSolverStrategy = offlineSolverStrategy;
-    }
-
-
     protected Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations) {
-        OnlineAStar onlineAStar = preserveSolutionsInNewRoots ? new OnlineAStar(this.costOfReroute, latestSolution) : new OnlineAStar(costOfReroute);
+        OnlineAStar onlineAStar = new OnlineAStar(costOfReroute);
         I_Solver offlineSolver = this.offlineSolverStrategy == OfflineSolverStrategy.CBS ?
-                new OnlineCompatibleOfflineCBS(currentAgentLocations, time, new COR_CBS_CostFunction(this.costOfReroute, latestSolution), onlineAStar, useCorridorReasoning)
+                new OnlineCompatibleOfflineCBS(currentAgentLocations, time, new COR_CBS_CostFunction(this.costOfReroute, latestSolution), onlineAStar, null)
                 :
                 new OnlinePP_Solver(new OnlineAStar(this.costOfReroute), currentAgentLocations, time);
 
@@ -67,9 +50,8 @@ public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
         for (int i = 0; i < groupedByPriority.size(); i++) {
             // solve for this priority
             MAPF_Instance subProblem = baseInstance.getSubproblemFor(groupedByPriority.get(i));
-            Solution previousSolution = preserveSolutionsInNewRoots ? new Solution(latestSolution) : null;
             // add the constraints from previous solutions for higher priorities
-            RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, constraints, S_Metrics.newInstanceReport(), previousSolution);
+            RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, constraints, S_Metrics.newInstanceReport(), null);
             Solution solutionForPriorityGroup = offlineSolver.solve(subProblem, runParameters);
             // like prioritised planning, this is incomplete. If we find this group to be unsolvable given the previous
             // group, we will merge them and re-solve.
@@ -152,4 +134,9 @@ public class StratifiedPrioritiesOnlineSolver extends OnlineCBSSolver {
         return res;
     }
 
+    public enum OfflineSolverStrategy {
+        CBS,
+        ICTS,
+        PRIORITISED_PLANNING
+    }
 }

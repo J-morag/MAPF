@@ -43,18 +43,19 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
      */
     private Solution existingSolution;
 
-    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, CBSCostFunction costFunction, OnlineAStar onlineAStar, boolean useCorridorReasoning) {
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, CBSCostFunction costFunction, OnlineAStar onlineAStar, Boolean useCorridorReasoning) {
         // use online aStar.
-        super(Objects.requireNonNullElseGet(onlineAStar, OnlineAStar::new), null, null, costFunction, null, useCorridorReasoning);
+        super(Objects.requireNonNullElseGet(onlineAStar, OnlineAStar::new), null, null,
+                costFunction, null, Objects.requireNonNullElse(useCorridorReasoning, true));
         this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
         this.customStartTime = customStartTime;
     }
 
-    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, boolean useCorridorReasoning) {
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, Boolean useCorridorReasoning) {
         this(customStartLocations, customStartTime, null, null, useCorridorReasoning);
     }
 
-    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, boolean useCorridorReasoning) {
+    public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, Boolean useCorridorReasoning) {
         this(customStartLocations, -1, null, null, useCorridorReasoning);
     }
 

@@ -482,7 +482,7 @@ class OnlineICTSSolverTest {
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
 //        long timeout = 60 /*seconds*/   *1000L;
-        long timeout = 30 /*seconds*/   *1000L;
+        long timeout = 5 /*seconds*/   *1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
