@@ -29,9 +29,12 @@ public class RunManagerPriorities extends A_RunManager {
         this.solvers.add(new OnlineSolverContainer(stratifiedReplanSingle));
         StratifiedPrioritiesOnlineSolver stratifiedSnapshot= new StratifiedPrioritiesOnlineSolver(StratifiedPrioritiesOnlineSolver.OfflineSolverStrategy.CBS);
         this.solvers.add(new OnlineSolverContainer(stratifiedSnapshot));
-        OnlineCBSSolver snapshot = new OnlineCBSSolver();
-        snapshot.name = "OnlineCBSSolver";
-        this.solvers.add(new OnlineSolverContainer(snapshot));
+        OnlineICTSSolver snapshotICTS = new OnlineICTSSolver();
+        snapshotICTS.name = "OnlineScratchICTS";
+        this.solvers.add(new OnlineSolverContainer(snapshotICTS));
+        OnlineCBSSolver snapshotCBS = new OnlineCBSSolver();
+        snapshotCBS.name = "OnlineScratchCBS";
+        this.solvers.add(new OnlineSolverContainer(snapshotCBS));
         OnlineCompatibleOfflineCBS oracle =  new OnlineCompatibleOfflineCBS();
         oracle.name = "Oracle";
         this.solvers.add(oracle);
@@ -42,7 +45,7 @@ public class RunManagerPriorities extends A_RunManager {
     protected void setExperiments() {
         Priorities.PrioritiesPolicy policy = Priorities.PrioritiesPolicy.FOUR_TO_ONE_ROBIN;
         addExperimentsPriorities(1, 10, policy);
-        addExperimentsPriorities(1, 3, 5, policy);
+//        addExperimentsPriorities(1, 3, 5, policy);
 //        addExperimentsPrioritiesHalfAndHalf(1, 100, policy);
     }
 
@@ -124,7 +127,7 @@ public class RunManagerPriorities extends A_RunManager {
     private void addExperimentsPriorities(int light, int heavy, Priorities.PrioritiesPolicy policy) {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\priorities"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
@@ -144,7 +147,7 @@ public class RunManagerPriorities extends A_RunManager {
     private void addExperimentsPriorities(int light, int medium, int heavy, Priorities.PrioritiesPolicy policy) {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\priorities"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});

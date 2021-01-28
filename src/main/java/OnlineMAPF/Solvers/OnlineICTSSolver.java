@@ -35,17 +35,8 @@ public class OnlineICTSSolver implements I_OnlineSolver {
      * If set to true, will start every new CBS with the plans from the previous solution as its root
      */
     final protected boolean preserveSolutionsInNewRoots = false;
-    final protected boolean useCorridorReasoning;
 
     protected long totalRuntime;
-
-    public OnlineICTSSolver() {
-        this.useCorridorReasoning = true;
-    }
-
-    public OnlineICTSSolver(boolean useCorridorReasoning) {
-        this.useCorridorReasoning = useCorridorReasoning;
-    }
 
     @Override
     public void setEnvironment(MAPF_Instance instance, RunParameters parameters) {
