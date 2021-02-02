@@ -5,23 +5,35 @@ import BasicCBS.Instances.Agent;
 import java.util.*;
 
 public class ICT_Node {
-    private Map<Agent, Integer> agentCost;
+    public Map<Agent, Integer> agentCost;
+    /**
+     * just the costs, sorted by the id of the relevant agent. For a more informed HashCode function. Important!
+     */
+    int[] costs;
+
+    public ICT_Node(Map<Agent, Integer> agentCost) {
+        this.agentCost = agentCost;
+        this.costs = new int[agentCost.size()];
+        ArrayList<Agent> sortedAgents = new ArrayList<>(agentCost.keySet());
+        sortedAgents.sort(Comparator.comparingInt(a -> a.iD));
+        for (int i = 0; i < sortedAgents.size(); i++) {
+            this.costs[i] = agentCost.get(sortedAgents.get(i));
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ICT_Node)) return false;
+
         ICT_Node ict_node = (ICT_Node) o;
-        return agentCost.equals(ict_node.agentCost);
+
+        return Arrays.equals(costs, ict_node.costs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(agentCost);
-    }
-
-    public ICT_Node(Map<Agent, Integer> agentCost) {
-        this.agentCost = agentCost;
+        return Arrays.hashCode(costs);
     }
 
     public Map<Agent, Integer> getAgentCost() {

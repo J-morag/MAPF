@@ -1,4 +1,6 @@
-package BasicCBS.Solvers.ICTS.GeneralStuff;
+package BasicCBS.Solvers.ICTS.MergedMDDs;
+
+import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 
 import java.util.Objects;
 

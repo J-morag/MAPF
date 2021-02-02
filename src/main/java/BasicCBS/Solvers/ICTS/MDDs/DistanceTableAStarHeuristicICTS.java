@@ -1,4 +1,4 @@
-package BasicCBS.Solvers.ICTS.LowLevel;
+package BasicCBS.Solvers.ICTS.MDDs;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
@@ -13,7 +13,7 @@ public class DistanceTableAStarHeuristicICTS extends DistanceTableAStarHeuristic
         super(agents, map);
     }
 
-    public void setH(Node node) {
+    public void setH(MDDSearchNode node) {
         Map<I_Location, Integer> relevantDictionary = getDistanceDictionaries().get(node.getAgent());
         node.setH(relevantDictionary.get(node.getLocation()));
     }

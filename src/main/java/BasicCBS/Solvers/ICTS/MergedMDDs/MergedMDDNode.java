@@ -1,6 +1,7 @@
-package BasicCBS.Solvers.ICTS.GeneralStuff;
+package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import BasicCBS.Instances.Agent;
+import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 
 import java.util.*;
 
@@ -8,27 +9,32 @@ import java.util.*;
  * This class is for merging two or more MDDNodes, when we want to perform a goal test on the ICT node
  */
 public class MergedMDDNode {
-    private List<MergedMDDNode> neighbors;
-    private Map<Agent, MDDNode> values;
-    private List<MergedMDDNode> parents;
+    private Set<MergedMDDNode> neighbors;
+    private Set<MDDNode> values;
+    private Set<MergedMDDNode> parents;
     private int depth;
+    private boolean disappearAtGoal;
 
-    public MergedMDDNode(int depth) {
-        neighbors = new LinkedList<>();
-        values = new HashMap<>();
-        parents = new LinkedList<>();
+    public MergedMDDNode(int depth, boolean disappearAtGoal) {
+        neighbors = new HashSet<>();
+        values = new HashSet<>();
+        parents = new HashSet<>();
         this.depth = depth;
+        this.disappearAtGoal = disappearAtGoal;
+    }
+    public MergedMDDNode(int depth) {
+        this(depth, false);
     }
 
     public void addParent(MergedMDDNode parent){
         parents.add(parent);
     }
 
-    public void addParents(List<MergedMDDNode> otherParents){
+    public void addParents(Set<MergedMDDNode> otherParents){
         this.parents.addAll(otherParents);
     }
 
-    public List<MergedMDDNode> getParents() {
+    public Set<MergedMDDNode> getParents() {
         return parents;
     }
 
@@ -37,32 +43,30 @@ public class MergedMDDNode {
     }
 
     public void addValue(MDDNode value){
-        values.put(value.getValue().getAgent(), value);
+        values.add(value);
     }
 
-    public MDDNode getValue(Agent agent){
-        return values.get(agent);
-    }
-
-    public List<MergedMDDNode> getNeighbors() {
+    public Set<MergedMDDNode> getNeighbors() {
         return neighbors;
     }
 
-    public Map<Agent, MDDNode> getValues() {
+    public Set<MDDNode> getValues() {
         return values;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof MergedMDDNode)) return false;
+
         MergedMDDNode that = (MergedMDDNode) o;
+
         return values.equals(that.values);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(values);
+        return values.hashCode();
     }
 
     public int getDepth() {
@@ -72,19 +76,19 @@ public class MergedMDDNode {
     public Map<Agent, List<FatherSonMDDNodePair>> getFatherSonPairs() {
         Map<Agent, List<FatherSonMDDNodePair>> fatherSonPairs = new HashMap<>();
 
-        for (Agent agent : values.keySet()) {
-            MDDNode father = values.get(agent);
+        for (MDDNode father : values) {
             List<MDDNode> currentChildren = father.getNeighbors();
             List<FatherSonMDDNodePair> currentFatherSonPairs = new LinkedList<>();
             for (MDDNode children : currentChildren) {
-                FatherSonMDDNodePair fatherSonMDDNodePair = new FatherSonMDDNodePair(father, children);
+                FatherSonMDDNodePair fatherSonMDDNodePair = new FatherSonMDDNodePair(father, children, disappearAtGoal);
                 currentFatherSonPairs.add(fatherSonMDDNodePair);
             }
             if(currentFatherSonPairs.isEmpty()){
-                FatherSonMDDNodePair goalPair = new FatherSonMDDNodePair(father, father);
+                // we are at the deepest node of the MDD
+                FatherSonMDDNodePair goalPair = new FatherSonMDDNodePair(father, father, disappearAtGoal);
                 currentFatherSonPairs.add(goalPair);
             }
-            fatherSonPairs.put(agent, currentFatherSonPairs);
+            fatherSonPairs.put(father.getAgent(), currentFatherSonPairs);
         }
 
         return fatherSonPairs;

@@ -1,4 +1,4 @@
-package BasicCBS.Solvers.ICTS.LowLevel;
+package BasicCBS.Solvers.ICTS.MDDs;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
@@ -7,7 +7,7 @@ import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import java.util.Stack;
 
 public class DFS extends AStarMDDBuilder {
-    private Stack<Node> openList;
+    private Stack<MDDSearchNode> openList;
     /**
      * Constructor for the AStar searcher
      *
@@ -24,16 +24,16 @@ public class DFS extends AStarMDDBuilder {
     }
 
     @Override
-    protected void addToOpen(Node node) {
+    protected void addToOpen(MDDSearchNode node) {
         if(node.getF() > maxDepthOfSolution)
             return;
         if(contentOfOpen.containsKey(node)){
             //Do not add this node twice to the open list, just add it's parents to the already "inOpen" node.
-            Node inOpen = contentOfOpen.get(node);
+            MDDSearchNode inOpen = contentOfOpen.get(node);
             inOpen.addParents(node.getParents());
         }
         else if(closeList.containsKey(node)){
-            Node inClosed = closeList.get(node);
+            MDDSearchNode inClosed = closeList.get(node);
             inClosed.addParents(node.getParents());
         }
         else{
@@ -44,8 +44,8 @@ public class DFS extends AStarMDDBuilder {
     }
 
     @Override
-    protected Node pollFromOpen() {
-        Node next = openList.pop();
+    protected MDDSearchNode pollFromOpen() {
+        MDDSearchNode next = openList.pop();
         contentOfOpen.remove(next);
         return next;
     }
@@ -55,8 +55,4 @@ public class DFS extends AStarMDDBuilder {
         return openList.isEmpty();
     }
 
-    @Override
-    protected void clearOpenList() {
-        openList.clear();
-    }
 }
