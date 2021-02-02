@@ -1,4 +1,4 @@
-package BasicCBS.Solvers.ICTS.GeneralStuff;
+package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Solvers.Solution;

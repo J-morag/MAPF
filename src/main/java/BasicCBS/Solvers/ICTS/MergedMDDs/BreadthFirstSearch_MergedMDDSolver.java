@@ -1,4 +1,4 @@
-package BasicCBS.Solvers.ICTS.GeneralStuff;
+package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import java.util.*;
  * Implements a BFS Factory for Merged MDD.
  * We don't need a closed set because MDDs are DAGS. (no cycles...)
  */
-public class BreadthFirstSearch_MergedMDDFactory extends SearchBased_MergedMDDFactory {
+public class BreadthFirstSearch_MergedMDDSolver extends SearchBased_MergedMDDSolver {
 
     private Map<MergedMDDNode, MergedMDDNode> contentOfOpen;
     private Queue<MergedMDDNode> openList;
@@ -74,6 +74,6 @@ public class BreadthFirstSearch_MergedMDDFactory extends SearchBased_MergedMDDFa
      * @return new open list
      */
     protected Queue<MergedMDDNode> createNewOpenList() {
-        return new LinkedList<>();
+        return new ArrayDeque<>();
     }
 }

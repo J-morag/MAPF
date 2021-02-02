@@ -1,15 +1,26 @@
-package BasicCBS.Solvers.ICTS.GeneralStuff;
+package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicCBS.Solvers.ICTS.MDDs.MDD;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
 
 import java.util.*;
 
-public abstract class IndependenceDetection_MergedMDDFactory extends SearchBased_MergedMDDFactory {
+public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver {
+
+    /**
+     * An MDD merger to delegate to when groups are to be merged.
+     */
+    final private I_MergedMDDSolver delegatedMergedMDDFactory;
+
+    public IndependenceDetection_MergedMDDSolver(I_MergedMDDSolver delegatedMergedMDDFactory) {
+        this.delegatedMergedMDDFactory = delegatedMergedMDDFactory;
+    }
+
     @Override
-    public Solution create(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
+    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
 
         List<AgentsGroup> agentsCollidingGroups = new ArrayList<>();
         for (Agent agent : agentMDDs.keySet()) {
@@ -56,7 +67,7 @@ public abstract class IndependenceDetection_MergedMDDFactory extends SearchBased
                             currentMergingGroup.put(agent, agentMDDs.get(agent));
                         }
                     }
-                    Solution mergedGroupSolution = getSolution(super.create(currentMergingGroup, highLevelSolver));
+                    Solution mergedGroupSolution = getSolution(delegatedMergedMDDFactory.findJointSolution(currentMergingGroup, highLevelSolver));
                     if(mergedGroupSolution == null)
                         return null; //if a group don't have a solution, then there is surely no solution.
                     AgentsGroup mergedGroup = getAgentsGroup(mergedAgents, mergedGroupSolution);
@@ -102,6 +113,5 @@ public abstract class IndependenceDetection_MergedMDDFactory extends SearchBased
     protected Solution getSolution(Solution solution){
         return solution;
     }
-
 
 }

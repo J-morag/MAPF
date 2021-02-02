@@ -4,10 +4,8 @@ import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.A_Solver;
-import BasicCBS.Solvers.ICTS.GeneralStuff.*;
-import BasicCBS.Solvers.ICTS.LowLevel.DFSFactory;
-import BasicCBS.Solvers.ICTS.LowLevel.DistanceTableAStarHeuristicICTS;
-import BasicCBS.Solvers.ICTS.LowLevel.I_LowLevelSearcherFactory;
+import BasicCBS.Solvers.ICTS.MDDs.*;
+import BasicCBS.Solvers.ICTS.MergedMDDs.*;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
@@ -19,8 +17,8 @@ public class ICTS_Solver extends A_Solver {
     private Queue<ICT_Node> openList;
     private Set<ICT_Node> closedList;
     private ICT_NodeComparator comparator;
-    protected I_LowLevelSearcherFactory searcherFactory;
-    private I_MergedMDDFactory mergedMDDFactory;
+    protected I_MDDSearcherFactory searcherFactory;
+    private I_MergedMDDSolver mergedMDDSolver;
     private boolean usePairWiseGoalTest;
     protected MDDManager mddManager;
     protected DistanceTableAStarHeuristicICTS heuristicICTS;
@@ -29,15 +27,28 @@ public class ICTS_Solver extends A_Solver {
     private int expandedHighLevelNodesNum;
     private int generatedHighLevelNodesNum;
 
-    public ICTS_Solver(ICT_NodeComparator comparator, I_LowLevelSearcherFactory searcherFactory, I_MergedMDDFactory mergedMDDFactory, Boolean usePairWiseGoalTest) {
+    public ICTS_Solver(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver, Boolean usePairWiseGoalTest) {
         this.comparator = Objects.requireNonNullElse(comparator, new ICT_NodeSumOfCostsComparator());
-        this.searcherFactory = Objects.requireNonNullElse(searcherFactory, new DFSFactory());
-        this.mergedMDDFactory = Objects.requireNonNullElse(mergedMDDFactory, new DFS_ID_MergedMDDFactory());
+        this.searcherFactory = Objects.requireNonNullElse(searcherFactory, new AStarFactory());
+        this.mergedMDDSolver = Objects.requireNonNullElse(mergedMDDSolver, new IndependenceDetection_MergedMDDSolver(new DFS_MergedMDDSpaceSolver()));
         this.usePairWiseGoalTest = Objects.requireNonNullElse(usePairWiseGoalTest, true);
     }
 
     public ICTS_Solver(){
         this(null, null, null, null);
+    }
+
+    @Override
+    protected void init(MAPF_Instance instance, RunParameters parameters) {
+        super.init(instance, parameters);
+        openList = createOpenList();
+        contentOfOpen = new HashSet<>();
+        closedList = createClosedList();
+        expandedHighLevelNodesNum = 0;
+        generatedHighLevelNodesNum = 0;
+        getHeuristic(instance);
+        this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
+        this.instance = instance;
     }
 
     protected Queue<ICT_Node> createOpenList() {
@@ -50,8 +61,7 @@ public class ICTS_Solver extends A_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-//        instance = getICTS_MAPF_instance(instance);
-        if (!initializeSearch(instance))
+        if (!initRoot(instance))
             return null;
 
         boolean checkPairWiseMDDs = usePairWiseGoalTest && instance.agents.size() > 2;
@@ -73,10 +83,12 @@ public class ICTS_Solver extends A_Solver {
                         return null;
                     mdds.put(agent, mdd);
                 }
-                Solution mergedMDDSolution = mergedMDDFactory.create(mdds, this);
+                Solution mergedMDDSolution = mergedMDDSolver.findJointSolution(mdds, this);
                 if (mergedMDDSolution != null) {
                     //We found the goal!
                     updateExpandedAndGeneratedNum();
+//                    openList.add(current);
+//                    contentOfOpen.add(current);
                     return mergedMDDSolution;
                 }
             }
@@ -92,10 +104,6 @@ public class ICTS_Solver extends A_Solver {
     protected MDD getMDD(Agent agent, int cost) {
         return mddManager.getMDD(getSource(agent), getTarget(agent), agent, cost);
     }
-//
-//    protected MAPF_Instance getICTS_MAPF_instance(MAPF_Instance instance) {
-//        return ICTS_MAPFInstance.Copy(instance);
-//    }
 
     public boolean reachedTimeout(){
         return checkTimeout();
@@ -111,14 +119,15 @@ public class ICTS_Solver extends A_Solver {
         super.writeMetricsToReport(solution);
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodes, this.generatedHighLevelNodesNum);
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodes, this.expandedHighLevelNodesNum);
-        super.instanceReport.putStringValue(InstanceReport.StandardFields.solver, getName());
+        super.instanceReport.putStringValue(InstanceReport.StandardFields.solver, name());
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }
 
-    protected String getName(){
+    @Override
+    public String name(){
         String pairWiseString = "_";
         if(usePairWiseGoalTest)
             pairWiseString += "pairwise";
@@ -144,7 +153,7 @@ public class ICTS_Solver extends A_Solver {
                 Map<Agent, MDD> pairwiseMap = new HashMap<>();
                 pairwiseMap.put(agentI, mddI);
                 pairwiseMap.put(agentJ, mddJ);
-                Solution pairwiseMergedMDDSolution = mergedMDDFactory.create(pairwiseMap, this);
+                Solution pairwiseMergedMDDSolution = mergedMDDSolver.findJointSolution(pairwiseMap, this);
                 if (pairwiseMergedMDDSolution == null) //couldn't find solution between 2 agents
                     return false;
             }
@@ -164,22 +173,10 @@ public class ICTS_Solver extends A_Solver {
         closedList.add(current);
     }
 
-    private boolean initializeSearch(MAPF_Instance instance) {
-        openList = createOpenList();
-        contentOfOpen = new HashSet<>();
-        closedList = createClosedList();
-        expandedHighLevelNodesNum = 0;
-        generatedHighLevelNodesNum = 0;
-        getHeuristic(instance);
+    private boolean initRoot(MAPF_Instance instance) {
         Map<Agent, Integer> startCosts = new HashMap<>();
-        this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
-        this.instance = instance;
-
         for (Agent agent : instance.agents) {
-//            MAPF_Instance agentInstance = instance.getSubproblemFor(agent);
-//            A_LowLevelSearcher searcher = searcherFactory.createSearcher(this, agentInstance, heuristicICTS);
-//            ((ICTSAgent) agent).setSearcher(searcher);
-//            I_Location start = instance.map.getMapCell(agent.source);
+
             Integer depth = Math.round(heuristicICTS.getHForAgentAndCurrentLocation(agent, getSource(agent)));
             if (depth == null) {
                 //The single agent path does not exist
@@ -231,10 +228,5 @@ public class ICTS_Solver extends A_Solver {
         this.closedList = null;
         this.mddManager = null;
         this.instance = null;
-    }
-
-    @Override
-    public String name() {
-        return "ICTS";
     }
 }

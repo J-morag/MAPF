@@ -1,11 +1,10 @@
-package BasicCBS.Solvers.ICTS.LowLevel;
+package BasicCBS.Solvers.ICTS.MDDs;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
-import BasicCBS.Solvers.ICTS.GeneralStuff.MDD;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 
-public abstract class A_LowLevelSearcher {
+public abstract class A_MDDSearcher {
     protected int expandedNodesNum;
     protected int generatedNodesNum;
     protected ICTS_Solver highLevelSearcher;
@@ -13,7 +12,7 @@ public abstract class A_LowLevelSearcher {
     protected I_Location target;
     protected Agent agent;
 
-    public A_LowLevelSearcher(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent) {
+    public A_MDDSearcher(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent) {
         expandedNodesNum = 0;
         generatedNodesNum = 0;
         this.highLevelSearcher = highLevelSearcher;

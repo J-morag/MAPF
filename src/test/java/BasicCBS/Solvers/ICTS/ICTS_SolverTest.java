@@ -268,13 +268,9 @@ class ICTS_SolverTest {
             int numInvalidOptimal = 0;
             // run all benchmark instances. this code is mostly copied from Environment.Experiment.
             while ((instance = instanceManager.getNextInstance()) != null) {
-//                // has start at goal which we don't currently support
-//                boolean hasStartAtGoal = false;
-//                for (Agent agent :
-//                        instance.agents) {
-//                    hasStartAtGoal |= agent.source.equals(agent.target);
+//                if (!instance.name.equals("Instance-32-20-20-0")){
+//                    continue;
 //                }
-//                if (hasStartAtGoal) continue;
 
                 //build report
                 InstanceReport report = S_Metrics.newInstanceReport();

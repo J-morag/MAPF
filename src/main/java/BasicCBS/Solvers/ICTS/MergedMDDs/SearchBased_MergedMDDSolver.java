@@ -1,15 +1,13 @@
-package BasicCBS.Solvers.ICTS.GeneralStuff;
+package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicCBS.Solvers.ICTS.MDDs.MDD;
 import BasicCBS.Solvers.Solution;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public abstract class SearchBased_MergedMDDFactory implements I_MergedMDDFactory {
+public abstract class SearchBased_MergedMDDSolver implements I_MergedMDDSolver, I_MergedMDDCreator {
     private int goalDepth;
 
     protected abstract void initializeSearch();
@@ -19,7 +17,13 @@ public abstract class SearchBased_MergedMDDFactory implements I_MergedMDDFactory
     protected abstract void addToClosed(MergedMDDNode node);
 
     @Override
-    public Solution create(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
+    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
+        MergedMDD mergedMDD = this.createMergedMDD(agentMDDs, highLevelSolver);
+        return mergedMDD != null ? mergedMDD.getSolution() : null;
+    }
+
+    @Override
+    public MergedMDD createMergedMDD(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
         initializeSearch();
 
         MergedMDD mergedMDD = new MergedMDD();
@@ -37,15 +41,21 @@ public abstract class SearchBased_MergedMDDFactory implements I_MergedMDDFactory
             if (currentDepth > goalDepth)
                 goalDepth = currentDepth;
         }
+        System.out.println("goal depth = " + goalDepth);
+        int currDepth = 0;
 
         addToOpen(start);
 
-        //Let the search begin!
+        // create the joint MDD
         while (!isOpenEmpty() && !highLevelSolver.reachedTimeout()) {
             MergedMDDNode current = pollFromOpen();
+            if (current.getDepth() > currDepth){
+                currDepth = current.getDepth();
+                System.out.println("current depth = " + currDepth);
+            }
             if (isGoal(current)) {
                 mergedMDD.setGoal(current);
-                return mergedMDD.getSolution();
+                return mergedMDD;
             }
 
             expand(current);
@@ -53,6 +63,8 @@ public abstract class SearchBased_MergedMDDFactory implements I_MergedMDDFactory
 
         return null;
     }
+
+
 
     protected void combinationUtil(List<List<FatherSonMDDNodePair>> agentFatherSonPairs, List<FatherSonMDDNodePair> currentCombination, List<MergedMDDNode> neighbors, int index, int mddNodeDepth) {
         // Current combination is ready to be checked. check if it is a valid combination
