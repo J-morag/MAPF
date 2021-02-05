@@ -8,6 +8,7 @@ import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 import java.util.*;
 
@@ -20,8 +21,15 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
     private int goalDepth;
     private Stack<MergedMDDSpaceNode> openList;
     private Set<MergedMDDSpaceNode> closedList;
+    private boolean disappearAtGoal = false;
+    private int expandedLowLevelNodes;
+    private int generatedLowLevelNodes;
+    private static final Comparator<List<FatherSonMDDNodePair>> fatherSonPairListsAgentIdComparator = Comparator.comparingInt(list -> list.get(0).getFather().getAgent().iD);
+    private static final boolean debug = false;
 
     protected void initializeSearch(Map<Agent, MDD> agentMDDs){
+        this.expandedLowLevelNodes = 0;
+        this.generatedLowLevelNodes = 0;
         this.openList = new Stack<>();
         this.closedList = new HashSet<>();
         addToOpen(this.getRoot(agentMDDs));
@@ -68,30 +76,6 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         return res;
     }
 
-//    protected void combinationUtil(List<List<FatherSonMDDNodePair>> agentFatherSonPairs, List<FatherSonMDDNodePair> currentCombination,
-//                                   List<MergedMDDSpaceNode> children, int index, int mddNodeDepth, MergedMDDSpaceNode parent) {
-//        // Current combination is ready to be checked. check if it is a valid combination
-//        if (index == agentFatherSonPairs.size()) {
-//            if (isValidCombination(currentCombination)) {
-//                MergedMDDSpaceNode current = getMergedMDDNode(parent, mddNodeDepth);
-//                ArrayList<MDDNode> mddNodes = new ArrayList<>(currentCombination.size());
-//                for (FatherSonMDDNodePair move : currentCombination){
-//                    mddNodes.add(move.getSon());
-//                }
-//                current.setMDDNodes(mddNodes);
-//                children.add(current);
-//            }
-//            return;
-//        }
-//
-//        // Current combination is not yet ready to be checked.
-//        for (FatherSonMDDNodePair possiblePair : agentFatherSonPairs.get(index)) {
-//            List<FatherSonMDDNodePair> nextCombination = new ArrayList<>(currentCombination);
-//            nextCombination.add(possiblePair);
-//            combinationUtil(agentFatherSonPairs, nextCombination, children, index + 1, mddNodeDepth, parent);
-//        }
-//    }
-
     protected MergedMDDSpaceNode getMergedMDDNode(MergedMDDSpaceNode parent, int mddNodeDepth, List<MDDNode> mddNodes) {
         return new MergedMDDSpaceNode(parent, mddNodeDepth, mddNodes);
     }
@@ -100,7 +84,7 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         return new MergedMDDSpaceNode(parent, mddNodeDepth);
     }
 
-    protected static boolean isValidCombination(List<FatherSonMDDNodePair> currentCombination) {
+    protected boolean isValidCombination(List<FatherSonMDDNodePair> currentCombination) {
         for (int i = 0; i < currentCombination.size(); i++) {
             FatherSonMDDNodePair currentI = currentCombination.get(i);
             for (int j = i + 1; j < currentCombination.size(); j++) {
@@ -112,7 +96,7 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
                         e.printStackTrace();
                     }
                 }
-                if (currentCombination.get(i).colliding(currentCombination.get(j))) {
+                if (currentCombination.get(i).colliding(currentCombination.get(j), this.disappearAtGoal)) {
                     return false;
                 }
             }
@@ -144,8 +128,10 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
 //    }
 
     protected void expand(MergedMDDSpaceNode current) {
+        this.expandedLowLevelNodes++;
         List<MergedMDDSpaceNode> child = getChildren(current);
         for (MergedMDDSpaceNode neighbor : child) {
+            this.generatedLowLevelNodes++;
             addToOpen(neighbor);
         }
         addToClosed(current);
@@ -163,7 +149,15 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         List<List<FatherSonMDDNodePair>> fatherSonPairLists = current.getFatherSonPairsLists();
         // sort these is advance, so that we will get lists that are already sorted by agent (cartesianProduct maintains
         // order), so that we won't have to re-sort in each call to MergedMDDSpaceNode.setMDDNodes .
-        fatherSonPairLists.sort(Comparator.comparingInt(list -> list.get(0).getFather().getAgent().iD));
+        if (debug && !Ordering.from(fatherSonPairListsAgentIdComparator).isOrdered(fatherSonPairLists)){
+            try {
+                throw new Exception("since all actions are deterministic and on lists, and the lists are initially " +
+                        "ordered, fatherSonPairLists should already be ordered.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            fatherSonPairLists.sort(fatherSonPairListsAgentIdComparator);
+        }
         // copy to new list because cartesianProduct returns UnmodifiableList
         List<List<FatherSonMDDNodePair>> fatherSonPairCartesianProduct = new ArrayList<>(Lists.cartesianProduct(fatherSonPairLists));
         // validation postponed to when a node is polled from open
@@ -232,5 +226,15 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         }
 
         return solution;
+    }
+
+    @Override
+    public int getExpandedLowLevelNodesNum() {
+        return this.expandedLowLevelNodes;
+    }
+
+    @Override
+    public int getGeneratedLowLevelNodesNum() {
+        return this.generatedLowLevelNodes;
     }
 }

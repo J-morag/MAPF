@@ -14,6 +14,46 @@ public class MDD {
         initialize(goal);
     }
 
+    /**
+     * copy constructor (deep).
+     * @param other an MDD to copy.
+     */
+    public MDD(MDD other){
+        // iterate over the mdd in BFS order
+        // we don't need a closed list since this is a DAG
+        // open will only contain nodes from other
+        Queue<MDDNode> open = new ArrayDeque<>();
+        // copies will only contain nodes from this (copies)
+        Map<MDDNode, MDDNode> copies = new HashMap<>();
+        this.start = new MDDNode(other.getStart());
+        open.add(other.getStart());
+        copies.put(this.start, this.start);
+        while (!open.isEmpty()){
+            MDDNode originalCurrentMddNode = open.remove();
+            // a copy has to exist already
+            MDDNode copyCurrentMddNode = copies.get(originalCurrentMddNode);
+            List<MDDNode> originalChildren = originalCurrentMddNode.getNeighbors();
+
+            for (MDDNode originalChild : originalChildren){
+                MDDNode childCopy;
+                // never saw this child before
+                if(!copies.containsKey(originalChild)) {
+                    // so we will have to expand it later
+                    open.add(originalChild);
+                    // copy the child. should only happen once because we check the contents of copies.
+                    childCopy = new MDDNode(originalChild);
+                    copies.put(childCopy, childCopy);
+                }
+                else{
+                    // this child has already been seen. we just have to get the copy we've already made
+                    childCopy = copies.get(originalChild);
+                }
+                copyCurrentMddNode.addNeighbor(childCopy);
+            }
+        }
+        this.goal = copies.get(other.goal);
+    }
+
     private void initialize(MDDSearchNode goal){
         MDDNode mddGoal = new MDDNode(goal);
         Queue<MDDNode> currentLevel = new LinkedList<>();

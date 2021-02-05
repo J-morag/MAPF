@@ -8,6 +8,13 @@ public class AStarFactory implements I_MDDSearcherFactory {
 
     private boolean disappearAtGoal = false;
 
+    public AStarFactory(boolean disappearAtGoal) {
+        this.disappearAtGoal = disappearAtGoal;
+    }
+
+    public AStarFactory() {
+    }
+
     @Override
     public void setDefaultDisappearAtGoal(boolean disappearAtGoal) {
         this.disappearAtGoal = disappearAtGoal;

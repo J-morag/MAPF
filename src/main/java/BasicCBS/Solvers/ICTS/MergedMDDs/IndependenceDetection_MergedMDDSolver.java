@@ -10,6 +10,8 @@ import java.util.*;
 
 public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver {
 
+    private int expandedLowLevelNodes;
+    private int generatedLowLevelNodes;
     /**
      * An MDD merger to delegate to when groups are to be merged.
      */
@@ -21,6 +23,8 @@ public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver 
 
     @Override
     public Solution findJointSolution(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
+        this.expandedLowLevelNodes = 0;
+        this.generatedLowLevelNodes = 0;
 
         List<AgentsGroup> agentsCollidingGroups = new ArrayList<>();
         for (Agent agent : agentMDDs.keySet()) {
@@ -68,6 +72,8 @@ public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver 
                         }
                     }
                     Solution mergedGroupSolution = getSolution(delegatedMergedMDDFactory.findJointSolution(currentMergingGroup, highLevelSolver));
+                    this.expandedLowLevelNodes += delegatedMergedMDDFactory.getExpandedLowLevelNodesNum();
+                    this.generatedLowLevelNodes += delegatedMergedMDDFactory.getGeneratedLowLevelNodesNum();
                     if(mergedGroupSolution == null)
                         return null; //if a group don't have a solution, then there is surely no solution.
                     AgentsGroup mergedGroup = getAgentsGroup(mergedAgents, mergedGroupSolution);
@@ -112,6 +118,16 @@ public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver 
 
     protected Solution getSolution(Solution solution){
         return solution;
+    }
+
+    @Override
+    public int getExpandedLowLevelNodesNum() {
+        return this.expandedLowLevelNodes;
+    }
+
+    @Override
+    public int getGeneratedLowLevelNodesNum() {
+        return this.generatedLowLevelNodes;
     }
 
 }

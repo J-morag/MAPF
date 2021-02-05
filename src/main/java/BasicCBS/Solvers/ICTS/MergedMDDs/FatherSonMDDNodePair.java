@@ -2,20 +2,13 @@ package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 
-import java.util.Objects;
-
 public class FatherSonMDDNodePair{
     private MDDNode father;
     private MDDNode son;
-    private boolean disappearAtGoal;
 
-    public FatherSonMDDNodePair(MDDNode father, MDDNode son, boolean disappearAtGoal) {
+    public FatherSonMDDNodePair(MDDNode father, MDDNode son) {
         this.father = father;
         this.son = son;
-        this.disappearAtGoal = disappearAtGoal;
-    }
-    public FatherSonMDDNodePair(MDDNode father, MDDNode son) {
-        this(father, son, false);
     }
 
     public MDDNode getFather() {
@@ -29,22 +22,26 @@ public class FatherSonMDDNodePair{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof FatherSonMDDNodePair)) return false;
+
         FatherSonMDDNodePair that = (FatherSonMDDNodePair) o;
-        return father.equals(that.father) &&
-                son.equals(that.son);
+
+        if (!father.equals(that.father)) return false;
+        return son.equals(that.son);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(father, son);
+        int result = father.hashCode();
+        result = 31 * result + son.hashCode();
+        return result;
     }
 
-    public boolean colliding(FatherSonMDDNodePair other){
-        return sonCollision(other) || edgeCollision(other);
+    public boolean colliding(FatherSonMDDNodePair other, boolean disappearAtGoal){
+        return sonCollision(other, disappearAtGoal) || edgeCollision(other, disappearAtGoal);
     }
 
-    private boolean edgeCollision(FatherSonMDDNodePair other) {
+    private boolean edgeCollision(FatherSonMDDNodePair other, boolean disappearAtGoal) {
         if (disappearAtGoal && (isStayAtGoal(this) || isStayAtGoal(other))){
             return false;
         }
@@ -53,7 +50,7 @@ public class FatherSonMDDNodePair{
         }
     }
 
-    private boolean sonCollision(FatherSonMDDNodePair other) {
+    private boolean sonCollision(FatherSonMDDNodePair other, boolean disappearAtGoal) {
         if (disappearAtGoal && (isStayAtGoal(this) || isStayAtGoal(other))){
             return false;
         }
