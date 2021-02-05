@@ -1,9 +1,10 @@
 package BasicCBS.Solvers.ICTS.MergedMDDs;
 
-import BasicCBS.Instances.Agent;
 import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Search node for searching the search space of a merged MDD (MDD from MDDs of multiple agents) without explicitly
@@ -11,38 +12,25 @@ import java.util.*;
  */
 public class MergedMDDSpaceNode {
     private static final Comparator<MDDNode> mddNodesOrderComparator = Comparator.comparingInt(mddNode -> mddNode.getAgent().iD);
-//    private TreeSet<MDDNode> mddNodes = new TreeSet<>(mddNodesOrderComparator);
     private List<MDDNode> mddNodes;
     private MergedMDDSpaceNode parent;
     private int depth;
-    private boolean disappearAtGoal;
     public List<FatherSonMDDNodePair> generatingMoves;
 
-    public MergedMDDSpaceNode(MergedMDDSpaceNode parent, int depth, boolean disappearAtGoal) {
+    public MergedMDDSpaceNode(MergedMDDSpaceNode parent, int depth) {
         this.parent = parent;
         this.depth = depth;
-        this.disappearAtGoal = disappearAtGoal;
     }
 
-    public MergedMDDSpaceNode(MergedMDDSpaceNode parent, int depth, boolean disappearAtGoal, List<MDDNode> mddNodes) {
+    public MergedMDDSpaceNode(MergedMDDSpaceNode parent, int depth, List<MDDNode> mddNodes) {
         this.parent = parent;
         this.depth = depth;
-        this.disappearAtGoal = disappearAtGoal;
         this.setMDDNodes(mddNodes);
     }
 
     public MergedMDDSpaceNode() {
         this.parent = null;
         this.depth = 0;
-        this.disappearAtGoal = false;
-    }
-
-    public MergedMDDSpaceNode(MergedMDDSpaceNode parent, int depth) {
-        this(parent, depth, false);
-    }
-
-    public MergedMDDSpaceNode(MergedMDDSpaceNode parent, int depth, List<MDDNode> mddNodes) {
-        this(parent, depth, false, mddNodes);
     }
 
     public MergedMDDSpaceNode getParent() {
@@ -75,10 +63,10 @@ public class MergedMDDSpaceNode {
 
         MergedMDDSpaceNode that = (MergedMDDSpaceNode) o;
 
+        if (depth != that.depth) return false;
         return mddNodes.equals(that.mddNodes);
     }
 
-    @Override
     public int hashCode() {
         return mddNodes.hashCode();
     }
@@ -87,40 +75,24 @@ public class MergedMDDSpaceNode {
         return depth;
     }
 
-    public Map<Agent, List<FatherSonMDDNodePair>> getFatherSonPairsMap() {
-        Map<Agent, List<FatherSonMDDNodePair>> fatherSonPairs = new HashMap<>();
-
-        for (MDDNode father : mddNodes) {
-            List<MDDNode> currentChildren = father.getNeighbors();
-            List<FatherSonMDDNodePair> currentFatherSonPairs = new LinkedList<>();
-            for (MDDNode children : currentChildren) {
-                FatherSonMDDNodePair fatherSonMDDNodePair = new FatherSonMDDNodePair(father, children, disappearAtGoal);
-                currentFatherSonPairs.add(fatherSonMDDNodePair);
-            }
-            if(currentFatherSonPairs.isEmpty()){
-                // we are at the deepest node of the MDD
-                FatherSonMDDNodePair goalPair = new FatherSonMDDNodePair(father, father, disappearAtGoal);
-                currentFatherSonPairs.add(goalPair);
-            }
-            fatherSonPairs.put(father.getAgent(), currentFatherSonPairs);
-        }
-
-        return fatherSonPairs;
-    }
-
+    /**
+     * Each list in this list is all moves that a single agent can make on their MDD from the mdd node that we have for
+     * that agent in this current merged MDD node
+     * @return
+     */
     public List<List<FatherSonMDDNodePair>> getFatherSonPairsLists() {
-        List<List<FatherSonMDDNodePair>> fatherSonPairs = new LinkedList<>();
+        List<List<FatherSonMDDNodePair>> fatherSonPairs = new ArrayList<>(mddNodes.size());
 
         for (MDDNode father : mddNodes) {
             List<MDDNode> currentChildren = father.getNeighbors();
-            List<FatherSonMDDNodePair> currentFatherSonPairs = new LinkedList<>();
+            List<FatherSonMDDNodePair> currentFatherSonPairs = new ArrayList<>(currentChildren.size());
             for (MDDNode children : currentChildren) {
-                FatherSonMDDNodePair fatherSonMDDNodePair = new FatherSonMDDNodePair(father, children, disappearAtGoal);
+                FatherSonMDDNodePair fatherSonMDDNodePair = new FatherSonMDDNodePair(father, children);
                 currentFatherSonPairs.add(fatherSonMDDNodePair);
             }
             if(currentFatherSonPairs.isEmpty()){
                 // we are at the deepest node of the MDD
-                FatherSonMDDNodePair goalPair = new FatherSonMDDNodePair(father, father, disappearAtGoal);
+                FatherSonMDDNodePair goalPair = new FatherSonMDDNodePair(father, father);
                 currentFatherSonPairs.add(goalPair);
             }
             fatherSonPairs.add(currentFatherSonPairs);

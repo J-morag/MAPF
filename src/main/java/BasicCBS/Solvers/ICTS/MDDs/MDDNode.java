@@ -3,7 +3,7 @@ package BasicCBS.Solvers.ICTS.MDDs;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MDDNode {
@@ -13,10 +13,21 @@ public class MDDNode {
     private Agent agent;
 
     public MDDNode(MDDSearchNode current) {
-        neighbors = new LinkedList<>();
+        neighbors = new ArrayList<>(5); // 5 because typically we can move in 4 directions, or stay
         this.location = current.getLocation();
         this.depth = current.getG();
         this.agent = current.getAgent();
+    }
+
+    /**
+     * copy constructor (deep). Doesn't copy the contents of {@link #neighbors}! Only creates an empty list.
+     * @param other an MDDNode to copy.
+     */
+    public MDDNode(MDDNode other){
+        neighbors = new ArrayList<>(5); // 5 because typically we can move in 4 directions, or stay
+        this.location = other.location;
+        this.depth = other.depth;
+        this.agent = other.agent;
     }
 
     public void addNeighbor(MDDNode neighbor){

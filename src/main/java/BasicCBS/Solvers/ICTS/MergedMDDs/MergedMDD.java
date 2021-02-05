@@ -1,6 +1,7 @@
 package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import BasicCBS.Instances.Agent;
+import BasicCBS.Solvers.ICTS.MDDs.MDD;
 import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
@@ -34,10 +35,14 @@ public class MergedMDD {
         this.goal = goal;
     }
 
+    /**
+     * Finds a solution on this merged MDD. The choice of which solution is arbitrary.
+     * @return a solution on this merged MDD. The choice of which solution is arbitrary.
+     */
     public Solution getSolution() {
         Solution solution = new Solution();
         Map<Agent, List<Move>> agentMoves = new HashMap<>();
-        for (MDDNode node : goal.getValues()) {
+        for (MDDNode node : goal.getMddNodes()) {
             Agent agent = node.getAgent();
             agentMoves.put(agent, new ArrayList<>());
         }
@@ -45,11 +50,11 @@ public class MergedMDD {
         MergedMDDNode current = goal;
         while (!current.getParents().isEmpty()) {
             MergedMDDNode parent = current.getParents().iterator().next(); //It doesn't matter which parent it was, we take a single path.
-            for (MDDNode currentAgentMDDNode : current.getValues()){
+            for (MDDNode currentAgentMDDNode : current.getMddNodes()){
                 Agent agent = currentAgentMDDNode.getAgent();
                 MDDNode parentAgentMDDNode = null;
                 // look for the same agent parent merged MDD node
-                for (MDDNode parentMDDNode : parent.getValues()){
+                for (MDDNode parentMDDNode : parent.getMddNodes()){
                     if (parentMDDNode.getAgent().equals(agent)){
                         parentAgentMDDNode = parentMDDNode;
                         break;
@@ -65,18 +70,6 @@ public class MergedMDD {
                     agentMoves.get(agent).add(move); //insert the move to the agent's moves
                 }
             }
-//            for (Agent agent : current.getValues().keySet()) {
-//                MDDNode currentValue = current.getValue(agent);
-//                MDDNode parentValue = parent.getValue(agent);
-//                if (!currentValue.equals(parentValue)) {
-//                    //Only consider moves that changed something.
-//                    //this equal calculation uses also the "g" value,
-//                    //so we will distinguish between being at state s at time g and at time g + 1
-//                    //(staying in the same location as part of the solution)
-//                    Move move = new Move(agent, currentValue.getValue().getG(), parentValue.getValue().getLocation(), currentValue.getValue().getLocation());
-//                    agentMoves.get(agent).add(move); //insert the move to the agent's moves
-//                }
-//            }
             current = parent;
         }
 
@@ -88,5 +81,81 @@ public class MergedMDD {
         }
 
         return solution;
+    }
+
+    /**
+     * Iterates through this entire merged MDD, creating a set of all (individual agent) {@link MDDNode mdd nodes} found in it.
+     * @return all {@link MDDNode mdd nodes} that can be found in this merged MDD.
+     */
+    public Set<MDDNode> toAgentMddNodeSet() {
+        // iterate over the merged mdd in BFS order
+        // we don't need a closed list since this is a DAG
+        Set<MDDNode> allAgentMddNodes = new HashSet<>();
+        Queue<MergedMDDNode> open = new ArrayDeque<>();
+        Set<MergedMDDNode> inOpen = new HashSet<>();
+        // must traverse from goal, to get just the merged mdd, without nodes that don't eventually lead to the goal... I think?
+        open.add(this.goal);
+        inOpen.add(this.goal);
+        while (!open.isEmpty()){
+            MergedMDDNode currentMergedMddNode = open.remove();
+            inOpen.remove(currentMergedMddNode);
+            allAgentMddNodes.addAll(currentMergedMddNode.getMddNodes());
+
+            List<MergedMDDNode> parents = currentMergedMddNode.getParents();
+            // another node already put this parent in open
+            parents.removeIf(inOpen::contains);
+            open.addAll(parents);
+            inOpen.addAll(parents);
+        }
+        return allAgentMddNodes;
+    }
+
+    /**
+     * Unfolds the merged MDD, trimming the individual agent MDDs that comprise it. This method doesn't modify this instance,
+     * or the given map - it modifies the MDD instances referenced by the map. Only modifies those MDDs that are represented
+     * in this merged MDD (so agentsMDDs can contain extra agents).
+     * @param agentMdds a map of individual MDDs for agents. The MDDs in the map (not the map) may be modified by this method.
+     */
+    public void unfold(Map<Agent, MDD> agentMdds) {
+        // get the set of all agent mdd nodes in the merged mdd
+        Set<MDDNode> mddNodesToKeep = this.toAgentMddNodeSet();
+        List<Agent> agentsInMergedMdd = this.getRepresentedAgents();
+        // if an mdd node is not present in the merged mdd, remove it from the agent's mdd
+        for (Agent agent : agentsInMergedMdd){
+            MDD mdd = agentMdds.get(agent);
+            // iterate over the mdd in BFS order
+            // we don't need a closed list since this is a DAG
+            Queue<MDDNode> open = new ArrayDeque<>();
+            Set<MDDNode> inOpen = new HashSet<>();
+            open.add(mdd.getStart());
+            inOpen.add(mdd.getStart());
+            while (!open.isEmpty()){
+                MDDNode currentMddNode = open.remove();
+                inOpen.remove(currentMddNode);
+                List<MDDNode> children = currentMddNode.getNeighbors();
+                // we check if the children, not the current node, can be removed, because we remove by
+                // removing all references to these children from their parents
+                // MDDNode exposes its internal list of children, so we can modify it directly
+                children.removeIf(child -> !mddNodesToKeep.contains(child));
+                // for those that should be kept, add them to open if they aren't already there
+                for (MDDNode child : children){
+                    if(!inOpen.contains(child)) {
+                        open.add(child);
+                        inOpen.add(child);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return a {@link List} of agents that are represented (through their MDDs) in this merged MDD.
+     */
+    public List<Agent> getRepresentedAgents(){
+        List<Agent> result = new ArrayList<>(this.start.getMddNodes().size());
+        for (MDDNode mddNode : this.start.getMddNodes()){
+            result.add(mddNode.getAgent());
+        }
+        return result;
     }
 }

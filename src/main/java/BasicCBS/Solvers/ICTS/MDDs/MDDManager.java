@@ -15,6 +15,8 @@ public class MDDManager {
     final private SourceTargetPair keyDummy = new SourceTargetPair(null, null);
     private ICTS_Solver highLevelSolver;
     private DistanceTableAStarHeuristicICTS heuristic; //todo replace?
+    private int expandedLowLevelNodes;
+    private int generatedLowLevelNodes;
 
     public MDDManager(I_MDDSearcherFactory searcherFactory, ICTS_Solver highLevelSolver, DistanceTableAStarHeuristicICTS heuristic) {
         this.searcherFactory = searcherFactory;
@@ -45,13 +47,21 @@ public class MDDManager {
         }
     }
 
+    public MDD getMDDNoReuse(I_Location source, I_Location target, Agent agent, int depth){
+        A_MDDSearcher searcher = this.searcherFactory.createSearcher(highLevelSolver, source, target, agent, heuristic);
+        MDD result = searcher.continueSearching(depth);
+        this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
+        this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();
+        return result;
+    }
+
     public int getExpandedNodesNum(){
         int sum = 0;
         for (A_MDDSearcher searcher:
              searchers.values()) {
             sum += searcher.getExpandedNodesNum();
         }
-        return sum;
+        return sum + this.expandedLowLevelNodes;
     }
 
     public int getGeneratedNodesNum(){
@@ -60,7 +70,7 @@ public class MDDManager {
                 searchers.values()) {
             sum += searcher.getGeneratedNodesNum();
         }
-        return sum;
+        return sum + this.generatedLowLevelNodes;
     }
 
     private class SourceTargetPair {

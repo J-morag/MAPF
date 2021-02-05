@@ -5,6 +5,7 @@ import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class AStarMDDBuilder extends A_MDDSearcher {
 
@@ -18,6 +19,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     private DistanceTableAStarHeuristicICTS heuristic;
     protected int maxDepthOfSolution;
     private boolean disappearAtGoal = false;
+    protected DisappearAtGoalFilter disappearAtGoalFilter = new DisappearAtGoalFilter();
 
     /**
      * Constructor for the AStar searcher
@@ -27,6 +29,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
         super(highLevelSearcher, source, target, agent);
         this.heuristic = heuristic;
+        this.disappearAtGoalFilter.target = target;
     }
 
     /**
@@ -135,10 +138,9 @@ public class AStarMDDBuilder extends A_MDDSearcher {
 
     protected void expand(MDDSearchNode node){
         List<I_Location> neighborLocations = node.getNeighborLocations();
-        if (disappearAtGoal){
+        if (disappearAtGoal && node.getG() + 1 < maxDepthOfSolution){
             // filter neighbors. Only allow generation of goal node if the goal node is at the target depth.
-            neighborLocations.removeIf(location -> node.getG() + 1 < maxDepthOfSolution &&
-                    location.getCoordinate().equals(target.getCoordinate()));
+            neighborLocations.removeIf(disappearAtGoalFilter);
         }
         for (I_Location location : neighborLocations) {
             MDDSearchNode neighbor = new MDDSearchNode(agent, location, node.getG() + 1, heuristic);
@@ -150,5 +152,14 @@ public class AStarMDDBuilder extends A_MDDSearcher {
 
     protected boolean isGoalState(MDDSearchNode node) {
         return node.getLocation().getCoordinate().equals(target.getCoordinate());
+    }
+
+    protected static class DisappearAtGoalFilter implements Predicate<I_Location> {
+        public I_Location target;
+
+        @Override
+        public boolean test(I_Location location) {
+            return target.equals(location);
+        }
     }
 }

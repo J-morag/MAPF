@@ -263,7 +263,7 @@ class ICTS_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 10 /*seconds*/
+            long timeout = 5 /*seconds*/
                     *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
             int numSolved = 0;
@@ -474,6 +474,7 @@ class ICTS_SolverTest {
                 System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
                 if (useAsserts) assertTrue(valid);
             }
+            else System.out.println();
 
             if(solutionBaseline != null && solutionExperimental != null){
                 int optimalCost = solutionBaseline.sumIndividualCosts();
@@ -483,7 +484,7 @@ class ICTS_SolverTest {
                         ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
                 reportBaseline.putIntegerValue("Cost Delta", costWeGot - optimalCost);
                 reportExperimental.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-                if (useAsserts) assertEquals(optimalCost, costWeGot);
+                if (useAsserts) assertTrue(optimal);
 
                 // runtimes
                 runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
