@@ -3,6 +3,11 @@ package OnlineMAPF.Solvers.OnlineICTS;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
+import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicCBS.Solvers.ICTS.HighLevel.ICT_NodeComparator;
+import BasicCBS.Solvers.ICTS.MDDs.I_MDDSearcherFactory;
+import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDCreator;
+import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDSolver;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.SingleAgentPlan;
@@ -34,6 +39,31 @@ public class OnlineICTSSolver implements I_OnlineSolver {
 
     protected long totalRuntime;
 
+    private ICT_NodeComparator comparator;
+    protected I_MDDSearcherFactory searcherFactory;
+    private I_MergedMDDSolver mergedMDDSolver;
+    private ICTS_Solver.PruningStrategy pruningStrategy;
+    private final I_MergedMDDCreator mergedMDDCreator;
+
+    public OnlineICTSSolver(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
+                            ICTS_Solver.PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator) {
+        if (mergedMDDSolver != null && ! (mergedMDDSolver instanceof Online_ID_MergedMDDSolver))
+            throw new IllegalArgumentException("Must use an online MergedMDDSolver.");
+        if (mergedMDDCreator != null && ! (mergedMDDCreator instanceof OnlineBFS_MergedMDDCreator))
+            throw new IllegalArgumentException("Must use an online MergedMDDCreator.");
+        this.comparator = comparator;
+        this.searcherFactory = searcherFactory;
+        // set searcher factory to online
+        if (this.searcherFactory != null) this.searcherFactory.setDefaultDisappearAtGoal(true);
+        this.mergedMDDSolver = mergedMDDSolver;
+        this.pruningStrategy = pruningStrategy;
+        this.mergedMDDCreator = mergedMDDCreator;
+    }
+
+    public OnlineICTSSolver() {
+        this(null, null, null, null, null);
+    }
+
     @Override
     public void setEnvironment(MAPF_Instance instance, RunParameters parameters) {
         latestSolution = new Solution();
@@ -62,7 +92,8 @@ public class OnlineICTSSolver implements I_OnlineSolver {
     }
 
     protected Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations) {
-        OnlineCompatibleICTS offlineSolver = new OnlineCompatibleICTS(currentAgentLocations, time);
+        OnlineCompatibleICTS offlineSolver = new OnlineCompatibleICTS(this.comparator, this.searcherFactory,
+                this.mergedMDDSolver, this.pruningStrategy, this.mergedMDDCreator, currentAgentLocations, time);
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
         RunParameters runParameters = new RunParameters(timeoutThreshold - totalRuntime, null, S_Metrics.newInstanceReport(), null);
         latestSolution = offlineSolver.solve(subProblem, runParameters);

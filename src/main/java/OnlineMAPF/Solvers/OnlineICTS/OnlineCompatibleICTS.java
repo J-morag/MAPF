@@ -31,8 +31,10 @@ public class OnlineCompatibleICTS extends ICTS_Solver {
                                 Map<Agent, I_Location> customStartLocations, int customStartTime) {
         // has to be online merged MDD factory, so that it will use OnlineSolution and ignore target conflicts (after time of arriving at goal)
         super(comparator, searcherFactory, mergedMDDSolver, pruningStrategy, mergedMDDCreator);
-        if (! (mergedMDDSolver instanceof Online_ID_MergedMDDSolver)) throw new IllegalArgumentException("Must use an online MergedMDDSolver.");
-        if (! (mergedMDDCreator instanceof OnlineBFS_MergedMDDCreator)) throw new IllegalArgumentException("Must use an online MergedMDDCreator.");
+        if (mergedMDDSolver != null && ! (mergedMDDSolver instanceof Online_ID_MergedMDDSolver))
+            throw new IllegalArgumentException("Must use an online MergedMDDSolver.");
+        if (mergedMDDCreator != null && ! (mergedMDDCreator instanceof OnlineBFS_MergedMDDCreator))
+            throw new IllegalArgumentException("Must use an online MergedMDDCreator.");
         // set searcher factory to online
         super.searcherFactory.setDefaultDisappearAtGoal(true);
         this.customStartLocations = customStartLocations;
