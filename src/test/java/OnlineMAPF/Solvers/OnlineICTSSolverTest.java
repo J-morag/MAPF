@@ -22,6 +22,7 @@ import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineInstanceBuilder_BGU;
 import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
 import OnlineMAPF.OnlineSolution;
+import OnlineMAPF.Solvers.OnlineICTS.OnlineICTSSolver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -393,45 +394,6 @@ class OnlineICTSSolverTest {
         }
     }
 
-    /*  = Cost Of Reroute =  */
-
-    @Test
-    void correctCORCostSmall() {
-        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
-        OnlineAgent agent12to53at2 = new OnlineAgent(1, coor12, coor53, 2);
-        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor53, 2);
-        OnlineAgent[] agents = new OnlineAgent[3];
-        agents[0] = agent53to02at0;
-        agents[1] = agent12to53at2;
-        agents[2] = agent22to53at2;
-        MAPF_Instance testInstance = new MAPF_Instance("corridors should reroute", mapCorridors, agents);
-
-        RunParameters runParameters = new RunParameters(instanceReport);
-        Solution solved = solver.solve(testInstance, runParameters);
-
-        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS();
-        InstanceReport tmpInstanceReport = S_Metrics.newInstanceReport();
-        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
-        S_Metrics.removeReport(tmpInstanceReport);
-
-        assertTrue(solved.solves(testInstance));
-
-        /*
-        The online solver will first send the initial agent through the left corridor, but when the new agents arrive,
-        it wil reroute the initial agent through the right corridor, as that adds less to the cost than having both new
-        agents wait or reroute.
-        The offline solver will route the agent arriving at t=0 through the right from its first step, resulting in a
-        lower SOC.
-         */
-        int costOfReroute = 17;
-        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
-        // there was a single reroute, so cost should be SOC + the cost of a single reroute.
-        assertEquals(19 + costOfReroute, costIncludingReroutes);
-        // reroutes don't happen when solving offline, so should be 0.
-        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
-        assertEquals(0, rerouteCostsWhenOffline);
-    }
-
     @Test
     void correctCostWaitingForGodot() {
         InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online", "MovingAI", "WaitingForGodot"}),
@@ -596,7 +558,46 @@ class OnlineICTSSolverTest {
             e.printStackTrace();
         }
     }
-
+//
+//    /*  = Cost Of Reroute =  */
+//
+//    @Test
+//    void correctCORCostSmall() {
+//        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
+//        OnlineAgent agent12to53at2 = new OnlineAgent(1, coor12, coor53, 2);
+//        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor53, 2);
+//        OnlineAgent[] agents = new OnlineAgent[3];
+//        agents[0] = agent53to02at0;
+//        agents[1] = agent12to53at2;
+//        agents[2] = agent22to53at2;
+//        MAPF_Instance testInstance = new MAPF_Instance("corridors should reroute", mapCorridors, agents);
+//
+//        RunParameters runParameters = new RunParameters(instanceReport);
+//        Solution solved = solver.solve(testInstance, runParameters);
+//
+//        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS();
+//        InstanceReport tmpInstanceReport = S_Metrics.newInstanceReport();
+//        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
+//        S_Metrics.removeReport(tmpInstanceReport);
+//
+//        assertTrue(solved.solves(testInstance));
+//
+//        /*
+//        The online solver will first send the initial agent through the left corridor, but when the new agents arrive,
+//        it wil reroute the initial agent through the right corridor, as that adds less to the cost than having both new
+//        agents wait or reroute.
+//        The offline solver will route the agent arriving at t=0 through the right from its first step, resulting in a
+//        lower SOC.
+//         */
+//        int costOfReroute = 17;
+//        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
+//        // there was a single reroute, so cost should be SOC + the cost of a single reroute.
+//        assertEquals(19 + costOfReroute, costIncludingReroutes);
+//        // reroutes don't happen when solving offline, so should be 0.
+//        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
+//        assertEquals(0, rerouteCostsWhenOffline);
+//    }
+//
 //    @Test
 //    void optimalWithCORSmall() {
 //        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);

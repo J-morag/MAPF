@@ -1,17 +1,26 @@
-package OnlineMAPF.Solvers;
+package OnlineMAPF.Solvers.OnlineICTS;
 
 import BasicCBS.Instances.Agent;
-import BasicCBS.Solvers.ICTS.GeneralStuff.AgentsGroup;
-import BasicCBS.Solvers.ICTS.GeneralStuff.DFS_ID_MergedMDDFactory;
-import BasicCBS.Solvers.ICTS.GeneralStuff.MDD;
-import BasicCBS.Solvers.ICTS.GeneralStuff.MergedMDDNode;
+import BasicCBS.Solvers.ICTS.MDDs.MDD;
+import BasicCBS.Solvers.ICTS.MergedMDDs.*;
 import BasicCBS.Solvers.Solution;
 import OnlineMAPF.OnlineSolution;
 
 import java.util.Map;
 import java.util.Set;
 
-public class onlineDFS_ID_MergedMDDFactory extends DFS_ID_MergedMDDFactory {
+public class Online_ID_MergedMDDSolver extends IndependenceDetection_MergedMDDSolver {
+
+    protected Online_ID_MergedMDDSolver(I_MergedMDDSolver delegatedMergedMDDSolver) {
+        super(delegatedMergedMDDSolver);
+        if (! (delegatedMergedMDDSolver instanceof OnlineDFS_MergedMDDSpaceSolver
+                || delegatedMergedMDDSolver instanceof OnlineBFS_MergedMDDCreator) )
+            throw new IllegalArgumentException("Must use an online MergedMDDSolver.");
+    }
+
+    public Online_ID_MergedMDDSolver() {
+        super(new OnlineDFS_MergedMDDSpaceSolver());
+    }
 
     @Override
     protected AgentsGroup getAgentsGroup(Set<Agent> agents, Solution solution) {
@@ -21,11 +30,6 @@ public class onlineDFS_ID_MergedMDDFactory extends DFS_ID_MergedMDDFactory {
     @Override
     protected Solution getPossibleSolution(Map<Agent, MDD> agentMDDs, Agent agent) {
         return new OnlineSolution(super.getPossibleSolution(agentMDDs, agent));
-    }
-
-    @Override
-    protected MergedMDDNode getMergedMDDNode(int mddNodeDepth) {
-        return new MergedMDDNode(mddNodeDepth, true);
     }
 
     @Override

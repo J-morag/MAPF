@@ -1,4 +1,4 @@
-package OnlineMAPF.Solvers;
+package OnlineMAPF.Solvers.OnlineICTS;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
@@ -11,6 +11,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineAgent;
 import OnlineMAPF.OnlineSolution;
+import OnlineMAPF.Solvers.I_OnlineSolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -12,7 +12,7 @@ import java.util.*;
 
 public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver, I_MergedMDDCreator {
     private int goalDepth;
-    private boolean disappearAtGoal = false;
+    protected boolean disappearAtGoal = false;
     private int expandedLowLevelNodes;
     private int generatedLowLevelNodes;
     protected Map<MergedMDDNode, MergedMDDNode> contentOfOpen;

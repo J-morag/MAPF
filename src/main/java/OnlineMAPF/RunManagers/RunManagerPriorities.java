@@ -10,6 +10,7 @@ import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineExperiment;
 import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
 import OnlineMAPF.Solvers.*;
+import OnlineMAPF.Solvers.OnlineICTS.OnlineICTSSolver;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

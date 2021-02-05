@@ -1,13 +1,14 @@
-package OnlineMAPF.Solvers;
+package OnlineMAPF.Solvers.OnlineICTS;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
-import BasicCBS.Solvers.ICTS.GeneralStuff.I_MergedMDDFactory;
+import BasicCBS.Solvers.ICTS.MDDs.AStarFactory;
+import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDCreator;
+import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDSolver;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicCBS.Solvers.ICTS.HighLevel.ICT_NodeComparator;
-import BasicCBS.Solvers.ICTS.LowLevel.I_LowLevelSearcherFactory;
-import OnlineMAPF.OnlineICTSDistanceTableHeuristic;
+import BasicCBS.Solvers.ICTS.MDDs.I_MDDSearcherFactory;
 
 import java.util.Map;
 
@@ -25,16 +26,22 @@ public class OnlineCompatibleICTS extends ICTS_Solver {
      */
     private int customStartTime = -1;
 
-    public OnlineCompatibleICTS(ICT_NodeComparator comparator, I_LowLevelSearcherFactory searcherFactory, I_MergedMDDFactory mergedMDDFactory, Boolean usePairWiseGoalTest, Map<Agent, I_Location> customStartLocations, int customStartTime) {
+    public OnlineCompatibleICTS(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
+                                PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator,
+                                Map<Agent, I_Location> customStartLocations, int customStartTime) {
         // has to be online merged MDD factory, so that it will use OnlineSolution and ignore target conflicts (after time of arriving at goal)
-        super(comparator, searcherFactory, new onlineDFS_ID_MergedMDDFactory(), usePairWiseGoalTest);
+        super(comparator, searcherFactory, mergedMDDSolver, pruningStrategy, mergedMDDCreator);
+        if (! (mergedMDDSolver instanceof Online_ID_MergedMDDSolver)) throw new IllegalArgumentException("Must use an online MergedMDDSolver.");
+        if (! (mergedMDDCreator instanceof OnlineBFS_MergedMDDCreator)) throw new IllegalArgumentException("Must use an online MergedMDDCreator.");
+        // set searcher factory to online
         super.searcherFactory.setDefaultDisappearAtGoal(true);
         this.customStartLocations = customStartLocations;
         this.customStartTime = customStartTime;
     }
 
     public OnlineCompatibleICTS(Map<Agent, I_Location> customStartLocations, int customStartTime) {
-        this(null, null, null, null, customStartLocations, customStartTime);
+        this(null, new AStarFactory(true), new Online_ID_MergedMDDSolver(new OnlineDFS_MergedMDDSpaceSolver()),
+                null, new OnlineBFS_MergedMDDCreator(), customStartLocations, customStartTime);
     }
 
     @Override

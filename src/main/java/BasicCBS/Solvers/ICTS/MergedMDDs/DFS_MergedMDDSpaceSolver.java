@@ -21,7 +21,7 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
     private int goalDepth;
     private Stack<MergedMDDSpaceNode> openList;
     private Set<MergedMDDSpaceNode> closedList;
-    private boolean disappearAtGoal = false;
+    protected boolean disappearAtGoal = false;
     private int expandedLowLevelNodes;
     private int generatedLowLevelNodes;
     private static final Comparator<List<FatherSonMDDNodePair>> fatherSonPairListsAgentIdComparator = Comparator.comparingInt(list -> list.get(0).getFather().getAgent().iD);
@@ -89,7 +89,7 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
             FatherSonMDDNodePair currentI = currentCombination.get(i);
             for (int j = i + 1; j < currentCombination.size(); j++) {
                 FatherSonMDDNodePair currentJ = currentCombination.get(j);
-                if (currentI.equals(currentJ)) {
+                if (debug && currentI.equals(currentJ)) {
                     try {
                         throw new Exception("currentI and currentJ can't be equals. if they are, we have an error...");
                     } catch (Exception e) {

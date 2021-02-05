@@ -62,7 +62,7 @@ public abstract class A_OnlineSolver implements I_OnlineSolver {
         return solveForNewArrivals(time, currentAgentLocations);
     }
 
-    abstract Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations);
+    protected abstract Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations);
 
     protected void addExistingAgents(int time, HashMap<Agent, I_Location> currentAgentLocations) {
         for (SingleAgentPlan plan :
