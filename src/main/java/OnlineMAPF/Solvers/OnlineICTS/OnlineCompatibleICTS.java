@@ -30,7 +30,8 @@ public class OnlineCompatibleICTS extends ICTS_Solver {
                                 PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator,
                                 Map<Agent, I_Location> customStartLocations, int customStartTime) {
         // has to be online merged MDD factory, so that it will use OnlineSolution and ignore target conflicts (after time of arriving at goal)
-        super(comparator, searcherFactory, mergedMDDSolver, pruningStrategy, mergedMDDCreator);
+        super(comparator, searcherFactory, Objects.requireNonNullElse(mergedMDDSolver, new Online_ID_MergedMDDSolver(new OnlineDFS_MergedMDDSpaceSolver())),
+                pruningStrategy, Objects.requireNonNullElseGet(mergedMDDCreator, OnlineBFS_MergedMDDCreator::new));
         if (mergedMDDSolver != null && ! (mergedMDDSolver instanceof Online_ID_MergedMDDSolver))
             throw new IllegalArgumentException("Must use an online MergedMDDSolver.");
         if (mergedMDDCreator != null && ! (mergedMDDCreator instanceof OnlineBFS_MergedMDDCreator))

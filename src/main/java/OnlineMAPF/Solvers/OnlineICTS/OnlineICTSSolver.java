@@ -55,9 +55,9 @@ public class OnlineICTSSolver implements I_OnlineSolver {
         this.searcherFactory = searcherFactory;
         // set searcher factory to online
         if (this.searcherFactory != null) this.searcherFactory.setDefaultDisappearAtGoal(true);
-        this.mergedMDDSolver = mergedMDDSolver;
+        this.mergedMDDSolver = Objects.requireNonNullElse(mergedMDDSolver, new Online_ID_MergedMDDSolver(new OnlineDFS_MergedMDDSpaceSolver()));
+        this.mergedMDDCreator = Objects.requireNonNullElseGet(mergedMDDCreator, OnlineBFS_MergedMDDCreator::new);
         this.pruningStrategy = pruningStrategy;
-        this.mergedMDDCreator = mergedMDDCreator;
     }
 
     public OnlineICTSSolver() {
