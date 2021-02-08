@@ -18,7 +18,6 @@ import java.util.*;
 public class ICTS_Solver extends A_Solver {
     private Set<ICT_Node> contentOfOpen;
     private Queue<ICT_Node> openList;
-    private Set<ICT_Node> closedList;
     private ICT_NodeComparator comparator;
     protected I_MDDSearcherFactory searcherFactory;
     private I_MergedMDDSolver mergedMDDSolver;
@@ -58,7 +57,9 @@ public class ICTS_Solver extends A_Solver {
         super.init(instance, parameters);
         openList = createOpenList();
         contentOfOpen = new HashSet<>();
-        closedList = createClosedList();
+        // We don't need both contents of open and closed list, since when we expand we always get nodes not in closed.
+        // We only need to make sure we don't pop a closed node from open, and contents of open makes sure of that.
+//        closedList = createClosedList();
         expandedHighLevelNodes = 0;
         generatedHighLevelNodes = 0;
         expandedLowLevelNodes = 0;
@@ -231,11 +232,6 @@ public class ICTS_Solver extends A_Solver {
         for (ICT_Node child : children) {
             addToOpen(child);
         }
-        addToClosed(current);
-    }
-
-    private void addToClosed(ICT_Node current) {
-        closedList.add(current);
     }
 
     private boolean initRoot(MAPF_Instance instance) {
@@ -278,7 +274,7 @@ public class ICTS_Solver extends A_Solver {
     }
 
     private void addToOpen(ICT_Node node) {
-        if (!contentOfOpen.contains(node) && !closedList.contains(node)) {
+        if (!contentOfOpen.contains(node)) {
             generatedHighLevelNodes++;
             openList.add(node);
             contentOfOpen.add(node);
@@ -290,7 +286,6 @@ public class ICTS_Solver extends A_Solver {
         super.releaseMemory();
         this.contentOfOpen = null;
         this.openList = null;
-        this.closedList = null;
         this.mddManager = null;
         this.instance = null;
     }
