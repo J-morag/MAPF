@@ -21,6 +21,7 @@ import OnlineMAPF.Solvers.I_OnlineSolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Solves online problems naively, by delegating to a standard offline solver, and solving a brand new offline problem

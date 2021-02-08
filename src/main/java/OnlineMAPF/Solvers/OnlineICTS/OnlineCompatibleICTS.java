@@ -11,6 +11,7 @@ import BasicCBS.Solvers.ICTS.HighLevel.ICT_NodeComparator;
 import BasicCBS.Solvers.ICTS.MDDs.I_MDDSearcherFactory;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * currently can't solve online problems as offline, since it does not consider arrival times.
