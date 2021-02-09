@@ -79,6 +79,10 @@ public class MDDNode {
         return depth;
     }
 
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
     public Agent getAgent() {
         return agent;
     }

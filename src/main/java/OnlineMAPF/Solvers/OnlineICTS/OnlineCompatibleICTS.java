@@ -10,18 +10,20 @@ import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicCBS.Solvers.ICTS.HighLevel.ICT_NodeComparator;
 import BasicCBS.Solvers.ICTS.MDDs.I_MDDSearcherFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /**
  * currently can't solve online problems as offline, since it does not consider arrival times.
+ * Makes {@link ICTS_Solver ICTS} compatible with online MAPf (agents disappearing at goal, appearing in private garage).
  */
 public class OnlineCompatibleICTS extends ICTS_Solver {
 
     /**
      * Custom locations to start the agents at.
      */
-    private Map<Agent, I_Location> customStartLocations;
+    protected Map<Agent, I_Location> customStartLocations;
     /**
      * A start time to use for all agents instead of their arrival times.
      */
@@ -39,7 +41,7 @@ public class OnlineCompatibleICTS extends ICTS_Solver {
             throw new IllegalArgumentException("Must use an online MergedMDDCreator.");
         // set searcher factory to online
         super.searcherFactory.setDefaultDisappearAtGoal(true);
-        this.customStartLocations = customStartLocations;
+        this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
         this.customStartTime = customStartTime;
     }
 

@@ -86,7 +86,7 @@ public class OnlineSolverContainer implements I_Solver {
         return onlineSolver.name();
     }
 
-    private void verifyAgentsUniqueId(List<Agent> agents) {
+    public static void verifyAgentsUniqueId(List<Agent> agents) {
         HashSet<Integer> ids = new HashSet<>(agents.size());
         for (Agent agent :
                 agents) {
@@ -133,7 +133,7 @@ public class OnlineSolverContainer implements I_Solver {
      * Cast agents to online agents. If they are regular Agents, create new OnlineAgents out of them with the default arrival time.
      * @param agents
      */
-    private static ArrayList<OnlineAgent> offlineToOnlineAgents(List<? extends Agent> agents) {
+    public static ArrayList<OnlineAgent> offlineToOnlineAgents(List<? extends Agent> agents) {
         ArrayList<OnlineAgent> onlineAgents = new ArrayList<>(agents.size());
         for (Agent a :
                 agents) {

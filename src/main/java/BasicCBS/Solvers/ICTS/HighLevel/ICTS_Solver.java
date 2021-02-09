@@ -16,12 +16,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.*;
 
 public class ICTS_Solver extends A_Solver {
-    private Set<ICT_Node> contentOfOpen;
-    private Queue<ICT_Node> openList;
+    protected Set<ICT_Node> contentOfOpen;
+    protected Queue<ICT_Node> openList;
     private ICT_NodeComparator comparator;
     protected I_MDDSearcherFactory searcherFactory;
     private I_MergedMDDSolver mergedMDDSolver;
-    private PruningStrategy pruningStrategy;
+    protected PruningStrategy pruningStrategy;
     protected MDDManager mddManager;
     protected DistanceTableAStarHeuristicICTS heuristicICTS;
     protected MAPF_Instance instance;
@@ -44,7 +44,7 @@ public class ICTS_Solver extends A_Solver {
         this.comparator = Objects.requireNonNullElse(comparator, new ICT_NodeSumOfCostsComparator());
         this.searcherFactory = Objects.requireNonNullElse(searcherFactory, new AStarFactory());
         this.mergedMDDSolver = Objects.requireNonNullElse(mergedMDDSolver, new IndependenceDetection_MergedMDDSolver(new DFS_MergedMDDSpaceSolver()));
-        this.pruningStrategy = Objects.requireNonNullElse(pruningStrategy, PruningStrategy.S2P);
+        this.pruningStrategy = Objects.requireNonNullElse(pruningStrategy, PruningStrategy.S3P);
         this.mergedMDDCreator = Objects.requireNonNullElseGet(mergedMDDCreator, BreadthFirstSearch_MergedMDDCreator::new);
     }
 
@@ -79,7 +79,7 @@ public class ICTS_Solver extends A_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        if (!initRoot(instance))
+        if (this.openList.isEmpty() && !initRoot(instance))
             return null;
 
         while (!openList.isEmpty() && !checkTimeout()) {
@@ -103,9 +103,8 @@ public class ICTS_Solver extends A_Solver {
                 if (mergedMDDSolution != null) {
                     //We found the goal!
                     updateExpandedAndGeneratedNum();
-//                    openList.add(current);
-//                    contentOfOpen.add(current);
-                    return mergedMDDSolution;
+                    // return the goal node
+                    return foundGoal(current, mergedMDDSolution);
                 }
             }
             if(!checkTimeout())
@@ -115,6 +114,10 @@ public class ICTS_Solver extends A_Solver {
         //Got here because of timeout
         updateExpandedAndGeneratedNum();
         return null;
+    }
+
+    protected Solution foundGoal(ICT_Node current, Solution mergedMDDSolution) {
+        return mergedMDDSolution;
     }
 
     private boolean tripletWiseGoalTest(Map<Agent, MDD> agentMdds, boolean unfoldMergedMdds) {
@@ -171,16 +174,16 @@ public class ICTS_Solver extends A_Solver {
     }
 
     private Map<Agent, MDD> getMDDs(MAPF_Instance instance, ICT_Node current) {
-        boolean isEnchancedPruning = this.pruningStrategy == PruningStrategy.E3P || this.pruningStrategy == PruningStrategy.E2P;
+        boolean isEnhancedPruning = this.pruningStrategy == PruningStrategy.E3P || this.pruningStrategy == PruningStrategy.E2P;
         Map<Agent, MDD> mddCopies = new HashMap<>(instance.agents.size());
         for (Agent a : instance.agents){
-            // get a fresh MDD if we are using enhanced pruning, and we won'y be copying it
-            MDD agentMDD = isEnchancedPruning && !this.copyMddsBeforeEnhancedPruning ?
+            // get a fresh MDD if we are using enhanced pruning, and we won't be copying it
+            MDD agentMDD = isEnhancedPruning && !this.copyMddsBeforeEnhancedPruning ?
                     this.getMDD(a, current.getCost(a), true) : this.getMDD(a, current.getCost(a), false);
             if (agentMDD == null)
                 return null;
             // copy the MDD if we are using enhanced pruning, and we are reusing existing MDDs from the mdd manager
-            mddCopies.put(a, isEnchancedPruning && this.copyMddsBeforeEnhancedPruning ? new MDD(agentMDD) : agentMDD);
+            mddCopies.put(a, isEnhancedPruning && this.copyMddsBeforeEnhancedPruning ? new MDD(agentMDD) : agentMDD);
         }
         return mddCopies;
     }

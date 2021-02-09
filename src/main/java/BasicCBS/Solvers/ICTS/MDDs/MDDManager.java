@@ -9,10 +9,10 @@ import java.util.Map;
 
 public class MDDManager {
 
-    final private Map<SourceTargetPair, Map<Integer, MDD>> mdds = new HashMap<>();
-    final private Map<SourceTargetPair, A_MDDSearcher> searchers = new HashMap<>();
+    public Map<SourceTargetAgent, Map<Integer, MDD>> mdds = new HashMap<>();
+    final private Map<SourceTargetAgent, A_MDDSearcher> searchers = new HashMap<>();
     final private I_MDDSearcherFactory searcherFactory;
-    final private SourceTargetPair keyDummy = new SourceTargetPair(null, null);
+    final public SourceTargetAgent keyDummy = new SourceTargetAgent(null, null, null);
     private ICTS_Solver highLevelSolver;
     private DistanceTableAStarHeuristicICTS heuristic; //todo replace?
     private int expandedLowLevelNodes;
@@ -25,14 +25,14 @@ public class MDDManager {
     }
 
     public MDD getMDD(I_Location source, I_Location target, Agent agent, int depth){
-        keyDummy.set(source, target);
+        keyDummy.set(source, target, agent);
         if(!mdds.containsKey(keyDummy)) {
-            SourceTargetPair sourceTargetPair = new SourceTargetPair(keyDummy);
-            mdds.put(sourceTargetPair, new HashMap<>());
+            SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
+            mdds.put(sourceTargetAgent, new HashMap<>());
         }
         if(!searchers.containsKey(keyDummy)) {
-            SourceTargetPair sourceTargetPair = new SourceTargetPair(keyDummy);
-            searchers.put(sourceTargetPair, searcherFactory.createSearcher(this.highLevelSolver, source, target, agent, heuristic));
+            SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
+            searchers.put(sourceTargetAgent, searcherFactory.createSearcher(this.highLevelSolver, source, target, agent, heuristic));
         }
 
         if(mdds.get(keyDummy).containsKey(depth)) {
@@ -73,40 +73,47 @@ public class MDDManager {
         return sum + this.generatedLowLevelNodes;
     }
 
-    private class SourceTargetPair {
+    public static class SourceTargetAgent {
         I_Location source;
         I_Location target;
+        Agent agent;
 
-        public SourceTargetPair(I_Location source, I_Location target) {
+        public SourceTargetAgent(I_Location source, I_Location target, Agent agent) {
             this.source = source;
             this.target = target;
+            this.agent = agent;
         }
 
-        public SourceTargetPair(SourceTargetPair other){
+        public SourceTargetAgent(SourceTargetAgent other){
             this.source = other.source;
             this.target = other.target;
+            this.agent = other.agent;
         }
 
-        public void set(I_Location source, I_Location target){
+        public SourceTargetAgent set(I_Location source, I_Location target, Agent agent){
             this.source = source;
             this.target = target;
+            this.agent = agent;
+            return this;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof SourceTargetAgent)) return false;
 
-            SourceTargetPair that = (SourceTargetPair) o;
+            SourceTargetAgent that = (SourceTargetAgent) o;
 
             if (!source.equals(that.source)) return false;
-            return target.equals(that.target);
+            if (!target.equals(that.target)) return false;
+            return agent.equals(that.agent);
         }
 
         @Override
         public int hashCode() {
             int result = source.hashCode();
             result = 31 * result + target.hashCode();
+            result = 31 * result + agent.hashCode();
             return result;
         }
     }

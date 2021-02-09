@@ -22,7 +22,7 @@ public class ReplanSingleGrouped extends OnlineCBSSolver {
     public Solution newArrivals(int time, List<? extends OnlineAgent> agents) {
         HashMap<Agent, I_Location> currentAgentLocations = new HashMap<>(agents.size());
         // new agents will start at their private garages.
-        addNewAgents(agents, currentAgentLocations);
+        addNewAgents(agents, currentAgentLocations, baseInstance);
 
         return solveForNewArrivals(time, currentAgentLocations);
     }

@@ -54,6 +54,55 @@ public class MDD {
         this.goal = copies.get(other.goal);
     }
 
+    /**
+     * Deep copy, with optional depth change.
+     * @param start a start node for this mdd
+     * @param goal a goal node for this mdd. all paths from start should lead to goal.
+     * @param zeroDepth if set to true, will re-set the depth of nodes so that start is 0, its neighbors are 1, etc.
+     */
+    public MDD(MDDNode start, MDDNode goal, boolean zeroDepth){
+        int depthDelta = start.getDepth();
+        // iterate over the mdd in BFS order
+        // we don't need a closed list since this is a DAG
+        // open will only contain nodes from other
+        Queue<MDDNode> open = new ArrayDeque<>();
+        // copies will only contain nodes from this (copies)
+        Map<MDDNode, MDDNode> copies = new HashMap<>();
+        this.start = new MDDNode(start);
+        open.add(start);
+        copies.put(this.start, this.start);
+        while (!open.isEmpty()){
+            MDDNode originalCurrentMddNode = open.remove();
+            // a copy has to exist already
+            MDDNode copyCurrentMddNode = copies.get(originalCurrentMddNode);
+            List<MDDNode> originalChildren = originalCurrentMddNode.getNeighbors();
+
+            for (MDDNode originalChild : originalChildren){
+                MDDNode childCopy;
+                // never saw this child before
+                if(!copies.containsKey(originalChild)) {
+                    // so we will have to expand it later
+                    open.add(originalChild);
+                    // copy the child. should only happen once because we check the contents of copies.
+                    childCopy = new MDDNode(originalChild);
+                    copies.put(childCopy, childCopy);
+                }
+                else{
+                    // this child has already been seen. we just have to get the copy we've already made
+                    childCopy = copies.get(originalChild);
+                }
+                copyCurrentMddNode.addNeighbor(childCopy);
+            }
+        }
+        this.goal = copies.get(goal);
+        // finally, update depth if it was requested
+        if (zeroDepth){
+            for (MDDNode node : copies.keySet()){
+                node.setDepth(node.getDepth() - depthDelta);
+            }
+        }
+    }
+
     private void initialize(MDDSearchNode goal){
         MDDNode mddGoal = new MDDNode(goal);
         Queue<MDDNode> currentLevel = new LinkedList<>();

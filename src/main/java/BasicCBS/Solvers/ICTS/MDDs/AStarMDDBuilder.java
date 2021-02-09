@@ -129,7 +129,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
         }
         contentOfOpen.clear();
         closeList.clear();
-        return new MDD(goal);
+        return goal == null ? null : new MDD(goal);
     }
 
     protected boolean isOpenEmpty() {

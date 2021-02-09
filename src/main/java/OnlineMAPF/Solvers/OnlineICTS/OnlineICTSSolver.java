@@ -106,7 +106,7 @@ public class OnlineICTSSolver implements I_OnlineSolver {
         return latestSolution;
     }
 
-    private void updateTimes(Solution latestSolution, int time) {
+    public static void updateTimes(Solution latestSolution, int time) {
         for (SingleAgentPlan plan:
              latestSolution) {
             List<Move> updatedMoves = new ArrayList<>();

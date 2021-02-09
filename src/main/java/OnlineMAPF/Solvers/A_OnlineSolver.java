@@ -55,16 +55,16 @@ public abstract class A_OnlineSolver implements I_OnlineSolver {
     public Solution newArrivals(int time, List<? extends OnlineAgent> agents) {
         HashMap<Agent, I_Location> currentAgentLocations = new HashMap<>(agents.size());
         // existing agents will start where the current solution had them at time
-        addExistingAgents(time, currentAgentLocations);
+        addExistingAgents(time, currentAgentLocations, this.latestSolution);
         // new agents will start at their private garages.
-        addNewAgents(agents, currentAgentLocations);
+        addNewAgents(agents, currentAgentLocations, this.baseInstance);
 
         return solveForNewArrivals(time, currentAgentLocations);
     }
 
     protected abstract Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations);
 
-    protected void addExistingAgents(int time, HashMap<Agent, I_Location> currentAgentLocations) {
+    public static void addExistingAgents(int time, HashMap<Agent, I_Location> currentAgentLocations, Solution latestSolution) {
         for (SingleAgentPlan plan :
                 latestSolution) {
             Agent agent = plan.agent;
@@ -76,7 +76,7 @@ public abstract class A_OnlineSolver implements I_OnlineSolver {
         }
     }
 
-    protected void addNewAgents(List<? extends OnlineAgent> agents, HashMap<Agent, I_Location> currentAgentLocations) {
+    public static void addNewAgents(List<? extends OnlineAgent> agents, HashMap<Agent, I_Location> currentAgentLocations, MAPF_Instance baseInstance) {
         for (OnlineAgent agent :
                 agents) {
             currentAgentLocations.put(agent, agent.getPrivateGarage(baseInstance.map.getMapCell(agent.source)));
