@@ -118,11 +118,11 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
     }
 
     protected Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations, RunParameters parameters, List<? extends OnlineAgent> newAgents) {
+        // The heuristic doesn't need updating, since super creates it for all agents in init. This isn't cheating because
+        // it takes the same amount of time that updating the heuristic every time a new agent arrives would have taken.
         super.customStartLocations = currentAgentLocations;
         MAPF_Instance subProblem = baseInstance.getSubproblemFor(currentAgentLocations.keySet());
         super.instance = subProblem; // so that super will be limited to just the current sub problem
-        // update the heuristic
-        getHeuristic(subProblem);
         // cut mdds to update them for all the existing agents' new positions
         int timeDelta = time - (this.latestSolution.size() == 0 ? 0 : this.latestSolution.iterator().next().getPlanStartTime());
         if (this.updateMDDsWhenTimeProgresses) this.updateMDDs(time, this.latestSolution, timeDelta);
