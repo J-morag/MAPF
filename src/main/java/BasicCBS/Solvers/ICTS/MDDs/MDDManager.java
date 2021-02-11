@@ -10,7 +10,7 @@ import java.util.Map;
 public class MDDManager {
 
     public Map<SourceTargetAgent, Map<Integer, MDD>> mdds = new HashMap<>();
-    final private Map<SourceTargetAgent, A_MDDSearcher> searchers = new HashMap<>();
+    public Map<SourceTargetAgent, A_MDDSearcher> searchers = new HashMap<>();
     final private I_MDDSearcherFactory searcherFactory;
     final public SourceTargetAgent keyDummy = new SourceTargetAgent(null, null, null);
     private ICTS_Solver highLevelSolver;
@@ -95,6 +95,10 @@ public class MDDManager {
             this.target = target;
             this.agent = agent;
             return this;
+        }
+
+        public Agent getAgent() {
+            return agent;
         }
 
         @Override

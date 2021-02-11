@@ -3,6 +3,7 @@ package BasicCBS.Solvers.ICTS.MergedMDDs;
 import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 public class MergedMDDSpaceNode {
     private static final Comparator<MDDNode> mddNodesOrderComparator = Comparator.comparingInt(mddNode -> mddNode.getAgent().iD);
-    private List<MDDNode> mddNodes;
+    private MDDNode[] mddNodes;
     private MergedMDDSpaceNode parent;
     private int depth;
     public List<FatherSonMDDNodePair> generatingMoves;
@@ -38,9 +39,9 @@ public class MergedMDDSpaceNode {
     }
 
     public void setMDDNodes(List<MDDNode> mddNodes){
-        this.mddNodes = mddNodes;
+        this.mddNodes = mddNodes.toArray(MDDNode[]::new);
         // we sort them so we can use them in more informed equals() and hashCode() functions.
-        this.mddNodes.sort(mddNodesOrderComparator);
+        Arrays.sort(this.mddNodes, mddNodesOrderComparator);
     }
 
     /**
@@ -52,7 +53,7 @@ public class MergedMDDSpaceNode {
         this.generatingMoves = generatingMoves;
     }
 
-    public List<MDDNode> getMddNodes() {
+    public MDDNode[] getMddNodes() {
         return mddNodes;
     }
 
@@ -63,25 +64,25 @@ public class MergedMDDSpaceNode {
 
         MergedMDDSpaceNode that = (MergedMDDSpaceNode) o;
 
-        if (depth != that.depth) return false;
-        return mddNodes.equals(that.mddNodes);
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        return Arrays.equals(mddNodes, that.mddNodes);
     }
 
+    @Override
     public int hashCode() {
-        return mddNodes.hashCode();
+        return Arrays.hashCode(mddNodes);
     }
 
     public int getDepth() {
-        return depth;
+        return this.depth;
     }
 
     /**
-     * Each list in this list is all moves that a single agent can make on their MDD from the mdd node that we have for
+     * @return Each list in this list is all moves that a single agent can make on their MDD from the mdd node that we have for
      * that agent in this current merged MDD node
-     * @return
      */
     public List<List<FatherSonMDDNodePair>> getFatherSonPairsLists() {
-        List<List<FatherSonMDDNodePair>> fatherSonPairs = new ArrayList<>(mddNodes.size());
+        List<List<FatherSonMDDNodePair>> fatherSonPairs = new ArrayList<>(mddNodes.length);
 
         for (MDDNode father : mddNodes) {
             List<MDDNode> currentChildren = father.getNeighbors();
@@ -103,10 +104,8 @@ public class MergedMDDSpaceNode {
 
     @Override
     public String toString() {
-        return "MergedMDDNode{" +
-                "mddNodes=" + mddNodes +
-                ", depth=" + depth +
+        return "MergedMDDSpaceNode{" +
+                "mddNodes=" + Arrays.toString(mddNodes) +
                 '}';
     }
-
 }
