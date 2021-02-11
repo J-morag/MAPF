@@ -7,6 +7,7 @@ import BasicCBS.Solvers.ICTS.HighLevel.ICT_Node;
 import BasicCBS.Solvers.ICTS.HighLevel.ICT_NodeComparator;
 import BasicCBS.Solvers.ICTS.MDDs.I_MDDSearcherFactory;
 import BasicCBS.Solvers.ICTS.MDDs.MDD;
+import BasicCBS.Solvers.ICTS.MDDs.MDDManager;
 import BasicCBS.Solvers.ICTS.MDDs.MDDManager.SourceTargetAgent;
 import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDCreator;
@@ -37,6 +38,8 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
      * away old MDDs instead of letting them accumulate in {@link #mddManager}.
      */
     public boolean updateMDDsWhenTimeProgresses = true;
+    public boolean keepOnlyRelevantUpdatedMDDs = true;
+    protected Map<Agent, Set<Integer>> stillRelevantMDDs;
 
     public OnlineLifelongICTS(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
                               PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator, Map<Agent, I_Location> customStartLocations,
@@ -125,70 +128,15 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         super.instance = subProblem; // so that super will be limited to just the current sub problem
         // cut mdds to update them for all the existing agents' new positions
         int timeDelta = time - (this.latestSolution.size() == 0 ? 0 : this.latestSolution.iterator().next().getPlanStartTime());
-        if (this.updateMDDsWhenTimeProgresses) this.updateMDDs(time, this.latestSolution, timeDelta);
+//        updateAllMDDs(time, this.latestSolution, timeDelta);
         // update the open list with new prices
-        this.updateOpen(newAgents, timeDelta,this.latestSolution, time);
+        updateOpen(newAgents, timeDelta,this.latestSolution, time);
         latestSolution = super.runAlgorithm(subProblem, parameters);
         if (latestSolution != null){
             // the ICTS solver assumes everyone starts at 0
             OnlineICTSSolver.updateTimes(latestSolution, time);
         }
         return latestSolution;
-    }
-
-    /**
-     * Attempts to cut existing MDDs to the new time - the sub-MDD stretching from the node representing the agent's new
-     * position (the position the agent progressed to  at the current time), by following the agent's plan in the lates
-     * solution. If the plan that was chosen for the agent isn't represented by an MDD, that is normal, and we simply
-     * skip it.
-     * @param time the current time of the problem.
-     * @param latestSolution the latest solution that the agents have been following up to this time.
-     * @param timeDelta the amount of time that has passed since starting the latest solution.
-     */
-    private void updateMDDs(int time, Solution latestSolution, int timeDelta) {
-        Map<SourceTargetAgent, Map<Integer, MDD>> mdds = super.mddManager.mdds;
-        Map<SourceTargetAgent, Map<Integer, MDD>> newMdds = new HashMap<>();
-        for (SingleAgentPlan plan : latestSolution){
-            if(plan.getEndTime() > time){ // agent is still around
-                // Take the current MDDs we have for the agent, cut them to the sub-MDD that stretches from the agent's new
-                // position.
-                I_Location originalLocation = plan.moveAt(plan.getFirstMoveTime()).prevLocation;
-                I_Location currentLocation = plan.moveAt(time).currLocation;
-                Agent agent = plan.agent;
-
-                Map<Integer, MDD> originalAgentMDDs = mdds.get(mddManager.keyDummy.set(originalLocation, getTarget(agent), agent));
-                // add a map for MDDs for the agent's new position
-                Map<Integer, MDD> newAgentMDDs = new HashMap<>();
-
-                for (int depth : originalAgentMDDs.keySet()){
-                    // cut mdds according to current position of every agent (if possible!)
-                    MDDNode currentMDDNode = originalAgentMDDs.get(depth).getStart();
-                    // follow the plan that the agent followed, until the time we are at, meanwhile going down the MDD
-                    // along the correct branch (if it exists)
-                    for (int i = plan.getFirstMoveTime(); i <= time ; i++){
-                        Move move = plan.moveAt(i);
-                        MDDNode nextMDDNode = null;
-                        for (MDDNode childNode : currentMDDNode.getNeighbors()){
-                            if (move.currLocation.equals(childNode.getLocation())){
-                                nextMDDNode = childNode;
-                            }
-                        }
-                        currentMDDNode = nextMDDNode;
-                        if (nextMDDNode == null){
-                            // this means there is no MDD of the appropriate depth from the agent's new position to its goal
-                            break;
-                        }
-                    }
-                    if (currentMDDNode != null){
-                        // managed to cut the mdd
-                        // new depth is old depth minus the amount of time that has passed
-                        newAgentMDDs.put(depth - timeDelta, new MDD(currentMDDNode, originalAgentMDDs.get(depth).getGoal(), true));
-                    }
-                }
-                newMdds.put(new SourceTargetAgent(currentLocation, getTarget(agent), agent), newAgentMDDs);
-            }
-        }
-        this.mddManager.mdds = newMdds;
     }
 
     /**
@@ -205,9 +153,19 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         // must create new data structures, because they will not re-index/sort elements after an internal change in the element.
         Set<ICT_Node> newContentOfOpen = new HashSet<>();
         Queue<ICT_Node> newOpenList = createOpenList();
+        Map<SourceTargetAgent, Map<Integer, MDD>> oldMdds = mddManager.mdds;
+        Map<SourceTargetAgent, Map<Integer, MDD>> newMdds;
+        if (updateMDDsWhenTimeProgresses && !keepOnlyRelevantUpdatedMDDs){
+            updateAllMDDs(time, latestSolution, timeDelta);
+            newMdds = oldMdds;
+        }
+        else{
+            this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
+            newMdds = mddManager.mdds;
+        }
         for (ICT_Node node : this.openList){
             // update the node: reduce costs by the amount of time that has passed, remove agents who left, add new agents.
-            ICT_Node newNode = getUpdatedNode(node, newAgents, timeDelta, latestSolution, time);
+            ICT_Node newNode = getUpdatedNode(node, newAgents, timeDelta, latestSolution, time, newMdds, oldMdds);
 
             if (newNode != null && // node could have impossible costs, in which case it can be removed
                     !newContentOfOpen.contains(newNode)){ // in this way, we also remove all the duplicates that we may be left with after updating ICT nodes.
@@ -215,11 +173,14 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
                 newOpenList.add(newNode);
             }
         }
+//        if (!updateMDDsWhenTimeProgresses || keepOnlyRelevantUpdatedMDDs) this.mddManager.mdds = newMdds;
         this.openList = newOpenList;
         this.contentOfOpen = newContentOfOpen;
     }
 
-    private ICT_Node getUpdatedNode(ICT_Node node, List<? extends OnlineAgent> newAgents, int timeDelta, Solution latestSolution, int time) {
+    private ICT_Node getUpdatedNode(ICT_Node node, List<? extends OnlineAgent> newAgents, int timeDelta, Solution latestSolution,
+                                    int time, Map<SourceTargetAgent, Map<Integer, MDD>> newMdds, Map<SourceTargetAgent,
+                                    Map<Integer, MDD>> oldMdds) {
         // reuse the data structure from the original node
         Map<Agent, Integer> agentCosts = node.agentCosts;
         Iterator<Map.Entry<Agent,Integer>> agentCostsIter = agentCosts.entrySet().iterator();
@@ -233,12 +194,19 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
                 // reduce cost by the amount of time that has passed
                 int newCost = agentCosts.get(a) - timeDelta;
                 // check that the new cost is possible
-                if (getMDD(a, newCost, false) == null){
+                SingleAgentPlan agentPlan = latestSolution.getPlanFor(a);
+                if (Math.floor(heuristicICTS.getHForAgentAndCurrentLocation(a, agentPlan.moveAt(time).currLocation)) > newCost){
                     // abandon node because it has an impossible cost
                     return null;
                 }
                 else{
                     agentCosts.put(a, newCost);
+                    // when we see we have demand in open for a certain mdd for an agent, we will try to cut it from
+                    // existing mdds
+                    if (updateMDDsWhenTimeProgresses && keepOnlyRelevantUpdatedMDDs && latestSolution.size() > 0 // not first iteration
+                            && agentPlan.getEndTime() > time) { // agent is still around
+                        updateMDD(time, newCost, agentPlan, oldMdds, newMdds, agentCosts.get(a));
+                    }
                 }
             }
         }
@@ -250,6 +218,104 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         node.setAgentCost(agentCosts);
         return node;
     }
+
+    /**
+     * Attempts to cut existing MDDs to the new time - the sub-MDD stretching from the node representing the agent's new
+     * position (the position the agent progressed to  at the current time), by following the agent's plan in the lates
+     * solution. If the plan that was chosen for the agent isn't represented by an MDD, that is normal, and we simply
+     * skip it.
+     * @param time the current time of the problem.
+     * @param latestSolution the latest solution that the agents have been following up to this time.
+     * @param timeDelta the amount of time that has passed since starting the latest solution.
+     */
+    private void updateAllMDDs(int time, Solution latestSolution, int timeDelta) {
+        if (updateMDDsWhenTimeProgresses && !keepOnlyRelevantUpdatedMDDs){
+            Map<SourceTargetAgent, Map<Integer, MDD>> mdds = super.mddManager.mdds;
+            Map<SourceTargetAgent, Map<Integer, MDD>> newMdds = new HashMap<>();
+            for (SingleAgentPlan plan : latestSolution){
+                if(plan.getEndTime() > time){ // agent is still around
+                    updateAgentMDDs(time, timeDelta, mdds, newMdds, plan);
+                }
+            }
+            this.mddManager.mdds = newMdds;
+            mddManager.searchers.clear();
+        }
+    }
+
+    private void updateAgentMDDs(int time, int timeDelta, Map<SourceTargetAgent, Map<Integer, MDD>> mdds, Map<SourceTargetAgent, Map<Integer, MDD>> newMdds, SingleAgentPlan plan) {
+        // Take the current MDDs we have for the agent, cut them to the sub-MDD that stretches from the agent's new
+        // position.
+        I_Location originalLocation = plan.moveAt(plan.getFirstMoveTime()).prevLocation;
+        Agent agent = plan.agent;
+        // get the current MDDs for the agent, and then remove from the mdd manager, so that we don't consume
+        // double the memory for a short while
+        Map<Integer, MDD> originalAgentMDDs = mdds.get(mddManager.keyDummy.set(originalLocation, getTarget(agent), agent));
+        for (int depth : originalAgentMDDs.keySet()){
+            updateMDD(time, depth - timeDelta, plan, mdds, newMdds, depth);
+        }
+    }
+
+    private void updateMDD(int time, int newDepth, SingleAgentPlan plan, Map<SourceTargetAgent, Map<Integer, MDD>> mdds,
+                           Map<SourceTargetAgent, Map<Integer, MDD>> newMdds, int originalDepth) {
+
+        // Take the current MDDs we have for the agent, cut them to the sub-MDD that stretches from the agent's new
+        // position.
+        I_Location originalLocation = plan.moveAt(plan.getFirstMoveTime()).prevLocation;
+        I_Location currentLocation = plan.moveAt(time).currLocation;
+        Agent agent = plan.agent;
+
+        // if we didn't already compute an mdd for the original depth, there is no mdd to cut
+        Map<Integer, MDD> originalAgentMDDs = mdds.get(mddManager.keyDummy.set(originalLocation, getTarget(agent), agent));
+        if (!originalAgentMDDs.containsKey(originalDepth)){
+            return;
+        }
+
+        // if we already have an mdd in the new MDDManager, we don't need to cut one from the old
+        SourceTargetAgent key = new SourceTargetAgent(currentLocation, getTarget(agent), agent);
+        newMdds.computeIfAbsent(key, sourceTargetAgent -> new HashMap<>());
+        Map<Integer, MDD> newAgentMDDs = newMdds.get(key);
+        if (newAgentMDDs.containsKey(newDepth)){
+            return;
+        }
+
+        // cut mdds according to current position of agent (if possible!)
+        MDDNode currentMDDNode = originalAgentMDDs.get(originalDepth).getStart();
+        // follow the plan that the agent followed, until the time we are at, meanwhile going down the MDD
+        // along the correct branch (if it exists)
+        for (int i = plan.getFirstMoveTime(); i <= time ; i++){
+            Move move = plan.moveAt(i);
+            MDDNode nextMDDNode = null;
+            for (MDDNode childNode : currentMDDNode.getNeighbors()){
+                if (move.currLocation.equals(childNode.getLocation())){
+                    nextMDDNode = childNode;
+                }
+            }
+            currentMDDNode = nextMDDNode;
+            if (nextMDDNode == null){
+                // this means there is no MDD of the appropriate depth from the agent's new position to its goal
+                break;
+            }
+        }
+        if (currentMDDNode != null){
+            // managed to cut the mdd
+            // new depth is old depth minus the amount of time that has passed
+            newAgentMDDs.put(newDepth, new MDD(currentMDDNode, originalAgentMDDs.get(originalDepth).getGoal(), true));
+        }
+    }
+//
+//    /**
+//     * Should we decide to update MDDs when time progresses, we can choose to keep only the ones needed by nodes in open,
+//     * rather than all MDDs we have.
+//     */
+//    private void keepOnlyRelevantMDDs() {
+//        if (updateMDDsWhenTimeProgresses && keepOnlyRelevantUpdatedMDDs){
+//            for (SourceTargetAgent key : this.mddManager.mdds.keySet()){
+//                // only keep mdds that represent a cost that exists in open
+//                this.mddManager.mdds.get(key).keySet().removeIf(depth -> this.stillRelevantMDDs.get(key.getAgent()).contains(depth));
+//            }
+//            this.stillRelevantMDDs = null;
+//        }
+//    }
 
     /**
      * Put the goal back into open because we may want to resume search when new agents arrive.
