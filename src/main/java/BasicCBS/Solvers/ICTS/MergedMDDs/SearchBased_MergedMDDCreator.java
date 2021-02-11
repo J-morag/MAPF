@@ -73,12 +73,18 @@ public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver,
 //            if (expandedLowLevelNodes % 100000 == 0 ) System.out.println(expandedLowLevelNodes);
             if (isGoal(current)) {
                 mergedMDD.setGoal(current);
+                releaseMemory();
                 return mergedMDD;
             }
             expand(current);
         }
 
+        releaseMemory();
         return null;
+    }
+
+    protected void releaseMemory(){
+        contentOfOpen = null;
     }
 
     protected boolean isValidCombination(List<FatherSonMDDNodePair> currentCombination) {

@@ -60,12 +60,14 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
             MergedMDDSpaceNode current = this.openList.pop();
             if (!closedList.contains(current) && isValidNode(current)){
                 if (isGoal(current)) {
+                    releaseMemory();
                     return this.getSolution(current);
                 }
                 expand(current);
             }
         }
 
+        releaseMemory();
         return null;
     }
 
@@ -227,6 +229,12 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
 
         return solution;
     }
+
+    protected void releaseMemory() {
+        openList = null;
+        closedList = null;
+    }
+
 
     @Override
     public int getExpandedLowLevelNodesNum() {
