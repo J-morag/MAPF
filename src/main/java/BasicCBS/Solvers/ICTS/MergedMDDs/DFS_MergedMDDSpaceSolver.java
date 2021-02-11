@@ -58,7 +58,9 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         // search the state space of the merged MDD (merger of all individual MDDs together)
         while (!openList.isEmpty() && !highLevelSolver.reachedTimeout()) {
             MergedMDDSpaceNode current = this.openList.pop();
-            if (!closedList.contains(current) && isValidNode(current)){
+            if (!closedList.contains(current)
+                    && isValidNode(current)
+            ){
                 if (isGoal(current)) {
                     releaseMemory();
                     return this.getSolution(current);
@@ -106,28 +108,6 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         return true;
     }
 
-//    protected static boolean isValidCombination(List<FatherSonMDDNodePair> currentCombination, Set<I_Location> allParentLocations) {
-//        HashMap<I_Location, FatherSonMDDNodePair> childLocations = new HashMap<>(currentCombination.size());
-//        for (FatherSonMDDNodePair pair : currentCombination){
-//            childLocations.put(pair.getSon().getLocation(), pair);
-//        }
-//        if (childLocations.size() < currentCombination.size()){
-//            // there is a vertex conflict somewhere
-//            return false;
-//        }
-//        for (FatherSonMDDNodePair pair : currentCombination){
-//            if (allParentLocations.contains(pair.getSon().getLocation())
-//                    && childLocations.containsKey(pair.getFather().getLocation())){
-//                // suspected swapping conflict
-//                FatherSonMDDNodePair otherPair = childLocations.get(pair.getFather().getLocation());
-//                if (otherPair.getFather().sameLocation(pair.getSon())){
-//                    return false;
-//                }
-//            }
-//        }
-//
-//        return true;
-//    }
 
     protected void expand(MergedMDDSpaceNode current) {
         this.expandedLowLevelNodes++;
@@ -145,7 +125,6 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
 //        }
     }
 
-
     protected List<MergedMDDSpaceNode> getChildren(MergedMDDSpaceNode current) {
         // get cartesian product (all combinations of moves from each mdd in the mergedMDD node).
         List<List<FatherSonMDDNodePair>> fatherSonPairLists = current.getFatherSonPairsLists();
@@ -162,8 +141,6 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         }
         // copy to new list because cartesianProduct returns UnmodifiableList
         List<List<FatherSonMDDNodePair>> fatherSonPairCartesianProduct = new ArrayList<>(Lists.cartesianProduct(fatherSonPairLists));
-        // validation postponed to when a node is polled from open
-//        fatherSonPairCartesianProduct.removeIf(l -> !isValidCombination(l));
         // turn into new merged mdd search-space nodes
         List<MergedMDDSpaceNode> children = new ArrayList<>(fatherSonPairCartesianProduct.size());
         for (List<FatherSonMDDNodePair> fatherSonPairCombination : fatherSonPairCartesianProduct){
@@ -172,8 +149,11 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
                 mddNodes.add(move.getSon());
             }
             MergedMDDSpaceNode child = getMergedMDDNode(current, current.getDepth() + 1, mddNodes);
-            child.setGeneratingMovesForLaterVerification(fatherSonPairCombination);
-            children.add(child);
+            // try to avoid any validation we can, because it is expensive
+//            if (!closedList.contains(child) && isValidCombination(fatherSonPairCombination)){
+                child.setGeneratingMovesForLaterVerification(fatherSonPairCombination);
+                children.add(child);
+//            }
         }
         return children;
     }
@@ -183,6 +163,7 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
     }
 
     protected void addToClosed(MergedMDDSpaceNode node){
+        node.setGeneratingMovesForLaterVerification(null);
         closedList.add(node);
     }
 
