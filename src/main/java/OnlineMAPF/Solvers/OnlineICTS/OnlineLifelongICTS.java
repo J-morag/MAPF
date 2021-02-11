@@ -104,7 +104,7 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
      * copied from {@link OnlineMAPF.Solvers.A_OnlineSolver}.
      * @param time {@inheritDoc}
      * @param agents {@inheritDoc}
-     * @param parameters
+     * @param parameters {@inheritDoc}
      * @return {@inheritDoc}
      */
     protected Solution newArrivals(int time, List<? extends OnlineAgent> agents, RunParameters parameters) {
@@ -249,11 +249,6 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         // must use setter, even though we stole the internal data structure.
         node.setAgentCost(agentCosts);
         return node;
-    }
-
-    @Override
-    protected void releaseMemory() {
-        // do nothing
     }
 
     /**
