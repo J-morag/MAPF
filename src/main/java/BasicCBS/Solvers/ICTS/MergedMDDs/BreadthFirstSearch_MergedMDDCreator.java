@@ -59,6 +59,13 @@ public class BreadthFirstSearch_MergedMDDCreator extends SearchBased_MergedMDDCr
         return next;
     }
 
+    @Override
+    protected void releaseMemory() {
+        super.releaseMemory();
+        openList = null;
+        closedList = null;
+    }
+
     /**
      * Can override this method to create your own search based Factory
      *

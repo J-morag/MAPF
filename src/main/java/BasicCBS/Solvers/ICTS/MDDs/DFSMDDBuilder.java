@@ -6,7 +6,7 @@ import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 import java.util.Stack;
 
-public class DFS extends AStarMDDBuilder {
+public class DFSMDDBuilder extends AStarMDDBuilder {
     private Stack<MDDSearchNode> openList;
     /**
      * Constructor for the AStar searcher
@@ -14,7 +14,7 @@ public class DFS extends AStarMDDBuilder {
      * @param highLevelSearcher
      * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public DFS(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
+    public DFSMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
         super(highLevelSearcher, source, target, agent, heuristic);
     }
     /**
@@ -23,8 +23,8 @@ public class DFS extends AStarMDDBuilder {
      * @param highLevelSearcher
      * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public DFS(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent,
-               DistanceTableAStarHeuristicICTS heuristic, boolean disappearAtGoal) {
+    public DFSMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent,
+                         DistanceTableAStarHeuristicICTS heuristic, boolean disappearAtGoal) {
         super(highLevelSearcher, source, target, agent, heuristic, disappearAtGoal);
     }
 

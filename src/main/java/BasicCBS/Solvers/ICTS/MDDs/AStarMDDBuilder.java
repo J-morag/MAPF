@@ -127,9 +127,14 @@ public class AStarMDDBuilder extends A_MDDSearcher {
             // Don't do else here, because we want to add the sons of current to the open list for later
             expand(current);
         }
-        contentOfOpen.clear();
-        closeList.clear();
+        releaseMemory();
         return goal == null ? null : new MDD(goal);
+    }
+
+    protected void releaseMemory() {
+        this.contentOfOpen = null;
+        this.closeList = null;
+        this.openList = null;
     }
 
     protected boolean isOpenEmpty() {
