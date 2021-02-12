@@ -151,7 +151,6 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
     private void updateOpen(List<? extends OnlineAgent> newAgents, int timeDelta, Solution latestSolution, int time) {
         // must create new data structures, because they will not re-index/sort elements after an internal change in the element.
         Set<ICT_Node> newContentOfOpen = new HashSet<>();
-        Queue<ICT_Node> newOpenList = createOpenList();
         Map<SourceTargetAgent, Map<Integer, MDD>> oldMdds = mddManager.mdds;
 
         if (updateMDDsWhenTimeProgresses && !keepOnlyRelevantUpdatedMDDs){
@@ -164,19 +163,56 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         }
         Map<SourceTargetAgent, Map<Integer, MDD>> newMdds = mddManager.mdds;
 
-        for (ICT_Node node : this.openList){
-            // update the node: reduce costs by the amount of time that has passed, remove agents who left, add new agents.
-            ICT_Node newNode = getUpdatedNode(node, newAgents, timeDelta, latestSolution, time, newMdds, oldMdds);
+        // this following segment iterates three times, in order to carefully updates existing open, avoiding O(nlogn)
+        // runtime of creating new open
 
-            if (newNode != null && // node could have impossible costs, in which case it can be removed
-                    !newContentOfOpen.contains(newNode)){ // in this way, we also remove all the duplicates that we may be left with after updating ICT nodes.
-                newContentOfOpen.add(newNode);
-                newOpenList.add(newNode);
+        Iterator<ICT_Node> openListIter = openList.iterator();
+        // remove all impossible nodes. should do this before changing updating agent costs since that affects the comparator
+        while (openListIter.hasNext()){ //TODO maybe collect them and then use removeAll?
+            if (!isValidUpdatedCosts(openListIter.next(), time, timeDelta, latestSolution)){
+                // node could have impossible costs, in which case it can be removed
+                // hopefully this happens at O(logn), and not O(nlogn)
+                openListIter.remove();
             }
         }
-
-        this.openList = newOpenList;
+        // update all nodes
+        openListIter = openList.iterator();
+        while (openListIter.hasNext()){
+            // this updates the node. Should'nt trigger re-sorting of open.
+            getUpdatedNode(openListIter.next(), newAgents, timeDelta, latestSolution, time, newMdds, oldMdds);
+        }
+        // remove duplicate nodes
+        openListIter = openList.iterator();
+        while (openListIter.hasNext()){
+            ICT_Node node = openListIter.next();
+            if (newContentOfOpen.contains(node)){
+                openListIter.remove();
+            }
+            else{
+                newContentOfOpen.add(node);
+            }
+        }
         this.contentOfOpen = newContentOfOpen;
+    }
+
+    private boolean isValidUpdatedCosts(ICT_Node node, int time, int timeDelta, Solution latestSolution) {
+        // reuse the data structure from the original node
+        Map<Agent, Integer> agentCosts = node.agentCosts;
+        for (Map.Entry<Agent, Integer> agentIntegerEntry : agentCosts.entrySet()) {
+            Agent a = agentIntegerEntry.getKey();
+            if (latestSolution.getPlanFor(a).getEndTime() > time) { // agent is still here
+                // reduce cost by the amount of time that has passed
+                int newCost = agentCosts.get(a) - timeDelta;
+                // check that the new cost is possible
+                SingleAgentPlan agentPlan = latestSolution.getPlanFor(a);
+                if (Math.floor(heuristicICTS.getHForAgentAndCurrentLocation(a, agentPlan.moveAt(time).currLocation)) > newCost) {
+                    // abandon node because it has an impossible cost
+                    return false;
+                }
+
+            }
+        }
+        return true;
     }
 
     private ICT_Node getUpdatedNode(ICT_Node node, List<? extends OnlineAgent> newAgents, int timeDelta, Solution latestSolution,
