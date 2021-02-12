@@ -39,7 +39,6 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
      */
     public boolean updateMDDsWhenTimeProgresses = true;
     public boolean keepOnlyRelevantUpdatedMDDs = true;
-    protected Map<Agent, Set<Integer>> stillRelevantMDDs;
 
     public OnlineLifelongICTS(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
                               PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator, Map<Agent, I_Location> customStartLocations,
@@ -154,15 +153,17 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         Set<ICT_Node> newContentOfOpen = new HashSet<>();
         Queue<ICT_Node> newOpenList = createOpenList();
         Map<SourceTargetAgent, Map<Integer, MDD>> oldMdds = mddManager.mdds;
-        Map<SourceTargetAgent, Map<Integer, MDD>> newMdds;
+
         if (updateMDDsWhenTimeProgresses && !keepOnlyRelevantUpdatedMDDs){
+            // wil replace the mdds data structure in mddManager with a new one with updated mdds
             updateAllMDDs(time, latestSolution, timeDelta);
-            newMdds = oldMdds;
         }
         else{
+            // will throw away the old mdd manager and its mdds
             this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
-            newMdds = mddManager.mdds;
         }
+        Map<SourceTargetAgent, Map<Integer, MDD>> newMdds = mddManager.mdds;
+
         for (ICT_Node node : this.openList){
             // update the node: reduce costs by the amount of time that has passed, remove agents who left, add new agents.
             ICT_Node newNode = getUpdatedNode(node, newAgents, timeDelta, latestSolution, time, newMdds, oldMdds);
@@ -173,7 +174,7 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
                 newOpenList.add(newNode);
             }
         }
-//        if (!updateMDDsWhenTimeProgresses || keepOnlyRelevantUpdatedMDDs) this.mddManager.mdds = newMdds;
+
         this.openList = newOpenList;
         this.contentOfOpen = newContentOfOpen;
     }
@@ -203,8 +204,8 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
                     agentCosts.put(a, newCost);
                     // when we see we have demand in open for a certain mdd for an agent, we will try to cut it from
                     // existing mdds
-                    if (updateMDDsWhenTimeProgresses && keepOnlyRelevantUpdatedMDDs && latestSolution.size() > 0 // not first iteration
-                            && agentPlan.getEndTime() > time) { // agent is still around
+                    if (updateMDDsWhenTimeProgresses && keepOnlyRelevantUpdatedMDDs
+                            && latestSolution.size() > 0 ) {// not first iteration
                         updateMDD(time, newCost, agentPlan, oldMdds, newMdds, agentCosts.get(a));
                     }
                 }
@@ -230,6 +231,7 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
      */
     private void updateAllMDDs(int time, Solution latestSolution, int timeDelta) {
         if (updateMDDsWhenTimeProgresses && !keepOnlyRelevantUpdatedMDDs){
+            mddManager.searchers.clear();
             Map<SourceTargetAgent, Map<Integer, MDD>> mdds = super.mddManager.mdds;
             Map<SourceTargetAgent, Map<Integer, MDD>> newMdds = new HashMap<>();
             for (SingleAgentPlan plan : latestSolution){
@@ -238,7 +240,6 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
                 }
             }
             this.mddManager.mdds = newMdds;
-            mddManager.searchers.clear();
         }
     }
 
