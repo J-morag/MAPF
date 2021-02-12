@@ -351,11 +351,53 @@ class OnlineLifelongICTSTest {
     }
 
     @Test
-    void biggerInstancesFromDiskBGU() {
+    void biggerInstancesFromDiskBGU_noUpdateMDDs() {
+        InstanceManager im_BGU = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online"}),
+                builder, new InstanceProperties());
+        OnlineLifelongICTS onlineLifelongICTS = new OnlineLifelongICTS();
+        onlineLifelongICTS.updateMDDsWhenTimeProgresses = false;
         MAPF_Instance testInstance = null;
         while((testInstance = im_BGU.getNextInstance()) != null){
             System.out.println("------------ solving " + testInstance.name);
-            Solution solved = solver.solve(testInstance, new RunParameters(30*1000, null, instanceReport, null));
+            Solution solved = onlineLifelongICTS.solve(testInstance, new RunParameters(30*1000, null, instanceReport, null));
+
+            if (solved != null){
+                assertTrue(solved.solves(testInstance));
+                System.out.println(solved.readableToString());
+            }
+        }
+    }
+
+    @Test
+    void biggerInstancesFromDiskBGU_updateMDDsNoOnlyRelevant() {
+        InstanceManager im_BGU = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online"}),
+                builder, new InstanceProperties());
+        OnlineLifelongICTS onlineLifelongICTS = new OnlineLifelongICTS();
+        onlineLifelongICTS.updateMDDsWhenTimeProgresses = true;
+        onlineLifelongICTS.keepOnlyRelevantUpdatedMDDs = false;
+        MAPF_Instance testInstance = null;
+        while((testInstance = im_BGU.getNextInstance()) != null){
+            System.out.println("------------ solving " + testInstance.name);
+            Solution solved = onlineLifelongICTS.solve(testInstance, new RunParameters(30*1000, null, instanceReport, null));
+
+            if (solved != null){
+                assertTrue(solved.solves(testInstance));
+                System.out.println(solved.readableToString());
+            }
+        }
+    }
+
+    @Test
+    void biggerInstancesFromDiskBGU_updateMDDsOnlyRelevant() {
+        InstanceManager im_BGU = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online"}),
+                builder, new InstanceProperties());
+        OnlineLifelongICTS onlineLifelongICTS = new OnlineLifelongICTS();
+        onlineLifelongICTS.updateMDDsWhenTimeProgresses = true;
+        onlineLifelongICTS.keepOnlyRelevantUpdatedMDDs = true;
+        MAPF_Instance testInstance = null;
+        while((testInstance = im_BGU.getNextInstance()) != null){
+            System.out.println("------------ solving " + testInstance.name);
+            Solution solved = onlineLifelongICTS.solve(testInstance, new RunParameters(30*1000, null, instanceReport, null));
 
             if (solved != null){
                 assertTrue(solved.solves(testInstance));
