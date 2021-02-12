@@ -300,23 +300,9 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         if (currentMDDNode != null){
             // managed to cut the mdd
             // new depth is old depth minus the amount of time that has passed
-            newAgentMDDs.put(newDepth, new MDD(currentMDDNode, originalAgentMDDs.get(originalDepth).getGoal(), true));
+            newAgentMDDs.put(newDepth, originalAgentMDDs.get(originalDepth).changeStartNode(currentMDDNode));
         }
     }
-//
-//    /**
-//     * Should we decide to update MDDs when time progresses, we can choose to keep only the ones needed by nodes in open,
-//     * rather than all MDDs we have.
-//     */
-//    private void keepOnlyRelevantMDDs() {
-//        if (updateMDDsWhenTimeProgresses && keepOnlyRelevantUpdatedMDDs){
-//            for (SourceTargetAgent key : this.mddManager.mdds.keySet()){
-//                // only keep mdds that represent a cost that exists in open
-//                this.mddManager.mdds.get(key).keySet().removeIf(depth -> this.stillRelevantMDDs.get(key.getAgent()).contains(depth));
-//            }
-//            this.stillRelevantMDDs = null;
-//        }
-//    }
 
     /**
      * Put the goal back into open because we may want to resume search when new agents arrive.

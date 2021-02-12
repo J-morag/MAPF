@@ -11,12 +11,14 @@ public class MDDNode {
     private I_Location location;
     private int depth;
     private Agent agent;
+    private MDD containingMDD;
 
-    public MDDNode(MDDSearchNode current) {
+    public MDDNode(MDDSearchNode current, MDD containingMDD) {
         neighbors = new ArrayList<>(5); // 5 because typically we can move in 4 directions, or stay
         this.location = current.getLocation();
         this.depth = current.getG();
         this.agent = current.getAgent();
+        this.containingMDD = containingMDD;
     }
 
     /**
@@ -28,6 +30,7 @@ public class MDDNode {
         this.location = other.location;
         this.depth = other.depth;
         this.agent = other.agent;
+        this.containingMDD = other.containingMDD;
     }
 
     public void addNeighbor(MDDNode neighbor){
@@ -76,7 +79,7 @@ public class MDDNode {
     }
 
     public int getDepth() {
-        return depth;
+        return depth + containingMDD.depthOffset;
     }
 
     public void setDepth(int depth) {
