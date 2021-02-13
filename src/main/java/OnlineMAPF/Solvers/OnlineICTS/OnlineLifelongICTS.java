@@ -38,7 +38,7 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
      * away old MDDs instead of letting them accumulate in {@link #mddManager}.
      */
     public boolean updateMDDsWhenTimeProgresses = true;
-    public boolean keepOnlyRelevantUpdatedMDDs = true;
+    public boolean keepOnlyRelevantUpdatedMDDs = false;
 
     public OnlineLifelongICTS(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
                               PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator, Map<Agent, I_Location> customStartLocations,
