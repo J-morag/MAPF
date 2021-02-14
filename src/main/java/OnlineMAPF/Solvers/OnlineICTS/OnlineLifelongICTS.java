@@ -5,11 +5,8 @@ import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.ICTS.HighLevel.ICT_Node;
 import BasicCBS.Solvers.ICTS.HighLevel.ICT_NodeComparator;
-import BasicCBS.Solvers.ICTS.MDDs.I_MDDSearcherFactory;
-import BasicCBS.Solvers.ICTS.MDDs.MDD;
-import BasicCBS.Solvers.ICTS.MDDs.MDDManager;
+import BasicCBS.Solvers.ICTS.MDDs.*;
 import BasicCBS.Solvers.ICTS.MDDs.MDDManager.SourceTargetAgent;
-import BasicCBS.Solvers.ICTS.MDDs.MDDNode;
 import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDCreator;
 import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDSolver;
 import BasicCBS.Solvers.Move;
@@ -39,6 +36,10 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
      */
     public boolean updateMDDsWhenTimeProgresses = true;
     public boolean keepOnlyRelevantUpdatedMDDs = false;
+    /**
+     * delta between optimal sum of individual costs, and the sum of costs at the top of open.
+     */
+    public int sumDeltaCost;
 
     public OnlineLifelongICTS(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
                               PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator, Map<Agent, I_Location> customStartLocations,
@@ -68,6 +69,7 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         else{
             this.costOfReroute = 0;
         }
+        this.sumDeltaCost = 0;
     }
 
     /**
@@ -115,6 +117,9 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         A_OnlineSolver.addExistingAgents(time, currentAgentLocations, this.latestSolution);
         // new agents will start at their private garages.
         A_OnlineSolver.addNewAgents(agents, currentAgentLocations, this.baseInstance);
+        // write the initial delta between optimal sum of individual costs, and the sum of costs at the top of open
+        // this is indicative of how much work was saved by using Lifelong, over starting from scratch
+        this.sumDeltaCost += getDeltaCost(openList.peek(), heuristicICTS);
 
         return solveForNewArrivals(time, currentAgentLocations, parameters, agents);
     }
@@ -340,6 +345,21 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         }
     }
 
+    private int getDeltaCost(ICT_Node root, DistanceTableAStarHeuristicICTS heuristicICTS) {
+        if (root == null){
+            return 0;
+        }
+        else{
+            int sumIndividualOptimalCosts = 0;
+            int rootSumOfCosts = 0;
+            for (Agent a : root.agentCosts.keySet()){
+                sumIndividualOptimalCosts += heuristicICTS.getHForAgentAndCurrentLocation(a, getSource(a));
+                rootSumOfCosts += root.agentCosts.get(a);
+            }
+            return rootSumOfCosts - sumIndividualOptimalCosts;
+        }
+    }
+
     /**
      * Put the goal back into open because we may want to resume search when new agents arrive.
      * @param current {@inheritDoc}
@@ -351,6 +371,17 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
         openList.add(current);
         contentOfOpen.add(current);
         return super.foundGoal(current, mergedMDDSolution);
+    }
+
+    @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        // write the average delta cost
+        if (solution != null){
+            instanceReport.putFloatValue("Average Delta Cost", (float)(this.sumDeltaCost)
+                    / ((OnlineSolution)solution).solutionsAtTimes.size()
+            );
+        }
     }
 
     @Override
