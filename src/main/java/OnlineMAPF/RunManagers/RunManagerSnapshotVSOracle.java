@@ -29,7 +29,7 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
 //        ReplanSingle replanSingle = new ReplanSingle(new OnlineAStar());
 //        this.solvers.add(replanSingle);
 
-        OnlineCBSSolver snapshot = new OnlineCBSSolver();
+        OnlineCBSSolver snapshot = new OnlineCBSSolver(false);
         snapshot.name = "OnlineCBSSolver";
         this.solvers.add(new OnlineSolverContainer(snapshot));
 
