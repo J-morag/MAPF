@@ -24,7 +24,7 @@ import java.util.*;
 
 public class OnlineLifelongICTS extends OnlineCompatibleICTS {
 
-    public String name = "LifelongICTS_" + super.pruningStrategy.toString();
+    public String name = "Lifelong-ICTS_" + super.pruningStrategy.toString();
 
     protected Solution latestSolution;
     public boolean ignoreCOR = false;

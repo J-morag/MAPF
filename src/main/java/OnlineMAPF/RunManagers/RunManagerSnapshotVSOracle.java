@@ -29,26 +29,24 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
 //        ReplanSingle replanSingle = new ReplanSingle(new OnlineAStar());
 //        this.solvers.add(replanSingle);
 
-        OnlineCBSSolver snapshot = new OnlineCBSSolver(false);
-        snapshot.name = "OnlineCBSSolver";
-        this.solvers.add(new OnlineSolverContainer(snapshot));
-
 //        OnlineCompatibleOfflineCBS oracle =  new OnlineCompatibleOfflineCBS();
 //        oracle.name = "Oracle";
 //        this.solvers.add(oracle);
 
+        OnlineCBSSolver snapshot = new OnlineCBSSolver(false);
+        this.solvers.add(new OnlineSolverContainer(snapshot));
+
         OnlineICTSSolver onlineICTSS3P =  new OnlineICTSSolver(null, null, null, ICTS_Solver.PruningStrategy.S3P, null);
-        onlineICTSS3P.name = "onlineICTSS3P";
         this.solvers.add(new OnlineSolverContainer(onlineICTSS3P));
 
         OnlineLifelongICTS LICTS_withUpdateMDDs = new OnlineLifelongICTS();
-        LICTS_withUpdateMDDs.name = "LICTS_withUpdateMDDs";
+        LICTS_withUpdateMDDs.name = LICTS_withUpdateMDDs.name + "_withUpdateMDDs";
         LICTS_withUpdateMDDs.updateMDDsWhenTimeProgresses = true;
         LICTS_withUpdateMDDs.keepOnlyRelevantUpdatedMDDs = false;
         this.solvers.add(LICTS_withUpdateMDDs);
 
         OnlineLifelongICTS LICTS_noUpdateMDDs = new OnlineLifelongICTS();
-        LICTS_noUpdateMDDs.name = "LICTS_noUpdateMDDs";
+        LICTS_noUpdateMDDs.name = LICTS_noUpdateMDDs.name + "_noUpdateMDDs";
         LICTS_noUpdateMDDs.updateMDDsWhenTimeProgresses = false;
         this.solvers.add(LICTS_noUpdateMDDs);
     }

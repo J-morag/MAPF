@@ -29,7 +29,7 @@ import java.util.Objects;
  */
 public class OnlineICTSSolver implements I_OnlineSolver {
 
-    public String name = "OnlineICTSSolver";
+    public String name = "Restart-ICTS";
 
     protected Solution latestSolution;
     protected MAPF_Instance baseInstance;
@@ -59,6 +59,7 @@ public class OnlineICTSSolver implements I_OnlineSolver {
         this.mergedMDDSolver = Objects.requireNonNullElse(mergedMDDSolver, new Online_ID_MergedMDDSolver(new OnlineDFS_MergedMDDSpaceSolver()));
         this.mergedMDDCreator = Objects.requireNonNullElseGet(mergedMDDCreator, OnlineBFS_MergedMDDCreator::new);
         this.pruningStrategy = pruningStrategy;
+        this.name = this.name + "_" + pruningStrategy.toString();
     }
 
     public OnlineICTSSolver() {

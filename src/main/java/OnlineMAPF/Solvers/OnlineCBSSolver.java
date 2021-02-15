@@ -19,13 +19,13 @@ public class OnlineCBSSolver extends A_OnlineSolver {
 
     public OnlineCBSSolver() {
         super();
-        super.name = "OnlineCBSSolver'";
+        super.name = "Restart-CBS";
     }
 
     public OnlineCBSSolver(boolean useCorridorReasoning) {
         super();
         this.useCorridorReasoning = useCorridorReasoning;
-        super.name = "OnlineCBSSolver'";
+        super.name = "Restart-CBS'";
     }
 
     protected Solution solveForNewArrivals(int time, HashMap<Agent, I_Location> currentAgentLocations) {
