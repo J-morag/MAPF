@@ -152,7 +152,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             initialConstraints.addAll(allConstraintsForPlan(planForAgent));
         }
 
-        endTime = System.currentTimeMillis();
         return solution;
     }
 
