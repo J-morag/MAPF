@@ -1,8 +1,13 @@
 package OnlineMAPF.Solvers.OnlineICTS;
 
 import BasicCBS.Instances.Agent;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.NaiveConflictDetection;
 import BasicCBS.Solvers.ICTS.MDDs.MDD;
-import BasicCBS.Solvers.ICTS.MergedMDDs.*;
+import BasicCBS.Solvers.ICTS.MergedMDDs.AgentsGroup;
+import BasicCBS.Solvers.ICTS.MergedMDDs.I_MergedMDDSolver;
+import BasicCBS.Solvers.ICTS.MergedMDDs.IndependenceDetection_MergedMDDSolver;
+import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
 import OnlineMAPF.OnlineSolution;
 
@@ -45,5 +50,16 @@ public class Online_ID_MergedMDDSolver extends IndependenceDetection_MergedMDDSo
     @Override
     protected Solution getSolution(Solution solution) {
         return solution == null ? null : new OnlineSolution(solution);
+    }
+
+    @Override
+    protected I_ConflictManager getConflictManager(Set<AgentsGroup> agentGroups) {
+        I_ConflictManager conflictManager = new NaiveConflictDetection(false);
+        for (AgentsGroup ag : agentGroups){
+            for (SingleAgentPlan plan : ag.getSolution()){
+                conflictManager.addPlan(plan);
+            }
+        }
+        return conflictManager;
     }
 }
