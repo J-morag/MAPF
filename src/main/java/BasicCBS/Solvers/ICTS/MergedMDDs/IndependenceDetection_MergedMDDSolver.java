@@ -1,10 +1,14 @@
 package BasicCBS.Solvers.ICTS.MergedMDDs;
 
 import BasicCBS.Instances.Agent;
+import BasicCBS.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
+import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.NaiveConflictDetection;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicCBS.Solvers.ICTS.MDDs.MDD;
 import BasicCBS.Solvers.SingleAgentPlan;
 import BasicCBS.Solvers.Solution;
+import com.google.common.collect.Maps;
 
 import java.util.*;
 
@@ -26,78 +30,70 @@ public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver 
         this.expandedLowLevelNodes = 0;
         this.generatedLowLevelNodes = 0;
 
-        List<AgentsGroup> agentsCollidingGroups = new ArrayList<>();
+        Map<Agent, AgentsGroup> agentToAgentsGroup = new HashMap<>();
+        Set<AgentsGroup> agentGroups = new HashSet<>();
         for (Agent agent : agentMDDs.keySet()) {
             // find an arbitrary solution for each agent and put each agent in a singleton group
             Set<Agent> set = new HashSet<>();
             set.add(agent);
             Solution solution = getPossibleSolution(agentMDDs, agent);
             AgentsGroup group = getAgentsGroup(set, solution);
+            agentToAgentsGroup.put(agent, group);
 
-            agentsCollidingGroups.add(group);
+            agentGroups.add(group);
         }
-        boolean conflicts = true;
-        while (conflicts) {
-            List<AgentsGroup> conflictingGroupsOneMemberFromEachGroup = new ArrayList<>();
-            conflicts = false;
-            for (int i = 0; i < agentsCollidingGroups.size(); i++) {
-                AgentsGroup groupI = agentsCollidingGroups.get(i);
-                for (int j = i + 1; j < agentsCollidingGroups.size(); j++) {
-                    AgentsGroup groupJ = agentsCollidingGroups.get(j);
-                    if (conflicts && groupI.isConflictedWith(groupJ)) //no need to check them if they already conflict with each other
-                        continue;
-                    Solution mergedSolution = getSolution(groupI);
-                    for (SingleAgentPlan plan : groupJ.getSolution()) {
-                        mergedSolution.putPlan(plan);
-                    }
-                    if (!mergedSolution.isValidSolution()) {
-                        conflicts = true;
-                        if (!groupI.hasConflicts() && !groupJ.hasConflicts())
-                            conflictingGroupsOneMemberFromEachGroup.add(groupI); // add only when the groups are not already in the conflicts...
-                        groupI.addConflict(groupJ);
-                    }
-                }
+        // will break by returning, when either there are no conflicts or we can't find a joint solution for some group
+        while (true){
+            I_ConflictManager conflictManager = getConflictManager(agentGroups);
+            A_Conflict arbitraryConflict = conflictManager.selectConflict();
+            if (arbitraryConflict == null){
+                // no conflicts - found the goal!
+                return mergeSolutions(agentGroups);
             }
-
-            if (conflicts) {
-                for (AgentsGroup group : conflictingGroupsOneMemberFromEachGroup) {
-                    Set<AgentsGroup> allInConflict = group.getConflicts();
-                    allInConflict.add(group);
-                    Map<Agent, MDD> currentMergingGroup = new HashMap<>();
-                    Set<Agent> mergedAgents = new HashSet<>();
-                    for (AgentsGroup curr : allInConflict) {
-                        mergedAgents.addAll(curr.getAgents());
-                        for (Agent agent : curr.getAgents()) {
-                            currentMergingGroup.put(agent, agentMDDs.get(agent));
-                        }
-                    }
-                    Solution mergedGroupSolution = getSolution(delegatedMergedMDDFactory.findJointSolution(currentMergingGroup, highLevelSolver));
-                    this.expandedLowLevelNodes += delegatedMergedMDDFactory.getExpandedLowLevelNodesNum();
-                    this.generatedLowLevelNodes += delegatedMergedMDDFactory.getGeneratedLowLevelNodesNum();
-                    if(mergedGroupSolution == null)
-                        return null; //if a group don't have a solution, then there is surely no solution.
-                    AgentsGroup mergedGroup = getAgentsGroup(mergedAgents, mergedGroupSolution);
-                    agentsCollidingGroups.removeAll(allInConflict);
-                    agentsCollidingGroups.add(mergedGroup);
+            else{
+                // these have to be distinct if we have no bugs
+                AgentsGroup group1 = agentToAgentsGroup.get(arbitraryConflict.agent1);
+                AgentsGroup group2 = agentToAgentsGroup.get(arbitraryConflict.agent2);
+                // get a joint solution
+                Map<Agent, MDD> filteredMDDMap = Maps.filterKeys(agentMDDs, a -> group1.getAgents().contains(a) || group2.getAgents().contains(a));
+                Solution mergedGroupSolution = getSolution(delegatedMergedMDDFactory.findJointSolution(filteredMDDMap, highLevelSolver));
+                // if a sub-group can't be solved at these costs, there is no solution at these costs
+                if (mergedGroupSolution == null){
+                    return null;
+                }
+                else{
+                    // remove the old groups
+                    agentGroups.remove(group1);
+                    agentGroups.remove(group2);
+                    // add a merged group
+                    AgentsGroup mergedGroup = getAgentsGroup(new HashSet<>(filteredMDDMap.keySet()), mergedGroupSolution);
+                    agentGroups.add(mergedGroup);
+                    for (Agent a : group1.getAgents()) agentToAgentsGroup.put(a, mergedGroup);
+                    for (Agent a : group2.getAgents()) agentToAgentsGroup.put(a, mergedGroup);
                 }
             }
         }
-        //If we got here, then there is a solution for each group that doesn't collide with the other groups.
-        Solution totalSolution = getSolution();
-        for (AgentsGroup group : agentsCollidingGroups){
-            for(SingleAgentPlan plan : group.getSolution()){
-                totalSolution.putPlan(plan);
+    }
+
+    private Solution mergeSolutions(Set<AgentsGroup> agentGroups) {
+        Solution mergedSolution = getSolution();
+        for (AgentsGroup ag : agentGroups){
+            for (SingleAgentPlan plan : ag.getSolution()){
+                mergedSolution.putPlan(plan);
+
             }
         }
-        if(!totalSolution.isValidSolution()) {
-            try {
-                throw new Exception("The total solution must be valid if we got here...");
-            } catch (Exception e) {
-                e.printStackTrace();
+        return mergedSolution;
+    }
+
+    protected I_ConflictManager getConflictManager(Set<AgentsGroup> agentGroups) {
+        I_ConflictManager conflictManager = new NaiveConflictDetection(true);
+        for (AgentsGroup ag : agentGroups){
+            for (SingleAgentPlan plan : ag.getSolution()){
+                conflictManager.addPlan(plan);
             }
-            return null;
         }
-        return totalSolution;
+        return conflictManager;
     }
 
     protected Solution getPossibleSolution(Map<Agent, MDD> agentMDDs, Agent agent) {
