@@ -59,7 +59,6 @@ public class OnlineICTSSolver implements I_OnlineSolver {
         this.mergedMDDSolver = Objects.requireNonNullElse(mergedMDDSolver, new Online_ID_MergedMDDSolver(new OnlineDFS_MergedMDDSpaceSolver()));
         this.mergedMDDCreator = Objects.requireNonNullElseGet(mergedMDDCreator, OnlineBFS_MergedMDDCreator::new);
         this.pruningStrategy = pruningStrategy;
-        this.name = this.name + "_" + pruningStrategy.toString();
     }
 
     public OnlineICTSSolver() {
