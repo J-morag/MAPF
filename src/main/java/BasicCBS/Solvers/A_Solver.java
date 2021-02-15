@@ -18,6 +18,7 @@ public abstract class A_Solver implements I_Solver{
     protected boolean commitReport;
 
     protected long startTime;
+    protected long startDate;
     protected long endTime;
     protected boolean abortedForTimeout;
     protected int totalLowLevelStatesGenerated;
@@ -52,7 +53,8 @@ public abstract class A_Solver implements I_Solver{
     protected void init(MAPF_Instance instance, RunParameters parameters){
         if(instance == null || parameters == null){throw new IllegalArgumentException();}
 
-        this.startTime = System.currentTimeMillis();
+        this.startTime = System.nanoTime()/1000000;
+        this.startDate = System.currentTimeMillis();
         this.endTime = 0;
         this.abortedForTimeout = false;
         this.totalLowLevelStatesGenerated = 0;
@@ -76,10 +78,10 @@ public abstract class A_Solver implements I_Solver{
      * @param solution
      */
     protected void writeMetricsToReport(Solution solution){
-        this.endTime = System.currentTimeMillis();
+        this.endTime = System.nanoTime()/1000000;
 
         instanceReport.putIntegerValue(InstanceReport.StandardFields.timeoutThresholdMS, (int) this.maximumRuntime);
-        instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startTime).toString());
+        instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startDate).toString());
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));
         if(solution != null){
             instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
@@ -115,12 +117,14 @@ public abstract class A_Solver implements I_Solver{
      */
     protected void releaseMemory(){
         this.instanceReport = null;
+        this.startTime = 0;
+        this.endTime = 0;
     }
 
     /*  = utilities =  */
 
     protected boolean checkTimeout() {
-        if(System.currentTimeMillis()-startTime > maximumRuntime){
+        if(System.nanoTime()/1000000 - startTime > maximumRuntime){
             this.abortedForTimeout = true;
             return true;
         }

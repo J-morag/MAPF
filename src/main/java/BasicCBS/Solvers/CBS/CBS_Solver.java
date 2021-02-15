@@ -339,7 +339,7 @@ public class CBS_Solver extends A_Solver {
     protected RunParameters getSubproblemParameters(Solution currentSolution, ConstraintSet constraints, InstanceReport instanceReport, MAPF_Instance subproblem, Agent agent) {
         // if there was already a timeout while solving a node, we will get a negative time left, which would be
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
-        long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.currentTimeMillis() - super.startTime), 0);
+        long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport, currentSolution);
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
             RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
