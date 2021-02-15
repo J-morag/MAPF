@@ -45,11 +45,15 @@ public class OnlineLifelongICTS extends OnlineCompatibleICTS {
                               PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator, Map<Agent, I_Location> customStartLocations,
                               int customStartTime, Boolean updateMDDsWhenTimeProgresses) {
         super(comparator, searcherFactory, mergedMDDSolver, pruningStrategy, mergedMDDCreator, customStartLocations, customStartTime);
-        this.updateMDDsWhenTimeProgresses = updateMDDsWhenTimeProgresses;
+        if(updateMDDsWhenTimeProgresses != null) this.updateMDDsWhenTimeProgresses = updateMDDsWhenTimeProgresses;
     }
 
     public OnlineLifelongICTS(Map<Agent, I_Location> customStartLocations, int customStartTime) {
         super(customStartLocations, customStartTime > 0 ? customStartTime : -1);
+    }
+
+    public OnlineLifelongICTS(PruningStrategy pruningStrategy){
+        this(null, null, null, pruningStrategy, null, null, -1, null);
     }
 
     public OnlineLifelongICTS(){
