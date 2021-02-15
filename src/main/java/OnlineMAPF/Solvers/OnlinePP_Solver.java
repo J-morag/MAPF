@@ -86,7 +86,6 @@ public class OnlinePP_Solver extends PrioritisedPlanning_Solver {
             }
         }
 
-        super.endTime = System.currentTimeMillis();
         return new OnlineSolution(solutionsAtTimes);
     }
 
