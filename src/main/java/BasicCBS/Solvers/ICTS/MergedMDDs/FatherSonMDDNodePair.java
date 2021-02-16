@@ -19,6 +19,11 @@ public class FatherSonMDDNodePair{
         return son;
     }
 
+    public void set(MDDNode father, MDDNode son) {
+        this.father = father;
+        this.son = son;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

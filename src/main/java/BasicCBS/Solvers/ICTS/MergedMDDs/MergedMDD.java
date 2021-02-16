@@ -12,6 +12,7 @@ import java.util.*;
 public class MergedMDD {
     private MergedMDDNode start;
     private MergedMDDNode goal;
+    private static final boolean debug = false;
 
     /**
      * The constructor can be accessed only via the Factory (in the same package)
@@ -87,10 +88,10 @@ public class MergedMDD {
      * Iterates through this entire merged MDD, creating a set of all (individual agent) {@link MDDNode mdd nodes} found in it.
      * @return all {@link MDDNode mdd nodes} that can be found in this merged MDD.
      */
-    public Set<MDDNode> toAgentMddNodeSet() {
+    public Set<FatherSonMDDNodePair> toFatherSonPairs() {
         // iterate over the merged mdd in BFS order
         // we don't need a closed list since this is a DAG
-        Set<MDDNode> allAgentMddNodes = new HashSet<>();
+        Set<FatherSonMDDNodePair> allFatherSonPairs = new HashSet<>();
         Queue<MergedMDDNode> open = new ArrayDeque<>();
         Set<MergedMDDNode> inOpen = new HashSet<>();
         // must traverse from goal, to get just the merged mdd, without nodes that don't eventually lead to the goal... I think?
@@ -99,15 +100,29 @@ public class MergedMDD {
         while (!open.isEmpty()){
             MergedMDDNode currentMergedMddNode = open.remove();
             inOpen.remove(currentMergedMddNode);
-            allAgentMddNodes.addAll(currentMergedMddNode.getMddNodes());
+            List<MDDNode> currentNodes = currentMergedMddNode.getMddNodes();
+            for (MergedMDDNode parent : currentMergedMddNode.getParents()){
+                // Update results set
+                List<MDDNode> parentNodes = parent.getMddNodes();
+                for (int i = 0; i < parentNodes.size(); i++) {
+                    if (debug && !currentNodes.get(i).getAgent().equals(parentNodes.get(i).getAgent())){
+                        try {
+                            throw new Exception("MDDNodes inside all MergedMDDNodes of the same MergedMDD should all be ordered the same (by agent ID)");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    allFatherSonPairs.add(new FatherSonMDDNodePair(parentNodes.get(i), currentNodes.get(i)));
+                }
+                // update search lists
+                if(!inOpen.contains(parent)){
+                    open.add(parent);
+                    inOpen.add(parent);
+                }
 
-            List<MergedMDDNode> parents = currentMergedMddNode.getParents();
-            // another node already put this parent in open
-            parents.removeIf(inOpen::contains);
-            open.addAll(parents);
-            inOpen.addAll(parents);
+            }
         }
-        return allAgentMddNodes;
+        return allFatherSonPairs;
     }
 
     /**
@@ -118,8 +133,9 @@ public class MergedMDD {
      */
     public void unfold(Map<Agent, MDD> agentMdds) {
         // get the set of all agent mdd nodes in the merged mdd
-        Set<MDDNode> mddNodesToKeep = this.toAgentMddNodeSet();
+        Set<FatherSonMDDNodePair> fatherSonPairsToKeep = this.toFatherSonPairs();
         List<Agent> agentsInMergedMdd = this.getRepresentedAgents();
+        FatherSonMDDNodePair keyDummy = new FatherSonMDDNodePair(null, null);
         // if an mdd node is not present in the merged mdd, remove it from the agent's mdd
         for (Agent agent : agentsInMergedMdd){
             MDD mdd = agentMdds.get(agent);
@@ -134,9 +150,16 @@ public class MergedMDD {
                 inOpen.remove(currentMddNode);
                 List<MDDNode> children = currentMddNode.getNeighbors();
                 // we check if the children, not the current node, can be removed, because we remove by
-                // removing all references to these children from their parents
+                // removing references to these children from their parents
                 // MDDNode exposes its internal list of children, so we can modify it directly
-                children.removeIf(child -> !mddNodesToKeep.contains(child));
+                Iterator<MDDNode> childrenIterator = children.iterator();
+                while (childrenIterator.hasNext()){
+                    MDDNode child = childrenIterator.next();
+                    keyDummy.set(currentMddNode, child);
+                    if (!fatherSonPairsToKeep.contains(keyDummy)){
+                        childrenIterator.remove();
+                    }
+                }
                 // for those that should be kept, add them to open if they aren't already there
                 for (MDDNode child : children){
                     if(!inOpen.contains(child)) {
