@@ -156,7 +156,6 @@ public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver,
             // try to avoid repeat validations if at all possible, since they are expensive
             if(contentOfOpen.containsKey(child) || isValidCombination(fatherSonPairCombination)){
                 child.addParent(current);
-                current.addNeighbor(child);
                 children.add(child);
             }
         }

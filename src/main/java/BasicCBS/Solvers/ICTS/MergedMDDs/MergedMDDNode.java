@@ -9,7 +9,6 @@ import java.util.*;
  * This class is for merging two or more MDDNodes, when we want to perform a goal test on the ICT node
  */
 public class MergedMDDNode {
-    private List<MergedMDDNode> neighbors;
     private static final Comparator<MDDNode> mddNodesOrderComparator = Comparator.comparingInt(mddNode -> mddNode.getAgent().iD);
     private List<MDDNode> mddNodes;
     private List<MergedMDDNode> parents;
@@ -20,7 +19,6 @@ public class MergedMDDNode {
      * @param numAgents the number of agents represented by the merged mdd. used for more efficient initialization of lists.
      */
     public MergedMDDNode(int depth, int numAgents) {
-        neighbors = new ArrayList<>(numAgents);
         mddNodes = new ArrayList<>(numAgents);
         parents = new ArrayList<>(numAgents);
         this.depth = depth;
@@ -38,18 +36,10 @@ public class MergedMDDNode {
         return parents;
     }
 
-    public void addNeighbor(MergedMDDNode neighbor){
-        neighbors.add(neighbor);
-    }
-
     public void setMDDNodes(List<MDDNode> mddNodes){
         this.mddNodes = mddNodes;
         // we sort them so we can use them in more informed equals() and hashCode() functions.
         this.mddNodes.sort(mddNodesOrderComparator);
-    }
-
-    public List<MergedMDDNode> getNeighbors() {
-        return neighbors;
     }
 
     public List<MDDNode> getMddNodes() {
@@ -130,10 +120,5 @@ public class MergedMDDNode {
                 "values=" + mddNodes +
                 ", depth=" + depth +
                 '}';
-    }
-
-    public void fixNeighbor(MergedMDDNode inOpen) {
-        neighbors.remove(inOpen);
-        neighbors.add(inOpen);
     }
 }
