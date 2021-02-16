@@ -37,9 +37,6 @@ public class BreadthFirstSearch_MergedMDDCreator extends SearchBased_MergedMDDCr
         MergedMDDNode inOpen = contentOfOpen.get(node);
         if (inOpen != null) {
             inOpen.addParents(node.getParents());
-            for (MergedMDDNode parent : node.getParents()) {
-                parent.fixNeighbor(inOpen);
-            }
         } else if (debug && closedList.contains(node)) {
             try {
                 throw new Exception("The MDD supposed to be DAG, but we now found a cyclic path");
