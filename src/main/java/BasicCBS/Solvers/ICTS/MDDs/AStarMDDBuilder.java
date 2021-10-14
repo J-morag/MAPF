@@ -1,45 +1,46 @@
-package BasicCBS.Solvers.ICTS.LowLevel;
+package BasicCBS.Solvers.ICTS.MDDs;
 
 import BasicCBS.Instances.Agent;
-import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.I_Location;
-import BasicCBS.Solvers.ICTS.GeneralStuff.MDD;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 import java.util.*;
+import java.util.function.Predicate;
 
-public class AStar extends A_LowLevelSearcher {
+public class AStarMDDBuilder extends A_MDDSearcher {
 
-    private Queue<Node> openList;
+    private Queue<MDDSearchNode> openList;
     /**
      * The key will not be updated, although, the value will be the last version of this node.
      * Will contain everything in the open list, so we could modify them (add to their parents) while they are in the Priority Queue.
      */
-    protected Map<Node, Node> contentOfOpen;
-    protected Map<Node, Node> closeList;
-    private MAPF_Instance instance;
-    private Agent agent;
+    protected Map<MDDSearchNode, MDDSearchNode> contentOfOpen;
+    protected Map<MDDSearchNode, MDDSearchNode> closeList;
     private DistanceTableAStarHeuristicICTS heuristic;
     protected int maxDepthOfSolution;
+    private boolean disappearAtGoal = false;
+    protected DisappearAtGoalFilter disappearAtGoalFilter = new DisappearAtGoalFilter();
 
     /**
      * Constructor for the AStar searcher
      *
-     * @param instance - we assume that it is a "subproblem" used the function "getSubproblemFor" in "MAPF_Instance" class
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public AStar(ICTS_Solver highLevelSearcher, MAPF_Instance instance, DistanceTableAStarHeuristicICTS heuristic) {
-        super(highLevelSearcher);
-        this.instance = instance;
-        /*
-        initOpenList();
-        contentOfOpen = new HashMap<>();
-        closeList = new HashMap<>();
-         */
-        agent = instance.agents.get(0); //only one agent in the instance
+    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
+        super(highLevelSearcher, source, target, agent);
         this.heuristic = heuristic;
+        this.disappearAtGoalFilter.target = target;
+    }
 
-        //initializeSearch();
+    /**
+     * Constructor for the AStar searcher
+     *
+     * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
+     */
+    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic,
+                           boolean disappearAtGoal) {
+        this(highLevelSearcher, source, target, agent, heuristic);
+        this.disappearAtGoal = disappearAtGoal;
     }
 
     protected void initOpenList(){
@@ -47,18 +48,18 @@ public class AStar extends A_LowLevelSearcher {
     }
 
     private void initializeSearch() {
-        Node start = new Node(agent, instance.map.getMapCell(agent.source), 0, heuristic);
+        MDDSearchNode start = new MDDSearchNode(agent, super.getSource(), 0, heuristic);
         addToOpen(start);
     }
 
-    protected void addToOpen(Node node){
+    protected void addToOpen(MDDSearchNode node){
         if(contentOfOpen.containsKey(node)){
             //Do not add this node twice to the open list, just add it's parents to the already "inOpen" node.
-            Node inOpen = contentOfOpen.get(node);
+            MDDSearchNode inOpen = contentOfOpen.get(node);
             inOpen.addParents(node.getParents());
         }
         else if(closeList.containsKey(node)){
-            Node inClosed = closeList.get(node);
+            MDDSearchNode inClosed = closeList.get(node);
             inClosed.addParents(node.getParents());
         }
         else{
@@ -68,13 +69,13 @@ public class AStar extends A_LowLevelSearcher {
         }
     }
 
-    protected Node pollFromOpen(){
-        Node next = openList.poll();
+    protected MDDSearchNode pollFromOpen(){
+        MDDSearchNode next = openList.poll();
         contentOfOpen.remove(next);
         return next;
     }
 
-    private void addToClose(Node node) {
+    private void addToClose(MDDSearchNode node) {
         closeList.put(node, node);
     }
 
@@ -86,11 +87,11 @@ public class AStar extends A_LowLevelSearcher {
         closeList = new HashMap<>();
         initializeSearch();
 
-        Node goal = null;
+        MDDSearchNode goal = null;
         while(!isOpenEmpty()){
             if(highLevelSearcher.reachedTimeout())
                 return null;
-            Node current = pollFromOpen();
+            MDDSearchNode current = pollFromOpen();
             expandedNodesNum++;
             if(current.getF() > depthOfSolution)
             {
@@ -126,31 +127,44 @@ public class AStar extends A_LowLevelSearcher {
             // Don't do else here, because we want to add the sons of current to the open list for later
             expand(current);
         }
-        contentOfOpen.clear();
-        closeList.clear();
-        clearOpenList();
-        return new MDD(goal);
+        releaseMemory();
+        return goal == null ? null : new MDD(goal);
     }
 
-    protected void clearOpenList() {
-        openList.clear();
+    protected void releaseMemory() {
+        this.contentOfOpen = null;
+        this.closeList = null;
+        this.openList = null;
     }
 
     protected boolean isOpenEmpty() {
         return openList.isEmpty();
     }
 
-    private void expand(Node node){
+    protected void expand(MDDSearchNode node){
         List<I_Location> neighborLocations = node.getNeighborLocations();
+        if (disappearAtGoal && node.getG() + 1 < maxDepthOfSolution){
+            // filter neighbors. Only allow generation of goal node if the goal node is at the target depth.
+            neighborLocations.removeIf(disappearAtGoalFilter);
+        }
         for (I_Location location : neighborLocations) {
-            Node neighbor = new Node(agent, location, node.getG() + 1, heuristic);
+            MDDSearchNode neighbor = new MDDSearchNode(agent, location, node.getG() + 1, heuristic);
             neighbor.addParent(node);
             addToOpen(neighbor);
         }
         addToClose(node);
     }
 
-    private boolean isGoalState(Node node) {
-        return node.getLocation().getCoordinate().equals(agent.target);
+    protected boolean isGoalState(MDDSearchNode node) {
+        return node.getLocation().getCoordinate().equals(target.getCoordinate());
+    }
+
+    protected static class DisappearAtGoalFilter implements Predicate<I_Location> {
+        public I_Location target;
+
+        @Override
+        public boolean test(I_Location location) {
+            return target.equals(location);
+        }
     }
 }

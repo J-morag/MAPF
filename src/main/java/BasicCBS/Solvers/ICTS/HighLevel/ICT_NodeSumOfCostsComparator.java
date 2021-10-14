@@ -7,7 +7,8 @@ public class ICT_NodeSumOfCostsComparator extends ICT_NodeComparator {
     protected int costFunction(ICT_Node node) {
         int sum = 0;
         for (Agent agent : node.getAgentCost().keySet()) {
-            sum += node.getCost(agent);
+            sum += node.getCost(agent)
+                    * agent.priority; // will be 1 by default (no priorities variant)
         }
         return sum;
     }

@@ -40,11 +40,6 @@ public class PrivateGarage implements I_Location {
         return List.of(mapEntryPoint);
     }
 
-    /**
-     * The agent waits outside of the graph, yet the only coordinate that can represent the garage would be that of its
-     * {@link #mapEntryPoint}.
-     * @return the coordinate of the garage's {@link #mapEntryPoint}.
-     */
     @Override
     public I_Coordinate getCoordinate() {
         return this.coordinate;

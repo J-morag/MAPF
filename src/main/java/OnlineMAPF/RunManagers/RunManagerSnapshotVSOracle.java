@@ -2,6 +2,7 @@ package OnlineMAPF.RunManagers;
 
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
+import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import Environment.A_RunManager;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
@@ -9,6 +10,8 @@ import Environment.Metrics.S_Metrics;
 import OnlineMAPF.OnlineExperiment;
 import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
 import OnlineMAPF.Solvers.*;
+import OnlineMAPF.Solvers.OnlineICTS.OnlineICTSSolver;
+import OnlineMAPF.Solvers.OnlineICTS.OnlineLifelongICTS;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,18 +27,19 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
     protected void setSolvers() {
         ReplanSingle replanSingle = new ReplanSingle(new OnlineAStar());
         this.solvers.add(replanSingle);
-        OnlineCBSSolver snapshot = new OnlineCBSSolver();
-        snapshot.name = "OnlineCBSSolver";
-        this.solvers.add(new OnlineSolverContainer(snapshot));
+
         OnlineCompatibleOfflineCBS oracle =  new OnlineCompatibleOfflineCBS();
-        oracle.name = "Oracle";
+        oracle.name = "Offline-Optimal";
         this.solvers.add(oracle);
+
+        OnlineCBSSolver snapshot = new OnlineCBSSolver(false);
+        this.solvers.add(new OnlineSolverContainer(snapshot));
     }
 
     /*  = Set Experiments =  */
     @Override
     protected void setExperiments() {
-        addExperimentsSnapshotVSOracleDecreasingMaze();
+        addExperimentsSnapshotVSOracle();
     }
 
     @Override
@@ -109,7 +113,7 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
     private void addExperimentsSnapshotVSOracle() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
@@ -118,25 +122,7 @@ public class RunManagerSnapshotVSOracle extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("Snapshot VS Oracle", instanceManager, null);
-        experiment.keepSolutionInReport = false;
-        this.experiments.add(experiment);
-
-    }
-
-    private void addExperimentsSnapshotVSOracleDecreasingMaze() {
-        /*  =   Set Path   =*/
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\small_mazes"});
-
-        /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
-
-        /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);
-
-        /*  =   Add new experiment   =  */
-        OnlineExperiment experiment = new OnlineExperiment("DecreasingMaze", instanceManager, null);
+        OnlineExperiment experiment = new OnlineExperiment("SnapshotVSOffline", instanceManager, null);
         experiment.keepSolutionInReport = false;
         this.experiments.add(experiment);
 

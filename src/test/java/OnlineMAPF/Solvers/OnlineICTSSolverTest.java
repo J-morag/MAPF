@@ -18,16 +18,25 @@ import BasicCBS.Solvers.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import OnlineMAPF.*;
+import OnlineMAPF.OnlineAgent;
+import OnlineMAPF.OnlineInstanceBuilder_BGU;
+import OnlineMAPF.OnlineInstanceBuilder_MovingAI;
+import OnlineMAPF.OnlineSolution;
+import OnlineMAPF.Solvers.OnlineICTS.OnlineICTSSolver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.SortedMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OnlineCBSSolverTest {
+class OnlineICTSSolverTest {
 
     private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
     private final Enum_MapCellType w = Enum_MapCellType.WALL;
@@ -159,7 +168,7 @@ class OnlineCBSSolverTest {
     private MAPF_Instance instanceDiameter5 = new MAPF_Instance("instanceDiameter5", mapCompetitiveRatio_Diameter_5,
             new Agent[]{agent13to10, agent00to02});
 
-    private I_Solver solver = new OnlineSolverContainer(new OnlineCBSSolver());
+    private I_Solver solver = new OnlineSolverContainer(new OnlineICTSSolver());
 
     private InstanceReport instanceReport;
 
@@ -267,6 +276,7 @@ class OnlineCBSSolverTest {
         Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
 
         assertTrue(solved.solves(testInstance));
+        System.out.println(solved);
     }
 
     @Test
@@ -304,7 +314,7 @@ class OnlineCBSSolverTest {
     void reroutesWhenAppropriate(){
         OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
         OnlineAgent agent12to53at2 = new OnlineAgent(1, coor12, coor53, 2);
-        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor53, 2);
+        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor54, 2);
         OnlineAgent[] agents = new OnlineAgent[3];
         agents[0] = agent53to02at0;
         agents[1] = agent12to53at2;
@@ -330,13 +340,13 @@ class OnlineCBSSolverTest {
         int optimalCost = solvedOffline.sumIndividualCosts();
         int snapshotOptimalCost = solved.sumIndividualCosts();
         assertTrue(snapshotOptimalCost > optimalCost);
-        assertEquals(19 , solved.sumIndividualCosts());
+        assertEquals(20 , solved.sumIndividualCosts());
 
         // check that the reroute happened rather than the less efficient option of having both new agents wait or go around.
         // these costs include the cost of mocing out of the garage, which is not included in SOC
         assertEquals(11, solved.getPlanFor(agent53to02at0).size());
         assertEquals(6, solved.getPlanFor(agent12to53at2).size());
-        assertEquals(5, solved.getPlanFor(agent22to53at2).size());
+        assertEquals(6, solved.getPlanFor(agent22to53at2).size());
     }
 
     @Test
@@ -344,10 +354,12 @@ class OnlineCBSSolverTest {
         MAPF_Instance testInstance = null;
         while((testInstance = im_BGU.getNextInstance()) != null){
             System.out.println("------------ solving " + testInstance.name);
-            Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+            Solution solved = solver.solve(testInstance, new RunParameters(30*1000, null, instanceReport, null));
 
-            assertTrue(solved.solves(testInstance));
-            System.out.println(solved.readableToString());
+            if (solved != null){
+                assertTrue(solved.solves(testInstance));
+                System.out.println(solved.readableToString());
+            }
         }
     }
 
@@ -356,7 +368,7 @@ class OnlineCBSSolverTest {
         MAPF_Instance testInstance = null;
         while((testInstance = im_MovingAI.getNextInstance()) != null){
             System.out.println("------------ solving " + testInstance.name);
-            Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+            Solution solved = solver.solve(testInstance, new RunParameters(30*1000, null, instanceReport, null));
 
             assertTrue(solved.solves(testInstance));
             System.out.println(solved.readableToString());
@@ -380,45 +392,6 @@ class OnlineCBSSolverTest {
             assertTrue(solved.solves(testInstance));
             System.out.println(solved.readableToString());
         }
-    }
-
-    /*  = Cost Of Reroute =  */
-
-    @Test
-    void correctCostSmall() {
-        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
-        OnlineAgent agent12to53at2 = new OnlineAgent(1, coor12, coor53, 2);
-        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor53, 2);
-        OnlineAgent[] agents = new OnlineAgent[3];
-        agents[0] = agent53to02at0;
-        agents[1] = agent12to53at2;
-        agents[2] = agent22to53at2;
-        MAPF_Instance testInstance = new MAPF_Instance("corridors should reroute", mapCorridors, agents);
-
-        RunParameters runParameters = new RunParameters(instanceReport);
-        Solution solved = solver.solve(testInstance, runParameters);
-
-        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS();
-        InstanceReport tmpInstanceReport = S_Metrics.newInstanceReport();
-        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
-        S_Metrics.removeReport(tmpInstanceReport);
-
-        assertTrue(solved.solves(testInstance));
-
-        /*
-        The online solver will first send the initial agent through the left corridor, but when the new agents arrive,
-        it wil reroute the initial agent through the right corridor, as that adds less to the cost than having both new
-        agents wait or reroute.
-        The offline solver will route the agent arriving at t=0 through the right from its first step, resulting in a
-        lower SOC.
-         */
-        int costOfReroute = 17;
-        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
-        // there was a single reroute, so cost should be SOC + the cost of a single reroute.
-        assertEquals(19 + costOfReroute, costIncludingReroutes);
-        // reroutes don't happen when solving offline, so should be 0.
-        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
-        assertEquals(0, rerouteCostsWhenOffline);
     }
 
     @Test
@@ -450,99 +423,266 @@ class OnlineCBSSolverTest {
         assertEquals(0, rerouteCostsWhenOffline);
     }
 
+    /**
+     * This contains diverse instances, and compares two optimal solvers
+     */
     @Test
-    void optimalWithCORSmall() {
-        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
-        OnlineAgent agent12to53at2 = new OnlineAgent(1, coor12, coor53, 2);
-        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor53, 2);
-        OnlineAgent[] agents = new OnlineAgent[3];
-        agents[0] = agent53to02at0;
-        agents[1] = agent12to53at2;
-        agents[2] = agent22to53at2;
-        MAPF_Instance testInstance = new MAPF_Instance("corridors should reroute", mapCorridors, agents);
+    void comparativeDiverseTest(){
+        S_Metrics.clearAll();
+        boolean useAsserts = true;
 
-        int costOfReroute = 17;
-        RunParameters runParameters = new RunParametersOnline(instanceReport, costOfReroute);
-        Solution solved = solver.solve(testInstance, runParameters);
+        I_Solver cbs = new OnlineSolverContainer(new OnlineCBSSolver());
+        String nameBaseline = "onlineCbs";
+        I_Solver icts = new OnlineSolverContainer(new OnlineICTSSolver());
+        String nameExperimental = "OnlineICTS";
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "OnlineComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+//                new InstanceProperties(null, -1d, new int[]{5, 10, 15, 20, 25}));
+                new InstanceProperties(null, -1d, new int[]{5, 10}));
 
-        I_Solver offlineSolverGivenReroutes = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null), true);
-        InstanceReport tmpInstanceReport1 = S_Metrics.newInstanceReport();
-        Solution solvedOfflineGivenReroutes = offlineSolverGivenReroutes.solve(testInstance, new RunParameters(tmpInstanceReport1));
-        S_Metrics.removeReport(tmpInstanceReport1);
+        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
+        MAPF_Instance instance = null;
+//        long timeout = 60 /*seconds*/   *1000L;
+        long timeout = 5 /*seconds*/   *1000L;
+        int solvedByBaseline = 0;
+        int solvedByExperimental = 0;
+        int runtimeBaseline = 0;
+        int runtimeExperimental = 0;
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
 
-        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null), true);
-        InstanceReport tmpInstanceReport2 = S_Metrics.newInstanceReport();
-        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport2));
-        S_Metrics.removeReport(tmpInstanceReport2);
+            // run baseline (without the improvement)
+            //build report
+            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
 
-        assertTrue(solved.solves(testInstance));
+            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
 
-        System.out.println(solved.readableToString());
+            //solve
+            Solution solutionBaseline = cbs.solve(instance, runParametersBaseline);
 
-        /*
-        The online solver now considers the cost of rerouting an agent (COR) vs the increase in SOC. It should now prefer
-        to increase SOC at that time by preserving the plan of the initial agent, and having one of the new agents go around
-        or wait for a cost increase of 5 over optimal individual plan, and having the other new agent wait for a cost increase
-         of 4 over optimal individual plan.
-         */
-        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
-        // no reroutes, and a higher SOC than without reroutes.
-        // these costs include the cost of mocing out of the garage, which is not included in SOC
-        int expectedAgent1Cost = 7;
-        int expectedAgent2Cost = 10;
-        int expectedAgent3Cost = 8;
-        assertEquals(expectedAgent1Cost, solved.getPlanFor(agent53to02at0).size());
-        assertEquals(expectedAgent2Cost, solved.getPlanFor(agent12to53at2).size());
-        assertEquals(expectedAgent3Cost, solved.getPlanFor(agent22to53at2).size());
-        assertEquals((expectedAgent1Cost-solved.size()) + expectedAgent2Cost + expectedAgent3Cost, costIncludingReroutes);
-        // reroutes don't happen when solving offline, so should be 0.
-        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
-        assertEquals(0, rerouteCostsWhenOffline);
-        // SOC should be unaffected when solving offline
-        assertEquals(solvedOffline.sumIndividualCosts(), solvedOfflineGivenReroutes.sumIndividualCosts());
+            // run experimentl (with the improvement)
+            //build report
+            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+
+            //solve
+            Solution solutionExperimental = icts.solve(instance, runParametersExperimental);
+
+            // compare
+
+            boolean baselineSolved = solutionBaseline != null;
+            solvedByBaseline += baselineSolved ? 1 : 0;
+            boolean experimentalSolved = solutionExperimental != null;
+            solvedByExperimental += experimentalSolved ? 1 : 0;
+            System.out.println(nameBaseline + " Solved?: " + (baselineSolved ? "yes" : "no") +
+                    " ; " + nameExperimental + " solved?: " + (experimentalSolved ? "yes" : "no"));
+
+            if(solutionBaseline != null){
+                boolean valid = solutionBaseline.solves(instance);
+                System.out.print(nameBaseline + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+
+            if(solutionExperimental != null){
+                boolean valid = solutionExperimental.solves(instance);
+                System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+            else{
+                System.out.println();
+            }
+
+            if(solutionBaseline != null && solutionExperimental != null){
+                int optimalCost = solutionBaseline.sumIndividualCosts();
+                int costWeGot = solutionExperimental.sumIndividualCosts();
+                boolean optimal = optimalCost==costWeGot;
+                System.out.println(nameExperimental + " cost is " + (optimal ? "optimal (" + costWeGot +")" :
+                        ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
+                reportBaseline.putIntegerValue("Cost Delta", costWeGot - optimalCost);
+                reportExperimental.putIntegerValue("Cost Delta", costWeGot - optimalCost);
+                if (useAsserts) assertEquals(optimalCost, costWeGot);
+
+                // runtimes
+                runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                runtimeExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                reportBaseline.putIntegerValue("Runtime Delta",
+                        reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
+                                - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+            }
+        }
+
+        System.out.println("--- TOTALS: ---");
+        System.out.println("timeout for each (seconds): " + (timeout/1000));
+        System.out.println(nameBaseline + " solved: " + solvedByBaseline);
+        System.out.println(nameExperimental + " solved: " + solvedByExperimental);
+        System.out.println("runtime totals (instances where both solved) :");
+        System.out.println(nameBaseline + " time: " + runtimeBaseline);
+        System.out.println(nameExperimental + " time: " + runtimeExperimental);
+
+        //save results
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+        File directory = new File(resultsOutputDir);
+        if (! directory.exists()){
+            directory.mkdir();
+        }
+        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        try {
+            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                    new String[]{
+                            InstanceReport.StandardFields.instanceName,
+                            InstanceReport.StandardFields.solver,
+                            InstanceReport.StandardFields.numAgents,
+                            InstanceReport.StandardFields.timeoutThresholdMS,
+                            InstanceReport.StandardFields.solved,
+                            InstanceReport.StandardFields.elapsedTimeMS,
+                            "Runtime Delta",
+                            InstanceReport.StandardFields.solutionCost,
+                            "Cost Delta",
+                            InstanceReport.StandardFields.totalLowLevelTimeMS,
+                            InstanceReport.StandardFields.generatedNodes,
+                            InstanceReport.StandardFields.expandedNodes,
+                            InstanceReport.StandardFields.generatedNodesLowLevel,
+                            InstanceReport.StandardFields.expandedNodesLowLevel});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-    @Test
-    void optimalWithCORWaitingForGodot() {
-        InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online", "MovingAI", "WaitingForGodot"}),
-                builderMovingAI, new InstanceProperties(null, -1, new int[]{12}));
-        MAPF_Instance testInstance = im.getNextInstance();
-        System.out.println("------------ solving " + testInstance.name);
-        int costOfReroute = 5;
-        RunParameters runParameters = new RunParametersOnline(instanceReport, costOfReroute);
-        Solution solved = solver.solve(testInstance, runParameters);
-        RunParameters runParameters2 = new RunParameters(instanceReport);
-        Solution solvedWithoutCOR = solver.solve(testInstance, runParameters2);
-
-        assertTrue(solved.solves(testInstance));
-        System.out.println(solved.readableToString());
-
-        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS();
-        InstanceReport tmpInstanceReport = S_Metrics.newInstanceReport();
-        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
-        S_Metrics.removeReport(tmpInstanceReport);
-
-        assertTrue(solved.solves(testInstance));
-
-        /*
-        Now that there is a cost to reroutes, the solver should prefer to not reroute agent 0, instead delaying the new
-        agents. Every time new agents appear, the choice would again be made to prioritize maintaining the plans of the
-        existing agents.
-         */
-        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
-        assertEquals(solved.sumIndividualCosts(), costIncludingReroutes);
-        // reroutes don't happen when solving offline, so should be 0.
-        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
-        assertEquals(0, rerouteCostsWhenOffline);
-    }
-
+//
+//    /*  = Cost Of Reroute =  */
+//
 //    @Test
-//    void optimalWhenUsingPreserveSolutionInRoot() {
-//        MAPF_Instance testInstance = instanceDiameter5;
-//        I_Solver solverWithRootPreservation = new OnlineSolverContainer(new OnlineCBSSolver(true));
-//        Solution solved = solverWithRootPreservation.solve(testInstance, new RunParameters(instanceReport));
+//    void correctCORCostSmall() {
+//        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
+//        OnlineAgent agent12to53at2 = new OnlineAgent(1, coor12, coor53, 2);
+//        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor53, 2);
+//        OnlineAgent[] agents = new OnlineAgent[3];
+//        agents[0] = agent53to02at0;
+//        agents[1] = agent12to53at2;
+//        agents[2] = agent22to53at2;
+//        MAPF_Instance testInstance = new MAPF_Instance("corridors should reroute", mapCorridors, agents);
+//
+//        RunParameters runParameters = new RunParameters(instanceReport);
+//        Solution solved = solver.solve(testInstance, runParameters);
+//
+//        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS();
+//        InstanceReport tmpInstanceReport = S_Metrics.newInstanceReport();
+//        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
+//        S_Metrics.removeReport(tmpInstanceReport);
+//
+//        assertTrue(solved.solves(testInstance));
+//
+//        /*
+//        The online solver will first send the initial agent through the left corridor, but when the new agents arrive,
+//        it wil reroute the initial agent through the right corridor, as that adds less to the cost than having both new
+//        agents wait or reroute.
+//        The offline solver will route the agent arriving at t=0 through the right from its first step, resulting in a
+//        lower SOC.
+//         */
+//        int costOfReroute = 17;
+//        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
+//        // there was a single reroute, so cost should be SOC + the cost of a single reroute.
+//        assertEquals(19 + costOfReroute, costIncludingReroutes);
+//        // reroutes don't happen when solving offline, so should be 0.
+//        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
+//        assertEquals(0, rerouteCostsWhenOffline);
+//    }
+//
+//    @Test
+//    void optimalWithCORSmall() {
+//        OnlineAgent agent53to02at0 = new OnlineAgent(0, coor53, coor02, 0);
+//        OnlineAgent agent12to53at2 = new OnlineAgent(1, coor12, coor53, 2);
+//        OnlineAgent agent22to53at2 = new OnlineAgent(2, coor22, coor53, 2);
+//        OnlineAgent[] agents = new OnlineAgent[3];
+//        agents[0] = agent53to02at0;
+//        agents[1] = agent12to53at2;
+//        agents[2] = agent22to53at2;
+//        MAPF_Instance testInstance = new MAPF_Instance("corridors should reroute", mapCorridors, agents);
+//
+//        int costOfReroute = 17;
+//        RunParameters runParameters = new RunParametersOnline(instanceReport, costOfReroute);
+//        Solution solved = solver.solve(testInstance, runParameters);
+//
+//        I_Solver offlineSolverGivenReroutes = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null), true);
+//        InstanceReport tmpInstanceReport1 = S_Metrics.newInstanceReport();
+//        Solution solvedOfflineGivenReroutes = offlineSolverGivenReroutes.solve(testInstance, new RunParameters(tmpInstanceReport1));
+//        S_Metrics.removeReport(tmpInstanceReport1);
+//
+//        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS(null, -1, new COR_CBS_CostFunction(costOfReroute, null), new OnlineAStar(costOfReroute, null), true);
+//        InstanceReport tmpInstanceReport2 = S_Metrics.newInstanceReport();
+//        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport2));
+//        S_Metrics.removeReport(tmpInstanceReport2);
+//
+//        assertTrue(solved.solves(testInstance));
 //
 //        System.out.println(solved.readableToString());
-//        validate(solved, 2, 9, 5, testInstance);
+//
+//        /*
+//        The online solver now considers the cost of rerouting an agent (COR) vs the increase in SOC. It should now prefer
+//        to increase SOC at that time by preserving the plan of the initial agent, and having one of the new agents go around
+//        or wait for a cost increase of 5 over optimal individual plan, and having the other new agent wait for a cost increase
+//         of 4 over optimal individual plan.
+//         */
+//        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
+//        // no reroutes, and a higher SOC than without reroutes.
+//        // these costs include the cost of mocing out of the garage, which is not included in SOC
+//        int expectedAgent1Cost = 7;
+//        int expectedAgent2Cost = 10;
+//        int expectedAgent3Cost = 8;
+//        assertEquals(expectedAgent1Cost, solved.getPlanFor(agent53to02at0).size());
+//        assertEquals(expectedAgent2Cost, solved.getPlanFor(agent12to53at2).size());
+//        assertEquals(expectedAgent3Cost, solved.getPlanFor(agent22to53at2).size());
+//        assertEquals((expectedAgent1Cost-solved.size()) + expectedAgent2Cost + expectedAgent3Cost, costIncludingReroutes);
+//        // reroutes don't happen when solving offline, so should be 0.
+//        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
+//        assertEquals(0, rerouteCostsWhenOffline);
+//        // SOC should be unaffected when solving offline
+//        assertEquals(solvedOffline.sumIndividualCosts(), solvedOfflineGivenReroutes.sumIndividualCosts());
 //    }
+
+//    @Test
+//    void optimalWithCORWaitingForGodot() {
+//        InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances", "Online", "MovingAI", "WaitingForGodot"}),
+//                builderMovingAI, new InstanceProperties(null, -1, new int[]{12}));
+//        MAPF_Instance testInstance = im.getNextInstance();
+//        System.out.println("------------ solving " + testInstance.name);
+//        int costOfReroute = 5;
+//        RunParameters runParameters = new RunParametersOnline(instanceReport, costOfReroute);
+//        Solution solved = solver.solve(testInstance, runParameters);
+//        RunParameters runParameters2 = new RunParameters(instanceReport);
+//        Solution solvedWithoutCOR = solver.solve(testInstance, runParameters2);
+//
+//        assertTrue(solved.solves(testInstance));
+//        System.out.println(solved.readableToString());
+//
+//        I_Solver offlineSolver = new OnlineCompatibleOfflineCBS();
+//        InstanceReport tmpInstanceReport = S_Metrics.newInstanceReport();
+//        Solution solvedOffline = offlineSolver.solve(testInstance, new RunParameters(tmpInstanceReport));
+//        S_Metrics.removeReport(tmpInstanceReport);
+//
+//        assertTrue(solved.solves(testInstance));
+//
+//        /*
+//        Now that there is a cost to reroutes, the solver should prefer to not reroute agent 0, instead delaying the new
+//        agents. Every time new agents appear, the choice would again be made to prioritize maintaining the plans of the
+//        existing agents.
+//         */
+//        int costIncludingReroutes = ((OnlineSolution)solved).costOfReroutes(costOfReroute) + solved.sumIndividualCosts();
+//        assertEquals(solved.sumIndividualCosts(), costIncludingReroutes);
+//        // reroutes don't happen when solving offline, so should be 0.
+//        int rerouteCostsWhenOffline = ((OnlineSolution)solvedOffline).costOfReroutes(costOfReroute);
+//        assertEquals(0, rerouteCostsWhenOffline);
+//    }
+
+
 }

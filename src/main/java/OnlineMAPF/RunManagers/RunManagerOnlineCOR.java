@@ -112,10 +112,10 @@ public class RunManagerOnlineCOR extends A_RunManager {
     private void addExperimentCOR() {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive - AR1"});
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{60});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(path, new OnlineInstanceBuilder_MovingAI(), properties);

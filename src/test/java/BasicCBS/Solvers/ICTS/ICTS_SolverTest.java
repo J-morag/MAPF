@@ -14,8 +14,6 @@ import BasicCBS.Instances.Maps.I_Map;
 import BasicCBS.Instances.Maps.MapDimensions;
 import BasicCBS.Instances.Maps.MapFactory;
 import BasicCBS.Solvers.CBS.CBS_Solver;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
@@ -119,7 +117,7 @@ class ICTS_SolverTest {
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
     private MAPF_Instance instanceSmallMaze = new MAPF_Instance("instanceUnsolvable2", mapSmallMaze, new Agent[]{agent04to00, agent00to10});
 
-    I_Solver cbsSolver = new ICTS_Solver();
+    I_Solver ictsSolver = new ICTS_Solver();
 
     @BeforeEach
     void setUp() {
@@ -139,7 +137,7 @@ class ICTS_SolverTest {
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ictsSolver.solve(testInstance, new RunParameters(instanceReport));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -150,7 +148,7 @@ class ICTS_SolverTest {
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ictsSolver.solve(testInstance, new RunParameters(instanceReport));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -162,7 +160,7 @@ class ICTS_SolverTest {
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ictsSolver.solve(testInstance, new RunParameters(instanceReport));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -173,89 +171,85 @@ class ICTS_SolverTest {
     void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = ictsSolver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
     }
 
-//
-//    @Test
-//    void cbsWithPriorities() {
-//        I_Solver solver = new CBS_Solver(null, null, null,
-//                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null);
-//        InstanceReport instanceReport = new InstanceReport();
-//
-//        Agent agent0 = new Agent(0, coor33, coor12, 10);
-//        Agent agent1 = new Agent(1, coor12, coor33, 1);
-//
-//        MAPF_Instance agent0prioritisedInstance = new MAPF_Instance("agent0prioritised", mapCircle, new Agent[]{agent0, agent1});
-//        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParameters(instanceReport));
-//
-//        agent0 = new Agent(0, coor33, coor12, 1);
-//        agent1 = new Agent(1, coor12, coor33, 10);
-//
-//        MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
-//        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
-//
-//        System.out.println(agent0prioritisedSolution.readableToString());
-//        validate(agent0prioritisedSolution, 2, 8, 5, agent0prioritisedInstance);
-//
-//        System.out.println(agent1prioritisedSolution.readableToString());
-//        validate(agent1prioritisedSolution, 2, 8, 5, agent1prioritisedInstance);
-//
-//        // check that agents were logically prioritised to minimise cost with priorities
-//
-//        assertEquals(agent0prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
-//        assertEquals(agent0prioritisedSolution.getPlanFor(agent0).size(), 3);
-//
-//        assertEquals(agent1prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
-//        assertEquals(agent1prioritisedSolution.getPlanFor(agent1).size(), 3);
-//    }
-//
-//    @Test
-//    void cbsWithPrioritiesUsingBuilder() {
-//        boolean useAsserts = true;
-//
-//        I_Solver solver = new CBS_Solver(null, null, null,
-//                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null);
-//        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-//                "TestingBenchmark"});
-//        InstanceManager instanceManager = new InstanceManager(path,
-//                new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.ROUND_ROBIN, new int[]{1, 3, 5})));
-//
-//        MAPF_Instance instance = null;
-//        long timeout = 30 /*seconds*/
-//                *1000L;
-//
-//        // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-//        while ((instance = instanceManager.getNextInstance()) != null) {
-//            InstanceReport report = new InstanceReport();
-//
-//            RunParameters runParameters = new RunParameters(timeout, null, report, null);
-//
-//            //solve
-//            System.out.println("---------- solving "  + instance.name + " ----------");
-//            Solution solution = solver.solve(instance, runParameters);
-//
-//            // validate
-//            boolean solved = solution != null;
-//            System.out.println("Solved?: " + (solved ? "yes" : "no"));
-//
-//            if(solution != null){
-//                boolean valid = solution.solves(instance);
-//                System.out.println("Valid?: " + (valid ? "yes" : "no"));
-//                if (useAsserts) assertTrue(valid);
-//            }
-//        }
-//    }
+
+    @Test
+    void ictsWithPriorities() {
+        InstanceReport instanceReport = new InstanceReport();
+
+        Agent agent0 = new Agent(0, coor33, coor12, 10);
+        Agent agent1 = new Agent(1, coor12, coor33, 1);
+
+        MAPF_Instance agent0prioritisedInstance = new MAPF_Instance("agent0prioritised", mapCircle, new Agent[]{agent0, agent1});
+        Solution agent0prioritisedSolution = ictsSolver.solve(agent0prioritisedInstance, new RunParameters(instanceReport));
+
+        agent0 = new Agent(0, coor33, coor12, 1);
+        agent1 = new Agent(1, coor12, coor33, 10);
+
+        MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
+        Solution agent1prioritisedSolution = ictsSolver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
+
+        System.out.println(agent0prioritisedSolution.readableToString());
+        validate(agent0prioritisedSolution, 2, 35, 5, agent0prioritisedInstance);
+
+        System.out.println(agent1prioritisedSolution.readableToString());
+        validate(agent1prioritisedSolution, 2, 35, 5, agent1prioritisedInstance);
+
+        // check that agents were logically prioritised to minimise cost with priorities
+
+        assertEquals(agent0prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
+        assertEquals(agent0prioritisedSolution.getPlanFor(agent0).size(), 3);
+
+        assertEquals(agent1prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
+        assertEquals(agent1prioritisedSolution.getPlanFor(agent1).size(), 3);
+    }
+
+    @Test
+    void ictsWithPrioritiesUsingBuilder() {
+        boolean useAsserts = true;
+
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "TestingBenchmark"});
+        InstanceManager instanceManager = new InstanceManager(path,
+                new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.ROUND_ROBIN, new int[]{1, 3, 5})));
+
+        MAPF_Instance instance = null;
+        long timeout = 5 /*seconds*/
+                *1000L;
+
+        // run all benchmark instances. this code is mostly copied from Environment.Experiment.
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            InstanceReport report = new InstanceReport();
+
+            RunParameters runParameters = new RunParameters(timeout, null, report, null);
+
+            //solve
+            System.out.println("---------- solving "  + instance.name + " ----------");
+            Solution solution = ictsSolver.solve(instance, runParameters);
+
+            // validate
+            boolean solved = solution != null;
+            System.out.println("Solved?: " + (solved ? "yes" : "no"));
+
+            if(solution != null){
+                boolean valid = solution.solves(instance);
+                System.out.println("Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+        }
+    }
 
     @Test
     void TestingBenchmark(){
         S_Metrics.clearAll();
         boolean useAsserts = false;
 
-        I_Solver solver = cbsSolver;
+        I_Solver solver = ictsSolver;
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -263,7 +257,7 @@ class ICTS_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 10 /*seconds*/
+            long timeout = 5 /*seconds*/
                     *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
             int numSolved = 0;
@@ -274,13 +268,9 @@ class ICTS_SolverTest {
             int numInvalidOptimal = 0;
             // run all benchmark instances. this code is mostly copied from Environment.Experiment.
             while ((instance = instanceManager.getNextInstance()) != null) {
-//                // has start at goal which we don't currently support
-//                boolean hasStartAtGoal = false;
-//                for (Agent agent :
-//                        instance.agents) {
-//                    hasStartAtGoal |= agent.source.equals(agent.target);
+//                if (!instance.name.equals("Instance-32-20-20-0")){
+//                    continue;
 //                }
-//                if (hasStartAtGoal) continue;
 
                 //build report
                 InstanceReport report = S_Metrics.newInstanceReport();
@@ -404,7 +394,7 @@ class ICTS_SolverTest {
 
 
     /**
-     * This contains diverse instances
+     * This contains diverse instances, and compares two optimal solvers
      */
     @Test
     void comparativeDiverseTest(){
@@ -478,6 +468,7 @@ class ICTS_SolverTest {
                 System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
                 if (useAsserts) assertTrue(valid);
             }
+            else System.out.println();
 
             if(solutionBaseline != null && solutionExperimental != null){
                 int optimalCost = solutionBaseline.sumIndividualCosts();
@@ -487,7 +478,7 @@ class ICTS_SolverTest {
                         ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
                 reportBaseline.putIntegerValue("Cost Delta", costWeGot - optimalCost);
                 reportExperimental.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-                if (useAsserts) assertEquals(optimalCost, costWeGot);
+                if (useAsserts) assertTrue(optimal);
 
                 // runtimes
                 runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);

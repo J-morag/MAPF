@@ -25,16 +25,16 @@ public class DistanceTableAStarHeuristicTest {
     I_Map map= MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
 
     /*   = Equals Maps =    */
-    private boolean equalsAllAgentMap(Map<Agent, Map<I_Location, Integer>> expectedValues, Map<Agent, Map<I_Location, Integer>> actualValues){
+    private boolean equalsAllAgentMap(Map<I_Location, Map<I_Location, Integer>> expectedValues, Map<I_Location, Map<I_Location, Integer>> actualValues){
 
         if( expectedValues.size() != actualValues.size() ){
             return false;
         }
-        for (Map.Entry<Agent, Map<I_Location, Integer>> agentMapEntry: expectedValues.entrySet()){
+        for (Map.Entry<I_Location, Map<I_Location, Integer>> agentMapEntry: expectedValues.entrySet()){
 
-            Agent agent = agentMapEntry.getKey();
-            Map<I_Location, Integer> expectedCellMap = expectedValues.get(agent);
-            Map<I_Location, Integer> actualCellMap = actualValues.get(agent);
+            I_Location target = agentMapEntry.getKey();
+            Map<I_Location, Integer> expectedCellMap = expectedValues.get(target);
+            Map<I_Location, Integer> actualCellMap = actualValues.get(target);
 
             if (! this.equalsAllCellMap(expectedCellMap,actualCellMap)){
                 return false;
@@ -87,9 +87,9 @@ public class DistanceTableAStarHeuristicTest {
 
         /*      = Expected values =     */
 
-        Map<Agent, Map<I_Location, Integer>> expected=new HashMap<>();
-        Map<I_Location, Integer> insideMap=new HashMap<>();
-        Map<I_Location, Integer> insideMap2=new HashMap<>();
+        Map<I_Location, Map<I_Location, Integer>> expected = new HashMap<>();
+        Map<I_Location, Integer> insideMap = new HashMap<>();
+        Map<I_Location, Integer> insideMap2 = new HashMap<>();
         insideMap.put(map.getMapCell(new Coordinate_2D(1,3)),1);
         insideMap.put(map.getMapCell(new Coordinate_2D(2,3)),2);
         insideMap.put(map.getMapCell(new Coordinate_2D(1,2)),2);
@@ -108,11 +108,11 @@ public class DistanceTableAStarHeuristicTest {
         insideMap2.put(map.getMapCell(new Coordinate_2D(2,0)),5);
         insideMap2.put(map.getMapCell(new Coordinate_2D(2,3)),0);
 
-        expected.put(agent_1,insideMap);
-        expected.put(agent_2,insideMap2);
+        expected.put(map.getMapCell(agent_1.target), insideMap);
+        expected.put(map.getMapCell(agent_2.target), insideMap2);
 
         /*  = Test actual values =  */
-        DistanceTableAStarHeuristic distanceTableAStarHeuristic=new DistanceTableAStarHeuristic(list,map);
+        DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(list, map);
 
         Assert.assertTrue(equalsAllAgentMap(expected, distanceTableAStarHeuristic.getDistanceDictionaries()));
     }

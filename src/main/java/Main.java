@@ -12,7 +12,7 @@ import Environment.Metrics.S_Metrics;
 import Environment.RunManagerSimpleExample;
 import Environment.TestingBenchmarkRunManager;
 import OnlineMAPF.OnlineInstanceBuilder_BGU;
-import OnlineMAPF.RunManagers.RunManagerPriorities;
+import OnlineMAPF.RunManagers.RunManagerSnapshotVSOracle;
 import OnlineMAPF.Solvers.OnlineAStar;
 import OnlineMAPF.Solvers.OnlinePP_Solver;
 
@@ -43,14 +43,14 @@ public class Main {
     public static void main(String[] args) {
         if(verifyOutputPath()){
 
-            runOnlineExperiment(new RunManagerPriorities());
-            try {
-                Thread.sleep(1100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            S_Metrics.clearAll();
-//            runOnlineExperiment(new RunManagerOnlineCOR());
+//            runOnlineExperiment(new RunManagerPriorities());
+//            try {
+//                Thread.sleep(1100);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            S_Metrics.clearAll();
+            runOnlineExperiment(new RunManagerSnapshotVSOracle());
 
 //            // write the reports to System.out
 //            addConsoleAsOutputStream();
