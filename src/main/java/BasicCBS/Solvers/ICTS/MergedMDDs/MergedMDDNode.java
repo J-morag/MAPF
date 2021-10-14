@@ -13,6 +13,7 @@ public class MergedMDDNode {
     private List<MDDNode> mddNodes;
     private List<MergedMDDNode> parents;
     private int depth;
+    private  static final boolean debug = false;
 
     /**
      * @param depth depth in the merged mdd
@@ -25,10 +26,16 @@ public class MergedMDDNode {
     }
 
     public void addParent(MergedMDDNode parent){
+        if (debug && parents.contains(parent)) throw new IllegalArgumentException("Should not have duplicate parents");
         parents.add(parent);
     }
 
     public void addParents(List<MergedMDDNode> otherParents){
+        if (debug){
+            for (MergedMDDNode parent : otherParents){
+                if (parents.contains(parent)) throw new IllegalArgumentException("Should not have duplicate parents");
+            }
+        }
         this.parents.addAll(otherParents);
     }
 
