@@ -111,7 +111,7 @@ public class CBS_Solver extends A_Solver {
      * Default constructor.
      */
     public CBS_Solver() {
-        this(null, null, null, null, null, true);
+        this(null, null, null, null, null, false);
     }
 
     /**
@@ -119,7 +119,7 @@ public class CBS_Solver extends A_Solver {
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
                       CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator){
-        this(lowLevelSolver, openList, openListManagementMode, costFunction, cbsNodeComparator, true);
+        this(lowLevelSolver, openList, openListManagementMode, costFunction, cbsNodeComparator, false);
     }
 
     /*  = initialization =  */
