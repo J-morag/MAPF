@@ -46,7 +46,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
     public OnlineCompatibleOfflineCBS(Map<Agent, I_Location> customStartLocations, int customStartTime, CBSCostFunction costFunction, OnlineAStar onlineAStar, Boolean useCorridorReasoning) {
         // use online aStar.
         super(Objects.requireNonNullElseGet(onlineAStar, OnlineAStar::new), null, null,
-                costFunction, null, Objects.requireNonNullElse(useCorridorReasoning, true));
+                costFunction, null, Objects.requireNonNullElse(useCorridorReasoning, false));
         this.customStartLocations = Objects.requireNonNullElseGet(customStartLocations, HashMap::new);
         this.customStartTime = customStartTime;
     }
@@ -60,7 +60,7 @@ public class OnlineCompatibleOfflineCBS extends CBS_Solver {
     }
 
     public OnlineCompatibleOfflineCBS(){
-        this(null, true);
+        this(null, false);
     }
 
     @Override

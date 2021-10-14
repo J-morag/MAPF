@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 public class OnlineCBSSolver extends A_OnlineSolver {
 
-    protected boolean useCorridorReasoning = true;
+    protected boolean useCorridorReasoning = false;
 
     public OnlineCBSSolver() {
         super();

@@ -30,9 +30,9 @@ public class RunManagerPriorities extends A_RunManager {
         this.solvers.add(new OnlineSolverContainer(stratifiedReplanSingle));
         StratifiedPrioritiesOnlineSolver stratifiedSnapshot= new StratifiedPrioritiesOnlineSolver(StratifiedPrioritiesOnlineSolver.OfflineSolverStrategy.CBS);
         this.solvers.add(new OnlineSolverContainer(stratifiedSnapshot));
-        OnlineICTSSolver snapshotICTS = new OnlineICTSSolver();
-        snapshotICTS.name = "OnlineScratchICTS";
-        this.solvers.add(new OnlineSolverContainer(snapshotICTS));
+//        OnlineICTSSolver snapshotICTS = new OnlineICTSSolver();
+//        snapshotICTS.name = "OnlineScratchICTS";
+//        this.solvers.add(new OnlineSolverContainer(snapshotICTS));
         OnlineCBSSolver snapshotCBS = new OnlineCBSSolver();
         snapshotCBS.name = "OnlineScratchCBS";
         this.solvers.add(new OnlineSolverContainer(snapshotCBS));
@@ -128,7 +128,7 @@ public class RunManagerPriorities extends A_RunManager {
     private void addExperimentsPriorities(int light, int heavy, Priorities.PrioritiesPolicy policy) {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive - AR1"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
@@ -148,7 +148,7 @@ public class RunManagerPriorities extends A_RunManager {
     private void addExperimentsPriorities(int light, int medium, int heavy, Priorities.PrioritiesPolicy policy) {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                "Instances\\\\Online\\\\MovingAI_Instances\\\\IJCAI2020"});
+                "Instances\\\\Online\\\\MovingAI_Instances\\\\extensive - AR1"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{40});
