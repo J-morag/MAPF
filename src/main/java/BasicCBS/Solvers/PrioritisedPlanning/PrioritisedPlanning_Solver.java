@@ -2,6 +2,7 @@ package BasicCBS.Solvers.PrioritisedPlanning;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicCBS.Solvers.*;
@@ -30,6 +31,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     private ConstraintSet constraints;
 
+    private Random random;
+
     /*  =  = Fields related to the class instance =  */
 
     /**
@@ -42,6 +45,18 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * the highest priority, the one after will have the second highest priority, and so forth.
      */
     private final Comparator<Agent> agentComparator;
+
+    /**
+     * How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
+     * Total number of runs will be this + 1.
+     */
+    private final int randomRestarts;
+
+    /**
+     * The cost function to evaluate solutions with.
+     */
+    private RunParameters_PP.SolutionCostFunction solutionCostFunction;
+
     /*  = Constructors =  */
 
     /**
@@ -51,7 +66,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null);
+        this(lowLevelSolver, null, null);
     }
 
     /**
@@ -59,7 +74,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator);
+        this(null, agentComparator, null);
     }
 
     /**
@@ -67,9 +82,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
-    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator) {
+    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer randomRestarts) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
+        this.randomRestarts = Objects.requireNonNullElse(randomRestarts, 0);
     }
 
     /*  = initialization =  */
@@ -85,6 +101,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        this.random = new Random(42);
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
@@ -95,6 +112,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
             //reorder according to requested priority
             if(parametersPP.preferredPriorityOrder != null) {reorderAgentsByPriority(parametersPP.preferredPriorityOrder);}
+
+            this.solutionCostFunction = parametersPP.solutionCostFunction;
         }
     }
 
@@ -130,29 +149,42 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param initialConstraints
      */
     protected Solution solvePrioritisedPlanning(List<? extends Agent> agents, MAPF_Instance instance, ConstraintSet initialConstraints) {
-        Solution solution = new Solution();
+        Solution bestSolution = null;
+        // if using random restarts, try more than once and randomize between them
+        for (int attemptNumber = 0; attemptNumber < this.randomRestarts + 1; attemptNumber++) {
+            Solution solution = new Solution();
+            ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
+            //solve for each agent while avoiding the plans of previous agents
+            for (int i = 0; i < agents.size(); i++) {
+                if (checkTimeout()) break;
 
-        //solve for each agent while avoiding the plans of previous agents
-        for (int i = 0; i < agents.size(); i++) {
-            if (checkTimeout()) break;
+                //solve the subproblem for one agent
+                SingleAgentPlan planForAgent = solveSubproblem(agents.get(i), instance, currentConstraints);
 
-            //solve the subproblem for one agent
-            SingleAgentPlan planForAgent = solveSubproblem(agents.get(i), instance, initialConstraints);
+                // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
+                if(planForAgent == null) {
+                    solution = null;
+                    instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
+                    break;
+                }
+                //save the plan for this agent
+                solution.putPlan(planForAgent);
 
-            // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
-            if(planForAgent == null) {
-                solution = null;
-                instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
-                break;
+                //add constraints to prevent the next agents from conflicting with the new plan
+                currentConstraints.addAll(allConstraintsForPlan(planForAgent));
             }
-            //save the plan for this agent
-            solution.putPlan(planForAgent);
-
-            //add constraints to prevent the next agents from conflicting with the new plan
-            initialConstraints.addAll(allConstraintsForPlan(planForAgent));
+            // random restarts
+            if (bestSolution == null){
+                bestSolution = solution;
+            }
+            else if (solution != null && solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)){
+                bestSolution = solution;
+            }
+            if (this.randomRestarts > 0){
+                Collections.shuffle(this.agents, this.random);
+            }
         }
-
-        return solution;
+        return bestSolution;
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints) {
@@ -219,10 +251,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 /*the constraint is in opposite direction of the move*/ move.currLocation, move.prevLocation);
     }
 
+    private Constraint goalConstraintForMove(Move move){
+        return new GoalConstraint(null, move.timeNow, move.currLocation);
+    }
+
     /**
      * Creates constraints to protect a {@link SingleAgentPlan plan}.
-     * To also protect an agent at its goal, extra vertex constraints are added. This is not efficient and doesn't
-     * guarantee validity.
      * @param planForAgent
      * @return
      */
@@ -234,12 +268,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             constraints.add(vertexConstraintsForMove(move));
             constraints.add(swappingConstraintsForMove(move));
         }
-        // protect the agent at goal. add vertex constraints for three times the length of the plan.
-        Move lastMove = planForAgent.moveAt(planForAgent.getEndTime());
-        for (int time = lastMove.timeNow + 1; time < lastMove.timeNow + (planForAgent.size() * 2 ); time++) {
-            constraints.add(new Constraint(null, time, lastMove.currLocation));
-        }
-
+        constraints.add(goalConstraintForMove(planForAgent.moveAt(planForAgent.getEndTime())));
         return constraints;
     }
 

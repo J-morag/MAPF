@@ -20,6 +20,11 @@ public class ConstraintSet{
      */
     protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
 
+    /**
+     * Goal constraints. Locations in this collection are reserved starting from the constraint's time, indefinitely.
+     */
+    protected final Map<I_Location, GoalConstraint> goalConstraints = new HashMap<>();
+
     public ConstraintSet() {
     }
 
@@ -53,6 +58,9 @@ public class ConstraintSet{
                 this.add(rangeConstraint.getConstraint(time));
             }
         }
+        else if (constraint instanceof GoalConstraint){
+            this.goalConstraints.put(constraint.location, (GoalConstraint) constraint);
+        }
         else{ // regular constraint
             I_ConstraintGroupingKey dummy = createDummy(constraint);
             this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
@@ -76,6 +84,9 @@ public class ConstraintSet{
             for (Constraint cons : other.constraints.get(cw)) {
                 this.add(cons);
             }
+        }
+        for (I_Location loc : other.goalConstraints.keySet()){
+            this.add(other.goalConstraints.get(loc));
         }
     }
 
@@ -131,12 +142,14 @@ public class ConstraintSet{
      */
     public boolean rejects(Move move){
         I_ConstraintGroupingKey dummy = createDummy(move);
-        if(!constraints.containsKey(dummy)) {
-            return false;
+        boolean rejects = false;
+        if (constraints.containsKey(dummy)){
+            rejects = rejects(constraints.get(dummy), move);
         }
-        else {
-            return rejects(constraints.get(dummy), move);
+        if (!rejects && goalConstraints.containsKey(move.currLocation)){
+            rejects = goalConstraints.get(move.currLocation).rejects(move);
         }
+        return rejects;
     }
 
     protected boolean rejects(Set<Constraint> constraints, Move move){
