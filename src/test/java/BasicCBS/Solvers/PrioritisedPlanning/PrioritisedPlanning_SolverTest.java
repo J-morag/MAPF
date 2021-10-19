@@ -309,6 +309,123 @@ class PrioritisedPlanning_SolverTest {
         }
 
     }
+    @Test
+    void TestingBenchmarkWRandomRestarts(){
+        S_Metrics.clearAll();
+        boolean useAsserts = true;
+
+        I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, 4, null);
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "TestingBenchmark"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
+
+        MAPF_Instance instance = null;
+        // load the pre-made benchmark
+        try {
+            long timeout = 5 /*seconds*/
+                    *1000L;
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            int numSolved = 0;
+            int numFailed = 0;
+            int numValid = 0;
+            int numOptimal = 0;
+            int numValidSuboptimal = 0;
+            int numInvalidOptimal = 0;
+            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
+            while ((instance = instanceManager.getNextInstance()) != null) {
+//                if (!instance.name.equals("brc202d-10-8")){
+//                    continue;
+//                }
+
+                //build report
+                InstanceReport report = S_Metrics.newInstanceReport();
+                report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
+                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+                report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
+
+                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+
+                //solve
+                System.out.println("---------- solving "  + instance.name + " ----------");
+                Solution solution = solver.solve(instance, runParameters);
+
+                // validate
+                Map<String, String> benchmarkForInstance = benchmarks.get(instance.name);
+                if(benchmarkForInstance == null){
+                    System.out.println("can't find benchmark for " + instance.name);
+                    continue;
+                }
+
+                boolean solved = solution != null;
+                System.out.println("Solved?: " + (solved ? "yes" : "no"));
+//                if (useAsserts) assertNotNull(solution);
+                if (solved) numSolved++;
+                else numFailed++;
+
+                if(solution != null){
+                    boolean valid = solution.solves(instance);
+                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
+                    if (useAsserts) assertTrue(valid);
+
+                    int optimalCost = Integer.parseInt(benchmarkForInstance.get("Plan Cost"));
+                    int costWeGot = solution.sumIndividualCosts();
+                    boolean optimal = optimalCost==costWeGot;
+                    System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
+                            ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
+                    report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
+
+                    report.putIntegerValue("Runtime Delta",
+                            report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
+
+                    if(valid) numValid++;
+                    if(optimal) numOptimal++;
+                    if(valid && !optimal) numValidSuboptimal++;
+                    if(!valid && optimal) numInvalidOptimal++;
+                }
+            }
+
+            System.out.println("--- TOTALS: ---");
+            System.out.println("timeout for each (seconds): " + (timeout/1000));
+            System.out.println("solved: " + numSolved);
+            System.out.println("failed: " + numFailed);
+            System.out.println("valid: " + numValid);
+            System.out.println("optimal: " + numOptimal);
+            System.out.println("valid but not optimal: " + numValidSuboptimal);
+            System.out.println("not valid but optimal: " + numInvalidOptimal);
+
+            //save results
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+            File directory = new File(resultsOutputDir);
+            if (! directory.exists()){
+                directory.mkdir();
+            }
+            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            try {
+                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                        new String[]{
+                                InstanceReport.StandardFields.instanceName,
+                                InstanceReport.StandardFields.numAgents,
+                                InstanceReport.StandardFields.timeoutThresholdMS,
+                                InstanceReport.StandardFields.solved,
+                                InstanceReport.StandardFields.elapsedTimeMS,
+                                "Runtime Delta",
+                                InstanceReport.StandardFields.solutionCost,
+                                "Cost Delta",
+                                InstanceReport.StandardFields.totalLowLevelTimeMS,
+                                InstanceReport.StandardFields.generatedNodes,
+                                InstanceReport.StandardFields.expandedNodes,
+                                InstanceReport.StandardFields.generatedNodesLowLevel,
+                                InstanceReport.StandardFields.expandedNodesLowLevel});
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+    }
 
 
     private Map<String, Map<String, String>> readResultsCSV(String pathToCsv) throws IOException {

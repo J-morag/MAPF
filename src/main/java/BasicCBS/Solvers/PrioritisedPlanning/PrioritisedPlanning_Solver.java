@@ -48,7 +48,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     /**
      * How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
-     * Total number of runs will be this + 1.
+     * Total number of runs will be this + 1, or less if a timeout occurs (may still return a valid solution when that happens).
      */
     private final int randomRestarts;
 
@@ -168,16 +168,15 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             Solution solution = new Solution();
             ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
             //solve for each agent while avoiding the plans of previous agents
-            for (int i = 0; i < agents.size(); i++) {
+            for (Agent agent : agents) {
                 if (checkTimeout()) break;
 
                 //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agents.get(i), instance, currentConstraints);
+                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints);
 
                 // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
-                if(planForAgent == null) {
+                if (planForAgent == null) {
                     solution = null;
-                    instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
                     break;
                 }
                 //save the plan for this agent
@@ -187,6 +186,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 currentConstraints.addAll(allConstraintsForPlan(planForAgent));
             }
             // random restarts
+            if (checkTimeout()) break;
             if (bestSolution == null){
                 bestSolution = solution;
             }
@@ -197,6 +197,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 Collections.shuffle(this.agents, this.random);
             }
         }
+//        instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
         return bestSolution;
     }
 
