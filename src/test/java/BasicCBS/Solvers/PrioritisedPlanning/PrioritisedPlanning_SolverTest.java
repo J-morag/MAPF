@@ -315,7 +315,7 @@ class PrioritisedPlanning_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                4, null, PrioritisedPlanning_Solver.RestartStrategy.random);
+                4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());

@@ -50,14 +50,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
      * Total number of runs will be this + 1, or less if a timeout occurs (may still return a valid solution when that happens).
      */
-    private final int randomRestarts;
+    private final int restarts;
 
     /**
      * How to perform restarts.
      * DeterministicRescheduling is from: Andreychuk, Anton, and Konstantin Yakovlev. "Two techniques that enhance the performance of multi-robot prioritized path planning." arXiv preprint arXiv:1805.01270 (2018).
      */
     public enum RestartStrategy{
-        random, deterministicRescheduling
+        randomRestarts, deterministicRescheduling
     }
 
     private final RestartStrategy restartStrategy;
@@ -95,17 +95,17 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * Constructor.
      * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
-     * @param randomRestarts How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
+     * @param restarts How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
      * @param solutionCostFunction A cost function to evaluate solutions with. Only used when using random restarts.
      * @param restartStrategy how to do restarts.
      */
-    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer randomRestarts,
+    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer restarts,
                                       SolutionCostFunction solutionCostFunction, RestartStrategy restartStrategy) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.randomRestarts = Objects.requireNonNullElse(randomRestarts, 0);
+        this.restarts = Objects.requireNonNullElse(restarts, 0);
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, Solution::sumIndividualCosts);
-        this.restartStrategy = Objects.requireNonNullElse(restartStrategy, RestartStrategy.random);
+        this.restartStrategy = Objects.requireNonNullElse(restartStrategy, RestartStrategy.randomRestarts);
     }
 
     /**
@@ -176,7 +176,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     protected Solution solvePrioritisedPlanning(List<? extends Agent> agents, MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = null;
         // if using random restarts, try more than once and randomize between them
-        for (int attemptNumber = 0; attemptNumber < this.randomRestarts + 1; attemptNumber++) {
+        for (int attemptNumber = 0; attemptNumber < this.restarts + 1; attemptNumber++) {
             Solution solution = new Solution();
             ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
             Agent agentWeFailedOn = null;
@@ -208,9 +208,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             else if (solution != null && solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)){
                 bestSolution = solution;
             }
-            if (this.randomRestarts > 0){
+            if (this.restarts > 0){
                 // shuffle agents
-                if (restartStrategy == RestartStrategy.random){
+                if (restartStrategy == RestartStrategy.randomRestarts){
                     Collections.shuffle(this.agents, this.random);
                 }
                 // give the highest priority to the agent we failed on
@@ -339,6 +339,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     @Override
     public String name() {
-        return "Prioritised Planning";
+        String restartStrategyString = restarts <= 0 ? "":
+                (" + (" + restartStrategy.toString() + " x " + restarts + ")");
+        return "Prioritised Planning" + restartStrategyString;
     }
 }
