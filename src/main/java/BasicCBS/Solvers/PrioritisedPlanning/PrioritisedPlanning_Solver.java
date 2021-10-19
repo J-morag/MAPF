@@ -55,7 +55,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     /**
      * The cost function to evaluate solutions with.
      */
-    private RunParameters_PP.SolutionCostFunction solutionCostFunction;
+    private SolutionCostFunction solutionCostFunction;
+
+    public interface SolutionCostFunction{
+        float solutionCost(Solution solution);
+    }
 
     /*  = Constructors =  */
 
@@ -66,7 +70,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null);
+        this(lowLevelSolver, null, null, null);
     }
 
     /**
@@ -74,18 +78,29 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null);
+        this(null, agentComparator, null, null);
     }
 
     /**
      * Constructor.
      * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
+     * @param randomRestarts How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
+     * @param solutionCostFunction A cost function to evaluate solutions with. Only used when using random restarts.
      */
-    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer randomRestarts) {
+    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer randomRestarts,
+                                      SolutionCostFunction solutionCostFunction) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.randomRestarts = Objects.requireNonNullElse(randomRestarts, 0);
+        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, Solution::sumIndividualCosts);
+    }
+
+    /**
+     * Default constructor.
+     */
+    public PrioritisedPlanning_Solver(){
+        this(null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -112,8 +127,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
             //reorder according to requested priority
             if(parametersPP.preferredPriorityOrder != null) {reorderAgentsByPriority(parametersPP.preferredPriorityOrder);}
-
-            this.solutionCostFunction = parametersPP.solutionCostFunction;
         }
     }
 
