@@ -3,6 +3,7 @@ package BasicCBS.Instances.Maps;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Represents a {@link I_Map map} as an abstract graph. This implementation can, in principle, support any domain -
@@ -13,7 +14,7 @@ import java.util.*;
  * pose a space complexity challenge. Example: A 1000x1000x1000 map with just one agent, whose source and target are
  * adjacent.
  */
-public class GraphMap implements I_Map {
+public class GraphMap implements I_ExplicitMap {
 
     private HashMap<I_Coordinate, GraphMapVertex> allGraphCells;
 
@@ -75,4 +76,11 @@ public class GraphMap implements I_Map {
     }
 
 
+    /**
+     * O(n)
+     */
+    @Override
+    public Collection<? extends I_Location> getAllLocations() {
+        return new ArrayList<>(this.allGraphCells.values());
+    }
 }

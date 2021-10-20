@@ -238,7 +238,7 @@ public class ICTS_Solver extends A_Solver {
         Map<Agent, Integer> startCosts = new HashMap<>();
         for (Agent agent : instance.agents) {
 
-            Integer depth = Math.round(heuristicICTS.getHForAgentAndCurrentLocation(agent, getSource(agent)));
+            Integer depth = Math.round(heuristicICTS.getHToTargetFromLocation(agent.target, getSource(agent)));
             if (depth == null) {
                 //The single agent path does not exist
                 try {

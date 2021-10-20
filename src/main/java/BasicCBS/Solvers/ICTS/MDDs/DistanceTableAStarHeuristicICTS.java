@@ -12,7 +12,7 @@ public class DistanceTableAStarHeuristicICTS extends DistanceTableAStarHeuristic
     }
 
     public void setH(MDDSearchNode node) {
-        node.setH(getHForAgentAndCurrentLocation(node.getAgent(), node.getLocation()));
+        node.setH(getHToTargetFromLocation(node.getAgent().target, node.getLocation()));
     }
 
 }
