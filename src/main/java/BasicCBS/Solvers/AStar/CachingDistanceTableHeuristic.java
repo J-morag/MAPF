@@ -1,9 +1,9 @@
 package BasicCBS.Solvers.AStar;
 
-import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_ExplicitMap;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Instances.Maps.I_Map;
+import org.apache.commons.collections4.map.LRUMap;
 
 import java.util.*;
 
@@ -15,13 +15,20 @@ import java.util.*;
  * is significantly more expensive than subsequent calls. Use with caution!
  */
 public class CachingDistanceTableHeuristic implements AStarHeuristic {
+    private final int mapCacheSize;
     /**
      * Dictionary from {@link I_Map map} to a {@link DistanceTableAStarHeuristic distance table heuristic} for it.
      */
-    private final Map<I_ExplicitMap, DistanceTableAStarHeuristic> distanceTables = new HashMap<>();
+    private final Map<I_ExplicitMap, DistanceTableAStarHeuristic> distanceTables;
     private I_ExplicitMap currentMap;
 
     public CachingDistanceTableHeuristic() {
+        this(1);
+    }
+
+    public CachingDistanceTableHeuristic(int mapCacheSize) {
+        this.mapCacheSize = mapCacheSize;
+        this.distanceTables = new LRUMap<>(mapCacheSize);
     }
 
     public void setCurrentMap(I_ExplicitMap map){
