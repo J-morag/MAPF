@@ -262,7 +262,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints) {
-        return new RunParameters(-1, new ConstraintSet(constraints), subproblemReport, null);
+        long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
+        return new RunParameters(timeLeftToTimeout, new ConstraintSet(constraints), subproblemReport, null);
+//        // assume the map we are using is indeed an ExplicitMap if we are going to use a CachingDistanceTableHeuristic (which requires explicit maps)
+//        PrioritisedPlanning_Solver.cachingDistanceTableHeuristic.setCurrentMap((I_ExplicitMap) subproblem.map);
+//        return new RunParameters_SAAStar(-1, new ConstraintSet(constraints), subproblemReport, null, PrioritisedPlanning_Solver.cachingDistanceTableHeuristic);
     }
 
     private List<Constraint> vertexConstraintsForPlan(SingleAgentPlan planForAgent) {

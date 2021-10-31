@@ -25,7 +25,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
      * Without a timeout, unsolvable problems would not resolve, since new states with higher time ({@link Move#timeNow},
      * would continue to be generated ad infinitum. This would eventually result in a heap overflow.
      */
-    protected static final long DEFAULT_TIMEOUT = 3 * 1000;
+    protected static final long DEFAULT_TIMEOUT = 10 * 1000;
     protected static final int DEFAULT_PROBLEM_START_TIME = 0;
     private Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
