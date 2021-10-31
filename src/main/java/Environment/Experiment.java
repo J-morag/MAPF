@@ -70,6 +70,7 @@ public class Experiment {
         /*  = Put values in report =  */
         instanceReport.putStringValue(InstanceReport.StandardFields.experimentName, this.experimentName);
         instanceReport.putStringValue(InstanceReport.StandardFields.instanceName, instance.extendedName);
+        instanceReport.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
         instanceReport.putIntegerValue(InstanceReport.StandardFields.obstacleRate, instance.getObstaclePercentage());
         instanceReport.putStringValue(InstanceReport.StandardFields.solver, solver.name());

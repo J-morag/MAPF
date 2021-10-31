@@ -121,6 +121,7 @@ public class Main {
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{   InstanceReport.StandardFields.experimentName,
+                                    InstanceReport.StandardFields.mapName,
                                     InstanceReport.StandardFields.instanceName,
                                     InstanceReport.StandardFields.numAgents,
                                     InstanceReport.StandardFields.obstacleRate,

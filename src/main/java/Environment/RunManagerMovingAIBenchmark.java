@@ -56,6 +56,7 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
         try {
             S_Metrics.setHeader(new String[]{
                     InstanceReport.StandardFields.experimentName,
+                    InstanceReport.StandardFields.mapName,
                     InstanceReport.StandardFields.instanceName,
                     InstanceReport.StandardFields.numAgents,
                     InstanceReport.StandardFields.solver,
