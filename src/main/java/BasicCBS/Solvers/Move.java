@@ -50,7 +50,7 @@ public class Move {
      */
     public StringBuilder readableToString(){
         StringBuilder sb = new StringBuilder();
-        sb.append('\n').append(this.timeNow).append(": ").append(this.prevLocation.getCoordinate()).append(" -> ").append(this.currLocation.getCoordinate());
+        sb.append('\n').append(this.timeNow).append(":").append(this.prevLocation.getCoordinate()).append("->").append(this.currLocation.getCoordinate());
         return sb;
     }
 
