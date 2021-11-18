@@ -25,6 +25,8 @@ public class ConstraintSet{
      */
     protected final Map<I_Location, GoalConstraint> goalConstraints = new HashMap<>();
 
+    protected int lastConstraintTime = -1;
+
     public ConstraintSet() {
     }
 
@@ -49,6 +51,13 @@ public class ConstraintSet{
         return constraints.isEmpty();
     }
 
+    /**
+     * @return the time of the last constraint. If it is a goal constraint (infinite), return the time when it starts
+     */
+    public int getLastConstraintTime(){
+        return this.lastConstraintTime;
+    }
+
     public void add(Constraint constraint){
         if(constraint instanceof  RangeConstraint){
             // add an individual constraint for each of the times covered by the range constraint
@@ -57,14 +66,17 @@ public class ConstraintSet{
             for (int time = rangeConstraint.lowerBound; time <= rangeConstraint.upperBound; time++) {
                 this.add(rangeConstraint.getConstraint(time));
             }
+            this.lastConstraintTime = Math.max(this.lastConstraintTime, rangeConstraint.upperBound);
         }
         else if (constraint instanceof GoalConstraint){
             this.goalConstraints.put(constraint.location, (GoalConstraint) constraint);
+            this.lastConstraintTime = Math.max(this.lastConstraintTime, constraint.time);
         }
         else{ // regular constraint
             I_ConstraintGroupingKey dummy = createDummy(constraint);
             this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
             add(this.constraints.get(dummy), constraint);
+            this.lastConstraintTime = Math.max(this.lastConstraintTime, constraint.time);
         }
 
     }

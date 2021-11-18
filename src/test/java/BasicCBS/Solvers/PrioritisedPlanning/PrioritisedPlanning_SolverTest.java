@@ -92,6 +92,8 @@ class PrioritisedPlanning_SolverTest {
     private I_Location cell11 = mapCircle.getMapCell(coor11);
     private I_Location cell43 = mapCircle.getMapCell(coor43);
     private I_Location cell53 = mapCircle.getMapCell(coor53);
+    private I_Location cell54 = mapCircle.getMapCell(coor54);
+    private I_Location cell55 = mapCircle.getMapCell(coor55);
     private I_Location cell05 = mapCircle.getMapCell(coor05);
 
     private I_Location cell04 = mapCircle.getMapCell(coor04);
@@ -106,6 +108,8 @@ class PrioritisedPlanning_SolverTest {
     private Agent agent04to00 = new Agent(4, coor04, coor00);
     private Agent agent00to10 = new Agent(5, coor00, coor10);
     private Agent agent10to00 = new Agent(6, coor10, coor00);
+    private Agent agent53to55 = new Agent(7, coor53, coor54);
+    private Agent agent55to53 = new Agent(8, coor55, coor53);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
@@ -115,6 +119,7 @@ class PrioritisedPlanning_SolverTest {
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
+    private MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent53to55, agent55to53});
 
     I_Solver ppSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver());
 
@@ -156,9 +161,17 @@ class PrioritisedPlanning_SolverTest {
     }
 
     @Test
-    void unsolvableShouldBeInvalid() {
+    void unsolvable() {
         MAPF_Instance testInstance = instanceUnsolvable;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvableBecauseOrderWithInfiniteConstraint() {
+        MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
+        Solution solved = ppSolver.solve(testInstance, new RunParameters(2*1000, null, instanceReport, null));
 
         assertNull(solved);
     }

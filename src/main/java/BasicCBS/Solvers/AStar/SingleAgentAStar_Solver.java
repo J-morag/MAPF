@@ -19,13 +19,6 @@ import java.util.*;
  */
 public class SingleAgentAStar_Solver extends A_Solver {
 
-    /**
-     * Since A* should solve even very large single agent problems very quickly, set default timeout to 3 seconds.
-     * A timeout would therefore very likely mean the problem is unsolvable.
-     * Without a timeout, unsolvable problems would not resolve, since new states with higher time ({@link Move#timeNow},
-     * would continue to be generated ad infinitum. This would eventually result in a heap overflow.
-     */
-    protected static final long DEFAULT_TIMEOUT = 10 * 1000;
     protected static final int DEFAULT_PROBLEM_START_TIME = 0;
     private Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
@@ -50,9 +43,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     private int expandedNodes;
     private int generatedNodes;
 
-    public SingleAgentAStar_Solver() {
-        super.DEFAULT_TIMEOUT = SingleAgentAStar_Solver.DEFAULT_TIMEOUT;
-    }
+    public SingleAgentAStar_Solver() {}
 
     public SingleAgentAStar_Solver(boolean agentsStayAtGoal) {
         this.agentsStayAtGoal = agentsStayAtGoal;
@@ -314,20 +305,25 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
             for (I_Location destination: neighborCellsIncludingCurrent){
                 Move possibleMove = new Move(this.move.agent, this.move.timeNow+1, this.move.currLocation, destination);
-                if(constraints.accepts(possibleMove)){ //move not prohibited by existing constraint
-                    AStarState child = new AStarState(possibleMove, this, this.g + 1, conflicts + numConflicts(possibleMove));
+                // forbidden from performing stay moves after the time of last constraint. this makes A* complete even
+                // when there are goal constraints (infinite)
+                if (!(possibleMove.currLocation == possibleMove.prevLocation && possibleMove.timeNow > constraints.getLastConstraintTime())){
+                    // move not prohibited by existing constraint
+                    if(constraints.accepts(possibleMove)){
+                        AStarState child = new AStarState(possibleMove, this, this.g + 1, conflicts + numConflicts(possibleMove));
 
-                    AStarState existingState;
-                    if(closed.contains(child)){ // state visited already
-                        // for non consistent heuristics - if the new one has a lower f, remove the old one from closed
-                        // and add the new one to open
-                    }
-                    else if(null != (existingState = openList.get(child)) ){ //an equal state is waiting in open
-                        //keep the one with min G
-                        keepTheStateWithMinG(child, existingState); //O(LOGn)
-                    }
-                    else{ // it's a new state
-                        openList.add(child);
+                        AStarState existingState;
+                        if(closed.contains(child)){ // state visited already
+                            // for non consistent heuristics - if the new one has a lower f, remove the old one from closed
+                            // and add the new one to open
+                        }
+                        else if(null != (existingState = openList.get(child)) ){ //an equal state is waiting in open
+                            //keep the one with min G
+                            keepTheStateWithMinG(child, existingState); //O(LOGn)
+                        }
+                        else{ // it's a new state
+                            openList.add(child);
+                        }
                     }
                 }
             }
