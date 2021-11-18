@@ -47,12 +47,10 @@ public class Coordinate_2D implements I_Coordinate {
      * same runtime type as this, returns -1.
      */
     private float euclideanDistance(I_Coordinate other) {
-        //if (this == other) return 0; shouldn't really happen. Even if it will, returned value will be the same.
-        if (other == null || getClass() != other.getClass()) return -1;
+        if (!(other instanceof Coordinate_2D)) return -1;
         Coordinate_2D that = (Coordinate_2D) other;
         return (float)Math.sqrt(
-                    (this.y_value-that.y_value)*(this.y_value-that.y_value) +
-                    (this.x_value-that.x_value)*(this.x_value-that.x_value)    );
+                Math.pow((this.y_value-that.y_value), 2) + Math.pow((this.x_value-that.x_value), 2) );
     }
 
     /**
@@ -63,8 +61,7 @@ public class Coordinate_2D implements I_Coordinate {
      * same runtime type as this, returns -1.
      */
     private int manhattanDistance(I_Coordinate other) {
-        //if (this == other) return 0; shouldn't really happen. Even if it will, returned value will be the same.
-        if (other == null || getClass() != other.getClass()) return -1;
+        if (!(other instanceof Coordinate_2D)) return -1;
         Coordinate_2D that = (Coordinate_2D) other;
         return Math.abs(this.y_value-that.y_value) + Math.abs(this.x_value-that.x_value);
     }

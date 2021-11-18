@@ -2,17 +2,14 @@ package BasicCBS.Instances.Maps.Coordinates;
 
 import java.util.Objects;
 
-public class Coordinate_3D implements I_Coordinate {
+public class Coordinate_3D extends Coordinate_2D {
 
     private int x_value;
     private int y_value;
     private int z_value;
 
-
-
     public Coordinate_3D(int x_value, int y_value, int z_value ) {
-        this.x_value = x_value;
-        this.y_value = y_value;
+        super(x_value, y_value);
         this.z_value = z_value;
     }
 
@@ -63,15 +60,40 @@ public class Coordinate_3D implements I_Coordinate {
 
     @Override
     public String toString() {
-        return "Coordinate_3D{" +
-                "x_value=" + x_value +
-                ", y_value=" + y_value +
-                ", Z_value=" + z_value +
-                '}';
+        return "(" + this.x_value + "," + this.y_value + ")";
+    }
+
+    /**
+     * Returns the euclidean distance to another {@link I_Coordinate coordinate}. Should return 0 iff this.equals(other)
+     * return true.  If other is null, or is not of the same runtime type as this, returns -1.
+     * @param other a {@link I_Coordinate coordinate}.
+     * @return the euclidean distance to another {@link I_Coordinate coordinate}. If other is null, or is not of the
+     * same runtime type as this, returns -1.
+     */
+    private float euclideanDistance(I_Coordinate other) {
+        if (!(other instanceof Coordinate_3D)) return -1;
+        Coordinate_3D that = (Coordinate_3D) other;
+        return (float)Math.sqrt(
+                Math.pow((this.y_value-that.y_value), 2) + Math.pow((this.x_value-that.x_value), 2)
+                        + Math.pow((this.z_value-that.z_value), 2) );
+    }
+
+    /**
+     * Returns the manhattan distance to another {@link I_Coordinate coordinate}. Should return 0 iff this.equals(other)
+     * return true.  If other is null, or is not of the same runtime type as this, returns -1.
+     * @param other a {@link I_Coordinate coordinate}.
+     * @return the manhattan distance to another {@link I_Coordinate coordinate}.  If other is null, or is not of the
+     * same runtime type as this, returns -1.
+     */
+    private int manhattanDistance(I_Coordinate other) {
+        if (!(other instanceof Coordinate_3D)) return -1;
+        Coordinate_3D that = (Coordinate_3D) other;
+        return Math.abs(this.y_value-that.y_value) + Math.abs(this.x_value-that.x_value)
+                + Math.abs(this.z_value-that.z_value);
     }
 
     @Override
     public float distance(I_Coordinate other) {
-        return 0;
+        return manhattanDistance(other);
     }
 }
