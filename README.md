@@ -1,5 +1,5 @@
 # CBS
-* This is an implementation of the Conflict Based Search (CBS) algorithm, written in Java 11. 
+* This is an implementation of the Conflict Based Search (CBS) algorithm, written in Java 15. 
 * This project aims to create a modular implementation, to facilitate the easier development of future CBS variants.
 
 ### How to 
