@@ -4,8 +4,8 @@ import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.*;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -114,7 +114,7 @@ public class DistanceTableAStarHeuristicTest {
         /*  = Test actual values =  */
         DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(list, map);
 
-        Assert.assertTrue(equalsAllAgentMap(expected, distanceTableAStarHeuristic.getDistanceDictionaries()));
+        assertTrue(equalsAllAgentMap(expected, distanceTableAStarHeuristic.getDistanceDictionaries()));
     }
 
 }

@@ -169,7 +169,7 @@ class PrioritisedPlanning_SolverTest {
     }
 
     @Test
-    void unsolvableBecauseOrderWithInfiniteConstraint() {
+    void unsolvableBecauseOrderWithInfiniteConstra() {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(2*1000, null, instanceReport, null));
 

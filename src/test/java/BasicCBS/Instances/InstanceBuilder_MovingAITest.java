@@ -4,8 +4,8 @@ import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import Environment.IO_Package.IO_Manager;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.MapDimensions;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class InstanceBuilder_MovingAITest {
 
         // Check that instance was created successfully and added to the list
         MAPF_Instance nextInstance = this.instanceBuilder_movingAI.getNextExistingInstance();
-        Assert.assertNotNull(nextInstance);
+        assertNotNull(nextInstance);
 
 
 
@@ -51,7 +51,7 @@ public class InstanceBuilder_MovingAITest {
         for (InstanceManager.InstancePath path :instancePaths ) {
             InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path) path;
             if (moving_ai_path.equals(expectedMovingAiPath)){
-                Assert.assertTrue(true); // Found the expected path
+                assertTrue(true); // Found the expected path
                 break;
             }
         }
@@ -124,8 +124,8 @@ public class InstanceBuilder_MovingAITest {
 
 
         /*  = Test Actual Values   = */
-        Assert.assertEquals(expectedFirstAgentList, actualFirstAgentList);
-        Assert.assertEquals(expectedSecondAgentList, actualSecondAgentList);
+        assertEquals(expectedFirstAgentList, actualFirstAgentList);
+        assertEquals(expectedSecondAgentList, actualSecondAgentList);
 
 
 

@@ -1,9 +1,9 @@
 package Environment.IO_Package;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 
@@ -18,7 +18,7 @@ public class WriterTest {
 
 
 
-    @Before
+    @BeforeEach
     public void before(){
 
         if (this.writer != null){
@@ -32,10 +32,10 @@ public class WriterTest {
 
     }
 
-    @After
+    @AfterEach
     public void after(){
         // Delete the file after each test
-        Assert.assertTrue(deletedFile());
+        assertTrue(deletedFile());
     }
 
 
@@ -48,7 +48,7 @@ public class WriterTest {
 
         /***       Test openFileToAppend with Valid values   ***/
         Enum_IO enum_io = this.writer.openFileToAppend(this.directoryPath, this.fileName);
-        Assert.assertEquals(Enum_IO.OPENED,enum_io); // Opened successfully
+        assertEquals(Enum_IO.OPENED,enum_io); // Opened successfully
 
     }
 
@@ -58,7 +58,7 @@ public class WriterTest {
         String badFileDirectory = "fake folder";
         String badFileName = "not exists.txt";
         Enum_IO enum_io_notExists = badPathWriter.openFileToAppend(badFileDirectory, badFileName);
-        Assert.assertEquals(Enum_IO.INVALID_PATH, enum_io_notExists); // Trying to open an invalid path
+        assertEquals(Enum_IO.INVALID_PATH, enum_io_notExists); // Trying to open an invalid path
     }
 
 
@@ -69,7 +69,7 @@ public class WriterTest {
 
         // Try to open while still open
         Enum_IO enum_io = this.writer.openFileToAppend(this.directoryPath, this.fileName);
-        Assert.assertEquals(Enum_IO.CURRENT_FILE_STILL_OPEN,enum_io); // Trying to open an open file
+        assertEquals(Enum_IO.CURRENT_FILE_STILL_OPEN,enum_io); // Trying to open an open file
     }
 
     @Test
@@ -79,7 +79,7 @@ public class WriterTest {
 
         // Write line by line
         for (int i = 0; i < this.linesToWrite.length ; i++) {
-            Assert.assertEquals(Enum_IO.WROTE_SUCCESSFULLY, this.writer.writeText(this.linesToWrite[i])); // Wrote successfully
+            assertEquals(Enum_IO.WROTE_SUCCESSFULLY, this.writer.writeText(this.linesToWrite[i])); // Wrote successfully
         }
     }
 
@@ -90,10 +90,10 @@ public class WriterTest {
 
         /***       Valid values   ***/
         Enum_IO enum_io = this.writer.closeFile();
-        Assert.assertEquals(Enum_IO.CLOSED, enum_io); // Closed successfully
+        assertEquals(Enum_IO.CLOSED, enum_io); // Closed successfully
 
         enum_io = this.writer.closeFile();
-        Assert.assertEquals(Enum_IO.CLOSED, enum_io); // Trying to close a closed file
+        assertEquals(Enum_IO.CLOSED, enum_io); // Trying to close a closed file
 
 
     }

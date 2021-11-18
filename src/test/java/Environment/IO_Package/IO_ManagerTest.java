@@ -1,8 +1,8 @@
 package Environment.IO_Package;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 
@@ -35,7 +35,7 @@ public class IO_ManagerTest {
 
 
 
-    @After
+    @AfterEach
     public void after(){
         this.deleteFileToWrite();
     }
@@ -55,21 +55,21 @@ public class IO_ManagerTest {
 
         io_manager.removeOpenPath(fileToReadPath);
         this.reader = io_manager.getReader(fileToReadPath);
-        Assert.assertNotNull(reader);
+        assertNotNull(reader);
     }
 
     @Test
     public void closeRemovesFromOpenList(){
 
         this.openFileToRead();
-        Assert.assertNotNull(this.reader);
+        assertNotNull(this.reader);
 
         // Close file
         this.reader.closeFile();
 
         // open the file again
         this.reader = this.io_manager.getReader(fileToReadPath);
-        Assert.assertNotNull(reader);
+        assertNotNull(reader);
 
         this.reader.closeFile();
     }
@@ -80,7 +80,7 @@ public class IO_ManagerTest {
         this.openFileToRead();
 
         Reader reader_null = this.io_manager.getReader(fileToReadPath);
-        Assert.assertNull(reader_null); // expecting null
+        assertNull(reader_null); // expecting null
 
         this.reader.closeFile();
     }
@@ -89,7 +89,7 @@ public class IO_ManagerTest {
 
     @Test
     public void fakeFile(){
-        Assert.assertFalse(this.io_manager.isOpen("fake_file.txt"));
+        assertFalse(this.io_manager.isOpen("fake_file.txt"));
     }
 
 
@@ -104,12 +104,12 @@ public class IO_ManagerTest {
 
         /***       Valid values   ***/
         Writer writer = this.io_manager.getWriter(testResources_path, fileToWriteName);
-        Assert.assertNotNull(writer);
+        assertNotNull(writer);
 
 
         // getWriter should return null if path is still open
         Writer writer_null = this.io_manager.getWriter(testResources_path, fileToWriteName);
-        Assert.assertNull(writer_null);
+        assertNull(writer_null);
 
         writer.closeFile();
     }
@@ -122,17 +122,17 @@ public class IO_ManagerTest {
         String openPath = "open_path.txt";
         // Try to add
         this.io_manager.addOpenPath(openPath);
-        Assert.assertTrue(this.io_manager.isOpen(openPath));
+        assertTrue(this.io_manager.isOpen(openPath));
 
         // Try to remove
         this.io_manager.removeOpenPath(openPath);
-        Assert.assertFalse(this.io_manager.isOpen(openPath));
+        assertFalse(this.io_manager.isOpen(openPath));
     }
 
     @Test
     public void buildPath() {
         // BuildPath format: folder\fileName.txt
         String path = IO_Manager.buildPath(new String[]{"folder","file_name"});
-        Assert.assertEquals("folder\\file_name", path);
+        assertEquals("folder\\file_name", path);
     }
 }

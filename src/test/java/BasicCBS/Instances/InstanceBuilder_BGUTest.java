@@ -5,8 +5,8 @@ import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import Environment.IO_Package.IO_Manager;
 import BasicCBS.Instances.Maps.*;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class InstanceBuilder_BGUTest {
                 // check that actualMapCell is the same as the expectedCellTypeMap[xAxis_value][yAxis_value]
                 if( actualMapCell != null && actualMapCell.getType() == expectedCellTypeMap[xAxis_value][yAxis_value]){ continue; }
 
-                Assert.assertFalse(true);
+                assertFalse(true);
                 return false; // Invalid value
             }
         }
@@ -94,20 +94,20 @@ public class InstanceBuilder_BGUTest {
         this.instanceBuilderBgu.prepareInstances(instanceName, instancePath_Instance_16_0_7, instanceProperties);
         MAPF_Instance mapf_instance = instanceBuilderBgu.getNextExistingInstance();
 
-        Assert.assertNotNull(mapf_instance);
+        assertNotNull(mapf_instance);
 
         List<Agent> actualAgents = mapf_instance.agents;
 
         /*  =Check Agents=  */
-        Assert.assertTrue(actualAgents.size() == expectedAgents.size());
+        assertEquals(actualAgents.size(), expectedAgents.size());
         for (int i = 0; i < actualAgents.size(); i++) {
-            Assert.assertEquals(expectedAgents.get(i) , actualAgents.get(i));
+            assertEquals(expectedAgents.get(i) , actualAgents.get(i));
         }
 
 
         /*  = Check map =  */
         I_Map actualMap = mapf_instance.map;
-        Assert.assertTrue(checkAllMapCells(expectedCellTypeMap,actualMap));
+        assertTrue(checkAllMapCells(expectedCellTypeMap,actualMap));
 
 
     }
@@ -216,21 +216,21 @@ public class InstanceBuilder_BGUTest {
         this.instanceBuilderBgu.prepareInstances(instanceName, instancePath_Instance_8_15_5, instanceProperties);
         MAPF_Instance mapf_instance = instanceBuilderBgu.getNextExistingInstance();
 
-        Assert.assertNotNull(mapf_instance);
+        assertNotNull(mapf_instance);
 
         List<Agent> actualAgents = mapf_instance.agents;
 
 
         /*  =Check Agents=  */
-        Assert.assertTrue(actualAgents.size() == expectedAgents.size());
+        assertEquals(actualAgents.size(), expectedAgents.size());
         for (int i = 0; i < actualAgents.size(); i++) {
-            Assert.assertEquals(expectedAgents.get(i) , actualAgents.get(i));
+            assertEquals(expectedAgents.get(i) , actualAgents.get(i));
         }
 
 
         /*  = Check map =  */
         I_Map actualMap = mapf_instance.map;
-        Assert.assertTrue(checkAllMapCells(expectedCellTypeMap,actualMap));
+        assertTrue(checkAllMapCells(expectedCellTypeMap,actualMap));
 
 
     }
@@ -280,7 +280,7 @@ public class InstanceBuilder_BGUTest {
         InstanceManager instanceManager = new InstanceManager(new InstanceBuilder_BGU());
 
         MAPF_Instance instance = instanceManager.getSpecificInstance(instancePath);
-        Assert.assertNotNull(instance);
+        assertNotNull(instance);
 
 
     }

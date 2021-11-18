@@ -1,9 +1,9 @@
 package Environment.IO_Package;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ReaderTest {
 
@@ -12,7 +12,7 @@ public class ReaderTest {
     private final String filePath = IO_ManagerTest.fileToReadPath;
 
 
-    @Before
+    @BeforeEach
     public void before(){
 
         if ( this.reader != null){
@@ -24,14 +24,14 @@ public class ReaderTest {
 
         /***       Test openFileToAppend with Valid values   ***/
         Enum_IO enum_io = reader.openFile(this.filePath);
-        Assert.assertEquals(Enum_IO.OPENED,enum_io);
+        assertEquals(Enum_IO.OPENED,enum_io);
 
     }
 
 
-    @After
+    @AfterEach
     public void after(){
-        Assert.assertTrue(IO_Manager.getInstance().removeOpenPath(this.filePath));
+        assertTrue(IO_Manager.getInstance().removeOpenPath(this.filePath));
     }
 
 
@@ -40,7 +40,7 @@ public class ReaderTest {
 
         /***       Valid values   ***/
         for (int i = 0; i < linesToRead.length ; i++) {
-            Assert.assertEquals(linesToRead[i],this.reader.getNextLine()); // got the expected line
+            assertEquals(linesToRead[i],this.reader.getNextLine()); // got the expected line
         }
 
 
@@ -51,13 +51,13 @@ public class ReaderTest {
 
         /***      Invalid values  ***/
         Enum_IO enum_io = this.reader.openFile(this.filePath);
-        Assert.assertEquals(Enum_IO.CURRENT_FILE_STILL_OPEN,enum_io); // Trying to open an open file
+        assertEquals(Enum_IO.CURRENT_FILE_STILL_OPEN,enum_io); // Trying to open an open file
 
 
         Reader badPathReader = new Reader();
         String badFilePath = "not exists.txt";
         Enum_IO enum_io_notExists = badPathReader.openFile(badFilePath);
-        Assert.assertEquals(Enum_IO.INVALID_PATH, enum_io_notExists); // Trying to open an invalid path
+        assertEquals(Enum_IO.INVALID_PATH, enum_io_notExists); // Trying to open an invalid path
 
     }
 
@@ -68,10 +68,10 @@ public class ReaderTest {
 
         /***       Valid values   ***/
         Enum_IO enum_io = this.reader.closeFile();
-        Assert.assertEquals(Enum_IO.CLOSED, enum_io); // file closed successfully
+        assertEquals(Enum_IO.CLOSED, enum_io); // file closed successfully
 
         enum_io = this.reader.closeFile();
-        Assert.assertEquals(Enum_IO.CLOSED, enum_io); // Trying to close a closed file
+        assertEquals(Enum_IO.CLOSED, enum_io); // Trying to close a closed file
 
 
     }

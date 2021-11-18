@@ -11,8 +11,8 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.MinTimeConfli
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.RemovableConflictManager;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
 
@@ -89,7 +89,7 @@ public class ConflictManagerTest {
 
 
         /*      = Test actual values =  */
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, conflictAvoidanceTable.getAllConflicts()));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, conflictAvoidanceTable.getAllConflicts()));
 
     }
 
@@ -144,7 +144,7 @@ public class ConflictManagerTest {
 
 
         /*      = Test actual values =  */
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, conflictAvoidanceTable.getAllConflicts()));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, conflictAvoidanceTable.getAllConflicts()));
 
 
     }
@@ -209,8 +209,8 @@ public class ConflictManagerTest {
 
         /*      = Copy constructor =      */
         RemovableConflictManager copiedTable = new RemovableConflictManager(conflictAvoidanceTable);
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(conflictAvoidanceTable.getAllConflicts(), copiedTable.removableConflictAvoidance.getAllConflicts()));
-        Assert.assertTrue(TimeLocationTables.equalsTimeLocations(conflictAvoidanceTable.timeLocationTables.timeLocation_Agents,copiedTable.timeLocationTables.timeLocation_Agents));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(conflictAvoidanceTable.getAllConflicts(), copiedTable.removableConflictAvoidance.getAllConflicts()));
+        assertTrue(TimeLocationTables.equalsTimeLocations(conflictAvoidanceTable.timeLocationTables.timeLocation_Agents,copiedTable.timeLocationTables.timeLocation_Agents));
         System.out.println("TwoAgentsWith4VertexConflicts_graphH: Done - Copy Constructor");
 
 
@@ -277,15 +277,15 @@ public class ConflictManagerTest {
 
         /*  = Test actual values =  */
 
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
-        Assert.assertTrue(TimeLocationTables.equalsTimeLocations(expected_timeLocationAgents,copiedTable.timeLocationTables.timeLocation_Agents));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
+        assertTrue(TimeLocationTables.equalsTimeLocations(expected_timeLocationAgents,copiedTable.timeLocationTables.timeLocation_Agents));
 
 
 
 
         /*      = Test Select conflict =     */
         A_Conflict actualConflict_time1 = copiedTable.selectConflict();
-        Assert.assertEquals(expectedConflict_time1,actualConflict_time1);
+        assertEquals(expectedConflict_time1,actualConflict_time1);
 
 
 
@@ -313,7 +313,7 @@ public class ConflictManagerTest {
 
 
         /*      = Test actual values =  */
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
 
 
     }
@@ -381,8 +381,8 @@ public class ConflictManagerTest {
 
         /*      = Copy constructor =      */
         RemovableConflictManager copiedTable = new RemovableConflictManager(conflictAvoidanceTable);
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(conflictAvoidanceTable.getAllConflicts(), copiedTable.removableConflictAvoidance.getAllConflicts()));
-        Assert.assertTrue(TimeLocationTables.equalsTimeLocations(conflictAvoidanceTable.timeLocationTables.timeLocation_Agents,copiedTable.timeLocationTables.timeLocation_Agents));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(conflictAvoidanceTable.getAllConflicts(), copiedTable.removableConflictAvoidance.getAllConflicts()));
+        assertTrue(TimeLocationTables.equalsTimeLocations(conflictAvoidanceTable.timeLocationTables.timeLocation_Agents,copiedTable.timeLocationTables.timeLocation_Agents));
         System.out.println("TwoAgentsWith1SwappingConflict_graphH: Done - Copy Constructor");
 
 
@@ -443,14 +443,14 @@ public class ConflictManagerTest {
 
         /*  = Test actual values =  */
 
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
-        Assert.assertTrue(TimeLocationTables.equalsTimeLocations(expected_timeLocationAgents,copiedTable.timeLocationTables.timeLocation_Agents));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
+        assertTrue(TimeLocationTables.equalsTimeLocations(expected_timeLocationAgents,copiedTable.timeLocationTables.timeLocation_Agents));
 
 
 
         /*      = Test Select conflict =     */
         A_Conflict actualConflict_time1 = copiedTable.selectConflict();
-        Assert.assertEquals(expectedConflict_time3,actualConflict_time1);
+        assertEquals(expectedConflict_time3,actualConflict_time1);
 
 
 
@@ -482,7 +482,7 @@ public class ConflictManagerTest {
 
 
         /*      = Test actual values =  */
-        Assert.assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
+        assertTrue(ConflictAvoidance.equalsAllConflicts(expectedSet, copiedTable.removableConflictAvoidance.getAllConflicts()));
 
 
     }

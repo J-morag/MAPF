@@ -3,8 +3,8 @@ package BasicCBS.Instances;
 import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicCBS.Instances.Maps.Enum_MapCellType;
 import BasicCBS.Instances.Maps.MapDimensions;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 
@@ -56,7 +56,7 @@ public class I_InstanceBuilderTest {
         //  Check every Character in the array
         for (int i = 0; i < charMap_Instance_8_15_5.length; i++) {
             for (int j = 0; j < charMap_Instance_8_15_5[i].length; j++) {
-                Assert.assertEquals(charMap_Instance_8_15_5[i][j],actualMap[i][j]);
+                assertEquals(charMap_Instance_8_15_5[i][j],actualMap[i][j]);
             }
         }
     }
@@ -72,7 +72,7 @@ public class I_InstanceBuilderTest {
 
         I_InstanceBuilder.build_2D_cellTypeMap( this.charMap_Instance_8_15_5, this.cellTypeHashMap, MapDimensions.Enum_mapOrientation.Y_HORIZONTAL_X_VERTICAL, obstacle);
 
-        Assert.assertEquals( 15, obstacle.getReportPercentage());
+        assertEquals( 15, obstacle.getReportPercentage());
 
     }
 }
