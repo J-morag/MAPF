@@ -62,11 +62,11 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
             Map<I_Location, Integer> mapForAgent = new HashMap<>();
             this.distanceDictionaries.put(target, mapForAgent);
 
-            //distance of a graphMapCell from itself
+            //distance of a vertex from itself
             this.distanceDictionaries.get(target).put(target, 0);
 
-            //all the neighbors of a graphMapCell
-            List<I_Location> neighbors = target.getNeighbors();
+            // reverse edges, moving back from the target, traversing against the direction of the edges
+            List<I_Location> neighbors = target.incomingEdges();
             LinkedList<I_Location> queue = new LinkedList<>(neighbors);
 
             int distance = 1;
@@ -79,8 +79,8 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
                 if (!(this.distanceDictionaries.get(target).containsKey(i_location))) {
                     this.distanceDictionaries.get(target).put(i_location, distance);
 
-                    //add all the neighbors of the current graphMapCell to  the queue
-                    List<I_Location> neighborsCell = i_location.getNeighbors();
+                    // traversing edges in reverse back from current vertex
+                    List<I_Location> neighborsCell = i_location.incomingEdges();
                     queue.addAll(neighborsCell);
                 }
 

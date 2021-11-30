@@ -3,7 +3,6 @@ package BasicCBS.Instances.Maps;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * Represents a {@link I_Map map} as an abstract graph. This implementation can, in principle, support any domain -
@@ -59,7 +58,7 @@ public class GraphMap implements I_ExplicitMap {
             if(!mapLocations.contains(originalVertex)){
                 GraphMapVertex newVertex = vertexMappings.get(coor);
                 List<GraphMapVertex> neighbors = new ArrayList<>();
-                for (I_Location neighbor : originalVertex.neighbors) {
+                for (I_Location neighbor : originalVertex.outgoingEdges) {
                     if (! mapLocations.contains(neighbor)){
                         // getting the neighbor from the new vertices, not the original ones.
                         neighbors.add(vertexMappings.get(neighbor.getCoordinate()));

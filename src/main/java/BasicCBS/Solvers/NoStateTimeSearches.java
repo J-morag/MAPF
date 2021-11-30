@@ -51,7 +51,7 @@ public class NoStateTimeSearches {
         while(!open.isEmpty()){
             I_Location location = open.remove();
             visited.add(location);
-            for (I_Location neighbour: location.getNeighbors()) {
+            for (I_Location neighbour: location.outgoingEdges()) {
                 // must compare coordinates since these locations might come from different copies of the map and thus won't be equal
                 if(neighbour.getCoordinate().equals(goal.getCoordinate())){
                     // found (reachable)

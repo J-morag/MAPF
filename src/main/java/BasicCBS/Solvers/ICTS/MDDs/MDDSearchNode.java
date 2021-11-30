@@ -88,7 +88,7 @@ public class MDDSearchNode implements Comparable<MDDSearchNode>{
     public List<I_Location> getNeighborLocations(){
         // can move to neighboring cells or stay put
         I_Location currLocation = this.location;
-        List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(currLocation.getNeighbors());
+        List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(currLocation.outgoingEdges());
         neighborCellsIncludingCurrent.add(currLocation); //staying in the same location is possible
         return neighborCellsIncludingCurrent;
     }

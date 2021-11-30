@@ -183,8 +183,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
         else { // the existing plan is empty (no existing plan)
 
             I_Location sourceCell = map.getMapCell(this.sourceCoor);
-            // can move to neighboring cells or stay put
-            List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(sourceCell.getNeighbors());
+            // can move to neighboring locations or stay put
+            List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(sourceCell.outgoingEdges());
             neighborCellsIncludingCurrent.add(sourceCell);
 
             for (I_Location destination: neighborCellsIncludingCurrent) {
@@ -300,7 +300,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         public void expand() {
             expandedNodes++;
             // can move to neighboring cells or stay put
-            List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(this.move.currLocation.getNeighbors());
+            List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(this.move.currLocation.outgoingEdges());
             neighborCellsIncludingCurrent.add(this.move.currLocation);
 
             for (I_Location destination: neighborCellsIncludingCurrent){

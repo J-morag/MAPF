@@ -9,7 +9,6 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.ConstraintsAndConflicts.CorridorConflict;
 import BasicCBS.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicCBS.Solvers.Move;
-import BasicCBS.Solvers.SingleAgentPlan;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -123,8 +122,8 @@ public class CorridorConflictManager extends ConflictManager {
             // might add an existing vertex but it's fine since this is a set.
             corridorVertices.add(someDirNeighbor);
             // get the neighbor of the current neighbor that is not the anchor (so it is in the right direction)
-            I_Location newNeighbour = someDirNeighbor.getNeighbors().get(0).equals(anchor) ? someDirNeighbor.getNeighbors().get(1)
-                    : someDirNeighbor.getNeighbors().get(0);
+            I_Location newNeighbour = someDirNeighbor.outgoingEdges().get(0).equals(anchor) ? someDirNeighbor.outgoingEdges().get(1)
+                    : someDirNeighbor.outgoingEdges().get(0);
             anchor = someDirNeighbor;
             someDirNeighbor = newNeighbour;
         }
@@ -138,7 +137,7 @@ public class CorridorConflictManager extends ConflictManager {
     }
 
     private boolean isDegree2(I_Location location){
-        return location.getNeighbors().size() == 2;
+        return location.outgoingEdges().size() == 2;
     }
 
     @Override
