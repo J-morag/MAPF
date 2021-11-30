@@ -101,7 +101,7 @@ public class CorridorConflict extends A_Conflict {
      */
     private int getMinTimeToCorridorFartherSideBypass(Agent agent, I_Location fartherSide, MAPF_Instance trimmedInstance) {
         // must make sure that it is reachable first. if unreachable, state-time A Star will not halt.
-        if(!reachableFrom(fartherSide, trimmedInstance.map.getMapCell(agent.source))){
+        if(!reachableFrom(fartherSide, trimmedInstance.map.getMapLocation(agent.source))){
             return Integer.MAX_VALUE;
         }
         else{

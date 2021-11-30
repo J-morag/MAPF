@@ -260,11 +260,11 @@ public class ICTS_Solver extends A_Solver {
     }
 
     protected I_Location getSource(Agent agent){
-        return instance.map.getMapCell(agent.source);
+        return instance.map.getMapLocation(agent.source);
     }
 
     protected I_Location getTarget(Agent agent){
-        return instance.map.getMapCell(agent.target);
+        return instance.map.getMapLocation(agent.target);
     }
 
     private ICT_Node pollFromOpen() {

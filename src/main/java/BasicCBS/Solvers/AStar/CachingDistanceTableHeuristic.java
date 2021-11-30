@@ -41,7 +41,7 @@ public class CachingDistanceTableHeuristic implements AStarHeuristic {
     @Override
     public float getH(SingleAgentAStar_Solver.AStarState state) {
         DistanceTableAStarHeuristic dt = this.distanceTables.get(this.currentMap);
-        I_Location target = this.currentMap.getMapCell(state.getMove().agent.target);
+        I_Location target = this.currentMap.getMapLocation(state.getMove().agent.target);
         if (dt.getDistanceDictionaries().containsKey(target)){
             return dt.getH(state);
         }

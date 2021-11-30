@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MapFactoryTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
 
     @BeforeEach
     void setUp() {
@@ -23,7 +23,7 @@ class MapFactoryTest {
 
     /*  = Tests on Sample 2D Maps =  */
 
-    private Enum_MapCellType[][] map_2D_1Cell_middle = {
+    private Enum_MapLocationType[][] map_2D_1Location_middle = {
             {w, w, w, w, w, w},
             {w, e, w, w, w, w},
             {w, w, w, w, w, w},
@@ -32,13 +32,13 @@ class MapFactoryTest {
             {w, w, w, w, w, w},
     };
     @Test
-    void test_newSimple4Connected2D_GraphMap_map_2D_1Cell_middle(){
-        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_1Cell_middle);
+    void test_newSimple4Connected2D_GraphMap_map_2D_1Location_middle(){
+        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_1Location_middle);
         checkGraphMapProperties(map,1, new Coordinate_2D[]{asCoordinate2D(1,1)} );
 
     }
 
-    private Enum_MapCellType[][] map_2D_1Cell_fringe = {
+    private Enum_MapLocationType[][] map_2D_1Location_fringe = {
             {w, w, w, w, w, w},
             {e, w, w, w, w, w},
             {w, w, w, w, w, w},
@@ -47,12 +47,12 @@ class MapFactoryTest {
             {w, w, w, w, w, w},
     };
     @Test
-    void test_newSimple4Connected2D_GraphMap_map_2D_1Cell_fringe(){
-        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_1Cell_fringe);
+    void test_newSimple4Connected2D_GraphMap_map_2D_1Location_fringe(){
+        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_1Location_fringe);
         checkGraphMapProperties(map,1, new Coordinate_2D[]{asCoordinate2D(1,0)} );
     }
 
-    private Enum_MapCellType[][] map_2D_2Cells_middle = {
+    private Enum_MapLocationType[][] map_2D_2Locations_middle = {
             {w, w, w, w, w, w},
             {w, w, w, e, e, w},
             {w, w, w, w, w, w},
@@ -61,14 +61,14 @@ class MapFactoryTest {
             {w, w, w, w, w, w},
     };
     @Test
-    void test_newSimple4Connected2D_GraphMap_map_2D_2Cells_middle(){
-        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_2Cells_middle);
+    void test_newSimple4Connected2D_GraphMap_map_2D_2Locations_middle(){
+        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_2Locations_middle);
         checkGraphMapProperties(map,2, new Coordinate_2D[]{asCoordinate2D(1,3),
                 asCoordinate2D(1,4)} );
         assertAreNeighbors(map, asCoordinate2D(1,3), asCoordinate2D(1,4));
     }
 
-    private Enum_MapCellType[][] map_2D_2Cells_fringe = {
+    private Enum_MapLocationType[][] map_2D_2Locations_fringe = {
             {w, w, w, w, e, w},
             {w, w, w, w, e, w},
             {w, w, w, w, w, w},
@@ -77,14 +77,14 @@ class MapFactoryTest {
             {w, w, w, w, w, w},
     };
     @Test
-    void test_newSimple4Connected2D_GraphMap_map_2D_2Cells_fringe(){
-        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_2Cells_fringe);
+    void test_newSimple4Connected2D_GraphMap_map_2D_2Locations_fringe(){
+        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_2Locations_fringe);
         checkGraphMapProperties(map,2, new Coordinate_2D[]{asCoordinate2D(0,4),
                 asCoordinate2D(1,4)} );
         assertAreNeighbors(map, asCoordinate2D(0,4), asCoordinate2D(1,4));
     }
 
-    private Enum_MapCellType[][] map_2D_2Cells_diagonal = {
+    private Enum_MapLocationType[][] map_2D_2Locations_diagonal = {
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
@@ -93,15 +93,15 @@ class MapFactoryTest {
             {w, w, w, w, w, w},
     };
     @Test
-    void test_newSimple4Connected2D_GraphMap_map_2D_2Cells_diagonal(){
-        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_2Cells_diagonal);
+    void test_newSimple4Connected2D_GraphMap_map_2D_2Locations_diagonal(){
+        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_2Locations_diagonal);
         checkGraphMapProperties(map,2, new Coordinate_2D[]{asCoordinate2D(3,2),
                 asCoordinate2D(4,3)} );
 
         assertNotNeighbors(map, asCoordinate2D(3,2), asCoordinate2D(4,3));
     }
 
-    private Enum_MapCellType[][] map_2D_3Cells_line = {
+    private Enum_MapLocationType[][] map_2D_3Locations_line = {
             {w, w, w, e, w, w},
             {w, w, w, e, w, w},
             {w, w, w, e, w, w},
@@ -110,8 +110,8 @@ class MapFactoryTest {
             {w, w, w, w, w, w},
     };
     @Test
-    void test_newSimple4Connected2D_GraphMap_map_2D_3Cells_line(){
-        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_3Cells_line);
+    void test_newSimple4Connected2D_GraphMap_map_2D_3Locations_line(){
+        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_3Locations_line);
         checkGraphMapProperties(map,3, new Coordinate_2D[]{asCoordinate2D(0, 3),
                 asCoordinate2D(1,3), asCoordinate2D(2,3)} );
 
@@ -121,7 +121,7 @@ class MapFactoryTest {
         assertNotNeighbors(map, asCoordinate2D(0, 3), asCoordinate2D(2,3));
     }
 
-    private Enum_MapCellType[][] map_2D_4cells_clump = {
+    private Enum_MapLocationType[][] map_2D_4locations_clump = {
             {w, w, w, w, w, w},
             {w, w, w, e, e, w},
             {w, w, w, e, e, w},
@@ -130,8 +130,8 @@ class MapFactoryTest {
             {w, w, w, w, w, w},
     };
     @Test
-    void test_newSimple4Connected2D_GraphMap_map_2D_4cells_clump(){
-        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_4cells_clump);
+    void test_newSimple4Connected2D_GraphMap_map_2D_4locations_clump(){
+        GraphMap map = MapFactory.newSimple4Connected2D_GraphMap(map_2D_4locations_clump);
         checkGraphMapProperties(map,4, new Coordinate_2D[]{asCoordinate2D(1, 3),
                 asCoordinate2D(2, 3), asCoordinate2D(1,4), asCoordinate2D(2,4)} );
 
@@ -141,7 +141,7 @@ class MapFactoryTest {
         assertAreNeighbors(map, asCoordinate2D(1,4), asCoordinate2D(1,3));
     }
 
-    private Enum_MapCellType[][] map_2D_circle = {
+    private Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -169,7 +169,7 @@ class MapFactoryTest {
         assertNotNeighbors(map, asCoordinate2D(2,2), asCoordinate2D(2,4));
     }
 
-    private Enum_MapCellType[][] map_2D_corners = {
+    private Enum_MapLocationType[][] map_2D_corners = {
             {e, w, w, w, w, e},
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
@@ -184,7 +184,7 @@ class MapFactoryTest {
                 asCoordinate2D(5,0), asCoordinate2D(0,5), asCoordinate2D(5,5)} );
     }
 
-    private Enum_MapCellType[][] map_2D_disjointGroups = {
+    private Enum_MapLocationType[][] map_2D_disjointGroups = {
             {w, w, w, w, w, w},
             {w, w, w, w, e, w},
             {w, w, w, w, w, w},
@@ -218,7 +218,7 @@ class MapFactoryTest {
         assertNotNeighbors(map, asCoordinate2D(1,4), asCoordinate2D(5,5));
     }
 
-    private Enum_MapCellType[][] map_2D_empty = {
+    private Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
@@ -241,7 +241,7 @@ class MapFactoryTest {
         assertAreNeighbors(map, asCoordinate2D(2,1), asCoordinate2D(3,1));
     }
 
-    private Enum_MapCellType[][] map_2D_allWalls = {
+    private Enum_MapLocationType[][] map_2D_allWalls = {
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
@@ -258,8 +258,8 @@ class MapFactoryTest {
 
     /*  = Utility functions =  */
 
-    static void checkGraphMapProperties(GraphMap map, int numCells, Coordinate_2D[] containsCoordinates){
-        assertEquals(numCells, map.getNumMapCells());
+    static void checkGraphMapProperties(GraphMap map, int numLocations, Coordinate_2D[] containsCoordinates){
+        assertEquals(numLocations, map.getNumMapLocations());
         for (Coordinate_2D coor:
             containsCoordinates){
             assertTrue(map.isValidCoordinate(coor));
@@ -267,15 +267,15 @@ class MapFactoryTest {
     }
 
     static void assertAreNeighbors(I_Map map, I_Coordinate coor1, I_Coordinate coor2){
-        I_Location cell1 = map.getMapCell(coor1);
-        I_Location cell2 = map.getMapCell(coor2);
-        assertTrue(cell1.isNeighbor(cell2) && cell2.isNeighbor(cell1));
+        I_Location location1 = map.getMapLocation(coor1);
+        I_Location location2 = map.getMapLocation(coor2);
+        assertTrue(location1.isNeighbor(location2) && location2.isNeighbor(location1));
     }
 
     static void assertNotNeighbors(I_Map map, I_Coordinate coor1, I_Coordinate coor2){
-        I_Location cell1 = map.getMapCell(coor1);
-        I_Location cell2 = map.getMapCell(coor2);
-        assertFalse(cell1.isNeighbor(cell2) && cell2.isNeighbor(cell1));
+        I_Location location1 = map.getMapLocation(coor1);
+        I_Location location2 = map.getMapLocation(coor2);
+        assertFalse(location1.isNeighbor(location2) && location2.isNeighbor(location1));
     }
 
     static Coordinate_2D asCoordinate2D(int iIndex, int jIndex){

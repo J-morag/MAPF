@@ -15,9 +15,9 @@ import java.util.List;
 
 class SingleAgentPlanTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    private Enum_MapCellType[][] map_2D_circle = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    private Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -34,30 +34,30 @@ class SingleAgentPlanTest {
     private I_Coordinate coor32 = new Coordinate_2D(3,2);
     private I_Coordinate coor33 = new Coordinate_2D(3,3);
     private I_Coordinate coor34 = new Coordinate_2D(3,4);
-    private I_Location cell12 = map1.getMapCell(coor12);
-    private I_Location cell13 = map1.getMapCell(coor13);
-    private I_Location cell14 = map1.getMapCell(coor14);
-    private I_Location cell22 = map1.getMapCell(coor22);
-    private I_Location cell24 = map1.getMapCell(coor24);
-    private I_Location cell32 = map1.getMapCell(coor32);
-    private I_Location cell33 = map1.getMapCell(coor33);
-    private I_Location cell34 = map1.getMapCell(coor34);
+    private I_Location location12 = map1.getMapLocation(coor12);
+    private I_Location location13 = map1.getMapLocation(coor13);
+    private I_Location location14 = map1.getMapLocation(coor14);
+    private I_Location location22 = map1.getMapLocation(coor22);
+    private I_Location location24 = map1.getMapLocation(coor24);
+    private I_Location location32 = map1.getMapLocation(coor32);
+    private I_Location location33 = map1.getMapLocation(coor33);
+    private I_Location location34 = map1.getMapLocation(coor34);
     private Agent agent1 = new Agent(0, coor13, coor14);
     private Agent agent2 = new Agent(1, coor24, coor24);
 
 
     /*  =valid inputs=  */
     //note that validity of move from one location to the next (neighbors or not) is not checked by SingleAgentPlan
-    private Move move1agent1 = new Move(agent1, 1, cell13, cell14);
-    private Move move2agent1 = new Move(agent1, 2, cell14, cell24);
-    private Move move3agent1 = new Move(agent1, 3, cell24, cell14);
-    private Move move1agent2 = new Move(agent2, 1, cell24, cell24);
+    private Move move1agent1 = new Move(agent1, 1, location13, location14);
+    private Move move2agent1 = new Move(agent1, 2, location14, location24);
+    private Move move3agent1 = new Move(agent1, 3, location24, location14);
+    private Move move1agent2 = new Move(agent2, 1, location24, location24);
 
-    private Move move4agent1 = new Move(agent1, 4, cell14, cell13);
+    private Move move4agent1 = new Move(agent1, 4, location14, location13);
 
     /*  =invalid inputs=  */
-    private Move move4agent1BadTime = new Move(agent1, 1, cell14, cell24);
-    private Move move4agent1BadAgent = new Move(agent2, 4, cell14, cell24);
+    private Move move4agent1BadTime = new Move(agent1, 1, location14, location24);
+    private Move move4agent1BadAgent = new Move(agent2, 4, location14, location24);
 
     /*  =plans=  */
     private SingleAgentPlan emptyPlanAgent1;
@@ -106,7 +106,7 @@ class SingleAgentPlanTest {
     @Test
     void addMoves() {
         List<Move> a1moves123 = Arrays.asList(move1agent1, move2agent1, move3agent1);
-        Move move5agent1 = new Move(agent1, 5, cell13, cell13);
+        Move move5agent1 = new Move(agent1, 5, location13, location13);
         List<Move> a1moves45 = Arrays.asList(move4agent1, move5agent1);
 
         /*  =shouldn't throw=  */
@@ -123,14 +123,14 @@ class SingleAgentPlanTest {
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.addMoves(Arrays.asList(move1agent2))); //bad agent
         assertThrows(IllegalArgumentException.class,
-                ()-> existingPlanAgent1.addMoves(Arrays.asList(new Move(agent2, 5, cell14, cell14)))); //bad agent
+                ()-> existingPlanAgent1.addMoves(Arrays.asList(new Move(agent2, 5, location14, location14)))); //bad agent
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.addMoves(Arrays.asList(
-                        move1agent1, new Move(agent2, 2, cell14,cell14), move3agent1))); //bad agent middle
+                        move1agent1, new Move(agent2, 2, location14,location14), move3agent1))); //bad agent middle
         assertThrows(IllegalArgumentException.class,
                 ()-> existingPlanAgent1.addMoves(Arrays.asList(
-                        move4agent1, new Move(agent2, 5, cell14,cell14),
-                        new Move(agent1, 6, cell14, cell14)))); //bad agent middle
+                        move4agent1, new Move(agent2, 5, location14,location14),
+                        new Move(agent1, 6, location14, location14)))); //bad agent middle
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.addMoves(Arrays.asList(move1agent1, move3agent1, move3agent1))); //bad time middle
         assertThrows(IllegalArgumentException.class,
@@ -142,8 +142,8 @@ class SingleAgentPlanTest {
     @Test
     void setMoves() {
         List<Move> a1moves123 = Arrays.asList(move1agent1, move2agent1, move3agent1);
-        Move move5agent1 = new Move(agent1, 5, cell13, cell13);
-        Move move4agent1 = new Move(agent1, 4, cell13, cell14);
+        Move move5agent1 = new Move(agent1, 5, location13, location13);
+        Move move4agent1 = new Move(agent1, 4, location13, location14);
         List<Move> a1moves45 = Arrays.asList(move4agent1, move5agent1);
 
         /*  =shouldn't throw=  */
@@ -159,14 +159,14 @@ class SingleAgentPlanTest {
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.setMoves(Arrays.asList(move1agent2))); //bad agent
         assertThrows(IllegalArgumentException.class,
-                ()-> existingPlanAgent1.setMoves(Arrays.asList(new Move(agent2, 5, cell14, cell14)))); //bad agent
+                ()-> existingPlanAgent1.setMoves(Arrays.asList(new Move(agent2, 5, location14, location14)))); //bad agent
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.setMoves(Arrays.asList(
-                        move1agent1, new Move(agent2, 2, cell14,cell14), move3agent1))); //bad agent middle
+                        move1agent1, new Move(agent2, 2, location14,location14), move3agent1))); //bad agent middle
         assertThrows(IllegalArgumentException.class,
                 ()-> existingPlanAgent1.setMoves(Arrays.asList(
-                        move4agent1, new Move(agent2, 5, cell14,cell14),
-                        new Move(agent1, 6, cell14, cell14)))); //bad agent middle
+                        move4agent1, new Move(agent2, 5, location14,location14),
+                        new Move(agent1, 6, location14, location14)))); //bad agent middle
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.setMoves(Arrays.asList(move1agent1, move3agent1, move3agent1))); //bad time middle
         assertThrows(IllegalArgumentException.class,
@@ -180,7 +180,7 @@ class SingleAgentPlanTest {
         /*  =as initiated=  */
         assertEquals(-1, emptyPlanAgent1.getPlanStartTime());
         assertEquals(0, existingPlanAgent1.getPlanStartTime());
-        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, cell13, cell12)));
+        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, location13, location12)));
         assertEquals(3, planStartsAt3.getPlanStartTime());
 
         /*  =when modified=  */
@@ -195,7 +195,7 @@ class SingleAgentPlanTest {
         /*  =as initiated=  */
         assertEquals(-1, emptyPlanAgent1.getEndTime());
         assertEquals(3, existingPlanAgent1.getEndTime());
-        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, cell13, cell12)));
+        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, location13, location12)));
         assertEquals(4, planStartsAt3.getEndTime());
 
         /*  =when modified=  */
@@ -210,7 +210,7 @@ class SingleAgentPlanTest {
         /*  =as initiated=  */
         assertEquals(0, emptyPlanAgent1.size());
         assertEquals(3, existingPlanAgent1.size());
-        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, cell13, cell12)));
+        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, location13, location12)));
         assertEquals(1, planStartsAt3.size());
 
         /*  =when modified=  */
@@ -238,7 +238,7 @@ class SingleAgentPlanTest {
         assertEquals(move4agent1, existingPlanAgent1.moveAt(4));
 
         //starting not at time 1
-        move2agent1 = new Move(agent1, 2, cell13, cell14);
+        move2agent1 = new Move(agent1, 2, location13, location14);
         emptyPlanAgent1.addMove(move2agent1);
         assertEquals(move2agent1, emptyPlanAgent1.moveAt(2));
         emptyPlanAgent1.addMove(move3agent1);
@@ -253,22 +253,22 @@ class SingleAgentPlanTest {
         Agent agent2 = new Agent(1, coor33, coor13);
 
         SingleAgentPlan planAgent1 = new SingleAgentPlan(agent1);
-        planAgent1.addMove(new Move(agent1, 1, cell13, cell12));
+        planAgent1.addMove(new Move(agent1, 1, location13, location12));
 
         SingleAgentPlan planAgent2 = new SingleAgentPlan(agent2);
-        planAgent2.addMove(new Move(agent2, 1, cell33, cell32));
-        planAgent2.addMove(new Move(agent2, 2, cell32, cell22));
-        planAgent2.addMove(new Move(agent2, 3, cell22, cell12));
-        planAgent2.addMove(new Move(agent2, 4, cell12, cell13));
+        planAgent2.addMove(new Move(agent2, 1, location33, location32));
+        planAgent2.addMove(new Move(agent2, 2, location32, location22));
+        planAgent2.addMove(new Move(agent2, 3, location22, location12));
+        planAgent2.addMove(new Move(agent2, 4, location12, location13));
 
         assertTrue(planAgent1.conflictsWith(planAgent2));
         assertTrue(planAgent2.conflictsWith(planAgent1));
 
         SingleAgentPlan alternateAgent2 = new SingleAgentPlan(agent2);
-        alternateAgent2.addMove(new Move(agent2, 1, cell33, cell34));
-        alternateAgent2.addMove(new Move(agent2, 2, cell34, cell24));
-        alternateAgent2.addMove(new Move(agent2, 3, cell24, cell14));
-        alternateAgent2.addMove(new Move(agent2, 4, cell14, cell13));
+        alternateAgent2.addMove(new Move(agent2, 1, location33, location34));
+        alternateAgent2.addMove(new Move(agent2, 2, location34, location24));
+        alternateAgent2.addMove(new Move(agent2, 3, location24, location14));
+        alternateAgent2.addMove(new Move(agent2, 4, location14, location13));
 
         assertFalse(planAgent1.conflictsWith(alternateAgent2));
         assertFalse(alternateAgent2.conflictsWith(planAgent1));

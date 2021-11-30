@@ -7,10 +7,10 @@ import java.util.List;
 public interface I_Location {
 
     /**
-     * Returns the type of the cell.
-     * @return the type of the cell.
+     * Returns the type of the location.
+     * @return the type of the location.
      */
-    Enum_MapCellType getType();
+    Enum_MapLocationType getType();
 
     /**
      * Returns an array that contains references to locations directly reachable from this. Should not include this.
@@ -27,22 +27,22 @@ public interface I_Location {
     List<I_Location> incomingEdges();
 
     /**
-     * returns the cell's coordinate.
-     * @return the cell's coordinate.
+     * returns the location's coordinate.
+     * @return the location's coordinate.
      */
     I_Coordinate getCoordinate();
 
     /**
-     * Get weights of the connections to this cell's neighbors.
+     * Get weights of the connections to this location's neighbors.
      * Should be uniformly indexed with the return value of {@link #outgoingEdges()}.
-     * @return weights of the connections to this cell's neighbors.
+     * @return weights of the connections to this location's neighbors.
      */
     List<Integer> getOutgoingEdgesWeights();
 
     /**
-     * Get weights of the connections from this cell's neighbors.
+     * Get weights of the connections from this location's neighbors.
      * Should be uniformly indexed with the return value of {@link #incomingEdges()}.
-     * @return weights of the connections from this cell's neighbors.
+     * @return weights of the connections from this location's neighbors.
      */
     List<Integer> getIncomingEdgesWeights();
 

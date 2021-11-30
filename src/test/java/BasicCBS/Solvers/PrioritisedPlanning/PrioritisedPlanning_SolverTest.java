@@ -29,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PrioritisedPlanning_SolverTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    private Enum_MapCellType[][] map_2D_circle = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    private Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -41,7 +41,7 @@ class PrioritisedPlanning_SolverTest {
     };
     private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
-    Enum_MapCellType[][] map_2D_empty = {
+    Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
@@ -51,7 +51,7 @@ class PrioritisedPlanning_SolverTest {
     };
     private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
 
-    Enum_MapCellType[][] map_2D_withPocket = {
+    Enum_MapLocationType[][] map_2D_withPocket = {
             {e, w, e, w, e, w},
             {e, w, e, e, e, e},
             {w, w, e, w, w, e},
@@ -80,26 +80,26 @@ class PrioritisedPlanning_SolverTest {
     private I_Coordinate coor01 = new Coordinate_2D(0,1);
     private I_Coordinate coor10 = new Coordinate_2D(1,0);
 
-    private I_Location cell12 = mapCircle.getMapCell(coor12);
-    private I_Location cell13 = mapCircle.getMapCell(coor13);
-    private I_Location cell14 = mapCircle.getMapCell(coor14);
-    private I_Location cell22 = mapCircle.getMapCell(coor22);
-    private I_Location cell24 = mapCircle.getMapCell(coor24);
-    private I_Location cell32 = mapCircle.getMapCell(coor32);
-    private I_Location cell33 = mapCircle.getMapCell(coor33);
-    private I_Location cell34 = mapCircle.getMapCell(coor34);
+    private I_Location location12 = mapCircle.getMapLocation(coor12);
+    private I_Location location13 = mapCircle.getMapLocation(coor13);
+    private I_Location location14 = mapCircle.getMapLocation(coor14);
+    private I_Location location22 = mapCircle.getMapLocation(coor22);
+    private I_Location location24 = mapCircle.getMapLocation(coor24);
+    private I_Location location32 = mapCircle.getMapLocation(coor32);
+    private I_Location location33 = mapCircle.getMapLocation(coor33);
+    private I_Location location34 = mapCircle.getMapLocation(coor34);
 
-    private I_Location cell11 = mapCircle.getMapCell(coor11);
-    private I_Location cell43 = mapCircle.getMapCell(coor43);
-    private I_Location cell53 = mapCircle.getMapCell(coor53);
-    private I_Location cell54 = mapCircle.getMapCell(coor54);
-    private I_Location cell55 = mapCircle.getMapCell(coor55);
-    private I_Location cell05 = mapCircle.getMapCell(coor05);
+    private I_Location location11 = mapCircle.getMapLocation(coor11);
+    private I_Location location43 = mapCircle.getMapLocation(coor43);
+    private I_Location location53 = mapCircle.getMapLocation(coor53);
+    private I_Location location54 = mapCircle.getMapLocation(coor54);
+    private I_Location location55 = mapCircle.getMapLocation(coor55);
+    private I_Location location05 = mapCircle.getMapLocation(coor05);
 
-    private I_Location cell04 = mapCircle.getMapCell(coor04);
-    private I_Location cell00 = mapCircle.getMapCell(coor00);
-    private I_Location cell01 = mapCircle.getMapCell(coor01);
-    private I_Location cell10 = mapCircle.getMapCell(coor10);
+    private I_Location location04 = mapCircle.getMapLocation(coor04);
+    private I_Location location00 = mapCircle.getMapLocation(coor00);
+    private I_Location location01 = mapCircle.getMapLocation(coor01);
+    private I_Location location10 = mapCircle.getMapLocation(coor10);
 
     private Agent agent33to12 = new Agent(0, coor33, coor12);
     private Agent agent12to33 = new Agent(1, coor12, coor33);

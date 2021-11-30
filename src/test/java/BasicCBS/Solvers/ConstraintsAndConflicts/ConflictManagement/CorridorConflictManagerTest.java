@@ -7,7 +7,7 @@ import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
-import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.Enum_MapLocationType;
 import BasicCBS.Instances.Maps.I_Map;
 import BasicCBS.Instances.Maps.MapFactory;
 import BasicCBS.Solvers.CBS.CBS_Solver;
@@ -32,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CorridorConflictManagerTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    Enum_MapCellType[][] map_2D_H = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    Enum_MapLocationType[][] map_2D_H = {
             {e, w, w, e},
             {e, w, w, e},
             {e, e, e, e},

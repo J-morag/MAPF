@@ -18,17 +18,17 @@ import java.util.*;
 
 public class ConflictManagerTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    private Enum_MapCellType[][] map_2D_H = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    private Enum_MapLocationType[][] map_2D_H = {
             { e, w, w, e},
             { e, e, e, e},
             { e, w, w, e},
     };
     private I_Map mapH = MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
 
-    private Enum_MapCellType[][] twoCellMap = new Enum_MapCellType[][]{{e,e}};
-    private I_Map mapTwoCells = MapFactory.newSimple4Connected2D_GraphMap(twoCellMap);
+    private Enum_MapLocationType[][] twoLocationMap = new Enum_MapLocationType[][]{{e,e}};
+    private I_Map mapTwoLocations = MapFactory.newSimple4Connected2D_GraphMap(twoLocationMap);
 
 
 
@@ -52,11 +52,11 @@ public class ConflictManagerTest {
         Agent a1 = new Agent(1,new Coordinate_2D(0,0),new Coordinate_2D(0,1));
         SingleAgentPlan a1_plan;
         ArrayList<Move> a1_moves = new ArrayList<>();
-        a1_moves.add(new Move(a1,1, this.mapTwoCells.getMapCell(new Coordinate_2D(0,0)), this.mapTwoCells.getMapCell(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,2, this.mapTwoCells.getMapCell(new Coordinate_2D(0,0)), this.mapTwoCells.getMapCell(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,3, this.mapTwoCells.getMapCell(new Coordinate_2D(0,0)), this.mapTwoCells.getMapCell(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,4, this.mapTwoCells.getMapCell(new Coordinate_2D(0,0)), this.mapTwoCells.getMapCell(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,5, this.mapTwoCells.getMapCell(new Coordinate_2D(0,0)), this.mapTwoCells.getMapCell(new Coordinate_2D(0,1))));
+        a1_moves.add(new Move(a1,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,2, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,3, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,4, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,5, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
 
         a1_plan = new SingleAgentPlan(a1,a1_moves);
         conflictAvoidanceTable.addPlan(a1_plan);
@@ -73,7 +73,7 @@ public class ConflictManagerTest {
         Agent a2 = new Agent(2,new Coordinate_2D(0,1),new Coordinate_2D(0,1));
         SingleAgentPlan a2_plan;
         ArrayList<Move> a2_moves = new ArrayList<>();
-        a2_moves.add(new Move(a2,1, this.mapTwoCells.getMapCell(new Coordinate_2D(0,1)), mapTwoCells.getMapCell(new Coordinate_2D(0,1))));
+        a2_moves.add(new Move(a2,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
 
 
         a2_plan = new SingleAgentPlan(a2,a2_moves);
@@ -82,7 +82,7 @@ public class ConflictManagerTest {
 
         /*      == Expected conflicts ==     */
 
-        VertexConflict expectedGoalConflict = new VertexConflict(a1, a2, 5, this.mapTwoCells.getMapCell(new Coordinate_2D(0,1)));
+        VertexConflict expectedGoalConflict = new VertexConflict(a1, a2, 5, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)));
 
         HashSet<A_Conflict> expectedSet = new HashSet<>();
         expectedSet.add(expectedGoalConflict);
@@ -98,7 +98,7 @@ public class ConflictManagerTest {
 
 
     @Test
-    public void swappingConflict2CellMap(){
+    public void swappingConflict2LocationMap(){
 
         ConflictManager conflictAvoidanceTable = new ConflictManager(new MinTimeConflictSelectionStrategy());
 
@@ -112,7 +112,7 @@ public class ConflictManagerTest {
         Agent a1 = new Agent(1,new Coordinate_2D(0,0),new Coordinate_2D(0,1));
         SingleAgentPlan a1_plan;
         ArrayList<Move> a1_moves = new ArrayList<>();
-        a1_moves.add(new Move(a1,1, this.mapTwoCells.getMapCell(new Coordinate_2D(0,0)), this.mapTwoCells.getMapCell(new Coordinate_2D(0,1))));
+        a1_moves.add(new Move(a1,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
 
         a1_plan = new SingleAgentPlan(a1,a1_moves);
         conflictAvoidanceTable.addPlan(a1_plan);
@@ -128,7 +128,7 @@ public class ConflictManagerTest {
         Agent a2 = new Agent(2,new Coordinate_2D(0,1),new Coordinate_2D(0,0));
         SingleAgentPlan a2_plan;
         ArrayList<Move> a2_moves = new ArrayList<>();
-        a2_moves.add(new Move(a2,1, this.mapTwoCells.getMapCell(new Coordinate_2D(0,1)), mapTwoCells.getMapCell(new Coordinate_2D(0,0))));
+        a2_moves.add(new Move(a2,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
 
 
         a2_plan = new SingleAgentPlan(a2,a2_moves);
@@ -137,7 +137,7 @@ public class ConflictManagerTest {
 
         /*      == Expected conflicts ==     */
 
-        SwappingConflict expectedConflict_time1 = new SwappingConflict(a1,a2,1, this.mapTwoCells.getMapCell(new Coordinate_2D(0,1)), this.mapTwoCells.getMapCell(new Coordinate_2D(0,0)));
+        SwappingConflict expectedConflict_time1 = new SwappingConflict(a1,a2,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)));
 
         HashSet<A_Conflict> expectedSet = new HashSet<>();
         expectedSet.add(expectedConflict_time1);
@@ -164,18 +164,18 @@ public class ConflictManagerTest {
             T = Time
             S = Start
             G = Goal
-            EE = Empty cell
+            EE = Empty location
             WW = Wall
         */
         Agent a1 = new Agent(1,new Coordinate_2D(0,0),new Coordinate_2D(0,3));
         SingleAgentPlan a1_plan;
         ArrayList<Move> a1_moves = new ArrayList<>();
 
-        a1_moves.add(new Move(a1,1, mapH.getMapCell(new Coordinate_2D(0,0)),mapH.getMapCell(new Coordinate_2D(1,0))));
-        a1_moves.add(new Move(a1,2, mapH.getMapCell(new Coordinate_2D(1,0)),mapH.getMapCell(new Coordinate_2D(1,1))));
-        a1_moves.add(new Move(a1,3, mapH.getMapCell(new Coordinate_2D(1,1)),mapH.getMapCell(new Coordinate_2D(1,2))));
-        a1_moves.add(new Move(a1,4, mapH.getMapCell(new Coordinate_2D(1,2)),mapH.getMapCell(new Coordinate_2D(1,3))));
-        a1_moves.add(new Move(a1,5, mapH.getMapCell(new Coordinate_2D(1,3)),mapH.getMapCell(new Coordinate_2D(0,3))));
+        a1_moves.add(new Move(a1,1, mapH.getMapLocation(new Coordinate_2D(0,0)),mapH.getMapLocation(new Coordinate_2D(1,0))));
+        a1_moves.add(new Move(a1,2, mapH.getMapLocation(new Coordinate_2D(1,0)),mapH.getMapLocation(new Coordinate_2D(1,1))));
+        a1_moves.add(new Move(a1,3, mapH.getMapLocation(new Coordinate_2D(1,1)),mapH.getMapLocation(new Coordinate_2D(1,2))));
+        a1_moves.add(new Move(a1,4, mapH.getMapLocation(new Coordinate_2D(1,2)),mapH.getMapLocation(new Coordinate_2D(1,3))));
+        a1_moves.add(new Move(a1,5, mapH.getMapLocation(new Coordinate_2D(1,3)),mapH.getMapLocation(new Coordinate_2D(0,3))));
 
         a1_plan = new SingleAgentPlan(a1,a1_moves);
         conflictAvoidanceTable.addPlan(a1_plan);
@@ -187,18 +187,18 @@ public class ConflictManagerTest {
             T = Time
             S = Start
             G = Goal
-            EE = Empty cell
+            EE = Empty location
             WW = Wall
         */
         Agent a2 = new Agent(2,new Coordinate_2D(2,0),new Coordinate_2D(2,3));
         SingleAgentPlan a2_plan;
         ArrayList<Move> a2_moves = new ArrayList<>();
 
-        a2_moves.add(new Move(a2,1, mapH.getMapCell(new Coordinate_2D(2,0)), mapH.getMapCell(new Coordinate_2D(1,0))));
-        a2_moves.add(new Move(a2,2, mapH.getMapCell(new Coordinate_2D(1,0)), mapH.getMapCell(new Coordinate_2D(1,1))));
-        a2_moves.add(new Move(a2,3, mapH.getMapCell(new Coordinate_2D(1,1)), mapH.getMapCell(new Coordinate_2D(1,2))));
-        a2_moves.add(new Move(a2,4, mapH.getMapCell(new Coordinate_2D(1,2)), mapH.getMapCell(new Coordinate_2D(1,3))));
-        a2_moves.add(new Move(a2,5, mapH.getMapCell(new Coordinate_2D(1,3)), mapH.getMapCell(new Coordinate_2D(2,3))));
+        a2_moves.add(new Move(a2,1, mapH.getMapLocation(new Coordinate_2D(2,0)), mapH.getMapLocation(new Coordinate_2D(1,0))));
+        a2_moves.add(new Move(a2,2, mapH.getMapLocation(new Coordinate_2D(1,0)), mapH.getMapLocation(new Coordinate_2D(1,1))));
+        a2_moves.add(new Move(a2,3, mapH.getMapLocation(new Coordinate_2D(1,1)), mapH.getMapLocation(new Coordinate_2D(1,2))));
+        a2_moves.add(new Move(a2,4, mapH.getMapLocation(new Coordinate_2D(1,2)), mapH.getMapLocation(new Coordinate_2D(1,3))));
+        a2_moves.add(new Move(a2,5, mapH.getMapLocation(new Coordinate_2D(1,3)), mapH.getMapLocation(new Coordinate_2D(2,3))));
 
         a2_plan = new SingleAgentPlan(a2,a2_moves);
         conflictAvoidanceTable.addPlan(a2_plan);
@@ -221,52 +221,52 @@ public class ConflictManagerTest {
 
         Map<TimeLocation,Set<Agent>> expected_timeLocationAgents = new HashMap<>();
         // Agent 1
-        TimeLocation time0_a1 = new TimeLocation(0, mapH.getMapCell(new Coordinate_2D(0,0)));
+        TimeLocation time0_a1 = new TimeLocation(0, mapH.getMapLocation(new Coordinate_2D(0,0)));
         expected_timeLocationAgents.computeIfAbsent(time0_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time0_a1).add(a1);
-        TimeLocation time1_a1 = new TimeLocation(1, mapH.getMapCell(new Coordinate_2D(1,0)));
+        TimeLocation time1_a1 = new TimeLocation(1, mapH.getMapLocation(new Coordinate_2D(1,0)));
         expected_timeLocationAgents.computeIfAbsent(time1_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time1_a1).add(a1);
-        TimeLocation time2_a1 = new TimeLocation(2, mapH.getMapCell(new Coordinate_2D(1,1)));
+        TimeLocation time2_a1 = new TimeLocation(2, mapH.getMapLocation(new Coordinate_2D(1,1)));
         expected_timeLocationAgents.computeIfAbsent(time2_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time2_a1).add(a1);
-        TimeLocation time3_a1 = new TimeLocation(3, mapH.getMapCell(new Coordinate_2D(1,2)));
+        TimeLocation time3_a1 = new TimeLocation(3, mapH.getMapLocation(new Coordinate_2D(1,2)));
         expected_timeLocationAgents.computeIfAbsent(time3_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time3_a1).add(a1);
-        TimeLocation time4_a1 = new TimeLocation(4, mapH.getMapCell(new Coordinate_2D(1,3)));
+        TimeLocation time4_a1 = new TimeLocation(4, mapH.getMapLocation(new Coordinate_2D(1,3)));
         expected_timeLocationAgents.computeIfAbsent(time4_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time4_a1).add(a1);
-        TimeLocation time5_a1 = new TimeLocation(5, mapH.getMapCell(new Coordinate_2D(0,3)));
+        TimeLocation time5_a1 = new TimeLocation(5, mapH.getMapLocation(new Coordinate_2D(0,3)));
         expected_timeLocationAgents.computeIfAbsent(time5_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time5_a1).add(a1);
 
         // Agent 2
-        TimeLocation time0_a2 = new TimeLocation(0, mapH.getMapCell(new Coordinate_2D(2,0)));
+        TimeLocation time0_a2 = new TimeLocation(0, mapH.getMapLocation(new Coordinate_2D(2,0)));
         expected_timeLocationAgents.computeIfAbsent(time0_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time0_a2).add(a2);
-        TimeLocation time1_a2 = new TimeLocation(1, mapH.getMapCell(new Coordinate_2D(1,0)));
+        TimeLocation time1_a2 = new TimeLocation(1, mapH.getMapLocation(new Coordinate_2D(1,0)));
         expected_timeLocationAgents.computeIfAbsent(time1_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time1_a2).add(a2);
-        TimeLocation time2_a2 = new TimeLocation(2, mapH.getMapCell(new Coordinate_2D(1,1)));
+        TimeLocation time2_a2 = new TimeLocation(2, mapH.getMapLocation(new Coordinate_2D(1,1)));
         expected_timeLocationAgents.computeIfAbsent(time2_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time2_a2).add(a2);
-        TimeLocation time3_a2 = new TimeLocation(3, mapH.getMapCell(new Coordinate_2D(1,2)));
+        TimeLocation time3_a2 = new TimeLocation(3, mapH.getMapLocation(new Coordinate_2D(1,2)));
         expected_timeLocationAgents.computeIfAbsent(time3_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time3_a2).add(a2);
-        TimeLocation time4_a2 = new TimeLocation(4, mapH.getMapCell(new Coordinate_2D(1,3)));
+        TimeLocation time4_a2 = new TimeLocation(4, mapH.getMapLocation(new Coordinate_2D(1,3)));
         expected_timeLocationAgents.computeIfAbsent(time4_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time4_a2).add(a2);
-        TimeLocation time5_a2 = new TimeLocation(5, mapH.getMapCell(new Coordinate_2D(2,3)));
+        TimeLocation time5_a2 = new TimeLocation(5, mapH.getMapLocation(new Coordinate_2D(2,3)));
         expected_timeLocationAgents.computeIfAbsent(time5_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time5_a2).add(a2);
 
 
         /*      == Expected conflicts ==     */
 
-        VertexConflict expectedConflict_time1 = new VertexConflict(a1,a2,1,mapH.getMapCell(new Coordinate_2D(1,0)));
-        VertexConflict expectedConflict_time2 = new VertexConflict(a1,a2,2,mapH.getMapCell(new Coordinate_2D(1,1)));
-        VertexConflict expectedConflict_time3 = new VertexConflict(a1,a2,3,mapH.getMapCell(new Coordinate_2D(1,2)));
-        VertexConflict expectedConflict_time4 = new VertexConflict(a1,a2,4,mapH.getMapCell(new Coordinate_2D(1,3)));
+        VertexConflict expectedConflict_time1 = new VertexConflict(a1,a2,1,mapH.getMapLocation(new Coordinate_2D(1,0)));
+        VertexConflict expectedConflict_time2 = new VertexConflict(a1,a2,2,mapH.getMapLocation(new Coordinate_2D(1,1)));
+        VertexConflict expectedConflict_time3 = new VertexConflict(a1,a2,3,mapH.getMapLocation(new Coordinate_2D(1,2)));
+        VertexConflict expectedConflict_time4 = new VertexConflict(a1,a2,4,mapH.getMapLocation(new Coordinate_2D(1,3)));
 
         HashSet<A_Conflict> expectedSet = new HashSet<>();
         expectedSet.add(expectedConflict_time1);
@@ -294,12 +294,12 @@ public class ConflictManagerTest {
         SingleAgentPlan a1_newPlan;
         ArrayList<Move> a1_newMoves = new ArrayList<>();
 
-        a1_newMoves.add(new Move(a1,1, mapH.getMapCell(new Coordinate_2D(0,0)),mapH.getMapCell(new Coordinate_2D(0,0))));
-        a1_newMoves.add(new Move(a1,2, mapH.getMapCell(new Coordinate_2D(0,0)),mapH.getMapCell(new Coordinate_2D(1,0))));
-        a1_newMoves.add(new Move(a1,3, mapH.getMapCell(new Coordinate_2D(1,0)),mapH.getMapCell(new Coordinate_2D(1,1))));
-        a1_newMoves.add(new Move(a1,4, mapH.getMapCell(new Coordinate_2D(1,1)),mapH.getMapCell(new Coordinate_2D(1,2))));
-        a1_newMoves.add(new Move(a1,5, mapH.getMapCell(new Coordinate_2D(1,2)),mapH.getMapCell(new Coordinate_2D(1,3))));
-        a1_newMoves.add(new Move(a1,6, mapH.getMapCell(new Coordinate_2D(1,3)),mapH.getMapCell(new Coordinate_2D(0,3))));
+        a1_newMoves.add(new Move(a1,1, mapH.getMapLocation(new Coordinate_2D(0,0)),mapH.getMapLocation(new Coordinate_2D(0,0))));
+        a1_newMoves.add(new Move(a1,2, mapH.getMapLocation(new Coordinate_2D(0,0)),mapH.getMapLocation(new Coordinate_2D(1,0))));
+        a1_newMoves.add(new Move(a1,3, mapH.getMapLocation(new Coordinate_2D(1,0)),mapH.getMapLocation(new Coordinate_2D(1,1))));
+        a1_newMoves.add(new Move(a1,4, mapH.getMapLocation(new Coordinate_2D(1,1)),mapH.getMapLocation(new Coordinate_2D(1,2))));
+        a1_newMoves.add(new Move(a1,5, mapH.getMapLocation(new Coordinate_2D(1,2)),mapH.getMapLocation(new Coordinate_2D(1,3))));
+        a1_newMoves.add(new Move(a1,6, mapH.getMapLocation(new Coordinate_2D(1,3)),mapH.getMapLocation(new Coordinate_2D(0,3))));
 
         a1_newPlan = new SingleAgentPlan(a1,a1_newMoves);
         copiedTable.addPlan(a1_newPlan);
@@ -335,18 +335,18 @@ public class ConflictManagerTest {
             T = Time
             S = Start
             G = Goal
-            EE = Empty cell
+            EE = Empty location
             WW = Wall
         */
         Agent a1 = new Agent(1,new Coordinate_2D(0,0),new Coordinate_2D(0,3));
         SingleAgentPlan a1_plan;
         ArrayList<Move> a1_moves = new ArrayList<>();
 
-        a1_moves.add(new Move(a1,1, mapH.getMapCell(new Coordinate_2D(0,0)),mapH.getMapCell(new Coordinate_2D(1,0))));
-        a1_moves.add(new Move(a1,2, mapH.getMapCell(new Coordinate_2D(1,0)),mapH.getMapCell(new Coordinate_2D(1,1))));
-        a1_moves.add(new Move(a1,3, mapH.getMapCell(new Coordinate_2D(1,1)),mapH.getMapCell(new Coordinate_2D(1,2))));
-        a1_moves.add(new Move(a1,4, mapH.getMapCell(new Coordinate_2D(1,2)),mapH.getMapCell(new Coordinate_2D(1,3))));
-        a1_moves.add(new Move(a1,5, mapH.getMapCell(new Coordinate_2D(1,3)),mapH.getMapCell(new Coordinate_2D(0,3))));
+        a1_moves.add(new Move(a1,1, mapH.getMapLocation(new Coordinate_2D(0,0)),mapH.getMapLocation(new Coordinate_2D(1,0))));
+        a1_moves.add(new Move(a1,2, mapH.getMapLocation(new Coordinate_2D(1,0)),mapH.getMapLocation(new Coordinate_2D(1,1))));
+        a1_moves.add(new Move(a1,3, mapH.getMapLocation(new Coordinate_2D(1,1)),mapH.getMapLocation(new Coordinate_2D(1,2))));
+        a1_moves.add(new Move(a1,4, mapH.getMapLocation(new Coordinate_2D(1,2)),mapH.getMapLocation(new Coordinate_2D(1,3))));
+        a1_moves.add(new Move(a1,5, mapH.getMapLocation(new Coordinate_2D(1,3)),mapH.getMapLocation(new Coordinate_2D(0,3))));
 
         a1_plan = new SingleAgentPlan(a1,a1_moves);
         conflictAvoidanceTable.addPlan(a1_plan);
@@ -359,18 +359,18 @@ public class ConflictManagerTest {
             T = Time
             S = Start
             G = Goal
-            EE = Empty cell
+            EE = Empty location
             WW = Wall
         */
         Agent a2 = new Agent(2,new Coordinate_2D(2,3),new Coordinate_2D(2,0));
         SingleAgentPlan a2_plan;
         ArrayList<Move> a2_moves = new ArrayList<>();
 
-        a2_moves.add(new Move(a2,1, mapH.getMapCell(new Coordinate_2D(2,3)), mapH.getMapCell(new Coordinate_2D(1,3))));
-        a2_moves.add(new Move(a2,2, mapH.getMapCell(new Coordinate_2D(1,3)), mapH.getMapCell(new Coordinate_2D(1,2))));
-        a2_moves.add(new Move(a2,3, mapH.getMapCell(new Coordinate_2D(1,2)), mapH.getMapCell(new Coordinate_2D(1,1))));
-        a2_moves.add(new Move(a2,4, mapH.getMapCell(new Coordinate_2D(1,1)), mapH.getMapCell(new Coordinate_2D(1,0))));
-        a2_moves.add(new Move(a2,5, mapH.getMapCell(new Coordinate_2D(1,0)), mapH.getMapCell(new Coordinate_2D(2,0))));
+        a2_moves.add(new Move(a2,1, mapH.getMapLocation(new Coordinate_2D(2,3)), mapH.getMapLocation(new Coordinate_2D(1,3))));
+        a2_moves.add(new Move(a2,2, mapH.getMapLocation(new Coordinate_2D(1,3)), mapH.getMapLocation(new Coordinate_2D(1,2))));
+        a2_moves.add(new Move(a2,3, mapH.getMapLocation(new Coordinate_2D(1,2)), mapH.getMapLocation(new Coordinate_2D(1,1))));
+        a2_moves.add(new Move(a2,4, mapH.getMapLocation(new Coordinate_2D(1,1)), mapH.getMapLocation(new Coordinate_2D(1,0))));
+        a2_moves.add(new Move(a2,5, mapH.getMapLocation(new Coordinate_2D(1,0)), mapH.getMapLocation(new Coordinate_2D(2,0))));
 
         a2_plan = new SingleAgentPlan(a2,a2_moves);
         conflictAvoidanceTable.addPlan(a2_plan);
@@ -393,49 +393,49 @@ public class ConflictManagerTest {
 
         Map<TimeLocation,Set<Agent>> expected_timeLocationAgents = new HashMap<>();
         // Agent 1
-        TimeLocation time0_a1 = new TimeLocation(0, mapH.getMapCell(new Coordinate_2D(0,0)));
+        TimeLocation time0_a1 = new TimeLocation(0, mapH.getMapLocation(new Coordinate_2D(0,0)));
         expected_timeLocationAgents.computeIfAbsent(time0_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time0_a1).add(a1);
-        TimeLocation time1_a1 = new TimeLocation(1, mapH.getMapCell(new Coordinate_2D(1,0)));
+        TimeLocation time1_a1 = new TimeLocation(1, mapH.getMapLocation(new Coordinate_2D(1,0)));
         expected_timeLocationAgents.computeIfAbsent(time1_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time1_a1).add(a1);
-        TimeLocation time2_a1 = new TimeLocation(2, mapH.getMapCell(new Coordinate_2D(1,1)));
+        TimeLocation time2_a1 = new TimeLocation(2, mapH.getMapLocation(new Coordinate_2D(1,1)));
         expected_timeLocationAgents.computeIfAbsent(time2_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time2_a1).add(a1);
-        TimeLocation time3_a1 = new TimeLocation(3, mapH.getMapCell(new Coordinate_2D(1,2)));
+        TimeLocation time3_a1 = new TimeLocation(3, mapH.getMapLocation(new Coordinate_2D(1,2)));
         expected_timeLocationAgents.computeIfAbsent(time3_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time3_a1).add(a1);
-        TimeLocation time4_a1 = new TimeLocation(4, mapH.getMapCell(new Coordinate_2D(1,3)));
+        TimeLocation time4_a1 = new TimeLocation(4, mapH.getMapLocation(new Coordinate_2D(1,3)));
         expected_timeLocationAgents.computeIfAbsent(time4_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time4_a1).add(a1);
-        TimeLocation time5_a1 = new TimeLocation(5, mapH.getMapCell(new Coordinate_2D(0,3)));
+        TimeLocation time5_a1 = new TimeLocation(5, mapH.getMapLocation(new Coordinate_2D(0,3)));
         expected_timeLocationAgents.computeIfAbsent(time5_a1,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time5_a1).add(a1);
 
         // Agent 2
-        TimeLocation time0_a2 = new TimeLocation(0, mapH.getMapCell(new Coordinate_2D(2,3)));
+        TimeLocation time0_a2 = new TimeLocation(0, mapH.getMapLocation(new Coordinate_2D(2,3)));
         expected_timeLocationAgents.computeIfAbsent(time0_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time0_a2).add(a2);
-        TimeLocation time1_a2 = new TimeLocation(1, mapH.getMapCell(new Coordinate_2D(1,3)));
+        TimeLocation time1_a2 = new TimeLocation(1, mapH.getMapLocation(new Coordinate_2D(1,3)));
         expected_timeLocationAgents.computeIfAbsent(time1_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time1_a2).add(a2);
-        TimeLocation time2_a2 = new TimeLocation(2, mapH.getMapCell(new Coordinate_2D(1,2)));
+        TimeLocation time2_a2 = new TimeLocation(2, mapH.getMapLocation(new Coordinate_2D(1,2)));
         expected_timeLocationAgents.computeIfAbsent(time2_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time2_a2).add(a2);
-        TimeLocation time3_a2 = new TimeLocation(3, mapH.getMapCell(new Coordinate_2D(1,1)));
+        TimeLocation time3_a2 = new TimeLocation(3, mapH.getMapLocation(new Coordinate_2D(1,1)));
         expected_timeLocationAgents.computeIfAbsent(time3_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time3_a2).add(a2);
-        TimeLocation time4_a2 = new TimeLocation(4, mapH.getMapCell(new Coordinate_2D(1,0)));
+        TimeLocation time4_a2 = new TimeLocation(4, mapH.getMapLocation(new Coordinate_2D(1,0)));
         expected_timeLocationAgents.computeIfAbsent(time4_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time4_a2).add(a2);
-        TimeLocation time5_a2 = new TimeLocation(5, mapH.getMapCell(new Coordinate_2D(2,0)));
+        TimeLocation time5_a2 = new TimeLocation(5, mapH.getMapLocation(new Coordinate_2D(2,0)));
         expected_timeLocationAgents.computeIfAbsent(time5_a2,k -> new HashSet<Agent>());
         expected_timeLocationAgents.get(time5_a2).add(a2);
 
 
         /*      == Expected conflicts ==     */
 
-        SwappingConflict expectedConflict_time3 = new SwappingConflict(a1,a2,3,mapH.getMapCell(new Coordinate_2D(1,2)),mapH.getMapCell(new Coordinate_2D(1,1)));
+        SwappingConflict expectedConflict_time3 = new SwappingConflict(a1,a2,3,mapH.getMapLocation(new Coordinate_2D(1,2)),mapH.getMapLocation(new Coordinate_2D(1,1)));
 
         HashSet<A_Conflict> expectedSet = new HashSet<>();
         expectedSet.add(expectedConflict_time3);
@@ -461,12 +461,12 @@ public class ConflictManagerTest {
         SingleAgentPlan a1_newPlan;
         ArrayList<Move> a1_newMoves = new ArrayList<>();
 
-        a1_newMoves.add(new Move(a1,1, mapH.getMapCell(new Coordinate_2D(0,0)),mapH.getMapCell(new Coordinate_2D(0,0))));
-        a1_newMoves.add(new Move(a1,2, mapH.getMapCell(new Coordinate_2D(0,0)),mapH.getMapCell(new Coordinate_2D(1,0))));
-        a1_newMoves.add(new Move(a1,3, mapH.getMapCell(new Coordinate_2D(1,0)),mapH.getMapCell(new Coordinate_2D(1,1))));
-        a1_newMoves.add(new Move(a1,4, mapH.getMapCell(new Coordinate_2D(1,1)),mapH.getMapCell(new Coordinate_2D(1,2))));
-        a1_newMoves.add(new Move(a1,5, mapH.getMapCell(new Coordinate_2D(1,2)),mapH.getMapCell(new Coordinate_2D(1,3))));
-        a1_newMoves.add(new Move(a1,6, mapH.getMapCell(new Coordinate_2D(1,3)),mapH.getMapCell(new Coordinate_2D(0,3))));
+        a1_newMoves.add(new Move(a1,1, mapH.getMapLocation(new Coordinate_2D(0,0)),mapH.getMapLocation(new Coordinate_2D(0,0))));
+        a1_newMoves.add(new Move(a1,2, mapH.getMapLocation(new Coordinate_2D(0,0)),mapH.getMapLocation(new Coordinate_2D(1,0))));
+        a1_newMoves.add(new Move(a1,3, mapH.getMapLocation(new Coordinate_2D(1,0)),mapH.getMapLocation(new Coordinate_2D(1,1))));
+        a1_newMoves.add(new Move(a1,4, mapH.getMapLocation(new Coordinate_2D(1,1)),mapH.getMapLocation(new Coordinate_2D(1,2))));
+        a1_newMoves.add(new Move(a1,5, mapH.getMapLocation(new Coordinate_2D(1,2)),mapH.getMapLocation(new Coordinate_2D(1,3))));
+        a1_newMoves.add(new Move(a1,6, mapH.getMapLocation(new Coordinate_2D(1,3)),mapH.getMapLocation(new Coordinate_2D(0,3))));
 
         a1_newPlan = new SingleAgentPlan(a1,a1_newMoves);
         copiedTable.addPlan(a1_newPlan);
@@ -477,7 +477,7 @@ public class ConflictManagerTest {
 
         /*      = Expected values =     */
         expectedSet = new HashSet<>();
-        VertexConflict expectedVertexConflict_time3 = new VertexConflict(a1,a2,3,mapH.getMapCell(new Coordinate_2D(1,1)));
+        VertexConflict expectedVertexConflict_time3 = new VertexConflict(a1,a2,3,mapH.getMapLocation(new Coordinate_2D(1,1)));
         expectedSet.add(expectedVertexConflict_time3);
 
 

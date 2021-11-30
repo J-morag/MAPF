@@ -3,6 +3,7 @@ package BasicCBS.Solvers.AStar;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
+import BasicCBS.Instances.Maps.Enum_MapLocationType;
 import BasicCBS.Instances.Maps.I_Map;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictAvoidanceTable;
@@ -166,7 +167,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
      * Initialises {@link #openList OPEN}.
      *
      * OPEN is not initialised with a single root state as is common. This is because states in this solver represent
-     * {@link Move moves} (classically - operators) rather than {@link I_Location map cells} (classically - states).
+     * {@link Move moves} (classically - operators) rather than {@link I_Location map locations} (classically - states).
      * Instead, OPEN is initialised with all possible moves from the starting position.
      * @return true if OPEN was successfully initialised, else false.
      */
@@ -182,13 +183,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
         else { // the existing plan is empty (no existing plan)
 
-            I_Location sourceCell = map.getMapCell(this.sourceCoor);
-            // can move to neighboring locations or stay put
-            List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(sourceCell.outgoingEdges());
-            neighborCellsIncludingCurrent.add(sourceCell);
+            I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
+            // can move to neighboring locations or stay, unless this is an ice location, in which case can only move
+            List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(sourceLocation.outgoingEdges());
+            neighborLocationsIncludingCurrent.add(sourceLocation);
 
-            for (I_Location destination: neighborCellsIncludingCurrent) {
-                Move possibleMove = new Move(agent, problemStartTime + 1, sourceCell, destination);
+            for (I_Location destination: neighborLocationsIncludingCurrent) {
+                Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
                     AStarState rootState = new AStarState(possibleMove, null, 1, 0);
                     openList.add(rootState);
@@ -299,11 +300,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         public void expand() {
             expandedNodes++;
-            // can move to neighboring cells or stay put
-            List<I_Location> neighborCellsIncludingCurrent = new ArrayList<>(this.move.currLocation.outgoingEdges());
-            neighborCellsIncludingCurrent.add(this.move.currLocation);
+            // can move to neighboring locations or stay put
+            List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(this.move.currLocation.outgoingEdges());
+            neighborLocationsIncludingCurrent.add(this.move.currLocation);
 
-            for (I_Location destination: neighborCellsIncludingCurrent){
+            for (I_Location destination: neighborLocationsIncludingCurrent){
                 Move possibleMove = new Move(this.move.agent, this.move.timeNow+1, this.move.currLocation, destination);
                 // forbidden from performing stay moves after the time of last constraint. this makes A* complete even
                 // when there are goal constraints (infinite)

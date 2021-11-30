@@ -3,19 +3,16 @@ package BasicCBS.Solvers.ICTS;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicCBS.Instances.InstanceBuilders.Priorities;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
 import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
-import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.Enum_MapLocationType;
 import BasicCBS.Instances.Maps.I_Map;
 import BasicCBS.Instances.Maps.MapDimensions;
 import BasicCBS.Instances.Maps.MapFactory;
 import BasicCBS.Solvers.CBS.CBS_Solver;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
@@ -36,9 +33,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ICTS_SolverTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    private Enum_MapCellType[][] map_2D_circle = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    private Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -48,7 +45,7 @@ class ICTS_SolverTest {
     };
     private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
-    Enum_MapCellType[][] map_2D_empty = {
+    Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
@@ -58,7 +55,7 @@ class ICTS_SolverTest {
     };
     private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
 
-    Enum_MapCellType[][] map_2D_withPocket = {
+    Enum_MapLocationType[][] map_2D_withPocket = {
             {e, w, e, w, e, w},
             {e, w, e, e, e, e},
             {w, w, e, w, w, e},
@@ -68,7 +65,7 @@ class ICTS_SolverTest {
     };
     private I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
 
-    Enum_MapCellType[][] map_2D_smallMaze = {
+    Enum_MapLocationType[][] map_2D_smallMaze = {
             {e, e, e, w, e, w},
             {e, w, e, e, e, e},
             {e, w, e, w, w, e},

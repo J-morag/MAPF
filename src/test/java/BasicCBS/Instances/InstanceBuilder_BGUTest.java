@@ -15,32 +15,32 @@ public class InstanceBuilder_BGUTest {
 
     private InstanceBuilder_BGU instanceBuilderBgu = new InstanceBuilder_BGU();
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
 
 
     /*  Check that map is valid  */
-    private boolean checkAllMapCells(Enum_MapCellType[][] expectedCellTypeMap, I_Map actualMap){
+    private boolean checkAllMapLocations(Enum_MapLocationType[][] expectedLocationTypeMap, I_Map actualMap){
 
-        for (int xAxis_value = 0; xAxis_value < expectedCellTypeMap.length; xAxis_value++) {
-            for (int yAxis_value = 0; yAxis_value < expectedCellTypeMap[0].length; yAxis_value++) {
+        for (int xAxis_value = 0; xAxis_value < expectedLocationTypeMap.length; xAxis_value++) {
+            for (int yAxis_value = 0; yAxis_value < expectedLocationTypeMap[0].length; yAxis_value++) {
                 // Create coordinate
                 I_Coordinate coordinate = new Coordinate_2D(xAxis_value, yAxis_value);
-                // Get the relevant mapCell
-                I_Location actualMapCell = actualMap.getMapCell(coordinate);
+                // Get the relevant mapLocation
+                I_Location actualMapLocation = actualMap.getMapLocation(coordinate);
 
                 // Check that wall doesnt exists in actualMap
-                if( actualMapCell == null && expectedCellTypeMap[xAxis_value][yAxis_value] == w){ continue; }
+                if( actualMapLocation == null && expectedLocationTypeMap[xAxis_value][yAxis_value] == w){ continue; }
 
-                // check that actualMapCell is the same as the expectedCellTypeMap[xAxis_value][yAxis_value]
-                if( actualMapCell != null && actualMapCell.getType() == expectedCellTypeMap[xAxis_value][yAxis_value]){ continue; }
+                // check that actualMapLocation is the same as the expectedLocationTypeMap[xAxis_value][yAxis_value]
+                if( actualMapLocation != null && actualMapLocation.getType() == expectedLocationTypeMap[xAxis_value][yAxis_value]){ continue; }
 
                 assertFalse(true);
                 return false; // Invalid value
             }
         }
 
-        return true; // All cells are valid
+        return true; // All locations are valid
     }
 
 
@@ -76,14 +76,14 @@ public class InstanceBuilder_BGUTest {
         int yAxis_length = 16;
         int xAxis_length = 16;
 
-        /*      =Create expected cellType Map=       */
-        Enum_MapCellType[][] expectedCellTypeMap = new Enum_MapCellType[xAxis_length][yAxis_length];
+        /*      =Create expected locationType Map=       */
+        Enum_MapLocationType[][] expectedLocationTypeMap = new Enum_MapLocationType[xAxis_length][yAxis_length];
 
         for (int xIndex = 0; xIndex < xAxis_length; xIndex++) {
             for (int yIndex = 0; yIndex < yAxis_length; yIndex++) {
 
-                Enum_MapCellType cellType = Enum_MapCellType.EMPTY;
-                expectedCellTypeMap[xIndex][yIndex] = cellType;
+                Enum_MapLocationType locationType = Enum_MapLocationType.EMPTY;
+                expectedLocationTypeMap[xIndex][yIndex] = locationType;
             }
         }
 
@@ -107,7 +107,7 @@ public class InstanceBuilder_BGUTest {
 
         /*  = Check map =  */
         I_Map actualMap = mapf_instance.map;
-        assertTrue(checkAllMapCells(expectedCellTypeMap,actualMap));
+        assertTrue(checkAllMapLocations(expectedLocationTypeMap,actualMap));
 
 
     }
@@ -184,7 +184,7 @@ public class InstanceBuilder_BGUTest {
 
 
 
-        /*      =Create expected cellType Map=       */
+        /*      =Create expected locationType Map=       */
 
         /* Note: Map from file
                 ........
@@ -197,7 +197,7 @@ public class InstanceBuilder_BGUTest {
                 @..@@...
 
         */
-        Enum_MapCellType[][] expectedCellTypeMap = new Enum_MapCellType[][]{
+        Enum_MapLocationType[][] expectedLocationTypeMap = new Enum_MapLocationType[][]{
                 {e,e,e,e,e,e,e,e},
                 {e,e,e,e,e,e,e,e},
                 {e,e,e,w,e,e,e,e},
@@ -230,7 +230,7 @@ public class InstanceBuilder_BGUTest {
 
         /*  = Check map =  */
         I_Map actualMap = mapf_instance.map;
-        assertTrue(checkAllMapCells(expectedCellTypeMap,actualMap));
+        assertTrue(checkAllMapLocations(expectedLocationTypeMap,actualMap));
 
 
     }

@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A single cell(/vertex) in a {@link GraphMap}. Represents a unique location in the graph.
+ * A single location(/vertex) in a {@link GraphMap}. Represents a unique location in the graph.
  * Immutable beyond first initialization (First with a constructor, and then with {@link #setNeighbors(GraphMapVertex[])}.
  */
 public class GraphMapVertex implements I_Location {
@@ -20,9 +20,9 @@ public class GraphMapVertex implements I_Location {
     private final int UniqueID = IDCounter++;
 
     /**
-     * The type of the cell. The type could determine whether or not an agent can traverse or occupy a cell.
+     * The type of the location. The type could determine whether or not an agent can traverse or occupy a location.
      */
-    public final Enum_MapCellType cellType;
+    public final Enum_MapLocationType locationType;
     public List<I_Location> outgoingEdges;
     private List<I_Location> incomingEdges = new ArrayList<>();
     /**
@@ -38,17 +38,17 @@ public class GraphMapVertex implements I_Location {
 
     public final I_Coordinate coordinate;
 
-    GraphMapVertex(Enum_MapCellType cellType, I_Coordinate coordinate) {
-        this.cellType = cellType;
+    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate) {
+        this.locationType = locationType;
         this.coordinate = coordinate;
         this.outgoingEdges = null;
     }
 
     /**
-     * Sets the cell's neighbors. All cells in the array should logically be non null.
+     * Sets the location's neighbors. All locations in the array should logically be non null.
      * Used during graph construction. Only the first call to this method on an instance affects the instance.
      * Also sets this as a reverse edge on each of the neighbors.
-     * @param outgoingEdges the cell's neighbors.
+     * @param outgoingEdges the location's neighbors.
      * @throws NullPointerException if an element is null or the given array is null.
      */
     void setNeighbors(GraphMapVertex[] outgoingEdges) {
@@ -58,11 +58,11 @@ public class GraphMapVertex implements I_Location {
     }
 
     /**
-     * Sets the cell's neighbors. All cells in the array should logically be non null.
+     * Sets the location's neighbors. All locations in the array should logically be non null.
      * Used during graph construction. Only the first call to this method on an instance affects the instance.
      * Also sets this as a reverse edge on each of the neighbors.
      * Also sets weights for the edges to the neighbors.
-     * @param outgoingEdges the cell's neighbors. must be indexed uniformly with edgeWeights.
+     * @param outgoingEdges the location's neighbors. must be indexed uniformly with edgeWeights.
      * @param edgeWeights weights of the connections to the neighbors. must be indexed uniformly with neighbors.
      * @throws NullPointerException if an element is null or the given array is null.
      */
@@ -82,17 +82,17 @@ public class GraphMapVertex implements I_Location {
     }
 
     /**
-     * Returns the type of the cell.
-     * @return the type of the cell.
+     * Returns the type of the location.
+     * @return the type of the location.
      */
     @Override
-    public Enum_MapCellType getType() {
-        return cellType;
+    public Enum_MapLocationType getType() {
+        return locationType;
     }
 
     /**
-     * returns the cell's coordinate.
-     * @return the cell's coordinate.
+     * returns the location's coordinate.
+     * @return the location's coordinate.
      */
     @Override
     public I_Coordinate getCoordinate() {
@@ -100,10 +100,10 @@ public class GraphMapVertex implements I_Location {
     }
 
     /**
-     * Returns an UnmodifiableList of this cell's neighbors.
+     * Returns an UnmodifiableList of this location's neighbors.
      * The amount of neighbors varies by map and connectivity.
      * Runs in O(1).
-     * @return an UnmodifiableList of this cell's neighbors.
+     * @return an UnmodifiableList of this location's neighbors.
      */
     @Override
     public List<I_Location> outgoingEdges() {
@@ -124,11 +124,11 @@ public class GraphMapVertex implements I_Location {
     }
 
     /**
-     * Returns an UnmodifiableList of the weights of this cell's edges.
+     * Returns an UnmodifiableList of the weights of this location's edges.
      * The amount of neighbors varies by map and connectivity.
      * Runs in O(1).
      * Indexed uniformly with the list of neighbors returned by {@link #outgoingEdges()}.
-     * @return an UnmodifiableList of the weights of this cell's edges.
+     * @return an UnmodifiableList of the weights of this location's edges.
      */
     @Override
     public List<Integer> getOutgoingEdgesWeights() {
@@ -157,7 +157,7 @@ public class GraphMapVertex implements I_Location {
 
     @Override
     public String toString() {
-        return "GraphMapCell{" +
+        return "GraphMapLocation{" +
                 "coordinate=" + coordinate +
                 '}';
     }

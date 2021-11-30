@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ConstraintTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    private Enum_MapCellType[][] map_2D_circle = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    private Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -34,17 +34,17 @@ class ConstraintTest {
         Agent agent2 = new Agent(0, coor24, coor24);
 
         // this move is just to illustrate why the constraint might exist, it isn't actually used
-        Move move1 = new Move(agent1, 1, map1.getMapCell(coor13), map1.getMapCell(coor14));
-        Move moveConflicts = new Move(agent2, 1, map1.getMapCell(coor24), map1.getMapCell(coor14));
-        Move moveDoesntConflict = new Move(agent2, 1, map1.getMapCell(coor24), map1.getMapCell(coor34));
+        Move move1 = new Move(agent1, 1, map1.getMapLocation(coor13), map1.getMapLocation(coor14));
+        Move moveConflicts = new Move(agent2, 1, map1.getMapLocation(coor24), map1.getMapLocation(coor14));
+        Move moveDoesntConflict = new Move(agent2, 1, map1.getMapLocation(coor24), map1.getMapLocation(coor34));
 
-        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, map1.getMapCell(coor14));
-        Constraint constraintHoldsAllAgents = new Constraint(null, 1, map1.getMapCell(coor14));
+        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, map1.getMapLocation(coor14));
+        Constraint constraintHoldsAllAgents = new Constraint(null, 1, map1.getMapLocation(coor14));
 
-        Constraint constraintDoesntHoldDifferentAgent = new Constraint(agent1, 1, map1.getMapCell(coor14));
-        Constraint constraintDoesntHoldDifferentTime = new Constraint(agent2, 2, map1.getMapCell(coor14));
-        Constraint constraintDoesntHoldDifferentlocation = new Constraint(agent2, 1, map1.getMapCell(coor13));
-        Constraint constraintDoesntHoldPrevlocation = new Constraint(agent2, 1, map1.getMapCell(coor24));
+        Constraint constraintDoesntHoldDifferentAgent = new Constraint(agent1, 1, map1.getMapLocation(coor14));
+        Constraint constraintDoesntHoldDifferentTime = new Constraint(agent2, 2, map1.getMapLocation(coor14));
+        Constraint constraintDoesntHoldDifferentlocation = new Constraint(agent2, 1, map1.getMapLocation(coor13));
+        Constraint constraintDoesntHoldPrevlocation = new Constraint(agent2, 1, map1.getMapLocation(coor24));
 
         /*  =should accept=  */
         /*  =  =because constraint doesn't hold=  */
@@ -73,15 +73,15 @@ class ConstraintTest {
         Agent agent2 = new Agent(0, coor24, coor24);
 
         // this move is just to illustrate why the constraint might exist, it isn't actually used
-        Move move1 = new Move(agent1, 1, map1.getMapCell(coor13), map1.getMapCell(coor14));
+        Move move1 = new Move(agent1, 1, map1.getMapLocation(coor13), map1.getMapLocation(coor14));
 
-        Move moveConflicts = new Move(agent2, 1, map1.getMapCell(coor14), map1.getMapCell(coor13));
-        Move moveDoesntConflictOnMoveConstraint = new Move(agent2, 1, map1.getMapCell(coor12), map1.getMapCell(coor13));
+        Move moveConflicts = new Move(agent2, 1, map1.getMapLocation(coor14), map1.getMapLocation(coor13));
+        Move moveDoesntConflictOnMoveConstraint = new Move(agent2, 1, map1.getMapLocation(coor12), map1.getMapLocation(coor13));
 
-        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, map1.getMapCell(coor14), map1.getMapCell(coor13));
-        Constraint constraintHoldsAllAgents = new Constraint(null, 1, map1.getMapCell(coor14), map1.getMapCell(coor13));
+        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, map1.getMapLocation(coor14), map1.getMapLocation(coor13));
+        Constraint constraintHoldsAllAgents = new Constraint(null, 1, map1.getMapLocation(coor14), map1.getMapLocation(coor13));
 
-        Constraint constraintDoesntHoldDifferentPrevlocation = new Constraint(agent2, 1, map1.getMapCell(coor12), map1.getMapCell(coor13));
+        Constraint constraintDoesntHoldDifferentPrevlocation = new Constraint(agent2, 1, map1.getMapLocation(coor12), map1.getMapLocation(coor13));
 
         /*  =should accept=  */
         /*  =  =because constraint doesn't hold=  */

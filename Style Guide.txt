@@ -63,7 +63,7 @@ Testing:
 
 
 
-Map Arrays - CellTypeMap:
+Map Arrays - LocationTypeMap:
   In arrays that represent maps, dimensions will be ordered as follows:
     arr[x][y][z]...
     So that arr.length is equal to the x length (the width) of the represented map.
@@ -75,4 +75,4 @@ Map Arrays - CellTypeMap:
     Example of a standard for i for j iteration:
       for (int xIndex = 0; xIndex < xAxis_length; xIndex++)
           for (int yIndex = 0; yIndex < yAxis_length; yIndex++)
-                CellTypeMap[xIndex][yIndex]
+                LocationTypeMap[xIndex][yIndex]

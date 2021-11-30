@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class InstanceReport {
 
-    //max cell size of excel, plus room for wrapping with "" plus some safety
+    //max location size of excel, plus room for wrapping with "" plus some safety
     private static final int MAX_STRING_SIZE = 32767 - 12;
     public static final String EXTENSION_STRING = " - Extended ";
 

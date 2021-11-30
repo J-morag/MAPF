@@ -44,7 +44,7 @@ public class InstanceProperties {
 
         /* Rate for the report:
             {@link #reportRate} is the map's rate, it will be updated from
-            {@link I_InstanceBuilder#build_2D_cellTypeMap(Character[][], HashMap, MapDimensions.Enum_mapOrientation, ObstacleWrapper)}
+            {@link I_InstanceBuilder#build_2D_locationTypeMap(Character[][], HashMap, MapDimensions.Enum_mapOrientation, ObstacleWrapper)}
          */
         private double reportRate  = DEFAULT_OBSTACLE_RATE; // this we be updated from
 

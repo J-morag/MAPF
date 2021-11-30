@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SingleAgentAStar_SolverTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    private Enum_MapCellType[][] map_2D_circle = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    private Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -34,7 +34,7 @@ class SingleAgentAStar_SolverTest {
     };
     private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
-    Enum_MapCellType[][] map_2D_empty = {
+    Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
@@ -44,7 +44,7 @@ class SingleAgentAStar_SolverTest {
     };
     private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
 
-    Enum_MapCellType[][] map_2D_withPocket = {
+    Enum_MapLocationType[][] map_2D_withPocket = {
             {e, w, e, w, e, w},
             {e, w, e, e, e, e},
             {w, w, e, w, w, e},
@@ -71,22 +71,22 @@ class SingleAgentAStar_SolverTest {
     private I_Coordinate coor04 = new Coordinate_2D(0,4);
     private I_Coordinate coor00 = new Coordinate_2D(0,0);
 
-    private I_Location cell12Circle = mapCircle.getMapCell(coor12);
-    private I_Location cell13Circle = mapCircle.getMapCell(coor13);
-    private I_Location cell14Circle = mapCircle.getMapCell(coor14);
-    private I_Location cell22Circle = mapCircle.getMapCell(coor22);
-    private I_Location cell24Circle = mapCircle.getMapCell(coor24);
-    private I_Location cell32Circle = mapCircle.getMapCell(coor32);
-    private I_Location cell33Circle = mapCircle.getMapCell(coor33);
-    private I_Location cell34Circle = mapCircle.getMapCell(coor34);
+    private I_Location location12Circle = mapCircle.getMapLocation(coor12);
+    private I_Location location13Circle = mapCircle.getMapLocation(coor13);
+    private I_Location location14Circle = mapCircle.getMapLocation(coor14);
+    private I_Location location22Circle = mapCircle.getMapLocation(coor22);
+    private I_Location location24Circle = mapCircle.getMapLocation(coor24);
+    private I_Location location32Circle = mapCircle.getMapLocation(coor32);
+    private I_Location location33Circle = mapCircle.getMapLocation(coor33);
+    private I_Location location34Circle = mapCircle.getMapLocation(coor34);
 
-    private I_Location cell11 = mapCircle.getMapCell(coor11);
-    private I_Location cell43 = mapCircle.getMapCell(coor43);
-    private I_Location cell53 = mapCircle.getMapCell(coor53);
-    private I_Location cell05 = mapCircle.getMapCell(coor05);
+    private I_Location location11 = mapCircle.getMapLocation(coor11);
+    private I_Location location43 = mapCircle.getMapLocation(coor43);
+    private I_Location location53 = mapCircle.getMapLocation(coor53);
+    private I_Location location05 = mapCircle.getMapLocation(coor05);
 
-    private I_Location cell04 = mapCircle.getMapCell(coor04);
-    private I_Location cell00 = mapCircle.getMapCell(coor00);
+    private I_Location location04 = mapCircle.getMapLocation(coor04);
+    private I_Location location00 = mapCircle.getMapLocation(coor00);
 
     private Agent agent33to12 = new Agent(0, coor33, coor12);
     private Agent agent12to33 = new Agent(1, coor12, coor33);
@@ -119,8 +119,8 @@ class SingleAgentAStar_SolverTest {
 
         Map<Agent, SingleAgentPlan> plans = new HashMap<>();
         SingleAgentPlan plan = new SingleAgentPlan(testInstance.agents.get(0));
-        I_Location cell = testInstance.map.getMapCell(new Coordinate_2D(4,5));
-        plan.addMove(new Move(testInstance.agents.get(0), 1, cell, cell));
+        I_Location location = testInstance.map.getMapLocation(new Coordinate_2D(4,5));
+        plan.addMove(new Move(testInstance.agents.get(0), 1, location, location));
         plans.put(testInstance.agents.get(0), plan);
         Solution expected = new Solution(plans);
 
@@ -135,9 +135,9 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, new RunParameters());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
-        plan.addMove(new Move(agent, 1, cell33Circle, cell32Circle));
-        plan.addMove(new Move(agent, 2, cell32Circle, cell22Circle));
-        plan.addMove(new Move(agent, 3, cell22Circle, cell12Circle));
+        plan.addMove(new Move(agent, 1, location33Circle, location32Circle));
+        plan.addMove(new Move(agent, 2, location32Circle, location22Circle));
+        plan.addMove(new Move(agent, 3, location22Circle, location12Circle));
         Solution expected = new Solution();
         expected.putPlan(plan);
 
@@ -152,7 +152,7 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint vertexConstraint = new Constraint(null, 1, null, cell32Circle);
+        Constraint vertexConstraint = new Constraint(null, 1, null, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(vertexConstraint);
         RunParameters parameters = new RunParameters(constraints);
@@ -160,10 +160,10 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
-        plan.addMove(new Move(agent, 1, cell33Circle, cell33Circle));
-        plan.addMove(new Move(agent, 2, cell33Circle, cell32Circle));
-        plan.addMove(new Move(agent, 3, cell32Circle, cell22Circle));
-        plan.addMove(new Move(agent, 4, cell22Circle, cell12Circle));
+        plan.addMove(new Move(agent, 1, location33Circle, location33Circle));
+        plan.addMove(new Move(agent, 2, location33Circle, location32Circle));
+        plan.addMove(new Move(agent, 3, location32Circle, location22Circle));
+        plan.addMove(new Move(agent, 4, location22Circle, location12Circle));
         Solution expected = new Solution();
         expected.putPlan(plan);
 
@@ -178,7 +178,7 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint vertexConstraint = new Constraint(agent, 1, null, cell32Circle);
+        Constraint vertexConstraint = new Constraint(agent, 1, null, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(vertexConstraint);
         RunParameters parameters = new RunParameters(constraints);
@@ -186,10 +186,10 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
-        plan.addMove(new Move(agent, 1, cell33Circle, cell33Circle));
-        plan.addMove(new Move(agent, 2, cell33Circle, cell32Circle));
-        plan.addMove(new Move(agent, 3, cell32Circle, cell22Circle));
-        plan.addMove(new Move(agent, 4, cell22Circle, cell12Circle));
+        plan.addMove(new Move(agent, 1, location33Circle, location33Circle));
+        plan.addMove(new Move(agent, 2, location33Circle, location32Circle));
+        plan.addMove(new Move(agent, 3, location32Circle, location22Circle));
+        plan.addMove(new Move(agent, 4, location22Circle, location12Circle));
         Solution expected = new Solution();
         expected.putPlan(plan);
 
@@ -203,7 +203,7 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint swappingConstraint = new Constraint(agent, 1, cell33Circle, cell32Circle);
+        Constraint swappingConstraint = new Constraint(agent, 1, location33Circle, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(swappingConstraint);
         RunParameters parameters = new RunParameters(constraints);
@@ -211,10 +211,10 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
-        plan.addMove(new Move(agent, 1, cell33Circle, cell33Circle));
-        plan.addMove(new Move(agent, 2, cell33Circle, cell32Circle));
-        plan.addMove(new Move(agent, 3, cell32Circle, cell22Circle));
-        plan.addMove(new Move(agent, 4, cell22Circle, cell12Circle));
+        plan.addMove(new Move(agent, 1, location33Circle, location33Circle));
+        plan.addMove(new Move(agent, 2, location33Circle, location32Circle));
+        plan.addMove(new Move(agent, 3, location32Circle, location22Circle));
+        plan.addMove(new Move(agent, 4, location22Circle, location12Circle));
         Solution expected = new Solution();
         expected.putPlan(plan);
 
@@ -228,9 +228,9 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint swappingConstraint1 = new Constraint(null, 1, cell33Circle, cell32Circle);
-        Constraint swappingConstraint2 = new Constraint(null, 2, cell33Circle, cell32Circle);
-        Constraint swappingConstraint3 = new Constraint(null, 3, cell33Circle, cell32Circle);
+        Constraint swappingConstraint1 = new Constraint(null, 1, location33Circle, location32Circle);
+        Constraint swappingConstraint2 = new Constraint(null, 2, location33Circle, location32Circle);
+        Constraint swappingConstraint3 = new Constraint(null, 3, location33Circle, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(swappingConstraint1);
         constraints.add(swappingConstraint2);
@@ -240,11 +240,11 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
-        plan.addMove(new Move(agent, 1, cell33Circle, cell34Circle));
-        plan.addMove(new Move(agent, 2, cell34Circle, cell24Circle));
-        plan.addMove(new Move(agent, 3, cell24Circle, cell14Circle));
-        plan.addMove(new Move(agent, 4, cell14Circle, cell13Circle));
-        plan.addMove(new Move(agent, 5, cell13Circle, cell12Circle));
+        plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
+        plan.addMove(new Move(agent, 2, location34Circle, location24Circle));
+        plan.addMove(new Move(agent, 3, location24Circle, location14Circle));
+        plan.addMove(new Move(agent, 4, location14Circle, location13Circle));
+        plan.addMove(new Move(agent, 5, location13Circle, location12Circle));
         Solution expected = new Solution();
         expected.putPlan(plan);
 
@@ -261,9 +261,9 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, new RunParameters());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
-        plan.addMove(new Move(agent, 1, cell12Circle, cell22Circle));
-        plan.addMove(new Move(agent, 2, cell22Circle, cell32Circle));
-        plan.addMove(new Move(agent, 3, cell32Circle, cell33Circle));
+        plan.addMove(new Move(agent, 1, location12Circle, location22Circle));
+        plan.addMove(new Move(agent, 2, location22Circle, location32Circle));
+        plan.addMove(new Move(agent, 3, location32Circle, location33Circle));
         Solution expected = new Solution();
         expected.putPlan(plan);
 
@@ -301,7 +301,7 @@ class SingleAgentAStar_SolverTest {
     void accountsForConstraintAfterReachingGoal() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
-        Constraint constraintAtTimeAfterReachingGoal = new Constraint(agent,9, null, instanceEmpty1.map.getMapCell(coor05));
+        Constraint constraintAtTimeAfterReachingGoal = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal);
         RunParameters runParameters = new RunParameters(constraints);
@@ -316,9 +316,9 @@ class SingleAgentAStar_SolverTest {
     void accountsForMultipleConstraintsAfterReachingGoal() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
-        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapCell(coor05));
-        Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,13, null, instanceEmpty1.map.getMapCell(coor05));
-        Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,14, null, instanceEmpty1.map.getMapCell(coor05));
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,13, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,14, null, instanceEmpty1.map.getMapLocation(coor05));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal1);
         constraints.add(constraintAtTimeAfterReachingGoal2);
@@ -338,7 +338,7 @@ class SingleAgentAStar_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Agent agent = testInstance.agents.get(0);
 
-        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,5, null, cell33Circle);
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,5, null, location33Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal1);
         RunParameters runParameters = new RunParameters(constraints);
@@ -346,22 +346,22 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, runParameters);
 
         SingleAgentPlan plan1 = new SingleAgentPlan(agent);
-        plan1.addMove(new Move(agent, 1, cell12Circle, cell22Circle));
-        plan1.addMove(new Move(agent, 2, cell22Circle, cell32Circle));
-        plan1.addMove(new Move(agent, 3, cell32Circle, cell33Circle));
-        plan1.addMove(new Move(agent, 4, cell33Circle, cell33Circle));
-        plan1.addMove(new Move(agent, 5, cell33Circle, cell32Circle));
-        plan1.addMove(new Move(agent, 6, cell32Circle, cell33Circle));
+        plan1.addMove(new Move(agent, 1, location12Circle, location22Circle));
+        plan1.addMove(new Move(agent, 2, location22Circle, location32Circle));
+        plan1.addMove(new Move(agent, 3, location32Circle, location33Circle));
+        plan1.addMove(new Move(agent, 4, location33Circle, location33Circle));
+        plan1.addMove(new Move(agent, 5, location33Circle, location32Circle));
+        plan1.addMove(new Move(agent, 6, location32Circle, location33Circle));
         Solution expected1 = new Solution();
         expected1.putPlan(plan1);
 
         SingleAgentPlan plan2 = new SingleAgentPlan(agent);
-        plan2.addMove(new Move(agent, 1, cell12Circle, cell22Circle));
-        plan2.addMove(new Move(agent, 2, cell22Circle, cell32Circle));
-        plan2.addMove(new Move(agent, 3, cell32Circle, cell33Circle));
-        plan2.addMove(new Move(agent, 4, cell33Circle, cell33Circle));
-        plan2.addMove(new Move(agent, 5, cell33Circle, cell34Circle));
-        plan2.addMove(new Move(agent, 6, cell34Circle, cell33Circle));
+        plan2.addMove(new Move(agent, 1, location12Circle, location22Circle));
+        plan2.addMove(new Move(agent, 2, location22Circle, location32Circle));
+        plan2.addMove(new Move(agent, 3, location32Circle, location33Circle));
+        plan2.addMove(new Move(agent, 4, location33Circle, location33Circle));
+        plan2.addMove(new Move(agent, 5, location33Circle, location34Circle));
+        plan2.addMove(new Move(agent, 6, location34Circle, location33Circle));
         Solution expected2 = new Solution();
         expected2.putPlan(plan2);
 
@@ -377,8 +377,8 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         SingleAgentPlan existingPlan = new SingleAgentPlan(agent);
-        existingPlan.addMove(new Move(agent, 1, cell33Circle, cell34Circle));
-        existingPlan.addMove(new Move(agent, 2, cell34Circle, cell24Circle));
+        existingPlan.addMove(new Move(agent, 1, location33Circle, location34Circle));
+        existingPlan.addMove(new Move(agent, 2, location34Circle, location24Circle));
         Solution existingSolution = new Solution();
         existingSolution.putPlan(existingPlan);
 
@@ -386,11 +386,11 @@ class SingleAgentAStar_SolverTest {
         Solution solved = aStar.solve(testInstance, new RunParameters(existingSolution));
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
-        plan.addMove(new Move(agent, 1, cell33Circle, cell34Circle));
-        plan.addMove(new Move(agent, 2, cell34Circle, cell24Circle));
-        plan.addMove(new Move(agent, 3, cell24Circle, cell14Circle));
-        plan.addMove(new Move(agent, 4, cell14Circle, cell13Circle));
-        plan.addMove(new Move(agent, 5, cell13Circle, cell12Circle));
+        plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
+        plan.addMove(new Move(agent, 2, location34Circle, location24Circle));
+        plan.addMove(new Move(agent, 3, location24Circle, location14Circle));
+        plan.addMove(new Move(agent, 4, location14Circle, location13Circle));
+        plan.addMove(new Move(agent, 5, location13Circle, location12Circle));
         Solution expected = new Solution();
         expected.putPlan(plan);
 

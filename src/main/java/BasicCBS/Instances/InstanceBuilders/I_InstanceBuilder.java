@@ -3,7 +3,7 @@ import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
 import BasicCBS.Instances.MAPF_Instance;
 import Environment.IO_Package.Reader;
-import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.Enum_MapLocationType;
 import BasicCBS.Instances.Maps.GraphMap;
 import BasicCBS.Instances.Maps.MapDimensions;
 import BasicCBS.Instances.Maps.MapFactory;
@@ -69,25 +69,25 @@ public interface I_InstanceBuilder {
      * @param mapAsStrings - Map from file, rows are yAxis
      * @param mapSeparator - Regex value to split map values. by default is "".
      * @param mapDimensions - A {@link MapDimensions}, must be valid.
-     * @param cellTypeHashMap - HashMap for converting Character to {@link Enum_MapCellType}
+     * @param locationTypeHashMap - HashMap for converting Character to {@link Enum_MapLocationType}
      * @param obstacle - Value is a {@link BasicCBS.Instances.InstanceProperties.ObstacleWrapper} indicates obstacle in the map.
      * @return A GraphMap
      */
-    static GraphMap buildGraphMap(String[] mapAsStrings, String mapSeparator, MapDimensions mapDimensions, HashMap<Character,Enum_MapCellType> cellTypeHashMap, InstanceProperties.ObstacleWrapper obstacle) {
+    static GraphMap buildGraphMap(String[] mapAsStrings, String mapSeparator, MapDimensions mapDimensions, HashMap<Character, Enum_MapLocationType> locationTypeHashMap, InstanceProperties.ObstacleWrapper obstacle) {
 
         switch ( mapDimensions.numOfDimensions ){
             case 2:
 
                 Character[][] mapAsCharacters_2d = build2D_CharacterMap(mapAsStrings,mapDimensions,mapSeparator);
-                Enum_MapCellType[][] mapAsCellType_2D = build_2D_cellTypeMap(mapAsCharacters_2d, cellTypeHashMap, mapDimensions.mapOrientation, obstacle);
-                if( mapAsCellType_2D == null){
+                Enum_MapLocationType[][] mapAsLocationType_2D = build_2D_locationTypeMap(mapAsCharacters_2d, locationTypeHashMap, mapDimensions.mapOrientation, obstacle);
+                if( mapAsLocationType_2D == null){
                     return null; // Error while building the map
                 }
-                return MapFactory.newSimple4Connected2D_GraphMap(mapAsCellType_2D);
+                return MapFactory.newSimple4Connected2D_GraphMap(mapAsLocationType_2D);
 
             case 3:
                 Character[][][] mapAsCharacters_3d = new Character[][][]{};
-                Enum_MapCellType[][][] mapAsCellType_3D = build_3D_cellTypeMap(mapAsCharacters_3d, cellTypeHashMap, obstacle);
+                Enum_MapLocationType[][][] mapAsLocationType_3D = build_3D_locationTypeMap(mapAsCharacters_3d, locationTypeHashMap, obstacle);
                 return null; // niceToHave - change to newSimple 4Connected 3D_GraphMap if exists in MapFactory
         }
 
@@ -100,7 +100,7 @@ public interface I_InstanceBuilder {
      * @param mapAsStrings Map lines as string array
      * @param mapDimensions Holds the dimensions sizes and orientation
      * @param mapSeparator Indicates how to split the map lines
-     * @return Character 2d array of map cells
+     * @return Character 2d array of map locations
      */
     static Character[][] build2D_CharacterMap(String[] mapAsStrings, MapDimensions mapDimensions, String mapSeparator){
 
@@ -128,15 +128,15 @@ public interface I_InstanceBuilder {
 
 
     /**
-     * Builds {@link Enum_MapCellType} array by converting chars.
+     * Builds {@link Enum_MapLocationType} array by converting chars.
      * Also checks that obstacles in map are valid
      * @param mapAsCharacters The map as Character array
-     * @param cellTypeHashMap Mapping from char to {@link Enum_MapCellType}
+     * @param locationTypeHashMap Mapping from char to {@link Enum_MapLocationType}
      * @param mapOrientation Holds the dimensions sizes and orientation
      * @param obstacle A {@link BasicCBS.Instances.InstanceProperties.ObstacleWrapper} from {@link InstanceProperties}
-     * @return An obstacle valid array of {@link Enum_MapCellType}
+     * @return An obstacle valid array of {@link Enum_MapLocationType}
      */
-    static Enum_MapCellType[][] build_2D_cellTypeMap(Character[][] mapAsCharacters , HashMap<Character,Enum_MapCellType> cellTypeHashMap, MapDimensions.Enum_mapOrientation mapOrientation, InstanceProperties.ObstacleWrapper obstacle) {
+    static Enum_MapLocationType[][] build_2D_locationTypeMap(Character[][] mapAsCharacters , HashMap<Character, Enum_MapLocationType> locationTypeHashMap, MapDimensions.Enum_mapOrientation mapOrientation, InstanceProperties.ObstacleWrapper obstacle) {
 
         if(mapAsCharacters == null){ return null; }
 
@@ -148,7 +148,7 @@ public interface I_InstanceBuilder {
         int numOfNonObstacles = 0;
 
         // init array
-        Enum_MapCellType[][] cellTypeMap = new Enum_MapCellType[xAxis_length][yAxis_length];
+        Enum_MapLocationType[][] locationTypeMap = new Enum_MapLocationType[xAxis_length][yAxis_length];
 
         for (int xIndex = 0; xIndex < xAxis_length; xIndex++) {
             for (int yIndex = 0; yIndex < yAxis_length; yIndex++) {
@@ -156,14 +156,14 @@ public interface I_InstanceBuilder {
                 Character character = null;
                 character = mapAsCharacters[xIndex][yIndex];
 
-                Enum_MapCellType cellType = cellTypeHashMap.get(character);
+                Enum_MapLocationType locationType = locationTypeHashMap.get(character);
 
-                if ( cellType.equals(Enum_MapCellType.WALL)){
+                if ( locationType.equals(Enum_MapLocationType.WALL)){
                     actualNumOfObstacles++; // add one wall to counter
                 }else{
                     numOfNonObstacles++; // add one to non obstacle counter
                 }
-                cellTypeMap[xIndex][yIndex] = cellType;
+                locationTypeMap[xIndex][yIndex] = locationType;
             }
         }
 
@@ -178,10 +178,10 @@ public interface I_InstanceBuilder {
         int obstaclePercentage = (int) Math.ceil( ((double) actualNumOfObstacles / (double) boardSize) * 100 );
         obstacle.setWithPercentage(obstaclePercentage);
 
-        return cellTypeMap;
+        return locationTypeMap;
     }
 
-    static Enum_MapCellType[][][] build_3D_cellTypeMap(Character[][][] mapAsCharacters, HashMap<Character,Enum_MapCellType> cellTypeHashMap, InstanceProperties.ObstacleWrapper obstacle) {
+    static Enum_MapLocationType[][][] build_3D_locationTypeMap(Character[][][] mapAsCharacters, HashMap<Character, Enum_MapLocationType> locationTypeHashMap, InstanceProperties.ObstacleWrapper obstacle) {
         // niceToHave - no need to implement for now
         return null;
     }

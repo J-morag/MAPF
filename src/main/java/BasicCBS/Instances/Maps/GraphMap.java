@@ -15,14 +15,14 @@ import java.util.*;
  */
 public class GraphMap implements I_ExplicitMap {
 
-    private HashMap<I_Coordinate, GraphMapVertex> allGraphCells;
+    private HashMap<I_Coordinate, GraphMapVertex> allGraphLocations;
 
     /**
      * Initialization in {@link MapFactory}.
-     * @param allGraphVertices a {@link HashMap} containing all cells in the graph.
+     * @param allGraphVertices a {@link HashMap} containing all locations in the graph.
      */
     GraphMap(HashMap<I_Coordinate, GraphMapVertex> allGraphVertices) {
-        this.allGraphCells = allGraphVertices;
+        this.allGraphLocations = allGraphVertices;
     }
 
     /**
@@ -31,13 +31,13 @@ public class GraphMap implements I_ExplicitMap {
      * @return the {@link GraphMapVertex} for the given {@link I_Coordinate}.
      */
     @Override
-    public GraphMapVertex getMapCell(I_Coordinate coordinate) {
-        return allGraphCells.get(coordinate);
+    public GraphMapVertex getMapLocation(I_Coordinate coordinate) {
+        return allGraphLocations.get(coordinate);
     }
 
     @Override
     public boolean isValidCoordinate(I_Coordinate coordinate) {
-        return this.allGraphCells.containsKey(coordinate);
+        return this.allGraphLocations.containsKey(coordinate);
     }
 
     @Override
@@ -46,13 +46,13 @@ public class GraphMap implements I_ExplicitMap {
 
         HashMap<I_Coordinate, GraphMapVertex> vertexMappings = new HashMap<>();
         // populate with stub vertices (copies), except for vertices that we want to remove
-        for (Map.Entry<I_Coordinate, GraphMapVertex> pair : this.allGraphCells.entrySet()) {
+        for (Map.Entry<I_Coordinate, GraphMapVertex> pair : this.allGraphLocations.entrySet()) {
             if(!mapLocations.contains(pair.getValue())){
-                vertexMappings.put(pair.getKey(), new GraphMapVertex(pair.getValue().cellType, pair.getKey()));
+                vertexMappings.put(pair.getKey(), new GraphMapVertex(pair.getValue().locationType, pair.getKey()));
             }
         }
         // now iterate over original vertices and copy over their neighbors, except for neighbors that were removed.
-        for (Map.Entry<I_Coordinate, GraphMapVertex> pair : this.allGraphCells.entrySet()) {
+        for (Map.Entry<I_Coordinate, GraphMapVertex> pair : this.allGraphLocations.entrySet()) {
             I_Coordinate coor = pair.getKey();
             GraphMapVertex originalVertex = pair.getValue();
             if(!mapLocations.contains(originalVertex)){
@@ -70,8 +70,8 @@ public class GraphMap implements I_ExplicitMap {
         return new GraphMap(vertexMappings);
     }
 
-    public int getNumMapCells(){
-        return allGraphCells.size();
+    public int getNumMapLocations(){
+        return allGraphLocations.size();
     }
 
 
@@ -80,6 +80,6 @@ public class GraphMap implements I_ExplicitMap {
      */
     @Override
     public Collection<? extends I_Location> getAllLocations() {
-        return new ArrayList<>(this.allGraphCells.values());
+        return new ArrayList<>(this.allGraphLocations.values());
     }
 }

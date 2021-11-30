@@ -54,16 +54,16 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
 
 
-    /*      =Cell Types=   */
+    /*      =Location Types=   */
     private final char EMPTY = '.';
     private final char WALL = '@';
     private final char TREE = 'T';
 
-    /*  Mapping from char to Cell type */
-    private HashMap<Character, Enum_MapCellType> cellTypeHashMap = new HashMap<Character, Enum_MapCellType>(){{
-        put(EMPTY,Enum_MapCellType.EMPTY);
-        put(WALL,Enum_MapCellType.WALL);
-        put(TREE,Enum_MapCellType.TREE);
+    /*  Mapping from char to Location type */
+    private HashMap<Character, Enum_MapLocationType> locationTypeHashMap = new HashMap<Character, Enum_MapLocationType>(){{
+        put(EMPTY, Enum_MapLocationType.EMPTY);
+        put(WALL, Enum_MapLocationType.WALL);
+        put(TREE, Enum_MapLocationType.TREE);
     }};
 
     private final Priorities priorities;
@@ -244,7 +244,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                 String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, dimensionsFromFile);
 
                 // build map
-                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.cellTypeHashMap, instanceProperties.obstacles);
+                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles);
                 break;
             }
             nextLine = reader.getNextLine();

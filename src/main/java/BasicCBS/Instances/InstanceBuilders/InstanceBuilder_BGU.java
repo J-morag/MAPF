@@ -35,13 +35,13 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
     private final int INDEX_AGENT_TARGET_YVALUE = 2;
 
 
-    /*      =Cell Types=   */
+    /*      =Location Types=   */
     private final char EMPTY = '.';
     private final char WALL = '@';
 
-    private HashMap<Character,Enum_MapCellType> cellTypeHashMap = new HashMap<>(){{
-        put(EMPTY,Enum_MapCellType.EMPTY);
-        put(WALL,Enum_MapCellType.WALL);
+    private HashMap<Character, Enum_MapLocationType> locationTypeHashMap = new HashMap<>(){{
+        put(EMPTY, Enum_MapLocationType.EMPTY);
+        put(WALL, Enum_MapLocationType.WALL);
     }};
 
 
@@ -94,7 +94,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
                     String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, mapDimensionsFromFile);
 
                     // build map
-                    graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, mapDimensionsFromFile, this.cellTypeHashMap, instanceProperties.obstacles);
+                    graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, mapDimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles);
 
                     break; // end case
 

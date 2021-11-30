@@ -30,9 +30,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CBS_SolverTest {
 
-    private final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    private final Enum_MapCellType w = Enum_MapCellType.WALL;
-    private Enum_MapCellType[][] map_2D_circle = {
+    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    private Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -42,7 +42,7 @@ class CBS_SolverTest {
     };
     private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
-    Enum_MapCellType[][] map_2D_empty = {
+    Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
@@ -52,7 +52,7 @@ class CBS_SolverTest {
     };
     private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
 
-    Enum_MapCellType[][] map_2D_withPocket = {
+    Enum_MapLocationType[][] map_2D_withPocket = {
             {e, w, e, w, e, w},
             {e, w, e, e, e, e},
             {w, w, e, w, w, e},
@@ -62,7 +62,7 @@ class CBS_SolverTest {
     };
     private I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
 
-    Enum_MapCellType[][] map_2D_smallMaze = {
+    Enum_MapLocationType[][] map_2D_smallMaze = {
             {e, e, e, w, e, w},
             {e, w, e, e, e, e},
             {e, w, e, w, w, e},
@@ -178,8 +178,8 @@ class CBS_SolverTest {
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapCell(coor04)));
-        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapCell(coor14)));
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
@@ -191,10 +191,10 @@ class CBS_SolverTest {
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor04)));
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor14)));
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor13)));
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapCell(coor15)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 

@@ -1,7 +1,7 @@
 package BasicCBS.Instances;
 
 import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
-import BasicCBS.Instances.Maps.Enum_MapCellType;
+import BasicCBS.Instances.Maps.Enum_MapLocationType;
 import BasicCBS.Instances.Maps.MapDimensions;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,13 +12,13 @@ import java.util.HashMap;
 public class I_InstanceBuilderTest {
 
 
-    /*      =Cell Types=   */
+    /*      =Location Types=   */
     private final char EMPTY = '.';
     private final char WALL = '@';
 
-    private HashMap<Character, Enum_MapCellType> cellTypeHashMap = new HashMap<>(){{
-        put(EMPTY,Enum_MapCellType.EMPTY);
-        put(WALL,Enum_MapCellType.WALL);
+    private HashMap<Character, Enum_MapLocationType> locationTypeHashMap = new HashMap<>(){{
+        put(EMPTY, Enum_MapLocationType.EMPTY);
+        put(WALL, Enum_MapLocationType.WALL);
     }};
 
     /*  =Expected value=    */
@@ -63,14 +63,14 @@ public class I_InstanceBuilderTest {
 
 
     @Test
-    public void testObstacleCalculation_build_2D_cellTypeMap(){
+    public void testObstacleCalculation_build_2D_locationTypeMap(){
 
         InstanceProperties properties = new InstanceProperties();
         InstanceProperties.ObstacleWrapper obstacle = properties.obstacles;
         obstacle.setMinRate(0.15);
         obstacle.setMaxRate(0.15);
 
-        I_InstanceBuilder.build_2D_cellTypeMap( this.charMap_Instance_8_15_5, this.cellTypeHashMap, MapDimensions.Enum_mapOrientation.Y_HORIZONTAL_X_VERTICAL, obstacle);
+        I_InstanceBuilder.build_2D_locationTypeMap( this.charMap_Instance_8_15_5, this.locationTypeHashMap, MapDimensions.Enum_mapOrientation.Y_HORIZONTAL_X_VERTICAL, obstacle);
 
         assertEquals( 15, obstacle.getReportPercentage());
 

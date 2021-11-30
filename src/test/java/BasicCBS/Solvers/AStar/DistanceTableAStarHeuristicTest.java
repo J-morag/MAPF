@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class DistanceTableAStarHeuristicTest {
 
-    final Enum_MapCellType e = Enum_MapCellType.EMPTY;
-    final Enum_MapCellType w = Enum_MapCellType.WALL;
-    Enum_MapCellType[][] map_2D_H = {
+    final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+    final Enum_MapLocationType w = Enum_MapLocationType.WALL;
+    Enum_MapLocationType[][] map_2D_H = {
             { e, w, w, e},
             { e, e, e, e},
             { e, w, w, e},
@@ -33,25 +33,25 @@ public class DistanceTableAStarHeuristicTest {
         for (Map.Entry<I_Location, Map<I_Location, Integer>> agentMapEntry: expectedValues.entrySet()){
 
             I_Location target = agentMapEntry.getKey();
-            Map<I_Location, Integer> expectedCellMap = expectedValues.get(target);
-            Map<I_Location, Integer> actualCellMap = actualValues.get(target);
+            Map<I_Location, Integer> expectedLocationMap = expectedValues.get(target);
+            Map<I_Location, Integer> actualLocationMap = actualValues.get(target);
 
-            if (! this.equalsAllCellMap(expectedCellMap,actualCellMap)){
+            if (! this.equalsAllLocationMap(expectedLocationMap,actualLocationMap)){
                 return false;
             }
         }
         return true;
     }
 
-    private boolean equalsAllCellMap(Map<I_Location, Integer> expectedCellMap, Map<I_Location, Integer> actualCellMap) {
-        if( expectedCellMap.size() != actualCellMap.size() ){
+    private boolean equalsAllLocationMap(Map<I_Location, Integer> expectedLocationMap, Map<I_Location, Integer> actualLocationMap) {
+        if( expectedLocationMap.size() != actualLocationMap.size() ){
             return false;
         }
-        for (Map.Entry<I_Location,Integer> MapCellEntry: expectedCellMap.entrySet()){
+        for (Map.Entry<I_Location,Integer> MapLocationEntry: expectedLocationMap.entrySet()){
 
-            I_Location mapCell = MapCellEntry.getKey();
-            int expectedDistance = expectedCellMap.get(mapCell);
-            int actualDistance = actualCellMap.get(mapCell);
+            I_Location mapLocation = MapLocationEntry.getKey();
+            int expectedDistance = expectedLocationMap.get(mapLocation);
+            int actualDistance = actualLocationMap.get(mapLocation);
 
             if ( expectedDistance != actualDistance){
                 return false;
@@ -68,8 +68,8 @@ public class DistanceTableAStarHeuristicTest {
         Coordinate_2D[][] array=new Coordinate_2D[3][4];
         for(int i=0;i<array.length;i++){
             for(int j=0;j<array[0].length;j++){
-                I_Location mapCell= map.getMapCell(new Coordinate_2D(i,j)); ///change to public
-                hashMap.put(array[i][j],mapCell);
+                I_Location mapLocation= map.getMapLocation(new Coordinate_2D(i,j)); ///change to public
+                hashMap.put(array[i][j],mapLocation);
             }
         }
 
@@ -90,26 +90,26 @@ public class DistanceTableAStarHeuristicTest {
         Map<I_Location, Map<I_Location, Integer>> expected = new HashMap<>();
         Map<I_Location, Integer> insideMap = new HashMap<>();
         Map<I_Location, Integer> insideMap2 = new HashMap<>();
-        insideMap.put(map.getMapCell(new Coordinate_2D(1,3)),1);
-        insideMap.put(map.getMapCell(new Coordinate_2D(2,3)),2);
-        insideMap.put(map.getMapCell(new Coordinate_2D(1,2)),2);
-        insideMap.put(map.getMapCell(new Coordinate_2D(1,1)),3);
-        insideMap.put(map.getMapCell(new Coordinate_2D(1,0)),4);
-        insideMap.put(map.getMapCell(new Coordinate_2D(0,0)),5);
-        insideMap.put(map.getMapCell(new Coordinate_2D(2,0)),5);
-        insideMap.put(map.getMapCell(new Coordinate_2D(0,3)),0);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(1,3)),1);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(2,3)),2);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(1,2)),2);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(1,1)),3);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(1,0)),4);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(0,0)),5);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(2,0)),5);
+        insideMap.put(map.getMapLocation(new Coordinate_2D(0,3)),0);
 
-        insideMap2.put(map.getMapCell(new Coordinate_2D(1,3)),1);
-        insideMap2.put(map.getMapCell(new Coordinate_2D(0,3)),2);
-        insideMap2.put(map.getMapCell(new Coordinate_2D(1,2)),2);
-        insideMap2.put(map.getMapCell(new Coordinate_2D(1,1)),3);
-        insideMap2.put(map.getMapCell(new Coordinate_2D(1,0)),4);
-        insideMap2.put(map.getMapCell(new Coordinate_2D(0,0)),5);
-        insideMap2.put(map.getMapCell(new Coordinate_2D(2,0)),5);
-        insideMap2.put(map.getMapCell(new Coordinate_2D(2,3)),0);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(1,3)),1);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(0,3)),2);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(1,2)),2);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(1,1)),3);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(1,0)),4);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(0,0)),5);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(2,0)),5);
+        insideMap2.put(map.getMapLocation(new Coordinate_2D(2,3)),0);
 
-        expected.put(map.getMapCell(agent_1.target), insideMap);
-        expected.put(map.getMapCell(agent_2.target), insideMap2);
+        expected.put(map.getMapLocation(agent_1.target), insideMap);
+        expected.put(map.getMapLocation(agent_2.target), insideMap2);
 
         /*  = Test actual values =  */
         DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(list, map);
