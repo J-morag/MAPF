@@ -13,6 +13,10 @@ public enum Enum_MapLocationType {
      */
     EMPTY,
     /**
+     * Traversable, but agents can't wait/stay/stop at the location.
+     */
+    NO_STOP,
+    /**
      * Traversable by some agents but impassable for other (undefined).
      */
     TREE,

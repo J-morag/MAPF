@@ -186,7 +186,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
             // can move to neighboring locations or stay, unless this is an ice location, in which case can only move
             List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(sourceLocation.outgoingEdges());
-            neighborLocationsIncludingCurrent.add(sourceLocation);
+            if (sourceLocation.getType() != Enum_MapLocationType.NO_STOP){
+                neighborLocationsIncludingCurrent.add(sourceLocation);
+            }
 
             for (I_Location destination: neighborLocationsIncludingCurrent) {
                 Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
