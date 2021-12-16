@@ -184,7 +184,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         else { // the existing plan is empty (no existing plan)
 
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
-            // can move to neighboring locations or stay, unless this is an ice location, in which case can only move
+            // can move to neighboring locations or stay, unless this is NO_STOP location, in which case can only move
             List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(sourceLocation.outgoingEdges());
             if (sourceLocation.getType() != Enum_MapLocationType.NO_STOP){
                 neighborLocationsIncludingCurrent.add(sourceLocation);
@@ -311,16 +311,16 @@ public class SingleAgentAStar_Solver extends A_Solver {
             expandedNodes++;
             // can move to neighboring locations or stay put
             List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(this.move.currLocation.outgoingEdges());
-            // forbidden from performing stay moves and stop searching time dimension after the time of last constraint.
-            // this makes A* complete even when there are goal constraints (infinite)
-            boolean afterLastInfiniteConstraint = this.move.timeNow > constraints.getLastConstraintTime();
-            if (!afterLastInfiniteConstraint){
+            // no point to do stay moves or search the time dimension after the time of last constraint.
+            // this makes A* complete even when there are goal constraints (infinite constraints)
+            boolean afterLastConstraint = this.move.timeNow > constraints.getLastConstraintTime();
+            if (!afterLastConstraint){
                 neighborLocationsIncludingCurrent.add(this.move.currLocation);
             }
 
             for (I_Location destination: neighborLocationsIncludingCurrent){
                 // give all moves after last constraint time the same time so that they're equal. patch the plan later to correct times
-                Move possibleMove = new Move(this.move.agent, !afterLastInfiniteConstraint ? this.move.timeNow + 1 : this.move.timeNow,
+                Move possibleMove = new Move(this.move.agent, !afterLastConstraint ? this.move.timeNow + 1 : this.move.timeNow,
                         this.move.currLocation, destination);
 
                 // move not prohibited by existing constraint
@@ -363,7 +363,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             }
             Collections.reverse(moves); //reorder moves because they were reversed
 
-            // patch move times in case we had moves that don't progress time, because they were after last infinite constraint time
+            // patch move times in case we had moves that don't progress time, because they were after last constraint time
             for (int i = 1; i < moves.size(); i++) {
                 Move prevMove = moves.get(i-1);
                 Move currMove = moves.get(i);
