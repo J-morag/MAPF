@@ -108,8 +108,8 @@ class PrioritisedPlanning_SolverTest {
     private Agent agent04to00 = new Agent(4, coor04, coor00);
     private Agent agent00to10 = new Agent(5, coor00, coor10);
     private Agent agent10to00 = new Agent(6, coor10, coor00);
-    private Agent agent53to55 = new Agent(7, coor53, coor54);
-    private Agent agent55to53 = new Agent(8, coor55, coor53);
+    private Agent agent43to53 = new Agent(7, coor43, coor53);
+    private Agent agent55to43 = new Agent(8, coor55, coor43);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
@@ -119,7 +119,7 @@ class PrioritisedPlanning_SolverTest {
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
-    private MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent53to55, agent55to53});
+    private MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to43});
 
     I_Solver ppSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver());
 
@@ -169,10 +169,14 @@ class PrioritisedPlanning_SolverTest {
     }
 
     @Test
-    void unsolvableBecauseOrderWithInfiniteConstra() {
+    void isCompleteWhenFacedWithInfiniteConstraints() {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(2*1000, null, instanceReport, null));
+        long timeout = 10*1000;
+        Solution solved = ppSolver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
+        // shouldn't time out
+        assertFalse(instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) > timeout);
+        // should return "no solution" (is a complete algorithm)
         assertNull(solved);
     }
 
