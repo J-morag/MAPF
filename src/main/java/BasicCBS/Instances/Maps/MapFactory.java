@@ -83,7 +83,8 @@ public class MapFactory {
      */
     public static GraphMap newArbitraryGraphMap(Map<? extends I_Coordinate, ? extends List<? extends I_Coordinate>> coordinatesAdjacencyLists,
                                                 Map<? extends I_Coordinate, List<Integer>> coordinatesEdgeWeights,
-                                                Map<? extends I_Coordinate, Enum_MapLocationType> coordinatesLocationTypes){
+                                                Map<? extends I_Coordinate, Enum_MapLocationType> coordinatesLocationTypes,
+                                                boolean isStronglyConnected){
         HashMap<I_Coordinate, GraphMapVertex> allLocations = new HashMap<>(coordinatesAdjacencyLists.size());
 
         for (I_Coordinate coordinateCurrentVertex: coordinatesAdjacencyLists.keySet()){
@@ -105,7 +106,7 @@ public class MapFactory {
             currentVertex.setNeighbors(neighbors, edgeWeights.toArray(Integer[]::new));
         }
 
-        return new GraphMap(allLocations);
+        return new GraphMap(allLocations, isStronglyConnected);
     }
 
 }

@@ -15,14 +15,25 @@ import java.util.*;
  */
 public class GraphMap implements I_ExplicitMap {
 
-    private HashMap<I_Coordinate, GraphMapVertex> allGraphLocations;
+    private final HashMap<I_Coordinate, GraphMapVertex> allGraphLocations;
+    private final boolean isStronglyConnected;
 
     /**
      * Initialization in {@link MapFactory}.
      * @param allGraphVertices a {@link HashMap} containing all locations in the graph.
      */
     GraphMap(HashMap<I_Coordinate, GraphMapVertex> allGraphVertices) {
+        this(allGraphVertices, null);
+    }
+
+    /**
+     * Initialization in {@link MapFactory}.
+     * @param allGraphVertices a {@link HashMap} containing all locations in the graph.
+     * @param isStronglyConnected - if the graph can be assumed to be strongly connected.
+     */
+    GraphMap(HashMap<I_Coordinate, GraphMapVertex> allGraphVertices, Boolean isStronglyConnected) {
         this.allGraphLocations = allGraphVertices;
+        this.isStronglyConnected = Objects.requireNonNullElse(isStronglyConnected, true);
     }
 
     /**
@@ -81,5 +92,10 @@ public class GraphMap implements I_ExplicitMap {
     @Override
     public Collection<? extends I_Location> getAllLocations() {
         return new ArrayList<>(this.allGraphLocations.values());
+    }
+
+    @Override
+    public boolean isStronglyConnected() {
+        return this.isStronglyConnected;
     }
 }

@@ -239,7 +239,7 @@ public class ICTS_Solver extends A_Solver {
         for (Agent agent : instance.agents) {
 
             Integer depth = Math.round(heuristicICTS.getHToTargetFromLocation(agent.target, getSource(agent)));
-            if (depth == null) {
+            if (depth == null) { // TODO clean?
                 //The single agent path does not exist
                 try {
                     throw new Exception("The single agent plan for agent " + agent.iD + " does not exist!");

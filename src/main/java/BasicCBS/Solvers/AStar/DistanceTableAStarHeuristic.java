@@ -98,9 +98,20 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
         return getHToTargetFromLocation(state.getMove().agent.target, state.getMove().currLocation);
     }
 
-    public Integer getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+    public Float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
         Map<I_Location, Integer> relevantDictionary = this.distanceDictionaries.get(map.getMapLocation(target));
-        return relevantDictionary.get(currLocation);
+        Integer h = relevantDictionary.get(currLocation);
+//        return ()h;
+        if (h != null){
+            return (float)h;
+        }
+        else if (map.isStronglyConnected()){
+            throw new IllegalArgumentException("It seems the target is unreachable from the location, even though this is " +
+                    "a strongly connected graph. Are target and location valid for this map?");
+        }
+        else {
+            return Float.POSITIVE_INFINITY;
+        }
     }
 
 }

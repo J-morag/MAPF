@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * A dynamic distance table, that will compute ad-hoc the distance table for any target on any map, and cache
- * results for subsequent uses. Must be set to the correct map using {@link #setCurrentMap(I_ExplicitMap)} before querying
+ * results for subsequent uses. Must be set to the correct map using {@link #setCurrentMap(I_Map)} before querying
  * and when switching to another map!
  * IMPORTANT: Using this make run times unstable. The first time a new target on a new map is requested
  * is significantly more expensive than subsequent calls. Use with caution!
@@ -19,8 +19,8 @@ public class CachingDistanceTableHeuristic implements AStarHeuristic {
     /**
      * Dictionary from {@link I_Map map} to a {@link DistanceTableAStarHeuristic distance table heuristic} for it.
      */
-    private final Map<I_ExplicitMap, DistanceTableAStarHeuristic> distanceTables;
-    private I_ExplicitMap currentMap;
+    private final Map<I_Map, DistanceTableAStarHeuristic> distanceTables;
+    private I_Map currentMap;
 
     public CachingDistanceTableHeuristic() {
         this(1);
@@ -31,7 +31,7 @@ public class CachingDistanceTableHeuristic implements AStarHeuristic {
         this.distanceTables = new LRUMap<>(mapCacheSize);
     }
 
-    public void setCurrentMap(I_ExplicitMap map){
+    public void setCurrentMap(I_Map map){
         this.currentMap = map;
         if (!this.distanceTables.containsKey(map)) {
             this.distanceTables.put(map, new DistanceTableAStarHeuristic(new ArrayList<>(0), map));

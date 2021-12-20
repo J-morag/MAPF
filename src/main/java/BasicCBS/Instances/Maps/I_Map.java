@@ -28,4 +28,6 @@ public interface I_Map {
      * @return a new {@link I_Map} from this {@link I_Map}, where some of the locations are removed.
      */
     I_Map getSubmapWithout(Collection<? extends I_Location> mapLocations);
+
+    boolean isStronglyConnected();
 }
