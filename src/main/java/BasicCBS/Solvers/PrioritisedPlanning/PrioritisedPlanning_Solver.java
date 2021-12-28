@@ -2,12 +2,12 @@ package BasicCBS.Solvers.PrioritisedPlanning;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
+import BasicCBS.Solvers.AStar.CachingDistanceTableHeuristic;
+import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicCBS.Solvers.*;
 import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 
 import java.util.*;
@@ -71,6 +71,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         float solutionCost(Solution solution);
     }
 
+      /**
+     * if agents share goals, they will not conflict at their goal.
+     */
+    private final boolean sharedGoals;
+
+
     /*  = Constructors =  */
 
     /**
@@ -80,7 +86,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null);
     }
 
     /**
@@ -88,7 +94,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null);
+        this(null, agentComparator, null, null, null, null);
     }
 
     /**
@@ -98,21 +104,24 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param restarts How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
      * @param solutionCostFunction A cost function to evaluate solutions with. Only used when using random restarts.
      * @param restartStrategy how to do restarts.
+     * @param sharedGoals if agents share goals, they will not conflict at their goal.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer restarts,
-                                      SolutionCostFunction solutionCostFunction, RestartStrategy restartStrategy) {
+                                      SolutionCostFunction solutionCostFunction, RestartStrategy restartStrategy,
+                                      Boolean sharedGoals) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.restarts = Objects.requireNonNullElse(restarts, 0);
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, Solution::sumIndividualCosts);
         this.restartStrategy = Objects.requireNonNullElse(restartStrategy, RestartStrategy.randomRestarts);
+        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
     }
 
     /**
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null);
+        this(null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -128,6 +137,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        this.constraints.sharedGoals = true;
         this.random = new Random(42);
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
@@ -140,6 +150,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             //reorder according to requested priority
             if(parametersPP.preferredPriorityOrder != null) {reorderAgentsByPriority(parametersPP.preferredPriorityOrder);}
         }
+        // TODO add caching heuristic?
     }
 
     private void reorderAgentsByPriority(Agent[] requestedOrder) {
@@ -197,7 +208,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 solution.putPlan(planForAgent);
 
                 //add constraints to prevent the next agents from conflicting with the new plan
-                currentConstraints.addAll(allConstraintsForPlan(planForAgent));
+                currentConstraints.addAll(this.constraints.allConstraintsForPlan(planForAgent));
             }
 
             // random/deterministic restarts
@@ -278,44 +289,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         return constraints;
     }
 
-    private Constraint vertexConstraintsForMove(Move move){
-        return new Constraint(null, move.timeNow, move.currLocation);
-    }
 
-    private List<Constraint> swappingConstraintsForPlan(SingleAgentPlan planForAgent) {
-        List<Constraint> constraints = new LinkedList<>();
-        for (Move move :
-                planForAgent) {
-            constraints.add(swappingConstraintsForMove(move));
-        }
-        return constraints;
-    }
-
-    private Constraint swappingConstraintsForMove(Move move){
-        return new Constraint(null, move.timeNow,
-                /*the constraint is in opposite direction of the move*/ move.currLocation, move.prevLocation);
-    }
-
-    private Constraint goalConstraintForMove(Move move){
-        return new GoalConstraint(null, move.timeNow, move.currLocation);
-    }
-
-    /**
-     * Creates constraints to protect a {@link SingleAgentPlan plan}.
-     * @param planForAgent
-     * @return
-     */
-    private List<Constraint> allConstraintsForPlan(SingleAgentPlan planForAgent) {
-        List<Constraint> constraints = new LinkedList<>();
-        // protect the agent's plan
-        for (Move move :
-                planForAgent) {
-            constraints.add(vertexConstraintsForMove(move));
-            constraints.add(swappingConstraintsForMove(move));
-        }
-        constraints.add(goalConstraintForMove(planForAgent.moveAt(planForAgent.getEndTime())));
-        return constraints;
-    }
 
     /*  = wind down =  */
 

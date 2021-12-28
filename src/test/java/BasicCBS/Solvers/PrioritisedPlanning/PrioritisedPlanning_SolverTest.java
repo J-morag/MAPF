@@ -73,6 +73,8 @@ class PrioritisedPlanning_SolverTest {
     private I_Coordinate coor11 = new Coordinate_2D(1,1);
     private I_Coordinate coor43 = new Coordinate_2D(4,3);
     private I_Coordinate coor53 = new Coordinate_2D(5,3);
+    private I_Coordinate coor54 = new Coordinate_2D(5,4);
+    private I_Coordinate coor55 = new Coordinate_2D(5,5);
     private I_Coordinate coor05 = new Coordinate_2D(0,5);
 
     private I_Coordinate coor04 = new Coordinate_2D(0,4);
@@ -332,7 +334,7 @@ class PrioritisedPlanning_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts);
+                4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -451,7 +453,7 @@ class PrioritisedPlanning_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                4, null, PrioritisedPlanning_Solver.RestartStrategy.deterministicRescheduling);
+                4, null, PrioritisedPlanning_Solver.RestartStrategy.deterministicRescheduling, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -562,6 +564,62 @@ class PrioritisedPlanning_SolverTest {
             ex.printStackTrace();
         }
 
+    }
+
+    @Test
+    void sharedGoals(){
+        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, null,true);
+
+        MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
+        MAPF_Instance instanceEmptyPlusSharedGoal2 = new MAPF_Instance("instanceEmptyPlusSharedGoal2", mapEmpty,
+                new Agent[]{new Agent(20, coor14, coor05), agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoal3 = new MAPF_Instance("instanceEmptyPlusSharedGoal3", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor14, coor05), agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoal4 = new MAPF_Instance("instanceEmptyPlusSharedGoal4", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor24, coor12), agent43to11, agent04to00});
+
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart1 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart1", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor33, coor05)});
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart2 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart2", mapEmpty,
+                new Agent[]{new Agent(20, coor33, coor05), agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart3 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart3", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor33, coor05), agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart4 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart4", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor43, coor00), agent43to11, agent04to00});
+
+        // like a duplicate agent except for the id
+        MAPF_Instance instanceEmptyPlusSharedGoalAndStart1 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndStart1", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor43, coor11), agent43to11, agent04to00});
+
+        MAPF_Instance instanceCircle1SharedGoal = new MAPF_Instance("instanceCircle1SharedGoal", mapCircle, new Agent[]{agent33to12, agent12to33, new Agent(20, coor32, coor12)});
+        // like a duplicate agent except for the id
+        MAPF_Instance instanceCircle1SharedGoalAndStart = new MAPF_Instance("instanceCircle1SharedGoalAndStart", mapCircle, new Agent[]{agent33to12, agent12to33, new Agent(20, coor33, coor12)});
+
+        MAPF_Instance instanceCircle2SharedGoal = new MAPF_Instance("instanceCircle2SharedGoal", mapCircle, new Agent[]{agent12to33, agent33to12, new Agent(20, coor32, coor12)});
+        // like a duplicate agent except for the id
+        MAPF_Instance instanceCircle2SharedGoalAndStart = new MAPF_Instance("instanceCircle2SharedGoalAndStart", mapCircle, new Agent[]{agent12to33, agent33to12, new Agent(20, coor33, coor12)});
+
+        System.out.println("should find a solution:");
+        for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceEmptyPlusSharedGoal1, instanceEmptyPlusSharedGoal2, instanceEmptyPlusSharedGoal3, instanceEmptyPlusSharedGoal4,
+                instanceEmptyPlusSharedGoalAndSomeStart1, instanceEmptyPlusSharedGoalAndSomeStart2, instanceEmptyPlusSharedGoalAndSomeStart3, instanceEmptyPlusSharedGoalAndSomeStart4,
+                instanceEmptyPlusSharedGoalAndStart1, instanceCircle1SharedGoal, instanceCircle1SharedGoalAndStart, instanceCircle2SharedGoal, instanceCircle2SharedGoalAndStart}){
+            System.out.println("testing " + testInstance.name);
+            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            assertNotNull(solution);
+            assertTrue(solution.solves(testInstance, true));
+        }
+
+        MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
+        MAPF_Instance unsolvableBecauseOrderWithInfiniteConstraints = new MAPF_Instance("unsolvableBecauseOrderWithInfiniteConstraints", mapWithPocket,
+                new Agent[]{agent43to53, agent55to43});
+
+        System.out.println("should not find a solution:");
+        for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable, unsolvableBecauseOrderWithInfiniteConstraints}){
+            System.out.println("testing " + testInstance.name);
+            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            assertNull(solution);
+        }
     }
 
 

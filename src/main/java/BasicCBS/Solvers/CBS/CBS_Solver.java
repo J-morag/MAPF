@@ -78,10 +78,14 @@ public class CBS_Solver extends A_Solver {
      */
     private final Comparator<? super CBS_Node> CBSNodeComparator;
     /**
-     * Whether or not to use corridor reasoning.
+     * Whether to use corridor reasoning.
      * @see <a href="jiaoyangli.me/files/2020-ICAPS.pdf#page=1&zoom=180,-78,792">New Techniques for Pairwise Symmetry Breaking in Multi-Agent Path Finding</a>
      */
     private final boolean corridorReasoning;
+    /**
+     * if true, agents can have shared goals, so they can stay at their goal together (only last move onwards).
+     */
+    private final boolean sharedGoals;
 
     /*  = Constructors =  */
 
@@ -96,30 +100,24 @@ public class CBS_Solver extends A_Solver {
      * @param useCorridorReasoning whether or not to use corridor reasoning.
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
-                      CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, boolean useCorridorReasoning) {
+                      CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
+                      Boolean sharedGoals) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
-        this.corridorReasoning = useCorridorReasoning;
+        this.corridorReasoning = Objects.requireNonNullElse(useCorridorReasoning, false);
         clearOPEN();
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
         this.costFunction = costFunction != null ? costFunction : (solution, cbs) -> solution.sumIndividualCosts();
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
+        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
     }
 
     /**
      * Default constructor.
      */
     public CBS_Solver() {
-        this(null, null, null, null, null, false);
-    }
-
-    /**
-     * constructor that uses default value for {@link #corridorReasoning}
-     */
-    public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
-                      CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator){
-        this(lowLevelSolver, openList, openListManagementMode, costFunction, cbsNodeComparator, false);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -213,7 +211,8 @@ public class CBS_Solver extends A_Solver {
      */
     private I_ConflictManager getConflictManagerFor(CBS_Node node) {
         I_ConflictManager cat = this.corridorReasoning ?
-                new CorridorConflictManager(buildConstraintSet(node,null), this.instance) : new ConflictManager();
+                new CorridorConflictManager(buildConstraintSet(node,null), this.instance) :
+                new ConflictManager(null, this.sharedGoals);
         for (SingleAgentPlan plan :
                 node.getSolution()) {
             cat.addPlan(plan);
@@ -341,7 +340,9 @@ public class CBS_Solver extends A_Solver {
         RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport, currentSolution);
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
             RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
-            astarSbuproblemParameters.conflictAvoidanceTable = new SingleUseConflictAvoidanceTable(currentSolution, agent);
+            SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
+            cat.sharedGoals = this.sharedGoals;
+            astarSbuproblemParameters.conflictAvoidanceTable = cat;
             subproblemParametes = astarSbuproblemParameters;
         }
         return subproblemParametes;

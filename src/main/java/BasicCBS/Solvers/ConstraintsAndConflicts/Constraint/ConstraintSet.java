@@ -3,6 +3,7 @@ package BasicCBS.Solvers.ConstraintsAndConflicts.Constraint;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.Move;
+import BasicCBS.Solvers.SingleAgentPlan;
 
 import java.util.*;
 
@@ -27,15 +28,39 @@ public class ConstraintSet{
 
     protected int lastConstraintTime = -1;
 
+    /**
+     * If set to true, agents who share the same goal may occupy their goal vertex at the same time.
+     */
+    public boolean sharedGoals;
+
     public ConstraintSet() {
+        this.sharedGoals = false;
+    }
+
+    public ConstraintSet(boolean sharedGoals) {
+        this.sharedGoals = sharedGoals;
     }
 
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}
         this.addAll(toCopy);
+        this.sharedGoals = toCopy.sharedGoals;
     }
 
     public ConstraintSet(Collection<? extends Constraint> seedConstraints) {
+        this();
+        if(seedConstraints == null) {throw new IllegalArgumentException();}
+        this.addAll(seedConstraints);
+    }
+
+    public ConstraintSet(ConstraintSet toCopy, boolean sharedGoals){
+        this(sharedGoals);
+        if(toCopy == null) {throw new IllegalArgumentException();}
+        this.addAll(toCopy);
+    }
+
+    public ConstraintSet(Collection<? extends Constraint> seedConstraints, boolean sharedGoals) {
+        this(sharedGoals);
         if(seedConstraints == null) {throw new IllegalArgumentException();}
         this.addAll(seedConstraints);
     }
@@ -159,7 +184,7 @@ public class ConstraintSet{
             rejects = rejects(constraints.get(dummy), move);
         }
         if (!rejects && goalConstraints.containsKey(move.currLocation)){
-            rejects = goalConstraints.get(move.currLocation).rejects(move);
+            rejects = sharedGoals ?  goalConstraints.get(move.currLocation).rejectsWithSharedGoals(move) : goalConstraints.get(move.currLocation).rejects(move);
         }
         return rejects;
     }
@@ -199,6 +224,8 @@ public class ConstraintSet{
                 }
             }
         }
+        // #goalConstraints is irrelevant, since if there are no shared goals, there won't be two agents trying to get
+        // to the same goal, and if there are shared goals then it's not a conflict
 
         return firstRejectionTime == Integer.MAX_VALUE ? -1 : firstRejectionTime;
     }
@@ -296,6 +323,63 @@ public class ConstraintSet{
 
         return lastRejectionTime == Integer.MIN_VALUE ? -1 : lastRejectionTime;
     }
+
+    /*  = translating moves and plans into constraints =*/
+
+    public List<Constraint> vertexConstraintsForPlan(SingleAgentPlan planForAgent) {
+        List<Constraint> constraints = new LinkedList<>();
+        for (Move move :
+                planForAgent) {
+            constraints.add(vertexConstraintsForMove(move));
+        }
+        return constraints;
+    }
+
+    public Constraint vertexConstraintsForMove(Move move){
+        return new Constraint(null, move.timeNow, move.currLocation);
+    }
+
+    public List<Constraint> swappingConstraintsForPlan(SingleAgentPlan planForAgent) {
+        List<Constraint> constraints = new LinkedList<>();
+        for (Move move :
+                planForAgent) {
+            constraints.add(swappingConstraintsForMove(move));
+        }
+        return constraints;
+    }
+
+    public Constraint swappingConstraintsForMove(Move move){
+        return new Constraint(null, move.timeNow,
+                /*the constraint is in opposite direction of the move*/ move.currLocation, move.prevLocation);
+    }
+
+    public Constraint goalConstraintForMove(Move move){
+        return new GoalConstraint(null, move.timeNow, move.currLocation);
+    }
+
+    /**
+     * Creates constraints to protect a {@link SingleAgentPlan plan}.
+     * @param planForAgent
+     * @return
+     */
+    public List<Constraint> allConstraintsForPlan(SingleAgentPlan planForAgent) {
+        List<Constraint> constraints = new LinkedList<>();
+        // protect the agent's plan
+        for (int t = planForAgent.getFirstMoveTime(); t <= planForAgent.getEndTime(); t++) {
+            Move move = planForAgent.moveAt(t);
+
+            constraints.add(swappingConstraintsForMove(move));
+            if (move.timeNow != planForAgent.getEndTime()){
+                constraints.add(vertexConstraintsForMove(move));
+            }
+            else{ // for the last move don't save a vertex constraint, instead save a goal constraint
+                constraints.add(goalConstraintForMove(planForAgent.moveAt(planForAgent.getEndTime())));
+            }
+        }
+        return constraints;
+    }
+
+    /* = from Object = */
 
     @Override
     public boolean equals(Object o) {

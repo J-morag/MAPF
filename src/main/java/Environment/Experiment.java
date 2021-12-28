@@ -51,6 +51,7 @@ public class Experiment {
      */
     public boolean proactiveGarbageCollection = true;
     public int sleepTimeAfterGarbageCollection = 100;
+    public boolean sharedGoals = false;
 
     public Experiment(String experimentName, InstanceManager instanceManager) {
         this.experimentName = experimentName;
@@ -166,7 +167,7 @@ public class Experiment {
 
         System.out.println("Solved?: " + (solution != null ? "yes" : "no"));
         if (solution != null) {
-            boolean validSolution = solution.solves(instance);
+            boolean validSolution = isValidSolutionForInstance(instance, solution);
             System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
             System.out.println("Sum of Individual Costs: " + getSolutionCost(solution));
@@ -192,6 +193,10 @@ public class Experiment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isValidSolutionForInstance(MAPF_Instance instance, Solution solution) {
+        return solution.solves(instance, sharedGoals);
     }
 
     protected int getSolutionCost(Solution solution) {

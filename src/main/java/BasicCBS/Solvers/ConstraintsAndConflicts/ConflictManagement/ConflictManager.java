@@ -28,6 +28,7 @@ public class ConflictManager implements I_ConflictManager {
      * Strategy for selecting conflicts
      */
     public final ConflictSelectionStrategy conflictSelectionStrategy;
+    public boolean sharedGoals = false;
 
 
     /**
@@ -35,6 +36,14 @@ public class ConflictManager implements I_ConflictManager {
      * @param conflictSelectionStrategy how to choose conflicts.
      */
     public ConflictManager(ConflictSelectionStrategy conflictSelectionStrategy) {
+        this(conflictSelectionStrategy, null);
+    }
+
+    /**
+     * Constructor.
+     * @param conflictSelectionStrategy how to choose conflicts.
+     */
+    public ConflictManager(ConflictSelectionStrategy conflictSelectionStrategy, Boolean sharedGoals) {
         /* Might want to change allConflicts from a HashSet to a TreeSet to make MinTimeConflictSelectionStrategy more efficient.
          If we want to make this more generic, we should scrap ConflictSelectionStrategy and instead make this field
          an instance of some new class, thus combining storage and selection of conflicts. @Jonathan Morag 28/10/2019
@@ -43,12 +52,13 @@ public class ConflictManager implements I_ConflictManager {
         this.timeLocationTables = new TimeLocationTables();
         this.agent_plan = new HashMap<>();
 
-        this.conflictSelectionStrategy = conflictSelectionStrategy;
+        this.conflictSelectionStrategy = Objects.requireNonNullElseGet(conflictSelectionStrategy, MinTimeConflictSelectionStrategy::new);
+        this.sharedGoals  = Objects.requireNonNullElse(sharedGoals, false);
     }
 
     /* Default constructor */
     public ConflictManager() {
-        this(new MinTimeConflictSelectionStrategy());
+        this(null, null);
     }
 
     /**
@@ -99,7 +109,6 @@ public class ConflictManager implements I_ConflictManager {
      * @param singleAgentPlan - {@inheritDoc}
      */
     private void addAgentNewPlan(SingleAgentPlan singleAgentPlan) {
-
         if ( singleAgentPlan == null ){ return; }
 
         int agentFirstMoveTime = singleAgentPlan.getFirstMoveTime();
@@ -111,14 +120,14 @@ public class ConflictManager implements I_ConflictManager {
             I_Location location = singleAgentPlan.moveAt(time).prevLocation;
             TimeLocation timeLocation = new TimeLocation(time - 1, location);
 
-            this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan); // Checks for conflicts
+            this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan, false); // Checks for conflicts
             this.timeLocationTables.addTimeLocation(timeLocation, singleAgentPlan);
         }
 
         // Check final move to goalLocation
         I_Location location = singleAgentPlan.moveAt(goalTime).currLocation;
         TimeLocation timeLocation = new TimeLocation(goalTime, location);
-        this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan); // Checks for conflicts
+        this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan, true); // Checks for conflicts
         this.timeLocationTables.addTimeLocation(timeLocation, singleAgentPlan);
 
 
@@ -134,7 +143,6 @@ public class ConflictManager implements I_ConflictManager {
      * @param singleAgentPlan - Agent's new plan
      */
     private void manageGoalLocationFromPlan(int goalTime, SingleAgentPlan singleAgentPlan) {
-
         I_Location goalLocation = singleAgentPlan.moveAt(goalTime).currLocation;
 
         TimeLocation goalTimeLocation = new TimeLocation(goalTime, goalLocation);
@@ -152,11 +160,10 @@ public class ConflictManager implements I_ConflictManager {
     /**
      * Checks if agent's {@link TimeLocation} at goal conflicts with other agents plans
      * Adds the conflicts {@link #addVertexConflicts(TimeLocation, Agent, Set)}
-     * @param timeLocation - {@inheritDoc}
-     * @param singleAgentPlan - {@inheritDoc}
+     * @param timeLocation time location of this agents finishing at goal
+     * @param singleAgentPlan the agent's plan
      */
     private void checkAddVertexConflictsWithGoal(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan){
-
         I_Location location = timeLocation.location;
         // A Set of time that at least one agent is occupying
         Set<Integer> timeList = this.timeLocationTables.getTimeListAtLocation(location);
@@ -167,7 +174,11 @@ public class ConflictManager implements I_ConflictManager {
         for (int time : timeList) {
             if( time > timeLocation.time){
                 Set<Agent> agentsAtTimeLocation = this.timeLocationTables.timeLocation_Agents.get(new TimeLocation(time,location));
-
+                if (sharedGoals){
+                    // filter out agents who are occupying the location as their goal
+                    // (and therefore also have the same goal as this agent)
+                    agentsAtTimeLocation.removeIf(a -> this.agent_plan.get(a).getEndTime() == time);
+                }
                 // Adds if agent != agentAtTimeLocation
                 this.addVertexConflicts(new TimeLocation(time, location), singleAgentPlan.agent, agentsAtTimeLocation);
             }
@@ -181,17 +192,19 @@ public class ConflictManager implements I_ConflictManager {
      * @param timeLocation - {@inheritDoc}
      * @param singleAgentPlan - {@inheritDoc}
      */
-    private void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan) {
-
+    private void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan,
+                                                 boolean lastMove) {
         Set<Agent> agentsAtTimeLocation = this.timeLocationTables.getAgentsAtTimeLocation(timeLocation);
         this.addVertexConflicts(timeLocation, singleAgentPlan.agent, agentsAtTimeLocation);
 
         /*  = Check conflicts with agents at their goal =    */
         AgentAtGoal agentAtGoal = this.timeLocationTables.getAgentAtGoalTime(timeLocation.location);
         if( agentAtGoal != null ){
-            if ( timeLocation.time >= agentAtGoal.time ){
-                // Adds a Vertex conflict if time at location is greater than another agent time at goal
-                this.addVertexConflicts(timeLocation, singleAgentPlan.agent, new HashSet<>(){{add(agentAtGoal.agent);}});
+            if (!(sharedGoals && lastMove && agentAtGoal.agent.target.equals(singleAgentPlan.agent.target))){
+                if ( timeLocation.time >= agentAtGoal.time ){
+                    // Adds a Vertex conflict if time at location is greater than another agent time at goal
+                    this.addVertexConflicts(timeLocation, singleAgentPlan.agent, new HashSet<>(){{add(agentAtGoal.agent);}});
+                }
             }
         }
 
@@ -253,7 +266,6 @@ public class ConflictManager implements I_ConflictManager {
      * @param agentsAtTimeLocation - {@inheritDoc}
      */
     private void addVertexConflicts(TimeLocation timeLocation, Agent agent, Set<Agent> agentsAtTimeLocation) {
-
         if( agentsAtTimeLocation == null ){ return; }
 
         for (Agent agentConflictsWith : agentsAtTimeLocation) {

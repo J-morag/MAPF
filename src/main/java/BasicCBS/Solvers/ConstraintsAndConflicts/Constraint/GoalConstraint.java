@@ -27,4 +27,13 @@ public class GoalConstraint extends Constraint{
         return super.accepts(move) &&
                 !(this.location.equals(move.currLocation) && this.time <= move.timeNow);
     }
+
+    public boolean acceptsWithSharedGoals(Move move){
+        boolean canConflictAtGoal = !super.location.getCoordinate().equals(move.agent.target);
+        return this.accepts(move) || !canConflictAtGoal;
+    }
+
+    public boolean rejectsWithSharedGoals(Move move){
+        return !this.acceptsWithSharedGoals(move);
+    }
 }

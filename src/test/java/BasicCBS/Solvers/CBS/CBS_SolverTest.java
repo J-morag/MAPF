@@ -5,6 +5,7 @@ import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicCBS.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.IO_Package.IO_Manager;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -17,6 +18,7 @@ import Environment.Metrics.S_Metrics;
 import BasicCBS.Solvers.I_Solver;
 import BasicCBS.Solvers.RunParameters;
 import BasicCBS.Solvers.Solution;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +34,7 @@ class CBS_SolverTest {
 
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private Enum_MapLocationType[][] map_2D_circle = {
+    private final Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -40,9 +42,9 @@ class CBS_SolverTest {
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
     };
-    private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
+    private final I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
-    Enum_MapLocationType[][] map_2D_empty = {
+    private final Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
@@ -50,7 +52,7 @@ class CBS_SolverTest {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
     };
-    private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
+    private final I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
 
     Enum_MapLocationType[][] map_2D_withPocket = {
             {e, w, e, w, e, w},
@@ -60,9 +62,9 @@ class CBS_SolverTest {
             {e, e, w, e, w, w},
             {w, e, w, e, e, e},
     };
-    private I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
+    private final I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
 
-    Enum_MapLocationType[][] map_2D_smallMaze = {
+    private final Enum_MapLocationType[][] map_2D_smallMaze = {
             {e, e, e, w, e, w},
             {e, w, e, e, e, e},
             {e, w, e, w, w, e},
@@ -70,7 +72,7 @@ class CBS_SolverTest {
             {e, e, w, e, w, w},
             {w, w, w, e, e, e},
     };
-    private I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
+    private final I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
 
     private I_Coordinate coor12 = new Coordinate_2D(1,2);
     private I_Coordinate coor13 = new Coordinate_2D(1,3);
@@ -115,9 +117,17 @@ class CBS_SolverTest {
 
     I_Solver cbsSolver = new CBS_Solver();
 
+
+    InstanceReport instanceReport;
+
     @BeforeEach
     void setUp() {
+        instanceReport = S_Metrics.newInstanceReport();
+    }
 
+    @AfterEach
+    void tearDown() {
+        S_Metrics.removeReport(instanceReport);
     }
 
     void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
@@ -204,7 +214,7 @@ class CBS_SolverTest {
     @Test
     void cbsWithPriorities() {
         I_Solver solver = new CBS_Solver(null, null, null,
-                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null);
+                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null, null, null);
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -239,7 +249,7 @@ class CBS_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new CBS_Solver(null, null, null,
-                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null);
+                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
@@ -384,7 +394,78 @@ class CBS_SolverTest {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
 
+    @Test
+    void sharedGoals(){
+        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, null,true);
+
+        MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
+        MAPF_Instance instanceEmptyPlusSharedGoal2 = new MAPF_Instance("instanceEmptyPlusSharedGoal2", mapEmpty,
+                new Agent[]{new Agent(20, coor14, coor05), agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoal3 = new MAPF_Instance("instanceEmptyPlusSharedGoal3", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor14, coor05), agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoal4 = new MAPF_Instance("instanceEmptyPlusSharedGoal4", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor24, coor12), agent43to11, agent04to00});
+
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart1 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart1", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor33, coor05)});
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart2 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart2", mapEmpty,
+                new Agent[]{new Agent(20, coor33, coor05), agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart3 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart3", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor33, coor05), agent43to11, agent04to00});
+        MAPF_Instance instanceEmptyPlusSharedGoalAndSomeStart4 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndSomeStart4", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor43, coor00), agent43to11, agent04to00});
+
+        // like a duplicate agent except for the id
+        MAPF_Instance instanceEmptyPlusSharedGoalAndStart1 = new MAPF_Instance("instanceEmptyPlusSharedGoalAndStart1", mapEmpty,
+                new Agent[]{agent33to12, agent12to33, agent53to05, new Agent(20, coor43, coor11), agent43to11, agent04to00});
+
+        MAPF_Instance instanceCircle1SharedGoal = new MAPF_Instance("instanceCircle1SharedGoal", mapCircle, new Agent[]{agent33to12, agent12to33, new Agent(20, coor32, coor12)});
+        // like a duplicate agent except for the id
+        MAPF_Instance instanceCircle1SharedGoalAndStart = new MAPF_Instance("instanceCircle1SharedGoalAndStart", mapCircle, new Agent[]{agent33to12, agent12to33, new Agent(20, coor33, coor12)});
+
+        MAPF_Instance instanceCircle2SharedGoal = new MAPF_Instance("instanceCircle2SharedGoal", mapCircle, new Agent[]{agent12to33, agent33to12, new Agent(20, coor32, coor12)});
+        // like a duplicate agent except for the id
+        MAPF_Instance instanceCircle2SharedGoalAndStart = new MAPF_Instance("instanceCircle2SharedGoalAndStart", mapCircle, new Agent[]{agent12to33, agent33to12, new Agent(20, coor33, coor12)});
+
+        MAPF_Instance instanceCircleSameEarliestGoalArrivalTimeSameGoal = new MAPF_Instance("instanceCircleSameEarliestGoalArrivalTimeSameGoal",
+                mapCircle, new Agent[]{new Agent(20, coor32, coor12), new Agent(21, coor14, coor12)});
+
+        System.out.println("should find a solution:");
+        for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceEmptyPlusSharedGoal1, instanceEmptyPlusSharedGoal2, instanceEmptyPlusSharedGoal3, instanceEmptyPlusSharedGoal4,
+                instanceEmptyPlusSharedGoalAndSomeStart1, instanceEmptyPlusSharedGoalAndSomeStart2, instanceEmptyPlusSharedGoalAndSomeStart3, instanceEmptyPlusSharedGoalAndSomeStart4,
+                instanceEmptyPlusSharedGoalAndStart1, instanceCircle1SharedGoal, instanceCircle1SharedGoalAndStart, instanceCircle2SharedGoal, instanceCircle2SharedGoalAndStart,
+                instanceCircleSameEarliestGoalArrivalTimeSameGoal}){
+            System.out.println("testing " + testInstance.name);
+            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            assertNotNull(solution);
+            assertTrue(solution.solves(testInstance, true));
+            if (testInstance.name.equals(instanceCircle1SharedGoal.name)){
+                assertEquals(10, solution.sumIndividualCosts());
+                assertEquals(5, solution.makespan());
+            }
+            if (testInstance.name.equals(instanceCircle1SharedGoalAndStart.name)){
+                assertEquals(12, solution.sumIndividualCosts());
+                assertEquals(5, solution.makespan());
+            }
+            if (testInstance.name.equals(instanceCircleSameEarliestGoalArrivalTimeSameGoal.name)){
+                // arriving at same time treated as okay. would be 5 if they have to arrive one-at-a-time at goal
+                assertEquals(4, solution.sumIndividualCosts());
+                // arriving at same time treated as okay. would be 3 if they have to arrive one-at-a-time at goal
+                assertEquals(2, solution.makespan());
+            }
+        }
+
+        MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
+
+        System.out.println("should not find a solution:");
+        for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable}){
+            System.out.println("testing " + testInstance.name);
+            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            assertNull(solution);
+        }
     }
 
     private Map<String, Map<String, String>> readResultsCSV(String pathToCsv) throws IOException {

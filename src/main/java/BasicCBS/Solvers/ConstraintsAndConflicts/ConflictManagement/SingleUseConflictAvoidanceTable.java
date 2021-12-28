@@ -18,27 +18,31 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
      * An instance of {@link TimeLocation} to be reused again and again when querying data structures, instead of
      * creating thousands of single use instances.
      */
-    private TimeLocation reusableTimeLocation1 = new TimeLocation(0, null);
+    private final TimeLocation reusableTimeLocation1 = new TimeLocation(0, null);
     /**
      * An instance of {@link TimeLocation} to be reused again and again when querying data structures, instead of
      * creating thousands of single use instances.
      */
-    private TimeLocation reusableTimeLocation2 = new TimeLocation(0, null);
+    private final TimeLocation reusableTimeLocation2 = new TimeLocation(0, null);
 
     /**
      * Maps time locations to agents that occupy them.
      */
-    private Map<TimeLocation, Set<Agent>> allOccupancies = new HashMap<>();
+    private final Map<TimeLocation, Set<Agent>> allOccupancies = new HashMap<>();
 
     /**
      * If set to true, will check for conflicts at goal locations (after time of reaching them)
      */
     public boolean checkGoals = true;
     /**
+     * If set to true, will not count agents being together at their (shared) goal as a conflict.
+     */
+    public boolean sharedGoals = false;
+    /**
      * Contains all goal locations and maps them to the time from which they are occupied (indefinitely).
      * Can't have more than one agent occupying a goal, since that would make the problem unsolvable (in classic MAPF).
      */
-    private Map<I_Location, Integer> goalOccupancies = new HashMap<>();
+    private final Map<I_Location, Integer> goalOccupancies = new HashMap<>();
 
     /**
      * Constructor
@@ -97,10 +101,16 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
         if(allOccupancies.containsKey(to)){
             numVertexConflicts += allOccupancies.get(to).size();
         }
-        if(checkGoals && goalOccupancies.containsKey(to.location)){
-            if(goalOccupancies.get(to.location) <= to.time){
-                numVertexConflicts++;
+        if(checkGoals){
+            // check for a goal occupancy conflicting with this move
+            if(goalOccupancies.containsKey(to.location) && goalOccupancies.get(to.location) <= to.time){
+                if (!(sharedGoals && move.currLocation.getCoordinate().equals(move.agent.target))){
+                    numVertexConflicts++;
+                }
             }
+            // doesn't check if this is a goal move and how many conflicts that would create, which should be OK since
+            // the number would be determined by the start time of staying in goal, and this method is used for tie-breaking
+            // between equal length plans, so staying at goal at a different time would be a different length plan anyway
         }
 
         // time locations of a move that would create a swapping conflict

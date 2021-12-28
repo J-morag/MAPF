@@ -225,7 +225,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
         super.releaseMemory();
         this.constraints = null;
         this.instanceReport = null;
-        // todo clear instead
         this.openList.clear();
         this.closed.clear();
         this.agent = null;

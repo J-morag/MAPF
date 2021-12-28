@@ -59,12 +59,23 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @return true if the solution is valid (contains no vertex or swapping conflicts).
      */
     public boolean isValidSolution(){
+        return this.isValidSolution(false);
+    }
+
+    /**
+     * Looks for vertex conflicts ({@link VertexConflict}) or swapping conflicts ({@link SwappingConflict}). Runtime is
+     * O( (n-1)*mTotal ) , where n = the number of {@link SingleAgentPlan plans}/{@link Agent agents} in this solution,
+     * and mTotal = the total number of moves in all plans together.
+     * @param sharedGoals if agents can share goals
+     * @return true if the solution is valid (contains no vertex or swapping conflicts).
+     */
+    public boolean isValidSolution(boolean sharedGoals){
         List<SingleAgentPlan> allPlans = new ArrayList<>(agentPlans.values());
         for (int i = 0; i < allPlans.size(); i++) {
             SingleAgentPlan plan1 = allPlans.get(i);
             for (int j = i+1; j < allPlans.size(); j++) {
                 SingleAgentPlan plan2 = allPlans.get(j);
-                if(plan1.conflictsWith(plan2)) {
+                if(plan1.conflictsWith(plan2, sharedGoals)) {
                     return false;
                 }
             }
@@ -86,8 +97,25 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @return boolean if this solution solves the instance.
      */
     public boolean solves(MAPF_Instance instance){
+        return this.solves(instance, false);
+    }
+
+    /**
+     * Validates that this solution is a valid solution for the given {@link MAPF_Instance}. Where
+     * {@link #isValidSolution()} only validates that this solution is free of conflicts, {@link #solves(MAPF_Instance)}
+     * also validates that:
+     * 1. The solution covers every {@link Agent} with a {@link SingleAgentPlan}.
+     * 2. The solution doesn't cover agents not present in the instance.
+     * 3. The plan for each agent starts at its source and ends at its target.
+     * 4. The times of moves in plans are consistent - always increase by 1.
+     * 5. The locations of moves in the plans are consistent - agents always move from a vertex to its neighbor.
+     * These extra checks make this validation more expensive, but it is useful for debugging purposes.
+     * @param instance an {@link MAPF_Instance} that this solution supposedly solves.
+     * @return boolean if this solution solves the instance.
+     */
+    public boolean solves(MAPF_Instance instance, boolean sharedGoals){
         // check that the solution is conflict free
-        if (!isValidSolution())
+        if (!isValidSolution(sharedGoals))
             return false;
         // check that the solution covers all agents and no other agents
         if (!this.agentPlans.keySet().containsAll(instance.agents) || !instance.agents.containsAll(this.agentPlans.keySet()))
