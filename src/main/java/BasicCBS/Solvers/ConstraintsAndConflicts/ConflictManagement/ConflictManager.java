@@ -70,10 +70,9 @@ public class ConflictManager implements I_ConflictManager {
         this.addConflicts(other.allConflicts);
         this.timeLocationTables = other.timeLocationTables.copy();
         this.agent_plan = new HashMap<>();
-        for ( Map.Entry<Agent,SingleAgentPlan> agentPlanFromOther: other.agent_plan.entrySet()){
-            this.agent_plan.put(agentPlanFromOther.getKey(),agentPlanFromOther.getValue());
-        }
+        this.agent_plan.putAll(other.agent_plan);
         this.conflictSelectionStrategy = other.conflictSelectionStrategy;
+        this.sharedGoals = other.sharedGoals;
     }
 
     @Override
@@ -115,8 +114,9 @@ public class ConflictManager implements I_ConflictManager {
         int goalTime = singleAgentPlan.getEndTime();
 
         /*  Check for conflicts and Add timeLocations */
-        for (int time = agentFirstMoveTime; time <= goalTime; time++) {
-            // Move's from location is 'prevLocation' , therefor timeLocation is time - 1
+        // skip the start location. It shouldn't have conflicts - either they are allowed or the instance is formed such
+        // that they don't exist
+        for (int time = agentFirstMoveTime + 1; time <= goalTime; time++) {
             I_Location location = singleAgentPlan.moveAt(time).prevLocation;
             TimeLocation timeLocation = new TimeLocation(time - 1, location);
 
