@@ -61,6 +61,17 @@ class PrioritisedPlanning_SolverTest {
     };
     private I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
 
+
+    private final Enum_MapLocationType[][] map_2D_smallMaze = {
+            {e, e, e, w, e, w},
+            {e, w, e, e, e, e},
+            {e, w, e, w, w, e},
+            {e, e, e, e, e, e},
+            {e, e, w, e, w, w},
+            {w, w, w, e, e, e},
+    };
+    private final I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
+
     private I_Coordinate coor12 = new Coordinate_2D(1,2);
     private I_Coordinate coor13 = new Coordinate_2D(1,3);
     private I_Coordinate coor14 = new Coordinate_2D(1,4);
@@ -69,6 +80,7 @@ class PrioritisedPlanning_SolverTest {
     private I_Coordinate coor32 = new Coordinate_2D(3,2);
     private I_Coordinate coor33 = new Coordinate_2D(3,3);
     private I_Coordinate coor34 = new Coordinate_2D(3,4);
+    private I_Coordinate coor35 = new Coordinate_2D(3,5);
 
     private I_Coordinate coor11 = new Coordinate_2D(1,1);
     private I_Coordinate coor43 = new Coordinate_2D(4,3);
@@ -112,6 +124,8 @@ class PrioritisedPlanning_SolverTest {
     private Agent agent10to00 = new Agent(6, coor10, coor00);
     private Agent agent43to53 = new Agent(7, coor43, coor53);
     private Agent agent55to43 = new Agent(8, coor55, coor43);
+    private Agent agent33to35 = new Agent(9, coor33, coor35);
+    private Agent agent34to32 = new Agent(10, coor34, coor32);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
@@ -122,6 +136,7 @@ class PrioritisedPlanning_SolverTest {
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
     private MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to43});
+    private MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
     I_Solver ppSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver());
 
@@ -160,6 +175,19 @@ class PrioritisedPlanning_SolverTest {
         Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
 
         assertTrue(solved.solves(testInstance));
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest() {
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+        assertEquals(10, solved.sumIndividualCosts());
+        assertEquals(8, solved.makespan());
     }
 
     @Test

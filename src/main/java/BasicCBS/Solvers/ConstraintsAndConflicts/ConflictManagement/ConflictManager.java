@@ -114,9 +114,7 @@ public class ConflictManager implements I_ConflictManager {
         int goalTime = singleAgentPlan.getEndTime();
 
         /*  Check for conflicts and Add timeLocations */
-        // skip the start location. It shouldn't have conflicts - either they are allowed or the instance is formed such
-        // that they don't exist
-        for (int time = agentFirstMoveTime + 1; time <= goalTime; time++) {
+        for (int time = agentFirstMoveTime; time <= goalTime; time++) {
             I_Location location = singleAgentPlan.moveAt(time).prevLocation;
             TimeLocation timeLocation = new TimeLocation(time - 1, location);
 
@@ -265,7 +263,10 @@ public class ConflictManager implements I_ConflictManager {
      * @param agentsAtTimeLocation - {@inheritDoc}
      */
     private void addVertexConflicts(TimeLocation timeLocation, Agent agent, Set<Agent> agentsAtTimeLocation) {
-        if( agentsAtTimeLocation == null ){ return; }
+        if (agentsAtTimeLocation == null){ return; }
+        // skip the start location. It shouldn't have conflicts - either they are allowed or the instance is formed such
+        // that they don't exist
+        if (timeLocation.time == 0){ return;}
 
         for (Agent agentConflictsWith : agentsAtTimeLocation) {
             if (agentConflictsWith.equals(agent)){ continue; /* Self Conflict */ }
