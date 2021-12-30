@@ -16,7 +16,7 @@ public class RemovableConflictManager implements I_ConflictManager{
     /*  = Data structures =   */
     public final RemovableConflictAvoidance removableConflictAvoidance;
     public final TimeLocationTables timeLocationTables;
-    private final Map<Agent, SingleAgentPlan> agent_plan; // BasicCBS.Maps from Agent to Agent's plan
+    private final Map<Agent, SingleAgentPlan> agent_plan; // maps from Agent to Agent's plan
 
     private final ConflictSelectionStrategy conflictSelectionStrategy; // Strategy for selecting conflicts
 
@@ -66,7 +66,7 @@ public class RemovableConflictManager implements I_ConflictManager{
 
         this.timeLocationTables = conflictManager.timeLocationTables.copy();
         this.agent_plan = new HashMap<>();
-        for ( Map.Entry<Agent,SingleAgentPlan> agentPlanFromOther: conflictManager.agent_plan.entrySet()){
+        for ( Map.Entry<Agent,SingleAgentPlan> agentPlanFromOther: conflictManager.agentPlans.entrySet()){
             this.agent_plan.put(agentPlanFromOther.getKey(),agentPlanFromOther.getValue());
         }
         this.conflictSelectionStrategy = conflictManager.conflictSelectionStrategy;

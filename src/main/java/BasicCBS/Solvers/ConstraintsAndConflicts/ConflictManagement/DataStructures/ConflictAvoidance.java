@@ -12,7 +12,7 @@ public class ConflictAvoidance {
 
 
     // private final Set<A_Conflict> allConflicts; // Keeps all conflicts
-    private final Map<Agent, Set<A_Conflict>> agent_conflicts; // BasicCBS.Maps from Agent to all related conflicts
+    private final Map<Agent, Set<A_Conflict>> agent_conflicts; // maps from Agent to all related conflicts
 
     public ConflictAvoidance(){
 //        this.allConflicts = new HashSet<>();

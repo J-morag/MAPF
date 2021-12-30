@@ -9,13 +9,13 @@ import java.util.*;
 
 public class TimeLocationTables {
 
-    // BasicCBS.Maps from a time&location to all relevant agents
+    // maps from a time&location to all relevant agents
     public final Map<TimeLocation, Set<Agent>> timeLocation_Agents;
 
-    // BasicCBS.Maps from a location to all time units where at least one agent is occupying the location
+    // maps from a location to all time units where at least one agent is occupying the location
     public final Map<I_Location,Set<Integer>> location_timeList;
 
-    // BasicCBS.Maps from GoalLocation to Agent&time
+    // maps from GoalLocation to Agent&time
     public final Map<I_Location, SingleAgentPlan> goal_plan;
 
 

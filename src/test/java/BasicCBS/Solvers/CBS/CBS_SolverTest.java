@@ -5,7 +5,6 @@ import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.Coordinates.I_Coordinate;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicCBS.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.IO_Package.IO_Manager;
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -87,6 +86,7 @@ class CBS_SolverTest {
     private I_Coordinate coor43 = new Coordinate_2D(4,3);
     private I_Coordinate coor53 = new Coordinate_2D(5,3);
     private I_Coordinate coor54 = new Coordinate_2D(5,4);
+    private I_Coordinate coor55 = new Coordinate_2D(5,5);
     private I_Coordinate coor05 = new Coordinate_2D(0,5);
 
     private I_Coordinate coor04 = new Coordinate_2D(0,4);
@@ -398,7 +398,8 @@ class CBS_SolverTest {
 
     @Test
     void sharedGoals(){
-        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, null,true);
+        CBS_Solver cbsSolverSharedGoals = new CBS_Solver(null, null, null,
+                null, null, null, true);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -432,14 +433,18 @@ class CBS_SolverTest {
 
         MAPF_Instance instanceCircleSameEarliestGoalArrivalTimeSameGoal = new MAPF_Instance("instanceCircleSameEarliestGoalArrivalTimeSameGoal",
                 mapCircle, new Agent[]{new Agent(20, coor32, coor12), new Agent(21, coor14, coor12)});
+        MAPF_Instance instanceDifferentGoalAndInterfering1 = new MAPF_Instance("instanceDifferentGoalAndInterfering1",
+                mapSmallMaze, new Agent[]{new Agent(1, coor55, coor32), new Agent(2, coor33, coor43)});
+        MAPF_Instance instanceDifferentGoalAndInterfering2 = new MAPF_Instance("instanceDifferentGoalAndInterfering2",
+                mapSmallMaze, new Agent[]{new Agent(1, coor33, coor43), new Agent(2, coor55, coor32)});
 
         System.out.println("should find a solution:");
         for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceEmptyPlusSharedGoal1, instanceEmptyPlusSharedGoal2, instanceEmptyPlusSharedGoal3, instanceEmptyPlusSharedGoal4,
                 instanceEmptyPlusSharedGoalAndSomeStart1, instanceEmptyPlusSharedGoalAndSomeStart2, instanceEmptyPlusSharedGoalAndSomeStart3, instanceEmptyPlusSharedGoalAndSomeStart4,
                 instanceEmptyPlusSharedGoalAndStart1, instanceCircle1SharedGoal, instanceCircle1SharedGoalAndStart, instanceCircle2SharedGoal, instanceCircle2SharedGoalAndStart,
-                instanceCircleSameEarliestGoalArrivalTimeSameGoal}){
+                instanceDifferentGoalAndInterfering1, instanceDifferentGoalAndInterfering2, instanceCircleSameEarliestGoalArrivalTimeSameGoal}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
             assertNotNull(solution);
             assertTrue(solution.solves(testInstance, true));
             if (testInstance.name.equals(instanceCircle1SharedGoal.name)){
@@ -463,7 +468,7 @@ class CBS_SolverTest {
         System.out.println("should not find a solution:");
         for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(5*1000, null, instanceReport, null));
             assertNull(solution);
         }
     }

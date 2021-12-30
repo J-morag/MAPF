@@ -60,8 +60,8 @@ public class CorridorConflictManager extends ConflictManager {
     private CorridorConflict getCorridorConflict(A_Conflict conflict) {
         // agents must be coming from opposing directions.
         // so if they are coming from same direction or one of them is already at its goal, return null.
-        Move agent1Move = super.agent_plan.get(conflict.agent1).moveAt(conflict.time);
-        Move agent2Move = super.agent_plan.get(conflict.agent2).moveAt(conflict.time);
+        Move agent1Move = super.agentPlans.get(conflict.agent1).moveAt(conflict.time);
+        Move agent2Move = super.agentPlans.get(conflict.agent2).moveAt(conflict.time);
         if( (agent1Move == null || agent2Move == null ) ||(
                 Objects.equals(agent1Move.prevLocation, agent2Move.prevLocation)
                 && agent1Move.currLocation.equals(agent2Move.currLocation)) ){
@@ -86,12 +86,12 @@ public class CorridorConflictManager extends ConflictManager {
 
         // go to both ends of the corridor. vertices belong to the corridor if they are of degree 2.
 
-        I_Location dir1anchor= super.agent_plan.get(conflict.agent1).moveAt(conflict.time).currLocation;
-        I_Location dir1neighbor = super.agent_plan.get(conflict.agent1).moveAt(conflict.time).prevLocation;
+        I_Location dir1anchor= super.agentPlans.get(conflict.agent1).moveAt(conflict.time).currLocation;
+        I_Location dir1neighbor = super.agentPlans.get(conflict.agent1).moveAt(conflict.time).prevLocation;
         I_Location beginning = exploreCorridorOneDirection(corridorVertices, dir1anchor, dir1neighbor, conflict.agent1, conflict.agent2);
 
-        I_Location dir2anchor = super.agent_plan.get(conflict.agent2).moveAt(conflict.time).currLocation;
-        I_Location dir2neighbor = super.agent_plan.get(conflict.agent2).moveAt(conflict.time).prevLocation;
+        I_Location dir2anchor = super.agentPlans.get(conflict.agent2).moveAt(conflict.time).currLocation;
+        I_Location dir2neighbor = super.agentPlans.get(conflict.agent2).moveAt(conflict.time).prevLocation;
         I_Location end = exploreCorridorOneDirection(corridorVertices, dir2anchor, dir2neighbor, conflict.agent1, conflict.agent2);
 
         if (equalsSourceOrTarget(dir1anchor, conflict.agent1) || equalsSourceOrTarget(dir2anchor, conflict.agent2)){
@@ -105,7 +105,7 @@ public class CorridorConflictManager extends ConflictManager {
             return null;
         }
         return new CorridorConflict(conflict.agent1, conflict.agent2, conflict.time, beginning, end, corridorVertices,
-                constraints, instance, this.agent_plan.get(conflict.agent1), this.agent_plan.get(conflict.agent2));
+                constraints, instance, this.agentPlans.get(conflict.agent1), this.agentPlans.get(conflict.agent2));
     }
 
     /**
@@ -148,8 +148,8 @@ public class CorridorConflictManager extends ConflictManager {
             // check that the current paths for both agents violate the range constraint derived from the conflict
             // This guarantees that the paths in both child CT nodes will be different from the paths in the current CT node
             Constraint[] preventingConstraints = corridorConflict.getPreventingConstraints();
-            if(preventingConstraints[0].rejects(super.agent_plan.get(corridorConflict.agent1))
-                    && preventingConstraints[1].rejects(super.agent_plan.get(corridorConflict.agent2))){
+            if(preventingConstraints[0].rejects(super.agentPlans.get(corridorConflict.agent1))
+                    && preventingConstraints[1].rejects(super.agentPlans.get(corridorConflict.agent2))){
                 return corridorConflict;
             }
             // if it isn't usable, remove it.

@@ -21,7 +21,7 @@ public class ConflictManager implements I_ConflictManager {
      *      3. GoalLocation to Agent&time
      */
     public final TimeLocationTables timeLocationTables;
-    public final Map<Agent, SingleAgentPlan> agent_plan; // BasicCBS.Maps from Agent to Agent's plan
+    public final Map<Agent, SingleAgentPlan> agentPlans; // maps from Agent to Agent's plan
 
     /*  = instance variables =   */
     /**
@@ -50,7 +50,7 @@ public class ConflictManager implements I_ConflictManager {
          */
         this.allConflicts = new HashSet<>();
         this.timeLocationTables = new TimeLocationTables();
-        this.agent_plan = new HashMap<>();
+        this.agentPlans = new HashMap<>();
 
         this.conflictSelectionStrategy = Objects.requireNonNullElseGet(conflictSelectionStrategy, MinTimeConflictSelectionStrategy::new);
         this.sharedGoals  = Objects.requireNonNullElse(sharedGoals, false);
@@ -69,8 +69,8 @@ public class ConflictManager implements I_ConflictManager {
         this.allConflicts = new HashSet<>();
         this.addConflicts(other.allConflicts);
         this.timeLocationTables = other.timeLocationTables.copy();
-        this.agent_plan = new HashMap<>();
-        this.agent_plan.putAll(other.agent_plan);
+        this.agentPlans = new HashMap<>();
+        this.agentPlans.putAll(other.agentPlans);
         this.conflictSelectionStrategy = other.conflictSelectionStrategy;
         this.sharedGoals = other.sharedGoals;
     }
@@ -96,7 +96,7 @@ public class ConflictManager implements I_ConflictManager {
      */
     @Override
     public void addPlan(SingleAgentPlan singleAgentPlan) {
-        this.agent_plan.put(singleAgentPlan.agent, singleAgentPlan); // Updates if already exists
+        this.agentPlans.put(singleAgentPlan.agent, singleAgentPlan); // Updates if already exists
         this.addAgentNewPlan(singleAgentPlan);
     }
 
@@ -177,7 +177,7 @@ public class ConflictManager implements I_ConflictManager {
                 if (sharedGoals){
                     // filter out agents who are occupying the location as their goal
                     // (and therefore also have the same goal as this agent)
-                    agentsAtTimeLocation.removeIf(a -> this.agent_plan.get(a).getEndTime() == time);
+                    agentsAtTimeLocation.removeIf(a -> this.agentPlans.get(a).getEndTime() == time);
                 }
                 // Adds if agent != agentAtTimeLocation
                 this.addVertexConflicts(new TimeLocation(time, location), singleAgentPlan.agent, agentsAtTimeLocation);
@@ -233,7 +233,7 @@ public class ConflictManager implements I_ConflictManager {
         */
         for (Agent agentMovingToPrevPosition : agentsMovingToPrevLocations) {
             if( agentMovingToPrevPosition.equals(singleAgentPlan.agent) ){ continue; /* Self Conflict */ }
-            if ( this.agent_plan.get(agentMovingToPrevPosition).moveAt(time).prevLocation.equals(nextLocation)){
+            if ( this.agentPlans.get(agentMovingToPrevPosition).moveAt(time).prevLocation.equals(nextLocation)){
 
                 // Create two conflicts
                 SwappingConflict swappingConflict_addedAgentFirst = new SwappingConflict(   singleAgentPlan.agent,
@@ -268,7 +268,11 @@ public class ConflictManager implements I_ConflictManager {
         if( agentsAtTimeLocation == null ){ return; }
 
         for (Agent agentConflictsWith : agentsAtTimeLocation) {
-            if( agentConflictsWith.equals(agent) ){ continue; /* Self Conflict */ }
+            if (agentConflictsWith.equals(agent)){ continue; /* Self Conflict */ }
+            // if they both enter a shared goal at the same time
+            if (sharedGoals && agentConflictsWith.target.equals(agent.target) &&
+                    this.agentPlans.get(agentConflictsWith).getEndTime() == timeLocation.time &&
+                    this.agentPlans.get(agent).getEndTime() == timeLocation.time){ continue;}
             VertexConflict vertexConflict = new VertexConflict(agent,agentConflictsWith,timeLocation);
 
             // Add conflict to both of the agents

@@ -11,7 +11,7 @@ import java.util.Set;
 public class RemovableConflictAvoidance {
 
 
-    private final Map<Agent, Set<A_Conflict>> agent_conflicts; // BasicCBS.Maps from Agent to all related conflicts
+    private final Map<Agent, Set<A_Conflict>> agent_conflicts; // maps from Agent to all related conflicts
 
     public RemovableConflictAvoidance(){
         this.agent_conflicts = new HashMap<>();
