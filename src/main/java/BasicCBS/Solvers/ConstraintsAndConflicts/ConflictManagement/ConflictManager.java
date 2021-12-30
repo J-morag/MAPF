@@ -28,7 +28,7 @@ public class ConflictManager implements I_ConflictManager {
      * Strategy for selecting conflicts
      */
     public final ConflictSelectionStrategy conflictSelectionStrategy;
-    public boolean sharedGoals = false;
+    public boolean sharedGoals;
 
 
     /**
@@ -120,14 +120,14 @@ public class ConflictManager implements I_ConflictManager {
             I_Location location = singleAgentPlan.moveAt(time).prevLocation;
             TimeLocation timeLocation = new TimeLocation(time - 1, location);
 
-            this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan, false); // Checks for conflicts
+            this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan); // Checks for conflicts
             this.timeLocationTables.addTimeLocation(timeLocation, singleAgentPlan);
         }
 
         // Check final move to goalLocation
         I_Location location = singleAgentPlan.moveAt(goalTime).currLocation;
         TimeLocation timeLocation = new TimeLocation(goalTime, location);
-        this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan, true); // Checks for conflicts
+        this.checkAddConflictsByTimeLocation(timeLocation, singleAgentPlan); // Checks for conflicts
         this.timeLocationTables.addTimeLocation(timeLocation, singleAgentPlan);
 
 
@@ -192,17 +192,16 @@ public class ConflictManager implements I_ConflictManager {
      * @param timeLocation - {@inheritDoc}
      * @param singleAgentPlan - {@inheritDoc}
      */
-    private void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan,
-                                                 boolean lastMove) {
+    private void checkAddConflictsByTimeLocation(TimeLocation timeLocation, SingleAgentPlan singleAgentPlan) {
         Set<Agent> agentsAtTimeLocation = this.timeLocationTables.getAgentsAtTimeLocation(timeLocation);
         this.addVertexConflicts(timeLocation, singleAgentPlan.agent, agentsAtTimeLocation);
 
         /*  = Check conflicts with agents at their goal =    */
         AgentAtGoal agentAtGoal = this.timeLocationTables.getAgentAtGoalTime(timeLocation.location);
         if( agentAtGoal != null ){
-            if (!(sharedGoals && lastMove && agentAtGoal.agent.target.equals(singleAgentPlan.agent.target))){
-                if ( timeLocation.time >= agentAtGoal.time ){
-                    // Adds a Vertex conflict if time at location is greater than another agent time at goal
+            // Adds a Vertex conflict if time at location is greater or equal to another agent time at goal
+            if ( timeLocation.time >= agentAtGoal.time ){
+                if (!(sharedGoals && timeLocation.time == singleAgentPlan.getEndTime())){
                     this.addVertexConflicts(timeLocation, singleAgentPlan.agent, new HashSet<>(){{add(agentAtGoal.agent);}});
                 }
             }

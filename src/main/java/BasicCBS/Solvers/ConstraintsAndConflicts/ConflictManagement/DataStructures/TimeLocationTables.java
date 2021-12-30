@@ -69,8 +69,12 @@ public class TimeLocationTables {
 
         this.addTimeLocation(new TimeLocation(goalTimeLocation.time, goalTimeLocation.location), singleAgentPlan);
 
-        // Add to goal_agentTime, 'put' method will update it's value if already exists
-        this.goal_plan.put(goalTimeLocation.location, singleAgentPlan);
+        // Add to goal_agentTime, 'put' method will update its value if already exists
+        // Keep the earlier one if one exists (should only happen with shared goals?)
+        SingleAgentPlan currentGoalPlanForLocation = this.goal_plan.get(goalTimeLocation.location);
+        if (currentGoalPlanForLocation == null || currentGoalPlanForLocation.getEndTime() > goalTimeLocation.time){
+            this.goal_plan.put(goalTimeLocation.location, singleAgentPlan);
+        }
 
         this.location_timeList.computeIfAbsent(goalTimeLocation.location, k -> new HashSet<>());
         // A Set of time that at least one agent is occupying
