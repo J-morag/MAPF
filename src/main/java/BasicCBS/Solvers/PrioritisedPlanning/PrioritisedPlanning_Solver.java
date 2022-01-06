@@ -137,7 +137,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.constraints.sharedGoals = true;
+        this.constraints.sharedGoals = this.sharedGoals;
         this.random = new Random(42);
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
