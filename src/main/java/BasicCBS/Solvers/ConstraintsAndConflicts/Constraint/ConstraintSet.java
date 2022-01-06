@@ -94,7 +94,11 @@ public class ConstraintSet{
             this.lastConstraintTime = Math.max(this.lastConstraintTime, rangeConstraint.upperBound);
         }
         else if (constraint instanceof GoalConstraint){
-            this.goalConstraints.put(constraint.location, (GoalConstraint) constraint);
+            // can only have existing goal constraint if this.sharedGoal == true
+            GoalConstraint existingGoalConstraintAtLocation = this.goalConstraints.get(constraint.location);
+            if (existingGoalConstraintAtLocation == null || existingGoalConstraintAtLocation.time > constraint.time){
+                this.goalConstraints.put(constraint.location, (GoalConstraint) constraint);
+            }
             this.lastConstraintTime = Math.max(this.lastConstraintTime, constraint.time);
         }
         else{ // regular constraint

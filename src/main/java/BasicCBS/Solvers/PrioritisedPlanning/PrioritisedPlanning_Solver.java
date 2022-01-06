@@ -208,7 +208,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 solution.putPlan(planForAgent);
 
                 //add constraints to prevent the next agents from conflicting with the new plan
-                currentConstraints.addAll(this.constraints.allConstraintsForPlan(planForAgent));
+                currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
             }
 
             // random/deterministic restarts

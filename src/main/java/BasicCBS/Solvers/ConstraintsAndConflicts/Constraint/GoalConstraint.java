@@ -29,8 +29,8 @@ public class GoalConstraint extends Constraint{
     }
 
     public boolean acceptsWithSharedGoals(Move move){
-        boolean canConflictAtGoal = !super.location.getCoordinate().equals(move.agent.target);
-        return this.accepts(move) || !canConflictAtGoal;
+        boolean cannotConflictAtGoal = super.location.getCoordinate().equals(move.agent.target);
+        return this.accepts(move) || cannotConflictAtGoal;
     }
 
     public boolean rejectsWithSharedGoals(Move move){
