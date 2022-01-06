@@ -115,6 +115,7 @@ public class Experiment {
          *  instance that produced a failure.
          */
         Map<String, Integer> minNumFailedAgentsForInstance = new HashMap<>();
+        int numInvalidSolutions = 0;
 
         for (int i = 0; i < this.numOfInstances; i++) {
 
@@ -126,13 +127,21 @@ public class Experiment {
 
             for (I_Solver solver :
                     solvers) {
-                runInstanceOnSolver(solver, minNumFailedAgentsForInstance, instance);
+                boolean valid = runInstanceOnSolver(solver, minNumFailedAgentsForInstance, instance);
+                if (!valid){
+                    numInvalidSolutions++;
+                }
             }
         }
+        System.out.println("Experiment concluded with " + numInvalidSolutions + " invalid solutions");
 
     }
 
-    protected void runInstanceOnSolver(I_Solver solver, Map<String, Integer> minNumFailedAgentsForInstance, MAPF_Instance instance) {
+    /**
+     * @return false if the instance was solved but the solution was invalid; true in all other cases.
+     */
+    protected boolean runInstanceOnSolver(I_Solver solver, Map<String, Integer> minNumFailedAgentsForInstance, MAPF_Instance instance) {
+        boolean validSolution = true;
         if (proactiveGarbageCollection) {
             System.gc();
             try {
@@ -152,7 +161,7 @@ public class Experiment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return;
+            return validSolution;
         }
         else{
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 0);
@@ -160,15 +169,22 @@ public class Experiment {
 
         RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
 
-        System.out.println("---------- solving " + instance.extendedName + " with " + instance.agents.size() + " agents ---------- with solver " + solver.name());
+        String instanceName = instance.extendedName;
+        int numAgents = instance.agents.size();
+
+        System.out.println("---------- solving " + instanceName + " with " + numAgents + " agents ---------- with solver " + solver.name());
         System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
 
         Solution solution = solver.solve(instance, runParameters);
 
         System.out.println("Solved?: " + (solution != null ? "yes" : "no"));
         if (solution != null) {
-            boolean validSolution = isValidSolutionForInstance(instance, solution);
+            validSolution = isValidSolutionForInstance(instance, solution);
             System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
+            if (!validSolution){ // print a warning
+                System.err.println("!+!+!+!+!+!+!+!+!+!\nSolver " + solver.name() + " produced an invalid solution!\nInstance: "
+                        + instanceName + "\n#agents: " + numAgents + "\n!+!+!+!+!+!+!+!+!+!");
+            }
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
             System.out.println("Sum of Individual Costs: " + getSolutionCost(solution));
         } else { // failed to solve
@@ -193,6 +209,8 @@ public class Experiment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return validSolution;
     }
 
     private boolean isValidSolutionForInstance(MAPF_Instance instance, Solution solution) {
