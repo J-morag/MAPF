@@ -39,9 +39,7 @@ public class TimeLocationTables {
         }
 
         this.goal_plan = new HashMap<>();
-        for ( Map.Entry<I_Location,SingleAgentPlan> goalPlanFromOther : other.goal_plan.entrySet()){
-            this.goal_plan.put(goalPlanFromOther.getKey(),goalPlanFromOther.getValue());
-        }
+        this.goal_plan.putAll(other.goal_plan);
     }
 
 
