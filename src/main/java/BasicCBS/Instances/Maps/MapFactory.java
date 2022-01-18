@@ -99,7 +99,7 @@ public class MapFactory {
             for (int i = 0; i < neighbors.length; i++) {
                 I_Coordinate neighborCoordinate = coordinateNeighbors.get(i);
                 allLocations.putIfAbsent(neighborCoordinate,
-                        new GraphMapVertex(coordinatesLocationTypes != null ? coordinatesLocationTypes.get(coordinateCurrentVertex) : Enum_MapLocationType.EMPTY, neighborCoordinate));
+                        new GraphMapVertex(coordinatesLocationTypes != null ? coordinatesLocationTypes.get(neighborCoordinate) : Enum_MapLocationType.EMPTY, neighborCoordinate));
                 neighbors[i] = allLocations.get(neighborCoordinate);
             }
 
