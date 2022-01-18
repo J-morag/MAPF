@@ -75,6 +75,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * if agents share goals, they will not conflict at their goal.
      */
     private final boolean sharedGoals;
+    /**
+     * If true, agents staying at their source (since the start) will not conflict with agents with the same source
+     */
+    private final boolean sharedSources;
 
 
     /*  = Constructors =  */
@@ -86,7 +90,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null, null);
     }
 
     /**
@@ -94,7 +98,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null, null);
+        this(null, agentComparator, null, null, null, null, null);
     }
 
     /**
@@ -108,20 +112,21 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer restarts,
                                       SolutionCostFunction solutionCostFunction, RestartStrategy restartStrategy,
-                                      Boolean sharedGoals) {
+                                      Boolean sharedGoals, Boolean sharedSources) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.restarts = Objects.requireNonNullElse(restarts, 0);
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, Solution::sumIndividualCosts);
         this.restartStrategy = Objects.requireNonNullElse(restartStrategy, RestartStrategy.randomRestarts);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
 
     /**
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -138,6 +143,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.constraints.sharedGoals = this.sharedGoals;
+        this.constraints.sharedSources = this.sharedSources;
         this.random = new Random(42);
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){

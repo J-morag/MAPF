@@ -6,6 +6,7 @@ import BasicCBS.Solvers.ConstraintsAndConflicts.*;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocation;
 import BasicCBS.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocationTables;
+import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
 
 import java.util.*;
@@ -29,6 +30,10 @@ public class ConflictManager implements I_ConflictManager {
      */
     public final ConflictSelectionStrategy conflictSelectionStrategy;
     public boolean sharedGoals;
+    /**
+     * If true, agents staying at their source (since the start) will not conflict with agents with the same source
+     */
+    private final boolean sharedSources;
 
 
     /**
@@ -36,14 +41,14 @@ public class ConflictManager implements I_ConflictManager {
      * @param conflictSelectionStrategy how to choose conflicts.
      */
     public ConflictManager(ConflictSelectionStrategy conflictSelectionStrategy) {
-        this(conflictSelectionStrategy, null);
+        this(conflictSelectionStrategy, null, null);
     }
 
     /**
      * Constructor.
      * @param conflictSelectionStrategy how to choose conflicts.
      */
-    public ConflictManager(ConflictSelectionStrategy conflictSelectionStrategy, Boolean sharedGoals) {
+    public ConflictManager(ConflictSelectionStrategy conflictSelectionStrategy, Boolean sharedGoals, Boolean sharedSources) {
         /* Might want to change allConflicts from a HashSet to a TreeSet to make MinTimeConflictSelectionStrategy more efficient.
          If we want to make this more generic, we should scrap ConflictSelectionStrategy and instead make this field
          an instance of some new class, thus combining storage and selection of conflicts. @Jonathan Morag 28/10/2019
@@ -54,11 +59,12 @@ public class ConflictManager implements I_ConflictManager {
 
         this.conflictSelectionStrategy = Objects.requireNonNullElseGet(conflictSelectionStrategy, MinTimeConflictSelectionStrategy::new);
         this.sharedGoals  = Objects.requireNonNullElse(sharedGoals, false);
+        this.sharedSources  = Objects.requireNonNullElse(sharedSources, false);
     }
 
     /* Default constructor */
     public ConflictManager() {
-        this(null, null);
+        this(null, null, null);
     }
 
     /**
@@ -73,6 +79,7 @@ public class ConflictManager implements I_ConflictManager {
         this.agentPlans.putAll(other.agentPlans);
         this.conflictSelectionStrategy = other.conflictSelectionStrategy;
         this.sharedGoals = other.sharedGoals;
+        this.sharedSources = other.sharedSources;
     }
 
     @Override
@@ -254,6 +261,15 @@ public class ConflictManager implements I_ConflictManager {
         }
     }
 
+    private boolean stayingSinceStart(SingleAgentPlan plan, int upToIncludingTime){
+        for (int t = plan.getFirstMoveTime(); t <= upToIncludingTime; t++) {
+            Move move = plan.moveAt(t);
+            if (!(move.prevLocation.equals(move.currLocation))){
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Adds {@link VertexConflict} with other agents at a given {@link TimeLocation}
@@ -274,6 +290,10 @@ public class ConflictManager implements I_ConflictManager {
             if (sharedGoals && agentConflictsWith.target.equals(agent.target) &&
                     this.agentPlans.get(agentConflictsWith).getEndTime() == timeLocation.time &&
                     this.agentPlans.get(agent).getEndTime() == timeLocation.time){ continue;}
+            // if one of them is staying at its source since the start, and they have the same source
+            if (sharedSources && agentConflictsWith.source.equals(agent.source) && (
+                    stayingSinceStart(this.agentPlans.get(agentConflictsWith), timeLocation.time) ||
+                    stayingSinceStart(this.agentPlans.get(agent), timeLocation.time) ) ){ continue;}
             VertexConflict vertexConflict = new VertexConflict(agent,agentConflictsWith,timeLocation);
 
             // Add conflict to both of the agents

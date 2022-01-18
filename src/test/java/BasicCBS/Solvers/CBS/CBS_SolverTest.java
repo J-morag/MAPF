@@ -229,7 +229,7 @@ class CBS_SolverTest {
     @Test
     void cbsWithPriorities() {
         I_Solver solver = new CBS_Solver(null, null, null,
-                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null, null, null);
+                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null, null, null, null);
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -264,7 +264,7 @@ class CBS_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new CBS_Solver(null, null, null,
-                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null, null, null);
+                (solution, cbs) -> solution.sumIndividualCostsWithPriorities(), null, null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
@@ -414,7 +414,7 @@ class CBS_SolverTest {
     @Test
     void sharedGoals(){
         CBS_Solver cbsSolverSharedGoals = new CBS_Solver(null, null, null,
-                null, null, null, true);
+                null, null, null, true, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -461,7 +461,7 @@ class CBS_SolverTest {
             System.out.println("testing " + testInstance.name);
             Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
             assertNotNull(solution);
-            assertTrue(solution.solves(testInstance, true));
+            assertTrue(solution.solves(testInstance, true, true));
             if (testInstance.name.equals(instanceCircle1SharedGoal.name)){
                 assertEquals(10, solution.sumIndividualCosts());
                 assertEquals(5, solution.makespan());

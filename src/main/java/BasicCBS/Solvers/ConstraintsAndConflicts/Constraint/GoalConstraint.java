@@ -4,13 +4,22 @@ import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.Move;
 
+/**
+ * Like a vertex constraint, only it constrains indefinitely (as if the agent is sitting at its goal)
+ */
 public class GoalConstraint extends Constraint{
     public GoalConstraint(Agent agent, int time, I_Location prevLocation, I_Location location) {
-        super(agent, time, prevLocation, location);
+        this(agent, time, location);
+        if (prevLocation != null){
+            throw new UnsupportedOperationException("Goal constraints are an extension of vertex constraints, so #prevLocation should be null");
+        }
     }
 
     public GoalConstraint(int time, I_Location prevLocation, I_Location location) {
-        super(time, prevLocation, location);
+        this(time, location);
+        if (prevLocation != null){
+            throw new UnsupportedOperationException("Goal constraints are an extension of vertex constraints, so #prevLocation should be null");
+        }
     }
 
     public GoalConstraint(Agent agent, int time, I_Location location) {

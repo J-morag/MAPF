@@ -32,35 +32,29 @@ public class ConstraintSet{
      * If set to true, agents who share the same goal may occupy their goal vertex at the same time.
      */
     public boolean sharedGoals;
+    /**
+     * If true, agents staying at their source (since the start) will not constrain agents with the same source
+     */
+    public boolean sharedSources;
 
     public ConstraintSet() {
-        this.sharedGoals = false;
+        this(null, null);
     }
 
-    public ConstraintSet(boolean sharedGoals) {
-        this.sharedGoals = sharedGoals;
+    public ConstraintSet(Boolean sharedGoals, Boolean sharedSources) {
+        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
 
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}
         this.addAll(toCopy);
         this.sharedGoals = toCopy.sharedGoals;
+        this.lastConstraintTime = toCopy.lastConstraintTime;
     }
 
     public ConstraintSet(Collection<? extends Constraint> seedConstraints) {
         this();
-        if(seedConstraints == null) {throw new IllegalArgumentException();}
-        this.addAll(seedConstraints);
-    }
-
-    public ConstraintSet(ConstraintSet toCopy, boolean sharedGoals){
-        this(sharedGoals);
-        if(toCopy == null) {throw new IllegalArgumentException();}
-        this.addAll(toCopy);
-    }
-
-    public ConstraintSet(Collection<? extends Constraint> seedConstraints, boolean sharedGoals) {
-        this(sharedGoals);
         if(seedConstraints == null) {throw new IllegalArgumentException();}
         this.addAll(seedConstraints);
     }
@@ -135,6 +129,9 @@ public class ConstraintSet{
         if(constraint instanceof  RangeConstraint){
             // there is a problem with removing range constraints, since they may overlap.
             throw new UnsupportedOperationException();
+        }
+        else if (constraint instanceof  GoalConstraint){
+            while (this.goalConstraints.values().remove(constraint));
         }
         else { // regular constraint
             I_ConstraintGroupingKey dummy = createDummy(constraint);
@@ -330,27 +327,31 @@ public class ConstraintSet{
 
     /*  = translating moves and plans into constraints =*/
 
-    public List<Constraint> vertexConstraintsForPlan(SingleAgentPlan planForAgent) {
-        List<Constraint> constraints = new LinkedList<>();
-        for (Move move :
-                planForAgent) {
-            constraints.add(vertexConstraintsForMove(move));
-        }
-        return constraints;
-    }
+//    public List<Constraint> vertexConstraintsForPlan(SingleAgentPlan planForAgent) {
+//        List<Constraint> constraints = new LinkedList<>();
+//        for (Move move :
+//                planForAgent) {
+//            constraints.add(vertexConstraintsForMove(move));
+//        }
+//        return constraints;
+//    }
 
     public Constraint vertexConstraintsForMove(Move move){
         return new Constraint(null, move.timeNow, move.currLocation);
     }
 
-    public List<Constraint> swappingConstraintsForPlan(SingleAgentPlan planForAgent) {
-        List<Constraint> constraints = new LinkedList<>();
-        for (Move move :
-                planForAgent) {
-            constraints.add(swappingConstraintsForMove(move));
-        }
-        return constraints;
+    public Constraint stayAtSourceConstraintsForMove(Move move){
+        return new StayAtSourceConstraint(move.timeNow, move.currLocation);
     }
+
+//    public List<Constraint> swappingConstraintsForPlan(SingleAgentPlan planForAgent) {
+//        List<Constraint> constraints = new LinkedList<>();
+//        for (Move move :
+//                planForAgent) {
+//            constraints.add(swappingConstraintsForMove(move));
+//        }
+//        return constraints;
+//    }
 
     public Constraint swappingConstraintsForMove(Move move){
         return new Constraint(null, move.timeNow,
@@ -358,7 +359,7 @@ public class ConstraintSet{
     }
 
     public Constraint goalConstraintForMove(Move move){
-        return new GoalConstraint(null, move.timeNow, move.currLocation);
+        return new GoalConstraint(move.timeNow, move.currLocation);
     }
 
     /**
@@ -368,13 +369,21 @@ public class ConstraintSet{
      */
     public List<Constraint> allConstraintsForPlan(SingleAgentPlan planForAgent) {
         List<Constraint> constraints = new LinkedList<>();
+        boolean stayingAtSourceSinceStart = true;
         // protect the agent's plan
         for (int t = planForAgent.getFirstMoveTime(); t <= planForAgent.getEndTime(); t++) {
             Move move = planForAgent.moveAt(t);
+            stayingAtSourceSinceStart &= move.prevLocation.equals(move.currLocation);
 
             constraints.add(swappingConstraintsForMove(move));
             if (move.timeNow != planForAgent.getEndTime()){
-                constraints.add(vertexConstraintsForMove(move));
+                if (sharedSources && stayingAtSourceSinceStart){
+                    // with shared sources, replace the vertex constraints for stay at source constraints when appropriate
+                    constraints.add(stayAtSourceConstraintsForMove(move));
+                }
+                else {
+                    constraints.add(vertexConstraintsForMove(move));
+                }
             }
             else{ // for the last move don't save a vertex constraint, instead save a goal constraint
                 constraints.add(goalConstraintForMove(planForAgent.moveAt(planForAgent.getEndTime())));

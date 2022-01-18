@@ -362,7 +362,7 @@ class PrioritisedPlanning_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, null);
+                4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -481,7 +481,7 @@ class PrioritisedPlanning_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                4, null, PrioritisedPlanning_Solver.RestartStrategy.deterministicRescheduling, null);
+                4, null, PrioritisedPlanning_Solver.RestartStrategy.deterministicRescheduling, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -596,7 +596,7 @@ class PrioritisedPlanning_SolverTest {
 
     @Test
     void sharedGoals(){
-        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, null,true);
+        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, null,true, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -635,7 +635,7 @@ class PrioritisedPlanning_SolverTest {
             System.out.println("testing " + testInstance.name);
             Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
             assertNotNull(solution);
-            assertTrue(solution.solves(testInstance, true));
+            assertTrue(solution.solves(testInstance, true, true));
         }
 
         MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});

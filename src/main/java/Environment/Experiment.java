@@ -52,6 +52,7 @@ public class Experiment {
     public boolean proactiveGarbageCollection = true;
     public int sleepTimeAfterGarbageCollection = 100;
     public boolean sharedGoals = false;
+    public boolean sharedSources = false;
 
     public Experiment(String experimentName, InstanceManager instanceManager) {
         this.experimentName = experimentName;
@@ -214,7 +215,7 @@ public class Experiment {
     }
 
     private boolean isValidSolutionForInstance(MAPF_Instance instance, Solution solution) {
-        return solution.solves(instance, sharedGoals);
+        return solution.solves(instance, sharedGoals, sharedSources);
     }
 
     protected int getSolutionCost(Solution solution) {

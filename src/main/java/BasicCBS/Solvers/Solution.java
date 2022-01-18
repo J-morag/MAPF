@@ -59,7 +59,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @return true if the solution is valid (contains no vertex or swapping conflicts).
      */
     public boolean isValidSolution(){
-        return this.isValidSolution(false);
+        return this.isValidSolution(false, false);
     }
 
     /**
@@ -67,15 +67,16 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * O( (n-1)*mTotal ) , where n = the number of {@link SingleAgentPlan plans}/{@link Agent agents} in this solution,
      * and mTotal = the total number of moves in all plans together.
      * @param sharedGoals if agents can share goals
+     * @param sharedSources if agents share the same source and so don't conflict if one of them has been staying there since the start
      * @return true if the solution is valid (contains no vertex or swapping conflicts).
      */
-    public boolean isValidSolution(boolean sharedGoals){
+    public boolean isValidSolution(boolean sharedGoals, boolean sharedSources){
         List<SingleAgentPlan> allPlans = new ArrayList<>(agentPlans.values());
         for (int i = 0; i < allPlans.size(); i++) {
             SingleAgentPlan plan1 = allPlans.get(i);
             for (int j = i+1; j < allPlans.size(); j++) {
                 SingleAgentPlan plan2 = allPlans.get(j);
-                if(plan1.conflictsWith(plan2, sharedGoals)) {
+                if(plan1.conflictsWith(plan2, sharedGoals, sharedSources)) {
                     return false;
                 }
             }
@@ -97,7 +98,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @return boolean if this solution solves the instance.
      */
     public boolean solves(MAPF_Instance instance){
-        return this.solves(instance, false);
+        return this.solves(instance, false, false);
     }
 
     /**
@@ -113,9 +114,9 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @param instance an {@link MAPF_Instance} that this solution supposedly solves.
      * @return boolean if this solution solves the instance.
      */
-    public boolean solves(MAPF_Instance instance, boolean sharedGoals){
+    public boolean solves(MAPF_Instance instance, boolean sharedGoals, boolean sharedSources){
         // check that the solution is conflict free
-        if (!isValidSolution(sharedGoals))
+        if (!isValidSolution(sharedGoals, sharedSources))
             return false;
         // check that the solution covers all agents and no other agents
         if (!this.agentPlans.keySet().containsAll(instance.agents) || !instance.agents.containsAll(this.agentPlans.keySet()))

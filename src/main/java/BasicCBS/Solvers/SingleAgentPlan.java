@@ -187,16 +187,17 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @return the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
      */
     public A_Conflict firstConflict(SingleAgentPlan other){
-        return this.firstConflict(other, false);
+        return this.firstConflict(other, false, false);
     }
 
     /**
      * Returns the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
      * @param other another {@link SingleAgentPlan}.
      * @param sharedGoalsEnabled if agents can share the same goal location
+     * @param sharedSourcesEnabled if agents share the same source and so don't conflict if one of them has been staying there since the start
      * @return the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
      */
-    public A_Conflict firstConflict(SingleAgentPlan other, boolean sharedGoalsEnabled){
+    public A_Conflict firstConflict(SingleAgentPlan other, boolean sharedGoalsEnabled, boolean sharedSourcesEnabled){
         // find lower and upper bound for time, and check only in that range
         //the min time to check is the max first move time
         int minTime = Math.max(this.getFirstMoveTime(), other.getFirstMoveTime());
@@ -207,13 +208,17 @@ public class SingleAgentPlan implements Iterable<Move> {
                 && this.getEndTime() == other.getEndTime()){
             maxTime -= 1;
         }
+        boolean localStayingAtSource = true;
+        boolean otherStayingAtSource = true;
 
         for(int time = minTime; time<= maxTime; time++){
             Move localMove = this.moveAt(time);
+            localStayingAtSource &= localMove.prevLocation.equals(localMove.currLocation);
             Move otherMoveAtTime = other.moveAt(time);
+            otherStayingAtSource &= otherMoveAtTime.prevLocation.equals(otherMoveAtTime.currLocation);
 
             A_Conflict firstConflict = A_Conflict.conflictBetween(localMove, otherMoveAtTime);
-            if(firstConflict != null){
+            if(firstConflict != null && !(sharedSourcesEnabled && (localStayingAtSource || otherStayingAtSource))){
                 return firstConflict;
             }
         }
@@ -230,7 +235,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @return true if a conflict exists between the plans.
      */
     public boolean conflictsWith(SingleAgentPlan other){
-        return this.conflictsWith(other, false);
+        return this.conflictsWith(other, false, false);
     }
 
     /**
@@ -238,10 +243,11 @@ public class SingleAgentPlan implements Iterable<Move> {
      * swapping conflicts ({@link SwappingConflict}). Runtime is O(the number of moves in this plan).
      * @param other
      * @param canShareGoals if the agents can share goals
+     * @param sharedSources if agents share the same source and so don't conflict if one of them has been staying there since the start
      * @return true if a conflict exists between the plans.
      */
-    public boolean conflictsWith(SingleAgentPlan other, boolean canShareGoals){
-        return firstConflict(other, canShareGoals) != null;
+    public boolean conflictsWith(SingleAgentPlan other, boolean canShareGoals, boolean sharedSources){
+        return firstConflict(other, canShareGoals, sharedSources) != null;
     }
 
     /**

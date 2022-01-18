@@ -87,6 +87,11 @@ public class CBS_Solver extends A_Solver {
      */
     private final boolean sharedGoals;
 
+    /**
+     * If true, agents staying at their source (since the start) will not conflict with agents with the same source
+     */
+    private final boolean sharedSources;
+
     /*  = Constructors =  */
 
     /**
@@ -101,7 +106,7 @@ public class CBS_Solver extends A_Solver {
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
                       CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
-                      Boolean sharedGoals) {
+                      Boolean sharedGoals, Boolean sharedSources) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -111,13 +116,14 @@ public class CBS_Solver extends A_Solver {
         this.costFunction = costFunction != null ? costFunction : (solution, cbs) -> solution.sumIndividualCosts();
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
 
     /**
      * Default constructor.
      */
     public CBS_Solver() {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -212,7 +218,7 @@ public class CBS_Solver extends A_Solver {
     private I_ConflictManager getConflictManagerFor(CBS_Node node) {
         I_ConflictManager cat = this.corridorReasoning ?
                 new CorridorConflictManager(buildConstraintSet(node,null), this.instance) :
-                new ConflictManager(null, this.sharedGoals);
+                new ConflictManager(null, this.sharedGoals, this.sharedSources);
         for (SingleAgentPlan plan :
                 node.getSolution()) {
             cat.addPlan(plan);
@@ -342,6 +348,7 @@ public class CBS_Solver extends A_Solver {
             RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
             cat.sharedGoals = this.sharedGoals;
+//            cat.sharedSources = this.sharedSources; // TODO
             astarSbuproblemParameters.conflictAvoidanceTable = cat;
             subproblemParametes = astarSbuproblemParameters;
         }
