@@ -374,9 +374,12 @@ public class ConstraintSet{
         // protect the agent's plan
         for (int t = planForAgent.getFirstMoveTime(); t <= planForAgent.getEndTime(); t++) {
             Move move = planForAgent.moveAt(t);
-            stayingAtSourceSinceStart &= move.prevLocation.equals(move.currLocation);
+            boolean isStayMove = move.prevLocation.equals(move.currLocation);
+            stayingAtSourceSinceStart &= isStayMove;
 
-            constraints.add(swappingConstraintsForMove(move));
+            if (!isStayMove){
+                constraints.add(swappingConstraintsForMove(move));
+            }
             if (move.timeNow != planForAgent.getEndTime()){
                 if (sharedSources && stayingAtSourceSinceStart){
                     // with shared sources, replace the vertex constraints for stay at source constraints when appropriate
