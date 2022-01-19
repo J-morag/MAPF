@@ -49,8 +49,9 @@ public class ConstraintSet{
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}
         this.addAll(toCopy);
-        this.sharedGoals = toCopy.sharedGoals;
         this.lastConstraintTime = toCopy.lastConstraintTime;
+        this.sharedGoals = toCopy.sharedGoals;
+        this.sharedSources = toCopy.sharedSources;
     }
 
     public ConstraintSet(Collection<? extends Constraint> seedConstraints) {
