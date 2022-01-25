@@ -3,7 +3,7 @@ package Environment;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicCBS.Instances.InstanceManager;
 import BasicCBS.Instances.InstanceProperties;
-import BasicCBS.Solvers.AStar.*;
+import BasicCBS.Solvers.CBS.CBS_Solver;
 import BasicCBS.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
@@ -17,14 +17,20 @@ import java.util.stream.IntStream;
 
 public class RunManagerMovingAIBenchmark extends A_RunManager{
 
-    private String entireBenchmarkDir = "";
-    private Integer maxNumAgents = 60;
+    private final String entireBenchmarkDir;
+    private final Integer maxNumAgents;
     String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
+
+    public RunManagerMovingAIBenchmark(String entireBenchmarkDir, Integer maxNumAgents) {
+        this.entireBenchmarkDir = entireBenchmarkDir;
+        this.maxNumAgents = maxNumAgents;
+    }
+
 
     @Override
     void setSolvers() {
         super.solvers.add(new PrioritisedPlanning_Solver());
-        super.solvers.add(new PrioritisedPlanning_Solver(null, null, 4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts));
+        super.solvers.add(new CBS_Solver());
     }
 
     @Override
@@ -37,14 +43,11 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
     private void addAllMapsAndInstances(Integer maxNumAgents, String entireBenchmarkDir){
         maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
 
-        /*  =   Set Path   =*/
-        String path = entireBenchmarkDir;
-
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),properties);
+        InstanceManager instanceManager = new InstanceManager(entireBenchmarkDir, new InstanceBuilder_MovingAI(),properties);
 
         /*  =   Add new experiment   =  */
         Experiment EntireMovingAIBenchmark = new Experiment("EntireMovingAIBenchmark", instanceManager);
