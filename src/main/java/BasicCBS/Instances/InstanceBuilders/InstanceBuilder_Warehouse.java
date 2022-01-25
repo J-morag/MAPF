@@ -98,14 +98,14 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         for (int id = 0; id < numOfAgents; id++) {
 
             if( id < arrayOfAgents.length ){
-                Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id), numOfAgents);
+                Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id));
                 arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
             }
         }
         return arrayOfAgents;
     }
 
-    private Agent buildSingleAgent(int id, ArrayList<String> agentLines, int numAgents) {
+    private Agent buildSingleAgent(int id, ArrayList<String> agentLines) {
         // take the last target as target, and the one before last as source. this approximates sampling from steady state
         String[] splitLineSource = agentLines.get(agentLines.size()-2).split(SEPARATOR_SCENARIO);
         String[] splitLineTarget = agentLines.get(agentLines.size()-1).split(SEPARATOR_SCENARIO);
@@ -125,20 +125,28 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         }
 
         /*  =Get data from reader=  */
-        String nextLine = reader.skipFirstLines(SKIP_LINES_SCENARIO); // skip first line (header = ["agent_id", "x", "y", "tag"])
+        reader.skipFirstLines(SKIP_LINES_SCENARIO); // skip first line (header = ["agent_id", "x", "y", "tag"])
 
         ArrayList<ArrayList<String>> agentsLines = new ArrayList<>(); // Init queue of agents lines
 
         // Each agent gets a list of targets (one per line). Add line batches as the num of needed agents
         ArrayList<String> currAgentLines = new ArrayList<>();
-        for (int current_agent_id = 0; nextLine != null && current_agent_id < numOfNeededAgents;) {
-            nextLine = reader.getNextLine();
-            currAgentLines.add(nextLine);
+        for (int current_agent_id = 0; current_agent_id < numOfNeededAgents;) {
+            String nextLine = reader.getNextLine();
             // lines are batched per agent
+            if (nextLine != null && Integer.parseInt(nextLine.split(SEPARATOR_SCENARIO, 2)[0]) == current_agent_id){
+                currAgentLines.add(nextLine);
+            }
             if (nextLine == null || Integer.parseInt(nextLine.split(SEPARATOR_SCENARIO, 2)[0]) != current_agent_id){
                 agentsLines.add(currAgentLines);
-                currAgentLines = new ArrayList<>();
-                current_agent_id++;
+                if (nextLine == null){
+                    break;
+                }
+                else{
+                    currAgentLines = new ArrayList<>();
+                    currAgentLines.add(nextLine);
+                    current_agent_id++;
+                }
             }
         }
 

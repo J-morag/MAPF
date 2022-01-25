@@ -32,13 +32,11 @@ public class Reader {
     /**
      * skips the first lines in the file, mostly info lines
      * @param numOfLines how many lines to skip
-     * @return the next line after skipping
      */
-    public String skipFirstLines(int numOfLines){
-        for (int i = 0; i < numOfLines - 1; i++) {
+    public void skipFirstLines(int numOfLines){
+        for (int i = 0; i < numOfLines; i++) {
             this.getNextLine();
         }
-        return this.getNextLine();
     }
 
 

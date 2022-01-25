@@ -25,7 +25,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
     private final Stack<MAPF_Instance> instanceStack = new Stack<>();
 
     // Skip Lines
-    private final int SKIP_LINES = 1;
+    private final int SKIP_LINES = 0;
 
 
     /*  =  Agent line Indexing =   */
@@ -77,7 +77,8 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
 
         /*  =Get data from reader=  */
 
-        String nextLine = reader.skipFirstLines(this.SKIP_LINES); // First line
+        reader.skipFirstLines(this.SKIP_LINES);
+        String nextLine = reader.getNextLine();
 
         while ( nextLine != null ){
 

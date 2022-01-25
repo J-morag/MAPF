@@ -182,14 +182,15 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         /*  =Get data from reader=  */
-        String nextLine = reader.skipFirstLines(this.SKIP_LINES_SCENARIO); // First line
+        reader.skipFirstLines(this.SKIP_LINES_SCENARIO); // First line
 
         ArrayList<String> agentsLines = new ArrayList<>(); // Init queue of agents lines
 
+        String nextLine = reader.getNextLine();
         // Add lines as the num of needed agents
         for (int i = 0; nextLine != null && i < numOfNeededAgents ; i++) {
-            nextLine = reader.getNextLine(); // next line
             agentsLines.add(nextLine);
+            nextLine = reader.getNextLine(); // next line
         }
 
         reader.closeFile();
@@ -212,7 +213,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         /*  =Get data from reader=  */
-        String nextLine = reader.skipFirstLines(this.SKIP_LINES_MAP); // First line
+        reader.skipFirstLines(this.SKIP_LINES_MAP); // First line
+        String nextLine = reader.getNextLine();
 
         while ( nextLine != null ){
 
