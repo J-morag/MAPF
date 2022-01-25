@@ -226,6 +226,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 bestSolution = solution;
             }
             if (this.restarts > 0){
+                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
                 // shuffle agents
                 if (restartStrategy == RestartStrategy.randomRestarts){
                     Collections.shuffle(this.agents, this.random);
