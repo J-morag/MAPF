@@ -1,6 +1,7 @@
 package BasicCBS.Solvers.ConstraintsAndConflicts.Constraint;
 
 import BasicCBS.Instances.Agent;
+import BasicCBS.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.Move;
 import BasicCBS.Solvers.SingleAgentPlan;
@@ -48,10 +49,10 @@ public class ConstraintSet{
 
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}
-        this.addAll(toCopy);
-        this.lastConstraintTime = toCopy.lastConstraintTime;
         this.sharedGoals = toCopy.sharedGoals;
         this.sharedSources = toCopy.sharedSources;
+        this.addAll(toCopy);
+        this.lastConstraintTime = toCopy.lastConstraintTime;
     }
 
     public ConstraintSet(Collection<? extends Constraint> seedConstraints) {

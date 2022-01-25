@@ -192,6 +192,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
             for (I_Location destination: neighborLocationsIncludingCurrent) {
                 Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
+                if (sourceLocation.equals(destination)){
+                    possibleMove.isStayAtSource = true;
+                }
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
                     AStarState rootState = new AStarState(possibleMove, null, 1, 0);
                     openList.add(rootState);
@@ -321,6 +324,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 // give all moves after last constraint time the same time so that they're equal. patch the plan later to correct times
                 Move possibleMove = new Move(this.move.agent, !afterLastConstraint ? this.move.timeNow + 1 : this.move.timeNow,
                         this.move.currLocation, destination);
+                if (possibleMove.prevLocation.equals(possibleMove.currLocation) && this.move.isStayAtSource){
+                    possibleMove.isStayAtSource = true;
+                }
 
                 // move not prohibited by existing constraint
                 if(constraints.accepts(possibleMove)){

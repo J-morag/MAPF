@@ -218,7 +218,7 @@ public class SingleAgentPlan implements Iterable<Move> {
             otherStayingAtSource &= otherMoveAtTime.prevLocation.equals(otherMoveAtTime.currLocation);
 
             A_Conflict firstConflict = A_Conflict.conflictBetween(localMove, otherMoveAtTime);
-            if(firstConflict != null && !(sharedSourcesEnabled && (localStayingAtSource || otherStayingAtSource))){
+            if(firstConflict != null && !(sharedSourcesEnabled && localStayingAtSource && otherStayingAtSource)){
                 return firstConflict;
             }
         }

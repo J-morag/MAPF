@@ -88,7 +88,7 @@ public class CBS_Solver extends A_Solver {
     private final boolean sharedGoals;
 
     /**
-     * If true, agents staying at their source (since the start) will not conflict with agents with the same source
+     * If true, agents staying at their source (since the start) will not conflict 
      */
     private final boolean sharedSources;
 

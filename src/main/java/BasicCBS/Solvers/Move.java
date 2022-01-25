@@ -29,6 +29,8 @@ public class Move {
      */
     public final I_Location currLocation;
 
+    public boolean isStayAtSource = false;
+
     public Move(Agent agent, int timeNow, I_Location prevLocation, I_Location currLocation) {
         if(agent == null || timeNow<1 || prevLocation == null || currLocation == null){
             throw new IllegalArgumentException();

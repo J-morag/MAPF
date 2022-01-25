@@ -5,7 +5,9 @@ import BasicCBS.Instances.Maps.I_Location;
 import BasicCBS.Solvers.Move;
 
 /**
- * Identical to a vertex constraint, except it doesn't constrain any of the other agents that share the source location.
+ * Identical to a vertex constraint, except it doesn't constrain any of the other agents that share the source location,
+ * and are also staying at that source since the start.
+ * Should only ever be used if shared sources are allowed, since it overrides {@link #rejects(Move)} and {@link #accepts(Move)}.
  */
 public class StayAtSourceConstraint extends Constraint {
 
@@ -31,9 +33,20 @@ public class StayAtSourceConstraint extends Constraint {
         super(time, location);
     }
 
+    @Override
+    public boolean accepts(Move move) {
+        return this.acceptsWithSharedStarts(move);
+    }
+
+    @Override
+    public boolean rejects(Move move) {
+        return this.rejectsWithSharedStarts(move);
+    }
+
     public boolean acceptsWithSharedStarts(Move move){
         boolean sameSourceAgents = super.location.getCoordinate().equals(move.agent.source);
-        return this.accepts(move) || sameSourceAgents;
+        boolean otherIsAlsoStayingAtSource = move.isStayAtSource;
+        return super.accepts(move) || (sameSourceAgents && otherIsAlsoStayingAtSource);
     }
 
     public boolean rejectsWithSharedStarts(Move move){

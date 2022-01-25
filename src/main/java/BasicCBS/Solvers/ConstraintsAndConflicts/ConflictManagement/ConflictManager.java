@@ -31,7 +31,7 @@ public class ConflictManager implements I_ConflictManager {
     public final ConflictSelectionStrategy conflictSelectionStrategy;
     public boolean sharedGoals;
     /**
-     * If true, agents staying at their source (since the start) will not conflict with agents with the same source
+     * If true, agents staying at their source (since the start) will not conflict 
      */
     private final boolean sharedSources;
 
@@ -286,14 +286,18 @@ public class ConflictManager implements I_ConflictManager {
 
         for (Agent agentConflictsWith : agentsAtTimeLocation) {
             if (agentConflictsWith.equals(agent)){ continue; /* Self Conflict */ }
+            SingleAgentPlan agentConflictsWithPlan = this.agentPlans.get(agentConflictsWith);
+            SingleAgentPlan agentPlan = this.agentPlans.get(agent);
             // if they both enter a shared goal at the same time
             if (sharedGoals && agentConflictsWith.target.equals(agent.target) &&
-                    this.agentPlans.get(agentConflictsWith).getEndTime() == timeLocation.time &&
-                    this.agentPlans.get(agent).getEndTime() == timeLocation.time){ continue;}
-            // if one of them is staying at its source since the start, and they have the same source
-            if (sharedSources && agentConflictsWith.source.equals(agent.source) && (
-                    stayingSinceStart(this.agentPlans.get(agentConflictsWith), timeLocation.time) ||
-                    stayingSinceStart(this.agentPlans.get(agent), timeLocation.time) ) ){ continue;}
+                    agentConflictsWithPlan.getEndTime() == timeLocation.time &&
+                    agentPlan.getEndTime() == timeLocation.time){ continue;}
+            // if they are both staying at source since the start, and they have the same source
+            if (sharedSources && agentConflictsWith.source.equals(agent.source) &&
+                    (agentConflictsWithPlan.getEndTime() >= timeLocation.time && // may end before if the conflict is because the other agent is at its goal
+                            agentConflictsWithPlan.moveAt(timeLocation.time).isStayAtSource) &&
+                    agentPlan.moveAt(timeLocation.time).isStayAtSource){ continue;}
+
             VertexConflict vertexConflict = new VertexConflict(agent,agentConflictsWith,timeLocation);
 
             // Add conflict to both of the agents
