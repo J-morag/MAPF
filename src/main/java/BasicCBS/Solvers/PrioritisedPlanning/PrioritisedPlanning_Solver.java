@@ -2,6 +2,7 @@ package BasicCBS.Solvers.PrioritisedPlanning;
 
 import BasicCBS.Instances.Agent;
 import BasicCBS.Instances.MAPF_Instance;
+import BasicCBS.Solvers.AStar.AStarHeuristic;
 import BasicCBS.Solvers.AStar.CachingDistanceTableHeuristic;
 import BasicCBS.Solvers.AStar.RunParameters_SAAStar;
 import Environment.Metrics.InstanceReport;
@@ -66,6 +67,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * The cost function to evaluate solutions with.
      */
     private SolutionCostFunction solutionCostFunction;
+    /**
+     * optional heuristic function to use in the low level solver.
+     */
+    private AStarHeuristic heuristic;
 
     public interface SolutionCostFunction{
         float solutionCost(Solution solution);
@@ -76,7 +81,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     private final boolean sharedGoals;
     /**
-     * If true, agents staying at their source (since the start) will not conflict with agents with the same source
+     * If true, agents staying at their source (since the start) will not conflict 
      */
     private final boolean sharedSources;
 
@@ -155,8 +160,15 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
             //reorder according to requested priority
             if(parametersPP.preferredPriorityOrder != null) {reorderAgentsByPriority(parametersPP.preferredPriorityOrder);}
+
+            if(parametersPP.heuristic != null) {
+                this.heuristic = parametersPP.heuristic;
+                if (this.heuristic instanceof CachingDistanceTableHeuristic){
+                    ((CachingDistanceTableHeuristic)this.heuristic).setCurrentMap(instance.map);
+                }
+            }
+            else {this.heuristic = null;}
         }
-        // TODO add caching heuristic?
     }
 
     private void reorderAgentsByPriority(Agent[] requestedOrder) {
@@ -282,19 +294,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        return new RunParameters(timeLeftToTimeout, new ConstraintSet(constraints), subproblemReport, null);
-//        // assume the map we are using is indeed an ExplicitMap if we are going to use a CachingDistanceTableHeuristic (which requires explicit maps)
-//        PrioritisedPlanning_Solver.cachingDistanceTableHeuristic.setCurrentMap((I_ExplicitMap) subproblem.map);
-//        return new RunParameters_SAAStar(-1, new ConstraintSet(constraints), subproblemReport, null, PrioritisedPlanning_Solver.cachingDistanceTableHeuristic);
-    }
-
-    private List<Constraint> vertexConstraintsForPlan(SingleAgentPlan planForAgent) {
-        List<Constraint> constraints = new LinkedList<>();
-        for (Move move :
-                planForAgent) {
-            constraints.add(vertexConstraintsForMove(move));
-        }
-        return constraints;
+        return new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints), subproblemReport,
+                null, this.heuristic /*nullable*/);
     }
 
 

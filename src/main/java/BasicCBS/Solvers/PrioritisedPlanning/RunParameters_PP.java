@@ -1,6 +1,7 @@
 package BasicCBS.Solvers.PrioritisedPlanning;
 
 import BasicCBS.Instances.Agent;
+import BasicCBS.Solvers.AStar.AStarHeuristic;
 import Environment.Metrics.InstanceReport;
 import BasicCBS.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicCBS.Solvers.RunParameters;
@@ -20,29 +21,38 @@ public class RunParameters_PP extends RunParameters {
      * they will be ignored.
      */
     public final Agent[] preferredPriorityOrder;
+    /**
+     * optional heuristic function to use in the low level solver.
+     */
+    public final AStarHeuristic heuristic;
 
-    public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder) {
+    public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
         super(timeout, constraints, instanceReport, existingSolution);
         this.preferredPriorityOrder = preferredPriorityOrder;
+        this.heuristic = heuristic;
     }
 
-    public RunParameters_PP(ConstraintSet constraints, InstanceReport instanceReport, Agent[] preferredPriorityOrder) {
+    public RunParameters_PP(ConstraintSet constraints, InstanceReport instanceReport, Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
         super(constraints, instanceReport);
         this.preferredPriorityOrder = preferredPriorityOrder;
+        this.heuristic = heuristic;
     }
 
-    public RunParameters_PP(InstanceReport instanceReport, Agent[] preferredPriorityOrder) {
+    public RunParameters_PP(InstanceReport instanceReport, Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
         super(instanceReport);
         this.preferredPriorityOrder = preferredPriorityOrder;
+        this.heuristic = heuristic;
     }
 
-    public RunParameters_PP(Agent[] preferredPriorityOrder) {
+    public RunParameters_PP(Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
         super();
         this.preferredPriorityOrder = preferredPriorityOrder;
+        this.heuristic = heuristic;
     }
 
-    public RunParameters_PP() {
+    public RunParameters_PP(AStarHeuristic heuristic) {
         super();
+        this.heuristic = heuristic;
         this.preferredPriorityOrder = new Agent[0];
     }
 }
