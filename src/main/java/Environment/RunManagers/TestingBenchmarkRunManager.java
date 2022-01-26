@@ -1,5 +1,6 @@
-package Environment;
+package Environment.RunManagers;
 
+import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicCBS.Instances.InstanceManager;
@@ -10,7 +11,7 @@ import BasicCBS.Solvers.CBS.CBS_Solver;
 public class TestingBenchmarkRunManager extends A_RunManager {
 
     /*  =   Set Path   =*/
-    private String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+    private final String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                                                                 "TestingBenchmark"});
 
     @Override

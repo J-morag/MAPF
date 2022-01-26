@@ -15,7 +15,7 @@
   
         2. An absulute path to the file, wrapped as an InstancePath object
         
-        In the Environment.A_RunManager class there is a static method you can call:
+        In the Environment.RunManagers.A_RunManager class there is a static method you can call:
         public static MAPF_Instance getInstanceFromPath(InstanceManager manager, 
                                                         InstanceManager.InstancePath absolutePath)
                                                         
@@ -24,7 +24,7 @@
         >> Note: An example is provided in Main.java, using the runMultipleExperimentsExample() method.
         
         In order to run experiments you will need:
-        RunManager class that extends Environment.A_RunManager and implements the following
+        RunManager class that extends Environment.RunManagers.A_RunManager and implements the following
         1.  abstract void setSolvers(); // choose solvers to add (one or more)
             Example: solvers.add(new CBS_Solver())
             
