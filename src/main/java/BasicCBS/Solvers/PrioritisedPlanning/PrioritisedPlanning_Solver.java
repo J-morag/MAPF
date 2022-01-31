@@ -248,6 +248,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 else if (restartStrategy == RestartStrategy.deterministicRescheduling){
                     if (agentWeFailedOn != null){
                         this.agents.remove(agentWeFailedOn);
+                        this.agents.add(0, agentWeFailedOn);
                     }
                     else { // deterministic restarts only restarts if no solution was found
                         break;
