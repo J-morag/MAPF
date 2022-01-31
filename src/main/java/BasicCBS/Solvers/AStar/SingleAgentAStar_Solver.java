@@ -43,6 +43,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
     private int problemStartTime;
     private int expandedNodes;
     private int generatedNodes;
+    /**
+     * Maximum allowed f value ({@link SingleAgentPlan} cost). Will stop and return null if proved that it cannot be found.
+     */
+    private float fBudget;
 
     public SingleAgentAStar_Solver() {}
 
@@ -105,6 +109,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.sourceCoor = agent.source;
             this.targetCoor = agent.target;
         }
+        if(runParameters instanceof  RunParameters_SAAStar){
+            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
+            this.fBudget = parameters.fBudget;
+        }
+        else{
+            this.fBudget = Float.POSITIVE_INFINITY;
+        }
 
 //        this.openList = new OpenList<>(stateFComparator);
 //        this.closed = new HashSet<>();
@@ -132,8 +143,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
         AStarState currentState;
         int firstRejectionAtGoalTime = -1;
 
-        while ((currentState = openList.poll()) != null){ //dequeu in the if
+        while ((currentState = openList.poll()) != null){ //dequeu in the while condition
             if(checkTimeout()) {return null;}
+            // early stopping if we already exceed fBudget.
+            if (currentState.getF() > fBudget) {return null;}
             closed.add(currentState);
 
             // nicetohave -  change to early goal test

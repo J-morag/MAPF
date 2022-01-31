@@ -214,7 +214,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 if (checkTimeout()) break;
 
                 //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints);
+                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
+                        // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
+                        bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY);
 
                 // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
                 if (planForAgent == null) {
@@ -260,11 +262,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         return bestSolution;
     }
 
-    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints) {
+    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -293,10 +295,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         S_Metrics.removeReport(subproblemReport);
     }
 
-    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints) {
+    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         return new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints), subproblemReport,
-                null, this.heuristic /*nullable*/);
+                null, this.heuristic /*nullable*/, maxCost);
     }
 
 
