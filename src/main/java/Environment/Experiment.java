@@ -1,13 +1,13 @@
 package Environment;
 
-import BasicCBS.Instances.InstanceBuilders.I_InstanceBuilder;
-import BasicCBS.Instances.InstanceManager;
-import BasicCBS.Instances.MAPF_Instance;
+import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
+import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import BasicCBS.Solvers.I_Solver;
-import BasicCBS.Solvers.RunParameters;
-import BasicCBS.Solvers.Solution;
+import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.RunParameters;
+import BasicMAPF.Solvers.Solution;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -19,7 +19,7 @@ import java.util.Map;
  * Experiment class lets the user to specify the instances it needs for the experiment.
  * A_RunManager holds a list of Experiments, each Experiment receives Name and {@link InstanceManager}
  * {@link InstanceManager} receives a path to the instances' folder and a relevant parser {@link I_InstanceBuilder}
- * Optional, users can filter the instances in the folder by simply adding {@link BasicCBS.Instances.InstanceProperties} to {@link InstanceManager}
+ * Optional, users can filter the instances in the folder by simply adding {@link BasicMAPF.Instances.InstanceProperties} to {@link InstanceManager}
  * Make sure that {@link #setReport(MAPF_Instance, I_Solver)} is defined as you want
  */
 public class Experiment {

@@ -1,6 +1,6 @@
 package Environment.RunManagers;
 
-import BasicCBS.Solvers.I_Solver;
+import BasicMAPF.Solvers.I_Solver;
 import Environment.Experiment;
 
 import java.util.ArrayList;

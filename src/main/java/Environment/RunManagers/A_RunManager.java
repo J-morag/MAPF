@@ -1,8 +1,8 @@
 package Environment.RunManagers;
 
-import BasicCBS.Instances.InstanceManager;
-import BasicCBS.Instances.MAPF_Instance;
-import BasicCBS.Solvers.I_Solver;
+import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.I_Solver;
 import Environment.Experiment;
 
 import java.util.ArrayList;

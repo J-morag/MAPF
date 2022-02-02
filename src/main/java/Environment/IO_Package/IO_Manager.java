@@ -1,6 +1,6 @@
 package Environment.IO_Package;
 
-import BasicCBS.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManager;
 import java.io.File;
 import java.util.HashSet;
 

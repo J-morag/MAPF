@@ -2,14 +2,14 @@ package Environment.RunManagers;
 
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
-import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicCBS.Instances.InstanceManager;
-import BasicCBS.Instances.InstanceProperties;
-import BasicCBS.Instances.Maps.MapDimensions;
-import BasicCBS.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicCBS.Solvers.CBS.CBS_Solver;
-import BasicCBS.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
+import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Instances.Maps.MapDimensions;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 
 
 public class RunManagerSimpleExample extends A_RunManager {

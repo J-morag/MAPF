@@ -2,11 +2,11 @@ package Environment.RunManagers;
 
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
-import BasicCBS.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicCBS.Instances.InstanceManager;
-import BasicCBS.Instances.InstanceProperties;
-import BasicCBS.Instances.Maps.MapDimensions;
-import BasicCBS.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Instances.Maps.MapDimensions;
+import BasicMAPF.Solvers.CBS.CBS_Solver;
 
 public class TestingBenchmarkRunManager extends A_RunManager {
 

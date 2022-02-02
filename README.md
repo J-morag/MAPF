@@ -1,6 +1,5 @@
-# CBS
-* This is an implementation of the Conflict Based Search (CBS) algorithm, written in Java 15. 
-* This project aims to create a modular implementation, to facilitate the easier development of future CBS variants.
+# MAPF - Multi-Agent Path Finding
+## An implementation of several MAPF algorithms, including Conflict Based Search (CBS), written in Java 15.
 
 ### How to 
 * How to create a single instance
@@ -52,7 +51,7 @@
 
 ### Acknowledgements 
     Designed by Jonathan Morag and Yonatan Zax.
-    Created in 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
+    Started at 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
     Conflict Based Search is based on:
         Sharon, G., Stern, R., Felner, A., & Sturtevant, N. R. (2015). Conflict-based search for optimal multi-agent pathfinding. Artificial Intelligence, 219, 40-66.
         And:
@@ -61,5 +60,5 @@
         Sharon, Guni, et al. "The increasing cost tree search for optimal multi-agent pathfinding." Artificial Intelligence 195 (2013): 470-495.
         And:
         Sharon, Guni, et al. "Pruning techniques for the increasing cost tree search for optimal multi-agent pathfinding." Fourth Annual Symposium on Combinatorial Search. 2011.
-        ICTS implementation taken with permission and modified from github.com/idomarko98/CBS_ICTS
+        ICTS implementation based on (with permission) github.com/idomarko98/CBS_ICTS
 
