@@ -28,7 +28,7 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
     /**
      * Maps time locations to agents that occupy them.
      */
-    private final Map<TimeLocation, Set<Agent>> allOccupancies = new HashMap<>();
+    private final Map<TimeLocation, List<Move>> allOccupancies = new HashMap<>();
 
     /**
      * If set to true, will check for conflicts at goal locations (after time of reaching them)
@@ -38,6 +38,10 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
      * If set to true, will not count agents being together at their (shared) goal as a conflict.
      */
     public boolean sharedGoals = false;
+    /**
+     * If true, agents staying at their source (since the start) will not conflict
+     */
+    public boolean sharedSources = false;
     /**
      * Contains all goal locations and maps them to the time from which they are occupied (indefinitely).
      * Can't have more than one agent occupying a goal, since that would make the problem unsolvable (in classic MAPF).
@@ -61,8 +65,8 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
         for (Move move : plan){
             TimeLocation from = new TimeLocation(move.timeNow - 1, move.prevLocation);
             TimeLocation to = new TimeLocation(move.timeNow, move.currLocation);
-            addOccupancy(from, plan.agent);
-            addOccupancy(to, plan.agent);
+            addOccupancy(from, move);
+            addOccupancy(to, move);
             if(move.timeNow == plan.getEndTime()){
                 addGoalOccupancy(move.currLocation, move.timeNow);
             }
@@ -70,11 +74,11 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
 
     }
 
-    private void addOccupancy(TimeLocation timeLocation, Agent agent){
+    private void addOccupancy(TimeLocation timeLocation, Move move){
         if( ! allOccupancies.containsKey(timeLocation)){
-            allOccupancies.put(timeLocation, new HashSet<>());
+            allOccupancies.put(timeLocation, new ArrayList<>());
         }
-        allOccupancies.get(timeLocation).add(agent);
+        allOccupancies.get(timeLocation).add(move);
     }
 
     private void addGoalOccupancy(I_Location location, int entryTime){
@@ -99,7 +103,15 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
         to.time = move.timeNow;
 
         if(allOccupancies.containsKey(to)){
-            numVertexConflicts += allOccupancies.get(to).size();
+            if (sharedSources && move.isStayAtSource){
+                // count conflicts excluding stay at source
+                for (Move otherMove : allOccupancies.get(to)){
+                    numVertexConflicts += otherMove.isStayAtSource ? 1 : 0; //will only be same source
+                }
+            }
+            else {
+                numVertexConflicts += allOccupancies.get(to).size();
+            }
         }
         if(checkGoals){
             // check for a goal occupancy conflicting with this move
@@ -120,11 +132,10 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
         reverseTo.time += 1;
 
         if(allOccupancies.containsKey(reverseFrom) && allOccupancies.containsKey((reverseTo))){
-            // check if they were made by the same agent
-            Set<Agent> fromAgents = allOccupancies.get(reverseFrom);
-            Set<Agent> toAgents = allOccupancies.get(reverseTo);
-            for(Agent agent : fromAgents){
-                if(toAgents.contains(agent)){
+            // so there are occupancies at the times + locations of interest, now check if they are from a move from
+            // reverseFrom to reverseTo
+            for(Move fromMove : allOccupancies.get(reverseFrom)){
+                if (fromMove.currLocation.equals(reverseTo.location)){
                     numSwappingConflicts++;
                 }
             }

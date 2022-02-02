@@ -348,7 +348,7 @@ public class CBS_Solver extends A_Solver {
             RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
             cat.sharedGoals = this.sharedGoals;
-//            cat.sharedSources = this.sharedSources; // TODO
+            cat.sharedSources = this.sharedSources;
             astarSbuproblemParameters.conflictAvoidanceTable = cat;
             subproblemParametes = astarSbuproblemParameters;
         }
@@ -463,7 +463,7 @@ public class CBS_Solver extends A_Solver {
         /*  =  =  = CBS tree branches =  =  */
 
         /**
-         * This node's parent node. This node's {@link #addedConstraint} solves {@link #parent}'s {@link #selectedConflict}.
+         * This node's parent node. This node's {@link #addedConstraint} solves parent's {@link #selectedConflict}.
          */
         private CBS_Node parent;
         /**
