@@ -347,7 +347,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
                     AStarState existingState;
                     if(closed.contains(child)){ // state visited already
-                        // for non consistent heuristics - if the new one has a lower f, remove the old one from closed
+                        // TODO for inconsistent heuristics - if the new one has a lower f, remove the old one from closed
                         // and add the new one to open
                     }
                     else if(null != (existingState = openList.get(child)) ){ //an equal state is waiting in open
@@ -443,10 +443,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
     } ////////// end AStarState
 
     private class defaultHeuristic implements AStarHeuristic{
-
         @Override
         public float getH(AStarState state) {
             return state.move.currLocation.getCoordinate().distance(SingleAgentAStar_Solver.this.targetCoor);
+        }
+        @Override
+        public boolean isConsistent() {
+            return true;
         }
     }
 

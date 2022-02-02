@@ -6,4 +6,9 @@ public interface AStarHeuristic {
      * @return a heristic for the distance from the state to a goal state.
      */
     float getH(SingleAgentAStar_Solver.AStarState state);
+
+    /**
+     * @return whether this is a consistent heuristic
+     */
+    boolean isConsistent();
 }

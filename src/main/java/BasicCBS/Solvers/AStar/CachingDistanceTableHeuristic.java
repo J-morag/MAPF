@@ -51,4 +51,8 @@ public class CachingDistanceTableHeuristic implements AStarHeuristic {
         }
     }
 
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

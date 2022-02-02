@@ -114,4 +114,8 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
         }
     }
 
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }
