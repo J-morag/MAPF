@@ -107,6 +107,7 @@ public class CBS_Solver extends A_Solver {
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
                       CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
                       Boolean sharedGoals, Boolean sharedSources) {
+        super.name = "CBS";
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -411,12 +412,6 @@ public class CBS_Solver extends A_Solver {
         this.instance = null;
         this.aStarHeuristic = null;
     }
-
-    @Override
-    public String name() {
-        return "CBS";
-    }
-
 
     /*  = internal classes and interfaces =  */
 

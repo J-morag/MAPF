@@ -24,7 +24,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     private Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
 
-    public boolean agentsStayAtGoal = true;
+    public boolean agentsStayAtGoal;
 
     private ConstraintSet constraints;
     private AStarHeuristic heuristicFunction;
@@ -48,10 +48,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     private float fBudget;
 
-    public SingleAgentAStar_Solver() {}
+    public SingleAgentAStar_Solver() {this(null);}
 
-    public SingleAgentAStar_Solver(boolean agentsStayAtGoal) {
-        this.agentsStayAtGoal = agentsStayAtGoal;
+    public SingleAgentAStar_Solver(Boolean agentsStayAtGoal) {
+        super.name = "AStar";
+        this.agentsStayAtGoal = Objects.requireNonNullElse(agentsStayAtGoal, false);
     }
     /*  = set up =  */
 
@@ -247,11 +248,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.map = null;
         this.existingSolution = null;
         this.existingPlan = null;
-    }
-
-    @Override
-    public String name() {
-        return "AStar";
     }
 
     private int numConflicts(Move move){
