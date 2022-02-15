@@ -46,6 +46,7 @@ public class ICTS_Solver extends A_Solver {
         this.mergedMDDSolver = Objects.requireNonNullElse(mergedMDDSolver, new IndependenceDetection_MergedMDDSolver(new DFS_MergedMDDSpaceSolver()));
         this.pruningStrategy = Objects.requireNonNullElse(pruningStrategy, PruningStrategy.S2P);
         this.mergedMDDCreator = Objects.requireNonNullElseGet(mergedMDDCreator, BreadthFirstSearch_MergedMDDCreator::new);
+        super.name = "ICTS_Solver_" + this.pruningStrategy;
     }
 
     public ICTS_Solver(){
@@ -220,11 +221,6 @@ public class ICTS_Solver extends A_Solver {
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
-    }
-
-    @Override
-    public String name(){
-        return "ICTS_Solver_" + this.pruningStrategy.toString();
     }
 
     private void expand(ICT_Node current) {

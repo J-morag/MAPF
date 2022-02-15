@@ -125,6 +125,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.restartStrategy = Objects.requireNonNullElse(restartStrategy, RestartStrategy.randomRestarts);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
+        super.name = "Prioritised Planning" + (this.restarts <= 0 ? "":
+                (" + (" + this.restartStrategy + " x " + this.restarts + ")"));
     }
 
     /**
@@ -325,12 +327,5 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
-    }
-
-    @Override
-    public String name() {
-        String restartStrategyString = restarts <= 0 ? "":
-                (" + (" + restartStrategy.toString() + " x " + restarts + ")");
-        return "Prioritised Planning" + restartStrategyString;
     }
 }

@@ -23,6 +23,7 @@ public abstract class A_Solver implements I_Solver{
     protected boolean abortedForTimeout;
     protected int totalLowLevelStatesGenerated;
     protected int totalLowLevelStatesExpanded;
+    protected String name;
 
     /**
      * This implementation provides a skeleton for running a solver. You can override any of the invoked methods, but if
@@ -129,5 +130,10 @@ public abstract class A_Solver implements I_Solver{
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String name() {
+        return this.name;
     }
 }
