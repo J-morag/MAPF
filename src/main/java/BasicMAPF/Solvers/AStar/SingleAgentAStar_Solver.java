@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictAv
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -21,7 +22,7 @@ import java.util.*;
 public class SingleAgentAStar_Solver extends A_Solver {
 
     protected static final int DEFAULT_PROBLEM_START_TIME = 0;
-    private Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
+    private final Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
 
     public boolean agentsStayAtGoal;
@@ -52,7 +53,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     public SingleAgentAStar_Solver(Boolean agentsStayAtGoal) {
         super.name = "AStar";
-        this.agentsStayAtGoal = Objects.requireNonNullElse(agentsStayAtGoal, false);
+        this.agentsStayAtGoal = Objects.requireNonNullElse(agentsStayAtGoal, true);
     }
     /*  = set up =  */
 
@@ -421,7 +422,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
         @Override
-        public int compareTo(AStarState o) {
+        public int compareTo(@NotNull AStarState o) {
             return stateFComparator.compare(this, o);
         }
 
@@ -455,7 +456,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     private static class TieBreakingForLessConflictsAndHigherG implements Comparator<AStarState>{
 
-        private static Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
+        private static final Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
 
         @Override
         public int compare(AStarState o1, AStarState o2) {
