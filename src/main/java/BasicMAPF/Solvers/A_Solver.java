@@ -54,7 +54,7 @@ public abstract class A_Solver implements I_Solver{
     protected void init(MAPF_Instance instance, RunParameters parameters){
         if(instance == null || parameters == null){throw new IllegalArgumentException();}
 
-        this.startTime = System.nanoTime()/1000000;
+        this.startTime = getCurrentTimeMS_NSAccuracy();
         this.startDate = System.currentTimeMillis();
         this.endTime = 0;
         this.abortedForTimeout = false;
@@ -68,6 +68,10 @@ public abstract class A_Solver implements I_Solver{
         this.commitReport = parameters.instanceReport == null;
     }
 
+    public static long getCurrentTimeMS_NSAccuracy() {
+        return System.nanoTime() / 1000000;
+    }
+
     /*  = algorithm =  */
 
     protected abstract Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters);
@@ -76,10 +80,9 @@ public abstract class A_Solver implements I_Solver{
 
     /**
      * Writes metrics about the run and the solution to {@link #instanceReport}.
-     * @param solution
      */
     protected void writeMetricsToReport(Solution solution){
-        this.endTime = System.nanoTime()/1000000;
+        this.endTime = getCurrentTimeMS_NSAccuracy();
 
         instanceReport.putIntegerValue(InstanceReport.StandardFields.timeoutThresholdMS, (int) this.maximumRuntime);
         instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startDate).toString());
@@ -125,7 +128,7 @@ public abstract class A_Solver implements I_Solver{
     /*  = utilities =  */
 
     protected boolean checkTimeout() {
-        if(System.nanoTime()/1000000 - startTime > maximumRuntime){
+        if(getCurrentTimeMS_NSAccuracy() - startTime > maximumRuntime){
             this.abortedForTimeout = true;
             return true;
         }
