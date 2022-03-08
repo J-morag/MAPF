@@ -53,7 +53,12 @@ public class DistanceTableAStarHeuristic implements AStarHeuristic {
     }
 
     public void addAgentToHeuristic(Agent agent) {
-        addTargetToHeuristic(map.getMapLocation(agent.target));
+        I_Location location = map.getMapLocation(agent.target);
+        if (location == null){
+            throw new IllegalArgumentException(agent.target.getClass().getSimpleName() + " " + agent.target +
+                    " doesn't correspond to any " + GraphMapVertex.class.getSimpleName());
+        }
+        addTargetToHeuristic(location);
     }
 
     public void addTargetToHeuristic(I_Location target) {
