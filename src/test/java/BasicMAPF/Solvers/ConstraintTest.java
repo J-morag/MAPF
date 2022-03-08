@@ -13,7 +13,7 @@ class ConstraintTest {
 
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private Enum_MapLocationType[][] map_2D_circle = {
+    private final Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -21,7 +21,7 @@ class ConstraintTest {
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
     };
-    private I_Map map1 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
+    private final I_Map map1 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
 
     @Test
@@ -31,7 +31,7 @@ class ConstraintTest {
         I_Coordinate coor24 = new Coordinate_2D(2,4);
         I_Coordinate coor34 = new Coordinate_2D(3,4);
         Agent agent1 = new Agent(0, coor13, coor14);
-        Agent agent2 = new Agent(0, coor24, coor24);
+        Agent agent2 = new Agent(1, coor24, coor24);
 
         // this move is just to illustrate why the constraint might exist, it isn't actually used
         Move move1 = new Move(agent1, 1, map1.getMapLocation(coor13), map1.getMapLocation(coor14));
