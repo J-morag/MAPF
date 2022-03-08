@@ -16,6 +16,7 @@ import BasicMAPF.Solvers.AStar.AStarHeuristic;
 import BasicMAPF.Solvers.AStar.RunParameters_SAAStar;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
+import LifelongMAPF.I_LifelongCompatibleSolver;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,13 +25,17 @@ import java.util.Objects;
 /**
  * The Conflict Based Search (CBS) Multi Agent Path Finding (MAPF) algorithm.
  */
-public class CBS_Solver extends A_Solver {
+public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /*  = Fields =  */
 
     /*  =  = Fields related to the MAPF instance  =  */
 
     private MAPF_Instance instance;
+    /**
+     * Start time of the problem. Not real-time.
+     */
+    private int problemStartTime;
 
     /*  =  = Fields related to the run =  */
 
@@ -85,12 +90,12 @@ public class CBS_Solver extends A_Solver {
     /**
      * if true, agents can have shared goals, so they can stay at their goal together (only last move onwards).
      */
-    private final boolean sharedGoals;
-
+    public final boolean sharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not conflict 
      */
-    private final boolean sharedSources;
+    public final boolean sharedSources;
+
 
     /*  = Constructors =  */
 
@@ -134,9 +139,12 @@ public class CBS_Solver extends A_Solver {
         super.init(instance, runParameters);
         this.initialConstraints = Objects.requireNonNullElseGet(runParameters.constraints, ConstraintSet::new);
         this.currentConstraints = new ConstraintSet();
+        this.currentConstraints.sharedSources = this.sharedSources;
+        this.currentConstraints.sharedGoals = this.sharedGoals;
         this.generatedNodes = 0;
         this.expandedNodes = 0;
         this.instance = instance;
+        this.problemStartTime = runParameters.problemStartTime;
         this.aStarHeuristic = this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
                 new DistanceTableAStarHeuristic(new ArrayList<>(this.instance.agents), this.instance.map) :
                 null;
@@ -344,7 +352,8 @@ public class CBS_Solver extends A_Solver {
         // if there was already a timeout while solving a node, we will get a negative time left, which would be
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport, currentSolution);
+        RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport,
+                currentSolution, this.problemStartTime);
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
             RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
@@ -411,6 +420,18 @@ public class CBS_Solver extends A_Solver {
         this.currentConstraints = null;
         this.instance = null;
         this.aStarHeuristic = null;
+    }
+
+    /*  = interfaces =  */
+
+    @Override
+    public boolean sharedSources() {
+        return this.sharedSources;
+    }
+
+    @Override
+    public boolean sharedGoals() {
+        return this.sharedGoals;
     }
 
     /*  = internal classes and interfaces =  */

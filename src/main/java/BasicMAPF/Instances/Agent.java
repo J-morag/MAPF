@@ -30,17 +30,12 @@ public class Agent {
 
         Agent agent = (Agent) o;
 
-        if (iD != agent.iD) return false;
-        if (!source.equals(agent.source)) return false;
-        return target.equals(agent.target);
+        return iD == agent.iD;
     }
 
     @Override
     public int hashCode() {
-        int result = iD;
-        result = 31 * result + source.hashCode();
-        result = 31 * result + target.hashCode();
-        return result;
+        return iD;
     }
 
     @Override

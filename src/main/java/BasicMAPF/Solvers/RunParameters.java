@@ -12,8 +12,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
  */
 public class RunParameters {
     /*  =Constants=  */
-    private static final long defaultTimeout = 1000*60*15 /*15 minutes*/;
-//    private static final long defaultTimeout = 1000*60*5 /*5 minutes*/;
+    private static final long defaultTimeout = 1000*60*5 /*5 minutes*/;
 
     /*  =Fields=  */
     /**
@@ -42,8 +41,21 @@ public class RunParameters {
      * The solver should add to, or modify, this solution rather than create a new one.
      */
     public Solution existingSolution;
+    /**
+     * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
+     * Not real-time.
+     */
+    public int problemStartTime = 0;
 
     /*  =Constructors=  */
+
+    public RunParameters(RunParameters toCopy){
+        this.timeout = toCopy.timeout;
+        this.constraints = toCopy.constraints;
+        this.instanceReport = toCopy.instanceReport;
+        this.existingSolution = toCopy.existingSolution;
+        this.problemStartTime = toCopy.problemStartTime;
+    }
 
     public RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
         this.timeout = timeout;
@@ -60,11 +72,9 @@ public class RunParameters {
         this(constraints, instanceReport, null);
     }
 
-
     public RunParameters(InstanceReport instanceReport, Solution existingSolution) {
         this(null, instanceReport, existingSolution);
     }
-
 
     public RunParameters(InstanceReport instanceReport) {
         this(null, instanceReport, null);
@@ -84,6 +94,48 @@ public class RunParameters {
 
     public RunParameters() {
         this(null, null, null);
+    }
+
+    public RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
+        this.timeout = timeout;
+        this.constraints = constraints;
+        this.instanceReport = instanceReport;
+        this.existingSolution = existingSolution;
+        this.problemStartTime = problemStartTime;
+    }
+
+    public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
+        this(defaultTimeout, constraints, instanceReport, existingSolution, problemStartTime);
+    }
+
+    public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, int problemStartTime) {
+        this(constraints, instanceReport, null, problemStartTime);
+    }
+
+
+    public RunParameters(InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
+        this(null, instanceReport, existingSolution, problemStartTime);
+    }
+
+
+    public RunParameters(InstanceReport instanceReport, int problemStartTime) {
+        this(null, instanceReport, null, problemStartTime);
+    }
+
+    public RunParameters(ConstraintSet constraints, int problemStartTime) {
+        this(constraints, null, null, problemStartTime);
+    }
+
+    public RunParameters(Solution existingSolution, int problemStartTime) {
+        this(null, null, existingSolution, problemStartTime);
+    }
+
+    public RunParameters(long timeout, int problemStartTime) {
+        this(timeout, null, null, null, problemStartTime);
+    }
+
+    public RunParameters(int problemStartTime) {
+        this(null, null, null, problemStartTime);
     }
 
 }

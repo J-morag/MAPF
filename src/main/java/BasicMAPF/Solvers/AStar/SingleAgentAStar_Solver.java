@@ -63,17 +63,18 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.constraints = runParameters.constraints == null ? new ConstraintSet(): runParameters.constraints;
         this.agent = instance.agents.get(0);
         this.map = instance.map;
+        this.problemStartTime = runParameters.problemStartTime;
 
         if(runParameters.existingSolution != null){
             this.existingSolution = runParameters.existingSolution;
             if(runParameters.existingSolution.getPlanFor(this.agent) != null){
                 this.existingPlan = runParameters.existingSolution.getPlanFor(this.agent);
-                this.problemStartTime = this.existingPlan.getEndTime();
+//                this.problemStartTime = this.existingPlan.getEndTime();
             }
             else {
                 this.existingPlan = new SingleAgentPlan(this.agent);
                 this.existingSolution.putPlan(this.existingPlan);
-                this.problemStartTime = DEFAULT_PROBLEM_START_TIME;
+//                this.problemStartTime = DEFAULT_PROBLEM_START_TIME;
             }
         }
         else{
@@ -90,11 +91,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
         else{
             this.heuristicFunction = new defaultHeuristic();
-        }
-        if(runParameters instanceof  RunParameters_SAAStar
-                && ((RunParameters_SAAStar) runParameters).problemStartTime >= 0){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
-            this.problemStartTime = parameters.problemStartTime;
         }
         if(runParameters instanceof  RunParameters_SAAStar
                 && ((RunParameters_SAAStar) runParameters).conflictAvoidanceTable != null){

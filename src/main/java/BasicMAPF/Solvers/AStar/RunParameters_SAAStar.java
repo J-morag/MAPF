@@ -12,7 +12,6 @@ public class RunParameters_SAAStar extends RunParameters {
      * A heuristic function to use for this run.
      */
     public AStarHeuristic heuristicFunction;
-    public int problemStartTime = 0;
     public I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
@@ -63,7 +62,8 @@ public class RunParameters_SAAStar extends RunParameters {
     }
 
     public RunParameters_SAAStar(RunParameters runParameters, AStarHeuristic heuristicFunction) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, heuristicFunction);
+        super(runParameters);
+        this.heuristicFunction = heuristicFunction;
     }
 
     public RunParameters_SAAStar(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, AStarHeuristic heuristicFunction, float fBudget) {
@@ -120,7 +120,9 @@ public class RunParameters_SAAStar extends RunParameters {
     }
 
     public RunParameters_SAAStar(RunParameters runParameters, AStarHeuristic heuristicFunction, float fBudget) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, heuristicFunction, fBudget);
+        super(runParameters);
+        this.heuristicFunction = heuristicFunction;
+        this.fBudget = fBudget;
     }
 
 }

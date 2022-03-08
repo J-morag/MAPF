@@ -226,7 +226,7 @@ public class ConflictManager implements I_ConflictManager {
      * @param singleAgentPlan - {@inheritDoc}
      */
     private void checkAddSwappingConflicts(int time, SingleAgentPlan singleAgentPlan) {
-        if( time < 1 ){ return;}
+        if( time < singleAgentPlan.getFirstMoveTime() ){ return;}
         I_Location previousLocation = singleAgentPlan.moveAt(time).prevLocation;
         I_Location nextLocation = singleAgentPlan.moveAt(time).currLocation;
         Set<Agent> agentsMovingToPrevLocations = this.timeLocationTables.timeLocation_Agents.get(new TimeLocation(time,previousLocation));
@@ -280,14 +280,15 @@ public class ConflictManager implements I_ConflictManager {
      */
     private void addVertexConflicts(TimeLocation timeLocation, Agent agent, Set<Agent> agentsAtTimeLocation) {
         if (agentsAtTimeLocation == null){ return; }
-        // skip the start location. It shouldn't have conflicts - either they are allowed or the instance is formed such
-        // that they don't exist
-        if (timeLocation.time == 0){ return;}
 
         for (Agent agentConflictsWith : agentsAtTimeLocation) {
             if (agentConflictsWith.equals(agent)){ continue; /* Self Conflict */ }
             SingleAgentPlan agentConflictsWithPlan = this.agentPlans.get(agentConflictsWith);
             SingleAgentPlan agentPlan = this.agentPlans.get(agent);
+            // skip the start location. It shouldn't have conflicts - either they are allowed or the instance is formed such
+            // that they don't exist
+            if (timeLocation.time == agentPlan.getPlanStartTime() ||
+                    timeLocation.time == agentConflictsWithPlan.getPlanStartTime()){ return;}
             // if they both enter a shared goal at the same time
             if (sharedGoals && agentConflictsWith.target.equals(agent.target) &&
                     agentConflictsWithPlan.getEndTime() == timeLocation.time &&

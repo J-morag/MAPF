@@ -3,11 +3,13 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import LifelongMAPF.LifelongSimulationSolver;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,8 +30,8 @@ public class RunManagerWarehouse extends A_RunManager{
 
     @Override
     void setSolvers() {
-        super.solvers.add(new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
-//        super.solvers.add(new CBS_Solver(null, null, null, null, null, null, true, true));
+        super.solvers.add(new LifelongSimulationSolver(new PrioritisedPlanning_Solver(null, null, 2, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true)));
+        super.solvers.add(new LifelongSimulationSolver(new CBS_Solver(null, null, null, null, null, null, true, true)));
     }
 
     @Override

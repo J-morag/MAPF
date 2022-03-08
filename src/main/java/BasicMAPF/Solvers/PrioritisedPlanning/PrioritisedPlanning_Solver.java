@@ -10,6 +10,7 @@ import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import LifelongMAPF.I_LifelongCompatibleSolver;
 
 import java.util.*;
 
@@ -19,7 +20,7 @@ import java.util.*;
  * return a sub-optimal {@link Solution}.
  * Agents disappear at goal!
  */
-public class PrioritisedPlanning_Solver extends A_Solver {
+public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /*  = Fields =  */
     /*  =  = Fields related to the MAPF instance =  */
@@ -27,6 +28,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
     private List<Agent> agents;
+    /**
+     * Start time of the problem. Not real-time.
+     */
+    private int problemStartTime;
 
     /*  =  = Fields related to the run =  */
 
@@ -79,11 +84,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
       /**
      * if agents share goals, they will not conflict at their goal.
      */
-    private final boolean sharedGoals;
+    public final boolean sharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not conflict 
      */
-    private final boolean sharedSources;
+    public final boolean sharedSources;
 
 
     /*  = Constructors =  */
@@ -148,6 +153,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         super.init(instance, parameters);
 
         this.agents = new ArrayList<>(instance.agents);
+        this.problemStartTime = parameters.problemStartTime;
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.constraints.sharedGoals = this.sharedGoals;
         this.constraints.sharedSources = this.sharedSources;
@@ -299,10 +305,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        return new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints), subproblemReport,
-                null, this.heuristic /*nullable*/, maxCost);
+        return new RunParameters_SAAStar(new RunParameters(timeLeftToTimeout, new ConstraintSet(constraints),
+                subproblemReport,null, this.problemStartTime), this.heuristic /*nullable*/, maxCost);
     }
-
 
 
     /*  = wind down =  */
@@ -327,5 +332,17 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
+    }
+
+    /*  = interfaces =  */
+
+    @Override
+    public boolean sharedSources() {
+        return this.sharedSources;
+    }
+
+    @Override
+    public boolean sharedGoals() {
+        return this.sharedGoals;
     }
 }

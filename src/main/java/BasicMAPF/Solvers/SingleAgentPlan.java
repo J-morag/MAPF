@@ -267,7 +267,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @param sharedGoalsEnabled if the agents can share the same goal
      * @return a conflict if one of the plans ends, and then the other plan makes a move that conflicts with the ended plan's agent staying at its goal. else null.
      */
-    private A_Conflict firstConflictAtGoal(SingleAgentPlan other, int maxTime, boolean sharedGoalsEnabled) {
+    protected A_Conflict firstConflictAtGoal(SingleAgentPlan other, int maxTime, boolean sharedGoalsEnabled) {
         // if they share goals, the last move of the late ending plan can't be a conflict with the early ending plan.
         int sharedGoalsTimeOffset = sharedGoalsEnabled &&
                 this.moveAt(this.getEndTime()).currLocation.equals(other.moveAt(other.getEndTime()).currLocation) ? -1 : 0;

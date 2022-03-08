@@ -6,10 +6,12 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Coordinates.MillimetricCoordinate_2D;
 import Environment.IO_Package.Enum_IO;
 import Environment.IO_Package.IO_Manager;
 import Environment.IO_Package.Reader;
+import LifelongMAPF.LifelongAgent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -41,13 +43,15 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
 
     private final boolean dropDisabledEdges;
+    public final boolean lifelong;
 
     public InstanceBuilder_Warehouse() {
-        this(null);
+        this(null, null);
     }
 
-    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges) {
+    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong) {
         this.dropDisabledEdges = Objects.requireNonNullElse(dropDisabledEdges, true);
+        this.lifelong = Objects.requireNonNullElse(lifelong, true);
     }
 
     @Override
@@ -68,11 +72,13 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
         ArrayList<ArrayList<String>> agentLines = getAgentLines(moving_ai_path, Arrays.stream(numOfAgentsFromProperties).max().getAsInt());
 
-        for (int i = 0; i < numOfAgentsFromProperties.length; i++) {
+        for (int numOfAgentsFromProperty : numOfAgentsFromProperties) {
 
-            Agent[] agents = getAgents(agentLines, numOfAgentsFromProperties[i]);
+            Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty);
 
-            if (instanceName == null || agents == null) { continue; /* Invalid parameters */ }
+            if (instanceName == null || agents == null) {
+                continue; /* Invalid parameters */
+            }
 
             mapf_instance = makeInstance(instanceName, graphMap, agents, moving_ai_path);
             mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
@@ -96,21 +102,32 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
         // Iterate over all the agents in numOfAgents
         for (int id = 0; id < numOfAgents; id++) {
-
             if( id < arrayOfAgents.length ){
-                Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id));
+                LifelongAgent agentToAdd = new LifelongAgent(buildSingleAgentOffline(id ,agentLinesList.get(id)),
+                        buildSingleAgentWaypoints(agentLinesList.get(id)));
                 arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
             }
         }
         return arrayOfAgents;
     }
 
-    private Agent buildSingleAgent(int id, ArrayList<String> agentLines) {
-        // take the last target as target, and the one before last as source. this approximates sampling from steady state
-        String[] splitLineSource = agentLines.get(agentLines.size()-2).split(SEPARATOR_SCENARIO);
+    private Agent buildSingleAgentOffline(int id, ArrayList<String> agentLines) {
+        String[] splitLineSource = agentLines.get(0).split(SEPARATOR_SCENARIO);
         String[] splitLineTarget = agentLines.get(agentLines.size()-1).split(SEPARATOR_SCENARIO);
         return new Agent(id, toCoor2D(splitLineSource[INDEX_XVALUE].strip(), splitLineSource[INDEX_YVALUE].strip()),
                 toCoor2D(splitLineTarget[INDEX_XVALUE].strip(), splitLineTarget[INDEX_YVALUE].strip()));
+    }
+
+    /**
+     * @return an array of waypoints for a lifelong agent.
+     */
+    private I_Coordinate[] buildSingleAgentWaypoints(ArrayList<String> agentLines) {
+        I_Coordinate[] waypoints = new I_Coordinate[agentLines.size()];
+        for (int i = 0; i < waypoints.length; i++) {
+            String[] agentLineSplit = agentLines.get(i).split(SEPARATOR_SCENARIO);
+            waypoints[i] = toCoor2D(agentLineSplit[INDEX_XVALUE].strip(), agentLineSplit[INDEX_YVALUE].strip());
+        }
+        return waypoints;
     }
 
     // Returns agentLines from scenario file as a queue. each entry is a list of lines (targets) for one agent.
