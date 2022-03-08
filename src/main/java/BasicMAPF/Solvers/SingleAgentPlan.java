@@ -5,6 +5,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
+import com.google.common.collect.Lists;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -21,11 +22,12 @@ public class SingleAgentPlan implements Iterable<Move> {
      *             and the contained {@link Move}'s {@link Move#timeNow} must form an ascending series with d=1.
      * @param agent the plan's agent.
      */
-    public SingleAgentPlan(Agent agent, List<Move> moves) {
+    public SingleAgentPlan(Agent agent, Iterable<Move> moves) {
         if(moves == null || agent == null) throw new IllegalArgumentException();
-        if(!isValidMoveSequenceForAgent(moves, agent)) throw new IllegalArgumentException();
+        ArrayList<Move> localMovesCopy = Lists.newArrayList(moves);
+        if(!isValidMoveSequenceForAgent(localMovesCopy, agent)) throw new IllegalArgumentException();
         this.agent = agent;
-        this.moves = new ArrayList<>(moves);
+        this.moves = localMovesCopy;
     }
 
     /**
@@ -161,6 +163,16 @@ public class SingleAgentPlan implements Iterable<Move> {
     }
 
     /**
+     * @return the first {@link Move} in the plan, or null if it is empty.
+     */
+    public Move getFirstMove(){return moves.isEmpty() ? null : moves.get(0);}
+
+    /**
+     * @return the last {@link Move} in the plan, or null if the plan is empty.
+     */
+    public Move getLastMove(){return moves.isEmpty() ? null : moves.get(moves.size() - 1);}
+
+    /**
      * Returns the total time of the plan, which is the difference between end and start times. It is the same as the number of moves in the plan.
      * @return the total time of the plan. Return 0 if plan is empty.
      */
@@ -231,7 +243,6 @@ public class SingleAgentPlan implements Iterable<Move> {
     /**
      * Compares with another {@link SingleAgentPlan}, looking for vertex conflicts ({@link VertexConflict}) or
      * swapping conflicts ({@link SwappingConflict}). Runtime is O(the number of moves in this plan).
-     * @param other
      * @return true if a conflict exists between the plans.
      */
     public boolean conflictsWith(SingleAgentPlan other){
@@ -241,7 +252,6 @@ public class SingleAgentPlan implements Iterable<Move> {
     /**
      * Compares with another {@link SingleAgentPlan}, looking for vertex conflicts ({@link VertexConflict}) or
      * swapping conflicts ({@link SwappingConflict}). Runtime is O(the number of moves in this plan).
-     * @param other
      * @param canShareGoals if the agents can share goals
      * @param sharedSources if agents share the same source and so don't conflict if one of them has been staying there since the start
      * @return true if a conflict exists between the plans.
@@ -266,7 +276,7 @@ public class SingleAgentPlan implements Iterable<Move> {
             SingleAgentPlan lateEndingPlan = this.getEndTime() > maxTime ? this : other;
             SingleAgentPlan earlyEndingPlan = this.getEndTime() <= maxTime ? this : other;
 
-            // if plans for "start at goal and and stay there" are represented as an empty plan, we will have to make this check
+            // if plans for "start at goal and stay there" are represented as an empty plan, we will have to make this check
             if (earlyEndingPlan.getEndTime() == -1){
                 // can skip late ending plan's start location, since if they conflict on start locations it is an
                 // impossible instance (so we shouldn't get one)
