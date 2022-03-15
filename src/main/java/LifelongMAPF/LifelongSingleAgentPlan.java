@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
+import com.google.common.collect.Iterables;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,12 +42,18 @@ public class LifelongSingleAgentPlan extends SingleAgentPlan {
         this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes);
     }
 
+    /**
+     * @return a map with the times when the agent was at it's goal (waypoint)
+     */
     private Map<Integer, I_Coordinate> extractWaypointTimes(Integer[] waypointSegmentsEndTimes){
         Map<Integer, I_Coordinate> res = new HashMap<>();
         I_Coordinate startWaypointCoordinate = ((LifelongAgent)agent).waypoints.get(0);
         if (waypointSegmentsEndTimes[0] != 0 ||
                 ! moveAt(1).prevLocation.getCoordinate().equals(startWaypointCoordinate)){
             throw new IllegalArgumentException("invalid start waypoint time or location");
+        }
+        if (waypointSegmentsEndTimes[waypointSegmentsEndTimes.length - 1] != getEndTime()){
+            throw new IllegalArgumentException("invalid last waypoint time");
         }
         res.put(0, startWaypointCoordinate);
         for (int i = 1; // first waypoint is start location
@@ -57,11 +64,18 @@ public class LifelongSingleAgentPlan extends SingleAgentPlan {
                 throw new IllegalArgumentException("invalid waypoint times or plan");
             }
 
-            // go back to start of segment and take all times when at goal
-            for (int time = waypointSegmentsEndTimes[i-1] + 1; time <= waypointSegmentEndTime; time++) {
-                if (moveAt(time).currLocation.getCoordinate().equals(currWaypoint)){
-                    res.put(time, currWaypoint);
-                }
+            res.put(waypointSegmentEndTime, currWaypoint);
+
+            // peek forwards and take all times when the agent kept sitting at this goal (waypoint)
+            for (int time = waypointSegmentEndTime + 1; time <= getEndTime() && moveAt(time).currLocation.getCoordinate().equals(currWaypoint); time++) {
+                res.put(time, currWaypoint);
+            }
+        }
+        // Last waypoint may repeatedly be given as goal, so take all times at that goal in the last segment
+        I_Coordinate lastWaypoint = Iterables.getLast(((LifelongAgent) agent).waypoints);
+        for (int time = waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-1]; time > waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-2]; time--) {
+            if (moveAt(time).currLocation.getCoordinate().equals(lastWaypoint)){
+                res.put(time, lastWaypoint);
             }
         }
         return res;
