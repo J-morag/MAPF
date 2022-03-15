@@ -23,7 +23,7 @@ public abstract class A_Solver implements I_Solver{
     protected boolean abortedForTimeout;
     protected int totalLowLevelStatesGenerated;
     protected int totalLowLevelStatesExpanded;
-    protected String name;
+    public String name;
 
     /**
      * This implementation provides a skeleton for running a solver. You can override any of the invoked methods, but if
