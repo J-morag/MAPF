@@ -239,6 +239,10 @@ public class ConflictManager implements I_ConflictManager {
         for (Agent agentMovingToPrevPosition : agentsMovingToPrevLocations) {
             if( agentMovingToPrevPosition.equals(singleAgentPlan.agent) ){ continue; /* Self Conflict */ }
             if ( this.agentPlans.get(agentMovingToPrevPosition).moveAt(time).prevLocation.equals(nextLocation)){
+                if(sharedSources && singleAgentPlan.moveAt(time).isStayAtSource &&
+                        this.agentPlans.get(agentMovingToPrevPosition).moveAt(time).isStayAtSource){
+                    continue;
+                }
 
                 // Create two conflicts
                 SwappingConflict swappingConflict_addedAgentFirst = new SwappingConflict(   singleAgentPlan.agent,
@@ -259,16 +263,6 @@ public class ConflictManager implements I_ConflictManager {
                 this.addConflict(swappingConflict_addedAgentSecond);
             }
         }
-    }
-
-    private boolean stayingSinceStart(SingleAgentPlan plan, int upToIncludingTime){
-        for (int t = plan.getFirstMoveTime(); t <= upToIncludingTime; t++) {
-            Move move = plan.moveAt(t);
-            if (!(move.prevLocation.equals(move.currLocation))){
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
