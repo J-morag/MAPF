@@ -3,13 +3,17 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
 import LifelongMAPF.LifelongSimulationSolver;
+import LifelongMAPF.Triggers.DestinationAchievedTrigger;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,8 +34,14 @@ public class RunManagerWarehouse extends A_RunManager{
 
     @Override
     void setSolvers() {
-        super.solvers.add(new LifelongSimulationSolver(new PrioritisedPlanning_Solver(null, null, 2, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true)));
-        super.solvers.add(new LifelongSimulationSolver(new CBS_Solver(null, null, null, null, null, null, true, true)));
+        A_Solver replanSingle = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        replanSingle.name = "ReplanSingle";
+        super.solvers.add(replanSingle);
+        A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
+                new CBS_Solver(null, null, null, null, null, null, true, true));
+        snapshotOptimal.name = "SnapshotOptimal";
+        super.solvers.add(snapshotOptimal);
     }
 
     @Override
@@ -45,8 +55,8 @@ public class RunManagerWarehouse extends A_RunManager{
         maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{15});
+//        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{20});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60});
 

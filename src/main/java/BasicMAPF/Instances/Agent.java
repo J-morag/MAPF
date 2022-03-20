@@ -1,8 +1,9 @@
 package BasicMAPF.Instances;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import org.jetbrains.annotations.NotNull;
 
-public class Agent {
+public class Agent implements Comparable<Agent>{
 
     public final int iD;
     public final I_Coordinate source;
@@ -43,5 +44,10 @@ public class Agent {
         return "Agent{" +
                 "iD=" + iD +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@NotNull Agent o) {
+        return Integer.compare(this.iD, o.iD);
     }
 }

@@ -297,7 +297,8 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
         //the low-level should update the solution, so this is a reference to the same object as solution. We do this to
         //reuse Solution objects instead of creating extra ones.
-        Solution agentSolution = solveSubproblem(agent, solution, buildConstraintSet(parent, constraint));
+        ConstraintSet constraintSet = buildConstraintSet(parent, constraint);
+        Solution agentSolution = solveSubproblem(agent, solution, constraintSet);
         if(agentSolution == null) {
             return null; //probably a timeout
         }

@@ -186,7 +186,8 @@ public class ConstraintSet{
             rejects = rejects(constraints.get(dummy), move);
         }
         if (!rejects && goalConstraints.containsKey(move.currLocation)){
-            rejects = sharedGoals ?  goalConstraints.get(move.currLocation).rejectsWithSharedGoals(move) : goalConstraints.get(move.currLocation).rejects(move);
+            rejects = sharedGoals ? goalConstraints.get(move.currLocation).rejectsWithSharedGoals(move) :
+                    goalConstraints.get(move.currLocation).rejects(move);
         }
         return rejects;
     }

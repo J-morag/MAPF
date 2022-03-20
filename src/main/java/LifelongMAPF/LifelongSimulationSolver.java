@@ -7,6 +7,11 @@ import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
+import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
+import LifelongMAPF.Triggers.DestinationAchievedTrigger;
+import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -19,13 +24,21 @@ import java.util.*;
  */
 public class LifelongSimulationSolver extends A_Solver {
 
+    /* fields related to instance */
     /**
      * An offline solver to use for solving online problems.
      */
     protected final I_Solver offlineSolver;
-    private ConstraintSet initialConstraints;
+    private final I_LifelongPlanningTrigger planningTrigger;
+    private final I_LifelongAgentSelector agentSelector;
 
-    public LifelongSimulationSolver(I_LifelongCompatibleSolver offlineSolver) {
+    /*  = fields related to run =  */
+
+    private ConstraintSet initialConstraints;
+    private MAPF_Instance lifelongInstance;
+
+    public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger,
+                                    I_LifelongAgentSelector agentSelector, I_LifelongCompatibleSolver offlineSolver) {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
@@ -33,18 +46,22 @@ public class LifelongSimulationSolver extends A_Solver {
             throw new IllegalArgumentException("offline solver should have shared sources and goals");
         }
         this.offlineSolver = offlineSolver;
+
+        this.planningTrigger = Objects.requireNonNullElse(planningTrigger, new DestinationAchievedTrigger());
+        this.agentSelector = Objects.requireNonNullElse(agentSelector, new MandatoryAgentsSubsetSelector());
         this.name = "Lifelong_" + offlineSolver.name();
     }
 
     @Override
     protected void init(MAPF_Instance instance, RunParameters parameters) {
         super.init(instance, parameters);
+        verifyAgents(instance.agents);
         this.initialConstraints = parameters.constraints;
+        this.lifelongInstance = instance;
         if (this.initialConstraints != null){
             this.initialConstraints.sharedSources = true;
             this.initialConstraints.sharedGoals = true;
         }
-        verifyAgents(instance.agents);
     }
 
     private static void verifyAgents(List<Agent> agents) {
@@ -67,28 +84,26 @@ public class LifelongSimulationSolver extends A_Solver {
         SortedMap<Integer, Solution> solutionsAtTimes = new TreeMap<>();
         Map<Agent, Queue<I_Coordinate>> agentDestinationQueues = getDestinationQueues(instance);
 
-        int latestSolutionTime = -1;
-        int nextPlanningTime = 0; // at this time locations are committed, and we choose locations for next time
+        int farthestCommittedTime = 0; // at this time locations are committed, and we choose locations for next time
         Solution latestSolution = null;
         // every time when new planning is needed, solve an offline MAPF problem of the current conditions
-        while (latestSolutionTime < nextPlanningTime){
-            // TODO agent subset selection strategy
-            MAPF_Instance timelyOfflineProblem = getTimelyOfflineProblem(nextPlanningTime, latestSolution,
-                    instance, agentDestinationQueues);
-            RunParameters timelyOfflineProblemRunParameters = getTimelyOfflineProblemRunParameters(nextPlanningTime);
+        while (farthestCommittedTime > -1){
+            Set<Agent> agentsSubset = agentSelector.selectAgentsSubset(instance, latestSolution, farthestCommittedTime);
+            MAPF_Instance timelyOfflineProblem = getTimelyOfflineProblem(farthestCommittedTime, latestSolution,
+                    agentDestinationQueues, agentsSubset);
+            RunParameters timelyOfflineProblemRunParameters = getTimelyOfflineProblemRunParameters(farthestCommittedTime, agentsSubset, latestSolution);
 
-            // TODO solver strategy
-            latestSolution = offlineSolver.solve(timelyOfflineProblem, timelyOfflineProblemRunParameters);
-            if(latestSolution == null){ //probably a timeout
+            // TODO solver strategy ?
+            Solution partialSolution = offlineSolver.solve(timelyOfflineProblem, timelyOfflineProblemRunParameters);
+            if(partialSolution == null){ //probably a timeout
                 return null;
             }
             digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport);
+            // handle partial solution (add the other agents)
+            latestSolution = addUntouchedAgentsToPartialSolution(partialSolution, latestSolution, agentsSubset, farthestCommittedTime);
+            solutionsAtTimes.put(farthestCommittedTime, latestSolution);
 
-            latestSolutionTime = nextPlanningTime;
-            // TODO timing strategy
-            nextPlanningTime = getNextPlanningTime(latestSolution, agentDestinationQueues); // 0 if no more destinations
-
-            solutionsAtTimes.put(latestSolutionTime, latestSolution);
+            farthestCommittedTime = planningTrigger.getNextFarthestCommittedTime(latestSolution, agentDestinationQueues); // -1 if done
         }
 
         // combine the stored solutions at times into a single online solution
@@ -103,10 +118,12 @@ public class LifelongSimulationSolver extends A_Solver {
         return result;
     }
 
-    private MAPF_Instance getTimelyOfflineProblem(int lastCommittedTime, Solution previousSolution,
-                                                  MAPF_Instance instance, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues) {
+    private MAPF_Instance getTimelyOfflineProblem(int lastCommittedTime, Solution previousSolution, Map<Agent,
+            Queue<I_Coordinate>> agentDestinationQueues, Set<Agent> agentsSubset) {
         List<Agent> offlineAgents = new ArrayList<>();
-        for (Agent agent : instance.agents){
+        List<Agent> sortedAgentsSubset = new ArrayList<>(agentsSubset);
+        Collections.sort(sortedAgentsSubset);
+        for (Agent agent : sortedAgentsSubset){
             // for the first instance take the first destination in the queue as the source, for instances after this
             // agent reached final destination (and stays), take final destination
             I_Coordinate initialCoordinateAtTime = previousSolution == null ? agentDestinationQueues.get(agent).poll() :
@@ -125,26 +142,37 @@ public class LifelongSimulationSolver extends A_Solver {
             Agent agentFromCurrentLocationToNextDestination = new Agent(agent.iD, initialCoordinateAtTime, nextDestinationCoordinate);
             offlineAgents.add(agentFromCurrentLocationToNextDestination);
         }
-        return new MAPF_Instance(instance.name + " subproblem at " + lastCommittedTime, instance.map,
-                offlineAgents.toArray(Agent[]::new), instance.extendedName + " subproblem at " + lastCommittedTime);
+        return new MAPF_Instance(this.lifelongInstance.name + " subproblem at " + lastCommittedTime, this.lifelongInstance.map,
+                offlineAgents.toArray(Agent[]::new), this.lifelongInstance.extendedName + " subproblem at " + lastCommittedTime);
     }
 
-    private RunParameters getTimelyOfflineProblemRunParameters(int problemStartTime) {
+    private RunParameters getTimelyOfflineProblemRunParameters(int problemStartTime, Set<Agent> agentsSubset, Solution latestSolution) {
+        // protect the plans of agents not included in the subset
+        ConstraintSet constraints = this.initialConstraints != null ? new ConstraintSet(this.initialConstraints): new ConstraintSet();
+        constraints.sharedSources = true;
+        constraints.sharedGoals = true;
+        List<Agent> unchangingAgents = new ArrayList<>(lifelongInstance.agents);
+        unchangingAgents.removeAll(agentsSubset);
+        unchangingAgents.forEach(agent -> constraints.addAll(constraints.allConstraintsForPlan(latestSolution.getPlanFor(agent))));
+
         return new RunParameters(super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime),
-                this.initialConstraints, new InstanceReport(), null, problemStartTime);
+                constraints, new InstanceReport(), null, problemStartTime);
     }
 
-    /**
-     * @return the next planning time, or 0 if no next planning time.
-     */
-    private int getNextPlanningTime(Solution latestSolution, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues) {
-        int minGoalArrivalTime = Integer.MAX_VALUE;
+    private Solution addUntouchedAgentsToPartialSolution(Solution partialSolution, @Nullable Solution latestSolution,
+                                                         Set<Agent> agentsSubset, int partialSolutionStartTime) {
+        if (latestSolution == null){
+            return partialSolution;
+        }
         for (SingleAgentPlan plan : latestSolution){
-            if ( ! agentDestinationQueues.get(plan.agent).isEmpty()){
-                minGoalArrivalTime = Math.min(minGoalArrivalTime, plan.getEndTime());
+            if (! agentsSubset.contains(plan.agent)){
+                // trim plan and add to the partial solution
+                SingleAgentPlan trimmedPlan = new SingleAgentPlan(plan.agent);
+                plan.forEach(move -> {if (move.timeNow > partialSolutionStartTime) trimmedPlan.addMove(move);});
+                partialSolution.putPlan(trimmedPlan);
             }
         }
-        return minGoalArrivalTime == Integer.MAX_VALUE ? 0 : minGoalArrivalTime;
+        return partialSolution;
     }
 
     protected void digestSubproblemReport(InstanceReport instanceReport) {
@@ -169,5 +197,12 @@ public class LifelongSimulationSolver extends A_Solver {
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
+    }
+
+    @Override
+    protected void releaseMemory() {
+        super.releaseMemory();
+        this.initialConstraints = null;
+        this.lifelongInstance = null;
     }
 }

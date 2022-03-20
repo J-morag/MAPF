@@ -16,6 +16,8 @@ import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
+import LifelongMAPF.Triggers.DestinationAchievedTrigger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -111,9 +113,12 @@ class LifelongSimulationSolverTest {
     private MAPF_Instance instanceSmallMaze = new MAPF_Instance("instanceSmallMaze", mapSmallMaze, new Agent[]{agent04to00, agent00to10});
     private MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
-    I_Solver lifelongSolverCBS = new LifelongSimulationSolver(new CBS_Solver(null, null, null, null, null, null, true, true));
-    I_Solver lifelongSolverPrP = new LifelongSimulationSolver(new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
-    I_Solver lifelongSolverPrPr = new LifelongSimulationSolver(new PrioritisedPlanning_Solver(null, null, 2, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+    I_Solver lifelongSolverCBS = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
+            new CBS_Solver(null, null, null, null, null, null, true, true));
+    I_Solver lifelongSolverPrP = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
+            new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+    I_Solver lifelongSolverPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
+            new PrioritisedPlanning_Solver(null, null, 2, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
 
 
     InstanceReport instanceReport;
