@@ -155,7 +155,7 @@ public class LifelongSimulationSolver extends A_Solver {
         unchangingAgents.removeAll(agentsSubset);
         unchangingAgents.forEach(agent -> constraints.addAll(constraints.allConstraintsForPlan(latestSolution.getPlanFor(agent))));
 
-        return new RunParameters(super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime),
+        return new RunParameters(Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)),
                 constraints, new InstanceReport(), null, problemStartTime);
     }
 
