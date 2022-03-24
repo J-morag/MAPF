@@ -19,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.stream.IntStream;
 
 public class RunManagerWarehouse extends A_RunManager{
 
@@ -38,6 +37,14 @@ public class RunManagerWarehouse extends A_RunManager{
                 new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
         replanSingle.name = "ReplanSingle";
         super.solvers.add(replanSingle);
+        A_Solver mandatoryAgentsPrPr3 = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        mandatoryAgentsPrPr3.name = "mandatoryAgentsPrPr3";
+        super.solvers.add(mandatoryAgentsPrPr3);
+        A_Solver allAgentsPrPr3 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        allAgentsPrPr3.name = "allAgentsPrPr3";
+        super.solvers.add(allAgentsPrPr3);
         A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
                 new CBS_Solver(null, null, null, null, null, null, true, true));
         snapshotOptimal.name = "SnapshotOptimal";
@@ -56,7 +63,7 @@ public class RunManagerWarehouse extends A_RunManager{
 
         /*  =   Set Properties   =  */
 //        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{20});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60});
 
@@ -64,11 +71,11 @@ public class RunManagerWarehouse extends A_RunManager{
         InstanceManager instanceManager = new InstanceManager(instancesDir, new InstanceBuilder_Warehouse(),properties);
 
         /*  =   Add new experiment   =  */
-        Experiment EntireMovingAIBenchmark = new Experiment("WarehouseInstances", instanceManager);
-        EntireMovingAIBenchmark.keepSolutionInReport = false;
-        EntireMovingAIBenchmark.sharedGoals = true;
-        EntireMovingAIBenchmark.sharedSources = true;
-        this.experiments.add(EntireMovingAIBenchmark);
+        Experiment warehouseInstances = new Experiment("WarehouseInstances", instanceManager);
+        warehouseInstances.keepSolutionInReport = false;
+        warehouseInstances.sharedGoals = true;
+        warehouseInstances.sharedSources = true;
+        this.experiments.add(warehouseInstances);
     }
 
     @Override
