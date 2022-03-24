@@ -326,7 +326,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // no point to do stay moves or search the time dimension after the time of last constraint.
             // this makes A* complete even when there are goal constraints (infinite constraints)
             boolean afterLastConstraint = this.move.timeNow > constraints.getLastConstraintTime();
-            if (!afterLastConstraint){
+            if (!afterLastConstraint &&
+                    !this.move.currLocation.getType().equals(Enum_MapLocationType.NO_STOP)){ // can't stay on NO_STOP
                 neighborLocationsIncludingCurrent.add(this.move.currLocation);
             }
 
