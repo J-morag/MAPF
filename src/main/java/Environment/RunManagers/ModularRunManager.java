@@ -10,12 +10,12 @@ import java.util.Collection;
 public class ModularRunManager extends A_RunManager{
 
     @Override
-    void setSolvers() {
+    public void setSolvers() {
 
     }
 
     @Override
-    void setExperiments() {
+    public void setExperiments() {
 
     }
 

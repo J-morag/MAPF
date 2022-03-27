@@ -1,4 +1,4 @@
-package Environment.RunManagers;
+package LifelongMAPF;
 
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
@@ -10,6 +10,7 @@ import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import Environment.RunManagers.A_RunManager;
 import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
 import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
 import LifelongMAPF.LifelongSimulationSolver;
@@ -20,32 +21,42 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class RunManagerWarehouse extends A_RunManager{
+public class LifelongRunManagerWarehouse extends A_RunManager {
 
     private final String warehouseMaps;
     private final Integer maxNumAgents;
     String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
 
-    public RunManagerWarehouse(String warehouseMaps, Integer maxNumAgents) {
+    public LifelongRunManagerWarehouse(String warehouseMaps, Integer maxNumAgents) {
         this.warehouseMaps = warehouseMaps;
         this.maxNumAgents = maxNumAgents;
     }
 
     @Override
     public void setSolvers() {
-        A_Solver PrPr = new PrioritisedPlanning_Solver(null, null, 10, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true);
-        PrPr.name = "PrPr";
-        super.solvers.add(PrPr);
-
-        A_Solver CBS = new CBS_Solver(null, null, null, null, null, null, true, true);
-        CBS.name = "CBS";
-        super.solvers.add(CBS);
+        A_Solver replanSingle = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        replanSingle.name = "ReplanSingle";
+        super.solvers.add(replanSingle);
+        A_Solver mandatoryAgentsPrPr3 = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        mandatoryAgentsPrPr3.name = "mandatoryAgentsPrPr3";
+        super.solvers.add(mandatoryAgentsPrPr3);
+        A_Solver allAgentsPrPr3 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        allAgentsPrPr3.name = "allAgentsPrPr3";
+        super.solvers.add(allAgentsPrPr3);
+        A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
+                new CBS_Solver(null, null, null, null, null, null, true, true));
+        snapshotOptimal.name = "SnapshotOptimal";
+        super.solvers.add(snapshotOptimal);
     }
 
     @Override
     public void setExperiments() {
         addAllMapsAndInstances(this.maxNumAgents, this.warehouseMaps);
     }
+
 
     /* = Experiments =  */
 
@@ -144,4 +155,5 @@ public class RunManagerWarehouse extends A_RunManager{
         }
         S_Metrics.clearAll();
     }
+
 }

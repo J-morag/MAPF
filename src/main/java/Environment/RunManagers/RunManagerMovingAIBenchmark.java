@@ -29,13 +29,13 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
 
 
     @Override
-    void setSolvers() {
+    public void setSolvers() {
         super.solvers.add(new PrioritisedPlanning_Solver());
         super.solvers.add(new CBS_Solver());
     }
 
     @Override
-    void setExperiments() {
+    public void setExperiments() {
         addAllMapsAndInstances(this.maxNumAgents, this.entireBenchmarkDir);
     }
 
