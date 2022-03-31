@@ -73,7 +73,7 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(instancesDir, new InstanceBuilder_Warehouse(),properties);
 
         /*  =   Add new experiment   =  */
-        Experiment warehouseInstances = new Experiment("WarehouseInstances", instanceManager);
+        Experiment warehouseInstances = new Experiment("LifelongWarehouse", instanceManager);
         warehouseInstances.keepSolutionInReport = false;
         warehouseInstances.sharedGoals = true;
         warehouseInstances.sharedSources = true;
@@ -117,6 +117,14 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
                     "attempt #7 time",
                     "attempt #8 time",
                     "attempt #9 time",
+                    "waypointTimes",
+                    "SOC",
+                    "makespan",
+                    "timeTo50%Completion",
+                    "timeTo80%Completion",
+                    "throughputAtT250",
+                    "averageThroughput",
+                    "averageIndividualThroughput"
             });
         } catch (IOException e) {
             e.printStackTrace();

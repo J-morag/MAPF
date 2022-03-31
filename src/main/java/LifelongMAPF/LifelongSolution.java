@@ -1,7 +1,6 @@
 package LifelongMAPF;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
@@ -18,17 +17,13 @@ import java.util.*;
 public class LifelongSolution extends Solution{
 
     public final SortedMap<Integer, Solution> solutionsAtTimes;
+    public final SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes;
 
     public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents) {
-        //make unified solution for super
+        // make unified solution for super
         super(mergeSolutions(solutionsAtTimes, agents));
         this.solutionsAtTimes = solutionsAtTimes;
-    }
-
-    private static SortedMap<Integer, Solution> putOfflineSolutionInMap(Solution offlineSolution){
-        SortedMap<Integer, Solution> solutionsAtTimes = new TreeMap<>();
-        solutionsAtTimes.put(0, offlineSolution);
-        return solutionsAtTimes;
+        this.agentsWaypointArrivalTimes = getAgentsWaypointArrivalTimes(this);
     }
 
     /**
@@ -42,8 +37,8 @@ public class LifelongSolution extends Solution{
                                                               List<LifelongAgent> agents) {
         Map<Agent, SingleAgentPlan> mergedAgentPlans = new HashMap<>();
         for (LifelongAgent agent : agents){
-            Integer[] waypointTimes = new Integer[agent.waypoints.size()];
-            waypointTimes[0] = 0; // first waypoint is start location
+            Integer[] waypointSegmentsEndTimes = new Integer[agent.waypoints.size()];
+            waypointSegmentsEndTimes[0] = 0; // first waypoint is start location
             int waypointIndex = 1;
             SingleAgentPlan mergedPlanUpToTime = new SingleAgentPlan(agent);
             for (int time : solutionsAtTimes.keySet()) {
@@ -55,17 +50,17 @@ public class LifelongSolution extends Solution{
                 if (! currWaypoint.equals(timelyPlan.agent.target)){
                     // might need to fix existing hypothesis, in the event that there was an arrival at goal also before
                     // final move in prev plan
-                    waypointTimes[waypointIndex] = timelyPlan.getPlanStartTime();
+                    waypointSegmentsEndTimes[waypointIndex] = timelyPlan.getPlanStartTime();
 
                     // hypothesis about old waypoint is proven; add hypothesis about the new waypoint
                     waypointIndex++;
                 }
                 // update hypothesis about time of achieving waypoint (can be same value)
-                waypointTimes[waypointIndex] = newWaypointTimeHypothesis;
+                waypointSegmentsEndTimes[waypointIndex] = newWaypointTimeHypothesis;
                 // for next iteration
                 mergedPlanUpToTime = new SingleAgentPlan(agent, mergedMovesIncludingTime); // now includes current iteration time
             }
-            LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointTimes);
+            LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointSegmentsEndTimes);
             mergedAgentPlans.put(agent, mergedPlanIncludingTime);
         }
         return mergedAgentPlans;
@@ -112,42 +107,123 @@ public class LifelongSolution extends Solution{
         return mergedMoves;
     }
 
-    @Override
-    public boolean solves(MAPF_Instance instance, boolean sharedGoals, boolean sharedSources) {
-        boolean offlineSolves = super.solves(instance, sharedGoals, sharedSources);
-        if (!offlineSolves){
-            super.solves(instance, sharedGoals, sharedSources);
-            return false;
+    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(LifelongSolution solution){
+        SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes = new TreeMap<>();
+        for (SingleAgentPlan plan : solution){
+            if (!(plan.agent instanceof  LifelongAgent)){
+                throw new IllegalArgumentException("a LifelongSolution is only for lifelong agents.");
+            }
+            // verify passes through all waypoints in order
+            LifelongAgent lifelongAgent = ((LifelongAgent) plan.agent);
+            List<Integer> waypointArrivalTimes = new ArrayList<>(lifelongAgent.waypoints.size());
+            if (!plan.getFirstMove().prevLocation.getCoordinate().equals(lifelongAgent.waypoints.get(0))){
+                // verify first waypoint which is also the source
+                throw new IllegalArgumentException("missing first waypoint");
+            }
+            waypointArrivalTimes.add(0);
+            int prevWaypointTime = 0;
+            for (int i = 1 ; i < lifelongAgent.waypoints.size() ; i++){
+                I_Coordinate waypoint = lifelongAgent.waypoints.get(i);
+                boolean found = false;
+                for (int t = prevWaypointTime + 1; t <= plan.getEndTime(); t++) {
+                    if (plan.moveAt(t).currLocation.getCoordinate().equals(waypoint)){
+                        waypointArrivalTimes.add(t);
+                        prevWaypointTime = t;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found){
+                    throw new IllegalArgumentException("missing waypoint " + i + ": " + waypoint);
+                }
+            }
+            agentsWaypointArrivalTimes.put(lifelongAgent, Collections.unmodifiableList(waypointArrivalTimes));
         }
-        for (Agent agent : instance.agents){
-            if (!(agent instanceof  LifelongAgent)){
-                throw new IllegalArgumentException("a LifelongSolution is only for lifelong instances.");
+        return Collections.unmodifiableSortedMap(agentsWaypointArrivalTimes);
+    }
+
+    public String agentsWaypointArrivalTimes(){
+        StringBuilder sb = new StringBuilder();
+        for (LifelongAgent agent: this.agentsWaypointArrivalTimes.keySet()){
+            sb.append("agent ");
+            sb.append(agent.iD);
+            sb.append(" :");
+            List<Integer> arrivalTimes = this.agentsWaypointArrivalTimes.get(agent);
+            for (int arrivalTime : arrivalTimes){
+                sb.append(" ");
+                sb.append(arrivalTime);
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+    private int totalNumTasksCompleted() {
+        int res = 0;
+        for (List<Integer> waypointTimes: this.agentsWaypointArrivalTimes.values()){
+            res += waypointTimes.size();
+        }
+        return res;
+    }
+
+    private SortedMap<Integer, Integer> timeToNumTasksCompleted(){
+        SortedMap<Integer, Integer> timesToNumCompletions = new TreeMap<>();
+        for (List<Integer> arrivalTimes: this.agentsWaypointArrivalTimes.values()){
+            for (int time : arrivalTimes){
+                if (time == 0){
+                    continue;
+                }
+                int currentCompletionsAtTime = timesToNumCompletions.getOrDefault(time, 0);
+                timesToNumCompletions.put(time, currentCompletionsAtTime + 1);
+            }
+        }
+        return timesToNumCompletions;
+    }
+
+    /**
+     * @param x - float between 0 and 1 of the percent of completed tasks for the metric
+     * @return the time when the required percent of all tasks or higher was completed.
+     */
+    public int timeToXProportionCompletion(double x){
+        return timeToXCompletion((int)(((double) totalNumTasksCompleted()) * x));
+    }
+
+    /**
+     * @param x - number of completed tasks
+     * @return the time when the required number of tasks or higher was completed.
+     */
+    public int timeToXCompletion(int x){
+        int counterTasksCompleted = 0;
+        SortedMap<Integer, Integer> timeToNumTasksCompleted = timeToNumTasksCompleted();
+        for (int time: timeToNumTasksCompleted.keySet()){
+            counterTasksCompleted += timeToNumTasksCompleted.get(time);
+            if (counterTasksCompleted >= x){
+                return time;
+            }
+        }
+        return -1; // not enough tasks completed. shouldn't happen.
+    }
+
+    public float averageThroughput(){
+        return ((float) totalNumTasksCompleted()) / ((float) makespan());
+    }
+
+    public float averageIndividualThroughput(){
+        return ((float) totalNumTasksCompleted()) / ((float) sumIndividualCosts());
+    }
+
+    public int throughputAtT(int t){
+        SortedMap<Integer, Integer> timeToNumTasksCompleted = timeToNumTasksCompleted();
+        int throughput = 0;
+        for (int time : timeToNumTasksCompleted().keySet()){
+            if (time > t){
+                break;
             }
             else {
-                // verify passes through all waypoints in order
-                LifelongAgent lifelongAgent = ((LifelongAgent) agent);
-                SingleAgentPlan plan = this.getPlanFor(agent);
-                if (!plan.getFirstMove().prevLocation.getCoordinate().equals(((LifelongAgent) agent).waypoints.get(0))){
-                    // verify first waypoint which is also the source
-                    return false;
-                }
-                int prevWaypointTime = 0;
-                for (int i = 1 ; i < lifelongAgent.waypoints.size() ; i++){
-                    I_Coordinate waypoint = lifelongAgent.waypoints.get(i);
-                    boolean waypointAchieved = false;
-                    for (int t = prevWaypointTime + 1; t <= plan.getEndTime(); t++) {
-                        if (plan.moveAt(t).currLocation.getCoordinate().equals(waypoint)){
-                            prevWaypointTime = t;
-                            waypointAchieved = true;
-                            break;
-                        }
-                    }
-                    if (!waypointAchieved){
-                        return false;
-                    }
-                }
+                throughput += timeToNumTasksCompleted.get(time);
             }
         }
-        return true;
+        return throughput;
     }
+
 }

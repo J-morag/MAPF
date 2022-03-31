@@ -193,9 +193,20 @@ public class LifelongSimulationSolver extends A_Solver {
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         if(solution != null){
-            // TODO makespan, throughput
-            super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
-            super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            LifelongSolution lifelongSolution = ((LifelongSolution)solution);
+            super.instanceReport.putStringValue("waypointTimes", lifelongSolution.agentsWaypointArrivalTimes());
+
+            super.instanceReport.putIntegerValue("SOC", lifelongSolution.sumIndividualCosts());
+            super.instanceReport.putIntegerValue("makespan", lifelongSolution.makespan());
+            super.instanceReport.putIntegerValue("timeTo50%Completion", lifelongSolution.timeToXProportionCompletion(0.5));
+            super.instanceReport.putIntegerValue("timeTo80%Completion", lifelongSolution.timeToXProportionCompletion(0.8));
+            super.instanceReport.putIntegerValue("throughputAtT250", lifelongSolution.throughputAtT(300));
+
+            super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
+            super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
+
+//            super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
+//            super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }
 
