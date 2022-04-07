@@ -36,6 +36,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
     private ConstraintSet initialConstraints;
     private MAPF_Instance lifelongInstance;
+    private Random random;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger,
                                     I_LifelongAgentSelector agentSelector, I_LifelongCompatibleSolver offlineSolver) {
@@ -58,6 +59,7 @@ public class LifelongSimulationSolver extends A_Solver {
         verifyAgents(instance.agents);
         this.initialConstraints = parameters.constraints;
         this.lifelongInstance = instance;
+        this.random = new Random(42);
         if (this.initialConstraints != null){
             this.initialConstraints.sharedSources = true;
             this.initialConstraints.sharedGoals = true;
@@ -121,9 +123,9 @@ public class LifelongSimulationSolver extends A_Solver {
     private MAPF_Instance getTimelyOfflineProblem(int lastCommittedTime, Solution previousSolution, Map<Agent,
             Queue<I_Coordinate>> agentDestinationQueues, Set<Agent> agentsSubset) {
         List<Agent> offlineAgents = new ArrayList<>();
-        List<Agent> sortedAgentsSubset = new ArrayList<>(agentsSubset);
-        Collections.sort(sortedAgentsSubset);
-        for (Agent agent : sortedAgentsSubset){
+        List<Agent> shuffledAgentsSubset = new ArrayList<>(agentsSubset);
+        Collections.shuffle(shuffledAgentsSubset, this.random);
+        for (Agent agent : shuffledAgentsSubset){
             // for the first instance take the first destination in the queue as the source, for instances after this
             // agent reached final destination (and stays), take final destination
             I_Coordinate initialCoordinateAtTime = previousSolution == null ? agentDestinationQueues.get(agent).poll() :
@@ -215,5 +217,6 @@ public class LifelongSimulationSolver extends A_Solver {
         super.releaseMemory();
         this.initialConstraints = null;
         this.lifelongInstance = null;
+        this.random = null;
     }
 }
