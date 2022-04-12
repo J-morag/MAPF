@@ -12,6 +12,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
 import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
 import LifelongMAPF.LifelongSimulationSolver;
 import LifelongMAPF.Triggers.DestinationAchievedTrigger;
@@ -39,17 +40,26 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
         replanSingle.name = "ReplanSingle";
         super.solvers.add(replanSingle);
         A_Solver mandatoryAgentsPrPr3 = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
-        mandatoryAgentsPrPr3.name = "mandatoryAgentsPrPr3";
+                new PrioritisedPlanning_Solver(null, null, 4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        mandatoryAgentsPrPr3.name = "mandatoryAgentsPrPr4";
         super.solvers.add(mandatoryAgentsPrPr3);
-        A_Solver allAgentsPrPr3 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
-        allAgentsPrPr3.name = "allAgentsPrPr3";
-        super.solvers.add(allAgentsPrPr3);
-        A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
-                new CBS_Solver(null, null, null, null, null, null, true, true));
-        snapshotOptimal.name = "SnapshotOptimal";
-        super.solvers.add(snapshotOptimal);
+        A_Solver freespaceConflictingAgentsPrPr3 = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),
+                new PrioritisedPlanning_Solver(null, null, 4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+        freespaceConflictingAgentsPrPr3.name = "freespaceConflictingAgentsPrPr4";
+        super.solvers.add(freespaceConflictingAgentsPrPr3);
+//        A_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
+//                new CBS_Solver(null, null, null, null, null, null, true, true));
+//        freespaceConflictingAgentsOptimal.name = "freespaceConflictingAgentsOptimal";
+//        super.solvers.add(freespaceConflictingAgentsOptimal);
+
+//        A_Solver allAgentsPrPr3 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+//        allAgentsPrPr3.name = "allAgentsPrPr3";
+//        super.solvers.add(allAgentsPrPr3);
+//        A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
+//                new CBS_Solver(null, null, null, null, null, null, true, true));
+//        snapshotOptimal.name = "SnapshotOptimal";
+//        super.solvers.add(snapshotOptimal);
     }
 
     @Override

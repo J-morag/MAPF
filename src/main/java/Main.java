@@ -11,6 +11,7 @@ import Environment.RunManagers.A_RunManager;
 import Environment.RunManagers.RunManagerSimpleExample;
 import Environment.RunManagers.RunManagerWarehouse;
 import Environment.RunManagers.TestingBenchmarkRunManager;
+import LifelongMAPF.LifelongRunManagerWarehouse;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,11 +42,8 @@ public class Main {
 //            // write the reports to System.out
 //            addConsoleAsOutputStream();
 
-//            new RunManagerMovingAIBenchmark("C:\\Users\\John\\Desktop\\MovingAIEntireBenchmark", 60).runAllExperiments();
-//            new RunManagerWarehouse("C:\\Users\\John\\Downloads\\tmp", 60).runAllExperiments();
-            new RunManagerWarehouse("C:\\Users\\John\\Downloads\\Fabric_new", 30).runAllExperiments();
+            new LifelongRunManagerWarehouse("", 50).runAllExperiments();
             outputResults();
-
 
 //            // will solve a single instance and print the solution
 //            solveOneInstanceExample();

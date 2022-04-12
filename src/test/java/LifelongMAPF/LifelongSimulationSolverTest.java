@@ -17,6 +17,7 @@ import BasicMAPF.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
 import LifelongMAPF.Triggers.DestinationAchievedTrigger;
 import org.junit.jupiter.api.AfterEach;
@@ -129,11 +130,15 @@ class LifelongSimulationSolverTest {
             new CBS_Solver(null, null, null, null, null, null, true, true));
     I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
+    I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
+            new CBS_Solver(null, null, null, null, null, null, true, true));
     I_Solver replanSingle = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, 30, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
     I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
+            new PrioritisedPlanning_Solver(null, null, 30, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+    I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
             new PrioritisedPlanning_Solver(null, null, 30, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
 
 
@@ -162,6 +167,8 @@ class LifelongSimulationSolverTest {
 
         assertEquals(instance.agents.size(), solution.size()); // solution includes all agents
     }
+
+    /* = Snapshot Optimal = */
 
     @Test
     void emptyMapValidityTest1_SnapshotOptimal() {
@@ -264,6 +271,8 @@ class LifelongSimulationSolverTest {
 
         assertNull(solved);
     }
+
+    /* = Replan Single = */
 
     @Test
     void emptyMapValidityTest1_ReplanSingle() {
@@ -368,6 +377,8 @@ class LifelongSimulationSolverTest {
 
         assertNull(solved);
     }
+
+    /* = All Agents PrPr = */
 
     @Test
     void emptyMapValidityTest1_AllAgentsPrPr() {
@@ -474,6 +485,8 @@ class LifelongSimulationSolverTest {
         assertNull(solved);
     }
 
+    /* = Mandatory Agents Optimal = */
+
     @Test
     void emptyMapValidityTest1_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
@@ -579,6 +592,8 @@ class LifelongSimulationSolverTest {
         assertNull(solved);
     }
 
+    /* = Mandatory Agents PrPr = */
+
     @Test
     void emptyMapValidityTest1_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
@@ -671,6 +686,220 @@ class LifelongSimulationSolverTest {
     @Test
     void unsolvableBecauseConstraintsShouldReturnNull2_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
+        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    /* = Freespace Conflicting Agents PrPr = */
+
+    @Test
+    void emptyMapValidityTest1_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+        if (solved != null){
+            System.out.println(solved.readableToString());
+            validate(solved, testInstance);
+        }
+    }
+
+    @Test
+    void circleMapValidityTest1_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        validate(solved, 8, 5, testInstance);
+
+    }
+
+    @Test
+    void circleMapValidityTest2_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        validate(solved, 8, 5, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+        if (solved != null){
+            System.out.println(solved.readableToString());
+            validate(solved, testInstance);
+        }
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+        if (solved != null){
+            System.out.println(solved.readableToString());
+            validate(solved, testInstance);
+        }
+    }
+
+    @Test
+    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceUnsolvable;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldReturnNull1_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
+        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldReturnNull2_FreespaceConflictingAgentsPrP() {
+        I_Solver solver = freespaceConflictingAgentsPrPr;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
+        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    /* = Freespace Conflicting Agents Optimal = */
+
+    @Test
+    void emptyMapValidityTest1_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+        if (solved != null){
+            System.out.println(solved.readableToString());
+            validate(solved, testInstance);
+        }
+    }
+
+    @Test
+    void circleMapValidityTest1_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        validate(solved, 8, 5, testInstance);
+
+    }
+
+    @Test
+    void circleMapValidityTest2_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        validate(solved, 8, 5, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+        if (solved != null){
+            System.out.println(solved.readableToString());
+            validate(solved, testInstance);
+        }
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
+        if (solved != null){
+            System.out.println(solved.readableToString());
+            validate(solved, testInstance);
+        }
+    }
+
+    @Test
+    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
+        MAPF_Instance testInstance = instanceUnsolvable;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldReturnNull1_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
+        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldReturnNull2_freespaceConflictingAgentsOptimal() {
+        I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
