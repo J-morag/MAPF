@@ -6,7 +6,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocation;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocationTables;
-import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
 
 import java.util.*;
@@ -288,10 +287,12 @@ public class ConflictManager implements I_ConflictManager {
                     agentConflictsWithPlan.getEndTime() == timeLocation.time &&
                     agentPlan.getEndTime() == timeLocation.time){ continue;}
             // if they are both staying at source since the start, and they have the same source
+            boolean conflictsWithStayingAtSource = agentConflictsWithPlan.getEndTime() >= timeLocation.time ? agentConflictsWithPlan.moveAt(timeLocation.time).isStayAtSource
+                    : agentConflictsWithPlan.getLastMove().isStayAtSource; // may end before if the conflict is because the other agent is at its goal
+            boolean agentIsStayingAtSource = agentPlan.getEndTime() >= timeLocation.time ? agentPlan.moveAt(timeLocation.time).isStayAtSource
+                    : agentPlan.getLastMove().isStayAtSource;// may end before if the conflict is because this agent is at its goal
             if (sharedSources && agentConflictsWith.source.equals(agent.source) &&
-                    (agentConflictsWithPlan.getEndTime() >= timeLocation.time && // may end before if the conflict is because the other agent is at its goal
-                            agentConflictsWithPlan.moveAt(timeLocation.time).isStayAtSource) &&
-                    agentPlan.moveAt(timeLocation.time).isStayAtSource){ continue;}
+                    conflictsWithStayingAtSource && agentIsStayingAtSource){ continue;}
 
             VertexConflict vertexConflict = new VertexConflict(agent,agentConflictsWith,timeLocation);
 
