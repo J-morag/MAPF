@@ -220,7 +220,12 @@ public class LifelongSimulationSolver extends A_Solver {
             super.instanceReport.putIntegerValue("makespan", lifelongSolution.makespan());
             super.instanceReport.putIntegerValue("timeTo50%Completion", lifelongSolution.timeToXProportionCompletion(0.5));
             super.instanceReport.putIntegerValue("timeTo80%Completion", lifelongSolution.timeToXProportionCompletion(0.8));
+            super.instanceReport.putIntegerValue("throughputAtT300", lifelongSolution.throughputAtT(300));
             super.instanceReport.putIntegerValue("throughputAtT250", lifelongSolution.throughputAtT(250));
+            super.instanceReport.putIntegerValue("throughputAtT30", lifelongSolution.throughputAtT(30));
+            super.instanceReport.putIntegerValue("throughputAtT50", lifelongSolution.throughputAtT(50));
+            super.instanceReport.putIntegerValue("throughputAtT75", lifelongSolution.throughputAtT(75));
+            super.instanceReport.putIntegerValue("throughputAtT100", lifelongSolution.throughputAtT(100));
 
             super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
             super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
