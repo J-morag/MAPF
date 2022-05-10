@@ -60,7 +60,7 @@ public class InstanceBuilder_BGUTest {
         /*  Set path  */
        String path_16_0_7 = IO_Manager.buildPath(
                                                 new String[]{  IO_Manager.testResources_Directory,
-                                                               "Instances\\Instance-16-0-7-0"}
+                                                               "Instances", "Instance-16-0-7-0"}
        );
 
         InstanceManager.InstancePath instancePath_Instance_16_0_7 = new InstanceManager.InstancePath(path_16_0_7);
@@ -163,7 +163,7 @@ public class InstanceBuilder_BGUTest {
         /*  Set path  */
         String path_8_15_5 = IO_Manager.buildPath(
                                     new String[]{   IO_Manager.testResources_Directory,
-                                    "Instances\\\\Instance-8-15-5-17 - hard one - cost 29 and some corridors"}
+                                    "Instances", "Instance-8-15-5-17 - hard one - cost 29 and some corridors"}
         );
 
         InstanceManager.InstancePath instancePath_Instance_8_15_5 = new InstanceManager.InstancePath(path_8_15_5);
@@ -273,7 +273,7 @@ public class InstanceBuilder_BGUTest {
 
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "Instances\\\\Instance-8-15-5-17 - hard one - cost 29 and some corridors"}
+                "Instances", "Instance-8-15-5-17 - hard one - cost 29 and some corridors"}
         );
         InstanceManager.InstancePath instancePath = new InstanceManager.InstancePath(path);
 
