@@ -4,11 +4,13 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import Environment.IO_Package.Enum_IO;
 import Environment.IO_Package.IO_Manager;
 import Environment.IO_Package.Reader;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.*;
+import LifelongMAPF.LifelongAgent;
 
 import java.util.*;
 
@@ -22,58 +24,70 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     public static final String FILE_TYPE_SCENARIO = ".scen";
 
     // Indicators
-    private final String INDICATOR_MAP = "map";
-    private final String INDICATOR_HEIGHT = "height";
-    private final String INDICATOR_WIDTH = "width";
+    static private final String INDICATOR_MAP = "map";
+    static private final String INDICATOR_HEIGHT = "height";
+    static private final String INDICATOR_WIDTH = "width";
 
     // Separators
-    private final String SEPARATOR_DIMENSIONS = " ";
-    private final String SEPARATOR_MAP = "";
-    private final String SEPARATOR_SCENARIO = "\t";
+    static private final String SEPARATOR_DIMENSIONS = " ";
+    static private final String SEPARATOR_MAP = "";
+    static private final String SEPARATOR_SCENARIO = "\t";
 
     // Skip Lines
-    private final int SKIP_LINES_MAP = 1;
-    private final int SKIP_LINES_SCENARIO = 1;
+    static private final int SKIP_LINES_MAP = 1;
+    static private final int SKIP_LINES_SCENARIO = 1;
 
 
     /*  =Default Values=    */
-    private final int defaultNumOfAgents = 10;
-    private final int defaultNumOfBatches = 5;
-    private final int defaultNumOfAgentsInSingleBatch = 10;
-    public boolean reuseAgents = true;
+    static private final int defaultNumOfAgents = 10;
+    static private final int defaultNumOfBatches = 5;
+    static private final int defaultNumOfAgentsInSingleBatch = 10;
+
 
     /*  =Default Index Values=    */
     // Line example: "1	maps/rooms/8room_000.map	512	512	500	366	497	371	6.24264"
     //    Start: ( 500 , 366 )
     //    Goal: ( 497 , 371 )
-    private final int INDEX_AGENT_SOURCE_XVALUE = 4;
-    private final int INDEX_AGENT_SOURCE_YVALUE = 5;
-    private final int INDEX_AGENT_TARGET_XVALUE = 6;
-    private final int INDEX_AGENT_TARGET_YVALUE = 7;
-
-    private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
-
+    static private final int INDEX_AGENT_SOURCE_XVALUE = 4;
+    static private final int INDEX_AGENT_SOURCE_YVALUE = 5;
+    static private final int INDEX_AGENT_TARGET_XVALUE = 6;
+    static private final int INDEX_AGENT_TARGET_YVALUE = 7;
 
     /*      =Location Types=   */
-    private final char EMPTY = '.';
-    private final char WALL = '@';
-    private final char TREE = 'T';
+    static private final char EMPTY = '.';
+    static private final char WALL = '@';
+    static private final char TREE = 'T';
 
     /*  Mapping from char to Location type */
-    private HashMap<Character, Enum_MapLocationType> locationTypeHashMap = new HashMap<Character, Enum_MapLocationType>(){{
+    static private final HashMap<Character, Enum_MapLocationType> locationTypeHashMap = new HashMap<Character, Enum_MapLocationType>(){{
         put(EMPTY, Enum_MapLocationType.EMPTY);
         put(WALL, Enum_MapLocationType.WALL);
         put(TREE, Enum_MapLocationType.TREE);
     }};
 
+    static private final int defaultNumWaypoints = 30;
+
+    public boolean reuseAgents = true;
+    private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
+
     private final Priorities priorities;
+    private final boolean lifelong;
+
+    public InstanceBuilder_MovingAI(Priorities priorities, Boolean lifelong){
+        this.priorities = Objects.requireNonNullElse(priorities, new Priorities());
+        this.lifelong = Objects.requireNonNullElse(lifelong, false);
+    }
 
     public InstanceBuilder_MovingAI() {
-        priorities = new Priorities();
+        this(null, null);
     }
 
     public InstanceBuilder_MovingAI(Priorities priorities) {
-        this.priorities = priorities;
+        this(priorities, null);
+    }
+
+    public InstanceBuilder_MovingAI(Boolean lifelong) {
+        this(null, lifelong);
     }
 
     @Override
@@ -91,16 +105,40 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
         // create agent properties
         int[] numOfAgentsFromProperties = (instanceProperties.numOfAgents == null || instanceProperties.numOfAgents.length == 0
-                                            ? new int[]{this.defaultNumOfAgents} : instanceProperties.numOfAgents);
+                                            ? new int[]{defaultNumOfAgents} : instanceProperties.numOfAgents);
 
         int numOfBatches = this.getNumOfBatches(numOfAgentsFromProperties);
-        ArrayList<String> agentLines = getAgentLines(moving_ai_path, numOfBatches * this.defaultNumOfAgentsInSingleBatch); //
+        ArrayList<String> agentLines = getAgentLines(moving_ai_path, numOfBatches * defaultNumOfAgentsInSingleBatch);
+
+        ArrayList<I_Location> allEmptyMapCoordinates = new ArrayList<>(graphMap.getAllLocations());
+        allEmptyMapCoordinates.removeIf(loc -> !loc.getType().equals(Enum_MapLocationType.EMPTY));
 
         for (int i = 0; i < numOfAgentsFromProperties.length; i++) {
 
             Agent[] agents = getAgents(agentLines,numOfAgentsFromProperties[i]);
+            Random rnd = new Random(agentLines != null ? agentLines.hashCode() : 0); // consistent results given same instance
 
             if (instanceName == null || agents == null) { continue; /* Invalid parameters */ }
+
+            if (lifelong){
+                for (int j = 0; j < agents.length; j++) {
+                    Agent agent = agents[j];
+
+                    I_Coordinate[] waypoints = new I_Coordinate[defaultNumWaypoints];
+                    waypoints[0] = agent.source;
+                    waypoints[waypoints.length - 1] = agent.target;
+                    for (int k = 1; k < waypoints.length - 1; k++) {
+                        while (waypoints[k] == null ||
+                                waypoints[k-1].equals(waypoints[k]) ||
+                                (k == waypoints.length - 2 && waypoints[k+1].equals(waypoints[k]))){
+                            waypoints[k] = allEmptyMapCoordinates.get(rnd.nextInt(allEmptyMapCoordinates.size())).getCoordinate();
+                        }
+                    }
+
+                    LifelongAgent lifelongAgent = new LifelongAgent(agent, waypoints);
+                    agents[j] = lifelongAgent;
+                }
+            }
 
             mapf_instance = makeInstance(instanceName, graphMap, agents, moving_ai_path);
             mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
@@ -120,7 +158,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         agentLinesList.removeIf(Objects::isNull);
         Agent[] arrayOfAgents = new Agent[Math.min(numOfAgents,agentLinesList.size())];
 
-        if(reuseAgents){
+        if (reuseAgents){
             if(agentLinesList.isEmpty()){ return null; }
 
             // Iterate over all the agents in numOfAgentsByBatches
@@ -131,38 +169,37 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                     arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
                 }
             }
-            return arrayOfAgents;
         }
         else {
             int numOfAgentsByBatches = this.getNumOfBatches(new int[]{numOfAgents});
 
             // Iterate over all the agents in numOfAgentsByBatches
-            for (int id = 0; !agentLinesList.isEmpty() && id < numOfAgentsByBatches * this.defaultNumOfAgentsInSingleBatch; id++) {
+            for (int id = 0; !agentLinesList.isEmpty() && id < numOfAgentsByBatches * defaultNumOfAgentsInSingleBatch; id++) {
 
                 if( id < numOfAgents ){
-                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.remove(0), numOfAgentsByBatches * this.defaultNumOfAgentsInSingleBatch);
+                    Agent agentToAdd = buildSingleAgent(id ,agentLinesList.remove(0), numOfAgentsByBatches * defaultNumOfAgentsInSingleBatch);
                     arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
                 }else {
                     agentLinesList.remove(0);
                 }
             }
-            return arrayOfAgents;
         }
+        return arrayOfAgents;
     }
 
     private Agent buildSingleAgent(int id, String agentLine, int numAgents) {
-        String[] splitLine = agentLine.split(this.SEPARATOR_SCENARIO);
+        String[] splitLine = agentLine.split(SEPARATOR_SCENARIO);
 
         return agentFromStringArray(id, splitLine, numAgents);
     }
 
     protected Agent agentFromStringArray(int id, String[] splitLine, int numAgents){
         // Init coordinates
-        int source_xValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_XVALUE]);
-        int source_yValue = Integer.parseInt(splitLine[this.INDEX_AGENT_SOURCE_YVALUE]);
+        int source_xValue = Integer.parseInt(splitLine[INDEX_AGENT_SOURCE_XVALUE]);
+        int source_yValue = Integer.parseInt(splitLine[INDEX_AGENT_SOURCE_YVALUE]);
         Coordinate_2D source = new Coordinate_2D(source_xValue, source_yValue);
-        int target_xValue = Integer.parseInt(splitLine[this.INDEX_AGENT_TARGET_XVALUE]);
-        int target_yValue = Integer.parseInt(splitLine[this.INDEX_AGENT_TARGET_YVALUE]);
+        int target_xValue = Integer.parseInt(splitLine[INDEX_AGENT_TARGET_XVALUE]);
+        int target_yValue = Integer.parseInt(splitLine[INDEX_AGENT_TARGET_YVALUE]);
         Coordinate_2D target = new Coordinate_2D(target_xValue, target_yValue);
 
         return new Agent(id, source, target, priorities.getPriorityForAgent(id, numAgents));
@@ -182,7 +219,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         /*  =Get data from reader=  */
-        reader.skipFirstLines(this.SKIP_LINES_SCENARIO); // First line
+        reader.skipFirstLines(SKIP_LINES_SCENARIO); // First line
 
         ArrayList<String> agentsLines = new ArrayList<>(); // Init queue of agents lines
 
@@ -213,13 +250,13 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
         /*  =Get data from reader=  */
-        reader.skipFirstLines(this.SKIP_LINES_MAP); // First line
+        reader.skipFirstLines(SKIP_LINES_MAP); // First line
         String nextLine = reader.getNextLine();
 
         while ( nextLine != null ){
 
-            if(nextLine.startsWith(this.INDICATOR_HEIGHT)){
-                String[] splitedLineHeight = nextLine.split(this.SEPARATOR_DIMENSIONS);
+            if(nextLine.startsWith(INDICATOR_HEIGHT)){
+                String[] splitedLineHeight = nextLine.split(SEPARATOR_DIMENSIONS);
                 if( IO_Manager.isPositiveInt(splitedLineHeight[1])){
                     dimensionsFromFile.yAxis_length = Integer.parseInt(splitedLineHeight[1]);
                     dimensionsFromFile.numOfDimensions++;
@@ -230,8 +267,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                     }
                 }
 
-            }else if ( nextLine.startsWith(this.INDICATOR_WIDTH) ){
-                String[] splitedLineWidth = nextLine.split(this.SEPARATOR_DIMENSIONS);
+            }else if ( nextLine.startsWith(INDICATOR_WIDTH) ){
+                String[] splitedLineWidth = nextLine.split(SEPARATOR_DIMENSIONS);
                 if( IO_Manager.isPositiveInt(splitedLineWidth[1])){
                     dimensionsFromFile.xAxis_length = Integer.parseInt(splitedLineWidth[1]);
                     dimensionsFromFile.numOfDimensions++;
@@ -242,11 +279,11 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                     }
                 }
 
-            }else if( nextLine.startsWith(this.INDICATOR_MAP) ){
+            }else if( nextLine.startsWith(INDICATOR_MAP) ){
                 String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, dimensionsFromFile);
 
                 // build map
-                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles);
+                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, SEPARATOR_MAP, dimensionsFromFile, locationTypeHashMap, instanceProperties.obstacles);
                 break;
             }
             nextLine = reader.getNextLine();
@@ -280,12 +317,12 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         ArrayList<InstanceManager.InstancePath> list = new ArrayList<>();
 
         for (InstanceManager.InstancePath instancePath : pathArray ) {
-            if ( instancePath.path.endsWith(this.FILE_TYPE_MAP) ){
+            if ( instancePath.path.endsWith(FILE_TYPE_MAP) ){
 
                 String[] splitPath = instancePath.path.split("\\\\");
-                String mapPrefix = splitPath[splitPath.length-1].replace(this.FILE_TYPE_MAP, "");
+                String mapPrefix = splitPath[splitPath.length-1].replace(FILE_TYPE_MAP, "");
                 for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
-                    if(scenarioCandidate.path.split("-even")[0].split("-random")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(this.FILE_TYPE_SCENARIO)){
+                    if(scenarioCandidate.path.split("-even")[0].split("-random")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO)){
                         list.add( new InstanceManager.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
                     }
 
@@ -303,7 +340,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
     private int getNumOfBatches(int[] values){
         if( values == null || values.length == 0){
-            return this.defaultNumOfBatches; // default num of batches
+            return defaultNumOfBatches; // default num of batches
         }
         int curBatch = 0;
 
