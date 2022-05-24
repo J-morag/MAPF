@@ -8,8 +8,8 @@ public class IO_Manager { // Singleton class
 
     private HashSet<String> openedPaths; // Keeps track on opened files
     public static final String pathSeparator = System.getProperty("file.separator");
-    public static final String workingDirectory = System.getProperty("user.dir") + "\\src"; // absolute path to src
-    public static final String testResources_Directory = buildPath(new String[]{workingDirectory, "test\\resources"});
+    public static final String workingDirectory = buildPath(new String[]{System.getProperty("user.dir"), "src"});; // absolute path to src
+    public static final String testResources_Directory = buildPath(new String[]{workingDirectory, "test", "resources"});
     public static final String resources_Directory = buildPath(new String[]{System.getProperty("user.dir"), "resources"});
 
 

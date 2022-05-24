@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <properties>
-        <maven.compiler.source>1.15</maven.compiler.source>
-        <maven.compiler.target>1.15</maven.compiler.target>
-    </properties>
+<!--     <properties>
+        <maven.compiler.source>1.16</maven.compiler.source>
+        <maven.compiler.target>1.16</maven.compiler.target>
+    </properties> -->
 
-    <groupId>CBS</groupId>
-    <artifactId>CBS</artifactId>
+    <groupId>MAPF</groupId>
+    <artifactId>MAPF</artifactId>
     <version>1.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
@@ -51,6 +51,24 @@
                 <directory>${project.basedir}/src/test/resources</directory>
             </testResource>
         </testResources>
+             
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <source>16</source>
+                    <target>16</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+
+        </plugins>
     </build>
 
 

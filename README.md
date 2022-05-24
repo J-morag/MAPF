@@ -1,5 +1,5 @@
 # MAPF - Multi-Agent Path Finding
-## An implementation of several MAPF algorithms, including Conflict Based Search (CBS), written in Java 15.
+## A Java implementation of several MAPF algorithms, including Conflict Based Search (CBS).
 
 ### How to 
 * How to create a single instance

@@ -32,14 +32,9 @@ public class RunManagerWarehouse extends A_RunManager{
     }
 
     @Override
-    public void setSolvers() {
-        A_Solver PrPr = new PrioritisedPlanning_Solver(null, null, 10, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true);
-        PrPr.name = "PrPr";
-        super.solvers.add(PrPr);
-
-        A_Solver CBS = new CBS_Solver(null, null, null, null, null, null, true, true);
-        CBS.name = "CBS";
-        super.solvers.add(CBS);
+    void setSolvers() {
+        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null, null, true, true));
+//        super.solvers.add(new CBS_Solver(null, null, null, null, null, null, true, true));
     }
 
     @Override

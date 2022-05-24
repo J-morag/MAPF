@@ -52,26 +52,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     private final Comparator<Agent> agentComparator;
 
-    /**
-     * How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
-     * Total number of runs will be this + 1, or less if a timeout occurs (may still return a valid solution when that happens).
-     */
-    private final int restarts;
-
-    /**
-     * How to perform restarts.
-     * DeterministicRescheduling is from: Andreychuk, Anton, and Konstantin Yakovlev. "Two techniques that enhance the performance of multi-robot prioritized path planning." arXiv preprint arXiv:1805.01270 (2018).
-     */
-    public enum RestartStrategy{
-        randomRestarts, deterministicRescheduling
-    }
-
-    private final RestartStrategy restartStrategy;
+    private final RestartsStrategy restartsStrategy;
 
     /**
      * The cost function to evaluate solutions with.
      */
-    private SolutionCostFunction solutionCostFunction;
+    private final SolutionCostFunction solutionCostFunction;
     /**
      * optional heuristic function to use in the low level solver.
      */
@@ -100,7 +86,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null);
     }
 
     /**
@@ -108,37 +94,35 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null, null, null);
+        this(null, agentComparator, null, null, null, null);
     }
 
     /**
      * Constructor.
      * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
-     * @param restarts How many random restarts to perform. Will reorder the agents and re-plan this many times. will return the best solution found.
      * @param solutionCostFunction A cost function to evaluate solutions with. Only used when using random restarts.
-     * @param restartStrategy how to do restarts.
+     * @param restartsStrategy how to do restarts.
      * @param sharedGoals if agents share goals, they will not conflict at their goal.
      */
-    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator, Integer restarts,
-                                      SolutionCostFunction solutionCostFunction, RestartStrategy restartStrategy,
+    public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
+                                      SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
                                       Boolean sharedGoals, Boolean sharedSources) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.restarts = Objects.requireNonNullElse(restarts, 0);
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, Solution::sumIndividualCosts);
-        this.restartStrategy = Objects.requireNonNullElse(restartStrategy, RestartStrategy.randomRestarts);
+        this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        super.name = "Prioritised Planning" + (this.restarts <= 0 ? "":
-                (" + (" + this.restartStrategy + " x " + this.restarts + ")"));
+
+        super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
     /**
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -163,8 +147,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             this.agents.sort(this.agentComparator);
         }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
-        if(parameters instanceof RunParameters_PP){
-            RunParameters_PP parametersPP = (RunParameters_PP)parameters;
+        if(parameters instanceof RunParameters_PP parametersPP){
 
             //reorder according to requested priority
             if(parametersPP.preferredPriorityOrder != null) {reorderAgentsByPriority(parametersPP.preferredPriorityOrder);}
@@ -206,18 +189,21 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * plans of previous agents.
      * It returns a valid solution, but does not guarantee optimality.
      * @return a valid, yet non-optimal {@link Solution} to an {@link MAPF_Instance}.
-     * @param agents
-     * @param instance
-     * @param initialConstraints
+     * @param agents ordered (by any order) list of the agents
+     * @param instance problem instance
+     * @param initialConstraints constraints to solve under
      */
     protected Solution solvePrioritisedPlanning(List<? extends Agent> agents, MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = null;
         // if using random restarts, try more than once and randomize between them
-        for (int attemptNumber = 0; attemptNumber < this.restarts + 1; attemptNumber++) {
+        for (int attemptNumber = 0;
+                ;
+             attemptNumber++) {
+
             Solution solution = new Solution();
             ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
             Agent agentWeFailedOn = null;
-            //solve for each agent while avoiding the plans of previous agents
+            //solve for each agent while avoiding the plans of previous agents (standard PrP)
             for (Agent agent : agents) {
                 if (checkTimeout()) break;
 
@@ -239,7 +225,9 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
             }
 
-            // random/deterministic restarts
+
+            /* = random/deterministic restarts = */
+
             if (checkTimeout()) break;
             if (bestSolution == null){
                 bestSolution = solution;
@@ -247,22 +235,33 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             else if (solution != null && solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)){
                 bestSolution = solution;
             }
-            if (this.restarts > 0){
+
+            // TODO ensure no repeats + prefix tree memoization?
+            RestartsStrategy.RestartsKind restartsKind;
+            if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.numInitialRestarts){
+                restartsKind = restartsStrategy.initialRestarts;
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
-                // shuffle agents
-                if (restartStrategy == RestartStrategy.randomRestarts){
-                    Collections.shuffle(this.agents, this.random);
+            }
+            else if (bestSolution == null && attemptNumber >= restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
+                restartsKind = restartsStrategy.contingencyRestarts;
+                this.instanceReport.putIntegerValue("contingency attempts num", attemptNumber - restartsStrategy.numInitialRestarts);
+//                this.instanceReport.putIntegerValue("contingency attempts time", );
+            }
+            else {
+                break;
+            }
+
+            if (restartsKind == RestartsStrategy.RestartsKind.randomRestarts){
+                Collections.shuffle(this.agents, this.random);
+            }
+            else if (restartsKind == RestartsStrategy.RestartsKind.deterministicRescheduling){
+                if (agentWeFailedOn != null){
+                    this.agents.remove(agentWeFailedOn);
+                    this.agents.add(0, agentWeFailedOn);
                 }
-                // give the highest priority to the agent we failed on
-                else if (restartStrategy == RestartStrategy.deterministicRescheduling){
-                    if (agentWeFailedOn != null){
-                        this.agents.remove(agentWeFailedOn);
-                        this.agents.add(0, agentWeFailedOn);
-                    }
-                    else { // deterministic restarts only restarts if no solution was found
-                        break;
-                    }
+                else { // deterministic restarts only restarts if no solution was found
+                    break;
                 }
             }
         }

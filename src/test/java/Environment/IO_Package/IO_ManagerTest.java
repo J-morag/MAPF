@@ -17,7 +17,7 @@ public class IO_ManagerTest {
 
     /***    ReaderTest   ***/
 
-    static final String fileToReadName = "IO_Package\\test_reader_file.txt";
+    static final String fileToReadName = IO_Manager.buildPath(new String[]{"IO_Package", "test_reader_file.txt"});
     static final String fileToReadPath = IO_Manager.buildPath(new String[]{testResources_path, fileToReadName});
     static final String[] linesToRead = {   "This file has 3 lines" ,
                                             "This is the second line",
@@ -25,7 +25,7 @@ public class IO_ManagerTest {
 
 
     /***    WriterTest   ***/
-    static final String fileToWriteName = "IO_Package\\write_test.txt";
+    static final String fileToWriteName = IO_Manager.buildPath(new String[]{"IO_Package", "write_test.txt"});
     static final String fileToWritePath = IO_Manager.buildPath(new String[]{testResources_path, fileToWriteName});
 
     static final String[] linesToWrite = {  "Try to write\n" ,
@@ -133,6 +133,6 @@ public class IO_ManagerTest {
     public void buildPath() {
         // BuildPath format: folder\fileName.txt
         String path = IO_Manager.buildPath(new String[]{"folder","file_name"});
-        assertEquals("folder\\file_name", path);
+        assertEquals("folder" + IO_Manager.pathSeparator + "file_name", path);
     }
 }

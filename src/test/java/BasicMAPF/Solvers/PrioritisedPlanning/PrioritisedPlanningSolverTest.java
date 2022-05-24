@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import Environment.IO_Package.IO_Manager;
@@ -27,11 +28,11 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PrioritisedPlanning_SolverTest {
+class PrioritisedPlanningSolverTest {
 
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private Enum_MapLocationType[][] map_2D_circle = {
+    private final Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},
             {w, w, e, w, e, w},
@@ -39,7 +40,7 @@ class PrioritisedPlanning_SolverTest {
             {w, w, w, w, w, w},
             {w, w, w, w, w, w},
     };
-    private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
+    private final I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
     Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
@@ -49,7 +50,7 @@ class PrioritisedPlanning_SolverTest {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
     };
-    private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
+    private final I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
 
     Enum_MapLocationType[][] map_2D_withPocket = {
             {e, w, e, w, e, w},
@@ -59,7 +60,7 @@ class PrioritisedPlanning_SolverTest {
             {e, e, w, e, w, w},
             {w, e, w, e, e, e},
     };
-    private I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
+    private final I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
 
 
     private final Enum_MapLocationType[][] map_2D_smallMaze = {
@@ -72,71 +73,71 @@ class PrioritisedPlanning_SolverTest {
     };
     private final I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
 
-    private I_Coordinate coor12 = new Coordinate_2D(1,2);
-    private I_Coordinate coor13 = new Coordinate_2D(1,3);
-    private I_Coordinate coor14 = new Coordinate_2D(1,4);
-    private I_Coordinate coor22 = new Coordinate_2D(2,2);
-    private I_Coordinate coor24 = new Coordinate_2D(2,4);
-    private I_Coordinate coor32 = new Coordinate_2D(3,2);
-    private I_Coordinate coor33 = new Coordinate_2D(3,3);
-    private I_Coordinate coor34 = new Coordinate_2D(3,4);
-    private I_Coordinate coor35 = new Coordinate_2D(3,5);
+    private final I_Coordinate coor12 = new Coordinate_2D(1,2);
+    private final I_Coordinate coor13 = new Coordinate_2D(1,3);
+    private final I_Coordinate coor14 = new Coordinate_2D(1,4);
+    private final I_Coordinate coor22 = new Coordinate_2D(2,2);
+    private final I_Coordinate coor24 = new Coordinate_2D(2,4);
+    private final I_Coordinate coor32 = new Coordinate_2D(3,2);
+    private final I_Coordinate coor33 = new Coordinate_2D(3,3);
+    private final I_Coordinate coor34 = new Coordinate_2D(3,4);
+    private final I_Coordinate coor35 = new Coordinate_2D(3,5);
 
-    private I_Coordinate coor11 = new Coordinate_2D(1,1);
-    private I_Coordinate coor43 = new Coordinate_2D(4,3);
-    private I_Coordinate coor53 = new Coordinate_2D(5,3);
-    private I_Coordinate coor54 = new Coordinate_2D(5,4);
-    private I_Coordinate coor55 = new Coordinate_2D(5,5);
-    private I_Coordinate coor05 = new Coordinate_2D(0,5);
+    private final I_Coordinate coor11 = new Coordinate_2D(1,1);
+    private final I_Coordinate coor43 = new Coordinate_2D(4,3);
+    private final I_Coordinate coor53 = new Coordinate_2D(5,3);
+    private final I_Coordinate coor54 = new Coordinate_2D(5,4);
+    private final I_Coordinate coor55 = new Coordinate_2D(5,5);
+    private final I_Coordinate coor05 = new Coordinate_2D(0,5);
 
-    private I_Coordinate coor04 = new Coordinate_2D(0,4);
-    private I_Coordinate coor00 = new Coordinate_2D(0,0);
-    private I_Coordinate coor01 = new Coordinate_2D(0,1);
-    private I_Coordinate coor10 = new Coordinate_2D(1,0);
+    private final I_Coordinate coor04 = new Coordinate_2D(0,4);
+    private final I_Coordinate coor00 = new Coordinate_2D(0,0);
+    private final I_Coordinate coor01 = new Coordinate_2D(0,1);
+    private final I_Coordinate coor10 = new Coordinate_2D(1,0);
 
-    private I_Location location12 = mapCircle.getMapLocation(coor12);
-    private I_Location location13 = mapCircle.getMapLocation(coor13);
-    private I_Location location14 = mapCircle.getMapLocation(coor14);
-    private I_Location location22 = mapCircle.getMapLocation(coor22);
-    private I_Location location24 = mapCircle.getMapLocation(coor24);
-    private I_Location location32 = mapCircle.getMapLocation(coor32);
-    private I_Location location33 = mapCircle.getMapLocation(coor33);
-    private I_Location location34 = mapCircle.getMapLocation(coor34);
+    private final I_Location location12 = mapCircle.getMapLocation(coor12);
+    private final I_Location location13 = mapCircle.getMapLocation(coor13);
+    private final I_Location location14 = mapCircle.getMapLocation(coor14);
+    private final I_Location location22 = mapCircle.getMapLocation(coor22);
+    private final I_Location location24 = mapCircle.getMapLocation(coor24);
+    private final I_Location location32 = mapCircle.getMapLocation(coor32);
+    private final I_Location location33 = mapCircle.getMapLocation(coor33);
+    private final I_Location location34 = mapCircle.getMapLocation(coor34);
 
-    private I_Location location11 = mapCircle.getMapLocation(coor11);
-    private I_Location location43 = mapCircle.getMapLocation(coor43);
-    private I_Location location53 = mapCircle.getMapLocation(coor53);
-    private I_Location location54 = mapCircle.getMapLocation(coor54);
-    private I_Location location55 = mapCircle.getMapLocation(coor55);
-    private I_Location location05 = mapCircle.getMapLocation(coor05);
+    private final I_Location location11 = mapCircle.getMapLocation(coor11);
+    private final I_Location location43 = mapCircle.getMapLocation(coor43);
+    private final I_Location location53 = mapCircle.getMapLocation(coor53);
+    private final I_Location location54 = mapCircle.getMapLocation(coor54);
+    private final I_Location location55 = mapCircle.getMapLocation(coor55);
+    private final I_Location location05 = mapCircle.getMapLocation(coor05);
 
-    private I_Location location04 = mapCircle.getMapLocation(coor04);
-    private I_Location location00 = mapCircle.getMapLocation(coor00);
-    private I_Location location01 = mapCircle.getMapLocation(coor01);
-    private I_Location location10 = mapCircle.getMapLocation(coor10);
+    private final I_Location location04 = mapCircle.getMapLocation(coor04);
+    private final I_Location location00 = mapCircle.getMapLocation(coor00);
+    private final I_Location location01 = mapCircle.getMapLocation(coor01);
+    private final I_Location location10 = mapCircle.getMapLocation(coor10);
 
-    private Agent agent33to12 = new Agent(0, coor33, coor12);
-    private Agent agent12to33 = new Agent(1, coor12, coor33);
-    private Agent agent53to05 = new Agent(2, coor53, coor05);
-    private Agent agent43to11 = new Agent(3, coor43, coor11);
-    private Agent agent04to00 = new Agent(4, coor04, coor00);
-    private Agent agent00to10 = new Agent(5, coor00, coor10);
-    private Agent agent10to00 = new Agent(6, coor10, coor00);
-    private Agent agent43to53 = new Agent(7, coor43, coor53);
-    private Agent agent55to43 = new Agent(8, coor55, coor43);
-    private Agent agent33to35 = new Agent(9, coor33, coor35);
-    private Agent agent34to32 = new Agent(10, coor34, coor32);
+    private final Agent agent33to12 = new Agent(0, coor33, coor12);
+    private final Agent agent12to33 = new Agent(1, coor12, coor33);
+    private final Agent agent53to05 = new Agent(2, coor53, coor05);
+    private final Agent agent43to11 = new Agent(3, coor43, coor11);
+    private final Agent agent04to00 = new Agent(4, coor04, coor00);
+    private final Agent agent00to10 = new Agent(5, coor00, coor10);
+    private final Agent agent10to00 = new Agent(6, coor10, coor00);
+    private final Agent agent43to53 = new Agent(7, coor43, coor53);
+    private final Agent agent55to34 = new Agent(8, coor55, coor34);
+    private final Agent agent33to35 = new Agent(9, coor33, coor35);
+    private final Agent agent34to32 = new Agent(10, coor34, coor32);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
-    private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
-    private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
-    private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
-    private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
-    private MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to43});
-    private MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
+    private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+    private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
+    private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
+    private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
+    private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
+    private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
     I_Solver ppSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver());
 
@@ -207,6 +208,30 @@ class PrioritisedPlanning_SolverTest {
         // shouldn't time out
         assertFalse(instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) > timeout);
         // should return "no solution" (is a complete algorithm)
+        assertNull(solved);
+    }
+
+    @Test
+    void solvesWhenBadInitialOrderAndHasContingency() {
+        MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
+        long timeout = 10*1000;
+        I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null);
+        Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        // should be able to solve in one of the restarts
+        assertNotNull(solved);
+
+        solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null);
+        solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        // should be able to solve in one of the restarts
+        assertNotNull(solved);
+
+        // sanity check that it does indeed fail without the contingency
+        solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(), null, null);
+        solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        // should fail without the contingency
         assertNull(solved);
     }
 
@@ -357,12 +382,12 @@ class PrioritisedPlanning_SolverTest {
     }
 
     @Test
-    void TestingBenchmarkWRandomRestarts(){
+    void TestingBenchmarkWInitialRandomRestarts(){
         S_Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                2, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, null, null);
+                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -476,12 +501,12 @@ class PrioritisedPlanning_SolverTest {
     }
 
     @Test
-    void TestingBenchmarkWDeterministicRestarts(){
+    void TestingBenchmarkWInitialDeterministicRestarts(){
         S_Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                4, null, PrioritisedPlanning_Solver.RestartStrategy.deterministicRescheduling, null, null);
+        I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -591,12 +616,139 @@ class PrioritisedPlanning_SolverTest {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
 
+    /**
+     * This contains diverse instances
+     */
+    @Test
+    void comparativeDiverseTestHasContingencyVsNoContingency(){
+        S_Metrics.clearAll();
+        boolean useAsserts = true;
+
+        I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
+                null, new RestartsStrategy(), null, null);
+        String nameBaseline = baselineSolver.name();
+
+        I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
+                null, new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null);
+        String nameExperimental = competitorSolver.name();
+
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "ComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+                new InstanceProperties(null, -1d, new int[]{100}));
+
+        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
+        MAPF_Instance instance = null;
+//        long timeout = 60 /*seconds*/   *1000L;
+        long timeout = 10 /*seconds*/   *1000L;
+        int solvedByBaseline = 0;
+        int solvedByExperimental = 0;
+        int runtimeBaseline = 0;
+        int runtimeExperimental = 0;
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
+
+            // run baseline (without the improvement)
+            //build report
+            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
+
+            //solve
+            Solution solutionBaseline = baselineSolver.solve(instance, runParametersBaseline);
+
+            // run experiment (with the improvement)
+            //build report
+            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+
+            //solve
+            Solution solutionExperimental = competitorSolver.solve(instance, runParametersExperimental);
+
+            // compare
+
+            boolean baselineSolved = solutionBaseline != null;
+            solvedByBaseline += baselineSolved ? 1 : 0;
+            boolean experimentalSolved = solutionExperimental != null;
+            solvedByExperimental += experimentalSolved ? 1 : 0;
+            System.out.println(nameBaseline + " Solved?: " + (baselineSolved ? "yes" : "no") +
+                    " ; " + nameExperimental + " solved?: " + (experimentalSolved ? "yes" : "no"));
+
+            if(solutionBaseline != null){
+                boolean valid = solutionBaseline.solves(instance);
+                System.out.print(nameBaseline + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+
+            if(solutionExperimental != null){
+                boolean valid = solutionExperimental.solves(instance);
+                System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+            else System.out.println();
+
+            if(solutionBaseline != null && solutionExperimental != null){
+                // runtimes
+                runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                runtimeExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                reportBaseline.putIntegerValue("Runtime Delta",
+                        reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
+                                - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+            }
+        }
+
+        System.out.println("--- TOTALS: ---");
+        System.out.println("timeout for each (seconds): " + (timeout/1000));
+        System.out.println(nameBaseline + " solved: " + solvedByBaseline);
+        System.out.println(nameExperimental + " solved: " + solvedByExperimental);
+        System.out.println("runtime totals (instances where both solved) :");
+        System.out.println(nameBaseline + " time: " + runtimeBaseline);
+        System.out.println(nameExperimental + " time: " + runtimeExperimental);
+
+        //save results
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+        File directory = new File(resultsOutputDir);
+        if (! directory.exists()){
+            directory.mkdir();
+        }
+        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        try {
+            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                    new String[]{
+                            InstanceReport.StandardFields.instanceName,
+                            InstanceReport.StandardFields.solver,
+                            InstanceReport.StandardFields.numAgents,
+                            InstanceReport.StandardFields.timeoutThresholdMS,
+                            InstanceReport.StandardFields.solved,
+                            InstanceReport.StandardFields.elapsedTimeMS,
+                            "Runtime Delta",
+                            InstanceReport.StandardFields.solutionCost,
+                            "Cost Delta",
+                            InstanceReport.StandardFields.totalLowLevelTimeMS,
+                            InstanceReport.StandardFields.generatedNodes,
+                            InstanceReport.StandardFields.expandedNodes,
+                            InstanceReport.StandardFields.generatedNodesLowLevel,
+                            InstanceReport.StandardFields.expandedNodesLowLevel});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void sharedGoals(){
-        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, null,true, null);
+        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, true, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -639,11 +791,9 @@ class PrioritisedPlanning_SolverTest {
         }
 
         MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
-        MAPF_Instance unsolvableBecauseOrderWithInfiniteConstraints = new MAPF_Instance("unsolvableBecauseOrderWithInfiniteConstraints", mapWithPocket,
-                new Agent[]{agent43to53, agent55to43});
 
         System.out.println("should not find a solution:");
-        for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable, unsolvableBecauseOrderWithInfiniteConstraints}){
+        for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable, this.instanceUnsolvableBecauseOrderWithInfiniteWait}){
             System.out.println("testing " + testInstance.name);
             Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
             assertNull(solution);
