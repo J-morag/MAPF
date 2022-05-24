@@ -8,8 +8,8 @@
         <maven.compiler.target>1.16</maven.compiler.target>
     </properties> -->
 
-    <groupId>CBS</groupId>
-    <artifactId>CBS</artifactId>
+    <groupId>MAPF</groupId>
+    <artifactId>MAPF</artifactId>
     <version>1.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
