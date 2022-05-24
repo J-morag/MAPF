@@ -32,7 +32,7 @@ public class RunManagerWarehouse extends A_RunManager{
     }
 
     @Override
-    void setSolvers() {
+    protected void setSolvers() {
         super.solvers.add(new PrioritisedPlanning_Solver(null, null, null, null, true, true));
 //        super.solvers.add(new CBS_Solver(null, null, null, null, null, null, true, true));
     }

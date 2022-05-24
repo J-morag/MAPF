@@ -12,6 +12,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
@@ -133,13 +134,13 @@ class LifelongSimulationSolverTest {
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
     I_Solver replanSingle = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true));
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, 30, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true));
     I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, 30, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true));
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
-            new PrioritisedPlanning_Solver(null, null, 30, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true));
 
 
     InstanceReport instanceReport;

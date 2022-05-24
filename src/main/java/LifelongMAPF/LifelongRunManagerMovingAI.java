@@ -5,6 +5,7 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
@@ -32,15 +33,15 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
     @Override
     public void setSolvers() {
 //        A_Solver replanSingle = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, 0, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true));
 //        replanSingle.name = "ReplanSingle";
 //        super.solvers.add(replanSingle);
         A_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, 99, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 99), true, true));
         mandatoryAgentsPrPr.name = "mandatoryAgentsPrPr99";
         super.solvers.add(mandatoryAgentsPrPr);
 //        A_Solver freespaceConflictingAgentsPrPr3 = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),
-//                new PrioritisedPlanning_Solver(null, null, 4, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 4), true, true));
 //        freespaceConflictingAgentsPrPr3.name = "freespaceConflictingAgentsPrPr4";
 //        super.solvers.add(freespaceConflictingAgentsPrPr3);
 //        A_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
@@ -49,7 +50,7 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
 //        super.solvers.add(freespaceConflictingAgentsOptimal);
 
 //        A_Solver allAgentsPrPr3 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
+//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 3), true, true));
 //        allAgentsPrPr3.name = "allAgentsPrPr3";
 //        super.solvers.add(allAgentsPrPr3);
 //        A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
