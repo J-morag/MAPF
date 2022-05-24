@@ -192,15 +192,7 @@ class PrioritisedPlanningSolverTest {
     }
 
     @Test
-    void unsolvable() {
-        MAPF_Instance testInstance = instanceUnsolvable;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
-
-        assertNull(solved);
-    }
-
-    @Test
-    void isCompleteWhenFacedWithInfiniteConstraints() {
+    void failsBeforeTimeoutWhenFacedWithInfiniteConstraints() {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
         long timeout = 10*1000;
         Solution solved = ppSolver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
@@ -209,6 +201,50 @@ class PrioritisedPlanningSolverTest {
         assertFalse(instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) > timeout);
         // should return "no solution" (is a complete algorithm)
         assertNull(solved);
+    }
+
+    @Test
+    void unsolvable() {
+        MAPF_Instance testInstance = instanceUnsolvable;
+        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+
+        assertNull(solved);
+    }
+
+    @Test
+    void failsBeforeTimeoutWithRandomInitialAndContingency() {
+        MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00, agent55to34, agent43to53});
+        I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null);
+        long timeout = 10*1000;
+        Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+
+        System.out.println(instanceReport);
+        // shouldn't time out
+        assertFalse(instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) > timeout);
+        // should return "no solution" (is a complete algorithm)
+        assertNull(solved);
+        // should perform 3 + 21 attempts
+        assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
+        assertEquals(21, instanceReport.getIntegerValue("count contingency attempts"));
+    }
+
+    @Test
+    void failsBeforeTimeoutWithDeterministicInitialAndContingency() {
+        MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent55to34, agent43to53, agent00to10, agent10to00});
+        I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null);
+        long timeout = 10*1000;
+        Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+
+        System.out.println(instanceReport);
+        // shouldn't time out
+        assertFalse(instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) > timeout);
+        // should return "no solution" (is a complete algorithm)
+        assertNull(solved);
+        // should perform 3 + 1 attempts
+        assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
+        assertEquals(1, instanceReport.getIntegerValue("count contingency attempts"));
     }
 
     @Test

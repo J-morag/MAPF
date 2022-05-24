@@ -13,6 +13,8 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 
 import java.util.*;
 
+import static com.google.common.math.IntMath.factorial;
+
 /**
  * An implementation of the Prioritised Planning algorithm for Multi Agent Path Finding.
  * It solves {@link MAPF_Instance MAPF problems} very quickly, but does not guarantee optimality, and will very likely
@@ -174,7 +176,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        return solvePrioritisedPlanning(this.agents, instance, this.constraints);
+        return solvePrioritisedPlanning(instance, this.constraints);
     }
 
     /**
@@ -183,12 +185,15 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * plans of previous agents.
      * It returns a valid solution, but does not guarantee optimality.
      * @return a valid, yet non-optimal {@link Solution} to an {@link MAPF_Instance}.
-     * @param agents ordered (by any order) list of the agents
      * @param instance problem instance
      * @param initialConstraints constraints to solve under
      */
-    protected Solution solvePrioritisedPlanning(List<? extends Agent> agents, MAPF_Instance instance, ConstraintSet initialConstraints) {
+    protected Solution solvePrioritisedPlanning(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = null;
+        Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
+        randomOrderings.add(new ArrayList<>(agents));
+        Set<List<Agent>> deterministicOrderings = new HashSet<>();
+        deterministicOrderings.add(new ArrayList<>(agents));
         // if using random restarts, try more than once and randomize between them
         for (int attemptNumber = 0;
                 ;
@@ -230,29 +235,47 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 bestSolution = solution;
             }
 
-            // TODO ensure no repeats + prefix tree memoization?
-            RestartsStrategy.RestartsKind restartsKind;
-            if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.numInitialRestarts){
-                restartsKind = restartsStrategy.initialRestarts;
+            // report the completed attempt
+            if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
             }
+            else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
+                this.instanceReport.putIntegerValue("count contingency attempts", attemptNumber - restartsStrategy.numInitialRestarts);
+            }
+
+            if (attemptNumber + 1 == factorial(this.agents.size())){
+                break; // exhausted all possible orderings
+            }
+
+            RestartsStrategy.RestartsKind restartsKind;
+            if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.numInitialRestarts){
+                restartsKind = restartsStrategy.initialRestarts;
+            }
             else if (bestSolution == null && attemptNumber >= restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
                 restartsKind = restartsStrategy.contingencyRestarts;
-                this.instanceReport.putIntegerValue("contingency attempts num", attemptNumber - restartsStrategy.numInitialRestarts);
-//                this.instanceReport.putIntegerValue("contingency attempts time", );
             }
             else {
                 break;
             }
 
             if (restartsKind == RestartsStrategy.RestartsKind.randomRestarts){
-                Collections.shuffle(this.agents, this.random);
+                do { // do not repeat orderings
+                    Collections.shuffle(this.agents, this.random);
+                }
+                while (randomOrderings.contains(this.agents) || deterministicOrderings.contains(this.agents));
+
+                randomOrderings.add(new ArrayList<>(this.agents));
             }
             else if (restartsKind == RestartsStrategy.RestartsKind.deterministicRescheduling){
                 if (agentWeFailedOn != null){
                     this.agents.remove(agentWeFailedOn);
                     this.agents.add(0, agentWeFailedOn);
+                    if (deterministicOrderings.contains(this.agents)){
+                        break; // deterministic ordering can end up in a loop - terminates if repeats itself
+                    }
+
+                    deterministicOrderings.add(new ArrayList<>(this.agents));
                 }
                 else { // deterministic restarts only restarts if no solution was found
                     break;
