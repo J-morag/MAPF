@@ -44,7 +44,7 @@ public class RunManagerSimpleExample extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU(),properties);
 
         /*  =   Add new experiment   =  */
-        Experiment gridExperiment = new Experiment("Experiment_16_7", instanceManager,numOfInstances);
+        Experiment gridExperiment = new Experiment("Experiment_16_7", instanceManager,numOfInstances, 60 * 1000);
         this.experiments.add(gridExperiment);
     }
 

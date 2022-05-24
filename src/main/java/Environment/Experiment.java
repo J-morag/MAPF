@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Experiment class lets the user to specify the instances it needs for the experiment.
@@ -51,19 +52,19 @@ public class Experiment {
      */
     public boolean proactiveGarbageCollection = true;
     public int sleepTimeAfterGarbageCollection = 100;
+    public int timeoutEach;
     public boolean sharedGoals = false;
     public boolean sharedSources = false;
 
-    public Experiment(String experimentName, InstanceManager instanceManager) {
+    public Experiment(String experimentName, InstanceManager instanceManager, Integer numOfInstances, Integer timeoutEach) {
         this.experimentName = experimentName;
         this.instanceManager = instanceManager;
-        this.numOfInstances = Integer.MAX_VALUE;
+        this.numOfInstances = Objects.requireNonNullElse(numOfInstances, Integer.MAX_VALUE);
+        this.timeoutEach = Objects.requireNonNullElse(timeoutEach, 5 * 60 * 1000);
     }
 
-    public Experiment(String experimentName, InstanceManager instanceManager, int numOfInstances) {
-        this.experimentName = experimentName;
-        this.instanceManager = instanceManager;
-        this.numOfInstances = numOfInstances;
+    public Experiment(String experimentName, InstanceManager instanceManager) {
+        this(experimentName, instanceManager, null, null);
     }
 
 
@@ -168,7 +169,7 @@ public class Experiment {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 0);
         }
 
-        RunParameters runParameters = new RunParameters(5 * 60 * 1000, null, instanceReport, null);
+        RunParameters runParameters = new RunParameters(timeoutEach, null, instanceReport, null);
 
         String instanceName = instance.extendedName;
         int numAgents = instance.agents.size();
