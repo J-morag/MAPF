@@ -1,6 +1,8 @@
 # MAPF - Multi-Agent Path Finding
 ## A Java implementation of several MAPF algorithms, including Conflict Based Search (CBS).
 
+![](https://github.com/J-morag/MAPF/workflows/CI-tests/badge.svg)
+
 ### How to 
 * How to create a single instance
     
