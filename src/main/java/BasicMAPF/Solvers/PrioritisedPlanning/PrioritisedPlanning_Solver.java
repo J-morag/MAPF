@@ -1,5 +1,7 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
+import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.AStarHeuristic;
@@ -54,15 +56,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     /**
      * The cost function to evaluate solutions with.
      */
-    private final SolutionCostFunction solutionCostFunction;
+    private final I_SolutionCostFunction solutionCostFunction;
     /**
      * optional heuristic function to use in the low level solver.
      */
     private AStarHeuristic heuristic;
-
-    public interface SolutionCostFunction{
-        float solutionCost(Solution solution);
-    }
 
       /**
      * if agents share goals, they will not conflict at their goal.
@@ -103,11 +101,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param sharedGoals if agents share goals, they will not conflict at their goal.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
-                                      SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
+                                      I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
                                       Boolean sharedGoals, Boolean sharedSources) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, Solution::sumIndividualCosts);
+        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
         this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
@@ -334,7 +332,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         super.writeMetricsToReport(solution);
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
-            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
+            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
         }
     }
 
