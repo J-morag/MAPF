@@ -65,11 +65,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
       /**
      * if agents share goals, they will not conflict at their goal.
      */
-    private final boolean sharedGoals;
+    public boolean sharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not conflict 
      */
-    private final boolean sharedSources;
+    public boolean sharedSources;
 
 
     /*  = Constructors =  */
@@ -188,6 +188,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     protected Solution solvePrioritisedPlanning(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = null;
+        int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
         randomOrderings.add(new ArrayList<>(agents));
         Set<List<Agent>> deterministicOrderings = new HashSet<>();
@@ -242,7 +243,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 this.instanceReport.putIntegerValue("count contingency attempts", attemptNumber - restartsStrategy.numInitialRestarts);
             }
 
-            if (attemptNumber + 1 == factorial(this.agents.size())){
+
+            if (attemptNumber + 1 == numPossibleOrderings){
                 break; // exhausted all possible orderings
             }
 

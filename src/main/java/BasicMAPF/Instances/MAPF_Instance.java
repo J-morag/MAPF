@@ -3,8 +3,10 @@ package BasicMAPF.Instances;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a Multi Agent Path Finding instance/problem.
@@ -65,6 +67,28 @@ public class MAPF_Instance {
     public MAPF_Instance getSubproblemFor(Agent agent){
         if(agent == null || !this.agents.contains(agent)){throw new IllegalArgumentException("Agent not present in instance.");}
         return new MAPF_Instance(name+"-agent" + agent.iD, map, new Agent[]{agent});
+    }
+
+    /**
+     * Creates a new {@link MAPF_Instance} from this {@link MAPF_Instance}, which only contains some of the {@link #agents}.
+     * @param agentsSubset the agents to create a sub-instance for.
+     * @return a new {@link MAPF_Instance} created from this {@link MAPF_Instance}, which only contains some of the {@link #agents}.
+     * @throws IllegalArgumentException if the agents are not contained in {@link #agents}.
+     */
+    public MAPF_Instance getSubproblemFor(Set<Agent> agentsSubset){
+        if(agentsSubset == null || agentsSubset.isEmpty()){throw new IllegalArgumentException("Must provide at least 1 agent");}
+        Agent[] agentsArr = new Agent[agentsSubset.size()];
+        for (int i = 0, j = 0; i < this.agents.size(); i++) {
+            Agent a = this.agents.get(i);
+            if (agentsSubset.contains(a)){
+                agentsArr[j] = a;
+                j++;
+            }
+        }
+        if (agentsArr[agentsArr.length - 1] == null){
+            throw new IllegalArgumentException("Agent(s) not present in instance.");
+        }
+        return new MAPF_Instance(name+"-subset" + Arrays.toString(agentsArr), map, agentsArr);
     }
 
     /**

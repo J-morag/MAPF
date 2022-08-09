@@ -222,7 +222,7 @@ class PrioritisedPlanningSolverTest {
         System.out.println(instanceReport);
         // shouldn't time out
         assertFalse(instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) > timeout);
-        // should return "no solution" (is a complete algorithm)
+        // should return "no solution" (is a complete algorithm, exhausts the orderings search space)
         assertNull(solved);
         // should perform 3 + 21 attempts
         assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));

@@ -4,6 +4,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.Solvers.Solution;
 
 import java.util.*;
 
@@ -337,11 +338,11 @@ public class ConstraintSet{
 //        return constraints;
 //    }
 
-    public Constraint vertexConstraintsForMove(Move move){
+    public static Constraint vertexConstraintsForMove(Move move){
         return new Constraint(null, move.timeNow, move.currLocation);
     }
 
-    public Constraint stayAtSourceConstraintsForMove(Move move){
+    public static Constraint stayAtSourceConstraintsForMove(Move move){
         return new StayAtSourceConstraint(move.timeNow, move.currLocation);
     }
 
@@ -354,33 +355,33 @@ public class ConstraintSet{
 //        return constraints;
 //    }
 
-    public Constraint swappingConstraintsForMove(Move move){
+    public static Constraint swappingConstraintsForMove(Move move){
         return new Constraint(null, move.timeNow,
                 /*the constraint is in opposite direction of the move*/ move.currLocation, move.prevLocation);
     }
 
-    public Constraint goalConstraintForMove(Move move){
+    public static Constraint goalConstraintForMove(Move move){
         return new GoalConstraint(move.timeNow, move.currLocation);
     }
 
     /**
      * Creates constraints to protect a {@link SingleAgentPlan plan}.
-     * @param planForAgent
-     * @return
+     * @param singleAgentPlan a plan to get constraints for.
+     * @return all constraints to protect the plan.
      */
-    public List<Constraint> allConstraintsForPlan(SingleAgentPlan planForAgent) {
+    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan) {
         List<Constraint> constraints = new LinkedList<>();
         boolean stayingAtSourceSinceStart = true;
         // protect the agent's plan
-        for (int t = planForAgent.getFirstMoveTime(); t <= planForAgent.getEndTime(); t++) {
-            Move move = planForAgent.moveAt(t);
+        for (int t = singleAgentPlan.getFirstMoveTime(); t <= singleAgentPlan.getEndTime(); t++) {
+            Move move = singleAgentPlan.moveAt(t);
             boolean isStayMove = move.prevLocation.equals(move.currLocation);
             stayingAtSourceSinceStart &= isStayMove;
 
             if (!isStayMove){
                 constraints.add(swappingConstraintsForMove(move));
             }
-            if (move.timeNow != planForAgent.getEndTime()){
+            if (move.timeNow != singleAgentPlan.getEndTime()){
                 if (sharedSources && stayingAtSourceSinceStart){
                     // with shared sources, replace the vertex constraints for stay at source constraints when appropriate
                     constraints.add(stayAtSourceConstraintsForMove(move));
@@ -390,8 +391,22 @@ public class ConstraintSet{
                 }
             }
             else{ // for the last move don't save a vertex constraint, instead save a goal constraint
-                constraints.add(goalConstraintForMove(planForAgent.moveAt(planForAgent.getEndTime())));
+                constraints.add(goalConstraintForMove(singleAgentPlan.moveAt(singleAgentPlan.getEndTime())));
             }
+        }
+        return constraints;
+    }
+
+    /**
+     * Creates constraints to protect a {@link Solution}.
+     @param solution to get constraints for.
+     @return all constraints to protect the solution.
+     */
+    public List<Constraint> allConstraintsForSolution(Solution solution) {
+        List<Constraint> constraints = new LinkedList<>();
+        for (SingleAgentPlan p :
+                solution) {
+            constraints.addAll(this.allConstraintsForPlan(p));
         }
         return constraints;
     }
