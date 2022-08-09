@@ -215,6 +215,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                     break;
                 }
             }
+            if (i == destroyHeuristicsWeights.length){ // handle potential floating point problem
+                i = destroyHeuristicsWeights.length - 1;
+            }
             return i;
         }
     }
