@@ -1,23 +1,20 @@
-package BasicMAPF.Solvers.CBS;
+package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
-import BasicMAPF.CostFunctions.SOCPCostFunction;
-import BasicMAPF.Instances.InstanceBuilders.Priorities;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
-import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
+import Environment.IO_Package.IO_Manager;
+import Environment.Metrics.InstanceReport;
+import Environment.Metrics.S_Metrics;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,11 +23,12 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CBS_SolverTest {
+class LargeNeighborhoodSearch_SolverTest {
 
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
@@ -44,7 +42,7 @@ class CBS_SolverTest {
     };
     private final I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
 
-    private final Enum_MapLocationType[][] map_2D_empty = {
+    Enum_MapLocationType[][] map_2D_empty = {
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
             {e, e, e, e, e, e},
@@ -64,6 +62,7 @@ class CBS_SolverTest {
     };
     private final I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
 
+
     private final Enum_MapLocationType[][] map_2D_smallMaze = {
             {e, e, e, w, e, w},
             {e, w, e, e, e, e},
@@ -74,54 +73,75 @@ class CBS_SolverTest {
     };
     private final I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
 
-    private I_Coordinate coor12 = new Coordinate_2D(1,2);
-    private I_Coordinate coor13 = new Coordinate_2D(1,3);
-    private I_Coordinate coor14 = new Coordinate_2D(1,4);
-    private I_Coordinate coor22 = new Coordinate_2D(2,2);
-    private I_Coordinate coor24 = new Coordinate_2D(2,4);
-    private I_Coordinate coor32 = new Coordinate_2D(3,2);
-    private I_Coordinate coor33 = new Coordinate_2D(3,3);
-    private I_Coordinate coor34 = new Coordinate_2D(3,4);
-    private I_Coordinate coor35 = new Coordinate_2D(3,5);
+    private final I_Coordinate coor12 = new Coordinate_2D(1,2);
+    private final I_Coordinate coor13 = new Coordinate_2D(1,3);
+    private final I_Coordinate coor14 = new Coordinate_2D(1,4);
+    private final I_Coordinate coor22 = new Coordinate_2D(2,2);
+    private final I_Coordinate coor24 = new Coordinate_2D(2,4);
+    private final I_Coordinate coor32 = new Coordinate_2D(3,2);
+    private final I_Coordinate coor33 = new Coordinate_2D(3,3);
+    private final I_Coordinate coor34 = new Coordinate_2D(3,4);
+    private final I_Coordinate coor35 = new Coordinate_2D(3,5);
 
-    private I_Coordinate coor11 = new Coordinate_2D(1,1);
-    private I_Coordinate coor43 = new Coordinate_2D(4,3);
-    private I_Coordinate coor53 = new Coordinate_2D(5,3);
-    private I_Coordinate coor54 = new Coordinate_2D(5,4);
-    private I_Coordinate coor55 = new Coordinate_2D(5,5);
-    private I_Coordinate coor05 = new Coordinate_2D(0,5);
+    private final I_Coordinate coor11 = new Coordinate_2D(1,1);
+    private final I_Coordinate coor43 = new Coordinate_2D(4,3);
+    private final I_Coordinate coor53 = new Coordinate_2D(5,3);
+    private final I_Coordinate coor54 = new Coordinate_2D(5,4);
+    private final I_Coordinate coor55 = new Coordinate_2D(5,5);
+    private final I_Coordinate coor05 = new Coordinate_2D(0,5);
 
-    private I_Coordinate coor04 = new Coordinate_2D(0,4);
-    private I_Coordinate coor00 = new Coordinate_2D(0,0);
-    private I_Coordinate coor01 = new Coordinate_2D(0,1);
-    private I_Coordinate coor10 = new Coordinate_2D(1,0);
-    private I_Coordinate coor15 = new Coordinate_2D(1,5);
+    private final I_Coordinate coor04 = new Coordinate_2D(0,4);
+    private final I_Coordinate coor00 = new Coordinate_2D(0,0);
+    private final I_Coordinate coor01 = new Coordinate_2D(0,1);
+    private final I_Coordinate coor10 = new Coordinate_2D(1,0);
 
-    private Agent agent33to12 = new Agent(0, coor33, coor12);
-    private Agent agent12to33 = new Agent(1, coor12, coor33);
-    private Agent agent53to05 = new Agent(2, coor53, coor05);
-    private Agent agent43to11 = new Agent(3, coor43, coor11);
-    private Agent agent04to54 = new Agent(4, coor04, coor54);
-    private Agent agent00to10 = new Agent(5, coor00, coor10);
-    private Agent agent10to00 = new Agent(6, coor10, coor00);
-    private Agent agent04to00 = new Agent(7, coor04, coor00);
-    private Agent agent33to35 = new Agent(8, coor33, coor35);
-    private Agent agent34to32 = new Agent(9, coor34, coor32);
+    private final I_Location location12 = mapCircle.getMapLocation(coor12);
+    private final I_Location location13 = mapCircle.getMapLocation(coor13);
+    private final I_Location location14 = mapCircle.getMapLocation(coor14);
+    private final I_Location location22 = mapCircle.getMapLocation(coor22);
+    private final I_Location location24 = mapCircle.getMapLocation(coor24);
+    private final I_Location location32 = mapCircle.getMapLocation(coor32);
+    private final I_Location location33 = mapCircle.getMapLocation(coor33);
+    private final I_Location location34 = mapCircle.getMapLocation(coor34);
+
+    private final I_Location location11 = mapCircle.getMapLocation(coor11);
+    private final I_Location location43 = mapCircle.getMapLocation(coor43);
+    private final I_Location location53 = mapCircle.getMapLocation(coor53);
+    private final I_Location location54 = mapCircle.getMapLocation(coor54);
+    private final I_Location location55 = mapCircle.getMapLocation(coor55);
+    private final I_Location location05 = mapCircle.getMapLocation(coor05);
+
+    private final I_Location location04 = mapCircle.getMapLocation(coor04);
+    private final I_Location location00 = mapCircle.getMapLocation(coor00);
+    private final I_Location location01 = mapCircle.getMapLocation(coor01);
+    private final I_Location location10 = mapCircle.getMapLocation(coor10);
+
+    private final Agent agent33to12 = new Agent(0, coor33, coor12);
+    private final Agent agent12to33 = new Agent(1, coor12, coor33);
+    private final Agent agent53to05 = new Agent(2, coor53, coor05);
+    private final Agent agent43to11 = new Agent(3, coor43, coor11);
+    private final Agent agent04to00 = new Agent(4, coor04, coor00);
+    private final Agent agent00to10 = new Agent(5, coor00, coor10);
+    private final Agent agent10to00 = new Agent(6, coor10, coor00);
+    private final Agent agent43to53 = new Agent(7, coor43, coor53);
+    private final Agent agent55to34 = new Agent(8, coor55, coor34);
+    private final Agent agent33to35 = new Agent(9, coor33, coor35);
+    private final Agent agent34to32 = new Agent(10, coor34, coor32);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
-    private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty,
-            new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to54, agent00to10, agent10to00});
-    private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
-    private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
-    private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
-    private MAPF_Instance instanceSmallMaze = new MAPF_Instance("instanceSmallMaze", mapSmallMaze, new Agent[]{agent04to00, agent00to10});
-    private MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
+    private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+    private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
+    private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
+    private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
+    private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
+    private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
-    I_Solver cbsSolver = new CBS_Solver();
-
+//    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
+//    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new MapBasedDestroyHeuristic()), null, null, null, null);
+    I_Solver solver = new LargeNeighborhoodSearch_Solver();
 
     InstanceReport instanceReport;
 
@@ -135,166 +155,52 @@ class CBS_SolverTest {
         S_Metrics.removeReport(instanceReport);
     }
 
-    void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
-        assertTrue(solution.isValidSolution()); //is valid (no conflicts)
-        assertTrue(solution.solves(instance));
-
-        assertEquals(numAgents, solution.size()); // solution includes all agents
-        assertEquals(optimalSOC, solution.sumIndividualCosts()); // SOC is optimal
-        assertEquals(optimalMakespan, solution.makespan()); // makespan is optimal
-    }
-
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
-        S_Metrics.removeReport(instanceReport);
+        Solution solved = solver.solve(testInstance, getDefaultRunParameters());
 
-        System.out.println(solved.readableToString());
-        validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
+        assertTrue(solved.solves(testInstance));
+    }
+
+    @NotNull
+    private RunParameters getDefaultRunParameters() {
+        return new RunParameters(5L * 1000, null, instanceReport, null);
     }
 
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
-        S_Metrics.removeReport(instanceReport);
+        Solution solved = solver.solve(testInstance, getDefaultRunParameters());
 
-        System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5, testInstance);
-
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
-        S_Metrics.removeReport(instanceReport);
+        Solution solved = solver.solve(testInstance, getDefaultRunParameters());
 
-        System.out.println(solved.readableToString());
-        validate(solved, 2, 8, 5, testInstance);
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, getDefaultRunParameters());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 2, 6, 4, testInstance);
+        assertTrue(solved.solves(testInstance));
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeout() {
+    void unsolvable() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
-        S_Metrics.removeReport(instanceReport);
+        Solution solved = solver.solve(testInstance, getDefaultRunParameters());
 
         assertNull(solved);
-    }
-
-    @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1() {
-        MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
-        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
-        S_Metrics.removeReport(instanceReport);
-
-        assertNull(solved);
-    }
-
-    @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2() {
-        MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
-        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
-        S_Metrics.removeReport(instanceReport);
-
-        assertNull(solved);
-    }
-
-    @Test
-    void cbsWithPriorities() {
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCPCostFunction(), null, null, null, null);
-        InstanceReport instanceReport = new InstanceReport();
-
-        Agent agent0 = new Agent(0, coor33, coor12, 10);
-        Agent agent1 = new Agent(1, coor12, coor33, 1);
-
-        MAPF_Instance agent0prioritisedInstance = new MAPF_Instance("agent0prioritised", mapCircle, new Agent[]{agent0, agent1});
-        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParameters(instanceReport));
-
-        agent0 = new Agent(0, coor33, coor12, 1);
-        agent1 = new Agent(1, coor12, coor33, 10);
-
-        MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
-        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
-
-        System.out.println(agent0prioritisedSolution.readableToString());
-        validate(agent0prioritisedSolution, 2, 8, 5, agent0prioritisedInstance);
-
-        System.out.println(agent1prioritisedSolution.readableToString());
-        validate(agent1prioritisedSolution, 2, 8, 5, agent1prioritisedInstance);
-
-        // check that agents were logically prioritised to minimise cost with priorities
-
-        assertEquals(agent0prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
-        assertEquals(agent0prioritisedSolution.getPlanFor(agent0).size(), 3);
-
-        assertEquals(agent1prioritisedSolution.sumIndividualCostsWithPriorities(), 35);
-        assertEquals(agent1prioritisedSolution.getPlanFor(agent1).size(), 3);
-    }
-
-    @Test
-    void cbsWithPrioritiesUsingBuilder() {
-        boolean useAsserts = true;
-
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCPCostFunction(), null, null, null, null);
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path,
-                new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.ROUND_ROBIN, new int[]{1, 3, 5})));
-
-        MAPF_Instance instance = null;
-        long timeout = 30 /*seconds*/
-                *1000L;
-
-        // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-        while ((instance = instanceManager.getNextInstance()) != null) {
-            InstanceReport report = new InstanceReport();
-
-            RunParameters runParameters = new RunParameters(timeout, null, report, null);
-
-            //solve
-            System.out.println("---------- solving "  + instance.name + " ----------");
-            Solution solution = solver.solve(instance, runParameters);
-
-            // validate
-            boolean solved = solution != null;
-            System.out.println("Solved?: " + (solved ? "yes" : "no"));
-
-            if(solution != null){
-                boolean valid = solution.solves(instance);
-                System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
-            }
-        }
     }
 
     @Test
@@ -302,7 +208,7 @@ class CBS_SolverTest {
         S_Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver solver = cbsSolver;
+        I_Solver solver = this.solver;
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -310,7 +216,7 @@ class CBS_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 300 /*seconds*/
+            long timeout = 3 /*seconds*/
                     *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
             int numSolved = 0;
@@ -321,6 +227,9 @@ class CBS_SolverTest {
             int numInvalidOptimal = 0;
             // run all benchmark instances. this code is mostly copied from Environment.Experiment.
             while ((instance = instanceManager.getNextInstance()) != null) {
+//                if (!instance.name.equals("Instance-32-20-20-0")){
+//                    continue;
+//                }
 
                 //build report
                 InstanceReport report = S_Metrics.newInstanceReport();
@@ -344,7 +253,7 @@ class CBS_SolverTest {
 
                 boolean solved = solution != null;
                 System.out.println("Solved?: " + (solved ? "yes" : "no"));
-                if (useAsserts) assertNotNull(solution);
+//                if (useAsserts) assertNotNull(solution);
                 if (solved) numSolved++;
                 else numFailed++;
 
@@ -359,7 +268,6 @@ class CBS_SolverTest {
                     System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
                             ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
                     report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-                    if (useAsserts) assertEquals(optimalCost, costWeGot);
 
                     report.putIntegerValue("Runtime Delta",
                             report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
@@ -410,12 +318,12 @@ class CBS_SolverTest {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
     }
 
     @Test
     void sharedGoals(){
-        CBS_Solver cbsSolverSharedGoals = new CBS_Solver(null, null, null,
-                null, null, null, true, null);
+        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -447,36 +355,14 @@ class CBS_SolverTest {
         // like a duplicate agent except for the id
         MAPF_Instance instanceCircle2SharedGoalAndStart = new MAPF_Instance("instanceCircle2SharedGoalAndStart", mapCircle, new Agent[]{agent12to33, agent33to12, new Agent(20, coor33, coor12)});
 
-        MAPF_Instance instanceCircleSameEarliestGoalArrivalTimeSameGoal = new MAPF_Instance("instanceCircleSameEarliestGoalArrivalTimeSameGoal",
-                mapCircle, new Agent[]{new Agent(20, coor32, coor12), new Agent(21, coor14, coor12)});
-        MAPF_Instance instanceDifferentGoalAndInterfering1 = new MAPF_Instance("instanceDifferentGoalAndInterfering1",
-                mapSmallMaze, new Agent[]{new Agent(1, coor55, coor32), new Agent(2, coor33, coor43)});
-        MAPF_Instance instanceDifferentGoalAndInterfering2 = new MAPF_Instance("instanceDifferentGoalAndInterfering2",
-                mapSmallMaze, new Agent[]{new Agent(1, coor33, coor43), new Agent(2, coor55, coor32)});
-
         System.out.println("should find a solution:");
         for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceEmptyPlusSharedGoal1, instanceEmptyPlusSharedGoal2, instanceEmptyPlusSharedGoal3, instanceEmptyPlusSharedGoal4,
                 instanceEmptyPlusSharedGoalAndSomeStart1, instanceEmptyPlusSharedGoalAndSomeStart2, instanceEmptyPlusSharedGoalAndSomeStart3, instanceEmptyPlusSharedGoalAndSomeStart4,
-                instanceEmptyPlusSharedGoalAndStart1, instanceCircle1SharedGoal, instanceCircle1SharedGoalAndStart, instanceCircle2SharedGoal, instanceCircle2SharedGoalAndStart,
-                instanceDifferentGoalAndInterfering1, instanceDifferentGoalAndInterfering2, instanceCircleSameEarliestGoalArrivalTimeSameGoal}){
+                instanceEmptyPlusSharedGoalAndStart1, instanceCircle1SharedGoal, instanceCircle1SharedGoalAndStart, instanceCircle2SharedGoal, instanceCircle2SharedGoalAndStart}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            Solution solution = solverWithSharedGoals.solve(testInstance, getDefaultRunParameters());
             assertNotNull(solution);
             assertTrue(solution.solves(testInstance, true, true));
-            if (testInstance.name.equals(instanceCircle1SharedGoal.name)){
-                assertEquals(10, solution.sumIndividualCosts());
-                assertEquals(5, solution.makespan());
-            }
-            if (testInstance.name.equals(instanceCircle1SharedGoalAndStart.name)){
-                assertEquals(12, solution.sumIndividualCosts());
-                assertEquals(5, solution.makespan());
-            }
-            if (testInstance.name.equals(instanceCircleSameEarliestGoalArrivalTimeSameGoal.name)){
-                // arriving at same time treated as okay. would be 5 if they have to arrive one-at-a-time at goal
-                assertEquals(4, solution.sumIndividualCosts());
-                // arriving at same time treated as okay. would be 3 if they have to arrive one-at-a-time at goal
-                assertEquals(2, solution.makespan());
-            }
         }
 
         MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
@@ -484,10 +370,11 @@ class CBS_SolverTest {
         System.out.println("should not find a solution:");
         for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(5*1000, null, instanceReport, null));
+            Solution solution = solverWithSharedGoals.solve(testInstance, getDefaultRunParameters());
             assertNull(solution);
         }
     }
+
 
     private Map<String, Map<String, String>> readResultsCSV(String pathToCsv) throws IOException {
         Map<String, Map<String, String>> result  = new HashMap<>();
@@ -517,4 +404,5 @@ class CBS_SolverTest {
 
         return result;
     }
+
 }
