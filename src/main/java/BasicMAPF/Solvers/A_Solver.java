@@ -6,6 +6,7 @@ import Environment.Metrics.S_Metrics;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Performs that functionality that is common to all solvers.
@@ -69,7 +70,7 @@ public abstract class A_Solver implements I_Solver{
     }
 
     public static long getCurrentTimeMS_NSAccuracy() {
-        return System.nanoTime() / 1000000;
+        return TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
     }
 
     /*  = algorithm =  */

@@ -1,5 +1,7 @@
 package BasicMAPF.Solvers.CBS;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
+import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
@@ -72,7 +74,7 @@ public class CBS_Solver extends A_Solver {
     /**
      * Cost may be more complicated than a simple SOC (Sum of Individual Costs), so retrieve it through this method.
      */
-    private final CBSCostFunction costFunction;
+    private final I_SolutionCostFunction costFunction;
     /**
      * Determines how to sort {@link #openList OPEN}.
      */
@@ -105,7 +107,7 @@ public class CBS_Solver extends A_Solver {
      * @param useCorridorReasoning whether or not to use corridor reasoning.
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
-                      CBSCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
+                      I_SolutionCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
                       Boolean sharedGoals, Boolean sharedSources) {
         super.name = "CBS";
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
@@ -114,7 +116,7 @@ public class CBS_Solver extends A_Solver {
         this.corridorReasoning = Objects.requireNonNullElse(useCorridorReasoning, false);
         clearOPEN();
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
-        this.costFunction = costFunction != null ? costFunction : (solution, cbs) -> solution.sumIndividualCosts();
+        this.costFunction = Objects.requireNonNullElse(costFunction, new SOCCostFunction());
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
@@ -184,7 +186,7 @@ public class CBS_Solver extends A_Solver {
             }
         }
 
-        return new CBS_Node(solution, costFunction.solutionCost(solution, this));
+        return new CBS_Node(solution, costFunction.solutionCost(solution));
     }
 
     /**
@@ -297,7 +299,7 @@ public class CBS_Solver extends A_Solver {
         // plans, and add the re-planned agent's new plan.
         solution.putPlan(agentSolution.getPlanFor(agent));
 
-        return new CBS_Node(solution, costFunction.solutionCost(solution, this), constraint, parent);
+        return new CBS_Node(solution, costFunction.solutionCost(solution), constraint, parent);
     }
 
     /**
@@ -399,7 +401,7 @@ public class CBS_Solver extends A_Solver {
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodes, this.generatedNodes);
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodes, this.expandedNodes);
         if(solution != null){
-            super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
+            super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, costFunction.name());
             super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }
@@ -414,13 +416,6 @@ public class CBS_Solver extends A_Solver {
     }
 
     /*  = internal classes and interfaces =  */
-
-    /**
-     * Cost may be more complicated than a simple SOC (Sum of Individual Costs), so it is factored out with this interface.
-     */
-    public interface CBSCostFunction{
-        float solutionCost(Solution solution, CBS_Solver cbs);
-    }
 
     /**
      * A data type for representing a single node in the CBS search tree.
