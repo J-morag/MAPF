@@ -82,14 +82,14 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
-                : destroyHeuristics;
+                : new ArrayList<>(destroyHeuristics);
 
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
-        super.name = this.destroyHeuristics.size() > 1 ? "ALNS" : ("LNS-" + this.destroyHeuristics.get(0).toString());
+        super.name = this.destroyHeuristics.size() > 1 ? "ALNS" : ("LNS-" + this.destroyHeuristics.get(0).getClass().getSimpleName());
     }
 
     /**
@@ -275,7 +275,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         }
         instanceReport.putIntegerValue("Num Iterations", numIterations);
         if(solution != null){
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, Math.round(solutionCostFunction.solutionCost(solution)));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
         }
     }

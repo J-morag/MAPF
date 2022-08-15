@@ -2,13 +2,17 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.IO_Package.IO_Manager;
@@ -22,9 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -319,6 +321,141 @@ class LargeNeighborhoodSearch_SolverTest {
             ex.printStackTrace();
         }
 
+    }
+
+
+    /**
+     * This contains diverse instances, comparing the performance of two algorithms.
+     */
+    @Test
+    void comparativeDiverseTestHasContingencyVsNoContingency(){
+        S_Metrics.clearAll();
+        boolean useAsserts = true;
+
+        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
+        String nameBaseline = baselineSolver.name();
+
+        I_Solver competitorSolver = new LargeNeighborhoodSearch_Solver();
+        String nameExperimental = competitorSolver.name();
+
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "ComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+                new InstanceProperties(null, -1d, new int[]{100}));
+
+        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
+        MAPF_Instance instance = null;
+//        long timeout = 60 /*seconds*/   *1000L;
+        long timeout = 3 /*seconds*/   *1000L;
+        int solvedByBaseline = 0;
+        int solvedByExperimental = 0;
+        int runtimeBaseline = 0;
+        int runtimeExperimental = 0;
+        int sumCostBaseline = 0;
+        int sumCostExperimental = 0;
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
+
+            // run baseline (without the improvement)
+            //build report
+            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
+
+            //solve
+            Solution solutionBaseline = baselineSolver.solve(instance, runParametersBaseline);
+
+            // run experiment (with the improvement)
+            //build report
+            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+
+            //solve
+            Solution solutionExperimental = competitorSolver.solve(instance, runParametersExperimental);
+
+            // compare
+
+            boolean baselineSolved = solutionBaseline != null;
+            solvedByBaseline += baselineSolved ? 1 : 0;
+            boolean experimentalSolved = solutionExperimental != null;
+            solvedByExperimental += experimentalSolved ? 1 : 0;
+            System.out.println(nameBaseline + " Solved?: " + (baselineSolved ? "yes" : "no") +
+                    " ; " + nameExperimental + " solved?: " + (experimentalSolved ? "yes" : "no"));
+
+            if(solutionBaseline != null){
+                boolean valid = solutionBaseline.solves(instance);
+                System.out.print(nameBaseline + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+
+            if(solutionExperimental != null){
+                boolean valid = solutionExperimental.solves(instance);
+                System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+            else System.out.println();
+
+            if(solutionBaseline != null && solutionExperimental != null){
+                // runtimes
+                runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                runtimeExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                reportBaseline.putIntegerValue("Runtime Delta",
+                        reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
+                                - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+
+                // cost
+                sumCostBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.solutionCost);
+                sumCostExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.solutionCost);
+            }
+        }
+
+        System.out.println("--- TOTALS: ---");
+        System.out.println("timeout for each (seconds): " + (timeout/1000));
+        System.out.println(nameBaseline + " solved: " + solvedByBaseline);
+        System.out.println(nameExperimental + " solved: " + solvedByExperimental);
+        System.out.println("runtime totals (instances where both solved) :");
+        System.out.println(nameBaseline + " time: " + runtimeBaseline);
+        System.out.println(nameExperimental + " time: " + runtimeExperimental);
+        System.out.println(nameBaseline + " avg. cost: " + sumCostBaseline);
+        System.out.println(nameExperimental + " avg. cost: " + sumCostExperimental);
+
+        //save results
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+        File directory = new File(resultsOutputDir);
+        if (! directory.exists()){
+            directory.mkdir();
+        }
+        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        try {
+            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                    new String[]{
+                            InstanceReport.StandardFields.instanceName,
+                            InstanceReport.StandardFields.solver,
+                            InstanceReport.StandardFields.numAgents,
+                            InstanceReport.StandardFields.timeoutThresholdMS,
+                            InstanceReport.StandardFields.solved,
+                            InstanceReport.StandardFields.elapsedTimeMS,
+                            "Runtime Delta",
+                            InstanceReport.StandardFields.solutionCost,
+                            "Cost Delta",
+                            InstanceReport.StandardFields.totalLowLevelTimeMS,
+                            InstanceReport.StandardFields.generatedNodes,
+                            InstanceReport.StandardFields.expandedNodes,
+                            InstanceReport.StandardFields.generatedNodesLowLevel,
+                            InstanceReport.StandardFields.expandedNodesLowLevel});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
