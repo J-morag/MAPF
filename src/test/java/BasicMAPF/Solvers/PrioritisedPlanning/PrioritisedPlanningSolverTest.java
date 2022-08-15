@@ -655,7 +655,7 @@ class PrioritisedPlanningSolverTest {
     }
 
     /**
-     * This contains diverse instances
+     * This contains diverse instances, comparing the performance of two algorithms.
      */
     @Test
     void comparativeDiverseTestHasContingencyVsNoContingency(){
