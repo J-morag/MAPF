@@ -175,10 +175,10 @@ public class LifelongSimulationSolver extends A_Solver {
         List<Agent> unchangingAgents = new ArrayList<>(lifelongInstance.agents);
         unchangingAgents.removeAll(agentsSubset);
         unchangingAgents.forEach(agent -> constraints.addAll(constraints.allConstraintsForPlan(latestSolution.getPlanFor(agent))));
-        long timeout = Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime));
-        timeout = offlineSolver instanceof LargeNeighborhoodSearch_Solver ? Math.min(timeout, 500L): timeout;
+        long hardTimeout = Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime));
+        Long softTimeout = Math.min(200L, hardTimeout);
 
-        return new RunParameters(timeout, constraints, new InstanceReport(), null, farthestCommittedTime);
+        return new RunParameters(hardTimeout, constraints, new InstanceReport(), null, softTimeout, farthestCommittedTime);
     }
 
     private void checkSolutionStartTimes(Solution partialSolution, int expectedPlansStartTime) {
