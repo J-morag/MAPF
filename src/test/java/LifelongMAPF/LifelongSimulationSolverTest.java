@@ -241,7 +241,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -347,7 +347,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -454,7 +454,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -561,7 +561,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -668,7 +668,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -775,7 +775,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -882,7 +882,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -990,7 +990,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);

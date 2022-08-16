@@ -68,7 +68,7 @@ public class RunParameters {
         this.problemStartTime = toCopy.problemStartTime;
     }
 
-    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout) {
+    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout, Integer problemStartTime) {
         this.timeout = Objects.requireNonNullElse(timeout, DEFAULT_TIMEOUT);
         this.softTimeout = Objects.requireNonNullElse(softTimeout, this.timeout);
         if (this.softTimeout > this.timeout){
@@ -77,6 +77,11 @@ public class RunParameters {
         this.constraints = constraints;
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
+        this.problemStartTime = Objects.requireNonNullElse(problemStartTime, 0);
+    }
+
+    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout) {
+        this(timeout, constraints, instanceReport, existingSolution, softTimeout, null);
     }
 
     public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
@@ -117,6 +122,7 @@ public class RunParameters {
 
     public RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
         this.timeout = timeout;
+        this.softTimeout = timeout;
         this.constraints = constraints;
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
@@ -124,7 +130,7 @@ public class RunParameters {
     }
 
     public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
-        this(defaultTimeout, constraints, instanceReport, existingSolution, problemStartTime);
+        this(DEFAULT_TIMEOUT, constraints, instanceReport, existingSolution, problemStartTime);
     }
 
     public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, int problemStartTime) {
