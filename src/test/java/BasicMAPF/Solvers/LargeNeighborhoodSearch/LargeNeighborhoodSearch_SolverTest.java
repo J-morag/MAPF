@@ -206,6 +206,23 @@ class LargeNeighborhoodSearch_SolverTest {
     }
 
     @Test
+    void ObeysSoftTimeout(){
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        long softTimeout = 1000L;
+        long hardTimeout = 5L * 1000;
+        Solution solved = solver.solve(testInstance, new RunParameters(hardTimeout, null, instanceReport, null, softTimeout));
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+        int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        System.out.println("runtime: " + runtime);
+        assertTrue(runtime >= softTimeout && runtime < hardTimeout);
+
+        S_Metrics.removeReport(instanceReport);
+    }
+
+    @Test
     void TestingBenchmark(){
         S_Metrics.clearAll();
         boolean useAsserts = true;

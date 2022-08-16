@@ -26,8 +26,13 @@ public class RunParameters_PP extends RunParameters {
      */
     public final AStarHeuristic heuristic;
 
+    public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarHeuristic heuristic, Long softTimeout) {
+        super(timeout, constraints, instanceReport, existingSolution, softTimeout);
+        this.preferredPriorityOrder = preferredPriorityOrder;
+        this.heuristic = heuristic;
+    }
     public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
-        super(timeout, constraints, instanceReport, existingSolution);
+        super(timeout, constraints, instanceReport, existingSolution, null);
         this.preferredPriorityOrder = preferredPriorityOrder;
         this.heuristic = heuristic;
     }

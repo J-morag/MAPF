@@ -4,6 +4,8 @@ import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 
+import java.util.Objects;
+
 /**
  * A set of parameters for a {@link I_Solver solver} to use when solving an {@link BasicMAPF.Instances.MAPF_Instance instance}.
  * All parameters can be null or invalid, so {@link I_Solver solvers} should validate all fields before using them, and
@@ -12,8 +14,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
  */
 public class RunParameters {
     /*  =Constants=  */
-    private static final long defaultTimeout = 1000*60*15 /*15 minutes*/;
-//    private static final long defaultTimeout = 1000*60*5 /*5 minutes*/;
+    private static final long DEFAULT_TIMEOUT = 1000*60*5 /*5 minutes*/;
 
     /*  =Fields=  */
     /**
@@ -21,6 +22,14 @@ public class RunParameters {
      * Can also be 0, or negative.
      */
     public final long timeout;
+
+    /**
+     * For Anytime algorithms.
+     * After this soft timeout (milliseconds) is exceeded, the solver should try and return a solution before hitting
+     * the hard {@link #timeout}.
+     * Can also be 0, or negative. Must be <= {@link #timeout}.
+     */
+    public final long softTimeout;
 
     /**
      * An unmodifiable list of {@link Constraint location constraints} for the {@link I_Solver sovler} to use.
@@ -45,15 +54,23 @@ public class RunParameters {
 
     /*  =Constructors=  */
 
-    public RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
-        this.timeout = timeout;
+    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout) {
+        this.timeout = Objects.requireNonNullElse(timeout, DEFAULT_TIMEOUT);
+        this.softTimeout = Objects.requireNonNullElse(softTimeout, this.timeout);
+        if (this.softTimeout > this.timeout){
+            throw new IllegalArgumentException("softTimeout parameter must be <= timeout parameter");
+        }
         this.constraints = constraints;
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
     }
 
+    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
+        this(timeout, constraints, instanceReport, existingSolution, null);
+    }
+
     public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
-        this(defaultTimeout, constraints, instanceReport, existingSolution);
+        this(null, constraints, instanceReport, existingSolution, null);
     }
 
     public RunParameters(ConstraintSet constraints, InstanceReport instanceReport) {
@@ -79,7 +96,7 @@ public class RunParameters {
     }
 
     public RunParameters(long timeout) {
-        this(timeout, null, null, null);
+        this(timeout, null, null, null, null);
     }
 
     public RunParameters() {

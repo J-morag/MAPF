@@ -52,7 +52,7 @@ public class Experiment {
      */
     public boolean proactiveGarbageCollection = true;
     public int sleepTimeAfterGarbageCollection = 100;
-    public int timeoutEach;
+    public long timeoutEach;
     public boolean sharedGoals = false;
     public boolean sharedSources = false;
 

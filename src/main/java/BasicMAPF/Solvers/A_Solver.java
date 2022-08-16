@@ -15,6 +15,7 @@ public abstract class A_Solver implements I_Solver{
     protected long DEFAULT_TIMEOUT = 5*60*1000; //5 minutes
 
     protected long maximumRuntime;
+    protected long softTimeout;
     protected InstanceReport instanceReport;
     protected boolean commitReport;
 
@@ -62,6 +63,7 @@ public abstract class A_Solver implements I_Solver{
         this.totalLowLevelStatesGenerated = 0;
         this.totalLowLevelStatesExpanded = 0;
         this.maximumRuntime = (parameters.timeout >= 0) ? parameters.timeout : this.DEFAULT_TIMEOUT;
+        this.softTimeout = Math.min(parameters.softTimeout, this.maximumRuntime);
         this.instanceReport = parameters.instanceReport == null ? S_Metrics.newInstanceReport()
                 : parameters.instanceReport;
         // if we were given a report, we should leave it be. If we created our report locally, then it is unreachable
@@ -134,6 +136,9 @@ public abstract class A_Solver implements I_Solver{
             return true;
         }
         return false;
+    }
+    protected boolean checkSoftTimeout() {
+        return getCurrentTimeMS_NSAccuracy() - startTime > softTimeout;
     }
 
     @Override
