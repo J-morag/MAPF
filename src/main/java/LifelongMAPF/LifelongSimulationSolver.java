@@ -5,6 +5,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
@@ -106,6 +107,7 @@ public class LifelongSimulationSolver extends A_Solver {
             if(partialSolution == null){ //probably a timeout
                 return null;
             }
+            checkSolutionStartTimes(partialSolution, farthestCommittedTime);
             digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport);
             // handle partial solution (add the other agents)
             latestSolution = addUntouchedAgentsToPartialSolution(partialSolution, latestSolution,
@@ -173,9 +175,19 @@ public class LifelongSimulationSolver extends A_Solver {
         List<Agent> unchangingAgents = new ArrayList<>(lifelongInstance.agents);
         unchangingAgents.removeAll(agentsSubset);
         unchangingAgents.forEach(agent -> constraints.addAll(constraints.allConstraintsForPlan(latestSolution.getPlanFor(agent))));
+        long timeout = Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime));
+        timeout = offlineSolver instanceof LargeNeighborhoodSearch_Solver ? Math.min(timeout, 500L): timeout;
 
-        return new RunParameters(Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)),
-                constraints, new InstanceReport(), null, farthestCommittedTime);
+        return new RunParameters(timeout, constraints, new InstanceReport(), null, farthestCommittedTime);
+    }
+
+    private void checkSolutionStartTimes(Solution partialSolution, int expectedPlansStartTime) {
+        for (SingleAgentPlan plan :
+                partialSolution) {
+            if (plan.getPlanStartTime() != expectedPlansStartTime){
+                throw new RuntimeException("start time " + plan.getPlanStartTime() + " != " + expectedPlansStartTime);
+            }
+        }
     }
 
     private Solution addUntouchedAgentsToPartialSolution(Solution partialSolution, @Nullable Solution latestSolution,

@@ -11,6 +11,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import LifelongMAPF.I_LifelongCompatibleSolver;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * Implementation and default parameters are based on:
  * Li, Jiaoyang, et al. "Anytime multi-agent path finding via large neighborhood search." International Joint Conference on Artificial Intelligence (IJCAI). 2021.
  */
-public class LargeNeighborhoodSearch_Solver extends A_Solver {
+public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /*  = Fields =  */
     /*  =  = Fields related to the MAPF instance =  */
@@ -37,6 +38,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     private int numIterations;
     private double[] destroyHeuristicsWeights;
     private double sumWeights;
+    /**
+     * Start time of the problem. Not real-time.
+     */
+    private int problemStartTime;
 
     /*  =  = Fields related to the class instance =  */
 
@@ -111,6 +116,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         super.init(instance, parameters);
 
         this.agents = new ArrayList<>(instance.agents);
+        this.problemStartTime = parameters.problemStartTime;
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.constraints.sharedGoals = this.sharedGoals;
         this.constraints.sharedSources = this.sharedSources;
@@ -259,8 +265,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParameters_PP(timeLeftToTimeout, subproblemConstraints, subproblemReport, null,
-                randomizedAgentsOrder.toArray(new Agent[0]), null);
+        RunParameters_PP runParameters_pp = new RunParameters_PP(timeLeftToTimeout, subproblemConstraints, subproblemReport,
+                null, randomizedAgentsOrder.toArray(new Agent[0]), null);
+        runParameters_pp.problemStartTime = this.problemStartTime;
+        return runParameters_pp;
     }
 
     /*  = wind down =  */
@@ -298,4 +306,13 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         }
     }
 
+    @Override
+    public boolean sharedSources() {
+        return this.sharedSources;
+    }
+
+    @Override
+    public boolean sharedGoals() {
+        return this.sharedGoals;
+    }
 }

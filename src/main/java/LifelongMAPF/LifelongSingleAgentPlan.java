@@ -43,14 +43,16 @@ public class LifelongSingleAgentPlan extends SingleAgentPlan {
     }
 
     /**
-     * @return a map with the times when the agent was at it's goal (waypoint)
+     * @return a map with the times when the agent was at its goal (waypoint)
      */
     private Map<Integer, I_Coordinate> extractWaypointTimes(Integer[] waypointSegmentsEndTimes){
         Map<Integer, I_Coordinate> res = new HashMap<>();
         I_Coordinate startWaypointCoordinate = ((LifelongAgent)agent).waypoints.get(0);
-        if (waypointSegmentsEndTimes[0] != 0 ||
-                ! moveAt(1).prevLocation.getCoordinate().equals(startWaypointCoordinate)){
-            throw new IllegalArgumentException("invalid start waypoint time or location");
+        if (waypointSegmentsEndTimes[0] != 0){
+            throw new IllegalArgumentException("invalid start waypoint time");
+        }
+        if (! moveAt(1).prevLocation.getCoordinate().equals(startWaypointCoordinate)){
+            throw new IllegalArgumentException("invalid start waypoint location");
         }
         if (waypointSegmentsEndTimes[waypointSegmentsEndTimes.length - 1] != getEndTime()){
             throw new IllegalArgumentException("invalid last waypoint time");
