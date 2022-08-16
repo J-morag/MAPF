@@ -94,6 +94,9 @@ class PrioritisedPlanningSolverTest {
     private final I_Coordinate coor00 = new Coordinate_2D(0,0);
     private final I_Coordinate coor01 = new Coordinate_2D(0,1);
     private final I_Coordinate coor10 = new Coordinate_2D(1,0);
+    private final I_Coordinate coor31 = new Coordinate_2D(3,1);
+    private final I_Coordinate coor40 = new Coordinate_2D(4,0);
+    private final I_Coordinate coor02 = new Coordinate_2D(0,2);
 
     private final I_Location location12 = mapCircle.getMapLocation(coor12);
     private final I_Location location13 = mapCircle.getMapLocation(coor13);
@@ -127,12 +130,17 @@ class PrioritisedPlanningSolverTest {
     private final Agent agent55to34 = new Agent(8, coor55, coor34);
     private final Agent agent33to35 = new Agent(9, coor33, coor35);
     private final Agent agent34to32 = new Agent(10, coor34, coor32);
+    private final Agent agent31to14 = new Agent(11, coor31, coor14);
+    private final Agent agent40to02 = new Agent(12, coor40, coor02);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+
+    private final MAPF_Instance instanceEmptyHarder = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
+            {agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, agent00to10, agent55to34, agent34to32, agent31to14, agent40to02});
     private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
     private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
@@ -269,6 +277,26 @@ class PrioritisedPlanningSolverTest {
         solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         // should fail without the contingency
         assertNull(solved);
+    }
+
+    @Test
+    void ObeysSoftTimeout(){
+        MAPF_Instance testInstance = instanceEmptyHarder;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        long softTimeout = 100L;
+        long hardTimeout = 5L * 1000;
+
+        I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null);
+        Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParameters(hardTimeout, null, instanceReport, null, softTimeout));
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+        int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        System.out.println("runtime: " + runtime);
+        assertTrue(runtime >= softTimeout && runtime < hardTimeout);
+
+        S_Metrics.removeReport(instanceReport);
     }
 
     @Test

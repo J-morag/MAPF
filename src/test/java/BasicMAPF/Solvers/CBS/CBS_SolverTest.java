@@ -193,7 +193,7 @@ class CBS_SolverTest {
     void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = cbsSolver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -484,7 +484,7 @@ class CBS_SolverTest {
         System.out.println("should not find a solution:");
         for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(5*1000, null, instanceReport, null));
+            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(5L*1000, null, instanceReport, null));
             assertNull(solution);
         }
     }

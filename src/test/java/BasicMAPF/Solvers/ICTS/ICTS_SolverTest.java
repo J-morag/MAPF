@@ -185,7 +185,7 @@ class ICTS_SolverTest {
     void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = ictsSolver.solve(testInstance, new RunParameters(2*1000,null, instanceReport, null));
+        Solution solved = ictsSolver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);

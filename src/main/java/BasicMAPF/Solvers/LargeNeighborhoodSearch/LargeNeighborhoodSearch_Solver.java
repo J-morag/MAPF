@@ -33,7 +33,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     /*  =  = Fields related to the run =  */
 
     private ConstraintSet constraints;
-
     private Random random;
     private int numIterations;
     private double[] destroyHeuristicsWeights;
@@ -80,7 +79,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize) {
-        //TODO add soft timeout? (after soft return solution if it exists, after hard return null if no solution found)
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources);
@@ -146,7 +144,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     protected Solution solveLNS(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = getInitialSolution(instance, initialConstraints);
-        while (bestSolution != null && !checkTimeout()){ // anytime behaviour
+        while (bestSolution != null && !checkTimeout() && !checkSoftTimeout()){ // anytime behaviour
             // select neighborhood (destroy heuristic)
             int destroyHeuristicIndex = selectDestroyHeuristicIndex();
             I_DestroyHeuristic destroyHeuristic = this.destroyHeuristics.get(destroyHeuristicIndex);

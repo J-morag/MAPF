@@ -209,7 +209,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             Agent agentWeFailedOn = null;
             //solve for each agent while avoiding the plans of previous agents (standard PrP)
             for (Agent agent : agents) {
-                if (checkTimeout()) break;
+                if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
 
                 //solve the subproblem for one agent
                 SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
@@ -232,7 +232,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
             /* = random/deterministic restarts = */
 
-            if (checkTimeout()) break;
+            if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
             if (bestSolution == null){
                 bestSolution = solution;
             }
