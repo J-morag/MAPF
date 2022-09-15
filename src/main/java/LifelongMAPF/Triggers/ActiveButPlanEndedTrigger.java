@@ -5,16 +5,25 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
 import BasicMAPF.Solvers.Solution;
+import LifelongMAPF.LifelongAgent;
 
 import java.util.Map;
 import java.util.Queue;
 
-public class DestinationAchievedTrigger implements I_LifelongPlanningTrigger {
+public class ActiveButPlanEndedTrigger implements I_LifelongPlanningTrigger {
     @Override
-    public int getNextFarthestCommittedTime(Solution latestSolution, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues) {
+    public int getNextPlanningTime(Solution latestSolution, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents) {
         int minGoalArrivalTime = Integer.MAX_VALUE;
-        for (SingleAgentPlan plan : latestSolution){
-            if ( ! agentDestinationQueues.get(plan.agent).isEmpty()){
+        for (LifelongAgent lifelongAgent:
+             lifelongAgentsToTimelyOfflineAgents.keySet()) {
+            Agent timelyAgent = lifelongAgentsToTimelyOfflineAgents.get(lifelongAgent);
+            SingleAgentPlan plan = latestSolution.getPlanFor(timelyAgent);
+
+            // skip agents who are sitting at their final destination
+            if (! (agentDestinationQueues.get(plan.agent).isEmpty() &&
+                    plan.getLastMove().currLocation.getCoordinate()
+                    .equals(lifelongAgent.waypoints.get(lifelongAgent.waypoints.size()-1)))){
+                // find the time when the agent gets to its current goal
                 // may arrive at goal before the end of the plan (and then move away and return)
                 int agentMinGoalArrivalTime = plan.getEndTime();
                 for (Move move: plan){
@@ -26,6 +35,7 @@ public class DestinationAchievedTrigger implements I_LifelongPlanningTrigger {
 
                 minGoalArrivalTime = Math.min(minGoalArrivalTime, agentMinGoalArrivalTime);
             }
+
         }
         return minGoalArrivalTime == Integer.MAX_VALUE ? -1 : minGoalArrivalTime;
     }

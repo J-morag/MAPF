@@ -21,15 +21,17 @@ import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
-import LifelongMAPF.Triggers.DestinationAchievedTrigger;
+import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LifelongSimulationSolverTest {
 
+    private static final long DEFAULT_TIMEOUT = 120L * 1000;
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
     private final Enum_MapLocationType[][] map_2D_circle = {
@@ -128,23 +130,23 @@ class LifelongSimulationSolverTest {
     });
     private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
-    I_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
+    I_Solver snapshotOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
-    I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
+    I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new MandatoryAgentsSubsetSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
-    I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
+    I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
-    I_Solver replanSingle = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true));
-    I_Solver allAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true));
-    I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new MandatoryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true));
-    I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true));
+    I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new MandatoryAgentsSubsetSelector(),
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true));
+    I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
+    I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new MandatoryAgentsSubsetSelector(),
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
+    I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
 
-    I_Solver allAgentsLNS = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
-            new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null));
+    I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
+            new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
 
 
     InstanceReport instanceReport;
@@ -180,7 +182,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -192,7 +194,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -205,7 +207,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -213,11 +215,12 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
+    @Disabled
     void smallMazeDenseValidityTest_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -229,7 +232,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -248,21 +251,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_SnapshotOptimal() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_SnapshotOptimal() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -271,10 +274,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     /* = Replan Single = */
@@ -284,12 +287,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -297,7 +299,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
@@ -309,7 +311,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
@@ -321,12 +323,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -334,12 +335,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -354,21 +354,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_ReplanSingle() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_ReplanSingle() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -377,10 +377,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     /* = All Agents PrPr = */
@@ -390,12 +390,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -403,7 +402,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -416,7 +415,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -428,12 +427,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -441,12 +439,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -461,21 +458,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_AllAgentsPrPr() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_AllAgentsPrPr() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -484,10 +481,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     /* = Mandatory Agents Optimal = */
@@ -497,12 +494,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -510,7 +506,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -523,7 +519,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -535,12 +531,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -548,12 +543,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -568,21 +562,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_MandatoryAgentsOptimal() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_MandatoryAgentsOptimal() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -591,10 +585,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     /* = Mandatory Agents PrPr = */
@@ -604,12 +598,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -617,7 +610,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -630,7 +623,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -642,12 +635,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -655,12 +647,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -675,21 +666,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_MandatoryAgentsPrPr() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_MandatoryAgentsPrPr() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -698,10 +689,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     /* = Freespace Conflicting Agents PrPr = */
@@ -711,12 +702,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -724,7 +714,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -737,7 +727,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -749,12 +739,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -762,12 +751,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -782,21 +770,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_FreespaceConflictingAgentsPrP() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_FreespaceConflictingAgentsPrP() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -805,10 +793,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     /* = Freespace Conflicting Agents Optimal = */
@@ -818,12 +806,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -831,7 +818,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -844,7 +831,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -856,12 +843,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -869,12 +855,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -889,21 +874,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_freespaceConflictingAgentsOptimal() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_freespaceConflictingAgentsOptimal() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -912,10 +897,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
 
@@ -926,12 +911,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -939,7 +923,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -952,7 +936,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -964,12 +948,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -977,12 +960,11 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
-        if (solved != null){
-            System.out.println(solved.readableToString());
-            validate(solved, testInstance);
-        }
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        validate(solved, testInstance);
     }
 
     @Test
@@ -997,21 +979,21 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull1_AllAgentsLNS() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
     @Test
-    void unsolvableBecauseConstraintsShouldReturnNull2_AllAgentsLNS() {
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
@@ -1020,10 +1002,10 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        assertNotNull(solved);
     }
 
 

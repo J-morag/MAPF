@@ -349,7 +349,7 @@ class LargeNeighborhoodSearch_SolverTest {
         S_Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
+        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null, null);
         String nameBaseline = baselineSolver.name();
 
         I_Solver competitorSolver = new LargeNeighborhoodSearch_Solver();
@@ -477,7 +477,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void sharedGoals(){
-        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null);
+        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});

@@ -3,17 +3,11 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.A_Solver;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
-import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
-import LifelongMAPF.LifelongSimulationSolver;
-import LifelongMAPF.Triggers.DestinationAchievedTrigger;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,7 +27,7 @@ public class RunManagerWarehouse extends A_RunManager{
 
     @Override
     protected void setSolvers() {
-        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null, null, true, true));
+        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null, null, true, true, null));
 //        super.solvers.add(new CBS_Solver(null, null, null, null, null, null, true, true));
     }
 

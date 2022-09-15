@@ -3,6 +3,7 @@ package BasicMAPF.Solvers;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import Environment.Metrics.InstanceReport;
@@ -76,7 +77,8 @@ public class Solution implements Iterable<SingleAgentPlan>{
             SingleAgentPlan plan1 = allPlans.get(i);
             for (int j = i+1; j < allPlans.size(); j++) {
                 SingleAgentPlan plan2 = allPlans.get(j);
-                if(plan1.conflictsWith(plan2, sharedGoals, sharedSources)) {
+                A_Conflict conflict = plan1.firstConflict(plan2, sharedGoals, sharedSources);
+                if (conflict != null) {
                     return false;
                 }
             }
@@ -161,6 +163,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
      */
     public int size(){
         return agentPlans.size();
+    }
+
+    public int getEndTime(){
+        int maxEndTime = -1;
+        for (SingleAgentPlan plan:
+             this) {
+            maxEndTime = Math.max(maxEndTime, plan.getEndTime());
+        }
+        return maxEndTime;
     }
 
     /**

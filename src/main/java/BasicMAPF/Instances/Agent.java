@@ -43,6 +43,8 @@ public class Agent implements Comparable<Agent>{
     public String toString() {
         return "Agent{" +
                 "iD=" + iD +
+                ", source=" + source +
+                ", target=" + target +
                 '}';
     }
 

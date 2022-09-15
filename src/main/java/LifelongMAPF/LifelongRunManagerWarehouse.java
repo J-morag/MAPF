@@ -4,20 +4,13 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.A_Solver;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
-import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
-import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
-import LifelongMAPF.LifelongSimulationSolver;
-import LifelongMAPF.Triggers.DestinationAchievedTrigger;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -63,10 +56,14 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 //        snapshotOptimal.name = "SnapshotOptimal";
 //        super.solvers.add(snapshotOptimal);
 
-        A_Solver AllAgentsLNS = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null));
-        AllAgentsLNS.name = "AllAgentsLNS";
-        super.solvers.add(AllAgentsLNS);
+//        A_Solver AllAgentsLNS = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+//                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null));
+//        AllAgentsLNS.name = "AllAgentsLNS";
+//        super.solvers.add(AllAgentsLNS);
+        A_Solver freespaceAgentsLNS = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),
+                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
+        freespaceAgentsLNS.name = "freespaceAgentsLNS";
+        super.solvers.add(freespaceAgentsLNS);
     }
 
     @Override
@@ -83,7 +80,9 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
         /*  =   Set Properties   =  */
 //        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
+//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{50,100,150});
+//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{300});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40});
 
         /*  =   Set Instance Manager   =  */

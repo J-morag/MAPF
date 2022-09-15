@@ -19,47 +19,89 @@ public class LifelongSolution extends Solution{
     public final SortedMap<Integer, Solution> solutionsAtTimes;
     public final SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes;
 
-    public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents) {
+    public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents, HashMap<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes) {
         // make unified solution for super
-        super(mergeSolutions(solutionsAtTimes, agents));
+        super(mergeSolutions(solutionsAtTimes, agents, getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes)));
+        this.agentsWaypointArrivalTimes = getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes);
         this.solutionsAtTimes = solutionsAtTimes;
-        this.agentsWaypointArrivalTimes = getAgentsWaypointArrivalTimes(this);
     }
+
+//    /**
+//     * Merge the solutions that the solver produced at different times into one solution, which represents the paths that
+//     * the agents actually ended up taking.
+//     * @param solutionsAtTimes solutions that the solver produced at different times
+//     * @param agents {@link LifelongAgent lifelong agents} to use for the merged solution's plans
+//     * @return a merged solution
+//     */
+//    private static Map<Agent, SingleAgentPlan> mergeSolutions(SortedMap<Integer, Solution> solutionsAtTimes,
+//                                                              List<LifelongAgent> agents) {
+//        Map<Agent, SingleAgentPlan> mergedAgentPlans = new HashMap<>();
+//        for (LifelongAgent agent : agents){
+//            Integer[] waypointSegmentsEndTimes = new Integer[agent.waypoints.size()];
+//            waypointSegmentsEndTimes[0] = 0; // first waypoint is start location
+//            int waypointIndex = 1;
+//            SingleAgentPlan mergedPlanUpToTime = new SingleAgentPlan(agent);
+//            for (int time : solutionsAtTimes.keySet()) {
+//                Solution solution = solutionsAtTimes.get(time);
+//                SingleAgentPlan timelyPlan = solution.getPlanFor(agent);
+//                I_Coordinate currWaypoint = agent.waypoints.get(waypointIndex);
+//                List<Move> mergedMovesIncludingTime = mergePlans(mergedPlanUpToTime, timelyPlan, agent);
+//                int newWaypointTimeHypothesis = mergedMovesIncludingTime.get(mergedMovesIncludingTime.size()-1).timeNow;
+//                if (! currWaypoint.equals(timelyPlan.agent.target)){
+//                    // might need to fix existing hypothesis, in the event that there was an arrival at goal also before
+//                    // final move in prev plan
+//                    waypointSegmentsEndTimes[waypointIndex] = timelyPlan.getPlanStartTime();
+//
+//                    // hypothesis about old waypoint is proven; add hypothesis about the new waypoint
+//                    waypointIndex++;
+//                }
+//                // update hypothesis about time of achieving waypoint (can be same value)
+//                waypointSegmentsEndTimes[waypointIndex] = newWaypointTimeHypothesis;
+//                // for next iteration
+//                mergedPlanUpToTime = new SingleAgentPlan(agent, mergedMovesIncludingTime); // now includes current iteration time
+//            }
+//            LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointSegmentsEndTimes);
+//            mergedAgentPlans.put(agent, mergedPlanIncludingTime);
+//        }
+//        return mergedAgentPlans;
+//    }
 
     /**
      * Merge the solutions that the solver produced at different times into one solution, which represents the paths that
      * the agents actually ended up taking.
-     * @param solutionsAtTimes solutions that the solver produced at different times
-     * @param agents {@link LifelongAgent lifelong agents} to use for the merged solution's plans
+     *
+     * @param solutionsAtTimes                solutions that the solver produced at different times
+     * @param agents                          {@link LifelongAgent lifelong agents} to use for the merged solution's plans
+     * @param agentsWaypointArrivalTimes
      * @return a merged solution
      */
     private static Map<Agent, SingleAgentPlan> mergeSolutions(SortedMap<Integer, Solution> solutionsAtTimes,
-                                                              List<LifelongAgent> agents) {
+                                                              List<LifelongAgent> agents, SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes) {
         Map<Agent, SingleAgentPlan> mergedAgentPlans = new HashMap<>();
         for (LifelongAgent agent : agents){
-            Integer[] waypointSegmentsEndTimes = new Integer[agent.waypoints.size()];
-            waypointSegmentsEndTimes[0] = 0; // first waypoint is start location
-            int waypointIndex = 1;
             SingleAgentPlan mergedPlanUpToTime = new SingleAgentPlan(agent);
             for (int time : solutionsAtTimes.keySet()) {
                 Solution solution = solutionsAtTimes.get(time);
                 SingleAgentPlan timelyPlan = solution.getPlanFor(agent);
-                I_Coordinate currWaypoint = agent.waypoints.get(waypointIndex);
+//                I_Coordinate currWaypoint = agent.waypoints.get(waypointIndex);
                 List<Move> mergedMovesIncludingTime = mergePlans(mergedPlanUpToTime, timelyPlan, agent);
-                int newWaypointTimeHypothesis = mergedMovesIncludingTime.get(mergedMovesIncludingTime.size()-1).timeNow;
-                if (! currWaypoint.equals(timelyPlan.agent.target)){
-                    // might need to fix existing hypothesis, in the event that there was an arrival at goal also before
-                    // final move in prev plan
-                    waypointSegmentsEndTimes[waypointIndex] = timelyPlan.getPlanStartTime();
-
-                    // hypothesis about old waypoint is proven; add hypothesis about the new waypoint
-                    waypointIndex++;
-                }
-                // update hypothesis about time of achieving waypoint (can be same value)
-                waypointSegmentsEndTimes[waypointIndex] = newWaypointTimeHypothesis;
-                // for next iteration
+//                int newWaypointTimeHypothesis = mergedMovesIncludingTime.get(mergedMovesIncludingTime.size()-1).timeNow;
+//                if (! currWaypoint.equals(timelyPlan.agent.target)){
+//                    // might need to fix existing hypothesis, in the event that there was an arrival at goal also before
+//                    // final move in prev plan
+//                    waypointSegmentsEndTimes[waypointIndex] = timelyPlan.getPlanStartTime();
+//
+//                    // hypothesis about old waypoint is proven; add hypothesis about the new waypoint
+//                    waypointIndex++;
+//                }
+//                // update hypothesis about time of achieving waypoint (can be same value)
+//                waypointSegmentsEndTimes[waypointIndex] = newWaypointTimeHypothesis;
+//                // for next iteration
                 mergedPlanUpToTime = new SingleAgentPlan(agent, mergedMovesIncludingTime); // now includes current iteration time
             }
+
+            Integer[] waypointSegmentsEndTimes = agentsWaypointArrivalTimes.get(agent).toArray(Integer[]::new);
+
             LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointSegmentsEndTimes);
             mergedAgentPlans.put(agent, mergedPlanIncludingTime);
         }
@@ -107,40 +149,59 @@ public class LifelongSolution extends Solution{
         return mergedMoves;
     }
 
-    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(LifelongSolution solution){
+    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(HashMap<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes){
         SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes = new TreeMap<>();
-        for (SingleAgentPlan plan : solution){
-            if (!(plan.agent instanceof  LifelongAgent)){
-                throw new IllegalArgumentException("a LifelongSolution is only for lifelong agents.");
-            }
-            // verify passes through all waypoints in order
-            LifelongAgent lifelongAgent = ((LifelongAgent) plan.agent);
-            List<Integer> waypointArrivalTimes = new ArrayList<>(lifelongAgent.waypoints.size());
-            if (!plan.getFirstMove().prevLocation.getCoordinate().equals(lifelongAgent.waypoints.get(0))){
-                // verify first waypoint which is also the source
-                throw new IllegalArgumentException("missing first waypoint");
-            }
-            waypointArrivalTimes.add(0);
-            int prevWaypointTime = 0;
-            for (int i = 1 ; i < lifelongAgent.waypoints.size() ; i++){
-                I_Coordinate waypoint = lifelongAgent.waypoints.get(i);
-                boolean found = false;
-                for (int t = prevWaypointTime + 1; t <= plan.getEndTime(); t++) {
-                    if (plan.moveAt(t).currLocation.getCoordinate().equals(waypoint)){
-                        waypointArrivalTimes.add(t);
-                        prevWaypointTime = t;
-                        found = true;
-                        break;
-                    }
+        for (LifelongAgent lifelongAgent :
+                agentsActiveDestinationEndTimes.keySet()) {
+            List<Integer> asTimesList = new ArrayList<>();
+            List<TimeCoordinate> destinationEndTimes = agentsActiveDestinationEndTimes.get(lifelongAgent);
+            for (int i = 0; i < destinationEndTimes.size(); i++) {
+                TimeCoordinate tc = destinationEndTimes.get(i);
+                if (! tc.coordinate.equals(lifelongAgent.waypoints.get(i))){
+                    throw new IllegalArgumentException("Destination end times list at index " + i + " has coordinate "
+                            + tc.coordinate + " instead of " + lifelongAgent.waypoints.get(i));
                 }
-                if (!found){
-                    throw new IllegalArgumentException("missing waypoint " + i + ": " + waypoint);
-                }
+                asTimesList.add(tc.time);
             }
-            agentsWaypointArrivalTimes.put(lifelongAgent, Collections.unmodifiableList(waypointArrivalTimes));
+            agentsWaypointArrivalTimes.put(lifelongAgent, asTimesList);
         }
         return Collections.unmodifiableSortedMap(agentsWaypointArrivalTimes);
     }
+
+//    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(LifelongSolution solution){
+//        SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes = new TreeMap<>();
+//        for (SingleAgentPlan plan : solution){
+//            if (!(plan.agent instanceof  LifelongAgent)){
+//                throw new IllegalArgumentException("a LifelongSolution is only for lifelong agents.");
+//            }
+//            // verify passes through all waypoints in order
+//            LifelongAgent lifelongAgent = ((LifelongAgent) plan.agent);
+//            List<Integer> waypointArrivalTimes = new ArrayList<>(lifelongAgent.waypoints.size());
+//            if (!plan.getFirstMove().prevLocation.getCoordinate().equals(lifelongAgent.waypoints.get(0))){
+//                // verify first waypoint which is also the source
+//                throw new IllegalArgumentException("missing first waypoint");
+//            }
+//            waypointArrivalTimes.add(0);
+//            int prevWaypointTime = 0;
+//            for (int i = 1 ; i < lifelongAgent.waypoints.size() ; i++){
+//                I_Coordinate waypoint = lifelongAgent.waypoints.get(i);
+//                boolean found = false;
+//                for (int t = prevWaypointTime + 1; t <= plan.getEndTime(); t++) {
+//                    if (plan.moveAt(t).currLocation.getCoordinate().equals(waypoint)){
+//                        waypointArrivalTimes.add(t);
+//                        prevWaypointTime = t;
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if (!found){
+//                    throw new IllegalArgumentException("missing waypoint " + i + ": " + waypoint);
+//                }
+//            }
+//            agentsWaypointArrivalTimes.put(lifelongAgent, Collections.unmodifiableList(waypointArrivalTimes));
+//        }
+//        return Collections.unmodifiableSortedMap(agentsWaypointArrivalTimes);
+//    }
 
     public String agentsWaypointArrivalTimes(){
         StringBuilder sb = new StringBuilder();

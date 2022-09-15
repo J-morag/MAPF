@@ -135,9 +135,11 @@ public class SingleAgentPlan implements Iterable<Move> {
      * that time.
      */
     public Move moveAt(int time){
-        if(moves.isEmpty()) return null;
+        if(moves.isEmpty())
+            return null;
         int requestedIndex = time - getFirstMoveTime();
-        return requestedIndex >= moves.size() || requestedIndex < 0 ? null : moves.get(requestedIndex);
+        Move res = requestedIndex >= moves.size() || requestedIndex < 0 ? null : moves.get(requestedIndex);
+        return res;
     }
 
     /**
@@ -216,7 +218,8 @@ public class SingleAgentPlan implements Iterable<Move> {
         //the max time to check is the min last move time
         int maxTime = Math.min(this.getEndTime(), other.getEndTime());
         // if they both get to their goals at the same time and share it, it can't have a conflict
-        if (sharedGoalsEnabled && this.moveAt(this.getEndTime()).currLocation.equals(other.moveAt(other.getEndTime()).currLocation)
+        if (sharedGoalsEnabled && this.moveAt(this.getEndTime()).currLocation.
+                equals(other.moveAt(other.getEndTime()).currLocation)
                 && this.getEndTime() == other.getEndTime()){
             maxTime -= 1;
         }

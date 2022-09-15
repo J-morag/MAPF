@@ -63,6 +63,11 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     private final boolean sharedSources;
 
+    /**
+     * If true, instead of returning null if no solution is found for some agent, a partial solution will be returned,
+     * with plans for as many agents as the solver manages to find.
+     */
+    public final boolean partialSolutionsAllowed;
 
     /*  = Constructors =  */
 
@@ -78,10 +83,13 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * @param neighborhoodSize     What size neighborhoods to select.
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize) {
+                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor,
+                                          Integer neighborhoodSize, Boolean partialSolutionAllowed) {
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
+        this.partialSolutionsAllowed = Objects.requireNonNullElse(partialSolutionAllowed, false);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+                sharedGoals, sharedSources, this.partialSolutionsAllowed);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -99,7 +107,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * Default constructor.
      */
     public LargeNeighborhoodSearch_Solver(){
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -144,6 +152,11 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     protected Solution solveLNS(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = getInitialSolution(instance, initialConstraints);
+
+        if (partialSolutionsAllowed && bestSolution != null && bestSolution.size() < agents.size()){
+            return bestSolution; // partial solution
+        }
+
         while (bestSolution != null && !checkTimeout() && !checkSoftTimeout()){ // anytime behaviour
             // select neighborhood (destroy heuristic)
             int destroyHeuristicIndex = selectDestroyHeuristicIndex();

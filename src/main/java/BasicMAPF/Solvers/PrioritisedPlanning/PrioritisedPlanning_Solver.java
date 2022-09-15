@@ -75,6 +75,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * If true, agents staying at their source (since the start) will not conflict 
      */
     public boolean sharedSources;
+    /**
+     * If true, instead of returning null if no solution is found for some agent, a partial solution will be returned,
+     * with plans for as many agents as the solver manages to find.
+     */
+    public final boolean partialSolutionsAllowed;
 
 
     /*  = Constructors =  */
@@ -86,7 +91,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null, null);
     }
 
     /**
@@ -94,7 +99,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null, null);
+        this(null, agentComparator, null, null, null, null, null);
     }
 
     /**
@@ -107,13 +112,14 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources) {
+                                      Boolean sharedGoals, Boolean sharedSources, Boolean partialSolutionAllowed) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
         this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
+        this.partialSolutionsAllowed = Objects.requireNonNullElse(partialSolutionAllowed, false);
 
         super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
@@ -122,7 +128,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -194,6 +200,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     protected Solution solvePrioritisedPlanning(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = null;
+        Solution bestPartialSolution = new Solution();
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
         randomOrderings.add(new ArrayList<>(agents));
@@ -218,6 +225,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
                 // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
                 if (planForAgent == null) {
+                    if (this.partialSolutionsAllowed && solution != bestPartialSolution &&
+                            (solution.size() > bestPartialSolution.size() ||
+                                    (solution.size() == bestPartialSolution.size() &&
+                                            this.solutionCostFunction.solutionCost(solution) < this.solutionCostFunction.solutionCost(bestPartialSolution)))){
+                         bestPartialSolution = solution;
+                    }
                     solution = null;
                     agentWeFailedOn = agent;
                     break;
@@ -289,7 +302,13 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             }
         }
 //        instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
-        return bestSolution;
+
+        if (this.partialSolutionsAllowed && bestSolution == null){
+            return bestPartialSolution;
+        }
+        else {
+            return bestSolution;
+        }
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {
