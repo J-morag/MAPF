@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LifelongSimulationSolverTest {
 
-    private static final long DEFAULT_TIMEOUT = 120L * 1000;
+    private static final long DEFAULT_TIMEOUT = 30L * 1000;
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
     private final Enum_MapLocationType[][] map_2D_circle = {
@@ -161,18 +161,28 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
     }
 
-    void validate(Solution solution, int expectedSOC, int expectedMakespan, MAPF_Instance instance){
-        validate(solution, instance);
+    void isFullSolution(Solution solution, int expectedSOC, int expectedMakespan, MAPF_Instance instance){
+        isFullSolution(solution, instance);
 
         assertEquals(expectedSOC, solution.sumIndividualCosts()); // SOC is optimal
         assertEquals(expectedMakespan, solution.makespan()); // makespan is optimal
     }
 
-    void validate(Solution solution, MAPF_Instance instance){
+    void isValidFullOrPartialSolution(Solution solution, MAPF_Instance instance){
         assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
-        assertTrue(solution.solves(instance, true, true));
+        assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
+    }
 
-        assertEquals(instance.agents.size(), solution.size()); // solution includes all agents
+    void isFullSolution(Solution solution, MAPF_Instance instance){
+        assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
+        assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
+        assertTrue(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
+    }
+
+    private static void isPartialSolution(MAPF_Instance instance, Solution solution) {
+        assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
+        assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
+        assertFalse(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
     }
 
     /* = Snapshot Optimal = */
@@ -186,7 +196,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -198,7 +208,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
 
     }
 
@@ -211,7 +221,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -224,7 +234,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -236,18 +246,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_SnapshotOptimal() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -262,6 +272,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -278,6 +289,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     /* = Replan Single = */
@@ -291,7 +303,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -303,7 +315,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -315,7 +327,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -327,7 +339,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -339,18 +351,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_ReplanSingle() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -365,6 +377,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -381,6 +394,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     /* = All Agents PrPr = */
@@ -394,7 +408,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -406,7 +420,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
 
     }
 
@@ -419,7 +433,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -431,7 +445,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -443,18 +457,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_AllAgentsPrPr() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -469,6 +483,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -485,6 +500,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     /* = Mandatory Agents Optimal = */
@@ -498,7 +514,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -510,7 +526,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
 
     }
 
@@ -523,7 +539,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -535,7 +551,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -547,18 +563,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_MandatoryAgentsOptimal() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -573,6 +589,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -589,6 +606,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     /* = Mandatory Agents PrPr = */
@@ -602,7 +620,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -614,7 +632,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
 
     }
 
@@ -627,7 +645,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -639,7 +657,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -651,18 +669,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_MandatoryAgentsPrPr() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -677,6 +695,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -693,6 +712,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     /* = Freespace Conflicting Agents PrPr = */
@@ -706,7 +726,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -718,7 +738,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
 
     }
 
@@ -731,7 +751,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -743,7 +763,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -755,18 +775,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_FreespaceConflictingAgentsPrP() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -781,6 +801,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -797,6 +818,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     /* = Freespace Conflicting Agents Optimal = */
@@ -810,7 +832,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -822,7 +844,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
 
     }
 
@@ -835,7 +857,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, 8, 5, testInstance);
     }
 
     @Test
@@ -847,7 +869,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -859,18 +881,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_freespaceConflictingAgentsOptimal() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -885,6 +907,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -901,6 +924,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
 
@@ -915,7 +939,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -927,8 +951,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
-
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -940,7 +963,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        validate(solved, 8, 5, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -952,7 +975,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -964,18 +987,18 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        validate(solved, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
-    void unsolvableBecauseOfConflictsShouldTimeoutOrFail_AllAgentsLNS() {
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        isPartialSolution(testInstance, solved);
     }
 
     @Test
@@ -990,6 +1013,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -1006,6 +1030,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
 

@@ -78,9 +78,11 @@ public class LifelongSingleAgentPlan extends SingleAgentPlan {
         }
         // Last waypoint may repeatedly be given as goal, so take all times at that goal in the last segment
         I_Coordinate lastWaypoint = Iterables.getLast(((LifelongAgent) agent).waypoints);
-        for (int time = waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-1]; time > waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-2]; time--) {
-            if (moveAt(time).currLocation.getCoordinate().equals(lastWaypoint)){
-                res.put(time, lastWaypoint);
+        if (waypointSegmentsEndTimes.length > 1){
+            for (int time = waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-1]; time > waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-2]; time--) {
+                if (moveAt(time).currLocation.getCoordinate().equals(lastWaypoint)){
+                    res.put(time, lastWaypoint);
+                }
             }
         }
         return res;

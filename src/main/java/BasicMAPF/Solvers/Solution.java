@@ -129,12 +129,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
             if (plan.size() == 0){
                 continue;
             }
-            // check start and end at source and target
-            if (!plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source)) /*start at source*/
-                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target))) /*end at target*/
-            {
-                return false;
-            }
+            if (checkStartAndEnd(instance, plan)) return false;
             // agents always move from a vertex to its neighbor
             Move prevMove = plan.moveAt(plan.getFirstMoveTime());
             // check that the move is internally consistent
@@ -155,6 +150,14 @@ public class Solution implements Iterable<SingleAgentPlan>{
             }
         }
         return true;
+    }
+
+    /**
+     * check start and end at source and target
+     */
+    protected boolean checkStartAndEnd(MAPF_Instance instance, SingleAgentPlan plan) {
+        return !plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source)) /*start at source*/
+                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target)); /*end at target*/
     }
 
     /**
