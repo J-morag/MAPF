@@ -5,6 +5,8 @@ import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.AStarHeuristic;
+import BasicMAPF.Solvers.AStar.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -31,6 +33,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
     /*  =  = Fields related to the run =  */
 
+    private AStarHeuristic subSolverHeuristic;
     private ConstraintSet constraints;
     private Random random;
     private int numIterations;
@@ -118,6 +121,11 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.destroyHeuristicsWeights = new double[destroyHeuristics.size()];
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
+
+        if (parameters instanceof RunParametersLNS runParametersLNS){
+            this.subSolverHeuristic = Objects.requireNonNullElse(runParametersLNS.aStarHeuristic,
+                    new DistanceTableAStarHeuristic(this.agents, instance.map));
+        }
     }
 
     /*  = algorithm =  */
@@ -225,7 +233,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(agentsSubset);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, outsideConstraints, destroyedSolution, agentsSubset);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, outsideConstraints,
+                destroyedSolution, agentsSubset);
 
         //solve sub-problem
         Solution newSubsetSolution = this.subSolver.solve(subproblem, subproblemParameters);
@@ -258,7 +267,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
         return new RunParameters_PP(timeLeftToTimeout, subproblemConstraints, subproblemReport, null,
-                randomizedAgentsOrder.toArray(new Agent[0]), null);
+                randomizedAgentsOrder.toArray(new Agent[0]), this.subSolverHeuristic);
     }
 
     /*  = wind down =  */

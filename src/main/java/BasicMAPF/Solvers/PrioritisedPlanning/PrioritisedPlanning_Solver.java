@@ -152,7 +152,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                     ((CachingDistanceTableHeuristic)this.heuristic).setCurrentMap(instance.map);
                 }
             }
-            else {this.heuristic = null;}
+            else {this.heuristic = null;} // TODO replace with distance table? should usually be worth it
         }
     }
 

@@ -103,4 +103,8 @@ public class RunParameters {
         this(null, null, null);
     }
 
+    public RunParameters(RunParameters runParameters) {
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout);
+    }
+
 }
