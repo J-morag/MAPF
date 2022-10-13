@@ -5,7 +5,10 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.CachingDistanceTableHeuristic;
+import BasicMAPF.Solvers.AStar.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.RunParametersLNS;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
@@ -51,7 +54,8 @@ public class LifelongSimulationSolver extends A_Solver {
     private int maxTimeSteps;
     private int reachedTimestepInPlanning;
     private float avgGroupSize;
-    private  int numPlanningIterations;
+    private int numPlanningIterations;
+    private CachingDistanceTableHeuristic cachingDistanceTableHeuristic;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger,
                                     I_LifelongAgentSelector agentSelector, I_LifelongCompatibleSolver offlineSolver) {
@@ -82,6 +86,8 @@ public class LifelongSimulationSolver extends A_Solver {
             this.initialConstraints.sharedSources = true;
             this.initialConstraints.sharedGoals = true;
         }
+        this.cachingDistanceTableHeuristic = new CachingDistanceTableHeuristic(1);
+        this.cachingDistanceTableHeuristic.setCurrentMap(instance.map);
         if (parameters instanceof LifelongRunParameters lrp){
             this.minResponseTime = lrp.minResponseTime;
             this.maxTimeSteps = lrp.maxTimeSteps;
@@ -382,7 +388,8 @@ public class LifelongSimulationSolver extends A_Solver {
             hardTimeout = Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime));
         }
 
-        return new RunParameters(hardTimeout, constraints, new InstanceReport(), null, Math.min(200L, hardTimeout), farthestCommittedTime);
+        return new RunParametersLNS(new RunParameters(hardTimeout, constraints, new InstanceReport(), null, Math.min(200L, hardTimeout), farthestCommittedTime),
+                this.cachingDistanceTableHeuristic);
     }
 
     @NotNull
