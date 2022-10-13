@@ -59,15 +59,6 @@ public class RunParameters {
 
     /*  =Constructors=  */
 
-    public RunParameters(RunParameters toCopy){
-        this.timeout = toCopy.timeout;
-        this.softTimeout = toCopy.softTimeout;
-        this.constraints = toCopy.constraints;
-        this.instanceReport = toCopy.instanceReport;
-        this.existingSolution = toCopy.existingSolution;
-        this.problemStartTime = toCopy.problemStartTime;
-    }
-
     public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout, Integer problemStartTime) {
         this.timeout = Objects.requireNonNullElse(timeout, DEFAULT_TIMEOUT);
         this.softTimeout = Objects.requireNonNullElse(softTimeout, this.timeout);
@@ -120,6 +111,10 @@ public class RunParameters {
         this(null, null, null);
     }
 
+    public RunParameters(RunParameters runParameters) {
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.problemStartTime);
+    }
+
     public RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
         this.timeout = timeout;
         this.softTimeout = timeout;
@@ -162,5 +157,7 @@ public class RunParameters {
     public RunParameters(int problemStartTime) {
         this(null, null, null, problemStartTime);
     }
+
+
 
 }
