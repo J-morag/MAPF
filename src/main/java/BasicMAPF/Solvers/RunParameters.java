@@ -5,6 +5,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * A set of parameters for a {@link I_Solver solver} to use when solving an {@link BasicMAPF.Instances.MAPF_Instance instance}.
@@ -56,6 +57,7 @@ public class RunParameters {
      * Not real-time.
      */
     public int problemStartTime = 0;
+    public Random randomNumberGenerator;
 
     /*  =Constructors=  */
 

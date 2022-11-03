@@ -20,7 +20,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
-import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LifelongSimulationSolverTest {
 
-    private static final long DEFAULT_TIMEOUT = 30L * 1000;
+    private static final long DEFAULT_TIMEOUT = 60L * 1000;
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
     private final Enum_MapLocationType[][] map_2D_circle = {
@@ -132,15 +132,15 @@ class LifelongSimulationSolverTest {
 
     I_Solver snapshotOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
-    I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new MandatoryAgentsSubsetSelector(),
+    I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
-    I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new MandatoryAgentsSubsetSelector(),
+    I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true));
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
-    I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new MandatoryAgentsSubsetSelector(),
+    I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
@@ -192,7 +192,9 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -204,7 +206,9 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -217,7 +221,9 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -230,7 +236,9 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(150L * 1000, null, instanceReport, null), 150L * 1000);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -242,7 +250,9 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -254,7 +264,9 @@ class LifelongSimulationSolverTest {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -268,7 +280,9 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -285,7 +299,9 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        // cheating: response time = max time left. to get snapshot optimal results.
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -738,7 +754,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        isFullSolution(solved, 8, 5, testInstance);
+        isFullSolution(solved, testInstance);
 
     }
 
@@ -751,7 +767,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        isFullSolution(solved, 8, 5, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test
@@ -844,7 +860,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        isFullSolution(solved, 8, 5, testInstance);
+        isFullSolution(solved, testInstance);
 
     }
 
@@ -857,7 +873,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
-        isFullSolution(solved, 8, 5, testInstance);
+        isFullSolution(solved, testInstance);
     }
 
     @Test

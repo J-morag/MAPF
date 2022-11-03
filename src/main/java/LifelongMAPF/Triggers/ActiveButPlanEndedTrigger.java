@@ -20,9 +20,7 @@ public class ActiveButPlanEndedTrigger implements I_LifelongPlanningTrigger {
             SingleAgentPlan plan = latestSolution.getPlanFor(timelyAgent);
 
             // skip agents who are sitting at their final destination
-            if (! (agentDestinationQueues.get(plan.agent).isEmpty() &&
-                    plan.getLastMove().currLocation.getCoordinate()
-                    .equals(lifelongAgent.waypoints.get(lifelongAgent.waypoints.size()-1)))){
+            if (!isPlanEndsAtAgentFinalDestination(agentDestinationQueues, lifelongAgent, plan)){
                 // find the time when the agent gets to its current goal
                 // may arrive at goal before the end of the plan (and then move away and return)
                 int agentMinGoalArrivalTime = plan.getEndTime();
@@ -38,5 +36,11 @@ public class ActiveButPlanEndedTrigger implements I_LifelongPlanningTrigger {
 
         }
         return minGoalArrivalTime == Integer.MAX_VALUE ? -1 : minGoalArrivalTime;
+    }
+
+    public static boolean isPlanEndsAtAgentFinalDestination(Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, LifelongAgent lifelongAgent, SingleAgentPlan plan) {
+        return agentDestinationQueues.get(plan.agent).isEmpty() &&
+                plan.getLastMove().currLocation.getCoordinate()
+                        .equals(lifelongAgent.waypoints.get(lifelongAgent.waypoints.size() - 1));
     }
 }

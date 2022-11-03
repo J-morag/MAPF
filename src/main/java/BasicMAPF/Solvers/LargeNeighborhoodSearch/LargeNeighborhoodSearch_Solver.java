@@ -129,7 +129,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.constraints.sharedGoals = this.sharedGoals;
         this.constraints.sharedSources = this.sharedSources;
-        this.random = new Random(42);
+        this.random = Objects.requireNonNullElse(parameters.randomNumberGenerator, new Random(42));
         this.numIterations = 0;
 
         this.destroyHeuristicsWeights = new double[destroyHeuristics.size()];

@@ -147,7 +147,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.constraints.sharedGoals = this.sharedGoals;
         this.constraints.sharedSources = this.sharedSources;
-        this.random = new Random(42);
+        this.random = Objects.requireNonNullElse(parameters.randomNumberGenerator, new Random(42));
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);

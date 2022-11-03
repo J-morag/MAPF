@@ -295,7 +295,7 @@ public class SingleAgentPlan implements Iterable<Move> {
             else{
                 // look for the late ending plan stepping into the agent from the early ending plan, sitting at its goal.
                 I_Location goalLocation = earlyEndingPlan.moveAt(maxTime).currLocation;
-                for (int time = maxTime+1; time <= lateEndingPlan.getEndTime()  + sharedGoalsTimeOffset; time++) {
+                for (int time = maxTime+1; time <= lateEndingPlan.getEndTime() + sharedGoalsTimeOffset && time >= lateEndingPlan.getFirstMoveTime(); time++) {
                     Move stayMove = new Move(earlyEndingPlan.agent, time, goalLocation, goalLocation);
                     A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(time), stayMove);
                     if(goalConflict != null){

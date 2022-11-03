@@ -212,6 +212,17 @@ public class LifelongSolution extends Solution{
     }
 
     @Override
+    public boolean isValidSolution(boolean sharedGoals, boolean sharedSources) {
+        for (Solution sol :
+                this.solutionsAtTimes.values()) {
+            if ( ! sol.isValidSolution(sharedGoals, sharedSources)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     protected boolean checkStartAndEnd(MAPF_Instance instance, SingleAgentPlan plan) {
         // only check start, not end
         return !plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source));

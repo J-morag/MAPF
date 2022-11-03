@@ -43,7 +43,7 @@ public abstract class A_Conflict {
      * @return a conflict between the moves if there is one, else it returns null.
      */
     public static A_Conflict conflictBetween(Move move1, Move move2){
-        if(move1 == null || move2 == null){throw new IllegalArgumentException("can't compare null moves");}
+        if(move1 == null || move2 == null){throw new IllegalArgumentException("can't compare null moves " + move1 + " and " + move2);}
         if(move1.timeNow == move2.timeNow){
             A_Conflict conflict = VertexConflict.conflictBetween(move1, move2);
             if(conflict != null) return conflict;

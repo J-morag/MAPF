@@ -11,7 +11,7 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
-import LifelongMAPF.AgentSelectors.MandatoryAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
 //                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true));
 //        replanSingle.name = "ReplanSingle";
 //        super.solvers.add(replanSingle);
-        A_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
+        A_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 99), true, true, true));
         mandatoryAgentsPrPr.name = "mandatoryAgentsPrPr99";
         super.solvers.add(mandatoryAgentsPrPr);
