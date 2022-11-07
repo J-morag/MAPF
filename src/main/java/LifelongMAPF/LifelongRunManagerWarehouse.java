@@ -33,44 +33,31 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 
     @Override
     public void setSolvers() {
-        A_Solver replanSingle = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+        A_Solver replanSinglePartialAllowed = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true));
-        replanSingle.name = "ReplanSingle";
-        super.solvers.add(replanSingle);
-//        A_Solver mandatoryAgentsPrPr3 = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 4), true, true));
-//        mandatoryAgentsPrPr3.name = "mandatoryAgentsPrPr4";
-//        super.solvers.add(mandatoryAgentsPrPr3);
-//        A_Solver freespaceConflictingAgentsPrPr4 = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 4), true, true));
-//        freespaceConflictingAgentsPrPr4.name = "freespaceConflictingAgentsPrPr4";
-//        super.solvers.add(freespaceConflictingAgentsPrPr4);
-//        A_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
-//                new CBS_Solver(null, null, null, null, null, null, true, true));
-//        freespaceConflictingAgentsOptimal.name = "freespaceConflictingAgentsOptimal";
-//        super.solvers.add(freespaceConflictingAgentsOptimal);
+        replanSinglePartialAllowed.name = "replanSinglePartialAllowed";
+        super.solvers.add(replanSinglePartialAllowed);
 
-//        A_Solver allAgentsPrPr3 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, 3, null, PrioritisedPlanning_Solver.RestartStrategy.randomRestarts, true, true));
-//        allAgentsPrPr3.name = "allAgentsPrPr3";
-//        super.solvers.add(allAgentsPrPr3);
-//        A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
-//                new CBS_Solver(null, null, null, null, null, null, true, true));
-//        snapshotOptimal.name = "SnapshotOptimal";
-//        super.solvers.add(snapshotOptimal);
+        A_Solver replanSingleAllOrNothing = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, false));
+        replanSingleAllOrNothing.name = "replanSingleAllOrNothing";
+        super.solvers.add(replanSingleAllOrNothing);
 
-//        A_Solver AllAgentsLNS = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-//                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
-//        AllAgentsLNS.name = "AllAgentsLNS";
-//        super.solvers.add(AllAgentsLNS);
-        A_Solver stationaryAgentsLNS = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+        A_Solver stationaryAgentsLNSPartialAllowed = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
-        stationaryAgentsLNS.name = "stationaryAgentsLNS";
-        super.solvers.add(stationaryAgentsLNS);
+        stationaryAgentsLNSPartialAllowed.name = "stationaryAgentsLNSPartialAllowed";
+        super.solvers.add(stationaryAgentsLNSPartialAllowed);
+
+        A_Solver stationaryAgentsLNSAllOrNothing = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, false));
+        stationaryAgentsLNSAllOrNothing.name = "stationaryAgentsLNSAllOrNothing";
+        super.solvers.add(stationaryAgentsLNSAllOrNothing);
+
         A_Solver freespaceAgentsLNSPartialAllowed = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(null, null),
                 new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
         freespaceAgentsLNSPartialAllowed.name = "freespaceAgentsLNSPartialAllowed";
         super.solvers.add(freespaceAgentsLNSPartialAllowed);
+
         A_Solver freespaceAgentsLNSAllOrNothing = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(null, null),
                 new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, false));
         freespaceAgentsLNSAllOrNothing.name = "freespaceAgentsLNSAllOrNothing";
