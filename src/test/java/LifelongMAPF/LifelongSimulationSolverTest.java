@@ -162,6 +162,7 @@ class LifelongSimulationSolverTest {
     }
 
     void isFullSolution(Solution solution, int expectedSOC, int expectedMakespan, MAPF_Instance instance){
+        System.out.println(solution);
         isFullSolution(solution, instance);
 
         assertEquals(expectedSOC, solution.sumIndividualCosts()); // SOC is optimal
@@ -169,17 +170,20 @@ class LifelongSimulationSolverTest {
     }
 
     void isValidFullOrPartialSolution(Solution solution, MAPF_Instance instance){
+        System.out.println(solution);
         assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
         assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
     }
 
     void isFullSolution(Solution solution, MAPF_Instance instance){
+        System.out.println(solution);
         assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
         assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
         assertTrue(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
     }
 
     private static void isPartialSolution(MAPF_Instance instance, Solution solution) {
+        System.out.println(solution);
         assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
         assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
         assertFalse(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
@@ -955,7 +959,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        isFullSolution(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -1046,7 +1050,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
-        isFullSolution(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
 
