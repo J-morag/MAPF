@@ -4,13 +4,10 @@ import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Solvers.AStar.AStarHeuristic;
-import BasicMAPF.Solvers.AStar.CachingDistanceTableHeuristic;
-import BasicMAPF.Solvers.AStar.RunParameters_SAAStar;
+import BasicMAPF.Solvers.AStar.*;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 
@@ -164,7 +161,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                     ((CachingDistanceTableHeuristic)this.heuristic).setCurrentMap(instance.map);
                 }
             }
-            else {this.heuristic = null;} // TODO replace with distance table? should usually be worth it
+            else {this.heuristic = new DistanceTableAStarHeuristic(this.agents, instance.map);} // TODO replace with distance table? should usually be worth it
         }
     }
 
