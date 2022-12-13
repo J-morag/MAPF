@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LifelongSimulationSolverTest {
 
-    private static final long DEFAULT_TIMEOUT = 60L * 1000;
+    private static final long DEFAULT_TIMEOUT = 90L * 1000;
     private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
     private final Enum_MapLocationType[][] map_2D_circle = {
@@ -137,13 +137,13 @@ class LifelongSimulationSolverTest {
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
     I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true, null));
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true, null));
     I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true, null));
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true, null));
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
             new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
@@ -162,7 +162,6 @@ class LifelongSimulationSolverTest {
     }
 
     void isFullSolution(Solution solution, int expectedSOC, int expectedMakespan, MAPF_Instance instance){
-        System.out.println(solution);
         isFullSolution(solution, instance);
 
         assertEquals(expectedSOC, solution.sumIndividualCosts()); // SOC is optimal
@@ -170,20 +169,17 @@ class LifelongSimulationSolverTest {
     }
 
     void isValidFullOrPartialSolution(Solution solution, MAPF_Instance instance){
-        System.out.println(solution);
         assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
         assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
     }
 
     void isFullSolution(Solution solution, MAPF_Instance instance){
-        System.out.println(solution);
         assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
         assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
         assertTrue(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
     }
 
     private static void isPartialSolution(MAPF_Instance instance, Solution solution) {
-        System.out.println(solution);
         assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
         assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
         assertFalse(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
@@ -465,7 +461,7 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
-        isFullSolution(solved, testInstance);
+        isValidFullOrPartialSolution(solved, testInstance);
     }
 
     @Test
@@ -547,7 +543,6 @@ class LifelongSimulationSolverTest {
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
-
     }
 
     @Test
@@ -1003,7 +998,8 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), 500L);
+        Solution solved = solver.solve(testInstance, lifelongRunParameters);
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1029,10 +1025,12 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null), 500L);
+        Solution solved = solver.solve(testInstance, lifelongRunParameters);
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 

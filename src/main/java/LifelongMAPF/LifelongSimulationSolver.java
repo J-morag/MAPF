@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CachingDistanceTableHeuristic;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.RunParametersLNS;
 import Environment.Metrics.InstanceReport;
@@ -14,15 +15,15 @@ import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
-import org.apache.commons.lang.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Simulates a lifelong environment for a lifelong compatible solver to run in.
- *
+ * <p>
  * The {@link LifelongAgent agents} each have a list of waypoints to achieve. They start at the first waypoint
  * (at time 0), and the {@link #offlineSolver} has to find a solution for each agent to arrive at its next waypoint. Only
  * the next ( not yet achieved) waypoint is revealed at any time.
@@ -36,7 +37,7 @@ public class LifelongSimulationSolver extends A_Solver {
     protected final I_Solver offlineSolver;
     private final I_LifelongPlanningTrigger planningTrigger;
     private final I_LifelongAgentSelector agentSelector;
-    public boolean DEBUG = true;
+    private static final boolean DEBUG = true;
 
     /*  = fields related to run =  */
 
@@ -54,9 +55,15 @@ public class LifelongSimulationSolver extends A_Solver {
     private int maxTimeSteps;
     private int reachedTimestepInPlanning;
     private float avgGroupSize;
+    private float avgFailedAgents;
+    private float avgBlockedAgents;
     private int numPlanningIterations;
     private CachingDistanceTableHeuristic cachingDistanceTableHeuristic;
     private int numDestinationsAchieved;
+    Map<LifelongAgent, I_Coordinate> agentsActiveDestination;
+    Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationStartTimes;
+    Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes;
+    Set<LifelongAgent> finishedAgents;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger,
                                     I_LifelongAgentSelector agentSelector, I_LifelongCompatibleSolver offlineSolver) {
@@ -84,6 +91,15 @@ public class LifelongSimulationSolver extends A_Solver {
         this.avgGroupSize = 0;
         this.numPlanningIterations = 0;
         this.numDestinationsAchieved = 0;
+        this.agentsActiveDestination = new HashMap<>();
+        this.agentsActiveDestinationStartTimes = new HashMap<>();
+        this.agentsActiveDestinationEndTimes = new HashMap<>();
+        for (LifelongAgent a :
+                this.lifelongAgents) {
+            agentsActiveDestinationStartTimes.put(a, new ArrayList<>());
+            agentsActiveDestinationEndTimes.put(a, new ArrayList<>());
+        }
+        this.finishedAgents = new HashSet<>();
         if (this.initialConstraints != null){
             this.initialConstraints.sharedSources = true;
             this.initialConstraints.sharedGoals = true;
@@ -125,8 +141,9 @@ public class LifelongSimulationSolver extends A_Solver {
         Map<Agent, Queue<I_Coordinate>> agentDestinationQueues = getDestinationQueues(instance);
 
         int sumGroupSizes = 0;
+        int sumBlockedSizesAfterPlanning = 0;
+        int sumAttemptedAgentsThatFailed = 0;
         int farthestCommittedTime = 0; // at this time locations are committed, and we choose locations for next time
-        int nextPlanningTime = 0;
 
         Solution latestSolution = new Solution();
         for (LifelongAgent a : this.lifelongAgents){
@@ -134,81 +151,69 @@ public class LifelongSimulationSolver extends A_Solver {
         }
         List<LifelongAgent> agentsWaitingToStart = new ArrayList<>(this.lifelongAgents);
 
-        HashMap<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationStartTimes = new HashMap<>();
-        HashMap<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes = new HashMap<>();
-        for (LifelongAgent a :
-                this.lifelongAgents) {
-            agentsActiveDestinationStartTimes.put(a, new ArrayList<>());
-            agentsActiveDestinationEndTimes.put(a, new ArrayList<>());
-        }
+        Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents = getLifelongAgentsToTimelyOfflineAgentsAndUpdateDestinationStartAndEndTimes(farthestCommittedTime,
+                latestSolution, agentDestinationQueues, this.lifelongAgents);
 
-        // every time when new planning is needed, solve an offline MAPF problem of the current conditions
-        while (nextPlanningTime > -1){
+        while (farthestCommittedTime < maxTimeSteps && this.finishedAgents.size() < this.lifelongAgents.size()){
 
-            if (checkTimeout() || farthestCommittedTime >= maxTimeSteps){
+            if (checkTimeout()){
                 break;
             }
 
-            Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents = getLifelongAgentsToTimelyOfflineAgents(farthestCommittedTime,
-                    latestSolution, agentDestinationQueues, this.lifelongAgents, agentsActiveDestinationStartTimes, agentsActiveDestinationEndTimes);
+            // run enforcement at every time step
+            Set<Agent> blockedAgentsBeforePlanningIteration = new HashSet<>();
+            // done agents get "stay in place once". Same if they were blocked before
+            List<SingleAgentPlan> advancedPlansToCurrentTime = getAdvancedPlansForAgents(farthestCommittedTime, latestSolution, lifelongAgentsToTimelyOfflineAgents, this.lifelongAgents);
+            latestSolution = enforceSafeExecutionNextTimeStep(advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration);
 
-            nextPlanningTime = farthestCommittedTime == 0 ? 0 :
-                    planningTrigger.getNextPlanningTime(latestSolution, agentDestinationQueues, lifelongAgentsToTimelyOfflineAgents); // -1 if done
-            if (farthestCommittedTime == nextPlanningTime){
+            Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
+            selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
+                    , lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentDestinationQueues, agentsActiveDestination)).collect(Collectors.toSet());
 
-                Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
-                selectedTimelyOfflineAgentsSubset.retainAll(
-                        // could be lifelong or offline agents (and new or old), depending on implementation.
-                        agentSelector.selectAgentsSubset(instance, latestSolution, farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentDestinationQueues));
+            if ( ! selectedTimelyOfflineAgentsSubset.isEmpty()){ // solve an offline MAPF problem of the current conditions
+
                 agentsWaitingToStart.removeAll(selectedTimelyOfflineAgentsSubset);
-                List<LifelongAgent> notSelectedAgents = getUnchangingAgents(selectedTimelyOfflineAgentsSubset);
-                List<SingleAgentPlan> nextPlansForNotSelectedAgents = getNextPlansForNotSelectedAgents(farthestCommittedTime, latestSolution, lifelongAgentsToTimelyOfflineAgents, notSelectedAgents);
-                Solution subgroupSolution = null;
-                if (! selectedTimelyOfflineAgentsSubset.isEmpty()){
-                    numPlanningIterations++;
-                    sumGroupSizes += selectedTimelyOfflineAgentsSubset.size();
+                Set<LifelongAgent> notSelectedAgents = getUnchangingAgents(selectedTimelyOfflineAgentsSubset);
+                List<SingleAgentPlan> nextPlansForNotSelectedAgents = subsetPlansCollection(latestSolution, notSelectedAgents);
 
-                    MAPF_Instance timelyOfflineProblem = getTimelyOfflineProblem(farthestCommittedTime, selectedTimelyOfflineAgentsSubset);
-                    RunParameters timelyOfflineProblemRunParameters = getTimelyOfflineProblemRunParameters(farthestCommittedTime, nextPlansForNotSelectedAgents);
+                numPlanningIterations++;
+                sumGroupSizes += selectedTimelyOfflineAgentsSubset.size();
 
-                    subgroupSolution = offlineSolver.solve(timelyOfflineProblem, timelyOfflineProblemRunParameters); // TODO solver strategy ?
-                    if (DEBUG && subgroupSolution != null){
-                        checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
-                    }
-                    digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport);
-                }
+                MAPF_Instance timelyOfflineProblem = getTimelyOfflineProblem(farthestCommittedTime, selectedTimelyOfflineAgentsSubset);
+                RunParameters timelyOfflineProblemRunParameters = getTimelyOfflineProblemRunParameters(farthestCommittedTime, nextPlansForNotSelectedAgents);
 
-                MutableInt numStunnedAgents = new MutableInt(0);
-                if (subgroupSolution == null || subgroupSolution.size() < this.lifelongAgents.size()){
-                    latestSolution = handlePartialSolution(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, numStunnedAgents);
+                Solution subgroupSolution = offlineSolver.solve(timelyOfflineProblem, timelyOfflineProblemRunParameters); // TODO solver strategy ?
+                if (DEBUG && subgroupSolution != null){
+                    checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
                 }
-                else {
-                    latestSolution = subgroupSolution;
-                }
+                digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport);
+                int numAgentsWithPlansInSolutionBeforeBlocking = subgroupSolution != null ? subgroupSolution.size() : 0;
+                sumAttemptedAgentsThatFailed += selectedTimelyOfflineAgentsSubset.size() - numAgentsWithPlansInSolutionBeforeBlocking;
+
+                Set<Agent> blockedAgentsAfterPlanning = new HashSet<>();
+                latestSolution = addUncoveredAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, blockedAgentsAfterPlanning, this.lifelongInstance);
+                latestSolution = enforceSafeExecutionNextTimeStep(latestSolution, farthestCommittedTime, blockedAgentsAfterPlanning);
+
+                sumBlockedSizesAfterPlanning += blockedAgentsAfterPlanning.size();
 
                 if (DEBUG){
-                    System.out.print("\rLifelongSim: ");
-                    System.out.print("iteration " + numPlanningIterations + ", @ timestep " + farthestCommittedTime +
-                            ", #agent/solved/stunned " + selectedTimelyOfflineAgentsSubset.size());
-                    System.out.print("/" + (subgroupSolution != null? subgroupSolution.size(): 0));
-                    System.out.print("/" + numStunnedAgents);
-                    System.out.print(", destinations achieved (prev iter.) " + this.numDestinationsAchieved +
-                            " [avg_thr " + (farthestCommittedTime > 0 ? (float)(numDestinationsAchieved) / farthestCommittedTime : 0) + "]");
+                    printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeBlocking, blockedAgentsAfterPlanning.size());
                 }
-
-                solutionsAtTimes.put(farthestCommittedTime, latestSolution);
+            }
+            else if (DEBUG){
+                printProgressAndStats(farthestCommittedTime, 0, 0, blockedAgentsBeforePlanningIteration.size());
             }
 
+            solutionsAtTimes.put(farthestCommittedTime, latestSolution);
             farthestCommittedTime++;
+            // this is for the next iteration! must happen after advancing farthest committed time!
+            lifelongAgentsToTimelyOfflineAgents = getLifelongAgentsToTimelyOfflineAgentsAndUpdateDestinationStartAndEndTimes(farthestCommittedTime,
+                    latestSolution, agentDestinationQueues, this.lifelongAgents);
         }
         this.avgGroupSize = (float) sumGroupSizes / (float) numPlanningIterations;
-        this.reachedTimestepInPlanning = farthestCommittedTime; // doing this before continuing to iterate over the solution tail
-        // keep registering end times of agents
-        while (farthestCommittedTime <= latestSolution.getEndTime()){
-            getLifelongAgentsToTimelyOfflineAgents(farthestCommittedTime,
-                    latestSolution, agentDestinationQueues, this.lifelongAgents, agentsActiveDestinationStartTimes, agentsActiveDestinationEndTimes);
-            farthestCommittedTime++;
-        }
+        this.avgFailedAgents = (float) sumAttemptedAgentsThatFailed / (float) numPlanningIterations;
+        this.avgBlockedAgents = (float) sumBlockedSizesAfterPlanning / (float) numPlanningIterations;
+        this.reachedTimestepInPlanning = farthestCommittedTime;
 
         if (DEBUG){
             verifyAgentsActiveDestinationEndTimes(solutionsAtTimes, agentsActiveDestinationEndTimes);
@@ -218,7 +223,33 @@ public class LifelongSimulationSolver extends A_Solver {
         return new LifelongSolution(solutionsAtTimes, (List<LifelongAgent>)(List)(instance.agents), agentsActiveDestinationEndTimes);
     }
 
-    private static void verifyAgentsActiveDestinationEndTimes(SortedMap<Integer, Solution> solutionsAtTimes, HashMap<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes) {
+    @NotNull
+    private static List<SingleAgentPlan> subsetPlansCollection(Iterable<? extends SingleAgentPlan> plans, Set<LifelongAgent> notSelectedAgents) {
+        List<SingleAgentPlan> plansSubset = new ArrayList<>();
+        for (SingleAgentPlan plan:
+                plans) {
+            if (notSelectedAgents.contains(plan.agent)){
+                plansSubset.add(plan);
+            }
+        }
+        if(DEBUG && plansSubset.size() < notSelectedAgents.size() ){
+            throw new RuntimeException(String.format("Subset doesn't contain all agents: %d of %d", plansSubset.size(), notSelectedAgents.size()));
+        }
+        return plansSubset;
+    }
+
+    private void printProgressAndStats(int farthestCommittedTime, int selectedTimelyOfflineAgentsSubset, int subgroupSolution, int numStunnedAgents) {
+        System.out.print("\rLifelongSim: ");
+        System.out.printf("iteration %1$3s, @ timestep %2$3s, #agent/solved/(newly)blocked %3$3s",
+                numPlanningIterations, farthestCommittedTime, selectedTimelyOfflineAgentsSubset);
+        System.out.printf("/%1$3s", subgroupSolution);
+        System.out.printf("/%1$3s", numStunnedAgents);
+        System.out.printf(", destinations achieved (prev iter.) %d [avg_thr %.2f]",
+                this.numDestinationsAchieved, (farthestCommittedTime > 0 ? (float)(numDestinationsAchieved) / farthestCommittedTime : 0));
+        System.out.print('\r');
+    }
+
+    private static void verifyAgentsActiveDestinationEndTimes(SortedMap<Integer, Solution> solutionsAtTimes, Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes) {
         for (LifelongAgent agent:
              agentsActiveDestinationEndTimes.keySet()) {
             for (TimeCoordinate destinationArrival :
@@ -247,77 +278,183 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     @NotNull
-    private Solution handlePartialSolution(int farthestCommittedTime, Set<Agent> selectedTimelyOfflineAgentsSubset,
-                                           List<SingleAgentPlan> nextPlansForNotSelectedAgents, @Nullable Solution subgroupSolution,
-                                           MutableInt numStunnedAgents) {
+    private static Solution addUncoveredAgents(int farthestCommittedTime, Set<Agent> selectedTimelyOfflineAgentsSubset,
+                                               List<SingleAgentPlan> nextPlansForNotSelectedAgents, @Nullable Solution subgroupSolution,
+                                               Set<Agent> blockedAgents, MAPF_Instance lifelongInstance) {
         // handle fails by agents with no plan staying in place
-        // give uncovered agents plans where they stay in place once
-        List<SingleAgentPlan> partialButConflictFreeSolutionAsList = new ArrayList<>();
-        Queue<SingleAgentPlan> stayPlans = new ArrayDeque<>();
+        List<SingleAgentPlan> invalidSolutionAsList = new ArrayList<>();
 
         for (Agent a :
                 selectedTimelyOfflineAgentsSubset) {
             if (subgroupSolution == null || subgroupSolution.getPlanFor(a) == null){
                 I_Location agentLocation = lifelongInstance.map.getMapLocation(a.source);
-                SingleAgentPlan singleStayPlan = getSingleStayPlan(farthestCommittedTime, a, agentLocation);
-                stayPlans.add(singleStayPlan);
+                invalidSolutionAsList.add(getSingleStayPlan(farthestCommittedTime, a, agentLocation));
+                blockedAgents.add(a);
             }
             else {
-                partialButConflictFreeSolutionAsList.add(subgroupSolution.getPlanFor(a));
+                invalidSolutionAsList.add(subgroupSolution.getPlanFor(a));
             }
         }
 
         // add untouched agents
-        partialButConflictFreeSolutionAsList.addAll(nextPlansForNotSelectedAgents);
-        if (DEBUG && ! new Solution(partialButConflictFreeSolutionAsList).isValidSolution(true, true)){
-            throw new RuntimeException("agents we found plans for together with untouched agents should form a conflict-free partial plan");
-        }
+        invalidSolutionAsList.addAll(nextPlansForNotSelectedAgents);
 
-        numStunnedAgents.setValue(0);
-        // put stunned agents in a queue, check for conflicts with other plans and if they conflict trim and add the other plans to queue.
-        Solution fullAndConflictFreeSolution = new Solution();
-        while (! stayPlans.isEmpty()){
-            SingleAgentPlan stayPlan = stayPlans.poll();
-            fullAndConflictFreeSolution.putPlan(stayPlan);
-            ListIterator<SingleAgentPlan> iter = partialButConflictFreeSolutionAsList.listIterator();
-            while (iter.hasNext()){
-                SingleAgentPlan plan = iter.next();
-                if (plan.conflictsWith(stayPlan, true, true)){
-                    numStunnedAgents.increment();
-                    SingleAgentPlan shortenedPlan = getSingleStayPlan(farthestCommittedTime, plan.agent, plan.getFirstMove().prevLocation);
-                    stayPlans.add(shortenedPlan);
-                    iter.remove();
+        return new Solution(invalidSolutionAsList);
+    }
+
+    /**
+     * When a conflict between paths is found for the next time step, one (arbitrary) path is interrupted and replaced
+     * with staying in place if doing so resolves the conflict. Otherwise, both are interrupted.
+     *
+     * @param solutionThatMayContainConflicts a solution with any number of conflicts
+     * @param blockedAgents agents that were blocked and got a single stay plan instead of the plan they had.
+     * @return a repaired solution with no conflicts in the next time step.
+     */
+    private static Solution enforceSafeExecutionNextTimeStep(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
+                                                             int farthestCommittedTime, Set<Agent> blockedAgents){
+        Solution solutionWithoutConflicts = new Solution(solutionThatMayContainConflicts);
+        boolean hadConflictsCurrentIteration = true;
+        while (hadConflictsCurrentIteration){
+            hadConflictsCurrentIteration = false;
+            SingleAgentPlan newPlan1 = null;
+            SingleAgentPlan newPlan2 = null;
+
+            for (SingleAgentPlan plan1 :
+                    solutionWithoutConflicts) {
+                if (newPlan1 != null || newPlan2 != null){
+                    break;
+                }
+                for (SingleAgentPlan plan2 :
+                        solutionWithoutConflicts) {
+                    if (newPlan1 != null || newPlan2 != null){
+                        break;
+                    }
+                    if (! plan1.agent.equals(plan2.agent)) {
+                        Move plan1FirstMove = plan1.getFirstMove();
+                        Move plan2FirstMove = plan2.getFirstMove();
+                        A_Conflict conflict = A_Conflict.conflictBetween(plan1FirstMove, plan2FirstMove);
+                        boolean isStayAtSharedSource = isStayAtSharedSource(plan1FirstMove, plan2FirstMove);
+                        boolean isMoveToSharedGoal = isMoveToSharedGoal(plan1FirstMove, plan2FirstMove);
+                        if (isStayAtSharedSource || isMoveToSharedGoal){
+                            conflict = null; // TODO fix instances so no shared sources, and unique last destinations
+                        }
+                        if (conflict != null){
+                            // try to resolve conflict by interrupting one (preferably) or both plans.
+                            SingleAgentPlan agent1StayPlan = getSingleStayPlan(farthestCommittedTime, plan1.agent, plan1FirstMove.prevLocation);
+                            SingleAgentPlan agent2StayPlan = getSingleStayPlan(farthestCommittedTime, plan2.agent, plan2FirstMove.prevLocation);
+                            if (A_Conflict.conflictBetween(plan2FirstMove, agent1StayPlan.getFirstMove()) == null
+                                    // TODO fix instances so no shared sources, and unique last destinations
+                                    || isStayAtSharedSource(plan2FirstMove, agent1StayPlan.getFirstMove())
+                                    || isMoveToSharedGoal(plan2FirstMove, agent1StayPlan.getFirstMove())
+                            ){
+                                newPlan1 = agent1StayPlan;
+                            } else if (A_Conflict.conflictBetween(plan1FirstMove, agent2StayPlan.getFirstMove()) == null
+                                    // TODO fix instances so no shared sources, and unique last destinations
+                                    || isStayAtSharedSource(plan1FirstMove, agent2StayPlan.getFirstMove())
+                                    || isMoveToSharedGoal(plan1FirstMove, agent2StayPlan.getFirstMove())
+                            ) {
+                                newPlan2 = agent2StayPlan;
+                            }
+                            else {
+                                newPlan1 = agent1StayPlan;
+                                newPlan2 = agent2StayPlan;
+                                if (DEBUG && agent1StayPlan.conflictsWith(agent2StayPlan, true, true)){ // TODO fix instances so no shared sources, and unique last destinations
+                                    throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
+                                            agent1StayPlan.firstConflict(agent2StayPlan), plan1, plan2, newPlan1, newPlan2));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (newPlan1 != null || newPlan2 != null){
+                hadConflictsCurrentIteration = true;
+                if (newPlan1 != null){
+                    solutionWithoutConflicts.putPlan(newPlan1);
+                    blockedAgents.add(newPlan1.agent);
+                }
+                if (newPlan2 != null){
+                    solutionWithoutConflicts.putPlan(newPlan2);
+                    blockedAgents.add(newPlan2.agent);
                 }
             }
         }
-        for (SingleAgentPlan plan :
-                partialButConflictFreeSolutionAsList) {
-            fullAndConflictFreeSolution.putPlan(plan);
+
+        if (DEBUG){
+            verifyNextStepSafe(solutionThatMayContainConflicts, solutionWithoutConflicts);
         }
-        return fullAndConflictFreeSolution;
+//        if (DEBUG && ! solutionWithoutConflicts.isValidSolution(true, true)){
+//            throw new RuntimeException(String.format("""
+//                    The solution should be safe for the duration of the horizon.
+//                    %s
+//                    %s""", solutionWithoutConflicts, solutionWithoutConflicts.arbitraryConflict(true, true)));
+//        } // TODO what to do with this now that there is a horizon? Should check if safe for k steps? But we also have blocked agents
+        return solutionWithoutConflicts;
+    }
+
+    private static void verifyNextStepSafe(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionWithoutConflicts) {
+        Solution oneStepSolution = getOneStepSolution(solutionWithoutConflicts);
+        boolean isSafeNextStep = isSafeOneStepSolution(oneStepSolution);
+        if ( ! isSafeNextStep){
+            throw new RuntimeException(String.format("""
+                    Got conflicts in next step after supposedly enforcing safe next time step execution.\s
+                     original solution: %s
+                     solution after enforcement: %s
+                     next step solution : %s""", solutionThatMayContainConflicts.toString(), solutionWithoutConflicts, oneStepSolution));
+        }
+    }
+
+    public static boolean isSafeOneStepSolution(Solution oneStepSolution) {
+        return oneStepSolution.isValidSolution(true, true); // TODO fix instances so no shared goals and sources
     }
 
     @NotNull
-    private static List<SingleAgentPlan> getNextPlansForNotSelectedAgents(int farthestCommittedTime, @NotNull Solution latestSolution, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> notSelectedLifelongAgents) {
-        List<SingleAgentPlan> nextPlansForNotSelectedAgents = new ArrayList<>();
-        for (LifelongAgent a :
-                notSelectedLifelongAgents) {
-            SingleAgentPlan existingPlan = latestSolution.getPlanFor(a);
+    public static Solution getOneStepSolution(Solution solutionWithoutConflicts) {
+        Solution oneStepSolution = new Solution();
+        for (SingleAgentPlan plan :
+                solutionWithoutConflicts) {
+            oneStepSolution.putPlan(new SingleAgentPlan(plan.agent, List.of(plan.getFirstMove())));
+        }
+        return oneStepSolution;
+    }
+
+    private static boolean isMoveToSharedGoal(Move plan1FirstMove, Move plan2FirstMove) {
+        return plan1FirstMove.currLocation.equals(plan2FirstMove.currLocation)
+                && plan1FirstMove.currLocation.getCoordinate().equals(plan1FirstMove.agent.target)
+                && plan2FirstMove.currLocation.getCoordinate().equals(plan2FirstMove.agent.target);
+    }
+
+    private static boolean isStayAtSharedSource(Move plan1FirstMove, Move plan2FirstMove) {
+        return plan1FirstMove.prevLocation.equals(plan2FirstMove.prevLocation) && plan1FirstMove.prevLocation.equals(plan1FirstMove.currLocation) && plan2FirstMove.prevLocation.equals(plan2FirstMove.currLocation);
+    }
+
+    @NotNull
+    private static List<SingleAgentPlan> getAdvancedPlansForAgents(int farthestCommittedTime, @NotNull Solution latestSolution, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> lifelongAgents) {
+        List<SingleAgentPlan> advancedPlans = new ArrayList<>();
+        for (LifelongAgent lifelongAgent :
+                lifelongAgents) {
+            SingleAgentPlan existingPlan = latestSolution.getPlanFor(lifelongAgent);
             if (existingPlan.getEndTime() <= farthestCommittedTime){
                 // stay plan if plan ended
-                nextPlansForNotSelectedAgents.add(getSingleStayPlan(farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents.get(a), existingPlan.getLastMove().currLocation));
+                advancedPlans.add(getSingleStayPlan(farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents.get(lifelongAgent), existingPlan.getLastMove().currLocation));
             }
             else {
                 // continue with current plan
-                nextPlansForNotSelectedAgents.add(getAdvancedPlan(farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents, latestSolution.getPlanFor(a)));
+                advancedPlans.add(getAdvancedPlan(farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents, latestSolution.getPlanFor(lifelongAgent)));
             }
         }
-        return nextPlansForNotSelectedAgents;
+        return advancedPlans;
     }
 
     @NotNull
     private static SingleAgentPlan getSingleStayPlan(int farthestCommittedTime, Agent a, I_Location agentLocation) {
-        return new SingleAgentPlan(a, List.of(new Move(a, farthestCommittedTime + 1, agentLocation, agentLocation)));
+        return new SingleAgentPlan(a, List.of(getStayMove(farthestCommittedTime, a, agentLocation)));
+    }
+
+    @NotNull
+    private static Move getStayMove(int farthestCommittedTime, Agent a, I_Location agentLocation) {
+        return new Move(a, farthestCommittedTime + 1, agentLocation, agentLocation);
     }
 
     private Map<Agent, Queue<I_Coordinate>> getDestinationQueues(MAPF_Instance instance) {
@@ -332,16 +469,15 @@ public class LifelongSimulationSolver extends A_Solver {
      * Map each lifelong agent to a suitable offline representation at time.
      */
     @NotNull
-    private Map<LifelongAgent, Agent> getLifelongAgentsToTimelyOfflineAgents(int farthestCommittedTime, @NotNull Solution previousSolution,
-                                                                            Map<Agent, Queue<I_Coordinate>> agentDestinationQueues,
-                                                                            List<LifelongAgent> agentsSubset,
-                                                                            HashMap<LifelongAgent, List<TimeCoordinate>> activeDestinationStartTimes,
-                                                                            HashMap<LifelongAgent, List<TimeCoordinate>> activeDestinationEndTimes) {
+    private Map<LifelongAgent, Agent> getLifelongAgentsToTimelyOfflineAgentsAndUpdateDestinationStartAndEndTimes(int farthestCommittedTime, @NotNull Solution previousSolution,
+                                                                                                                 Map<Agent, Queue<I_Coordinate>> agentDestinationQueues,
+                                                                                                                 List<LifelongAgent> agentsSubset) {
+        // TODO can I brake this into smaller pieces that only do one thing?
         Map<LifelongAgent, Agent> lifelongAgentsToOfflineAgents = new HashMap<>();
         for (LifelongAgent agent : agentsSubset){
 
-            List<TimeCoordinate> destinationStartTimes = activeDestinationStartTimes.get(agent);
-            List<TimeCoordinate> destinationEndTimes = activeDestinationEndTimes.get(agent);
+            List<TimeCoordinate> destinationStartTimes = agentsActiveDestinationStartTimes.get(agent);
+            List<TimeCoordinate> destinationEndTimes = agentsActiveDestinationEndTimes.get(agent);
 
             // for the first instance take the first destination in the queue as the source, for instances after this
             // agent reached final destination (and stays), take final destination
@@ -375,7 +511,7 @@ public class LifelongSimulationSolver extends A_Solver {
                     throw new IllegalArgumentException("Agent only has a source, not even one destination beyond.");
                 }
                 else {
-                    destinationStartTimes.add(new TimeCoordinate(farthestCommittedTime + 1, nextDestinationCoordinate));
+                    updateAgentActiveDestination(farthestCommittedTime, agent, destinationStartTimes, nextDestinationCoordinate);
                 }
             }
             else if (! previousDestinationCoordinate.equals(initialCoordinateAtTime)) // still on the way to current destination
@@ -389,17 +525,23 @@ public class LifelongSimulationSolver extends A_Solver {
                     if (! destinationEndTimes.get(destinationEndTimes.size()-1).coordinate.equals(previousDestinationCoordinate)){
                         // just now achieved last destination
                         updateDestinationEndTimeAndCount(destinationEndTimes,farthestCommittedTime, previousDestinationCoordinate, true);
+                        this.finishedAgents.add(agent);
                     }
                 }
                 else { // got a new destination
                     updateDestinationEndTimeAndCount(destinationEndTimes, farthestCommittedTime, previousDestinationCoordinate, true);
-                    destinationStartTimes.add(new TimeCoordinate(farthestCommittedTime + 1, nextDestinationCoordinate));
+                    updateAgentActiveDestination(farthestCommittedTime, agent, destinationStartTimes, nextDestinationCoordinate);
                 }
             }
             Agent agentFromCurrentLocationToNextDestination = new Agent(agent.iD, initialCoordinateAtTime, nextDestinationCoordinate);
             lifelongAgentsToOfflineAgents.put(agent, agentFromCurrentLocationToNextDestination);
         }
         return lifelongAgentsToOfflineAgents;
+    }
+
+    private void updateAgentActiveDestination(int farthestCommittedTime, LifelongAgent agent, List<TimeCoordinate> destinationStartTimes, I_Coordinate nextDestinationCoordinate) {
+        destinationStartTimes.add(new TimeCoordinate(farthestCommittedTime + 1, nextDestinationCoordinate));
+        agentsActiveDestination.put(agent, nextDestinationCoordinate);
     }
 
     private void updateDestinationEndTimeAndCount(List<TimeCoordinate> destinationEndTimes, int time, I_Coordinate initialCoordinateAtTime, boolean count) {
@@ -429,8 +571,8 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     @NotNull
-    private List<LifelongAgent> getUnchangingAgents(Set<Agent> agentsSubset) {
-        List<LifelongAgent> unchangingAgents = new ArrayList<>(lifelongAgents);
+    private Set<LifelongAgent> getUnchangingAgents(Set<Agent> agentsSubset) {
+        Set<LifelongAgent> unchangingAgents = new HashSet<>(lifelongAgents);
         unchangingAgents.removeAll(agentsSubset);
         return unchangingAgents;
     }
@@ -472,6 +614,8 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putIntegerValue("reachedTimestepInPlanning", this.reachedTimestepInPlanning);
         super.instanceReport.putIntegerValue("numPlanningIterations", this.numPlanningIterations);
         super.instanceReport.putFloatValue("avgGroupSize", this.avgGroupSize);
+        super.instanceReport.putFloatValue("avgFailedAgents", this.avgFailedAgents);
+        super.instanceReport.putFloatValue("avgBlockedAgents", this.avgBlockedAgents);
 
         LifelongSolution lifelongSolution = ((LifelongSolution)solution);
         super.instanceReport.putStringValue("waypointTimes", lifelongSolution.agentsWaypointArrivalTimes());
@@ -491,9 +635,6 @@ public class LifelongSimulationSolver extends A_Solver {
 
         super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
         super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
-
-//            super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
-//            super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
     }
 
     @Override
@@ -502,5 +643,9 @@ public class LifelongSimulationSolver extends A_Solver {
         this.initialConstraints = null;
         this.lifelongInstance = null;
         this.random = null;
+        this.agentsActiveDestination = null;
+        this.agentsActiveDestinationStartTimes = null;
+        this.agentsActiveDestinationEndTimes = null;
+        this.finishedAgents = null;
     }
 }

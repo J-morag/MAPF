@@ -4,7 +4,6 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.A_Solver;
-import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
@@ -12,8 +11,8 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
+import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
 import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
-import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,35 +32,85 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 
     @Override
     public void setSolvers() {
-        A_Solver replanSinglePartialAllowed = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true));
-        replanSinglePartialAllowed.name = "replanSinglePartialAllowed";
-        super.solvers.add(replanSinglePartialAllowed);
+        A_Solver stationaryAgentsReplanSinglePartialAllowedClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true, null));
+        stationaryAgentsReplanSinglePartialAllowedClassic.name = "stationaryAgentsReplanSinglePartialAllowedClassic";
+        super.solvers.add(stationaryAgentsReplanSinglePartialAllowedClassic);
 
-        A_Solver replanSingleAllOrNothing = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, false));
-        replanSingleAllOrNothing.name = "replanSingleAllOrNothing";
-        super.solvers.add(replanSingleAllOrNothing);
+        A_Solver stationaryAgentsPrPPartialAllowedClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, null));
+        stationaryAgentsPrPPartialAllowedClassic.name = "stationaryAgentsPrPPartialAllowedClassic";
+        super.solvers.add(stationaryAgentsPrPPartialAllowedClassic);
 
-        A_Solver stationaryAgentsLNSPartialAllowed = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
-        stationaryAgentsLNSPartialAllowed.name = "stationaryAgentsLNSPartialAllowed";
-        super.solvers.add(stationaryAgentsLNSPartialAllowed);
+        A_Solver stationaryAgentsPrPPartialAllowedRHCR5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 5));
+        stationaryAgentsPrPPartialAllowedRHCR5.name = "stationaryAgentsPrPPartialAllowedRHCR5";
+        super.solvers.add(stationaryAgentsPrPPartialAllowedRHCR5);
 
-        A_Solver stationaryAgentsLNSAllOrNothing = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, false));
-        stationaryAgentsLNSAllOrNothing.name = "stationaryAgentsLNSAllOrNothing";
-        super.solvers.add(stationaryAgentsLNSAllOrNothing);
+        A_Solver stationaryAgentsPrPPartialAllowedRHCR10 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 10));
+        stationaryAgentsPrPPartialAllowedRHCR10.name = "stationaryAgentsPrPPartialAllowedRHCR10";
+        super.solvers.add(stationaryAgentsPrPPartialAllowedRHCR10);
 
-        A_Solver freespaceAgentsLNSPartialAllowed = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(null, null),
-                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
-        freespaceAgentsLNSPartialAllowed.name = "freespaceAgentsLNSPartialAllowed";
-        super.solvers.add(freespaceAgentsLNSPartialAllowed);
+        A_Solver stationaryAgentsPrPPartialAllowedRHCR15 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 15));
+        stationaryAgentsPrPPartialAllowedRHCR15.name = "stationaryAgentsPrPPartialAllowedRHCR15";
+        super.solvers.add(stationaryAgentsPrPPartialAllowedRHCR15);
 
-        A_Solver freespaceAgentsLNSAllOrNothing = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(null, null),
-                new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, false));
-        freespaceAgentsLNSAllOrNothing.name = "freespaceAgentsLNSAllOrNothing";
-        super.solvers.add(freespaceAgentsLNSAllOrNothing);
+
+
+        A_Solver stationaryAgentsReplanSingleAllOrNothingClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, false, null));
+        stationaryAgentsReplanSingleAllOrNothingClassic.name = "stationaryAgentsReplanSingleAllOrNothingClassic";
+        super.solvers.add(stationaryAgentsReplanSingleAllOrNothingClassic);
+
+        A_Solver stationaryAgentsPrPAllOrNothingClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, null));
+        stationaryAgentsPrPAllOrNothingClassic.name = "stationaryAgentsPrPAllOrNothingClassic";
+        super.solvers.add(stationaryAgentsPrPAllOrNothingClassic);
+
+        A_Solver stationaryAgentsPrPAllOrNothingRHCR5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, 5));
+        stationaryAgentsPrPAllOrNothingRHCR5.name = "stationaryAgentsPrPAllOrNothingRHCR5";
+        super.solvers.add(stationaryAgentsPrPAllOrNothingRHCR5);
+
+        A_Solver stationaryAgentsPrPAllOrNothingRHCR10 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, 10));
+        stationaryAgentsPrPAllOrNothingRHCR10.name = "stationaryAgentsPrPAllOrNothingRHCR10";
+        super.solvers.add(stationaryAgentsPrPAllOrNothingRHCR10);
+
+        A_Solver stationaryAgentsPrPAllOrNothingRHCR15 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, 15));
+        stationaryAgentsPrPAllOrNothingRHCR15.name = "stationaryAgentsPrPAllOrNothingRHCR15";
+        super.solvers.add(stationaryAgentsPrPAllOrNothingRHCR15);
+
+
+
+        A_Solver allAgentsReplanSinglePartialAllowed = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true, null));
+        allAgentsReplanSinglePartialAllowed.name = "allAgentsReplanSinglePartialAllowed";
+        super.solvers.add(allAgentsReplanSinglePartialAllowed);
+
+        A_Solver allAgentsPrPPartialAllowedClassic = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, null));
+        allAgentsPrPPartialAllowedClassic.name = "allAgentsPrPPartialAllowedClassic";
+        super.solvers.add(allAgentsPrPPartialAllowedClassic);
+
+        A_Solver allAgentsPrPPartialAllowedRHCR5 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 5));
+        allAgentsPrPPartialAllowedRHCR5.name = "allAgentsPrPPartialAllowedRHCR5";
+        super.solvers.add(allAgentsPrPPartialAllowedRHCR5);
+
+        A_Solver allAgentsPrPPartialAllowedRHCR10 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 10));
+        allAgentsPrPPartialAllowedRHCR10.name = "allAgentsPrPPartialAllowedRHCR10";
+        super.solvers.add(allAgentsPrPPartialAllowedRHCR10);
+
+        A_Solver allAgentsPrPPartialAllowedRHCR15 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 15));
+        allAgentsPrPPartialAllowedRHCR15.name = "allAgentsPrPPartialAllowedRHCR15";
+        super.solvers.add(allAgentsPrPPartialAllowedRHCR15);
+
     }
 
     @Override
@@ -79,7 +128,7 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 //        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{50,100,150,200});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{150, 200, 250, 300, 350});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{200});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40});
 
@@ -89,8 +138,8 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
         /*  =   Add new experiment   =  */
         Experiment warehouseInstances = new Experiment("LifelongWarehouse", instanceManager, null, 2 * 5 * 60 * 1000);
         warehouseInstances.keepSolutionInReport = false;
-        warehouseInstances.sharedGoals = true;
-        warehouseInstances.sharedSources = true;
+        warehouseInstances.sharedGoals = true; // TODO make it false when possible
+        warehouseInstances.sharedSources = true; // TODO make it false when possible
         this.experiments.add(warehouseInstances);
     }
 
@@ -114,6 +163,8 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
                     "reachedTimestepInPlanning",
                     "numPlanningIterations",
                     "avgGroupSize",
+                    "avgFailedAgents",
+                    "avgBlockedAgents",
                     "waypointTimes",
                     "SOC",
                     "makespan",

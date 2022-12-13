@@ -77,6 +77,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * with plans for as many agents as the solver manages to find.
      */
     public final boolean partialSolutionsAllowed;
+    /**
+     * How far forward in time to consider conflicts. Further than this time conflicts will be ignored.
+     */
+    public final int RHCR_Horizon;
 
 
     /*  = Constructors =  */
@@ -88,7 +92,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null, null, null);
     }
 
     /**
@@ -96,7 +100,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null, null, null);
+        this(null, agentComparator, null, null, null, null, null, null);
     }
 
     /**
@@ -109,7 +113,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources, Boolean partialSolutionAllowed) {
+                                      Boolean sharedGoals, Boolean sharedSources, Boolean partialSolutionAllowed,
+                                      Integer RHCR_Horizon) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
@@ -117,6 +122,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.partialSolutionsAllowed = Objects.requireNonNullElse(partialSolutionAllowed, false);
+        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
+        if (this.RHCR_Horizon < 1){
+            throw new IllegalArgumentException("RHCR horizon must be >= 1");
+        }
 
         super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
@@ -125,7 +134,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -236,7 +245,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 solution.putPlan(planForAgent);
 
                 //add constraints to prevent the next agents from conflicting with the new plan
-                currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
+                currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent,
+                        this.RHCR_Horizon == Integer.MAX_VALUE ? this.RHCR_Horizon : problemStartTime + this.RHCR_Horizon));
             }
 
 

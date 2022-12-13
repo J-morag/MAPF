@@ -37,7 +37,7 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
 //        replanSingle.name = "ReplanSingle";
 //        super.solvers.add(replanSingle);
         A_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 99), true, true, true));
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 99), true, true, true, null));
         mandatoryAgentsPrPr.name = "mandatoryAgentsPrPr99";
         super.solvers.add(mandatoryAgentsPrPr);
 //        A_Solver freespaceConflictingAgentsPrPr3 = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),

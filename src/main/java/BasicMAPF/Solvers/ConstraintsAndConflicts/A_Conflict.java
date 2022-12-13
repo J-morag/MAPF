@@ -76,4 +76,14 @@ public abstract class A_Conflict {
         result = 31 * result + location.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{" +
+                "agent1=" + agent1.iD +
+                ", agent2=" + agent2.iD +
+                ", time=" + time +
+                ", location=" + location +
+                '}';
+    }
 }

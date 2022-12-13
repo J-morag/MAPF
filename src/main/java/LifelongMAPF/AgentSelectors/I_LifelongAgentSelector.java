@@ -3,7 +3,6 @@ package LifelongMAPF.AgentSelectors;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
 import BasicMAPF.Solvers.Solution;
 import LifelongMAPF.LifelongAgent;
@@ -11,6 +10,7 @@ import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Select a subset of agents for which to plan at some point in time.
@@ -19,62 +19,65 @@ import java.util.*;
 public interface I_LifelongAgentSelector {
 
     /**
-     * @param lifelongInstance                    the lifelong instance
-     * @param latestSolution                      the current solution being followed
-     * @param farthestCommittedTime               will select agents that should be planned starting after this time.
-     * @param lifelongAgentsToTimelyOfflineAgents Map each lifelong agent to a suitable offline representation at time
+     * @param lifelongInstance                       the lifelong instance
+     * @param currentSolutionStartingFromCurrentTime the current solution being followed
+     * @param lifelongAgentsToTimelyOfflineAgents    Map each lifelong agent to a suitable offline representation at time
      * @param agentsWaitingToStart
      * @param agentDestinationQueues
-     * @return a subset of agents for which to plan at some point in time.
+     * @param agentsActiveDestination
+     * @return a subset of agents for which to plan at some point in time. could be lifelong or offline agents (and new or old), depending on implementation.
      */
-    Set<Agent> selectAgentsSubset(MAPF_Instance lifelongInstance, @NotNull Solution latestSolution, int farthestCommittedTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues);
+    Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime,
+                                                Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart,
+                                                Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination);
 
     /**
      * @param lifelongInstance the lifelong instance
-     * @param latestSolution the current solution being followed
-     * @param farthestCommittedTime will select agents that should be planned starting after this time.
+     * @param currentSolutionStartingFromCurrentTime the current solution being followed
      * @return agents with no path that need a path to their destination.
      */
-    default Set<LifelongAgent> waitingForPathAgents(MAPF_Instance lifelongInstance, @NotNull Solution latestSolution, int farthestCommittedTime, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues){
-        Set<LifelongAgent> agents = agentsAtCurrentTarget(lifelongInstance, latestSolution, farthestCommittedTime);
-        agents.removeIf(agent -> ActiveButPlanEndedTrigger.isPlanEndsAtAgentFinalDestination(agentDestinationQueues, agent, latestSolution.getPlanFor(agent)));
+    default Set<LifelongAgent> waitingForPathToNextGoalAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues){
+        Set<LifelongAgent> agents = agentsAtPreviousTarget(lifelongInstance, currentSolutionStartingFromCurrentTime);
+        agents.removeIf(agent -> ActiveButPlanEndedTrigger.isPlanEndsAtAgentFinalDestination(agentDestinationQueues, agent, currentSolutionStartingFromCurrentTime.getPlanFor(agent)));
         return agents;
     }
 
     /**
      * @param lifelongInstance the lifelong instance
-     * @param latestSolution the current solution being followed
-     * @param farthestCommittedTime will select agents that should be planned starting after this time.
+     * @param currentSolutionStartingFromCurrentTime the current solution being followed
      * @return the agents that are idle - have reached last destination and are idle there.
      */
-    default Set<LifelongAgent> idleFinishedAgents(MAPF_Instance lifelongInstance, @NotNull Solution latestSolution, int farthestCommittedTime, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues){
-        Set<LifelongAgent> agents = agentsAtCurrentTarget(lifelongInstance, latestSolution, farthestCommittedTime);
-        agents.removeIf(agent -> ! ActiveButPlanEndedTrigger.isPlanEndsAtAgentFinalDestination(agentDestinationQueues, agent, latestSolution.getPlanFor(agent)));
+    default Set<LifelongAgent> idleFinishedAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues){
+        Set<LifelongAgent> agents = agentsAtPreviousTarget(lifelongInstance, currentSolutionStartingFromCurrentTime);
+        agents.removeIf(agent -> ! ActiveButPlanEndedTrigger.isPlanEndsAtAgentFinalDestination(agentDestinationQueues, agent, currentSolutionStartingFromCurrentTime.getPlanFor(agent)));
         return agents;
     }
 
     @NotNull
-    public static Set<LifelongAgent> agentsAtCurrentTarget(MAPF_Instance lifelongInstance, @NotNull Solution latestSolution, int farthestCommittedTime) {
+    static Set<LifelongAgent> agentsAtPreviousTarget(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime) {
         Set<LifelongAgent> res = new HashSet<>();
-        for (Agent agent :
+        for (Agent lifelongAgentAsAgent :
                 lifelongInstance.agents) {
-            LifelongAgent lifelongAgent = (LifelongAgent)agent;
-            SingleAgentPlan plan = latestSolution.getPlanFor(agent);
-            // get the time when the plan ends or the agent first arrives at its current goal
-            int endTime = Integer.MAX_VALUE;
-            for (Move move: plan){
-                if (move.currLocation.getCoordinate().equals(plan.agent.target)){
-                    endTime = move.timeNow;
-                    break;
-                }
-            }
-            endTime = Math.min(endTime, plan.getEndTime());
-            if (endTime <= farthestCommittedTime) { // "==" would be enough?
-                res.add(lifelongAgent);
+            LifelongAgent lifelongAgentAsLifelongAgent = (LifelongAgent)lifelongAgentAsAgent;
+            SingleAgentPlan plan = currentSolutionStartingFromCurrentTime.getPlanFor(lifelongAgentAsLifelongAgent);
+
+            if (plan.getFirstMove().currLocation.getCoordinate().equals(plan.getLastMove().currLocation.getCoordinate())) { // also covers blocked agents
+                res.add(lifelongAgentAsLifelongAgent);
             }
         }
         return res;
     }
 
+    class AgentSelectionPredicate implements Predicate<Agent>{
+        private final Set<Agent> selectedAgents;
 
+        public AgentSelectionPredicate(Set<Agent> selectedAgents) {
+            this.selectedAgents = selectedAgents;
+        }
+
+        @Override
+        public boolean test(Agent agent) {
+            return selectedAgents.contains(agent);
+        }
+    }
 }

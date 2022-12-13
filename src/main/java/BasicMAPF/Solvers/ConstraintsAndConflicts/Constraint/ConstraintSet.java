@@ -368,13 +368,18 @@ public class ConstraintSet{
     /**
      * Creates constraints to protect a {@link SingleAgentPlan plan}.
      * @param singleAgentPlan a plan to get constraints for.
+     * @param horizonTime adds constraints up to and including this time. If constraints are dropped due to this, there will be no {@link GoalConstraint}.
      * @return all constraints to protect the plan.
      */
-    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan) {
+    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan, int horizonTime) {
+        int firstMoveTime = singleAgentPlan.getFirstMoveTime();
+        if (horizonTime < firstMoveTime){
+            throw new IllegalArgumentException("horizon must include at least one move");
+        }
         List<Constraint> constraints = new LinkedList<>();
         boolean stayingAtSourceSinceStart = true;
         // protect the agent's plan
-        for (int t = singleAgentPlan.getFirstMoveTime(); t <= singleAgentPlan.getEndTime(); t++) {
+        for (int t = firstMoveTime; t <= Math.min(singleAgentPlan.getEndTime(), horizonTime); t++) {
             Move move = singleAgentPlan.moveAt(t);
             boolean isStayMove = move.prevLocation.equals(move.currLocation);
             stayingAtSourceSinceStart &= isStayMove;
@@ -396,6 +401,15 @@ public class ConstraintSet{
             }
         }
         return constraints;
+    }
+
+    /**
+     * Creates constraints to protect a {@link SingleAgentPlan plan}.
+     * @param singleAgentPlan a plan to get constraints for.
+     * @return all constraints to protect the plan.
+     */
+    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan) {
+        return allConstraintsForPlan(singleAgentPlan, Integer.MAX_VALUE);
     }
 
     /**

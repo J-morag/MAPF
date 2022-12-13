@@ -11,7 +11,7 @@ import java.util.*;
 
 /**
  * A solution to a lifelong problem.
- *
+ * <p>
  * Contains the solutions that were returned by the solver at different times. Also contains (at {@link Solution}) a merged
  * solution, representing just the paths that agents ended up following.
  */
@@ -21,7 +21,7 @@ public class LifelongSolution extends Solution{
     public final SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes;
     private final List<LifelongAgent> agents;
 
-    public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents, HashMap<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes) {
+    public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents, Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes) {
         // make unified solution for super
         super(mergeSolutions(solutionsAtTimes, agents, getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes)));
         this.agents = agents;
@@ -43,10 +43,10 @@ public class LifelongSolution extends Solution{
         Map<Agent, SingleAgentPlan> mergedAgentPlans = new HashMap<>();
         for (LifelongAgent agent : agents){
             SingleAgentPlan mergedPlanUpToTime = new SingleAgentPlan(agent);
-            for (int time : solutionsAtTimes.keySet()) {
-                Solution solution = solutionsAtTimes.get(time);
+            int lastPlanFirstMoveTime = solutionsAtTimes.lastKey() + 1;
+            for (Solution solution : solutionsAtTimes.values()) { // sorted by time
                 SingleAgentPlan timelyPlan = solution.getPlanFor(agent);
-                List<Move> mergedMovesIncludingTime = mergePlans(mergedPlanUpToTime, timelyPlan, agent);
+                List<Move> mergedMovesIncludingTime = mergePlans(mergedPlanUpToTime, timelyPlan, agent, lastPlanFirstMoveTime);
                 mergedPlanUpToTime = new SingleAgentPlan(agent, mergedMovesIncludingTime); // now includes current iteration time
             }
 
@@ -63,9 +63,14 @@ public class LifelongSolution extends Solution{
      * @param mergedPlanUpToTime keeps the moves from this plan that don't overlap with the other plan.
      * @param newPlan keeps the moves from this plan that are newer (larger time value) than all moves in the other plan.
      * @param agent a {@link LifelongAgent} to use for the merged plan.
+     * @param upTo max time step to include in the result. Must be >= first move time of the new plan
      * @return a merged plan.
      */
-    private static List<Move> mergePlans(SingleAgentPlan mergedPlanUpToTime, SingleAgentPlan newPlan, LifelongAgent agent){
+    private static List<Move> mergePlans(SingleAgentPlan mergedPlanUpToTime, SingleAgentPlan newPlan, LifelongAgent agent, int upTo){
+        if (upTo < newPlan.getFirstMoveTime()){
+            throw new IllegalArgumentException(String.format("upTo %d is smaller than the first move time %d of the new plan %s", upTo, newPlan.getFirstMoveTime(), newPlan));
+        }
+
         if (mergedPlanUpToTime.size() == 0){
             List<Move> res = new ArrayList<>();
             newPlan.forEach(res::add);
@@ -86,6 +91,9 @@ public class LifelongSolution extends Solution{
         // add the new plan
         for (Move move :
                 newPlan) {
+            if (move.timeNow > upTo){
+                break;
+            }
             mergedMoves.add(move);
         }
         // remove excess stays at goal if they exist. May exist after reaching last destination
@@ -95,11 +103,10 @@ public class LifelongSolution extends Solution{
             lastMove = mergedMoves.get(mergedMoves.size() - 1);
         }
 
-//        return new LifelongSingleAgentPlan(mergedPlanUpToTime.agent, mergedMoves, waypointTimes);
         return mergedMoves;
     }
 
-    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(HashMap<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes){
+    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes){
         SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes = new TreeMap<>();
         for (LifelongAgent lifelongAgent :
                 agentsActiveDestinationEndTimes.keySet()) {
@@ -211,11 +218,15 @@ public class LifelongSolution extends Solution{
         return throughput;
     }
 
+//    @Override
+//    public boolean isValidSolution() {
+//        return super.isValidSolution(false, false); // TODO drop shared sources (and goals) once instances are fixed
+//    }
     @Override
     public boolean isValidSolution(boolean sharedGoals, boolean sharedSources) {
         for (Solution sol :
                 this.solutionsAtTimes.values()) {
-            if ( ! sol.isValidSolution(sharedGoals, sharedSources)){
+            if ( ! LifelongSimulationSolver.isSafeOneStepSolution(LifelongSimulationSolver.getOneStepSolution(sol))){
                 return false;
             }
         }

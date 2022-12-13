@@ -12,6 +12,7 @@ import LifelongMAPF.LifelongAgent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Computes an individual optimal free-space path for each agent without a path, selects agents whose current path
@@ -31,40 +32,28 @@ public class FreespaceConflictingAgentsSelector implements I_LifelongAgentSelect
         this(null, null);
     }
 
-    /**
-     * @param lifelongInstance                    the lifelong instance
-     * @param latestSolution                      the current solution being followed
-     * @param farthestCommittedTime               will select agents that should be planned starting after this time.
-     * @param lifelongAgentsToTimelyOfflineAgents
-     * @param agentsWaitingToStart
-     * @param agentDestinationQueues
-     * @return
-     */
+
     @Override
-    public Set<Agent> selectAgentsSubset(MAPF_Instance lifelongInstance, @NotNull Solution latestSolution, int farthestCommittedTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues) {
-        Set<Agent> selectedAgents = new HashSet<>();
+    public Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination) {
+        Set<Agent> selectedAgents = new HashSet<>(getStationaryAgentsAndTheirFreespaceConflictingAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart));
 
-        for (int i = 0; i < agentsWaitingToStart.size() && i < maxGroupSize; i++) {
-            selectedAgents.add(agentsWaitingToStart.get(i));
-        }
+        return new AgentSelectionPredicate(selectedAgents);
+    }
 
-        Set<LifelongAgent> agentsNeedingPlan = this.waitingForPathAgents(lifelongInstance, latestSolution, farthestCommittedTime, agentDestinationQueues);
-        for (LifelongAgent agentNeedingPlan :
-                agentsNeedingPlan) {
-            if (selectedAgents.size() == maxGroupSize) {
-                break;
-            }
-            else {
-                selectedAgents.add(agentNeedingPlan); // TODO fill iteratively with the blocking agents?
-            }
-        }
+    @NotNull
+    private Set<LifelongAgent> getStationaryAgentsAndTheirFreespaceConflictingAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart) {
+        // TODO fill iteratively with the blocking agents (when max group is limited)? Assuming it's better to have a small seed and their blockers than a big seeds and 0 blockers because we reached max group size.
+        Set<Agent> stationaryAgents = AllStationaryAgentsSubsetSelector.getAllStationaryAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, agentsWaitingToStart, maxGroupSize);
+        Set<LifelongAgent> selectedAgents = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.keySet());
+        selectedAgents.retainAll(stationaryAgents);
 
+        int startTime = currentSolutionStartingFromCurrentTime.getStartTime();
         if (selectedAgents.size() < maxGroupSize){
-            List<SingleAgentPlan> freespaceIndividualPlans = getFreespaceIndividualPlans(lifelongInstance, farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents, agentsNeedingPlan);
-            Set<Agent> agentsWithPlan = new HashSet<>(lifelongInstance.agents);
-            agentsWithPlan.removeAll(agentsNeedingPlan);
-            Set<Agent> conflictingAgents = getConflictingAgents(latestSolution, freespaceIndividualPlans, agentsWithPlan);
-            for (Agent conflictingAgent :
+            List<SingleAgentPlan> freespaceIndividualPlans = getFreespaceIndividualPlans(lifelongInstance, startTime, lifelongAgentsToTimelyOfflineAgents, selectedAgents);
+            Set<LifelongAgent> agentsWithPlan = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.keySet());
+            agentsWithPlan.removeAll(selectedAgents);
+            Set<LifelongAgent> conflictingAgents = getConflictingAgents(currentSolutionStartingFromCurrentTime, freespaceIndividualPlans, agentsWithPlan);
+            for (LifelongAgent conflictingAgent :
                     conflictingAgents) {
                 if (selectedAgents.size() == maxGroupSize) {
                     break;
@@ -74,62 +63,14 @@ public class FreespaceConflictingAgentsSelector implements I_LifelongAgentSelect
                 }
             }
         }
-
         return selectedAgents;
     }
 
-//
-//    /**
-//     * @param lifelongInstance                    the lifelong instance
-//     * @param latestSolution                      the current solution being followed
-//     * @param farthestCommittedTime               will select agents that should be planned starting after this time.
-//     * @param lifelongAgentsToTimelyOfflineAgents
-//     * @param agentsWaitingToStart
-//     * @param agentDestinationQueues
-//     * @return
-//     */
-//    @Override
-//    public Set<Agent> selectAgentsSubset(MAPF_Instance lifelongInstance, @NotNull Solution latestSolution, int farthestCommittedTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues) {
-//        Set<Agent> selectedAgents = new HashSet<>();
-//
-//        for (int i = 0; i < agentsWaitingToStart.size() && i < maxGroupSize; i++) {
-//            selectedAgents.add(agentsWaitingToStart.get(i));
-//        }
-//
-//        Set<LifelongAgent> agentsNeedingPlan = this.waitingForPathAgents(lifelongInstance, latestSolution, farthestCommittedTime, agentDestinationQueues);
-//        for (LifelongAgent agentNeedingPlan :
-//                agentsNeedingPlan) {
-//            if (selectedAgents.size() == maxGroupSize) {
-//                break;
-//            }
-//            else {
-//                selectedAgents.add(agentNeedingPlan);
-//            }
-//        }
-//
-//        if (selectedAgents.size() < maxGroupSize){
-//            List<SingleAgentPlan> freespaceIndividualPlans = getFreespaceIndividualPlans(lifelongInstance, farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents, agentsNeedingPlan);
-//            Set<Agent> agentsWithPlan = new HashSet<>(lifelongInstance.agents);
-//            agentsWithPlan.removeAll(agentsNeedingPlan);
-//            Set<Agent> conflictingAgents = getConflictingAgents(latestSolution, freespaceIndividualPlans, agentsWithPlan);
-//            for (Agent conflictingAgent :
-//                    conflictingAgents) {
-//                if (selectedAgents.size() == maxGroupSize) {
-//                    break;
-//                }
-//                else {
-//                    selectedAgents.add(conflictingAgent);
-//                }
-//            }
-//        }
-//
-//        return selectedAgents;
-//    }
 
     @NotNull
-    private static Set<Agent> getConflictingAgents(@NotNull Solution latestSolution, List<SingleAgentPlan> freespaceIndividualPlans, Set<Agent> agentsWithPlan) {
-        Set<Agent> selectedAgents = new HashSet<>();
-        for (Agent agentWithPlan: agentsWithPlan){
+    private static Set<LifelongAgent> getConflictingAgents(@NotNull Solution latestSolution, List<SingleAgentPlan> freespaceIndividualPlans, Set<LifelongAgent> agentsWithPlan) {
+        Set<LifelongAgent> selectedAgents = new HashSet<>();
+        for (LifelongAgent agentWithPlan: agentsWithPlan){
             for (SingleAgentPlan freespacePlan: freespaceIndividualPlans){
                 if (latestSolution.getPlanFor(agentWithPlan).conflictsWith(freespacePlan)){
                     selectedAgents.add(agentWithPlan);
@@ -141,12 +82,12 @@ public class FreespaceConflictingAgentsSelector implements I_LifelongAgentSelect
     }
 
     @NotNull
-    private List<SingleAgentPlan> getFreespaceIndividualPlans(MAPF_Instance lifelongInstance, int farthestCommittedTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, Set<LifelongAgent> agentsNeedingPlan) {
+    private List<SingleAgentPlan> getFreespaceIndividualPlans(MAPF_Instance lifelongInstance, int startTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, Set<LifelongAgent> agentsNeedingPlan) {
         List<SingleAgentPlan> freespaceIndividualPlans = new ArrayList<>();
         // compute an individual optimal free-space path for each agent without a path
         for (LifelongAgent agent: agentsNeedingPlan){
             InstanceReport disposableIR = new InstanceReport();
-            RunParameters rp = new RunParameters(null, disposableIR,null, farthestCommittedTime); // TODO timeout?
+            RunParameters rp = new RunParameters(null, disposableIR,null, startTime); // TODO timeout?
             MAPF_Instance singleAgentInstance = new MAPF_Instance("individual optimal for " + agent.iD, lifelongInstance.map, new Agent[]{lifelongAgentsToTimelyOfflineAgents.get(agent)});
             SingleAgentPlan planForAgent = singleAgentSolver.solve(singleAgentInstance, rp).getPlanFor(agent);
             freespaceIndividualPlans.add(planForAgent);

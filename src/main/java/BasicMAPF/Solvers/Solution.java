@@ -72,6 +72,10 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @return true if the solution is valid (contains no vertex or swapping conflicts).
      */
     public boolean isValidSolution(boolean sharedGoals, boolean sharedSources){
+        return arbitraryConflict(sharedGoals, sharedSources) == null;
+    }
+
+    public A_Conflict arbitraryConflict(boolean sharedGoals, boolean sharedSources){
         List<SingleAgentPlan> allPlans = new ArrayList<>(agentPlans.values());
         for (int i = 0; i < allPlans.size(); i++) {
             SingleAgentPlan plan1 = allPlans.get(i);
@@ -79,11 +83,11 @@ public class Solution implements Iterable<SingleAgentPlan>{
                 SingleAgentPlan plan2 = allPlans.get(j);
                 A_Conflict conflict = plan1.firstConflict(plan2, sharedGoals, sharedSources);
                 if (conflict != null) {
-                    return false;
+                    return conflict;
                 }
             }
         }
-        return true;
+        return null;
     }
 
     /**
@@ -175,6 +179,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
             maxEndTime = Math.max(maxEndTime, plan.getEndTime());
         }
         return maxEndTime;
+    }
+
+    public int getStartTime() {
+        int minStartTime = Integer.MAX_VALUE;
+        for (SingleAgentPlan plan:
+                this) {
+            minStartTime = Math.min(minStartTime, plan.getPlanStartTime());
+        }
+        return minStartTime;
     }
 
     /**

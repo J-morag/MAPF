@@ -92,7 +92,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.partialSolutionsAllowed = Objects.requireNonNullElse(partialSolutionAllowed, false);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                sharedGoals, sharedSources, this.partialSolutionsAllowed);
+                sharedGoals, sharedSources, this.partialSolutionsAllowed, null);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
