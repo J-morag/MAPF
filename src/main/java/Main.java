@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat;
  *      2. Check that {@link #outputResults()} is as you need
  *      3. Running an experiment should be done through {@link A_RunManager},
  *          Solving a single Instance is also possible by giving a path.
- *
  * For more information, view the examples below
  */
 public class Main {
@@ -116,6 +115,11 @@ public class Main {
      * Note that you can easily add other metrics which are not currently collected. see {@link S_Metrics}.
      */
     private static void outputResults() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
         try {
