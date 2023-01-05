@@ -11,7 +11,7 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
-import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.AllAgentsEveryPTimestepsSubsetSeletor;
 import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
 
 import java.io.FileOutputStream;
@@ -86,31 +86,25 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 
 
 
-        A_Solver allAgentsReplanSinglePartialAllowed = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true, null));
-        allAgentsReplanSinglePartialAllowed.name = "allAgentsReplanSinglePartialAllowed";
-        super.solvers.add(allAgentsReplanSinglePartialAllowed);
+        A_Solver baselineRHCR_w05_h03 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(3),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, false, 5));
+        baselineRHCR_w05_h03.name = "baselineRHCR_w05_h03";
+        super.solvers.add((baselineRHCR_w05_h03));
 
-        A_Solver allAgentsPrPPartialAllowedClassic = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, null));
-        allAgentsPrPPartialAllowedClassic.name = "allAgentsPrPPartialAllowedClassic";
-        super.solvers.add(allAgentsPrPPartialAllowedClassic);
+        A_Solver baselineRHCR_w10_h05 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(5),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, false, 10));
+        baselineRHCR_w10_h05.name = "baselineRHCR_w10_h05";
+        super.solvers.add((baselineRHCR_w10_h05));
 
-        A_Solver allAgentsPrPPartialAllowedRHCR5 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 5));
-        allAgentsPrPPartialAllowedRHCR5.name = "allAgentsPrPPartialAllowedRHCR5";
-        super.solvers.add(allAgentsPrPPartialAllowedRHCR5);
+        A_Solver baselineRHCR_w15_h10 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(10),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, false, 15));
+        baselineRHCR_w15_h10.name = "baselineRHCR_w15_h10";
+        super.solvers.add((baselineRHCR_w15_h10));
 
-        A_Solver allAgentsPrPPartialAllowedRHCR10 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 10));
-        allAgentsPrPPartialAllowedRHCR10.name = "allAgentsPrPPartialAllowedRHCR10";
-        super.solvers.add(allAgentsPrPPartialAllowedRHCR10);
-
-        A_Solver allAgentsPrPPartialAllowedRHCR15 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 15));
-        allAgentsPrPPartialAllowedRHCR15.name = "allAgentsPrPPartialAllowedRHCR15";
-        super.solvers.add(allAgentsPrPPartialAllowedRHCR15);
-
+        A_Solver baselineRHCR_w20_h05 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(5),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, false, 20));
+        baselineRHCR_w20_h05.name = "baselineRHCR_w20_h05";
+        super.solvers.add((baselineRHCR_w20_h05));
     }
 
     @Override

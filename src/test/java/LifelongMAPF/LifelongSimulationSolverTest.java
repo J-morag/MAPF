@@ -18,6 +18,7 @@ import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import LifelongMAPF.AgentSelectors.AllAgentsEveryPTimestepsSubsetSeletor;
 import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
@@ -147,6 +148,9 @@ class LifelongSimulationSolverTest {
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
             new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
+
+    I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(5),
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, false, 20));
 
 
     InstanceReport instanceReport;
@@ -1036,7 +1040,116 @@ class LifelongSimulationSolverTest {
 
     @Test
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_AllAgentsLNS() {
-        I_Solver solver = allAgentsLNS;
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNotNull(solved);
+        isValidFullOrPartialSolution(solved, testInstance);
+    }
+
+
+    /* = baseline RHCR with window of 10 and replanning period of 5 = */
+
+    @Test
+    void emptyMapValidityTest1_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isValidFullOrPartialSolution(solved, testInstance);
+    }
+
+    @Test
+    void circleMapValidityTest1_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void circleMapValidityTest2_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isValidFullOrPartialSolution(solved, testInstance);
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), 500L);
+        Solution solved = solver.solve(testInstance, lifelongRunParameters);
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceUnsolvable;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        isPartialSolution(testInstance, solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null), 500L);
+        Solution solved = solver.solve(testInstance, lifelongRunParameters);
+        S_Metrics.removeReport(instanceReport);
+
+        assertNotNull(solved);
+        System.out.println(solved);
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_baselineRHCR_w10_p5() {
+        I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
