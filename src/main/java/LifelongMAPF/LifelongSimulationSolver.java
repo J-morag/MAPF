@@ -598,7 +598,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.totalLowLevelStatesGenerated += statesGenerated == null ? 0 : statesGenerated;
         Integer statesExpanded = instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
         this.totalLowLevelStatesExpanded += statesExpanded == null ? 0 : statesExpanded;
-        Integer lowLevelRuntime = instanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+        Integer lowLevelRuntime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
         this.instanceReport.integerAddition(InstanceReport.StandardFields.totalLowLevelTimeMS, lowLevelRuntime == null ? 0 : lowLevelRuntime);
         Integer generatedNodes = instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
         this.instanceReport.integerAddition(InstanceReport.StandardFields.generatedNodes, generatedNodes == null ? 0 : generatedNodes);
