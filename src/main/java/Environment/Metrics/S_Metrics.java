@@ -291,6 +291,17 @@ public class S_Metrics {
         return instanceReport.toString() + '\n';
     }
 
+    /**
+     * Returns a string representation of the information in an instanceReport, in a format that is suitable for easy
+     * reading. Useful for outputing to a console to monitor the experiment.
+     * Skips outputting the solutions because they are long.
+     * @param instanceReport the InstanceReport to convert to a string. @NotNull.
+     * @return a string representation of the information in an instanceReport, in a format readable format.
+     */
+    public static String instanceReportToHumanReadableStringSkipSolutions(InstanceReport instanceReport){
+        return instanceReport.toString(Set.of(InstanceReport.StandardFields.solution)) + '\n';
+    }
+
     // nicetohave tosrting json
 
     ////      outputing to the streams      ////

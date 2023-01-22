@@ -269,11 +269,28 @@ public class InstanceReport {
 
     @Override
     public String toString() {
+        return this.toString(stringFields, integerFields, floatFields);
+    }
+
+    public String toString(Set<String> skipFields) {
+        if (skipFields.isEmpty()){
+            return this.toString();
+        }
+        HashMap<String, String> strings = new HashMap<>(stringFields);
+        strings.keySet().removeAll(skipFields);
+        HashMap<String, Integer> integers = new HashMap<>(integerFields);
+        integers.keySet().removeAll(skipFields);
+        HashMap<String, Float> floats = new HashMap<>(floatFields);
+        floats.keySet().removeAll(skipFields);
+        return this.toString(strings, integers, floats);
+    }
+
+    public String toString(Map<String, String> strings, Map<String, Integer> integers, Map<String, Float> floats){
         return "InstanceReport{" +
-                "stringFields=" + stringFields +
-                ", integerFields=" + integerFields +
-                ", floatFields=" + floatFields +
-                '}';
+                "\nstringFields=" + strings +
+                "\nintegerFields=" + integers +
+                "\nfloatFields=" + floats +
+                "\n}";
     }
 
     /**
