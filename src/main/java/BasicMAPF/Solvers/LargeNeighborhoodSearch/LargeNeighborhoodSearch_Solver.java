@@ -11,12 +11,13 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implements Large Neighborhood Search for MAPF.
@@ -67,10 +68,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     private final boolean sharedSources;
 
     /**
-     * If true, instead of returning null if no solution is found for some agent, a partial solution will be returned,
-     * with plans for as many agents as the solver manages to find.
+     * How to approach partial solutions from the multi-agent perspective
      */
-    public final boolean partialSolutionsAllowed;
+    public final PartialSolutionsStrategy partialSolutionsStrategy;
 
     /*  = Constructors =  */
 
@@ -87,12 +87,12 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor,
-                                          Integer neighborhoodSize, Boolean partialSolutionAllowed) {
+                                          Integer neighborhoodSize, PartialSolutionsStrategy partialSolutionsStrategy) {
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
-        this.partialSolutionsAllowed = Objects.requireNonNullElse(partialSolutionAllowed, false);
+        this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                sharedGoals, sharedSources, this.partialSolutionsAllowed, null);
+                sharedGoals, sharedSources, this.partialSolutionsStrategy, null);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -161,7 +161,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     protected Solution solveLNS(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = getInitialSolution(instance, initialConstraints);
 
-        if (partialSolutionsAllowed && bestSolution != null && bestSolution.size() < agents.size()){
+        if (partialSolutionsStrategy.allowed()
+                && bestSolution != null && bestSolution.size() < agents.size()){ // TODO will have to modify this when we support partial plans
             return bestSolution; // partial solution
         }
 
