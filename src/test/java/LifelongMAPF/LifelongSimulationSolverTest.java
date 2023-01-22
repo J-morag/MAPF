@@ -14,6 +14,8 @@ import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.WidePartialSolutionsStrategy;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
@@ -138,20 +140,22 @@ class LifelongSimulationSolverTest {
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, true));
     I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, true, null));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, new WidePartialSolutionsStrategy(), null));
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true, null));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, new WidePartialSolutionsStrategy(), null));
     I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true, null));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, new WidePartialSolutionsStrategy(), null));
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, true, null));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, new WidePartialSolutionsStrategy(), null));
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
-            new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, true));
+            new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null, new WidePartialSolutionsStrategy()));
 
     I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(5),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, false, 20));
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, new WidePartialSolutionsStrategy(), 20));
 
+    I_Solver mandatoryAgentsPrPrDeepPartial = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, new DeepPartialSolutionsStrategy(), null));
 
     InstanceReport instanceReport;
 
@@ -1162,6 +1166,113 @@ class LifelongSimulationSolverTest {
 
         assertNotNull(solved);
         isValidFullOrPartialSolution(solved, testInstance);
+    }
+
+
+    /* = Mandatory Agents PrPr Deep Partial = */
+
+    @Test
+    void emptyMapValidityTest1_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void circleMapValidityTest1_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+
+    }
+
+    @Test
+    void circleMapValidityTest2_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void unsolvableBecauseOfConflictsShouldBePartialSolution_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceUnsolvable;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        isPartialSolution(testInstance, solved);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNotNull(solved);
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_mandatoryAgentsPrPrDeepPartial() {
+        I_Solver solver = mandatoryAgentsPrPrDeepPartial;
+        MAPF_Instance testInstance = instanceSmallMaze;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
+        constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        assertNotNull(solved);
+        isFullSolution(solved, testInstance);
     }
 
 

@@ -281,6 +281,18 @@ public class S_Metrics {
 
     //      human readable      //
 
+
+    /**
+     * Returns a string representation of the information in an instanceReport, in a format that is suitable for easy
+     * reading. Useful for outputing to a console to monitor the experiment.
+     * Skips outputting the waypoint times because they are long.
+     * @param instanceReport the InstanceReport to convert to a string. @NotNull.
+     * @return a string representation of the information in an instanceReport, in a format readable format.
+     */
+    public static String instanceReportToHumanReadableStringSkipWaypointTimes(InstanceReport instanceReport){
+        return instanceReport.toString(Set.of("waypointTimes")) + '\n';
+    }
+
     /**
      * Returns a string representation of the information in an instanceReport, in a format that is suitable for easy
      * reading. Useful for outputing to a console to monitor the experiment.

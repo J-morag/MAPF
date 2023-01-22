@@ -6,6 +6,7 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
@@ -37,7 +38,9 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
 //        replanSingle.name = "ReplanSingle";
 //        super.solvers.add(replanSingle);
         A_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 99), true, true, true, null));
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 99),
+                        true, true, new DisallowedPartialSolutionsStrategy(), null));
         mandatoryAgentsPrPr.name = "mandatoryAgentsPrPr99";
         super.solvers.add(mandatoryAgentsPrPr);
 //        A_Solver freespaceConflictingAgentsPrPr3 = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),

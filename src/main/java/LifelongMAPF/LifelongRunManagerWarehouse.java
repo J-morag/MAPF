@@ -6,6 +6,10 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.IndexBasedPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.WidePartialSolutionsStrategy;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
@@ -36,10 +40,12 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 //        stationaryAgentsReplanSinglePartialAllowedClassic.name = "stationaryAgentsReplanSinglePartialAllowedClassic";
 //        super.solvers.add(stationaryAgentsReplanSinglePartialAllowedClassic);
 
-        A_Solver stationaryAgentsPrPPartialAllowedClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, null));
-        stationaryAgentsPrPPartialAllowedClassic.name = "stationaryAgentsPrPPartialAllowedClassic";
-        super.solvers.add(stationaryAgentsPrPPartialAllowedClassic);
+//        A_Solver stationaryAgentsPrPPartialAllowedClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new WidePartialSolutionStrategy(), null));
+//        stationaryAgentsPrPPartialAllowedClassic.name = "stationaryAgentsPrPPartialAllowedClassic";
+//        super.solvers.add(stationaryAgentsPrPPartialAllowedClassic);
 
 //        A_Solver stationaryAgentsPrPPartialAllowedRHCR5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
 //                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, true, 5));
@@ -59,27 +65,29 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 
 
 //        A_Solver stationaryAgentsReplanSingleAllOrNothingClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, false, null));
+//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, new DisallowedPartialSolutionsStrategy(), null));
 //        stationaryAgentsReplanSingleAllOrNothingClassic.name = "stationaryAgentsReplanSingleAllOrNothingClassic";
 //        super.solvers.add(stationaryAgentsReplanSingleAllOrNothingClassic);
 
-        A_Solver stationaryAgentsPrPAllOrNothingClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, null));
-        stationaryAgentsPrPAllOrNothingClassic.name = "stationaryAgentsPrPAllOrNothingClassic";
-        super.solvers.add(stationaryAgentsPrPAllOrNothingClassic);
+//        A_Solver stationaryAgentsPrPAllOrNothingClassic = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new DisallowedPartialSolutionsStrategy(), null));
+//        stationaryAgentsPrPAllOrNothingClassic.name = "stationaryAgentsPrPAllOrNothingClassic";
+//        super.solvers.add(stationaryAgentsPrPAllOrNothingClassic);
 
 //        A_Solver stationaryAgentsPrPAllOrNothingRHCR5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, 5));
+//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, new DisallowedPartialSolutionsStrategy(), 5));
 //        stationaryAgentsPrPAllOrNothingRHCR5.name = "stationaryAgentsPrPAllOrNothingRHCR5";
 //        super.solvers.add(stationaryAgentsPrPAllOrNothingRHCR5);
 //
 //        A_Solver stationaryAgentsPrPAllOrNothingRHCR10 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, 10));
+//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, new DisallowedPartialSolutionsStrategy(), 10));
 //        stationaryAgentsPrPAllOrNothingRHCR10.name = "stationaryAgentsPrPAllOrNothingRHCR10";
 //        super.solvers.add(stationaryAgentsPrPAllOrNothingRHCR10);
 //
 //        A_Solver stationaryAgentsPrPAllOrNothingRHCR15 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, false, 15));
+//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts), true, true, new DisallowedPartialSolutionsStrategy(), 15));
 //        stationaryAgentsPrPAllOrNothingRHCR15.name = "stationaryAgentsPrPAllOrNothingRHCR15";
 //        super.solvers.add(stationaryAgentsPrPAllOrNothingRHCR15);
 
@@ -104,6 +112,51 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 //                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, false, 20));
 //        baselineRHCR_w20_h05.name = "baselineRHCR_w20_h05";
 //        super.solvers.add((baselineRHCR_w20_h05));
+
+
+
+        A_Solver stationaryAgentsPrPNoPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DisallowedPartialSolutionsStrategy(), null));
+        stationaryAgentsPrPNoPartial.name = "stationaryAgentsPrPNoPartial";
+        super.solvers.add(stationaryAgentsPrPNoPartial);
+
+        A_Solver stationaryAgentsPrPWidePartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new WidePartialSolutionsStrategy(), null));
+        stationaryAgentsPrPWidePartial.name = "stationaryAgentsPrPWidePartial";
+        super.solvers.add(stationaryAgentsPrPWidePartial);
+
+        A_Solver stationaryAgentsPrPDeepPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DeepPartialSolutionsStrategy(), null));
+        stationaryAgentsPrPDeepPartial.name = "stationaryAgentsPrPDeepPartial";
+        super.solvers.add(stationaryAgentsPrPDeepPartial);
+
+        A_Solver stationaryAgentsPrPCutoff25PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new IndexBasedPartialSolutionsStrategy(0.25), null));
+        stationaryAgentsPrPCutoff25PercentPartial.name = "stationaryAgentsPrPCutoff25PercentPartial";
+        super.solvers.add(stationaryAgentsPrPCutoff25PercentPartial);
+
+        A_Solver stationaryAgentsPrPCutoff50PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new IndexBasedPartialSolutionsStrategy(0.5), null));
+        stationaryAgentsPrPCutoff50PercentPartial.name = "stationaryAgentsPrPCutoff50PercentPartial";
+        super.solvers.add(stationaryAgentsPrPCutoff50PercentPartial);
+
+        A_Solver stationaryAgentsPrPCutoff75PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new IndexBasedPartialSolutionsStrategy(0.75), null));
+        stationaryAgentsPrPCutoff75PercentPartial.name = "stationaryAgentsPrPCutoff75PercentPartial";
+        super.solvers.add(stationaryAgentsPrPCutoff75PercentPartial);
+
     }
 
     @Override
@@ -121,7 +174,7 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 //        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{150, 200, 250, 300, 350});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{50, 100, 150, 200, 250, 300, 350});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{200});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40});
 
@@ -187,7 +240,8 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
             e.printStackTrace();
         }
         try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+//            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes);
         } catch (IOException e) {
             e.printStackTrace();
         }
