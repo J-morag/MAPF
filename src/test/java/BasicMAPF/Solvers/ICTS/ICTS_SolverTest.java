@@ -6,12 +6,7 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Instances.Maps.Enum_MapLocationType;
-import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.MapDimensions;
-import BasicMAPF.Instances.Maps.MapFactory;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.I_Solver;
@@ -29,84 +24,11 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import static BasicMAPF.TestConstants.Agents.*;
+import static BasicMAPF.TestConstants.Maps.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ICTS_SolverTest {
-
-    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private Enum_MapLocationType[][] map_2D_circle = {
-            {w, w, w, w, w, w},
-            {w, w, e, e, e, w},
-            {w, w, e, w, e, w},
-            {w, w, e, e, e, w},
-            {w, w, w, w, w, w},
-            {w, w, w, w, w, w},
-    };
-    private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
-
-    Enum_MapLocationType[][] map_2D_empty = {
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-    };
-    private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
-
-    Enum_MapLocationType[][] map_2D_withPocket = {
-            {e, w, e, w, e, w},
-            {e, w, e, e, e, e},
-            {w, w, e, w, w, e},
-            {e, e, e, e, e, e},
-            {e, e, w, e, w, w},
-            {w, e, w, e, e, e},
-    };
-    private I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
-
-    Enum_MapLocationType[][] map_2D_smallMaze = {
-            {e, e, e, w, e, w},
-            {e, w, e, e, e, e},
-            {e, w, e, w, w, e},
-            {e, e, e, e, e, e},
-            {e, e, w, e, w, w},
-            {w, w, w, e, e, e},
-    };
-    private I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
-
-    private I_Coordinate coor12 = new Coordinate_2D(1,2);
-    private I_Coordinate coor13 = new Coordinate_2D(1,3);
-    private I_Coordinate coor14 = new Coordinate_2D(1,4);
-    private I_Coordinate coor22 = new Coordinate_2D(2,2);
-    private I_Coordinate coor24 = new Coordinate_2D(2,4);
-    private I_Coordinate coor32 = new Coordinate_2D(3,2);
-    private I_Coordinate coor33 = new Coordinate_2D(3,3);
-    private I_Coordinate coor34 = new Coordinate_2D(3,4);
-    private I_Coordinate coor35 = new Coordinate_2D(3,5);
-
-    private I_Coordinate coor11 = new Coordinate_2D(1,1);
-    private I_Coordinate coor43 = new Coordinate_2D(4,3);
-    private I_Coordinate coor53 = new Coordinate_2D(5,3);
-    private I_Coordinate coor54 = new Coordinate_2D(5,4);
-    private I_Coordinate coor05 = new Coordinate_2D(0,5);
-
-    private I_Coordinate coor04 = new Coordinate_2D(0,4);
-    private I_Coordinate coor00 = new Coordinate_2D(0,0);
-    private I_Coordinate coor01 = new Coordinate_2D(0,1);
-    private I_Coordinate coor10 = new Coordinate_2D(1,0);
-    private I_Coordinate coor15 = new Coordinate_2D(1,5);
-
-    private Agent agent33to12 = new Agent(0, coor33, coor12);
-    private Agent agent12to33 = new Agent(1, coor12, coor33);
-    private Agent agent53to05 = new Agent(2, coor53, coor05);
-    private Agent agent43to11 = new Agent(3, coor43, coor11);
-    private Agent agent04to54 = new Agent(4, coor04, coor54);
-    private Agent agent00to10 = new Agent(5, coor00, coor10);
-    private Agent agent10to00 = new Agent(6, coor10, coor00);
-    private Agent agent04to00 = new Agent(7, coor04, coor00);
-    private Agent agent33to35 = new Agent(8, coor33, coor35);
-    private Agent agent34to32 = new Agent(9, coor34, coor32);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),

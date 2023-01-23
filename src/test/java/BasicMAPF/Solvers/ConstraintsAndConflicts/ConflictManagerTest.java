@@ -1,7 +1,6 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.ConflictAvoidance;
@@ -15,27 +14,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
+import static BasicMAPF.TestConstants.Maps.*;
+
 
 public class ConflictManagerTest {
-
-    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private Enum_MapLocationType[][] map_2D_H = {
-            { e, w, w, e},
-            { e, e, e, e},
-            { e, w, w, e},
-    };
-    private I_Map mapH = MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
-
-    private Enum_MapLocationType[][] twoLocationMap = new Enum_MapLocationType[][]{{e,e}};
-    private I_Map mapTwoLocations = MapFactory.newSimple4Connected2D_GraphMap(twoLocationMap);
-
-
-
-
-
-
-
 
     @Test
     public void goalConflict(){
@@ -52,11 +34,11 @@ public class ConflictManagerTest {
         Agent a1 = new Agent(1,new Coordinate_2D(0,0),new Coordinate_2D(0,1));
         SingleAgentPlan a1_plan;
         ArrayList<Move> a1_moves = new ArrayList<>();
-        a1_moves.add(new Move(a1,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,2, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,3, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,4, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
-        a1_moves.add(new Move(a1,5, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
+        a1_moves.add(new Move(a1,1, mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,2, mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,3, mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,4, mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a1_moves.add(new Move(a1,5, mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
 
         a1_plan = new SingleAgentPlan(a1,a1_moves);
         conflictAvoidanceTable.addPlan(a1_plan);
@@ -73,7 +55,7 @@ public class ConflictManagerTest {
         Agent a2 = new Agent(2,new Coordinate_2D(0,1),new Coordinate_2D(0,1));
         SingleAgentPlan a2_plan;
         ArrayList<Move> a2_moves = new ArrayList<>();
-        a2_moves.add(new Move(a2,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
+        a2_moves.add(new Move(a2,1, mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
 
 
         a2_plan = new SingleAgentPlan(a2,a2_moves);
@@ -82,7 +64,7 @@ public class ConflictManagerTest {
 
         /*      == Expected conflicts ==     */
 
-        VertexConflict expectedGoalConflict = new VertexConflict(a1, a2, 5, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)));
+        VertexConflict expectedGoalConflict = new VertexConflict(a1, a2, 5, mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)));
 
         HashSet<A_Conflict> expectedSet = new HashSet<>();
         expectedSet.add(expectedGoalConflict);
@@ -112,7 +94,7 @@ public class ConflictManagerTest {
         Agent a1 = new Agent(1,new Coordinate_2D(0,0),new Coordinate_2D(0,1));
         SingleAgentPlan a1_plan;
         ArrayList<Move> a1_moves = new ArrayList<>();
-        a1_moves.add(new Move(a1,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
+        a1_moves.add(new Move(a1,1, mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,1))));
 
         a1_plan = new SingleAgentPlan(a1,a1_moves);
         conflictAvoidanceTable.addPlan(a1_plan);
@@ -128,7 +110,7 @@ public class ConflictManagerTest {
         Agent a2 = new Agent(2,new Coordinate_2D(0,1),new Coordinate_2D(0,0));
         SingleAgentPlan a2_plan;
         ArrayList<Move> a2_moves = new ArrayList<>();
-        a2_moves.add(new Move(a2,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
+        a2_moves.add(new Move(a2,1, mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0))));
 
 
         a2_plan = new SingleAgentPlan(a2,a2_moves);
@@ -137,7 +119,7 @@ public class ConflictManagerTest {
 
         /*      == Expected conflicts ==     */
 
-        SwappingConflict expectedConflict_time1 = new SwappingConflict(a1,a2,1, this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), this.mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)));
+        SwappingConflict expectedConflict_time1 = new SwappingConflict(a1,a2,1, mapTwoLocations.getMapLocation(new Coordinate_2D(0,1)), mapTwoLocations.getMapLocation(new Coordinate_2D(0,0)));
 
         HashSet<A_Conflict> expectedSet = new HashSet<>();
         expectedSet.add(expectedConflict_time1);

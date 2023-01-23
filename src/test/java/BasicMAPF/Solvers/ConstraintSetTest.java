@@ -1,7 +1,6 @@
 package BasicMAPF.Solvers;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -9,6 +8,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static BasicMAPF.TestConstants.Maps.mapCircle;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConstraintSetTest {
@@ -24,19 +24,6 @@ class ConstraintSetTest {
         setWithDifferentAgentsAndPrevlocationsForSameTimeAndLocation = new ConstraintSet();
     }
 
-    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private final Enum_MapLocationType[][] map_2D_circle = {
-            {w, w, w, w, w, w},
-            {w, w, e, e, e, w},
-            {w, w, e, w, e, w},
-            {w, w, e, e, e, w},
-            {w, w, w, w, w, w},
-            {w, w, w, w, w, w},
-    };
-    private final I_Map map1 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
-
-
     @Test
     void acceptsForVertexConflict() {
         I_Coordinate coor13 = new Coordinate_2D(1,3);
@@ -47,28 +34,28 @@ class ConstraintSetTest {
         Agent agent2 = new Agent(2, coor24, coor24);
 
         // this move is just to illustrate why the constraint might exist, it isn't actually used
-        Move move1 = new Move(agent1, 1, map1.getMapLocation(coor13), map1.getMapLocation(coor14));
-        Move moveConflicts = new Move(agent2, 1, map1.getMapLocation(coor24), map1.getMapLocation(coor14));
-        Move moveDoesntConflict = new Move(agent2, 1, map1.getMapLocation(coor24), map1.getMapLocation(coor34));
+        Move move1 = new Move(agent1, 1, mapCircle.getMapLocation(coor13), mapCircle.getMapLocation(coor14));
+        Move moveConflicts = new Move(agent2, 1, mapCircle.getMapLocation(coor24), mapCircle.getMapLocation(coor14));
+        Move moveDoesntConflict = new Move(agent2, 1, mapCircle.getMapLocation(coor24), mapCircle.getMapLocation(coor34));
 
-        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, map1.getMapLocation(coor14));
-        Constraint constraintHoldsAllAgents = new Constraint(null, 1, map1.getMapLocation(coor14));
+        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, mapCircle.getMapLocation(coor14));
+        Constraint constraintHoldsAllAgents = new Constraint(null, 1, mapCircle.getMapLocation(coor14));
         setOfGoodConstraints.add(constraintHoldsSameAgent);
 
-        Constraint constraintDoesntHoldDifferentAgent = new Constraint(agent1, 1, map1.getMapLocation(coor14));
-        Constraint constraintDoesntHoldDifferentTime = new Constraint(agent2, 2, map1.getMapLocation(coor14));
-        Constraint constraintDoesntHoldDifferentlocation = new Constraint(agent2, 1, map1.getMapLocation(coor13));
-        Constraint constraintDoesntHoldPrevlocation = new Constraint(agent2, 1, map1.getMapLocation(coor24));
+        Constraint constraintDoesntHoldDifferentAgent = new Constraint(agent1, 1, mapCircle.getMapLocation(coor14));
+        Constraint constraintDoesntHoldDifferentTime = new Constraint(agent2, 2, mapCircle.getMapLocation(coor14));
+        Constraint constraintDoesntHoldDifferentlocation = new Constraint(agent2, 1, mapCircle.getMapLocation(coor13));
+        Constraint constraintDoesntHoldPrevlocation = new Constraint(agent2, 1, mapCircle.getMapLocation(coor24));
         setOfBadConstraints.add(constraintDoesntHoldDifferentAgent);
         setOfBadConstraints.add(constraintDoesntHoldDifferentTime);
         setOfBadConstraints.add(constraintDoesntHoldDifferentlocation);
         setOfBadConstraints.add(constraintDoesntHoldPrevlocation);
 
         setWithDifferentAgentsAndPrevlocationsForSameTimeAndLocation.add(
-                new Constraint(agent1, 1, map1.getMapLocation(coor13), map1.getMapLocation(coor14))
+                new Constraint(agent1, 1, mapCircle.getMapLocation(coor13), mapCircle.getMapLocation(coor14))
         );
         setWithDifferentAgentsAndPrevlocationsForSameTimeAndLocation.add(
-                new Constraint(agent2, 1, map1.getMapLocation(coor24), map1.getMapLocation(coor14))
+                new Constraint(agent2, 1, mapCircle.getMapLocation(coor24), mapCircle.getMapLocation(coor14))
         );
 
         /*  =should accept=  */
@@ -98,16 +85,16 @@ class ConstraintSetTest {
         Agent agent2 = new Agent(2, coor24, coor24);
 
         // this move is just to illustrate why the constraint might exist, it isn't actually used
-        Move move1 = new Move(agent1, 1, map1.getMapLocation(coor13), map1.getMapLocation(coor14));
+        Move move1 = new Move(agent1, 1, mapCircle.getMapLocation(coor13), mapCircle.getMapLocation(coor14));
 
-        Move moveConflicts = new Move(agent2, 1, map1.getMapLocation(coor14), map1.getMapLocation(coor13));
-        Move moveDoesntConflictOnMoveConstraint = new Move(agent2, 1, map1.getMapLocation(coor12), map1.getMapLocation(coor13));
+        Move moveConflicts = new Move(agent2, 1, mapCircle.getMapLocation(coor14), mapCircle.getMapLocation(coor13));
+        Move moveDoesntConflictOnMoveConstraint = new Move(agent2, 1, mapCircle.getMapLocation(coor12), mapCircle.getMapLocation(coor13));
 
-        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, map1.getMapLocation(coor14), map1.getMapLocation(coor13));
-        Constraint constraintHoldsAllAgents = new Constraint(null, 1, map1.getMapLocation(coor14), map1.getMapLocation(coor13));
+        Constraint constraintHoldsSameAgent = new Constraint(agent2, 1, mapCircle.getMapLocation(coor14), mapCircle.getMapLocation(coor13));
+        Constraint constraintHoldsAllAgents = new Constraint(null, 1, mapCircle.getMapLocation(coor14), mapCircle.getMapLocation(coor13));
         setOfGoodConstraints.add(constraintHoldsSameAgent);
 
-        Constraint constraintDoesntHoldDifferentPrevlocation = new Constraint(agent2, 1, map1.getMapLocation(coor12), map1.getMapLocation(coor13));
+        Constraint constraintDoesntHoldDifferentPrevlocation = new Constraint(agent2, 1, mapCircle.getMapLocation(coor12), mapCircle.getMapLocation(coor13));
         setOfBadConstraints.add(constraintDoesntHoldDifferentPrevlocation);
 
         /*  =should accept=  */
@@ -117,10 +104,10 @@ class ConstraintSetTest {
         assertTrue(setOfGoodConstraints.accepts(moveDoesntConflictOnMoveConstraint));
         /*  =  =because the prevLocation constraint is for a different agent=  */
         assertTrue(setWithDifferentAgentsAndPrevlocationsForSameTimeAndLocation.accepts(
-                new Move(agent1, 1, map1.getMapLocation(coor24), map1.getMapLocation(coor14))
+                new Move(agent1, 1, mapCircle.getMapLocation(coor24), mapCircle.getMapLocation(coor14))
         ));
         assertTrue(setWithDifferentAgentsAndPrevlocationsForSameTimeAndLocation.accepts(
-                new Move(agent2, 1, map1.getMapLocation(coor13), map1.getMapLocation(coor14))
+                new Move(agent2, 1, mapCircle.getMapLocation(coor13), mapCircle.getMapLocation(coor14))
         ));
 
         /*  =should reject (return false)=  */
