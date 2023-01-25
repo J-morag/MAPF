@@ -13,8 +13,8 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.DistanceTableAStarHeuristic;
-import BasicMAPF.Solvers.AStar.AStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.RunParameters_SAAStar;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
@@ -37,9 +37,9 @@ public class CBS_Solver extends A_Solver {
     /*  =  = Fields related to the run =  */
 
     /**
-     * A {@link AStarHeuristic heuristic} for the low level solver.
+     * A {@link AStarGAndH heuristic} for the low level solver.
      */
-    private AStarHeuristic aStarHeuristic;
+    private AStarGAndH aStarGAndH;
     /**
      * Initial constraints given to the solver to work with.
      */
@@ -139,7 +139,7 @@ public class CBS_Solver extends A_Solver {
         this.generatedNodes = 0;
         this.expandedNodes = 0;
         this.instance = instance;
-        this.aStarHeuristic = this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
+        this.aStarGAndH = this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
                 new DistanceTableAStarHeuristic(new ArrayList<>(this.instance.agents), this.instance.map) :
                 null;
     }
@@ -348,7 +348,7 @@ public class CBS_Solver extends A_Solver {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport, currentSolution);
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
-            RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarHeuristic);
+            RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarGAndH);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
             cat.sharedGoals = this.sharedGoals;
             cat.sharedSources = this.sharedSources;
@@ -412,7 +412,7 @@ public class CBS_Solver extends A_Solver {
         this.initialConstraints = null;
         this.currentConstraints = null;
         this.instance = null;
-        this.aStarHeuristic = null;
+        this.aStarGAndH = null;
     }
 
     /*  = internal classes and interfaces =  */

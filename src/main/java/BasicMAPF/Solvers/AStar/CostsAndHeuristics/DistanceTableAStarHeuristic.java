@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers.AStar;
+package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Maps.GraphMapVertex;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,10 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link AStarHeuristic} that uses a pre-calculated dictionary of distances from possible goal locations to every
+ * A {@link AStarGAndH} that uses a pre-calculated dictionary of distances from possible goal locations to every
  * accessible {@link I_Location location} to provide a perfectly tight heuristic.
  */
-public class DistanceTableAStarHeuristic implements AStarHeuristic {
+public class DistanceTableAStarHeuristic implements AStarGAndH {
     /**
      * Dictionary from target location, to its distance from any location on the map.
      */

@@ -5,8 +5,8 @@ import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.AStarHeuristic;
-import BasicMAPF.Solvers.AStar.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -15,7 +15,6 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implements Large Neighborhood Search for MAPF.
@@ -33,7 +32,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
     /*  =  = Fields related to the run =  */
 
-    private AStarHeuristic subSolverHeuristic;
+    private AStarGAndH subSolverHeuristic;
     private ConstraintSet constraints;
     private Random random;
     private int numIterations;
@@ -123,7 +122,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
         if (parameters instanceof RunParametersLNS runParametersLNS){
-            this.subSolverHeuristic = Objects.requireNonNullElse(runParametersLNS.aStarHeuristic,
+            this.subSolverHeuristic = Objects.requireNonNullElse(runParametersLNS.aStarGAndH,
                     new DistanceTableAStarHeuristic(this.agents, instance.map));
         }
     }

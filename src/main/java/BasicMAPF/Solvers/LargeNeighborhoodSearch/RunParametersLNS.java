@@ -1,14 +1,14 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
-import BasicMAPF.Solvers.AStar.AStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.RunParameters;
 
 public class RunParametersLNS extends RunParameters {
 
-    public final AStarHeuristic aStarHeuristic;
+    public final AStarGAndH aStarGAndH;
 
-    public RunParametersLNS(RunParameters runParameters, AStarHeuristic aStarHeuristic) {
+    public RunParametersLNS(RunParameters runParameters, AStarGAndH aStarGAndH) {
         super(runParameters);
-        this.aStarHeuristic = aStarHeuristic;
+        this.aStarGAndH = aStarGAndH;
     }
 }
