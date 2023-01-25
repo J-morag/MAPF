@@ -84,27 +84,27 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.existingSolution.putPlan(this.existingPlan);
         }
 
-        if(runParameters instanceof  RunParameters_SAAStar
+        if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).heuristicFunction != null){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
             this.gAndH = parameters.heuristicFunction;
         }
         else{
             this.gAndH = new defaultGAndH();
         }
-        if(runParameters instanceof  RunParameters_SAAStar
+        if (! this.gAndH.isConsistent()){
+            throw new IllegalArgumentException("Support for inconsistent heuristic is not implemented.");
+        }
+
+        if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).problemStartTime >= 0){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
             this.problemStartTime = parameters.problemStartTime;
         }
-        if(runParameters instanceof  RunParameters_SAAStar
+        if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).conflictAvoidanceTable != null){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
             this.conflictAvoidanceTable = parameters.conflictAvoidanceTable;
         }
         // else keep the value that it has already been initialised with (above)
-        if(runParameters instanceof  RunParameters_SAAStar){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
+        if(runParameters instanceof RunParameters_SAAStar parameters){
             this.sourceCoor = parameters.sourceCoor != null ? parameters.sourceCoor : agent.source;
             this.targetCoor = parameters.targetCoor != null ? parameters.targetCoor : agent.target;
         }
@@ -112,8 +112,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.sourceCoor = agent.source;
             this.targetCoor = agent.target;
         }
-        if(runParameters instanceof  RunParameters_SAAStar){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
+        if(runParameters instanceof RunParameters_SAAStar parameters){
             this.fBudget = parameters.fBudget;
         }
         else{
@@ -181,7 +180,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     /**
      * Initialises {@link #openList OPEN}.
-     *
      * OPEN is not initialised with a single root state as is common. This is because states in this solver represent
      * {@link Move moves} (classically - operators) rather than {@link I_Location map locations} (classically - states).
      * Instead, OPEN is initialised with all possible moves from the starting position.
@@ -403,9 +401,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof AStarState)) return false;
-
-            AStarState that = (AStarState) o;
+            if (!(o instanceof AStarState that)) return false;
 
             if (
 //                    (timeDimension || that.timeDimension) &&
