@@ -1,10 +1,17 @@
 package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import Environment.Metrics.InstanceReport;
 import org.junit.jupiter.api.Test;
+
+import static BasicMAPF.TestConstants.Agents.agent04to00;
+import static BasicMAPF.TestConstants.Maps.mapH;
+import static BasicMAPF.TestConstants.Maps.mapWithPocket;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
@@ -14,15 +21,7 @@ import java.util.Map;
 
 public class DistanceTableAStarHeuristicTest {
 
-    final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    Enum_MapLocationType[][] map_2D_H = {
-            { e, w, w, e},
-            { e, e, e, e},
-            { e, w, w, e},
-    };
-
-    I_Map map= MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
+    I_Map map = mapH;
 
     /*   = Equals Maps =    */
     private boolean equalsAllAgentMap(Map<I_Location, Map<I_Location, Integer>> expectedValues, Map<I_Location, Map<I_Location, Integer>> actualValues){
@@ -115,6 +114,15 @@ public class DistanceTableAStarHeuristicTest {
         DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(list, map);
 
         assertTrue(equalsAllAgentMap(expected, distanceTableAStarHeuristic.getDistanceDictionaries()));
+    }
+
+    @Test
+    void failIfMapIsNotOneConnectedComponent(){
+        MAPF_Instance testInstance = new MAPF_Instance("pocket", mapWithPocket, new Agent[]{agent04to00});
+
+        DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
+        SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
+        assertThrows(IllegalArgumentException.class, () -> solver.solve(testInstance, new RunParameters_SAAStar(new InstanceReport(), distanceTableAStarHeuristic)));
     }
 
 }

@@ -1,7 +1,8 @@
-package BasicMAPF.Solvers.AStar;
+package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import org.apache.commons.collections4.map.LRUMap;
 
 import java.util.*;
@@ -13,7 +14,7 @@ import java.util.*;
  * IMPORTANT: Using this make run times unstable. The first time a new target on a new map is requested
  * is significantly more expensive than subsequent calls. Use with caution!
  */
-public class CachingDistanceTableHeuristic implements AStarHeuristic {
+public class CachingDistanceTableHeuristic implements AStarGAndH {
     private final int mapCacheSize;
     /**
      * Dictionary from {@link I_Map map} to a {@link DistanceTableAStarHeuristic distance table heuristic} for it.

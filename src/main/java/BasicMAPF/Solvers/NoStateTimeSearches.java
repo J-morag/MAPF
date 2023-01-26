@@ -1,7 +1,10 @@
 package BasicMAPF.Solvers;
 
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -28,7 +31,7 @@ public class NoStateTimeSearches {
      */
     public static boolean BFSReachableFrom(I_Location goal, I_Location source) {
         // BFS algorithm
-        return basicSearch(goal, source, open);
+        return basicSearch(goal, source, open, true);
     }
 
     /**
@@ -43,17 +46,24 @@ public class NoStateTimeSearches {
         Comparator<I_Location> fComparator = Comparator.comparingDouble((I_Location loc) -> loc.getCoordinate().distance(goal.getCoordinate()));
         PriorityQueue<I_Location> openPriority = new PriorityQueue<>(fComparator);
         // PHS algorithm
-        return basicSearch(goal, source, openPriority);
+        return basicSearch(goal, source, openPriority, true);
     }
 
-    private static boolean basicSearch(I_Location goal, I_Location source, Queue<I_Location> open) {
+    private static boolean basicSearch(I_Location goal, I_Location source, Queue<I_Location> open, boolean earlyGoalTest) {
         open.offer(source);
         while(!open.isEmpty()){
             I_Location location = open.remove();
+            if (visited.contains(location)){
+                continue;
+            }
+
             visited.add(location);
+            if (!earlyGoalTest && simpleGoalTest(goal, location)){
+                // found (reachable)
+                return finish((true));
+            }
             for (I_Location neighbour: location.outgoingEdges()) {
-                // must compare coordinates since these locations might come from different copies of the map and thus won't be equal
-                if(neighbour.getCoordinate().equals(goal.getCoordinate())){
+                if(earlyGoalTest && simpleGoalTest(goal, neighbour)){
                     // found (reachable)
                     return finish(true);
                 }
@@ -64,6 +74,11 @@ public class NoStateTimeSearches {
         }
         // they are in disjoint graph components
         return finish(false);
+    }
+
+    private static boolean simpleGoalTest(I_Location goal, I_Location location) {
+        // must compare coordinates since these locations might come from different copies of the map and thus won't be equal
+        return location.getCoordinate().equals(goal.getCoordinate());
     }
 
     /**
@@ -77,4 +92,54 @@ public class NoStateTimeSearches {
         return returnVal;
     }
 
+    public static List<I_Location> uniformCostSearch(I_Location goal, I_Location source, AStarGAndH edgeCosts, Agent dummyAgent) {
+        dummyAgent = Objects.requireNonNullElse(dummyAgent, new Agent(0, source.getCoordinate(), goal.getCoordinate()));
+        Map<I_Location, I_Location> parent = new HashMap<>();
+        Map<I_Location, Integer> cummulativeCost = new HashMap<>();
+        Comparator<I_Location> costComparator = Comparator.comparingInt(cummulativeCost::get);
+        PriorityQueue<I_Location> open = new PriorityQueue<>(costComparator);
+        HashSet<I_Location> visited = new HashSet<>();
+
+        open.offer(source);
+        parent.put(source, null);
+        cummulativeCost.put(source, 0);
+        while(!open.isEmpty()){
+            I_Location location = open.remove();
+            if (visited.contains(location)){
+                continue;
+            }
+            visited.add(location);
+
+            if (simpleGoalTest(goal, location)){
+                return getLocationSequenceByBacktrack(parent, dummyAgent, location);
+            }
+
+            int locationCost = cummulativeCost.get(location);
+            for (I_Location neighbour: location.outgoingEdges()) {
+                int neighbourCost = locationCost + edgeCosts.cost(new Move(dummyAgent, 1, location, neighbour));
+                if(!visited.contains(neighbour) && (!cummulativeCost.containsKey(neighbour) || neighbourCost < cummulativeCost.get(neighbour))){
+                    // no need to remove the duplicate (if exists), because it would just have a higher cost, and we will
+                    // ignore it when we pop it because it will be closed already
+
+                    cummulativeCost.put(neighbour, neighbourCost);
+                    parent.put(neighbour, location);
+                    open.offer(neighbour);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @NotNull
+    private static List<I_Location> getLocationSequenceByBacktrack(Map<I_Location, I_Location> parent, Agent dummyAgent, I_Location location) {
+        ArrayList<I_Location> locations = new ArrayList<>();
+        I_Location current = location;
+        while (current != null){
+            locations.add(current);
+            current = parent.get(current);
+        }
+        Collections.reverse(locations);
+        return locations;
+    }
 }

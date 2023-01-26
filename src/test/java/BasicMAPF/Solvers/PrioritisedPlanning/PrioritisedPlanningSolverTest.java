@@ -1,8 +1,6 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -26,112 +24,12 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import static BasicMAPF.TestConstants.Agents.*;
+import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Maps.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PrioritisedPlanningSolverTest {
-
-    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private final Enum_MapLocationType[][] map_2D_circle = {
-            {w, w, w, w, w, w},
-            {w, w, e, e, e, w},
-            {w, w, e, w, e, w},
-            {w, w, e, e, e, w},
-            {w, w, w, w, w, w},
-            {w, w, w, w, w, w},
-    };
-    private final I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
-
-    Enum_MapLocationType[][] map_2D_empty = {
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-    };
-    private final I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
-
-    Enum_MapLocationType[][] map_2D_withPocket = {
-            {e, w, e, w, e, w},
-            {e, w, e, e, e, e},
-            {w, w, e, w, w, e},
-            {e, e, e, e, e, e},
-            {e, e, w, e, w, w},
-            {w, e, w, e, e, e},
-    };
-    private final I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
-
-
-    private final Enum_MapLocationType[][] map_2D_smallMaze = {
-            {e, e, e, w, e, w},
-            {e, w, e, e, e, e},
-            {e, w, e, w, w, e},
-            {e, e, e, e, e, e},
-            {e, e, w, e, w, w},
-            {w, w, w, e, e, e},
-    };
-    private final I_Map mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
-
-    private final I_Coordinate coor12 = new Coordinate_2D(1,2);
-    private final I_Coordinate coor13 = new Coordinate_2D(1,3);
-    private final I_Coordinate coor14 = new Coordinate_2D(1,4);
-    private final I_Coordinate coor22 = new Coordinate_2D(2,2);
-    private final I_Coordinate coor24 = new Coordinate_2D(2,4);
-    private final I_Coordinate coor32 = new Coordinate_2D(3,2);
-    private final I_Coordinate coor33 = new Coordinate_2D(3,3);
-    private final I_Coordinate coor34 = new Coordinate_2D(3,4);
-    private final I_Coordinate coor35 = new Coordinate_2D(3,5);
-
-    private final I_Coordinate coor11 = new Coordinate_2D(1,1);
-    private final I_Coordinate coor43 = new Coordinate_2D(4,3);
-    private final I_Coordinate coor53 = new Coordinate_2D(5,3);
-    private final I_Coordinate coor54 = new Coordinate_2D(5,4);
-    private final I_Coordinate coor55 = new Coordinate_2D(5,5);
-    private final I_Coordinate coor05 = new Coordinate_2D(0,5);
-
-    private final I_Coordinate coor04 = new Coordinate_2D(0,4);
-    private final I_Coordinate coor00 = new Coordinate_2D(0,0);
-    private final I_Coordinate coor01 = new Coordinate_2D(0,1);
-    private final I_Coordinate coor10 = new Coordinate_2D(1,0);
-    private final I_Coordinate coor31 = new Coordinate_2D(3,1);
-    private final I_Coordinate coor40 = new Coordinate_2D(4,0);
-    private final I_Coordinate coor02 = new Coordinate_2D(0,2);
-
-    private final I_Location location12 = mapCircle.getMapLocation(coor12);
-    private final I_Location location13 = mapCircle.getMapLocation(coor13);
-    private final I_Location location14 = mapCircle.getMapLocation(coor14);
-    private final I_Location location22 = mapCircle.getMapLocation(coor22);
-    private final I_Location location24 = mapCircle.getMapLocation(coor24);
-    private final I_Location location32 = mapCircle.getMapLocation(coor32);
-    private final I_Location location33 = mapCircle.getMapLocation(coor33);
-    private final I_Location location34 = mapCircle.getMapLocation(coor34);
-
-    private final I_Location location11 = mapCircle.getMapLocation(coor11);
-    private final I_Location location43 = mapCircle.getMapLocation(coor43);
-    private final I_Location location53 = mapCircle.getMapLocation(coor53);
-    private final I_Location location54 = mapCircle.getMapLocation(coor54);
-    private final I_Location location55 = mapCircle.getMapLocation(coor55);
-    private final I_Location location05 = mapCircle.getMapLocation(coor05);
-
-    private final I_Location location04 = mapCircle.getMapLocation(coor04);
-    private final I_Location location00 = mapCircle.getMapLocation(coor00);
-    private final I_Location location01 = mapCircle.getMapLocation(coor01);
-    private final I_Location location10 = mapCircle.getMapLocation(coor10);
-
-    private final Agent agent33to12 = new Agent(0, coor33, coor12);
-    private final Agent agent12to33 = new Agent(1, coor12, coor33);
-    private final Agent agent53to05 = new Agent(2, coor53, coor05);
-    private final Agent agent43to11 = new Agent(3, coor43, coor11);
-    private final Agent agent04to00 = new Agent(4, coor04, coor00);
-    private final Agent agent00to10 = new Agent(5, coor00, coor10);
-    private final Agent agent10to00 = new Agent(6, coor10, coor00);
-    private final Agent agent43to53 = new Agent(7, coor43, coor53);
-    private final Agent agent55to34 = new Agent(8, coor55, coor34);
-    private final Agent agent33to35 = new Agent(9, coor33, coor35);
-    private final Agent agent34to32 = new Agent(10, coor34, coor32);
-    private final Agent agent31to14 = new Agent(11, coor31, coor14);
-    private final Agent agent40to02 = new Agent(12, coor40, coor02);
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),

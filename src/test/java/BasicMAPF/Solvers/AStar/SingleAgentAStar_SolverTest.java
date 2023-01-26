@@ -1,7 +1,9 @@
 package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -12,64 +14,21 @@ import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import Environment.Metrics.InstanceReport;
+import Environment.Metrics.S_Metrics;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Maps.*;
+import static BasicMAPF.TestConstants.Agents.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SingleAgentAStar_SolverTest {
-
-    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private Enum_MapLocationType[][] map_2D_circle = {
-            {w, w, w, w, w, w},
-            {w, w, e, e, e, w},
-            {w, w, e, w, e, w},
-            {w, w, e, e, e, w},
-            {w, w, w, w, w, w},
-            {w, w, w, w, w, w},
-    };
-    private I_Map mapCircle = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
-
-    Enum_MapLocationType[][] map_2D_empty = {
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-            {e, e, e, e, e, e},
-    };
-    private I_Map mapEmpty = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty);
-
-    Enum_MapLocationType[][] map_2D_withPocket = {
-            {e, w, e, w, e, w},
-            {e, w, e, e, e, e},
-            {w, w, e, w, w, e},
-            {e, e, e, e, e, e},
-            {e, e, w, e, w, w},
-            {w, e, w, e, e, e},
-    };
-    private I_Map mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
-
-    private I_Coordinate coor12 = new Coordinate_2D(1,2);
-    private I_Coordinate coor13 = new Coordinate_2D(1,3);
-    private I_Coordinate coor14 = new Coordinate_2D(1,4);
-    private I_Coordinate coor22 = new Coordinate_2D(2,2);
-    private I_Coordinate coor24 = new Coordinate_2D(2,4);
-    private I_Coordinate coor32 = new Coordinate_2D(3,2);
-    private I_Coordinate coor33 = new Coordinate_2D(3,3);
-    private I_Coordinate coor34 = new Coordinate_2D(3,4);
-
-    private I_Coordinate coor11 = new Coordinate_2D(1,1);
-    private I_Coordinate coor43 = new Coordinate_2D(4,3);
-    private I_Coordinate coor53 = new Coordinate_2D(5,3);
-    private I_Coordinate coor05 = new Coordinate_2D(0,5);
-
-    private I_Coordinate coor04 = new Coordinate_2D(0,4);
-    private I_Coordinate coor00 = new Coordinate_2D(0,0);
 
     private I_Location location12Circle = mapCircle.getMapLocation(coor12);
     private I_Location location13Circle = mapCircle.getMapLocation(coor13);
@@ -88,13 +47,6 @@ class SingleAgentAStar_SolverTest {
     private I_Location location04 = mapCircle.getMapLocation(coor04);
     private I_Location location00 = mapCircle.getMapLocation(coor00);
 
-    private Agent agent33to12 = new Agent(0, coor33, coor12);
-    private Agent agent12to33 = new Agent(1, coor12, coor33);
-    private Agent agent53to05 = new Agent(0, coor53, coor05);
-    private Agent agent43to11 = new Agent(0, coor43, coor11);
-    private Agent agent04to00 = new Agent(0, coor04, coor00);
-
-    InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
@@ -104,13 +56,25 @@ class SingleAgentAStar_SolverTest {
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12});
     private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33});
     private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent04to00});
+    private MAPF_Instance instanceMaze1 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent04to40});
+    private MAPF_Instance instanceMaze2 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent00to55});
+    private MAPF_Instance instanceMaze3 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent43to53});
+    private MAPF_Instance instanceMaze4 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent53to15});
 
     I_Solver aStar = new SingleAgentAStar_Solver();
 
+    InstanceReport instanceReport;
+
     @BeforeEach
     void setUp() {
-
+        instanceReport = S_Metrics.newInstanceReport();
     }
+
+    @AfterEach
+    void tearDown() {
+        S_Metrics.removeReport(instanceReport);
+    }
+
 
     @Test
     void oneMoveSolution() {
@@ -396,5 +360,284 @@ class SingleAgentAStar_SolverTest {
 
         assertEquals(5, solved.getPlanFor(agent).size());
         assertEquals(expected, solved);
+    }
+
+    private class UnitCostAndNoHeuristic implements AStarGAndH {
+        @Override
+        public float getH(SingleAgentAStar_Solver.AStarState state) {
+            return 0;
+        }
+
+        @Override
+        public int cost(Move move) {
+            return AStarGAndH.super.cost(move);
+        }
+
+        @Override
+        public boolean isConsistent() {
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "All edges = 1";
+        }
+    }
+
+    private final AStarGAndH unitCostAndNoHeuristic = new UnitCostAndNoHeuristic();
+
+    private static List<I_Location> planLocations(SingleAgentPlan planFromAStar) {
+        List<I_Location> aStarPlanLocations = new ArrayList<>();
+        for (Move move :
+                planFromAStar) {
+            if (move.timeNow == 1) {
+                aStarPlanLocations.add(move.prevLocation);
+            }
+            aStarPlanLocations.add(move.currLocation);
+        }
+        return aStarPlanLocations;
+    }
+
+    @Test
+    void optimalVsUCS1(){
+        MAPF_Instance testInstance = instanceMaze1;
+        Agent agent = testInstance.agents.get(0);
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+    }
+
+    @Test
+    void optimalVsUCS2(){
+        MAPF_Instance testInstance = instanceMaze2;
+        Agent agent = testInstance.agents.get(0);
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+    }
+    @Test
+    void optimalVsUCS3(){
+        MAPF_Instance testInstance = instanceMaze3;
+        Agent agent = testInstance.agents.get(0);
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+    }
+    @Test
+    void optimalVsUCS4(){
+        MAPF_Instance testInstance = instanceMaze4;
+        Agent agent = testInstance.agents.get(0);
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+    }
+    @Test
+    void optimalVsUCSDynamic(){
+        Map<I_ExplicitMap, String> maps = singleStronglyConnectedComponentMapsWithNames;
+        for (I_ExplicitMap testMap :
+                maps.keySet()) {
+            for (I_Location source :
+                    testMap.getAllLocations()) {
+                for (I_Location target :
+                        testMap.getAllLocations()) {
+                    if ( ! source.equals(target)){
+                        Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
+                        MAPF_Instance testInstance = new MAPF_Instance(
+                                maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
+                        compareAStarAndUCS(aStar, new InstanceReport(),
+                                agent, testInstance, unitCostAndNoHeuristic);
+                    }
+                }
+            }
+        }
+    }
+    @Test
+    void optimalVsUCSDynamicWithDistanceTableHeuristic(){
+        Map<I_ExplicitMap, String> maps = singleStronglyConnectedComponentMapsWithNames;
+        for (I_ExplicitMap testMap :
+                maps.keySet()) {
+            for (I_Location source :
+                    testMap.getAllLocations()) {
+                for (I_Location target :
+                        testMap.getAllLocations()) {
+                    if ( ! source.equals(target)){
+                        Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
+                        MAPF_Instance testInstance = new MAPF_Instance(
+                                maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
+                        DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
+                        compareAStarAndUCS(aStar, new InstanceReport(),
+                                agent, testInstance, distanceTableAStarHeuristic);
+                    }
+                }
+            }
+        }
+    }
+    @Test
+    void optimalVsUCSDDynamicWithManhattanDistanceHeuristic(){
+        Map<I_ExplicitMap, String> maps = singleStronglyConnectedComponentGridMapsWithNames; // grid maps only!
+        for (I_ExplicitMap testMap :
+                maps.keySet()) {
+            for (I_Location source :
+                    testMap.getAllLocations()) {
+                for (I_Location target :
+                        testMap.getAllLocations()) {
+                    if ( ! source.equals(target)){
+                        Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
+                        MAPF_Instance testInstance = new MAPF_Instance(
+                                maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
+                        compareAStarAndUCS(aStar, new InstanceReport(), agent, testInstance, new UnitCostsAndManhattanDistance(agent.target));
+                    }
+                }
+            }
+        }
+    }
+
+    private static class RandomButStableCostsFrom1To10AndNoHeuristic implements AStarGAndH{
+        Map<Edge, Integer> randomButStableCosts = new HashMap<>();
+        Random rand;
+
+        private RandomButStableCostsFrom1To10AndNoHeuristic(Long seed) {
+            seed = Objects.requireNonNullElse(seed, 42L);
+            rand = new Random(seed);
+        }
+
+        @Override
+        public float getH(SingleAgentAStar_Solver.AStarState state) {
+            return 0;
+        }
+
+        @Override
+        public int cost(Move move) {
+            Edge edge = new Edge(move);
+            return randomButStableCosts.computeIfAbsent(edge, e -> rand.nextInt(10) + 1);
+        }
+
+        @Override
+        public boolean isConsistent() {
+            return true;
+        }
+
+        @Override
+        public String toString() {
+//            SortedMap<Edge, Integer> sortedMap = new TreeMap<>(Comparator.comparingInt(e -> randomButStableCosts.get(e)));
+//            sortedMap.putAll(randomButStableCosts);
+            return randomButStableCosts.toString();
+        }
+    }
+
+    @Test
+    void optimalVsUCSWeightedEdges1(){
+        MAPF_Instance testInstance = instanceMaze1;
+        Agent agent = testInstance.agents.get(0);
+        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+    }
+    @Test
+    void optimalVsUCSWeightedEdges2(){
+        MAPF_Instance testInstance = instanceMaze2;
+        Agent agent = testInstance.agents.get(0);
+        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+    }
+    @Test
+    void optimalVsUCSWeightedEdges3(){
+        MAPF_Instance testInstance = instanceMaze3;
+        Agent agent = testInstance.agents.get(0);
+        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+    }
+    @Test
+    void optimalVsUCSWeightedEdges4(){
+        MAPF_Instance testInstance = instanceMaze4;
+        Agent agent = testInstance.agents.get(0);
+        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+
+        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+    }
+    @Test
+    void optimalVsUCSWeightedEdgesDynamic(){
+        Map<I_ExplicitMap, String> maps = singleStronglyConnectedComponentMapsWithNames;
+        for (I_ExplicitMap testMap :
+                maps.keySet()) {
+            for (I_Location source :
+                    testMap.getAllLocations()) {
+                for (I_Location target :
+                        testMap.getAllLocations()) {
+                    if ( ! source.equals(target)){
+                        Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
+                        MAPF_Instance testInstance = new MAPF_Instance(
+                                maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
+                        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+                        compareAStarAndUCS(aStar, new InstanceReport(), agent, testInstance, randomStableCosts);
+                    }
+                }
+            }
+        }
+    }
+
+    private void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
+        RunParameters aStarRunParameters = new RunParameters_SAAStar(instanceReport, costFunction);
+
+        String identifier = testInstance.name + " " + agent.source + " to " + agent.target;
+        System.out.println("\n" + identifier);
+
+        Solution aStarSolution = aStar.solve(testInstance, aStarRunParameters);
+        List<Integer> aSTsarPlanCosts = null;
+        if (aStarSolution != null){
+            List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));
+            aSTsarPlanCosts = getCosts(agent, costFunction, aStarPlanLocations);
+            System.out.println("AStar:");
+            System.out.println(aStarPlanLocations);
+            System.out.println(aSTsarPlanCosts);
+        }
+        else{
+            System.out.println("AStar Didn't Solve!!!");
+        }
+
+        List<I_Location> UCSPlanLocations = NoStateTimeSearches.uniformCostSearch(testInstance.map.getMapLocation(agent.target),
+                testInstance.map.getMapLocation(agent.source), costFunction, agent);
+        List<Integer> UCSPlanCosts = null;
+        if (UCSPlanLocations != null){
+            UCSPlanCosts = getCosts(agent, costFunction, UCSPlanLocations);
+            System.out.println("UCS:");
+            System.out.println(UCSPlanLocations);
+            System.out.println(UCSPlanCosts);
+        }
+        else{
+            System.out.println("UCS Didn't Solve!!!");
+        }
+
+
+        System.out.println("Costs were:");
+        System.out.println(costFunction);
+
+        assertNotNull(aStarSolution);
+        assertNotNull(UCSPlanLocations);
+
+        int costAStar = 0;
+        int costUCS = 0;
+        for (int i = 0; i < Math.max(aSTsarPlanCosts.size(), UCSPlanCosts.size()); i++) {
+            if (i < aSTsarPlanCosts.size()){
+                costAStar += aSTsarPlanCosts.get(i);
+            }
+            if (i < UCSPlanCosts.size()){
+                costUCS += UCSPlanCosts.get(i);
+            }
+        }
+        assertEquals(costAStar, costUCS);
+    }
+
+    @NotNull
+    private static List<Integer> getCosts(Agent agent, AStarGAndH costFunction, List<I_Location> UCSPlanLocations) {
+        List<Integer> UCSPlanCosts = new ArrayList<>();
+        UCSPlanCosts.add(0);
+        I_Location prev = null;
+        for (I_Location curr :
+                UCSPlanLocations) {
+            if (prev != null){
+                UCSPlanCosts.add(costFunction.cost(new Move(agent, 1, prev, curr)));
+            }
+            prev = curr;
+        }
+        return UCSPlanCosts;
     }
 }

@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Solvers.AStar.AStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.RunParameters;
@@ -24,38 +24,38 @@ public class RunParameters_PP extends RunParameters {
     /**
      * optional heuristic function to use in the low level solver.
      */
-    public final AStarHeuristic heuristic;
+    public final AStarGAndH heuristic;
 
-    public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarHeuristic heuristic, Long softTimeout) {
+    public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarGAndH heuristic, Long softTimeout) {
         super(timeout, constraints, instanceReport, existingSolution, softTimeout);
         this.preferredPriorityOrder = preferredPriorityOrder;
         this.heuristic = heuristic;
     }
-    public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
+    public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarGAndH heuristic) {
         super(timeout, constraints, instanceReport, existingSolution, null);
         this.preferredPriorityOrder = preferredPriorityOrder;
         this.heuristic = heuristic;
     }
 
-    public RunParameters_PP(ConstraintSet constraints, InstanceReport instanceReport, Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
+    public RunParameters_PP(ConstraintSet constraints, InstanceReport instanceReport, Agent[] preferredPriorityOrder, AStarGAndH heuristic) {
         super(constraints, instanceReport);
         this.preferredPriorityOrder = preferredPriorityOrder;
         this.heuristic = heuristic;
     }
 
-    public RunParameters_PP(InstanceReport instanceReport, Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
+    public RunParameters_PP(InstanceReport instanceReport, Agent[] preferredPriorityOrder, AStarGAndH heuristic) {
         super(instanceReport);
         this.preferredPriorityOrder = preferredPriorityOrder;
         this.heuristic = heuristic;
     }
 
-    public RunParameters_PP(Agent[] preferredPriorityOrder, AStarHeuristic heuristic) {
+    public RunParameters_PP(Agent[] preferredPriorityOrder, AStarGAndH heuristic) {
         super();
         this.preferredPriorityOrder = preferredPriorityOrder;
         this.heuristic = heuristic;
     }
 
-    public RunParameters_PP(AStarHeuristic heuristic) {
+    public RunParameters_PP(AStarGAndH heuristic) {
         super();
         this.heuristic = heuristic;
         this.preferredPriorityOrder = new Agent[0];

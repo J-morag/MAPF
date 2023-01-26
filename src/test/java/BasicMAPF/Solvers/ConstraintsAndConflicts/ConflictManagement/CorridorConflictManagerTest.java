@@ -5,11 +5,6 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Instances.Maps.Enum_MapLocationType;
-import BasicMAPF.Instances.Maps.I_Map;
-import BasicMAPF.Instances.Maps.MapFactory;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.RunParameters;
@@ -25,6 +20,9 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import static BasicMAPF.TestConstants.Agents.agent13to10;
+import static BasicMAPF.TestConstants.Agents.agent30to33;
+import static BasicMAPF.TestConstants.Maps.mapHLong;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -32,23 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CorridorConflictManagerTest {
 
-    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    Enum_MapLocationType[][] map_2D_H = {
-            {e, w, w, e},
-            {e, w, w, e},
-            {e, e, e, e},
-            {e, w, w, e},
-            {e, w, w, e},
-    };
-    private I_Map mapH = MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
-    private I_Coordinate coor30 = new Coordinate_2D(3,0);
-    private I_Coordinate coor33 = new Coordinate_2D(3,3);
-    private I_Coordinate coor13 = new Coordinate_2D(1,3);
-    private I_Coordinate coor10 = new Coordinate_2D(1,0);
-    private Agent agent30to33 = new Agent(0, coor30, coor33);
-    private Agent agent13to10 = new Agent(1, coor13, coor10);
-    private MAPF_Instance instanceHFromPaper = new MAPF_Instance("instanceHFromPaper", mapH,
+    private MAPF_Instance instanceHFromPaper = new MAPF_Instance("instanceHFromPaper", mapHLong,
             new Agent[]{agent30to33, agent13to10});
     I_Solver corridorSolver = new CBS_Solver(null,null,null,null,null,true, null, null);
 

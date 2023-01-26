@@ -7,6 +7,9 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.*;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
@@ -64,7 +67,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * optional heuristic function to use in the low level solver.
      */
-    private AStarHeuristic heuristic;
+    private AStarGAndH heuristic;
 
       /**
      * if agents share goals, they will not conflict at their goal.

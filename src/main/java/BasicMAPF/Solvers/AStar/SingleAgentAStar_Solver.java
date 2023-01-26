@@ -6,6 +6,8 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -28,7 +30,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     public boolean agentsStayAtGoal;
 
     private ConstraintSet constraints;
-    private AStarHeuristic heuristicFunction;
+    private AStarGAndH gAndH;
     private final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
     private final Set<AStarState> closed = new HashSet<>();
     private Agent agent;
@@ -84,22 +86,18 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.existingSolution.putPlan(this.existingPlan);
         }
 
-        if(runParameters instanceof  RunParameters_SAAStar
-                && ((RunParameters_SAAStar) runParameters).heuristicFunction != null){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
-            this.heuristicFunction = parameters.heuristicFunction;
+        if(runParameters instanceof RunParameters_SAAStar parameters
+                && ((RunParameters_SAAStar) runParameters).problemStartTime >= 0){
+            this.problemStartTime = parameters.problemStartTime;
         }
-        else{
-            this.heuristicFunction = new defaultHeuristic();
-        }
-        if(runParameters instanceof  RunParameters_SAAStar
+
+        if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).conflictAvoidanceTable != null){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
             this.conflictAvoidanceTable = parameters.conflictAvoidanceTable;
         }
         // else keep the value that it has already been initialised with (above)
-        if(runParameters instanceof  RunParameters_SAAStar){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
+
+        if(runParameters instanceof RunParameters_SAAStar parameters){
             this.sourceCoor = parameters.sourceCoor != null ? parameters.sourceCoor : agent.source;
             this.targetCoor = parameters.targetCoor != null ? parameters.targetCoor : agent.target;
         }
@@ -107,16 +105,25 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.sourceCoor = agent.source;
             this.targetCoor = agent.target;
         }
-        if(runParameters instanceof  RunParameters_SAAStar){
-            RunParameters_SAAStar parameters = ((RunParameters_SAAStar) runParameters);
+
+        if(runParameters instanceof RunParameters_SAAStar parameters
+                && ((RunParameters_SAAStar) runParameters).heuristicFunction != null){
+            this.gAndH = parameters.heuristicFunction;
+        }
+        else{
+            this.gAndH = new UnitCostsAndManhattanDistance(this.targetCoor);
+        }
+        if (! this.gAndH.isConsistent()){
+            throw new IllegalArgumentException("Support for inconsistent heuristic is not implemented.");
+        }
+
+        if(runParameters instanceof RunParameters_SAAStar parameters){
             this.fBudget = parameters.fBudget;
         }
         else{
             this.fBudget = Float.POSITIVE_INFINITY;
         }
 
-//        this.openList = new OpenList<>(stateFComparator);
-//        this.closed = new HashSet<>();
         this.expandedNodes = 0;
         this.generatedNodes = 0;
     }
@@ -176,7 +183,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     /**
      * Initialises {@link #openList OPEN}.
-     *
      * OPEN is not initialised with a single root state as is common. This is because states in this solver represent
      * {@link Move moves} (classically - operators) rather than {@link I_Location map locations} (classically - states).
      * Instead, OPEN is initialised with all possible moves from the starting position.
@@ -189,8 +195,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // We assume that we cannot change the existing plan, so if it is rejected by constraints, we can't initialise OPEN.
             if(constraints.rejects(lastExistingMove)) {return false;}
 
-            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null,
-                    /*g=number of moves*/existingPlan.size(), 0 ));
+            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, 0 ));
         }
         else { // the existing plan is empty (no existing plan)
 
@@ -207,7 +212,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     possibleMove.isStayAtSource = true;
                 }
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    AStarState rootState = new AStarState(possibleMove, null, 1, 0);
+                    AStarState rootState = new AStarState(possibleMove, null, this.gAndH.cost(possibleMove), 0);
                     openList.add(rootState);
                 }
             }
@@ -260,7 +265,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * is to say, if all tie breaking methods still result in equality, tie break for using serialID.
          */
         private final int serialID = SingleAgentAStar_Solver.this.generatedNodes++; // take and increment
-        private final Move move;
+        public final Move move;
         private final AStarState prev;
         private final int g;
         private final float h;
@@ -283,12 +288,12 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.conflicts = conflicts;
 //            this.timeDimension = timeDimension;
 
-            // must call this last, since it needs the other fields to be initialized already.
+            // must call these last, since they need the other fields to be initialized already.
             this.h = calcH();
         }
 
-        /*  = getters =  */
 
+        /*  = getters =  */
         public Move getMove() {
             return move;
         }
@@ -305,14 +310,12 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return conflicts;
         }
 
-        /*  = other methods =  */
-
         public float getF(){
             return g + h;
         }
 
         private float calcH() {
-            return SingleAgentAStar_Solver.this.heuristicFunction.getH(this);
+            return SingleAgentAStar_Solver.this.gAndH.getH(this);
         }
 
         public void expand() {
@@ -337,7 +340,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
                 // move not prohibited by existing constraint
                 if(constraints.accepts(possibleMove)){
-                    AStarState child = new AStarState(possibleMove, this, this.g + 1, conflicts + numConflicts(possibleMove));
+                    AStarState child = new AStarState(possibleMove, this,
+                            this.g + SingleAgentAStar_Solver.this.gAndH.cost(possibleMove),
+                            conflicts + numConflicts(possibleMove));
 
                     AStarState existingState;
                     if(closed.contains(child)){ // state visited already
@@ -399,9 +404,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof AStarState)) return false;
-
-            AStarState that = (AStarState) o;
+            if (!(o instanceof AStarState that)) return false;
 
             if (
 //                    (timeDimension || that.timeDimension) &&
@@ -435,17 +438,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
     } ////////// end AStarState
-
-    private class defaultHeuristic implements AStarHeuristic{
-        @Override
-        public float getH(AStarState state) {
-            return state.move.currLocation.getCoordinate().distance(SingleAgentAStar_Solver.this.targetCoor);
-        }
-        @Override
-        public boolean isConsistent() {
-            return true;
-        }
-    }
 
 
     /**
@@ -488,10 +480,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         @Override
         public int compare(AStarState o1, AStarState o2) {
-            // if the heuristic is monotone increasing, we should never actually find a new state with lower G than
+            // if f() is monotone non-decreasing, we should never actually find a new state with lower G than
             // existing equal state in open.
             // we break ties for lower g. Therefore, we want to return a positive integer if o1.g is bigger than o2.g.
-            // g should be equal in practice since G=state-time. and state equality is also defined by state-time.
+            // g should be equal in practice if G=state-time, and state equality is also defined by state-time.
             if (o2.g == o1.g){
                 // if G() value is equal, we consider the state with less conflicts to be better.
                 if(o1.conflicts == o2.conflicts){

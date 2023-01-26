@@ -2,11 +2,11 @@ package BasicMAPF.Solvers;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.*;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static BasicMAPF.TestConstants.Maps.mapCircle;
+import static BasicMAPF.TestConstants.Coordiantes.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -14,34 +14,14 @@ import java.util.Arrays;
 import java.util.List;
 
 class SingleAgentPlanTest {
-
-    private final Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-    private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
-    private Enum_MapLocationType[][] map_2D_circle = {
-            {w, w, w, w, w, w},
-            {w, w, e, e, e, w},
-            {w, w, e, w, e, w},
-            {w, w, e, e, e, w},
-            {w, w, w, w, w, w},
-            {w, w, w, w, w, w},
-    };
-    private I_Map map1 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_circle);
-    private I_Coordinate coor12 = new Coordinate_2D(1,2);
-    private I_Coordinate coor13 = new Coordinate_2D(1,3);
-    private I_Coordinate coor14 = new Coordinate_2D(1,4);
-    private I_Coordinate coor22 = new Coordinate_2D(2,2);
-    private I_Coordinate coor24 = new Coordinate_2D(2,4);
-    private I_Coordinate coor32 = new Coordinate_2D(3,2);
-    private I_Coordinate coor33 = new Coordinate_2D(3,3);
-    private I_Coordinate coor34 = new Coordinate_2D(3,4);
-    private I_Location location12 = map1.getMapLocation(coor12);
-    private I_Location location13 = map1.getMapLocation(coor13);
-    private I_Location location14 = map1.getMapLocation(coor14);
-    private I_Location location22 = map1.getMapLocation(coor22);
-    private I_Location location24 = map1.getMapLocation(coor24);
-    private I_Location location32 = map1.getMapLocation(coor32);
-    private I_Location location33 = map1.getMapLocation(coor33);
-    private I_Location location34 = map1.getMapLocation(coor34);
+    private I_Location location12 = mapCircle.getMapLocation(coor12);
+    private I_Location location13 = mapCircle.getMapLocation(coor13);
+    private I_Location location14 = mapCircle.getMapLocation(coor14);
+    private I_Location location22 = mapCircle.getMapLocation(coor22);
+    private I_Location location24 = mapCircle.getMapLocation(coor24);
+    private I_Location location32 = mapCircle.getMapLocation(coor32);
+    private I_Location location33 = mapCircle.getMapLocation(coor33);
+    private I_Location location34 = mapCircle.getMapLocation(coor34);
     private Agent agent1 = new Agent(0, coor13, coor14);
     private Agent agent2 = new Agent(1, coor24, coor24);
 
