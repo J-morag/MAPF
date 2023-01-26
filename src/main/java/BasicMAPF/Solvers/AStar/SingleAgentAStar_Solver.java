@@ -7,6 +7,7 @@ import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -85,25 +86,16 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
         if(runParameters instanceof RunParameters_SAAStar parameters
-                && ((RunParameters_SAAStar) runParameters).heuristicFunction != null){
-            this.gAndH = parameters.heuristicFunction;
-        }
-        else{
-            this.gAndH = new defaultGAndH();
-        }
-        if (! this.gAndH.isConsistent()){
-            throw new IllegalArgumentException("Support for inconsistent heuristic is not implemented.");
-        }
-
-        if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).problemStartTime >= 0){
             this.problemStartTime = parameters.problemStartTime;
         }
+
         if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).conflictAvoidanceTable != null){
             this.conflictAvoidanceTable = parameters.conflictAvoidanceTable;
         }
         // else keep the value that it has already been initialised with (above)
+
         if(runParameters instanceof RunParameters_SAAStar parameters){
             this.sourceCoor = parameters.sourceCoor != null ? parameters.sourceCoor : agent.source;
             this.targetCoor = parameters.targetCoor != null ? parameters.targetCoor : agent.target;
@@ -112,6 +104,18 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.sourceCoor = agent.source;
             this.targetCoor = agent.target;
         }
+
+        if(runParameters instanceof RunParameters_SAAStar parameters
+                && ((RunParameters_SAAStar) runParameters).heuristicFunction != null){
+            this.gAndH = parameters.heuristicFunction;
+        }
+        else{
+            this.gAndH = new UnitCostsAndManhattanDistance(this.targetCoor);
+        }
+        if (! this.gAndH.isConsistent()){
+            throw new IllegalArgumentException("Support for inconsistent heuristic is not implemented.");
+        }
+
         if(runParameters instanceof RunParameters_SAAStar parameters){
             this.fBudget = parameters.fBudget;
         }
@@ -119,8 +123,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.fBudget = Float.POSITIVE_INFINITY;
         }
 
-//        this.openList = new OpenList<>(stateFComparator);
-//        this.closed = new HashSet<>();
         this.expandedNodes = 0;
         this.generatedNodes = 0;
     }
@@ -262,7 +264,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * is to say, if all tie breaking methods still result in equality, tie break for using serialID.
          */
         private final int serialID = SingleAgentAStar_Solver.this.generatedNodes++; // take and increment
-        private final Move move;
+        public final Move move;
         private final AStarState prev;
         private final int g;
         private final float h;
@@ -435,17 +437,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
     } ////////// end AStarState
-
-    private class defaultGAndH implements AStarGAndH {
-        @Override
-        public float getH(AStarState state) {
-            return state.move.currLocation.getCoordinate().distance(SingleAgentAStar_Solver.this.targetCoor);
-        }
-        @Override
-        public boolean isConsistent() {
-            return true;
-        }
-    }
 
 
     /**

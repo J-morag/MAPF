@@ -3,10 +3,7 @@ package BasicMAPF.Instances.Maps;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Responsible for the creation of instances of all classes that implement {@link I_Map}.
@@ -16,7 +13,6 @@ public class MapFactory {
 
     /**
      * Generates a new 4-connected {@link GraphMap} from a square, 2D grid.
-     *
      * Simple - Only 2 {@link Enum_MapLocationType location types} exist, {@link Enum_MapLocationType#EMPTY} and
      * {@link Enum_MapLocationType#WALL}. {@link Enum_MapLocationType#EMPTY} locations are passable, and can only connect to other
      * {@link Enum_MapLocationType#EMPTY} locations. {@link Enum_MapLocationType#WALL} locations are impassable, and can not connect to
@@ -24,9 +20,10 @@ public class MapFactory {
      * @param rectangle_2D_Map A rectangle grid representing a map, containing only {@link Enum_MapLocationType#EMPTY} and
      *                      {@link Enum_MapLocationType#WALL}. The length of its first dimension should correspond to the
      *                         original map's x dimension.
+     * @param isOneConnectedComponent if the grid is one connected component.
      * @return a new 4-connected {@link GraphMap}.
      */
-    public static GraphMap newSimple4Connected2D_GraphMap(Enum_MapLocationType[][] rectangle_2D_Map){
+    public static GraphMap newSimple4Connected2D_GraphMap(Enum_MapLocationType[][] rectangle_2D_Map, boolean isOneConnectedComponent){
         int xAxis_length = rectangle_2D_Map.length;
         int yAxis_length = rectangle_2D_Map[0].length;
         GraphMapVertex[][] locations = new GraphMapVertex[xAxis_length][yAxis_length]; //rectangle map
@@ -62,6 +59,21 @@ public class MapFactory {
             }
         }
         return new GraphMap(allLocations);
+    }
+
+    /**
+     * Generates a new 4-connected {@link GraphMap} from a square, 2D grid.
+     * Simple - Only 2 {@link Enum_MapLocationType location types} exist, {@link Enum_MapLocationType#EMPTY} and
+     * {@link Enum_MapLocationType#WALL}. {@link Enum_MapLocationType#EMPTY} locations are passable, and can only connect to other
+     * {@link Enum_MapLocationType#EMPTY} locations. {@link Enum_MapLocationType#WALL} locations are impassable, and can not connect to
+     * any other location, so they will not be generated.
+     * @param rectangle_2D_Map A rectangle grid representing a map, containing only {@link Enum_MapLocationType#EMPTY} and
+     *                      {@link Enum_MapLocationType#WALL}. The length of its first dimension should correspond to the
+     *                         original map's x dimension.
+     * @return a new 4-connected {@link GraphMap}.
+     */
+    public static GraphMap newSimple4Connected2D_GraphMap(Enum_MapLocationType[][] rectangle_2D_Map){
+        return newSimple4Connected2D_GraphMap(rectangle_2D_Map, true);
     }
 
     /* nicetohave - 8 connected 2D map

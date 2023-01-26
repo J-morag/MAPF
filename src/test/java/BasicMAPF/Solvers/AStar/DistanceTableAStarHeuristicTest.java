@@ -1,13 +1,17 @@
 package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import Environment.Metrics.InstanceReport;
 import org.junit.jupiter.api.Test;
 
+import static BasicMAPF.TestConstants.Agents.agent04to00;
 import static BasicMAPF.TestConstants.Maps.mapH;
+import static BasicMAPF.TestConstants.Maps.mapWithPocket;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
@@ -110,6 +114,15 @@ public class DistanceTableAStarHeuristicTest {
         DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(list, map);
 
         assertTrue(equalsAllAgentMap(expected, distanceTableAStarHeuristic.getDistanceDictionaries()));
+    }
+
+    @Test
+    void failIfMapIsNotOneConnectedComponent(){
+        MAPF_Instance testInstance = new MAPF_Instance("pocket", mapWithPocket, new Agent[]{agent04to00});
+
+        DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
+        SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
+        assertThrows(IllegalArgumentException.class, () -> solver.solve(testInstance, new RunParameters_SAAStar(new InstanceReport(), distanceTableAStarHeuristic)));
     }
 
 }

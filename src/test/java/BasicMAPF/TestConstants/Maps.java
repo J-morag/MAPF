@@ -37,7 +37,7 @@ public class Maps {
             {e, e, w, e, w, w},
             {w, e, w, e, e, e},
     };
-    public static final I_ExplicitMap mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket);
+    public static final I_ExplicitMap mapWithPocket = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket, false);
 
     public static final Enum_MapLocationType[][] map_2D_smallMaze = {
             {e, e, e, w, e, w},
@@ -141,10 +141,15 @@ public class Maps {
         return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights, coordinatesLocationTypes, true);
     }
 
-    public static final Map<I_ExplicitMap, String> stronglyConnectedComponentMapsWithNames = Map.of(
+    public static final Map<I_ExplicitMap, String> singleStronglyConnectedComponentMapsWithNames = Map.of(
             mapCircle, "mapCircle", mapEmpty, "mapEmpty", mapSmallMaze, "mapSmallMaze", mapH, "mapH",
             mapHLong, "mapHLong", randomArbitraryGraphMap1, "randomArbitraryGraphMap1",
             randomArbitraryGraphMap2, "randomArbitraryGraphMap2", randomArbitraryGraphMap3, "randomArbitraryGraphMap3",
             randomArbitraryGraphMap4, "randomArbitraryGraphMap4", randomArbitraryGraphMap5, "randomArbitraryGraphMap5"
+    );
+
+    public static final Map<I_ExplicitMap, String> singleStronglyConnectedComponentGridMapsWithNames = Map.of(
+            mapCircle, "mapCircle", mapEmpty, "mapEmpty", mapSmallMaze, "mapSmallMaze", mapH, "mapH",
+            mapHLong, "mapHLong"
     );
 }
