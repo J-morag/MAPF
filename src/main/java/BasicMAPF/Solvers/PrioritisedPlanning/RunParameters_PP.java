@@ -60,4 +60,10 @@ public class RunParameters_PP extends RunParameters {
         this.heuristic = heuristic;
         this.preferredPriorityOrder = new Agent[0];
     }
+
+    public RunParameters_PP(RunParameters runParameters, AStarGAndH costAndHeuristic) {
+        super(runParameters);
+        this.heuristic = costAndHeuristic;
+        this.preferredPriorityOrder = new Agent[0];
+    }
 }

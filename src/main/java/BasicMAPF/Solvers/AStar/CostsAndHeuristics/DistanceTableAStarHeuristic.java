@@ -7,6 +7,8 @@ import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.Move;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,9 +25,17 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      */
     private final Map<I_Location, Map<I_Location, Integer>> distanceDictionaries;
     private final I_Map map;
+    public final CongestionMap congestionMap;
+    private final static int edgeCost = 1;
 
     public Map<I_Location, Map<I_Location, Integer>> getDistanceDictionaries() {
         return distanceDictionaries;
+    }
+
+    private DistanceTableAStarHeuristic(I_Map map, @Nullable CongestionMap congestionMap) {
+        this.map = map;
+        this.distanceDictionaries = new HashMap<>();
+        this.congestionMap = congestionMap;
     }
 
     /**
@@ -34,11 +44,7 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * @param map the map this heuristic will work on.
      */
     public DistanceTableAStarHeuristic(List<? extends Agent> agents, I_Map map) {
-        this.map = map;
-        this.distanceDictionaries = new HashMap<>();
-        for (Agent agent : agents) {
-            addAgentToHeuristic(agent);
-        }
+        this(agents, map, null);
     }
 
     /**
@@ -47,11 +53,21 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * @param map the map this heuristic will work on.
      */
     public DistanceTableAStarHeuristic(I_ExplicitMap map) {
-        this.map = map;
-        this.distanceDictionaries = new HashMap<>();
-        for (I_Location location : map.getAllLocations()) {
-            addTargetToHeuristic(location);
+        this(map, null);
+    }
+
+    /**
+     * Constructor. Create a dictionary of real distances from anywhere in the map, to any location that is a target of any agent.
+     * @param agents agents (targets) we need to include in the distance table.
+     * @param map the map this heuristic will work on.
+     * @param congestionMap will apply a congestion penalty if this isn't null.
+     */
+    public DistanceTableAStarHeuristic(List<? extends Agent> agents, I_Map map, @Nullable CongestionMap congestionMap) {
+        this(map, congestionMap);
+        for (Agent agent : agents) {
+            addAgentToHeuristic(agent);
         }
+//        this(agents.stream().map(a -> map.getMapLocation(a.target)).collect(Collectors.toList()), map, null);
     }
 
     public void addAgentToHeuristic(Agent agent) {
@@ -93,7 +109,7 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
 
                 count--;
                 if (count == 0) { //full level/round of neighbors has finished
-                    distance++;
+                    distance += getEdgeCostWithCongestion(i_location);
                     count = queue.size(); //start new level with distance plus one
                 }
             }
@@ -119,6 +135,16 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
         else {
             return Float.POSITIVE_INFINITY;
         }
+    }
+
+    @Override
+    public int cost(Move move) {
+        return getEdgeCostWithCongestion(move.currLocation);
+    }
+
+    private int getEdgeCostWithCongestion(I_Location to){
+        return congestionMap == null ? edgeCost :
+                edgeCost * (1 + (int)(congestionMap.congestionAt(to) * congestionMap.congestionMultiplier));
     }
 
     @Override

@@ -3,6 +3,7 @@ package BasicMAPF.Solvers;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Random;
@@ -61,7 +62,7 @@ public class RunParameters {
 
     /*  =Constructors=  */
 
-    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout, Integer problemStartTime) {
+    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout, Integer problemStartTime, @Nullable Random randomNumberGenerator) {
         this.timeout = Objects.requireNonNullElse(timeout, DEFAULT_TIMEOUT);
         this.softTimeout = Objects.requireNonNullElse(softTimeout, this.timeout);
         if (this.softTimeout > this.timeout){
@@ -71,10 +72,11 @@ public class RunParameters {
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
         this.problemStartTime = Objects.requireNonNullElse(problemStartTime, 0);
+        this.randomNumberGenerator = randomNumberGenerator;
     }
 
     public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout) {
-        this(timeout, constraints, instanceReport, existingSolution, softTimeout, null);
+        this(timeout, constraints, instanceReport, existingSolution, softTimeout, null, null);
     }
 
     public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
@@ -114,7 +116,7 @@ public class RunParameters {
     }
 
     public RunParameters(RunParameters runParameters) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.problemStartTime);
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.problemStartTime, runParameters.randomNumberGenerator);
     }
 
     public RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {

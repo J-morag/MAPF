@@ -115,47 +115,119 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 
 
 
-        A_Solver stationaryAgentsPrPNoPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, new DisallowedPartialSolutionsStrategy(), null));
-        stationaryAgentsPrPNoPartial.name = "stationaryAgentsPrPNoPartial";
-        super.solvers.add(stationaryAgentsPrPNoPartial);
+//        A_Solver stationaryAgentsPrPNoPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new DisallowedPartialSolutionsStrategy(), null), null);
+//        stationaryAgentsPrPNoPartial.name = "stationaryAgentsPrPNoPartial";
+//        super.solvers.add(stationaryAgentsPrPNoPartial);
+//
+//        A_Solver stationaryAgentsPrPWidePartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new WidePartialSolutionsStrategy(), null), null);
+//        stationaryAgentsPrPWidePartial.name = "stationaryAgentsPrPWidePartial";
+//        super.solvers.add(stationaryAgentsPrPWidePartial);
+//
+//        A_Solver stationaryAgentsPrPDeepPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new DeepPartialSolutionsStrategy(), null), null);
+//        stationaryAgentsPrPDeepPartial.name = "stationaryAgentsPrPDeepPartial";
+//        super.solvers.add(stationaryAgentsPrPDeepPartial);
+//
+//        A_Solver stationaryAgentsPrPCutoff25PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new IndexBasedPartialSolutionsStrategy(0.25), null), null);
+//        stationaryAgentsPrPCutoff25PercentPartial.name = "stationaryAgentsPrPCutoff25PercentPartial";
+//        super.solvers.add(stationaryAgentsPrPCutoff25PercentPartial);
+//
+//        A_Solver stationaryAgentsPrPCutoff50PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new IndexBasedPartialSolutionsStrategy(0.5), null), null);
+//        stationaryAgentsPrPCutoff50PercentPartial.name = "stationaryAgentsPrPCutoff50PercentPartial";
+//        super.solvers.add(stationaryAgentsPrPCutoff50PercentPartial);
+//
+//        A_Solver stationaryAgentsPrPCutoff75PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+//                new PrioritisedPlanning_Solver(null, null, null,
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
+//                        true, true, new IndexBasedPartialSolutionsStrategy(0.75), null), null);
+//        stationaryAgentsPrPCutoff75PercentPartial.name = "stationaryAgentsPrPCutoff75PercentPartial";
+//        super.solvers.add(stationaryAgentsPrPCutoff75PercentPartial);
 
-        A_Solver stationaryAgentsPrPWidePartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, new WidePartialSolutionsStrategy(), null));
-        stationaryAgentsPrPWidePartial.name = "stationaryAgentsPrPWidePartial";
-        super.solvers.add(stationaryAgentsPrPWidePartial);
 
-        A_Solver stationaryAgentsPrPDeepPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, new DeepPartialSolutionsStrategy(), null));
-        stationaryAgentsPrPDeepPartial.name = "stationaryAgentsPrPDeepPartial";
-        super.solvers.add(stationaryAgentsPrPDeepPartial);
 
-        A_Solver stationaryAgentsPrPCutoff25PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+        A_Solver stationaryAgentsPrPDeepPartialCongestion0 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, new IndexBasedPartialSolutionsStrategy(0.25), null));
-        stationaryAgentsPrPCutoff25PercentPartial.name = "stationaryAgentsPrPCutoff25PercentPartial";
-        super.solvers.add(stationaryAgentsPrPCutoff25PercentPartial);
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DeepPartialSolutionsStrategy(), null), null);
+        stationaryAgentsPrPDeepPartialCongestion0.name = "stationaryAgentsPrPDeepPartialCongestion0";
+        super.solvers.add(stationaryAgentsPrPDeepPartialCongestion0);
 
-        A_Solver stationaryAgentsPrPCutoff50PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+        A_Solver stationaryAgentsPrPDeepPartialCongestion0Point5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, new IndexBasedPartialSolutionsStrategy(0.5), null));
-        stationaryAgentsPrPCutoff50PercentPartial.name = "stationaryAgentsPrPCutoff50PercentPartial";
-        super.solvers.add(stationaryAgentsPrPCutoff50PercentPartial);
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 0.5);
+        stationaryAgentsPrPDeepPartialCongestion0Point5.name = "stationaryAgentsPrPDeepPartialCongestion0Point5.0";
+        super.solvers.add(stationaryAgentsPrPDeepPartialCongestion0Point5);
 
-        A_Solver stationaryAgentsPrPCutoff75PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+        A_Solver stationaryAgentsPrPDeepPartialCongestion1 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, new IndexBasedPartialSolutionsStrategy(0.75), null));
-        stationaryAgentsPrPCutoff75PercentPartial.name = "stationaryAgentsPrPCutoff75PercentPartial";
-        super.solvers.add(stationaryAgentsPrPCutoff75PercentPartial);
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 1.0);
+        stationaryAgentsPrPDeepPartialCongestion1.name = "stationaryAgentsPrPDeepPartialCongestion1.0";
+        super.solvers.add(stationaryAgentsPrPDeepPartialCongestion1);
+
+        A_Solver stationaryAgentsPrPDeepPartialCongestion1Point5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 1.5);
+        stationaryAgentsPrPDeepPartialCongestion1Point5.name = "stationaryAgentsPrPDeepPartialCongestion1.5";
+        super.solvers.add(stationaryAgentsPrPDeepPartialCongestion1Point5);
+
+        A_Solver stationaryAgentsPrPDeepPartialCongestion2 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 2.0);
+        stationaryAgentsPrPDeepPartialCongestion2.name = "stationaryAgentsPrPDeepPartialCongestion2.0";
+        super.solvers.add(stationaryAgentsPrPDeepPartialCongestion2);
+
+        A_Solver replanSingleCongestion0 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, new DeepPartialSolutionsStrategy(), null), null);
+        replanSingleCongestion0.name = "replanSingleCongestion0";
+        super.solvers.add(replanSingleCongestion0);
+
+        A_Solver replanSingleCongestion0Point5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 0.5);
+        replanSingleCongestion0Point5.name = "replanSingleCongestion0Point5";
+        super.solvers.add(replanSingleCongestion0Point5);
+
+        A_Solver replanSingleCongestion1 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 1.0);
+        replanSingleCongestion1.name = "replanSingleCongestion1";
+        super.solvers.add(replanSingleCongestion1);
+
+        A_Solver replanSingleCongestion1Point5 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 1.5);
+        replanSingleCongestion1Point5.name = "replanSingleCongestion1Point5";
+        super.solvers.add(replanSingleCongestion1Point5);
+
+        A_Solver replanSingleCongestion2 = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, new DeepPartialSolutionsStrategy(), null), 2.0);
+        replanSingleCongestion2.name = "replanSingleCongestion2";
+        super.solvers.add(replanSingleCongestion2);
 
     }
 
@@ -175,7 +247,7 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{50, 100, 150, 200, 250, 300, 350});
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{200});
+//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{250});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40});
 
         /*  =   Set Instance Manager   =  */

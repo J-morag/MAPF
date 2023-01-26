@@ -5,10 +5,16 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.RunParametersLNS;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
@@ -38,6 +44,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private final I_LifelongPlanningTrigger planningTrigger;
     private final I_LifelongAgentSelector agentSelector;
     private static final boolean DEBUG = true;
+    private final Double congestionMultiplier;
 
     /*  = fields related to run =  */
 
@@ -65,8 +72,8 @@ public class LifelongSimulationSolver extends A_Solver {
     Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes;
     Set<LifelongAgent> finishedAgents;
 
-    public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger,
-                                    I_LifelongAgentSelector agentSelector, I_LifelongCompatibleSolver offlineSolver) {
+    public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
+                                    I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier) {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
@@ -74,6 +81,7 @@ public class LifelongSimulationSolver extends A_Solver {
             throw new IllegalArgumentException("offline solver should have shared sources and goals");
         }
         this.offlineSolver = offlineSolver;
+        this.congestionMultiplier = congestionMultiplier;
 
         this.planningTrigger = Objects.requireNonNullElse(planningTrigger, new ActiveButPlanEndedTrigger());
         this.agentSelector = Objects.requireNonNullElse(agentSelector, new AllStationaryAgentsSubsetSelector());
@@ -180,7 +188,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 sumGroupSizes += selectedTimelyOfflineAgentsSubset.size();
 
                 MAPF_Instance timelyOfflineProblem = getTimelyOfflineProblem(farthestCommittedTime, selectedTimelyOfflineAgentsSubset);
-                RunParameters timelyOfflineProblemRunParameters = getTimelyOfflineProblemRunParameters(farthestCommittedTime, nextPlansForNotSelectedAgents);
+                RunParameters timelyOfflineProblemRunParameters = getTimelyOfflineProblemRunParameters(farthestCommittedTime, nextPlansForNotSelectedAgents, selectedTimelyOfflineAgentsSubset);
 
                 Solution subgroupSolution = offlineSolver.solve(timelyOfflineProblem, timelyOfflineProblemRunParameters); // TODO solver strategy ?
                 if (DEBUG && subgroupSolution != null){
@@ -557,17 +565,30 @@ public class LifelongSimulationSolver extends A_Solver {
                 this.lifelongInstance.extendedName + " subproblem at " + farthestCommittedTime);
     }
 
-    private RunParameters getTimelyOfflineProblemRunParameters(int farthestCommittedTime, List<SingleAgentPlan> nextPlansForNotSelectedAgents) {
+    private RunParameters getTimelyOfflineProblemRunParameters(int farthestCommittedTime, List<SingleAgentPlan> nextPlansForNotSelectedAgents, Set<Agent> selectedTimelyOfflineAgentsSubset) {
         // protect the plans of agents not included in the subset
         ConstraintSet constraints = this.initialConstraints != null ? new ConstraintSet(this.initialConstraints): new ConstraintSet();
         constraints.sharedSources = true;
         constraints.sharedGoals = true;
         nextPlansForNotSelectedAgents.forEach(plan -> constraints.addAll(constraints.allConstraintsForPlan(plan)));
+
+        AStarGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;
+        if (congestionMultiplier != null && congestionMultiplier > 0){
+            List<Agent> agents = new ArrayList<>(selectedTimelyOfflineAgentsSubset);
+            costAndHeuristic = new DistanceTableAStarHeuristic(agents, this.lifelongInstance.map, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
+        }
+
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));
-        RunParametersLNS runParametersLNS = new RunParametersLNS(new RunParameters(hardTimeout, constraints, new InstanceReport(), null, Math.min(minResponseTime, hardTimeout), farthestCommittedTime),
-                this.cachingDistanceTableHeuristic);
-        runParametersLNS.randomNumberGenerator = this.random;
-        return runParametersLNS;
+
+        RunParameters runParameters = new RunParameters(hardTimeout, constraints, new InstanceReport(), null, Math.min(minResponseTime, hardTimeout), farthestCommittedTime, this.random);
+        if (offlineSolver instanceof LargeNeighborhoodSearch_Solver){
+            runParameters = new RunParametersLNS(runParameters, costAndHeuristic);
+        }
+        else if (offlineSolver instanceof PrioritisedPlanning_Solver){
+            runParameters = new RunParameters_PP(runParameters, costAndHeuristic);
+        }
+
+        return runParameters;
     }
 
     @NotNull

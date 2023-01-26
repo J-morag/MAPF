@@ -257,6 +257,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                     //add constraints to prevent the next agents from conflicting with the new plan
                     currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent,
                             this.RHCR_Horizon == Integer.MAX_VALUE ? this.RHCR_Horizon : problemStartTime + this.RHCR_Horizon));
+                    // if using congestion, add this plan to the congestion map
+                    if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
+                            && distanceTable.congestionMap != null){
+                        distanceTable.congestionMap.registerPlan(planForAgent); // TODO horizon?
+                    }
                 }
             }
 
