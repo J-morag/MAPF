@@ -8,7 +8,7 @@ public interface PartialSolutionsStrategy {
 
     boolean moveToNextPrPIteration(MAPF_Instance problemInstance, int attemptNumber, Solution solutionSoFar,
                                    Agent agentWeJustPlanned, int agentWeJustPlannedIndex,
-                                   boolean failedToPlanForCurrentAgent);
+                                   boolean failedToPlanForCurrentAgent, boolean alreadyFoundFullSolution);
 
     default boolean allowed(){
         return true;

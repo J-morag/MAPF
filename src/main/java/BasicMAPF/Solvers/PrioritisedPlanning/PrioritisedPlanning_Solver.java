@@ -244,8 +244,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         bestPartialSolution = solution;
                     }
 
-                    if (// TODO smarter failedToPlanForCurrentAgent when we get partial plans
-                        this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true))
+                    if (// TODO smarter failedToPlanForCurrentAgent and alreadyFoundFullSolution when we get partial plans
+                        this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null))
                     {
                         break;
                     }
