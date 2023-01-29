@@ -66,13 +66,20 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         int[] numOfAgentsFromProperties = (instanceProperties.numOfAgents == null || instanceProperties.numOfAgents.length == 0
                 ? new int[]{this.defaultNumOfAgents} : instanceProperties.numOfAgents);
 
+        populateAgents(instanceName, instanceProperties, moving_ai_path, graphMap, numOfAgentsFromProperties);
+    }
+
+    private void populateAgents(String instanceName, InstanceProperties instanceProperties, InstanceManager.Moving_AI_Path moving_ai_path, GraphMap graphMap, int[] numOfAgentsFromProperties) {
+        MAPF_Instance mapf_instance;
         ArrayList<ArrayList<String>> agentLines = getAgentLines(moving_ai_path, Arrays.stream(numOfAgentsFromProperties).max().getAsInt());
 
-        for (int i = 0; i < numOfAgentsFromProperties.length; i++) {
+        for (int numOfAgentsFromProperty : numOfAgentsFromProperties) {
 
-            Agent[] agents = getAgents(agentLines, numOfAgentsFromProperties[i]);
+            Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty);
 
-            if (instanceName == null || agents == null) { continue; /* Invalid parameters */ }
+            if (instanceName == null || agents == null) {
+                continue; /* Invalid parameters */
+            }
 
             mapf_instance = makeInstance(instanceName, graphMap, agents, moving_ai_path);
             mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
@@ -87,7 +94,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
 
     // Returns an array of agents using the line queue
-    private Agent[] getAgents(ArrayList<ArrayList<String>> agentLinesList, int numOfAgents) {
+    protected Agent[] getAgents(ArrayList<ArrayList<String>> agentLinesList, int numOfAgents) {
         if( agentLinesList == null){ return null; }
         agentLinesList.removeIf(Objects::isNull);
         Agent[] arrayOfAgents = new Agent[Math.min(numOfAgents,agentLinesList.size())];
