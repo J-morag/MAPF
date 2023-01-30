@@ -1,11 +1,14 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import BasicMAPF.Solvers.RunParameters;
 
 public class RunParametersLNS extends RunParameters {
 
     public final AStarGAndH aStarGAndH;
+
+    public PartialSolutionsStrategy partialSolutionsStrategy;
 
     public RunParametersLNS(RunParameters runParameters, AStarGAndH aStarGAndH) {
         super(runParameters);
