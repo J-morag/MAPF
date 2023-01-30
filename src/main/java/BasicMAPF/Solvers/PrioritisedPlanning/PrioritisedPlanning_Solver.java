@@ -174,8 +174,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             }
             else {this.heuristic = new DistanceTableAStarHeuristic(this.agents, instance.map);} // TODO replace with distance table? should usually be worth it
 
-            this.partialSolutionsStrategy = Objects.requireNonNullElse(parametersPP.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+            this.partialSolutionsStrategy = parametersPP.partialSolutionsStrategy;
         }
+
+        this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
     }
 
     private void reorderAgentsByPriority(Agent[] requestedOrder) {

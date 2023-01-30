@@ -141,8 +141,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         }
 
         if (parameters instanceof RunParametersLNS runParametersLNS){
-            this.partialSolutionsStrategy = Objects.requireNonNullElse(runParametersLNS.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+            this.partialSolutionsStrategy = runParametersLNS.partialSolutionsStrategy;
         }
+
+        this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
     }
 
     /*  = algorithm =  */
