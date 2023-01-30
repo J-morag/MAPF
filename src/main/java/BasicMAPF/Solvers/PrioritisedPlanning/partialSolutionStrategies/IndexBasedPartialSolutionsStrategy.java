@@ -6,9 +6,17 @@ import BasicMAPF.Solvers.Solution;
 
 public class IndexBasedPartialSolutionsStrategy implements PartialSolutionsStrategy {
 
-    private final double cutoffPercent;
+    private double cutoffPercent;
 
     public IndexBasedPartialSolutionsStrategy(double cutoffPercent) {
+        this.cutoffPercent = cutoffPercent;
+    }
+
+    public double getCutoffPercent() {
+        return cutoffPercent;
+    }
+
+    public void setCutoffPercent(double cutoffPercent) {
         this.cutoffPercent = cutoffPercent;
     }
 

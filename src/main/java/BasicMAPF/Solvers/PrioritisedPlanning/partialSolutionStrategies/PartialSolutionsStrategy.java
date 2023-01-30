@@ -14,4 +14,7 @@ public interface PartialSolutionsStrategy {
         return true;
     }
 
+    default void updateAfterSolution(int totalNumAgents, int numSolvedAgents){}
+    default void resetState(){}
+
 }
