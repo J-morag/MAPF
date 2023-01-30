@@ -80,7 +80,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * How to approach partial solutions from the multi-agent perspective
      */
-    public final PartialSolutionsStrategy partialSolutionsStrategy;
+    private PartialSolutionsStrategy partialSolutionsStrategy;
     /**
      * How far forward in time to consider conflicts. Further than this time conflicts will be ignored.
      */
@@ -96,7 +96,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null, null);
     }
 
     /**
@@ -104,7 +104,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null, null, null, null);
+        this(null, agentComparator, null, null, null, null, null);
     }
 
     /**
@@ -117,15 +117,13 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources,
-                                      PartialSolutionsStrategy partialSolutionsStrategy, Integer RHCR_Horizon) {
+                                      Boolean sharedGoals, Boolean sharedSources, Integer RHCR_Horizon) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
         this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         if (this.RHCR_Horizon < 1){
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
@@ -138,7 +136,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -175,6 +173,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 }
             }
             else {this.heuristic = new DistanceTableAStarHeuristic(this.agents, instance.map);} // TODO replace with distance table? should usually be worth it
+
+            this.partialSolutionsStrategy = Objects.requireNonNullElse(parametersPP.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
         }
     }
 
@@ -327,9 +327,13 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 //        instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
 
         if (this.partialSolutionsStrategy.allowed() && bestSolution == null){
+            // TODO smarter numSolvedAgents when we support partial plans
+            this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestPartialSolution.size());
             return bestPartialSolution;
         }
         else {
+            // TODO smarter numSolvedAgents when we support partial plans
+            this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestSolution != null ? bestSolution.size() : 0);
             return bestSolution;
         }
     }

@@ -70,7 +70,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     /**
      * How to approach partial solutions from the multi-agent perspective
      */
-    public final PartialSolutionsStrategy partialSolutionsStrategy;
+    private PartialSolutionsStrategy partialSolutionsStrategy;
 
     /*  = Constructors =  */
 
@@ -87,12 +87,11 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor,
-                                          Integer neighborhoodSize, PartialSolutionsStrategy partialSolutionsStrategy) {
+                                          Integer neighborhoodSize) {
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                sharedGoals, sharedSources, this.partialSolutionsStrategy, null);
+                sharedGoals, sharedSources, null);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -110,7 +109,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * Default constructor.
      */
     public LargeNeighborhoodSearch_Solver(){
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -139,6 +138,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         if (parameters instanceof RunParametersLNS runParametersLNS){
             this.subSolverHeuristic = Objects.requireNonNullElse(runParametersLNS.aStarGAndH,
                     new DistanceTableAStarHeuristic(this.agents, instance.map));
+        }
+
+        if (parameters instanceof RunParametersLNS runParametersLNS){
+            this.partialSolutionsStrategy = Objects.requireNonNullElse(runParametersLNS.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
         }
     }
 

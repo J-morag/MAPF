@@ -2,6 +2,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.RunParameters;
@@ -25,6 +26,7 @@ public class RunParameters_PP extends RunParameters {
      * optional heuristic function to use in the low level solver.
      */
     public final AStarGAndH heuristic;
+    public PartialSolutionsStrategy partialSolutionsStrategy;
 
     public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarGAndH heuristic, Long softTimeout) {
         super(timeout, constraints, instanceReport, existingSolution, softTimeout);

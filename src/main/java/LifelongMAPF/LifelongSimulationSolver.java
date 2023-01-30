@@ -15,6 +15,8 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.RunParametersLNS;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
@@ -45,6 +47,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private final I_LifelongAgentSelector agentSelector;
     private static final boolean DEBUG = true;
     private final Double congestionMultiplier;
+    private final PartialSolutionsStrategy partialSolutionsStrategy;
 
     /*  = fields related to run =  */
 
@@ -73,7 +76,8 @@ public class LifelongSimulationSolver extends A_Solver {
     Set<LifelongAgent> finishedAgents;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
-                                    I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier) {
+                                    I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
+                                    @Nullable PartialSolutionsStrategy partialSolutionsStrategy) {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
@@ -82,6 +86,7 @@ public class LifelongSimulationSolver extends A_Solver {
         }
         this.offlineSolver = offlineSolver;
         this.congestionMultiplier = congestionMultiplier;
+        this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
 
         this.planningTrigger = Objects.requireNonNullElse(planningTrigger, new ActiveButPlanEndedTrigger());
         this.agentSelector = Objects.requireNonNullElse(agentSelector, new AllStationaryAgentsSubsetSelector());
@@ -123,6 +128,7 @@ public class LifelongSimulationSolver extends A_Solver {
             this.minResponseTime = tmpForDefaults.minResponseTime;
             this.maxTimeSteps = tmpForDefaults.maxTimeSteps;
         }
+        this.partialSolutionsStrategy.resetState();
     }
 
     private static List<LifelongAgent> verifyAndCastAgents(List<Agent> agents) {
@@ -582,10 +588,14 @@ public class LifelongSimulationSolver extends A_Solver {
 
         RunParameters runParameters = new RunParameters(hardTimeout, constraints, new InstanceReport(), null, Math.min(minResponseTime, hardTimeout), farthestCommittedTime, this.random);
         if (offlineSolver instanceof LargeNeighborhoodSearch_Solver){
-            runParameters = new RunParametersLNS(runParameters, costAndHeuristic);
+            RunParametersLNS runParametersLNS = new RunParametersLNS(runParameters, costAndHeuristic);
+            runParametersLNS.partialSolutionsStrategy = this.partialSolutionsStrategy;
+            runParameters =runParametersLNS;
         }
         else if (offlineSolver instanceof PrioritisedPlanning_Solver){
-            runParameters = new RunParameters_PP(runParameters, costAndHeuristic);
+            RunParameters_PP runParameters_pp = new RunParameters_PP(runParameters, costAndHeuristic);
+            runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
+            runParameters = runParameters_pp;
         }
 
         return runParameters;
