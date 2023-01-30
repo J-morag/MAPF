@@ -9,9 +9,8 @@ import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.RunManagers.A_RunManager;
 import Environment.RunManagers.RunManagerSimpleExample;
-import Environment.RunManagers.RunManagerWarehouse;
 import Environment.RunManagers.TestingBenchmarkRunManager;
-import LifelongMAPF.LifelongRunManagerWarehouse;
+import LifelongMAPF.LifelongRunManagerMovingAI;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,8 +40,8 @@ public class Main {
 //            // write the reports to System.out
 //            addConsoleAsOutputStream();
 
-            new LifelongRunManagerWarehouse("", 50).runAllExperiments();
-            outputResults();
+//            new LifelongRunManagerWarehouse("", 50).runAllExperiments();
+            new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.resources_Directory, "Instances\\\\MovingAI_Instances"}), 50).runAllExperiments();
 
 //            // will solve a single instance and print the solution
 //            solveOneInstanceExample();

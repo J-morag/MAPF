@@ -323,7 +323,6 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
             e.printStackTrace();
         }
         try {
-//            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
             S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes);
         } catch (IOException e) {
             e.printStackTrace();

@@ -6,7 +6,7 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.stream.IntStream;
 
 public class LifelongRunManagerMovingAI extends A_RunManager {
 
@@ -33,33 +32,12 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
 
     @Override
     public void setSolvers() {
-//        A_Solver replanSingle = new LifelongSimulationSolver(null, new MandatoryAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true));
-//        replanSingle.name = "ReplanSingle";
-//        super.solvers.add(replanSingle);
-        A_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
+        A_Solver stationaryAgentsPrPDeepPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 99),
-                        true, true, new DisallowedPartialSolutionsStrategy(), null), null);
-        mandatoryAgentsPrPr.name = "mandatoryAgentsPrPr99";
-        super.solvers.add(mandatoryAgentsPrPr);
-//        A_Solver freespaceConflictingAgentsPrPr3 = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 4), true, true));
-//        freespaceConflictingAgentsPrPr3.name = "freespaceConflictingAgentsPrPr4";
-//        super.solvers.add(freespaceConflictingAgentsPrPr3);
-//        A_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new FreespaceConflictingAgentsSelector(),
-//                new CBS_Solver(null, null, null, null, null, null, true, true));
-//        freespaceConflictingAgentsOptimal.name = "freespaceConflictingAgentsOptimal";
-//        super.solvers.add(freespaceConflictingAgentsOptimal);
-
-//        A_Solver allAgentsPrPr3 = new LifelongSimulationSolver(null, new AllAgentsSubsetSelector(),
-//                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 3), true, true));
-//        allAgentsPrPr3.name = "allAgentsPrPr3";
-//        super.solvers.add(allAgentsPrPr3);
-//        A_Solver snapshotOptimal = new LifelongSimulationSolver(new DestinationAchievedTrigger(), new AllAgentsSubsetSelector(),
-//                new CBS_Solver(null, null, null, null, null, null, true, true));
-//        snapshotOptimal.name = "SnapshotOptimal";
-//        super.solvers.add(snapshotOptimal);
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, new DeepPartialSolutionsStrategy(), null), null);
+        stationaryAgentsPrPDeepPartial.name = "stationaryAgentsPrPDeepPartial";
+        super.solvers.add(stationaryAgentsPrPDeepPartial);
     }
 
     @Override
@@ -74,8 +52,8 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
         maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
 
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(2, maxNumAgents).toArray());
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
+//        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(2, maxNumAgents).toArray());
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60});
 
@@ -153,7 +131,7 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
             e.printStackTrace();
         }
         try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes);
         } catch (IOException e) {
             e.printStackTrace();
         }
