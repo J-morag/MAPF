@@ -74,7 +74,7 @@ public class Main {
 
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                                                            "Instances\\\\BGU_Instances\\\\den520d-10-0"});
+                                                            "Instances", "BGU_Instances", "den520d-10-0"});
         InstanceManager.InstancePath instancePath = new InstanceManager.InstancePath(path);
 
 
