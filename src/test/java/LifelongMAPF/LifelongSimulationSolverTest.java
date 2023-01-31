@@ -110,13 +110,13 @@ class LifelongSimulationSolverTest {
     private final LifelongAgent agent04to00 = new LifelongAgent(new Agent(7, coor04, coor00), new I_Coordinate[]{coor04, coor00, coor53, coor32, coor14, coor00, coor10, coor00});
     private final LifelongAgent agent33to35 = new LifelongAgent(new Agent(8, coor33, coor35), new I_Coordinate[]{coor33, coor35, coor53, coor15, coor43, coor04, coor00, coor35});
     private final LifelongAgent agent34to32 = new LifelongAgent(new Agent(9, coor34, coor32), new I_Coordinate[]{coor34, coor04, coor35, coor00, coor54, coor12, coor15, coor32});
-    private final LifelongAgent agent34to33 = new LifelongAgent(new Agent(10, coor34, coor33), new I_Coordinate[]{coor34, coor04, coor12, coor00, coor54,  coor35, coor15, coor33});
+    private final LifelongAgent agent43to14 = new LifelongAgent(new Agent(10, coor43, coor14), new I_Coordinate[]{coor43, coor04, coor12, coor00, coor54,  coor35, coor15, coor14});
     private final LifelongAgent agent34to43 = new LifelongAgent(new Agent(11, coor34, coor43), new I_Coordinate[]{coor34, coor15, coor35, coor54, coor04, coor00, coor12, coor43});
 
     private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
     private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle2", mapCircle, new Agent[]{agent12to33, agent33to12});
     private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty,
-            new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to54, agent00to10, agent10to00, agent04to00, agent33to35, agent34to32});
+            new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to54, agent00to10, agent10to00, agent34to32});
     private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{
             new LifelongAgent(new Agent(5, coor00, coor10), new I_Coordinate[]{coor00, coor10, coor00, coor10}),
             new LifelongAgent(new Agent(6, coor10, coor00), new I_Coordinate[]{coor10, coor00, coor10, coor00})
@@ -128,34 +128,33 @@ class LifelongSimulationSolverTest {
                     agent12to33,
                     agent04to54,
                     agent34to32,
-                    agent34to33,
-                    agent34to43
+                    agent43to14
     });
     private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
     I_Solver snapshotOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, true), null, new DisallowedPartialSolutionsStrategy());
+            new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy());
     I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, true), null, new DisallowedPartialSolutionsStrategy());
+            new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy());
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, true), null, new DisallowedPartialSolutionsStrategy());
+            new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy());
     I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, true, null), null, new WidePartialSolutionsStrategy());
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, false, null), null, new WidePartialSolutionsStrategy());
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, null), null, new WidePartialSolutionsStrategy());
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy());
     I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, null), null, new WidePartialSolutionsStrategy());
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy());
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, null), null, new WidePartialSolutionsStrategy());
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy());
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
-            new LargeNeighborhoodSearch_Solver(null, null, true, true, null, null), null, new WidePartialSolutionsStrategy());
+            new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null), null, new WidePartialSolutionsStrategy());
 
     I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(5),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, 20), null, new WidePartialSolutionsStrategy());
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, 20), null, new WidePartialSolutionsStrategy());
 
     I_Solver mandatoryAgentsPrPrDeepPartial = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, true, null), null, new WidePartialSolutionsStrategy());
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy());
 
     InstanceReport instanceReport;
 
@@ -177,20 +176,21 @@ class LifelongSimulationSolverTest {
     }
 
     void isValidFullOrPartialSolution(Solution solution, MAPF_Instance instance){
-        assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
-        assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
+        assertTrue(solution.isValidSolution(false, false)); //is valid (no conflicts)
+        assertTrue(solution.solves(instance, false, false)); // solves (could be partial)
     }
 
     void isFullSolution(Solution solution, MAPF_Instance instance){
-        assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
-        assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
-        assertTrue(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
+        assertTrue(solution.isValidSolution(false, false)); //is valid (no conflicts)
+        assertTrue(solution.solves(instance, false, false)); // solves (could be partial)
+        // TODO can never guarantee a full solution now - an agent at its last destination will prevent others from ever reaching it (if they have it as one of their destinations)... handle this somehow...
+//        assertTrue(new Solution(solution).solves(instance, true, false)); // solves (is full solution)
     }
 
     private static void isPartialSolution(MAPF_Instance instance, Solution solution) {
-        assertTrue(solution.isValidSolution(true, true)); //is valid (no conflicts)
-        assertTrue(solution.solves(instance, true, true)); // solves (could be partial)
-        assertFalse(new Solution(solution).solves(instance, true, true)); // solves (is full solution)
+        assertTrue(solution.isValidSolution(false, false)); //is valid (no conflicts)
+        assertTrue(solution.solves(instance, false, false)); // solves (could be partial)
+        assertFalse(new Solution(solution).solves(instance, false, false)); // solves (is full solution)
     }
 
     /* = Snapshot Optimal = */

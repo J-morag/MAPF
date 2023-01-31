@@ -122,49 +122,49 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
         A_Solver stationaryAgentsPrPWidePartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new WidePartialSolutionsStrategy());
+                        true, false, null), null, new WidePartialSolutionsStrategy());
         stationaryAgentsPrPWidePartial.name = "stationaryAgentsPrPWidePartial";
         super.solvers.add(stationaryAgentsPrPWidePartial);
 
         A_Solver stationaryAgentsPrPDeepPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new DeepPartialSolutionsStrategy());
+                        true, false, null), null, new DeepPartialSolutionsStrategy());
         stationaryAgentsPrPDeepPartial.name = "stationaryAgentsPrPDeepPartial";
         super.solvers.add(stationaryAgentsPrPDeepPartial);
 
         A_Solver stationaryAgentsPrPOneDeepThenWidePartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new OneDeepThenWidePartialSolutionsStrategy());
+                        true, false, null), null, new OneDeepThenWidePartialSolutionsStrategy());
         stationaryAgentsPrPOneDeepThenWidePartial.name = "stationaryAgentsPrPOneDeepThenWidePartial";
         super.solvers.add(stationaryAgentsPrPOneDeepThenWidePartial);
 
         A_Solver stationaryAgentsPrPDeepUntilFoundThenWidePartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new DeepUntilFoundFullPartialSolutionsStrategy());
+                        true, false, null), null, new DeepUntilFoundFullPartialSolutionsStrategy());
         stationaryAgentsPrPDeepUntilFoundThenWidePartial.name = "stationaryAgentsPrPDeepUntilFoundThenWidePartial";
         super.solvers.add(stationaryAgentsPrPDeepUntilFoundThenWidePartial);
 
         A_Solver stationaryAgentsPrPCutoffHillClimbing50PercentInitCutoffPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new HillClimbingPartialSolutionsStrategy(0.5, 0.25, 42));
+                        true, false, null), null, new HillClimbingPartialSolutionsStrategy(0.5, 0.25, 42));
         stationaryAgentsPrPCutoffHillClimbing50PercentInitCutoffPartial.name = "stationaryAgentsPrPCutoffHillClimbing50PercentInitCutoffPartial";
         super.solvers.add(stationaryAgentsPrPCutoffHillClimbing50PercentInitCutoffPartial);
 
         A_Solver stationaryAgentsPrPCutoffHillClimbing25PercentInitCutoffPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new HillClimbingPartialSolutionsStrategy(0.25, 0.25, 42));
+                        true, false, null), null, new HillClimbingPartialSolutionsStrategy(0.25, 0.25, 42));
         stationaryAgentsPrPCutoffHillClimbing25PercentInitCutoffPartial.name = "stationaryAgentsPrPCutoffHillClimbing25PercentInitCutoffPartial";
         super.solvers.add(stationaryAgentsPrPCutoffHillClimbing25PercentInitCutoffPartial);
 
         A_Solver stationaryAgentsPrPCutoff25PercentPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new IndexBasedPartialSolutionsStrategy(0.25));
+                        true, false, null), null, new IndexBasedPartialSolutionsStrategy(0.25));
         stationaryAgentsPrPCutoff25PercentPartial.name = "stationaryAgentsPrPCutoff25PercentPartial";
         super.solvers.add(stationaryAgentsPrPCutoff25PercentPartial);
 
@@ -271,8 +271,8 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
 //        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{250, 275, 300, 325, 350});
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{250});
+//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{250, 275, 300, 325, 350});
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{250});
 //        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40});
 
         /*  =   Set Instance Manager   =  */
@@ -281,8 +281,8 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
         /*  =   Add new experiment   =  */
         Experiment warehouseInstances = new Experiment("LifelongWarehouse", instanceManager, null, 2 * 5 * 60 * 1000);
         warehouseInstances.keepSolutionInReport = false;
-        warehouseInstances.sharedGoals = true; // TODO make it false when possible
-        warehouseInstances.sharedSources = true; // TODO make it false when possible
+        warehouseInstances.sharedGoals = false;
+        warehouseInstances.sharedSources = false;
         this.experiments.add(warehouseInstances);
     }
 

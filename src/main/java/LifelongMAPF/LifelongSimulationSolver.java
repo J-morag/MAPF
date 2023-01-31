@@ -81,8 +81,8 @@ public class LifelongSimulationSolver extends A_Solver {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
-        if (!(offlineSolver.sharedSources() && offlineSolver.sharedGoals())){
-            throw new IllegalArgumentException("offline solver should have shared sources and goals");
+        if (!offlineSolver.sharedGoals()){
+            throw new IllegalArgumentException("offline solver should have shared goals");
         }
         this.offlineSolver = offlineSolver;
         this.congestionMultiplier = congestionMultiplier;
@@ -347,32 +347,19 @@ public class LifelongSimulationSolver extends A_Solver {
                         Move plan1FirstMove = plan1.getFirstMove();
                         Move plan2FirstMove = plan2.getFirstMove();
                         A_Conflict conflict = A_Conflict.conflictBetween(plan1FirstMove, plan2FirstMove);
-                        boolean isStayAtSharedSource = isStayAtSharedSource(plan1FirstMove, plan2FirstMove);
-                        boolean isMoveToSharedGoal = isMoveToSharedGoal(plan1FirstMove, plan2FirstMove);
-                        if (isStayAtSharedSource || isMoveToSharedGoal){
-                            conflict = null; // TODO fix instances so no shared sources, and unique last destinations
-                        }
                         if (conflict != null){
                             // try to resolve conflict by interrupting one (preferably) or both plans.
                             SingleAgentPlan agent1StayPlan = getSingleStayPlan(farthestCommittedTime, plan1.agent, plan1FirstMove.prevLocation);
                             SingleAgentPlan agent2StayPlan = getSingleStayPlan(farthestCommittedTime, plan2.agent, plan2FirstMove.prevLocation);
-                            if (A_Conflict.conflictBetween(plan2FirstMove, agent1StayPlan.getFirstMove()) == null
-                                    // TODO fix instances so no shared sources, and unique last destinations
-                                    || isStayAtSharedSource(plan2FirstMove, agent1StayPlan.getFirstMove())
-                                    || isMoveToSharedGoal(plan2FirstMove, agent1StayPlan.getFirstMove())
-                            ){
+                            if (A_Conflict.conflictBetween(plan2FirstMove, agent1StayPlan.getFirstMove()) == null){
                                 newPlan1 = agent1StayPlan;
-                            } else if (A_Conflict.conflictBetween(plan1FirstMove, agent2StayPlan.getFirstMove()) == null
-                                    // TODO fix instances so no shared sources, and unique last destinations
-                                    || isStayAtSharedSource(plan1FirstMove, agent2StayPlan.getFirstMove())
-                                    || isMoveToSharedGoal(plan1FirstMove, agent2StayPlan.getFirstMove())
-                            ) {
+                            } else if (A_Conflict.conflictBetween(plan1FirstMove, agent2StayPlan.getFirstMove()) == null) {
                                 newPlan2 = agent2StayPlan;
                             }
                             else {
                                 newPlan1 = agent1StayPlan;
                                 newPlan2 = agent2StayPlan;
-                                if (DEBUG && agent1StayPlan.conflictsWith(agent2StayPlan, true, true)){ // TODO fix instances so no shared sources, and unique last destinations
+                                if (DEBUG && agent1StayPlan.conflictsWith(agent2StayPlan, false, false)){
                                     throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
                                             agent1StayPlan.firstConflict(agent2StayPlan), plan1, plan2, newPlan1, newPlan2));
                                 }
@@ -420,7 +407,7 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     public static boolean isSafeOneStepSolution(Solution oneStepSolution) {
-        return oneStepSolution.isValidSolution(true, true); // TODO fix instances so no shared goals and sources
+        return oneStepSolution.isValidSolution(false, false);
     }
 
     @NotNull
