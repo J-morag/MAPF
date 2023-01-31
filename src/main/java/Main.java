@@ -11,6 +11,7 @@ import Environment.RunManagers.A_RunManager;
 import Environment.RunManagers.RunManagerSimpleExample;
 import Environment.RunManagers.TestingBenchmarkRunManager;
 import LifelongMAPF.LifelongRunManagerMovingAI;
+import LifelongMAPF.LifelongRunManagerWarehouse;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,7 +42,7 @@ public class Main {
 //            addConsoleAsOutputStream();
 
 //            new LifelongRunManagerWarehouse("", 50).runAllExperiments();
-            new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.resources_Directory, "Instances\\\\MovingAI_Instances"}), 50).runAllExperiments();
+            new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances"}), 50).runAllExperiments();
 
 //            // will solve a single instance and print the solution
 //            solveOneInstanceExample();
