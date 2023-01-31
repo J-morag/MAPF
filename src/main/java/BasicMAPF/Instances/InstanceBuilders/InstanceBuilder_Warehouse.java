@@ -36,6 +36,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     public static final String SEPARATOR_SCENARIO = ",";
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;
+    private static final int randomSeed = 42;
 
     /*  =Default Values=    */
     private final int defaultNumOfAgents = 10;
@@ -44,14 +45,16 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
     private final boolean dropDisabledEdges;
     public final boolean lifelong;
+    private final boolean forceNoSharedSourceAndFinalDestinations;
 
     public InstanceBuilder_Warehouse() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong) {
+    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong, Boolean forceNoSharedSourceAndFinalDestinations) {
         this.dropDisabledEdges = Objects.requireNonNullElse(dropDisabledEdges, true);
         this.lifelong = Objects.requireNonNullElse(lifelong, true);
+        this.forceNoSharedSourceAndFinalDestinations = Objects.requireNonNullElse(forceNoSharedSourceAndFinalDestinations, this.lifelong);
     }
 
     @Override
@@ -75,6 +78,9 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         for (int numOfAgentsFromProperty : numOfAgentsFromProperties) {
 
             Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty);
+            if (forceNoSharedSourceAndFinalDestinations){
+                agents = agentsToNoSharedSourceAndFinalDestinations(agents);
+            }
 
             if (instanceName == null || agents == null) {
                 continue; /* Invalid parameters */
@@ -84,6 +90,39 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
             this.instanceList.add(mapf_instance);
         }
+    }
+
+    private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents) {
+        if (this.lifelong){
+            Set<I_Coordinate> allCoordinates = new HashSet<>();
+            for (Agent a :
+                    agents) {
+                allCoordinates.addAll(((LifelongAgent)a).waypoints);
+            }
+            ArrayList<I_Coordinate> coordinatesQueue = new ArrayList<>(allCoordinates);
+            Collections.shuffle(coordinatesQueue, new Random(randomSeed));
+
+            List<Agent> res = new ArrayList<>();
+            for (Agent a :
+                    agents) {
+                if (coordinatesQueue.isEmpty()){
+                    break;
+                }
+                else {
+                    List<I_Coordinate> waypoints = new ArrayList<>(((LifelongAgent)a).waypoints);
+                    I_Coordinate uniqueCoordinate = coordinatesQueue.remove(0);
+                    if (!a.source.equals(uniqueCoordinate)){
+                        waypoints.add(0, uniqueCoordinate);
+                    }
+                    if (!a.target.equals(uniqueCoordinate)){
+                        waypoints.add(uniqueCoordinate);
+                    }
+                    res.add(new LifelongAgent(a.iD, uniqueCoordinate, uniqueCoordinate, waypoints.toArray(I_Coordinate[]::new)));
+                }
+            }
+            return res.toArray(Agent[]::new);
+        }
+        return agents;
     }
 
     protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath){
