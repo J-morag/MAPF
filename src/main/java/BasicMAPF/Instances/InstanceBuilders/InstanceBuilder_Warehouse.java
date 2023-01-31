@@ -36,7 +36,6 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     public static final String SEPARATOR_SCENARIO = ",";
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;
-    private static final int randomSeed = 42;
 
     /*  =Default Values=    */
     private final int defaultNumOfAgents = 10;
@@ -79,7 +78,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
             Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty);
             if (forceNoSharedSourceAndFinalDestinations){
-                agents = agentsToNoSharedSourceAndFinalDestinations(agents);
+                agents = agentsToNoSharedSourceAndFinalDestinations(agents, moving_ai_path.scenarioPath);
             }
 
             if (instanceName == null || agents == null) {
@@ -92,7 +91,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         }
     }
 
-    private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents) {
+    private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents, String scenarioPath) {
         if (this.lifelong){
             Set<I_Coordinate> allCoordinates = new HashSet<>();
             for (Agent a :
@@ -100,7 +99,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 allCoordinates.addAll(((LifelongAgent)a).waypoints);
             }
             ArrayList<I_Coordinate> coordinatesQueue = new ArrayList<>(allCoordinates);
-            Collections.shuffle(coordinatesQueue, new Random(randomSeed));
+            Collections.shuffle(coordinatesQueue, new Random(scenarioPath.hashCode()));
 
             List<Agent> res = new ArrayList<>();
             for (Agent a :
