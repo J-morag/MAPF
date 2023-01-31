@@ -218,24 +218,9 @@ public class LifelongSolution extends Solution{
         return throughput;
     }
 
-//    @Override
-//    public boolean isValidSolution() {
-//        return super.isValidSolution(false, false); // TODO drop shared sources (and goals) once instances are fixed
-//    }
-    @Override
-    public boolean isValidSolution(boolean sharedGoals, boolean sharedSources) {
-        for (Solution sol :
-                this.solutionsAtTimes.values()) {
-            if ( ! LifelongSimulationSolver.isSafeOneStepSolution(LifelongSimulationSolver.getOneStepSolution(sol))){
-                return false;
-            }
-        }
-        return true;
-    }
-
     @Override
     protected boolean checkStartAndEnd(MAPF_Instance instance, SingleAgentPlan plan) {
-        // only check start, not end
+        // lifelong solution doesn't have to be complete (finish all destinations) to be valid - only check start, not end
         return !plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source));
     }
 

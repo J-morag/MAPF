@@ -64,8 +64,8 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
         Experiment warehouseInstances = new Experiment("LifelongWarehouse", instanceManager);
         warehouseInstances.skipAfterFail = false;
         warehouseInstances.keepSolutionInReport = false;
-        warehouseInstances.sharedGoals = true;
-        warehouseInstances.sharedSources = true;
+        warehouseInstances.sharedGoals = false;
+        warehouseInstances.sharedSources = false;
         this.experiments.add(warehouseInstances);
     }
 
