@@ -11,7 +11,7 @@ class LifelongRunManagerMovingAITest {
 
     @BeforeEach
     void setUp() {
-        lifelongRunManagerMovingAI = new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, "Instances\\\\MovingAI"}), 25);
+        lifelongRunManagerMovingAI = new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, "Instances", "MovingAI"}), 25);
     }
 
     @Test
