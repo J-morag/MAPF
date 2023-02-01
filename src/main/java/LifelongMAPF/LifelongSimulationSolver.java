@@ -64,9 +64,10 @@ public class LifelongSimulationSolver extends A_Solver {
      */
     private int maxTimeSteps;
     private int reachedTimestepInPlanning;
-    private float avgGroupSize;
-    private float avgFailedAgents;
-    private float avgBlockedAgents;
+    private float avgGroupSizeMetric;
+    private float avgFailedAgentsMetric;
+    private float avgBlockedAgentsMetric;
+    private List<int[]> numAgentsAndNumIterationsMetric;
     private int numPlanningIterations;
     private CachingDistanceTableHeuristic cachingDistanceTableHeuristic;
     private int numDestinationsAchieved;
@@ -101,7 +102,10 @@ public class LifelongSimulationSolver extends A_Solver {
         this.lifelongInstance = instance;
         this.random = new Random(42);
         this.reachedTimestepInPlanning = 0;
-        this.avgGroupSize = 0;
+        this.avgGroupSizeMetric = 0;
+        this.avgFailedAgentsMetric = 0;
+        this.avgBlockedAgentsMetric = 0;
+        this.numAgentsAndNumIterationsMetric = new ArrayList<>();
         this.numPlanningIterations = 0;
         this.numDestinationsAchieved = 0;
         this.agentsActiveDestination = new HashMap<>();
@@ -200,7 +204,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 if (DEBUG && subgroupSolution != null){
                     checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
                 }
-                digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport);
+                digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
                 int numAgentsWithPlansInSolutionBeforeBlocking = subgroupSolution != null ? subgroupSolution.size() : 0;
                 sumAttemptedAgentsThatFailed += selectedTimelyOfflineAgentsSubset.size() - numAgentsWithPlansInSolutionBeforeBlocking;
 
@@ -224,9 +228,9 @@ public class LifelongSimulationSolver extends A_Solver {
             lifelongAgentsToTimelyOfflineAgents = getLifelongAgentsToTimelyOfflineAgentsAndUpdateDestinationStartAndEndTimes(farthestCommittedTime,
                     latestSolution, agentDestinationQueues, this.lifelongAgents);
         }
-        this.avgGroupSize = (float) sumGroupSizes / (float) numPlanningIterations;
-        this.avgFailedAgents = (float) sumAttemptedAgentsThatFailed / (float) numPlanningIterations;
-        this.avgBlockedAgents = (float) sumBlockedSizesAfterPlanning / (float) numPlanningIterations;
+        this.avgGroupSizeMetric = (float) sumGroupSizes / (float) numPlanningIterations;
+        this.avgFailedAgentsMetric = (float) sumAttemptedAgentsThatFailed / (float) numPlanningIterations;
+        this.avgBlockedAgentsMetric = (float) sumBlockedSizesAfterPlanning / (float) numPlanningIterations;
         this.reachedTimestepInPlanning = farthestCommittedTime;
 
         if (DEBUG){
@@ -611,18 +615,23 @@ public class LifelongSimulationSolver extends A_Solver {
         return trimmedPlan;
     }
 
-    protected void digestSubproblemReport(InstanceReport instanceReport) {
-        Integer statesGenerated = instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
+    protected void digestSubproblemReport(InstanceReport subproblemInstanceReport, MAPF_Instance timelyOfflineProblem) {
+        Integer statesGenerated = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
         this.totalLowLevelStatesGenerated += statesGenerated == null ? 0 : statesGenerated;
-        Integer statesExpanded = instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+        Integer statesExpanded = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
         this.totalLowLevelStatesExpanded += statesExpanded == null ? 0 : statesExpanded;
-        Integer lowLevelRuntime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        Integer lowLevelRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
         this.instanceReport.integerAddition(InstanceReport.StandardFields.totalLowLevelTimeMS, lowLevelRuntime == null ? 0 : lowLevelRuntime);
-        Integer generatedNodes = instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
+        Integer generatedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
         this.instanceReport.integerAddition(InstanceReport.StandardFields.generatedNodes, generatedNodes == null ? 0 : generatedNodes);
-        Integer expandedNodes = instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+        Integer expandedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
         this.instanceReport.integerAddition(InstanceReport.StandardFields.expandedNodes, expandedNodes == null ? 0 : expandedNodes);
-        S_Metrics.removeReport(instanceReport);
+        S_Metrics.removeReport(subproblemInstanceReport);
+        if (this.offlineSolver instanceof  PrioritisedPlanning_Solver){
+            int numAgents = timelyOfflineProblem.agents.size();
+            int numAttempts = subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countInitialAttemptsMetricString) + subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countContingencyAttemptsMetricString);
+            this.numAgentsAndNumIterationsMetric.add(new int[]{numAgents, numAttempts});
+        }
     }
 
     @Override
@@ -631,9 +640,37 @@ public class LifelongSimulationSolver extends A_Solver {
 
         super.instanceReport.putIntegerValue("reachedTimestepInPlanning", this.reachedTimestepInPlanning);
         super.instanceReport.putIntegerValue("numPlanningIterations", this.numPlanningIterations);
-        super.instanceReport.putFloatValue("avgGroupSize", this.avgGroupSize);
-        super.instanceReport.putFloatValue("avgFailedAgents", this.avgFailedAgents);
-        super.instanceReport.putFloatValue("avgBlockedAgents", this.avgBlockedAgents);
+        super.instanceReport.putFloatValue("avgGroupSize", this.avgGroupSizeMetric);
+        super.instanceReport.putFloatValue("avgFailedAgents", this.avgFailedAgentsMetric);
+        super.instanceReport.putFloatValue("avgBlockedAgents", this.avgBlockedAgentsMetric);
+
+        this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[1]));
+        super.instanceReport.putFloatValue("numAttempts10thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.1))[1]);
+        super.instanceReport.putFloatValue("numAttempts50thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.5))[1]);
+        super.instanceReport.putFloatValue("numAttempts90thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.9))[1]);
+
+        this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[0]));
+        double sumIterations = 0;
+        double sumIterationsOver100Agents = 0;
+        int numSamplesOver100Agents = 0;
+        double sumIterationsOver200Agents = 0;
+        int numSamplesOver200Agents = 0;
+        for (int[] ints : numAgentsAndNumIterationsMetric) {
+            int agents = ints[0];
+            int iterations = ints[1];
+            sumIterations += iterations;
+            if (agents >= 200) {
+                sumIterationsOver200Agents += iterations;
+                numSamplesOver200Agents += 1;
+            }
+            if (agents >= 100) {
+                sumIterationsOver100Agents += iterations;
+                numSamplesOver100Agents += 1;
+            }
+        }
+        super.instanceReport.putFloatValue("averageNumAttempts", (float) (sumIterations / numAgentsAndNumIterationsMetric.size()));
+        super.instanceReport.putFloatValue("averageNumAttemptsOver100Agents", (float) (sumIterationsOver100Agents / numSamplesOver100Agents));
+        super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
 
         LifelongSolution lifelongSolution = ((LifelongSolution)solution);
         super.instanceReport.putStringValue("waypointTimes", lifelongSolution.agentsWaypointArrivalTimes());
@@ -665,5 +702,6 @@ public class LifelongSimulationSolver extends A_Solver {
         this.agentsActiveDestinationStartTimes = null;
         this.agentsActiveDestinationEndTimes = null;
         this.finishedAgents = null;
+        this.numAgentsAndNumIterationsMetric = null;
     }
 }

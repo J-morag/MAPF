@@ -29,6 +29,11 @@ import static com.google.common.math.IntMath.factorial;
 public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /*  = Fields =  */
+
+    /* = Constants = */
+    public final static String countInitialAttemptsMetricString = "count initial attempts";
+    public final static String countContingencyAttemptsMetricString = "count contingency attempts";
+
     /*  =  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
@@ -279,12 +284,13 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
             // report the completed attempt
             if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
+                this.instanceReport.putIntegerValue(countInitialAttemptsMetricString, attemptNumber + 1);
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", agentsWeFailedOn.size());
             }
             else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue("count contingency attempts", attemptNumber - restartsStrategy.numInitialRestarts);
+                this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, attemptNumber + 1 - restartsStrategy.numInitialRestarts);
             }
 
 
@@ -388,6 +394,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+        }
+        if (!instanceReport.hasField(countInitialAttemptsMetricString)){
+            this.instanceReport.putIntegerValue(countInitialAttemptsMetricString, 0);
+        }
+        if (!instanceReport.hasField(countContingencyAttemptsMetricString)){
+            this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, 0);
         }
     }
 
