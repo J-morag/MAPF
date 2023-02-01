@@ -644,33 +644,35 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putFloatValue("avgFailedAgents", this.avgFailedAgentsMetric);
         super.instanceReport.putFloatValue("avgBlockedAgents", this.avgBlockedAgentsMetric);
 
-        this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[1]));
-        super.instanceReport.putFloatValue("numAttempts10thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.1))[1]);
-        super.instanceReport.putFloatValue("numAttempts50thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.5))[1]);
-        super.instanceReport.putFloatValue("numAttempts90thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.9))[1]);
+        if (!numAgentsAndNumIterationsMetric.isEmpty()){ // only when using PrP as the offline solver
+            this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[1]));
+            super.instanceReport.putFloatValue("numAttempts10thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.1))[1]);
+            super.instanceReport.putFloatValue("numAttempts50thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.5))[1]);
+            super.instanceReport.putFloatValue("numAttempts90thPercentile", this.numAgentsAndNumIterationsMetric.get((int)(numAgentsAndNumIterationsMetric.size() * 0.9))[1]);
 
-        this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[0]));
-        double sumIterations = 0;
-        double sumIterationsOver100Agents = 0;
-        int numSamplesOver100Agents = 0;
-        double sumIterationsOver200Agents = 0;
-        int numSamplesOver200Agents = 0;
-        for (int[] ints : numAgentsAndNumIterationsMetric) {
-            int agents = ints[0];
-            int iterations = ints[1];
-            sumIterations += iterations;
-            if (agents >= 200) {
-                sumIterationsOver200Agents += iterations;
-                numSamplesOver200Agents += 1;
+            this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[0]));
+            double sumIterations = 0;
+            double sumIterationsOver100Agents = 0;
+            int numSamplesOver100Agents = 0;
+            double sumIterationsOver200Agents = 0;
+            int numSamplesOver200Agents = 0;
+            for (int[] ints : numAgentsAndNumIterationsMetric) {
+                int agents = ints[0];
+                int iterations = ints[1];
+                sumIterations += iterations;
+                if (agents >= 200) {
+                    sumIterationsOver200Agents += iterations;
+                    numSamplesOver200Agents += 1;
+                }
+                if (agents >= 100) {
+                    sumIterationsOver100Agents += iterations;
+                    numSamplesOver100Agents += 1;
+                }
             }
-            if (agents >= 100) {
-                sumIterationsOver100Agents += iterations;
-                numSamplesOver100Agents += 1;
-            }
+            super.instanceReport.putFloatValue("averageNumAttempts", (float) (sumIterations / numAgentsAndNumIterationsMetric.size()));
+            super.instanceReport.putFloatValue("averageNumAttemptsOver100Agents", (float) (sumIterationsOver100Agents / numSamplesOver100Agents));
+            super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
         }
-        super.instanceReport.putFloatValue("averageNumAttempts", (float) (sumIterations / numAgentsAndNumIterationsMetric.size()));
-        super.instanceReport.putFloatValue("averageNumAttemptsOver100Agents", (float) (sumIterationsOver100Agents / numSamplesOver100Agents));
-        super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
 
         LifelongSolution lifelongSolution = ((LifelongSolution)solution);
         super.instanceReport.putStringValue("waypointTimes", lifelongSolution.agentsWaypointArrivalTimes());
