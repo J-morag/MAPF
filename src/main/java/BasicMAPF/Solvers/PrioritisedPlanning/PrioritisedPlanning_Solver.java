@@ -290,7 +290,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", agentsWeFailedOn.size());
             }
             else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, attemptNumber + 1 - restartsStrategy.numInitialRestarts);
+                this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, attemptNumber - restartsStrategy.numInitialRestarts);
             }
 
 
