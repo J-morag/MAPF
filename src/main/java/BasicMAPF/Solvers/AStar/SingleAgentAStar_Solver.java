@@ -8,6 +8,8 @@ import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
+import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
+import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -40,6 +42,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     private I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
+    public I_AStarGoalCondition goalCondition;
     /**
      * Not real-world time. The problem's start time.
      */
@@ -106,6 +109,14 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
         if(runParameters instanceof RunParameters_SAAStar parameters
+                && parameters.goalCondition != null){
+            this.goalCondition = parameters.goalCondition;
+        }
+        else{
+            this.goalCondition = new SingleTargetCoordinateGoalCondition(this.targetCoor);
+        }
+
+        if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).heuristicFunction != null){
             this.gAndH = parameters.heuristicFunction;
         }
@@ -153,7 +164,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if (currentState.getF() > fBudget) {return null;}
             closed.add(currentState);
 
-            // nicetohave -  change to early goal test
+            // nicetohave - change to early goal test
             if (isGoalState(currentState)){
                 // check to see if a rejecting constraint on the goal exists at some point in the future.
 
@@ -223,7 +234,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     }
 
     private boolean isGoalState(AStarState state) {
-        return state.move.currLocation.getCoordinate().equals(this.targetCoor);
+        return this.goalCondition.isAGoal(state);
     }
 
     /*  = wind down =  */
