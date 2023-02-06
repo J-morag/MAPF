@@ -75,10 +75,8 @@ public class SingleUseConflictAvoidanceTable implements I_ConflictAvoidanceTable
     }
 
     private void addOccupancy(TimeLocation timeLocation, Move move){
-        if( ! allOccupancies.containsKey(timeLocation)){
-            allOccupancies.put(timeLocation, new ArrayList<>());
-        }
-        allOccupancies.get(timeLocation).add(move);
+        List<Move> occupanciesAtTimeLocation = allOccupancies.computeIfAbsent(timeLocation, tl -> new ArrayList<>());
+        occupanciesAtTimeLocation.add(move);
     }
 
     private void addGoalOccupancy(I_Location location, int entryTime){
