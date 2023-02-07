@@ -65,7 +65,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         put(TREE, Enum_MapLocationType.TREE);
     }};
 
-    static private final int defaultNumWaypoints = 30;
+    static private final int defaultNumWaypoints = 102;
 
     public boolean reuseAgents = true;
     private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
