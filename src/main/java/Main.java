@@ -120,7 +120,7 @@ public class Main {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        DateFormat dateFormat = S_Metrics.defaultDateFormat;
         String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),

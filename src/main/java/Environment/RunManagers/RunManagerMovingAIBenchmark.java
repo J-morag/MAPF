@@ -73,7 +73,7 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
             e.printStackTrace();
         }
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        DateFormat dateFormat = S_Metrics.defaultDateFormat;
         String pathWithStartTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
         try {
             S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
