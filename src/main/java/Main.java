@@ -10,8 +10,8 @@ import BasicMAPF.Solvers.Solution;
 import Environment.RunManagers.A_RunManager;
 import Environment.RunManagers.RunManagerSimpleExample;
 import Environment.RunManagers.TestingBenchmarkRunManager;
-import LifelongMAPF.LifelongRunManagerMovingAI;
-import LifelongMAPF.LifelongRunManagerWarehouse;
+import LifelongMAPF.LifelongRunManagers.LifelongRunManagerMovingAI;
+import LifelongMAPF.LifelongRunManagers.LifelongRunManagerWarehouse;
 
 import java.io.File;
 import java.io.FileOutputStream;
