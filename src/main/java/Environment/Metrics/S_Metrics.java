@@ -22,7 +22,7 @@ import java.util.*;
  * output streams.
  */
 public class S_Metrics {
-
+    public static DateFormat defaultDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm_ss-SSS");
     private static final char CSV_DELIMITER = ',';
 
     ////      MEMBERS      ////

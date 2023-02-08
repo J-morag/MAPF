@@ -213,9 +213,10 @@ public class ConstraintSet{
      */
     public int rejectsEventually(Move finalMove){
         int firstRejectionTime = Integer.MAX_VALUE;
+        // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
         // traverses the entire data structure. expensive.
         for (I_ConstraintGroupingKey cw : constraints.keySet()) {
-            //found constraint for this location, sometime in the future. Should be rare.
+            // if found constraint for this location, sometime in the future. Should be rare.
             if(cw.relevantInTheFuture(finalMove)){
                 for (Constraint constraint : constraints.get(cw)) {
                     // make an artificial "stay" move for the relevant time.

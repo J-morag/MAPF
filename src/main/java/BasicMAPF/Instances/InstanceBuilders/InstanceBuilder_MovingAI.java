@@ -13,6 +13,7 @@ import BasicMAPF.Instances.Maps.*;
 import LifelongMAPF.LifelongAgent;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
@@ -147,7 +148,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     }
 
     protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath){
-        String[] splitScenarioPath = instancePath.scenarioPath.split("\\\\");
+        String[] splitScenarioPath = instancePath.scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
         return new MAPF_Instance(instanceName, graphMap, agents, splitScenarioPath[splitScenarioPath.length-1]);
     }
 
@@ -319,7 +320,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         for (InstanceManager.InstancePath instancePath : pathArray ) {
             if ( instancePath.path.endsWith(FILE_TYPE_MAP) ){
 
-                String[] splitPath = instancePath.path.split("\\\\");
+                String[] splitPath = instancePath.path.split(Pattern.quote(IO_Manager.pathSeparator));
                 String mapPrefix = splitPath[splitPath.length-1].replace(FILE_TYPE_MAP, "");
                 for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
                     if(scenarioCandidate.path.split("-even")[0].split("-random")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO)){

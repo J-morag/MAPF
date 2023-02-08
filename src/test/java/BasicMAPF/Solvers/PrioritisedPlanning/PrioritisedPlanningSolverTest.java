@@ -311,7 +311,7 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+            DateFormat dateFormat = S_Metrics.defaultDateFormat;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -430,7 +430,7 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+            DateFormat dateFormat = S_Metrics.defaultDateFormat;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -549,7 +549,7 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+            DateFormat dateFormat = S_Metrics.defaultDateFormat;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -679,7 +679,7 @@ class PrioritisedPlanningSolverTest {
         System.out.println(nameExperimental + " time: " + runtimeExperimental);
 
         //save results
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        DateFormat dateFormat = S_Metrics.defaultDateFormat;
         String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){

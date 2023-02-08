@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 
 /**
@@ -38,9 +37,6 @@ public class Main {
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
-//            // write the reports to System.out
-//            addConsoleAsOutputStream();
-
 //            new LifelongRunManagerWarehouse("", 50).runAllExperiments();
             new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances"}), 50).runAllExperiments();
 
@@ -52,14 +48,6 @@ public class Main {
 //            // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
 //            runTestingBenchmarkExperiment();
 //            // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
-        }
-    }
-
-    private static void addConsoleAsOutputStream() {
-        try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -77,10 +65,12 @@ public class Main {
     }
 
     public static void solveOneInstanceExample(){
+        // write the reports to System.out
+        addConsoleAsOutputStream();
 
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                                                            "Instances\\\\BGU_Instances\\\\den520d-10-0"});
+                                                            "Instances", "BGU_Instances", "den520d-10-0"});
         InstanceManager.InstancePath instancePath = new InstanceManager.InstancePath(path);
 
 
@@ -102,15 +92,19 @@ public class Main {
     public static void runMultipleExperimentsExample(){
         RunManagerSimpleExample runManagerSimpleExample = new RunManagerSimpleExample();
         runManagerSimpleExample.runAllExperiments();
-
-        outputResults();
     }
 
     public static void runTestingBenchmarkExperiment(){
         TestingBenchmarkRunManager testingBenchmarkRunManager = new TestingBenchmarkRunManager();
         testingBenchmarkRunManager.runAllExperiments();
+    }
 
-        outputResults();
+    private static void addConsoleAsOutputStream() {
+        try {
+            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -122,11 +116,11 @@ public class Main {
      */
     private static void outputResults() {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(30);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        DateFormat dateFormat = S_Metrics.defaultDateFormat;
         String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
