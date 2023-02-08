@@ -1,29 +1,20 @@
-package LifelongMAPF;
+package LifelongMAPF.LifelongRunManagers;
 
+import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
-import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.*;
-import Environment.Experiment;
-import Environment.IO_Package.IO_Manager;
-import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
-import Environment.RunManagers.A_RunManager;
 import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
+import LifelongMAPF.LifelongSimulationSolver;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-public class LifelongRunManagerWarehouse extends A_RunManager {
+public class LifelongRunManagerWarehouse extends A_LifelongRunManager {
 
     private final String warehouseMaps;
     private final Integer maxNumAgents;
-    String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
 
     public LifelongRunManagerWarehouse(String warehouseMaps, Integer maxNumAgents) {
         this.warehouseMaps = warehouseMaps;
@@ -283,107 +274,24 @@ public class LifelongRunManagerWarehouse extends A_RunManager {
         addAllMapsAndInstances(this.maxNumAgents, this.warehouseMaps);
     }
 
-
     /* = Experiments =  */
 
-    private void addAllMapsAndInstances(Integer maxNumAgents, String instancesDir){
-        maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
-
-        /*  =   Set Properties   =  */
-//        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{maxNumAgents});
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{25,50,75,100,125,150});
-        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{200, 250, 300, 350});
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{250});
-//        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{5, 10, 15, 20, 25, 30, 35, 40});
-
-        /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(instancesDir, new InstanceBuilder_Warehouse(),properties);
-
-        /*  =   Add new experiment   =  */
-        Experiment warehouseInstances = new Experiment("LifelongWarehouse", instanceManager, null, 2 * 5 * 60 * 1000);
-        warehouseInstances.keepSolutionInReport = false;
-        warehouseInstances.sharedGoals = false;
-        warehouseInstances.sharedSources = false;
-        this.experiments.add(warehouseInstances);
+    @NotNull
+    @Override
+    protected String getExperimentName() {
+        return "LifelongWarehouse";
     }
 
     @Override
-    public void runAllExperiments() {
-        try {
-            S_Metrics.setHeader(new String[]{
-                    InstanceReport.StandardFields.experimentName,
-                    InstanceReport.StandardFields.mapName,
-                    InstanceReport.StandardFields.instanceName,
-                    InstanceReport.StandardFields.numAgents,
-                    InstanceReport.StandardFields.solver,
-                    InstanceReport.StandardFields.solved,
-                    InstanceReport.StandardFields.skipped,
-                    InstanceReport.StandardFields.valid,
-                    InstanceReport.StandardFields.elapsedTimeMS,
-                    InstanceReport.StandardFields.totalLowLevelTimeMS,
-                    InstanceReport.StandardFields.generatedNodes,
-                    InstanceReport.StandardFields.expandedNodes,
-                    InstanceReport.StandardFields.solutionCost,
-                    InstanceReport.StandardFields.solution,
-                    "reachedTimestepInPlanning",
-                    "numPlanningIterations",
-                    "avgGroupSize",
-                    "avgFailedAgents",
-                    "avgBlockedAgents",
-                    "waypointTimes",
-                    "SOC",
-                    "makespan",
-                    "timeTo50%Completion",
-                    "timeTo80%Completion",
-                    "throughputAtT30",
-                    "throughputAtT50",
-                    "throughputAtT75",
-                    "throughputAtT100",
-                    "throughputAtT200",
-                    "throughputAtT300",
-                    "throughputAtT400",
-                    "throughputAtT500",
-                    "averageThroughput",
-                    "averageIndividualThroughput",
-                    "Adaptive Index reached cutoff"
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        String pathWithStartTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
-        try {
-            S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        super.runAllExperiments();
-        String pathWithEndTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
-
-        try {
-            S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)
-//                    ,new String[]{   InstanceReport.StandardFields.experimentName,
-//                            InstanceReport.StandardFields.experimentName,
-//                            InstanceReport.StandardFields.numAgents,
-//                            InstanceReport.StandardFields.solver,
-//                            InstanceReport.StandardFields.solved,
-//                            InstanceReport.StandardFields.valid,
-//                            InstanceReport.StandardFields.elapsedTimeMS,
-//                            InstanceReport.StandardFields.solutionCost,
-//                            InstanceReport.StandardFields.solution}
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        S_Metrics.clearAll();
+    protected @NotNull I_InstanceBuilder getInstanceBuilder() {
+        return new InstanceBuilder_Warehouse();
     }
 
+    @NotNull
+    @Override
+    protected InstanceProperties getInstanceProperties() {
+//        return new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
+//        return new InstanceProperties(null, -1, new int[]{maxNumAgents});
+        return new InstanceProperties(null, -1, new int[]{200, 250, 300, 350});
+    }
 }

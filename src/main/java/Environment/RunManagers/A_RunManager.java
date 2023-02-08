@@ -23,6 +23,17 @@ public abstract class A_RunManager {
 
     protected List<I_Solver> solvers = new ArrayList<>();
     protected List<Experiment> experiments = new ArrayList<>();
+    protected String[] metricsHeader = new String[]{
+            InstanceReport.StandardFields.experimentName,
+            InstanceReport.StandardFields.mapName,
+            InstanceReport.StandardFields.instanceName,
+            InstanceReport.StandardFields.numAgents,
+            InstanceReport.StandardFields.solver,
+            InstanceReport.StandardFields.solved,
+            InstanceReport.StandardFields.valid,
+            InstanceReport.StandardFields.elapsedTimeMS,
+            InstanceReport.StandardFields.solutionCost,
+            InstanceReport.StandardFields.solution};
 
     protected abstract void setSolvers();
     protected abstract void setExperiments();
@@ -62,17 +73,7 @@ public abstract class A_RunManager {
 
         // output (only the following fields) to csv while running
         try {
-            S_Metrics.setHeader(new String[]{
-                    InstanceReport.StandardFields.experimentName,
-                    InstanceReport.StandardFields.mapName,
-                    InstanceReport.StandardFields.instanceName,
-                    InstanceReport.StandardFields.numAgents,
-                    InstanceReport.StandardFields.solver,
-                    InstanceReport.StandardFields.solved,
-                    InstanceReport.StandardFields.valid,
-                    InstanceReport.StandardFields.elapsedTimeMS,
-                    InstanceReport.StandardFields.solutionCost,
-                    InstanceReport.StandardFields.solution});
+            S_Metrics.setHeader(metricsHeader);
         } catch (IOException e) {
             e.printStackTrace();
         }

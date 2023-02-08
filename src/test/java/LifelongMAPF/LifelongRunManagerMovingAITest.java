@@ -1,6 +1,7 @@
 package LifelongMAPF;
 
 import Environment.IO_Package.IO_Manager;
+import LifelongMAPF.LifelongRunManagers.LifelongRunManagerMovingAI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
