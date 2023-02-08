@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 
 /**
@@ -36,8 +35,6 @@ public class Main {
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
-            // write the reports to System.out
-            addConsoleAsOutputStream();
             // will solve a single instance and print the solution
             solveOneInstanceExample();
             // will solve multiple instances and print a simple report for each instance
@@ -46,14 +43,6 @@ public class Main {
             // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
             runTestingBenchmarkExperiment();
             // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
-        }
-    }
-
-    private static void addConsoleAsOutputStream() {
-        try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -71,6 +60,8 @@ public class Main {
     }
 
     public static void solveOneInstanceExample(){
+        // write the reports to System.out
+        addConsoleAsOutputStream();
 
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
@@ -96,15 +87,19 @@ public class Main {
     public static void runMultipleExperimentsExample(){
         RunManagerSimpleExample runManagerSimpleExample = new RunManagerSimpleExample();
         runManagerSimpleExample.runAllExperiments();
-
-        outputResults();
     }
 
     public static void runTestingBenchmarkExperiment(){
         TestingBenchmarkRunManager testingBenchmarkRunManager = new TestingBenchmarkRunManager();
         testingBenchmarkRunManager.runAllExperiments();
+    }
 
-        outputResults();
+    private static void addConsoleAsOutputStream() {
+        try {
+            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -116,7 +111,7 @@ public class Main {
      */
     private static void outputResults() {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(30);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -65,6 +65,4 @@ public class RunManagerSimpleExample extends A_RunManager {
         this.experiments.add(gridExperiment);
     }
 
-
-
 }

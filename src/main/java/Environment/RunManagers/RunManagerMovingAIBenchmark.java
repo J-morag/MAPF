@@ -6,21 +6,12 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
-import Environment.IO_Package.IO_Manager;
-import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.stream.IntStream;
 
 public class RunManagerMovingAIBenchmark extends A_RunManager{
 
     private final String entireBenchmarkDir;
     private final Integer maxNumAgents;
-    String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
 
     public RunManagerMovingAIBenchmark(String entireBenchmarkDir, Integer maxNumAgents) {
         this.entireBenchmarkDir = entireBenchmarkDir;
@@ -55,55 +46,4 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
         this.experiments.add(EntireMovingAIBenchmark);
     }
 
-    @Override
-    public void runAllExperiments() {
-        try {
-            S_Metrics.setHeader(new String[]{
-                    InstanceReport.StandardFields.experimentName,
-                    InstanceReport.StandardFields.mapName,
-                    InstanceReport.StandardFields.instanceName,
-                    InstanceReport.StandardFields.numAgents,
-                    InstanceReport.StandardFields.solver,
-                    InstanceReport.StandardFields.solved,
-                    InstanceReport.StandardFields.valid,
-                    InstanceReport.StandardFields.elapsedTimeMS,
-                    InstanceReport.StandardFields.solutionCost,
-                    InstanceReport.StandardFields.solution});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithStartTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
-        try {
-            S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        super.runAllExperiments();
-        String pathWithEndTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
-
-        try {
-            S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)
-//                    ,new String[]{   InstanceReport.StandardFields.experimentName,
-//                            InstanceReport.StandardFields.experimentName,
-//                            InstanceReport.StandardFields.numAgents,
-//                            InstanceReport.StandardFields.solver,
-//                            InstanceReport.StandardFields.solved,
-//                            InstanceReport.StandardFields.valid,
-//                            InstanceReport.StandardFields.elapsedTimeMS,
-//                            InstanceReport.StandardFields.solutionCost,
-//                            InstanceReport.StandardFields.solution}
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        S_Metrics.clearAll();
-    }
 }
