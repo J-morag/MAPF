@@ -5,6 +5,7 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import Environment.Experiment;
 import Environment.Metrics.InstanceReport;
+import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,6 +52,11 @@ public abstract class A_LifelongRunManager extends A_RunManager {
                 "averageIndividualThroughput",
                 "Adaptive Index reached cutoff"
         };
+    }
+
+    @Override
+    protected @NotNull S_Metrics.InstanceReportToString getStdoutReportToString() {
+        return S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes;
     }
 
     protected void addAllMapsAndInstances(Integer maxNumAgents, String instancesDir){

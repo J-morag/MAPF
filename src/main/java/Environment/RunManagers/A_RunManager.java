@@ -7,6 +7,7 @@ import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -66,7 +67,7 @@ public abstract class A_RunManager {
     protected void setOutputStreamsBeforeRunning() {
         // output to stdout while running
         try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+            S_Metrics.addOutputStream(System.out, getStdoutReportToString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,6 +91,11 @@ public abstract class A_RunManager {
 
     }
 
+    @NotNull
+    protected S_Metrics.InstanceReportToString getStdoutReportToString() {
+        return S_Metrics::instanceReportToHumanReadableString;
+    }
+
     protected void exportAllResults() {
         sleepToAvoidOverridingPreviousResultsFiles();
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
@@ -101,7 +107,7 @@ public abstract class A_RunManager {
         }
     }
 
-    private static void sleepToAvoidOverridingPreviousResultsFiles() {
+    protected static void sleepToAvoidOverridingPreviousResultsFiles() {
         try {
             Thread.sleep(30);
         } catch (InterruptedException e) {
