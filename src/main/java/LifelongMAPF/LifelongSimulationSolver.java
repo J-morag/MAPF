@@ -707,5 +707,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.agentsActiveDestinationEndTimes = null;
         this.finishedAgents = null;
         this.numAgentsAndNumIterationsMetric = null;
+        this.cachingDistanceTableHeuristic = null;
+        this.lifelongAgents = null;
     }
 }

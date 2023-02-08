@@ -71,6 +71,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         /*  =   Add new experiment   =  */
         Experiment warehouseInstances = new Experiment(getExperimentName(), instanceManager, null, 2 * 5 * 60 * 1000);
         warehouseInstances.keepSolutionInReport = false;
+        warehouseInstances.keepReportAfterCommit = false;
         warehouseInstances.sharedGoals = false;
         warehouseInstances.sharedSources = false;
         this.experiments.add(warehouseInstances);
