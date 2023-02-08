@@ -4,6 +4,9 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.Solution;
 
+import javax.annotation.Nullable;
+import java.util.Random;
+
 public interface PartialSolutionsStrategy {
 
     boolean moveToNextPrPIteration(MAPF_Instance problemInstance, int attemptNumber, Solution solutionSoFar,
@@ -15,6 +18,6 @@ public interface PartialSolutionsStrategy {
     }
 
     default void updateAfterSolution(int totalNumAgents, int numSolvedAgents){}
-    default void resetState(){}
+    default void resetState(@Nullable Random newRandom){}
 
 }

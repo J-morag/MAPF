@@ -7,6 +7,6 @@ import BasicMAPF.Solvers.Solution;
 public class OneDeepThenWidePartialSolutionsStrategy implements PartialSolutionsStrategy {
     @Override
     public boolean moveToNextPrPIteration(MAPF_Instance problemInstance, int attemptNumber, Solution solutionSoFar, Agent agentWeJustPlanned, int agentWeJustPlannedIndex, boolean failedToPlanForCurrentAgent, boolean alreadyFoundFullSolution) {
-        return attemptNumber != 0;
+        return failedToPlanForCurrentAgent && attemptNumber != 0;
     }
 }

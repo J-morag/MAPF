@@ -132,7 +132,7 @@ public class LifelongSimulationSolver extends A_Solver {
             this.minResponseTime = tmpForDefaults.minResponseTime;
             this.maxTimeSteps = tmpForDefaults.maxTimeSteps;
         }
-        this.partialSolutionsStrategy.resetState();
+        this.partialSolutionsStrategy.resetState(this.random);
     }
 
     private static List<LifelongAgent> verifyAndCastAgents(List<Agent> agents) {

@@ -3,30 +3,33 @@ package BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.Solution;
+import Environment.Metrics.S_Metrics;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Random;
 
-public class HillClimbingPartialSolutionsStrategy implements PartialSolutionsStrategy {
+public class AdaptiveIndexPartialSolutionsStrategy implements PartialSolutionsStrategy {
 
     private final double increment;
     private final int seed;
     private final double initialCutoffPercent;
-    private IndexBasedPartialSolutionsStrategy indexBasedPartialSolutionsStrategy;
+    private final IndexBasedPartialSolutionsStrategy indexBasedPartialSolutionsStrategy;
     private Random random;
 
-    public HillClimbingPartialSolutionsStrategy(@Nullable Double initialCutoffPercent, @Nullable Double increment, @Nullable Integer seedForEveryTimeStateIsReset) {
+    public AdaptiveIndexPartialSolutionsStrategy(@Nullable Double initialCutoffPercent, @Nullable Double increment, @Nullable Integer seedForEveryTimeStateIsReset) {
         this.initialCutoffPercent = Objects.requireNonNullElse(initialCutoffPercent, 0.5);
+        this.indexBasedPartialSolutionsStrategy = new IndexBasedPartialSolutionsStrategy(this.initialCutoffPercent);
         setIndexBasedStrategy();
         this.increment = Objects.requireNonNullElse(increment, 0.1);
         this.seed = Objects.requireNonNullElse(seedForEveryTimeStateIsReset, 42);
-        setRandomNumberGenerator();
+        setRandomNumberGenerator(new Random(this.seed));
     }
 
     @Override
     public boolean moveToNextPrPIteration(MAPF_Instance problemInstance, int attemptNumber, Solution solutionSoFar, Agent agentWeJustPlanned, int agentWeJustPlannedIndex, boolean failedToPlanForCurrentAgent, boolean alreadyFoundFullSolution) {
-        return indexBasedPartialSolutionsStrategy.moveToNextPrPIteration(problemInstance, attemptNumber, solutionSoFar, agentWeJustPlanned, agentWeJustPlannedIndex, failedToPlanForCurrentAgent, alreadyFoundFullSolution);
+        return failedToPlanForCurrentAgent &&
+                indexBasedPartialSolutionsStrategy.moveToNextPrPIteration(problemInstance, attemptNumber, solutionSoFar, agentWeJustPlanned, agentWeJustPlannedIndex, failedToPlanForCurrentAgent, alreadyFoundFullSolution);
     }
 
     @Override
@@ -45,16 +48,20 @@ public class HillClimbingPartialSolutionsStrategy implements PartialSolutionsStr
     }
 
     @Override
-    public void resetState() {
+    public void resetState(@Nullable Random newRandom) {
+        S_Metrics.getMostRecentInstanceReport().putFloatValue("Adaptive Index reached cutoff", (float) this.indexBasedPartialSolutionsStrategy.getCutoffPercent());
         setIndexBasedStrategy();
-        setRandomNumberGenerator();
+        setRandomNumberGenerator(newRandom);
     }
 
-    private void setRandomNumberGenerator() {
+    private void setRandomNumberGenerator(@Nullable Random newRandom) {
+        if (newRandom != null){
+            this.random = newRandom;
+        }
         this.random = new Random(this.seed);
     }
 
     private void setIndexBasedStrategy() {
-        this.indexBasedPartialSolutionsStrategy = new IndexBasedPartialSolutionsStrategy(this.initialCutoffPercent);
+        this.indexBasedPartialSolutionsStrategy.setCutoffPercent(this.initialCutoffPercent);
     }
 }

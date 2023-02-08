@@ -23,6 +23,6 @@ public class IndexBasedPartialSolutionsStrategy implements PartialSolutionsStrat
     @Override
     public boolean moveToNextPrPIteration(MAPF_Instance problemInstance, int attemptNumber, Solution solutionSoFar, Agent agentWeJustPlanned, int agentWeJustPlannedIndex, boolean failedToPlanForCurrentAgent, boolean alreadyFoundFullSolution) {
         int numAgents = problemInstance.agents.size();
-        return agentWeJustPlannedIndex < numAgents * cutoffPercent;
+        return failedToPlanForCurrentAgent && agentWeJustPlannedIndex < numAgents * cutoffPercent;
     }
 }

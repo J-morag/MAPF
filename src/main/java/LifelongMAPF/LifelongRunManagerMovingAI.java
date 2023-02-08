@@ -117,7 +117,8 @@ public class LifelongRunManagerMovingAI extends A_RunManager {
                     "throughputAtT75",
                     "throughputAtT100",
                     "averageThroughput",
-                    "averageIndividualThroughput"
+                    "averageIndividualThroughput",
+                    "Adaptive Index reached cutoff"
             });
         } catch (IOException e) {
             e.printStackTrace();
