@@ -11,11 +11,11 @@ import java.util.stream.IntStream;
 public class RunManagerMovingAIBenchmark extends A_RunManager{
 
     private final String entireBenchmarkDir;
-    private final Integer maxNumAgents;
+    private final int[] agentNums;
 
-    public RunManagerMovingAIBenchmark(String entireBenchmarkDir, Integer maxNumAgents) {
+    public RunManagerMovingAIBenchmark(String entireBenchmarkDir, int[] agentNums) {
         this.entireBenchmarkDir = entireBenchmarkDir;
-        this.maxNumAgents = maxNumAgents;
+        this.agentNums = agentNums;
     }
 
 
@@ -27,19 +27,17 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
 
     @Override
     public void setExperiments() {
-        addAllMapsAndInstances(this.maxNumAgents, this.entireBenchmarkDir);
+        addAllMapsAndInstances(this.entireBenchmarkDir, this.agentNums);
     }
 
     /* = Experiments =  */
 
-    private void addAllMapsAndInstances(Integer maxNumAgents, String entireBenchmarkDir){
-        maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
-
+    private void addAllMapsAndInstances(String entireBenchmarkDir, int[] agentNums){
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
+        InstanceProperties properties = new InstanceProperties(null, -1, agentNums);
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(entireBenchmarkDir, new InstanceBuilder_MovingAI(),properties);
+        InstanceManager instanceManager = new InstanceManager(entireBenchmarkDir, new InstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
         Experiment EntireMovingAIBenchmark = new Experiment("EntireMovingAIBenchmark", instanceManager);

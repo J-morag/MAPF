@@ -11,11 +11,11 @@ import java.util.stream.IntStream;
 public class RunManagerWarehouse extends A_RunManager{
 
     private final String warehouseMaps;
-    private final Integer maxNumAgents;
+    private final int[] agentNums;
 
-    public RunManagerWarehouse(String warehouseMaps, Integer maxNumAgents) {
+    public RunManagerWarehouse(String warehouseMaps, int[] agentNums) {
         this.warehouseMaps = warehouseMaps;
-        this.maxNumAgents = maxNumAgents;
+        this.agentNums = agentNums;
     }
 
     @Override
@@ -26,16 +26,14 @@ public class RunManagerWarehouse extends A_RunManager{
 
     @Override
     public void setExperiments() {
-        addAllMapsAndInstances(this.maxNumAgents, this.warehouseMaps);
+        addAllMapsAndInstances(this.warehouseMaps, this.agentNums);
     }
 
     /* = Experiments =  */
 
-    private void addAllMapsAndInstances(Integer maxNumAgents, String instancesDir){
-        maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
-
+    private void addAllMapsAndInstances(String instancesDir, int[] agentNums){
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
+        InstanceProperties properties = new InstanceProperties(null, -1, agentNums);
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(instancesDir, new InstanceBuilder_Warehouse(),properties);
