@@ -22,16 +22,6 @@ public class LifelongRunManagerMovingAI extends A_LifelongRunManager {
     }
 
     @Override
-    public void setSolvers() {
-        A_Solver stationaryAgentsPrPDeepPartial = new LifelongSimulationSolver(null, new AllStationaryAgentsSubsetSelector(),
-                new PrioritisedPlanning_Solver(null, null, null,
-                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, null), null, new DeepPartialSolutionsStrategy());
-        stationaryAgentsPrPDeepPartial.name = "stationaryAgentsPrPDeepPartial";
-        super.solvers.add(stationaryAgentsPrPDeepPartial);
-    }
-
-    @Override
     public void setExperiments() {
         addAllMapsAndInstances(this.maxNumAgents, this.mapsPath);
     }
@@ -50,12 +40,9 @@ public class LifelongRunManagerMovingAI extends A_LifelongRunManager {
         return new InstanceBuilder_MovingAI(true);
     }
 
-    @NotNull
     @Override
-    protected InstanceProperties getInstanceProperties() {
+    protected @NotNull InstanceProperties getInstanceProperties() {
 //        return new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
-//        return new InstanceProperties(null, -1, new int[]{maxNumAgents});
-        return new InstanceProperties(null, -1, new int[]{100, 150, 200});
+        return new InstanceProperties(null, -1, new int[]{maxNumAgents});
     }
-
 }

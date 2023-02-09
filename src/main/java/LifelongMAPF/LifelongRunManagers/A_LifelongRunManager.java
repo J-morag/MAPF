@@ -59,6 +59,16 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         return S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes;
     }
 
+    @Override
+    public void setSolvers() {
+        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartial());
+        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point75WeightPartial());
+        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point50WeightPartial());
+        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point25WeightPartial());
+        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInitCutoffPartial());
+        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
+    }
+
     protected void addAllMapsAndInstances(Integer maxNumAgents, String instancesDir){
         maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
 
@@ -81,7 +91,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     protected abstract String getExperimentName();
 
     protected abstract @NotNull I_InstanceBuilder getInstanceBuilder();
-
     @NotNull
-    protected abstract InstanceProperties getInstanceProperties();
+
+    protected InstanceProperties getInstanceProperties() {
+        return new InstanceProperties(null, -1, new int[]{100, 150, 200});
+    }
 }
