@@ -38,7 +38,7 @@ public class Main {
     public static void main(String[] args) {
         if(verifyOutputPath()){
 //            new LifelongRunManagerWarehouse("", 50).runAllExperiments();
-            new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances"}), 50).runAllExperiments();
+            new LifelongRunManagerMovingAI(IO_Manager.buildPath(new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances"}), new int[]{50, 100, 150, 200, 250, 300}).runAllExperiments();
 
 //            // will solve a single instance and print the solution
 //            solveOneInstanceExample();

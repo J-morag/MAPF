@@ -69,11 +69,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
     }
 
-    protected void addAllMapsAndInstances(Integer maxNumAgents, String instancesDir){
-        maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
-
+    protected void addAllMapsAndInstances(String instancesDir, int[] agentNums){
         /*  =   Set Properties   =  */
-        InstanceProperties properties = getInstanceProperties();
+        InstanceProperties properties = getInstanceProperties(agentNums);
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(instancesDir, getInstanceBuilder(),properties);
@@ -93,7 +91,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     protected abstract @NotNull I_InstanceBuilder getInstanceBuilder();
     @NotNull
 
-    protected InstanceProperties getInstanceProperties() {
-        return new InstanceProperties(null, -1, new int[]{100, 150, 200});
+    protected InstanceProperties getInstanceProperties(int[] agentNums) {
+        return new InstanceProperties(null, -1, agentNums);
     }
 }
