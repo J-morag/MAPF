@@ -22,7 +22,7 @@ public class LifelongRunParameters extends RunParameters {
         if (this.minResponseTime < 1){
             throw new IllegalArgumentException("min response time should be at least 1ms");
         }
-        this.maxTimeSteps = Objects.requireNonNullElse(maxTimeSteps, 300);
+        this.maxTimeSteps = Objects.requireNonNullElse(maxTimeSteps, 201);
         if (this.maxTimeSteps < 1){
             throw new IllegalArgumentException("max time steps should be at least 1 time step");
         }
