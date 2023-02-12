@@ -111,7 +111,7 @@
 <!--                            <addClasspath>true</addClasspath>-->
 <!--                            <classpathPrefix>libs/</classpathPrefix>-->
                             <mainClass>
-                                MAPF.src.main.java.Main
+                                MAPF.Main
                             </mainClass>
                         </manifest>
                     </archive>
