@@ -90,7 +90,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
+                            <classpathPrefix>target/</classpathPrefix>
                             <mainClass>MAPF.Main</mainClass>
                         </manifest>
                     </archive>
