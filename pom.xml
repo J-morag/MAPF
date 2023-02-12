@@ -89,9 +89,9 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>target/</classpathPrefix>
-                            <mainClass>MAPF.Main</mainClass>
+<!--                            <addClasspath>true</addClasspath>-->
+<!--                            <classpathPrefix>lib/</classpathPrefix>-->
+                            <mainClass>src.main.java.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
