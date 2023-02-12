@@ -91,7 +91,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>Main</mainClass>
+                            <mainClass>MAPF.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
