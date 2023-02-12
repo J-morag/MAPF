@@ -78,7 +78,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     }
 
     @Override
-    public void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
+    public void prepareInstances(String mapName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
 
         if (!(instancePath instanceof InstanceManager.Moving_AI_Path)) { return; }
 
@@ -101,11 +101,13 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
             Agent[] agents = getAgents(agentLines,numOfAgentsFromProperties[i]);
 
-            if (instanceName == null || agents == null) { continue; /* Invalid parameters */ }
+            if (mapName == null || agents == null) { continue; /* Invalid parameters */ }
 
-            mapf_instance = makeInstance(instanceName, graphMap, agents, moving_ai_path);
-            mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
-            this.instanceList.add(mapf_instance);
+            mapf_instance = makeInstance(mapName, graphMap, agents, moving_ai_path);
+            if (instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches()){
+                mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
+                this.instanceList.add(mapf_instance);
+            }
         }
     }
 

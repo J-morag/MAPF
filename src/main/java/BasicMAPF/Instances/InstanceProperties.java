@@ -2,17 +2,19 @@ package BasicMAPF.Instances;
 
 import BasicMAPF.Instances.Maps.MapDimensions;
 
+import java.util.Objects;
+import java.util.regex.Pattern;
+
 public class InstanceProperties {
 
     public final MapDimensions mapSize;
     public final ObstacleWrapper obstacles;
     public final int[] numOfAgents;
+    public final Pattern regexPattern;
 
 
     public InstanceProperties() {
-        this.mapSize = new MapDimensions();
-        this.obstacles = new ObstacleWrapper();
-        this.numOfAgents = new int[0];
+        this(null, -1, null, null);
     }
 
     public InstanceProperties(MapDimensions.Enum_mapOrientation enumMapOrientation){
@@ -21,18 +23,24 @@ public class InstanceProperties {
     }
 
 
+
+    public InstanceProperties(MapDimensions mapSize, double obstacleRate, int[] numOfAgents) {
+        this(mapSize, obstacleRate, numOfAgents, null);
+    }
+
     /***
      * Properties constructor
      * @param mapSize - {@link MapDimensions} indicates the Axis lengths , zero for unknown
      * @param obstacleRate - A double that indicates the obstacle rate of the map. For unknown obstacles enter -1
      * @param numOfAgents - An array of different num of agents.
+     * @param instancesRegex - Only use instances matching this regular expression.
      */
-    public InstanceProperties(MapDimensions mapSize, double obstacleRate, int[] numOfAgents) {
+    public InstanceProperties(MapDimensions mapSize, double obstacleRate, int[] numOfAgents, String instancesRegex) {
         this.mapSize = (mapSize == null ? new MapDimensions() :  mapSize);
         this.obstacles = (obstacleRate == -1 ? new ObstacleWrapper() : new ObstacleWrapper(obstacleRate));
         this.numOfAgents = (numOfAgents == null ? new int[0] : numOfAgents);
+        this.regexPattern = Pattern.compile(Objects.requireNonNullElse(instancesRegex, ".*"));
     }
-
 
 
     public class ObstacleWrapper {

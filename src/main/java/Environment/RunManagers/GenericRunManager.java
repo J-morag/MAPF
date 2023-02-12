@@ -15,8 +15,9 @@ public class GenericRunManager extends A_RunManager {
     private final I_InstanceBuilder instanceBuilder;
     private final String experimentName;
     private final boolean skipAfterFail;
+    private final String instancesRegex;
 
-    public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder, @NotNull String experimentName, boolean skipAfterFail) {
+    public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder, @NotNull String experimentName, boolean skipAfterFail, String instancesRegex) {
         if (agentNums == null){
             throw new IllegalArgumentException("AgentNums can't be null");
         }
@@ -25,6 +26,7 @@ public class GenericRunManager extends A_RunManager {
         this.instanceBuilder = instanceBuilder;
         this.experimentName = experimentName;
         this.skipAfterFail = skipAfterFail;
+        this.instancesRegex = instancesRegex;
     }
     @Override
     void setSolvers() {
@@ -36,7 +38,7 @@ public class GenericRunManager extends A_RunManager {
     @Override
     void setExperiments() {
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, agentNums);
+        InstanceProperties properties = new InstanceProperties(null, -1, agentNums, instancesRegex);
 
         /*  =   Set Instance Manager   =  */
         InstanceManager instanceManager = new InstanceManager(instancesDir, instanceBuilder, properties);

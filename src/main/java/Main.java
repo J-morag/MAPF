@@ -39,6 +39,7 @@ public class Main {
     private static final String STR_MOVING_AI = "MovingAI";
     private static final String STR_BGU = "BGU";
     public static final String STR_INSTANCES_DIR = "instancesDir";
+    public static final String STR_INSTANCES_REGEX = "instancesRegex";
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
@@ -80,6 +81,14 @@ public class Main {
 
                 // TODO output dir
 
+                Option instancesRegexOption = Option.builder("iRegex").longOpt(STR_INSTANCES_REGEX)
+                        .argName(STR_INSTANCES_REGEX)
+                        .hasArg()
+                        .required(false)
+                        .desc("If given, only instances matching this Regex will be used.")
+                        .build();
+                options.addOption(instancesRegexOption);
+
                 Option InstancesFormatOption = Option.builder("iForm").longOpt("instancesFormat")
                         .argName("instancesFormat")
                         .hasArg()
@@ -109,6 +118,7 @@ public class Main {
                     I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI();
                     String experimentName = "No name";
                     boolean skipAfterFail = false;
+                    String instancesRegex = null;
 
                     // Parse arguments
 
@@ -130,6 +140,12 @@ public class Main {
                     if (! new File(instancesDir).exists()){
                         System.out.printf("Could not locate the provided instances dir (%s)", instancesDir);
                         System.exit(0);
+                    }
+
+                    if (cmd.hasOption(STR_INSTANCES_REGEX)){
+                        String optInstancesRegex = cmd.getOptionValue(STR_INSTANCES_REGEX);
+                        System.out.println("Instances Regex: " + optInstancesRegex);
+                        instancesRegex = optInstancesRegex;
                     }
 
                     if (cmd.hasOption("iForm")) {
@@ -161,7 +177,8 @@ public class Main {
                     }
 
                     // Run!
-                    new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail).runAllExperiments();
+                    new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex)
+                            .runAllExperiments();
 
                 } catch (ParseException e) {
                     System.out.println(e.getMessage());
