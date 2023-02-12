@@ -42,6 +42,7 @@ public class Main {
     public static final String STR_INSTANCES_REGEX = "instancesRegex";
     private static final String STR_WAREHOUSE = "Warehouse";
     private static final String STR_RESULTS_DIR_OPTION = "resultsOutputDir";
+    private static final String STR_RESULTS_FILE_PREFIX = "resultsFilePrefix";
 
     public static void main(String[] args) {
         if (args.length == 0){
@@ -90,6 +91,14 @@ public class Main {
                     .build();
             options.addOption(resultsDirOption);
 
+            Option resultsFileOption = Option.builder("resPref").longOpt(STR_RESULTS_FILE_PREFIX)
+                    .argName(STR_RESULTS_FILE_PREFIX)
+                    .hasArg()
+                    .required(false)
+                    .desc("The prefix to give results files.")
+                    .build();
+            options.addOption(resultsFileOption);
+
             Option instancesRegexOption = Option.builder("iRegex").longOpt(STR_INSTANCES_REGEX)
                     .argName(STR_INSTANCES_REGEX)
                     .hasArg()
@@ -129,6 +138,7 @@ public class Main {
                 boolean skipAfterFail = false;
                 String instancesRegex = null;
                 String resultsOutputDir = null;
+                String optResultsFilePrefix = null;
 
                 // Parse arguments
 
@@ -157,6 +167,10 @@ public class Main {
                     System.out.println("Trying to set results dir to " + optResultsDir);
                     resultsOutputDir = optResultsDir;
                     verifyOutputPath(resultsOutputDir);
+                }
+
+                if(cmd.hasOption("resPref")) {
+                    optResultsFilePrefix = cmd.getOptionValue(STR_RESULTS_FILE_PREFIX);
                 }
 
                 if (cmd.hasOption(STR_INSTANCES_REGEX)){
@@ -194,7 +208,7 @@ public class Main {
                 }
 
                 // Run!
-                new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir)
+                new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix)
                         .runAllExperiments();
 
             } catch (ParseException e) {
@@ -262,7 +276,7 @@ public class Main {
             throw new RuntimeException(e);
         }
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String updatedPath = exampleResultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{exampleResultsOutputDir, "results " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{   InstanceReport.StandardFields.experimentName,

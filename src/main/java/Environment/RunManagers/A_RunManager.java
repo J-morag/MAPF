@@ -28,6 +28,7 @@ public abstract class A_RunManager {
 
     public static final String DEFAULT_RESULTS_OUTPUT_DIR = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "MAPF_Results"});
     private final String resultsOutputDir;
+    protected String resultsFilePrefix = "results";
 
     protected A_RunManager(String resultsOutputDir) {
         this.resultsOutputDir = Objects.requireNonNullElse(resultsOutputDir, DEFAULT_RESULTS_OUTPUT_DIR);
@@ -102,7 +103,7 @@ public abstract class A_RunManager {
         sleepToAvoidOverridingPreviousResultsFiles();
 
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithStartTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
+        String pathWithStartTime = IO_Manager.buildPath(new String[]{resultsOutputDir, resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
             S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
         } catch (IOException e) {
@@ -114,7 +115,7 @@ public abstract class A_RunManager {
     protected void exportAllResults() {
         sleepToAvoidOverridingPreviousResultsFiles();
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithEndTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
+        String pathWithEndTime =  IO_Manager.buildPath(new String[]{resultsOutputDir, resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)            );
         } catch (IOException e) {
