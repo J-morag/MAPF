@@ -137,7 +137,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
 
         MAPF_Instance mapf_instance = this.getInstance(instanceName, instancePath, instanceProperties);
         if ( mapf_instance != null &&
-                instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches()){
+                (instanceProperties == null || instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches())){
             this.instanceStack.push(mapf_instance);
         }
     }

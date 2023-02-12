@@ -17,7 +17,8 @@ public class GenericRunManager extends A_RunManager {
     private final boolean skipAfterFail;
     private final String instancesRegex;
 
-    public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder, @NotNull String experimentName, boolean skipAfterFail, String instancesRegex) {
+    public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder, @NotNull String experimentName, boolean skipAfterFail, String instancesRegex, String resultsOutputDir) {
+        super(resultsOutputDir);
         if (agentNums == null){
             throw new IllegalArgumentException("AgentNums can't be null");
         }
