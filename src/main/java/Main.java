@@ -1,3 +1,5 @@
+import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceManager;
@@ -7,14 +9,14 @@ import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
-import Environment.RunManagers.A_RunManager;
-import Environment.RunManagers.RunManagerSimpleExample;
-import Environment.RunManagers.TestingBenchmarkRunManager;
+import Environment.RunManagers.*;
+import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.Arrays;
 
 
 /**
@@ -30,19 +32,141 @@ public class Main {
 
     // where to put generated reports. The default is a new folder called CBS_Results, under the user's home directory.
     public static final String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
-//    public static final String resultsOutputDir = IO_Manager.buildPath(new String[]{   IO_Manager.testResources_Directory +
+    public static final String STR_AGENT_NUMS = "agentNums";
+    //    public static final String resultsOutputDir = IO_Manager.buildPath(new String[]{   IO_Manager.testResources_Directory +
 //                                                                                        "\\Reports default directory"});
+
+    private static final String STR_MOVING_AI = "MovingAI";
+    private static final String STR_BGU = "BGU";
+    public static final String STR_INSTANCES_DIR = "instancesDir";
 
     public static void main(String[] args) {
         if(verifyOutputPath()){
-            // will solve a single instance and print the solution
-            solveOneInstanceExample();
-            // will solve multiple instances and print a simple report for each instance
-            runMultipleExperimentsExample();
-            // will solve a set of instances. These instances have known optimal solution costs (found at
-            // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
-            runTestingBenchmarkExperiment();
-            // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
+            if (args.length == 0){
+                // Example / no CLI
+
+                // will solve a single instance and print the solution
+                solveOneInstanceExample();
+                // will solve multiple instances and print a simple report for each instance
+                runMultipleExperimentsExample();
+                // will solve a set of instances. These instances have known optimal solution costs (found at
+                // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
+                runTestingBenchmarkExperiment();
+                // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
+            }
+            else {
+                // CLI
+
+                Options options = new Options();
+                Option skipOption = new Option("s", "skipAfterFail", false,
+                        "To skip attempting the same instance with the same solver, but with more agents, if we already failed with less agents.");
+                options.addOption(skipOption);
+
+                Option nameOption = Option.builder("n").longOpt("name")
+                        .argName("name")
+                        .hasArg()
+                        .required(false)
+                        .desc("Name for the experiment.")
+                        .build();
+                options.addOption(nameOption);
+
+                Option instancesDirOption = Option.builder("iDir").longOpt(STR_INSTANCES_DIR)
+                        .argName(STR_INSTANCES_DIR)
+                        .hasArg()
+                        .required(true)
+                        .desc("Set the directory where maps and instances are to be found.")
+                        .build();
+                options.addOption(instancesDirOption);
+
+                // TODO output dir
+
+                Option InstancesFormatOption = Option.builder("iForm").longOpt("instancesFormat")
+                        .argName("instancesFormat")
+                        .hasArg()
+                        .required(false)
+                        .desc(String.format("Set the format of the instances. " +
+                                "Supports %s format (https://movingai.com/benchmarks/formats.html) and %s format.", STR_MOVING_AI, STR_BGU))
+                        .build();
+                options.addOption(InstancesFormatOption);
+
+                Option agentNumsOption = Option.builder("a").longOpt(STR_AGENT_NUMS)
+                        .argName(STR_AGENT_NUMS)
+                        .hasArgs()
+                        .required(true)
+                        .valueSeparator(',')
+                        .desc("Set the numbers of agents to try. Will use the maximum available if an instance does not have enough agents.")
+                        .build();
+                options.addOption(agentNumsOption);
+
+                CommandLine cmd;
+                CommandLineParser parser = new DefaultParser();
+                HelpFormatter helper = new HelpFormatter();
+
+                try {
+                    String instancesDir;
+                    int[] agentNums = null;
+                    I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI();
+                    String experimentName = "No name";
+                    boolean skipAfterFail = false;
+
+                    // Parse arguments
+
+                    cmd = parser.parse(options, args);
+                    if(cmd.hasOption("s")) {
+                        System.out.println("skipAfterFail set: Will skip trying more agents for the same instance and solver after failing.");
+                        skipAfterFail = true;
+                    }
+
+                    if (cmd.hasOption("n")) {
+                        String optName = cmd.getOptionValue("name");
+                        System.out.println("Experiment Name: " + optName);
+                        experimentName = optName;
+                    }
+
+                    String optInstancesDir = cmd.getOptionValue(STR_INSTANCES_DIR);
+                    System.out.println("Instances Dir: " + optInstancesDir);
+                    instancesDir = optInstancesDir;
+                    if (! new File(instancesDir).exists()){
+                        System.out.printf("Could not locate the provided instances dir (%s)", instancesDir);
+                    }
+
+                    if (cmd.hasOption("iForm")) {
+                        String optInstancesFormat = cmd.getOptionValue("instancesFormat");
+                        System.out.println("Instances Format: " + optInstancesFormat);
+                        if (optInstancesFormat.equals(STR_MOVING_AI)){
+                            instanceBuilder = new InstanceBuilder_MovingAI();
+                        } else if (optInstancesFormat.equals(STR_BGU)) {
+                            instanceBuilder = new InstanceBuilder_BGU();
+                        }
+                        else {
+                            System.out.printf("Unrecognized instance format: %s", optInstancesFormat);
+                            System.exit(0);
+                        }
+                    }
+                    else {
+                        System.out.printf("Using default instance format %s", STR_MOVING_AI);
+                    }
+
+                    String[] optAgents = cmd.getOptionValues(STR_AGENT_NUMS);
+                    System.out.println("Agent nums: " + Arrays.toString(optAgents));
+
+                    try {
+                        agentNums = Arrays.stream(optAgents).mapToInt(Integer::parseInt).toArray();
+                    }
+                    catch (NumberFormatException e){
+                        System.out.printf("%s should be an array of integers, got %s", STR_AGENT_NUMS, Arrays.toString(optAgents));
+                        System.exit(0);
+                    }
+
+                    // Run!
+                    new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail).runAllExperiments();
+
+                } catch (ParseException e) {
+                    System.out.println(e.getMessage());
+                    helper.printHelp("Usage:", options);
+                    System.exit(0);
+                }
+            }
         }
     }
 
