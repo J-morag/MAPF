@@ -78,7 +78,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.2.1</version>
                 <configuration>
-                    <mainClass>com.example.Main</mainClass>
+                    <mainClass>MAPF.Main</mainClass>
                 </configuration>
             </plugin>
 
