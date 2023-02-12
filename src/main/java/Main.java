@@ -31,7 +31,7 @@ import java.util.Arrays;
 public class Main {
 
     // where to put generated reports. The default is a new folder called CBS_Results, under the user's home directory.
-    public static final String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
+    public static final String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"}); // TODO refactor and argumentize
     public static final String STR_AGENT_NUMS = "agentNums";
     //    public static final String resultsOutputDir = IO_Manager.buildPath(new String[]{   IO_Manager.testResources_Directory +
 //                                                                                        "\\Reports default directory"});
@@ -94,7 +94,8 @@ public class Main {
                         .hasArgs()
                         .required(true)
                         .valueSeparator(',')
-                        .desc("Set the numbers of agents to try. Will use the maximum available if an instance does not have enough agents.")
+                        .desc("Set the numbers of agents to try. Use ',' (comma) as a separator and no spaces." +
+                                " Will use the maximum available if an instance does not have enough agents.")
                         .build();
                 options.addOption(agentNumsOption);
 
@@ -128,6 +129,7 @@ public class Main {
                     instancesDir = optInstancesDir;
                     if (! new File(instancesDir).exists()){
                         System.out.printf("Could not locate the provided instances dir (%s)", instancesDir);
+                        System.exit(0);
                     }
 
                     if (cmd.hasOption("iForm")) {
