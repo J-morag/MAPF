@@ -103,7 +103,7 @@ public abstract class A_RunManager {
         sleepToAvoidOverridingPreviousResultsFiles();
 
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithStartTime = IO_Manager.buildPath(new String[]{resultsOutputDir, resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
+        String pathWithStartTime = IO_Manager.buildPath(new String[]{resultsOutputDir, "log " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
             S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
         } catch (IOException e) {
@@ -115,7 +115,7 @@ public abstract class A_RunManager {
     protected void exportAllResults() {
         sleepToAvoidOverridingPreviousResultsFiles();
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithEndTime =  IO_Manager.buildPath(new String[]{resultsOutputDir, resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
+        String pathWithEndTime =  IO_Manager.buildPath(new String[]{resultsOutputDir, "res " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)            );
         } catch (IOException e) {
