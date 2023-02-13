@@ -8,11 +8,13 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This in an abstract class that overcomes the need to comment out lines in the 'Main' method
@@ -24,7 +26,27 @@ public abstract class A_RunManager {
     protected List<I_Solver> solvers = new ArrayList<>();
     protected List<Experiment> experiments = new ArrayList<>();
 
-    protected String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
+    public static final String DEFAULT_RESULTS_OUTPUT_DIR = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "MAPF_Results"});
+    private final String resultsOutputDir;
+    protected String resultsFilePrefix = "results";
+
+    protected A_RunManager(String resultsOutputDir) {
+        this.resultsOutputDir = Objects.requireNonNullElse(resultsOutputDir, DEFAULT_RESULTS_OUTPUT_DIR);
+        verifyOutputPath(this.resultsOutputDir);
+    }
+
+    public static boolean verifyOutputPath(String path) {
+        File directory = new File(path);
+        if (! directory.exists()){
+            boolean created = directory.mkdir();
+            if(!created){
+                String errString = "Could not locate or create output directory.";
+                System.out.println(errString);
+                return false;
+            }
+        }
+        return true;
+    }
 
     abstract void setSolvers();
     abstract void setExperiments();
@@ -81,7 +103,7 @@ public abstract class A_RunManager {
         sleepToAvoidOverridingPreviousResultsFiles();
 
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithStartTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
+        String pathWithStartTime = IO_Manager.buildPath(new String[]{resultsOutputDir, "log " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
             S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
         } catch (IOException e) {
@@ -93,7 +115,7 @@ public abstract class A_RunManager {
     protected void exportAllResults() {
         sleepToAvoidOverridingPreviousResultsFiles();
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithEndTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
+        String pathWithEndTime =  IO_Manager.buildPath(new String[]{resultsOutputDir, "res " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)            );
         } catch (IOException e) {

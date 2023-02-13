@@ -6,7 +6,6 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
-import java.util.stream.IntStream;
 
 public class RunManagerMovingAIBenchmark extends A_RunManager{
 
@@ -14,6 +13,7 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
     private final int[] agentNums;
 
     public RunManagerMovingAIBenchmark(String entireBenchmarkDir, int[] agentNums) {
+        super(null);
         this.entireBenchmarkDir = entireBenchmarkDir;
         this.agentNums = agentNums;
     }

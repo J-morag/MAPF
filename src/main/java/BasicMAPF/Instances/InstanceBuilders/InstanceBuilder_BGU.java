@@ -136,12 +136,11 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
     public void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties){
 
         MAPF_Instance mapf_instance = this.getInstance(instanceName, instancePath, instanceProperties);
-        if ( mapf_instance != null ){
+        if ( mapf_instance != null &&
+                (instanceProperties == null || instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches())){
             this.instanceStack.push(mapf_instance);
         }
     }
-
-
 
     @Override
     public MAPF_Instance getNextExistingInstance(){

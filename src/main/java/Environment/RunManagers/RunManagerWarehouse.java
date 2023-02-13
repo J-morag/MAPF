@@ -6,7 +6,6 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
-import java.util.stream.IntStream;
 
 public class RunManagerWarehouse extends A_RunManager{
 
@@ -14,6 +13,7 @@ public class RunManagerWarehouse extends A_RunManager{
     private final int[] agentNums;
 
     public RunManagerWarehouse(String warehouseMaps, int[] agentNums) {
+        super(null);
         this.warehouseMaps = warehouseMaps;
         this.agentNums = agentNums;
     }
