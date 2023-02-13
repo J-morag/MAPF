@@ -64,7 +64,7 @@ public class Main {
                 .argName("name")
                 .hasArg()
                 .required(false)
-                .desc("Name for the experiment.")
+                .desc("Name for the experiment. Optional.")
                 .build();
         options.addOption(nameOption);
 
@@ -72,7 +72,7 @@ public class Main {
                 .argName(STR_INSTANCES_DIR)
                 .hasArg()
                 .required(true)
-                .desc("Set the directory (path) where maps and instances are to be found.")
+                .desc("Set the directory (path) where maps and instances are to be found. Required.")
                 .build();
         options.addOption(instancesDirOption);
 
@@ -80,7 +80,7 @@ public class Main {
                 .argName(STR_RESULTS_DIR_OPTION)
                 .hasArg()
                 .required(false)
-                .desc("The directory (path) where results will be saved. Will be created if it doesn't exist.")
+                .desc("The directory (path) where results will be saved. Will be created if it doesn't exist. Optional.")
                 .build();
         options.addOption(resultsDirOption);
 
@@ -88,7 +88,7 @@ public class Main {
                 .argName(STR_RESULTS_FILE_PREFIX)
                 .hasArg()
                 .required(false)
-                .desc("The prefix to give results files.")
+                .desc("The prefix to give results file names. Optional.")
                 .build();
         options.addOption(resultsFileOption);
 
@@ -96,7 +96,7 @@ public class Main {
                 .argName(STR_INSTANCES_REGEX)
                 .hasArg()
                 .required(false)
-                .desc("If given, only instances matching this Regex will be used.")
+                .desc("If given, only instances matching this Regex will be used. Optional.")
                 .build();
         options.addOption(instancesRegexOption);
 
@@ -105,7 +105,8 @@ public class Main {
                 .hasArg()
                 .required(false)
                 .desc(String.format("Set the format of the instances. " +
-                        "Supports %s format (https://movingai.com/benchmarks/formats.html) and %s format.", STR_MOVING_AI, STR_BGU))
+                        "Supports %s format (https://movingai.com/benchmarks/formats.html) and %s format.", STR_MOVING_AI, STR_BGU)
+                        + " Optional (default is " + STR_MOVING_AI + ").")
                 .build();
         options.addOption(InstancesFormatOption);
 
@@ -115,7 +116,7 @@ public class Main {
                 .required(true)
                 .valueSeparator(',')
                 .desc("Set the numbers of agents to try. Use ',' (comma) as a separator and no spaces." +
-                        " Will use the maximum available if an instance does not have enough agents.")
+                        " Will use the maximum available if an instance does not have enough agents. Required.")
                 .build();
         options.addOption(agentNumsOption);
 
