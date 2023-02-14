@@ -58,7 +58,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     }
 
     @Override
-    public void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
+    public void prepareInstances(String mapName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
         if (!(instancePath instanceof InstanceManager.Moving_AI_Path)) { return; }
 
         InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path) instancePath;
@@ -82,13 +82,15 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 agents = agentsToNoSharedSourceAndFinalDestinations(agents, moving_ai_path.scenarioPath);
             }
 
-            if (instanceName == null || agents == null) {
+            if (mapName == null || agents == null) {
                 continue; /* Invalid parameters */
             }
 
-            mapf_instance = makeInstance(instanceName, graphMap, agents, moving_ai_path);
-            mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
-            this.instanceList.add(mapf_instance);
+            mapf_instance = makeInstance(mapName, graphMap, agents, moving_ai_path);
+            if (instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches()){
+                mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
+                this.instanceList.add(mapf_instance);
+            }
         }
     }
 

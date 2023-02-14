@@ -14,6 +14,10 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 
 public class RunManagerSimpleExample extends A_RunManager {
 
+    public RunManagerSimpleExample() {
+        super(null);
+    }
+
     /*  = Set BasicCBS.Solvers =  */
     @Override
     public void setSolvers() {

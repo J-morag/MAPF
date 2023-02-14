@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class A_LifelongRunManager extends A_RunManager {
 
-    public A_LifelongRunManager() {
-        super();
+    public A_LifelongRunManager(String resultsOutputDir) {
+        super(resultsOutputDir);
         metricsHeader = new String[]{
                 InstanceReport.StandardFields.experimentName,
                 InstanceReport.StandardFields.mapName,

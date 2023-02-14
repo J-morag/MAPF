@@ -1,11 +1,13 @@
 package BasicMAPF.Instances;
 
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
+import Environment.IO_Package.IO_Manager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class InstanceManager {
 
@@ -47,11 +49,13 @@ public class InstanceManager {
 
     public MAPF_Instance getSpecificInstance(InstancePath currentPath){
 
-        String regexSeparator = "\\\\"; //  this is actually: '\\'
-        String[] splitedPath = currentPath.path.split(regexSeparator);
-        String instanceName = splitedPath[splitedPath.length-1];
+        String regexSeparator = IO_Manager.pathSeparator;
+        String[] splitPath = currentPath.path.split(Pattern.quote(regexSeparator));
+        String instanceName = splitPath[splitPath.length-1];
 
+        // one instance can become many (different amounts of agents...)
         this.instanceBuilder.prepareInstances(instanceName, currentPath, this.instanceProperties);
+
         return this.instanceBuilder.getNextExistingInstance();
     }
 

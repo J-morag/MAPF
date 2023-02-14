@@ -9,7 +9,8 @@ public class LifelongRunManagerWarehouse extends A_LifelongRunManager {
     private final String warehouseMaps;
     private final int[] agentNums;
 
-    public LifelongRunManagerWarehouse(String warehouseMaps, int[] agentNums) {
+    public LifelongRunManagerWarehouse(String resultsOutputDir, String warehouseMaps, int[] agentNums) {
+        super(resultsOutputDir);
         this.warehouseMaps = warehouseMaps;
         this.agentNums = agentNums;
     }

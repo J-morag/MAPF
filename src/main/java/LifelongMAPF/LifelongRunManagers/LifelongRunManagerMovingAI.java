@@ -9,7 +9,8 @@ public class LifelongRunManagerMovingAI extends A_LifelongRunManager {
     private final String mapsPath;
     private final int[] agentNums;
 
-    public LifelongRunManagerMovingAI(String mapsPath, int[] agentNums) {
+    public LifelongRunManagerMovingAI(String resultsOutputDir, String mapsPath, int[] agentNums) {
+        super(resultsOutputDir);
         this.mapsPath = mapsPath;
         this.agentNums = agentNums;
     }

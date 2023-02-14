@@ -9,6 +9,10 @@ import java.util.Collection;
 
 public class ModularRunManager extends A_RunManager{
 
+    public ModularRunManager() {
+        super(null);
+    }
+
     @Override
     public void setSolvers() {
 
