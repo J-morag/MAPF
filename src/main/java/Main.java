@@ -11,6 +11,8 @@ import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.RunManagers.*;
+import Environment.Visualization.I_VisualizeSolution;
+import Environment.Visualization.GridSolutionVisualizer;
 import org.apache.commons.cli.*;
 import LifelongMAPF.LifelongRunManagers.LifelongRunManagerMovingAI;
 
@@ -57,9 +59,14 @@ public class Main {
 
     private static void CLIMain(String[] args) {
         Options options = new Options();
+
         Option skipOption = new Option("s", "skipAfterFail", false,
                 "To skip attempting the same instance with the same solver, but with more agents, if we already failed with less agents.");
         options.addOption(skipOption);
+
+        Option visualiseOption = new Option("v", "visualise", false,
+                "To visualise the solution. Only  works with grid maps!");
+        options.addOption(visualiseOption);
 
         Option nameOption = Option.builder("n").longOpt("name")
                 .argName("name")
@@ -131,6 +138,7 @@ public class Main {
             I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI();
             String experimentName = "Unnamed Experiment";
             boolean skipAfterFail = false;
+            I_VisualizeSolution visualiser = null;
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
@@ -138,9 +146,15 @@ public class Main {
             // Parse arguments
 
             cmd = parser.parse(options, args);
+
             if(cmd.hasOption("s")) {
                 System.out.println("skipAfterFail set: Will skip trying more agents for the same instance and solver after failing.");
                 skipAfterFail = true;
+            }
+
+            if (cmd.hasOption("v")) {
+                System.out.println("visualise set: Will visualise the solution.");
+                visualiser = GridSolutionVisualizer::visualizeSolution;
             }
 
             if (cmd.hasOption("n")) {
@@ -203,7 +217,7 @@ public class Main {
             }
 
             // Run!
-            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix)
+            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser)
                     .runAllExperiments();
 
         } catch (ParseException e) {
@@ -218,8 +232,8 @@ public class Main {
 //            new LifelongRunManagerWarehouse(exampleResultsOutputDir, "", 50).runAllExperiments();
             new LifelongRunManagerMovingAI(exampleResultsOutputDir, IO_Manager.buildPath(new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances"}), new int[]{50, 100, 150, 200, 250, 300}).runAllExperiments();
 
-//            // will solve a single instance and print the solution
-//            solveOneInstanceExample();
+//            // will solve a single instance, print the solution, and start a visualization of the solution
+//            solveOneInstanceWithVisualizationExample();
 //            // will solve multiple instances and print a simple report for each instance
 //            runMultipleExperimentsExample();
 //            // will solve a set of instances. These instances have known optimal solution costs (found at
@@ -229,7 +243,7 @@ public class Main {
         }
     }
 
-    public static void solveOneInstanceExample(){
+    public static void solveOneInstanceWithVisualizationExample(){
         // write the reports to System.out
         addConsoleAsOutputStream();
 
@@ -252,6 +266,8 @@ public class Main {
         //output results
         System.out.println(solution.readableToString());
         outputResults();
+
+        GridSolutionVisualizer.visualizeSolution(instance, solution);
     }
 
     public static void runMultipleExperimentsExample(){

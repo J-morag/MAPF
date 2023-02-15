@@ -2,6 +2,7 @@ package BasicMAPF.Solvers;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
@@ -259,6 +260,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return maxCost;
     }
 
+    public int endTime(){
+        int maxTime = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            maxTime = Math.max(maxTime, plan.getEndTime());
+        }
+        return maxTime;
+    }
+
     @Override
     public String toString() {
         return this.readableToString().toString();
@@ -311,5 +321,16 @@ public class Solution implements Iterable<SingleAgentPlan>{
     @Override
     public Spliterator<SingleAgentPlan> spliterator() {
         return agentPlans.values().spliterator();
+    }
+
+    public I_Location getAgentLocation(Agent agent, int time) {
+        if (agentPlans.get(agent).getEndTime() < time)
+            return agentPlans.get(agent).moveAt(agentPlans.get(agent).getEndTime()).currLocation;
+        else if (agentPlans.get(agent).getFirstMoveTime() > time
+                || agentPlans.get(agent).getPlanStartTime() == time)
+            return agentPlans.get(agent).moveAt(agentPlans.get(agent).getFirstMoveTime()).prevLocation;
+        else
+            return agentPlans.get(agent).moveAt(time).currLocation;
+
     }
 }

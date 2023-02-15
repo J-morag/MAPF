@@ -10,8 +10,7 @@ import Environment.Metrics.InstanceReport;
 import org.junit.jupiter.api.Test;
 
 import static BasicMAPF.TestConstants.Agents.agent04to00;
-import static BasicMAPF.TestConstants.Maps.mapH;
-import static BasicMAPF.TestConstants.Maps.mapWithPocket;
+import static BasicMAPF.TestConstants.Maps.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
@@ -118,7 +117,8 @@ public class DistanceTableAStarHeuristicTest {
 
     @Test
     void failIfMapIsNotOneConnectedComponent(){
-        MAPF_Instance testInstance = new MAPF_Instance("pocket", mapWithPocket, new Agent[]{agent04to00});
+        I_ExplicitMap mapWithPocketLyingAboutBeingStronglyConnected = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket, true);
+        MAPF_Instance testInstance = new MAPF_Instance("pocket", mapWithPocketLyingAboutBeingStronglyConnected, new Agent[]{agent04to00});
 
         DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
         SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();

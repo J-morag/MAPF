@@ -73,22 +73,22 @@ public interface I_InstanceBuilder {
      * @param obstacle - Value is a {@link BasicMAPF.Instances.InstanceProperties.ObstacleWrapper} indicates obstacle in the map.
      * @return A GraphMap
      */
-    static GraphMap buildGraphMap(String[] mapAsStrings, String mapSeparator, MapDimensions mapDimensions, HashMap<Character, Enum_MapLocationType> locationTypeHashMap, InstanceProperties.ObstacleWrapper obstacle) {
+    static GraphMap buildGraphMap(String[] mapAsStrings, String mapSeparator, MapDimensions mapDimensions, HashMap<Character, Enum_MapLocationType> locationTypeHashMap, InstanceProperties.ObstacleWrapper obstacle, boolean isStronglyConnected) {
 
-        switch ( mapDimensions.numOfDimensions ){
-            case 2:
-
-                Character[][] mapAsCharacters_2d = build2D_CharacterMap(mapAsStrings,mapDimensions,mapSeparator);
+        switch (mapDimensions.numOfDimensions) {
+            case 2 -> {
+                Character[][] mapAsCharacters_2d = build2D_CharacterMap(mapAsStrings, mapDimensions, mapSeparator);
                 Enum_MapLocationType[][] mapAsLocationType_2D = build_2D_locationTypeMap(mapAsCharacters_2d, locationTypeHashMap, mapDimensions.mapOrientation, obstacle);
-                if( mapAsLocationType_2D == null){
+                if (mapAsLocationType_2D == null) {
                     return null; // Error while building the map
                 }
-                return MapFactory.newSimple4Connected2D_GraphMap(mapAsLocationType_2D);
-
-            case 3:
+                return MapFactory.newSimple4Connected2D_GraphMap(mapAsLocationType_2D, isStronglyConnected);
+            }
+            case 3 -> {
                 Character[][][] mapAsCharacters_3d = new Character[][][]{};
                 Enum_MapLocationType[][][] mapAsLocationType_3D = build_3D_locationTypeMap(mapAsCharacters_3d, locationTypeHashMap, obstacle);
                 return null; // niceToHave - change to newSimple 4Connected 3D_GraphMap if exists in MapFactory
+            }
         }
 
         return null; // If something went wrong ( should return in switch-case )

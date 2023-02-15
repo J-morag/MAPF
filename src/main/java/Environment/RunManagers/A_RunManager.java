@@ -8,6 +8,7 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import org.jetbrains.annotations.NotNull;
+import Environment.Visualization.I_VisualizeSolution;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,10 +42,15 @@ public abstract class A_RunManager {
     public static final String DEFAULT_RESULTS_OUTPUT_DIR = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "MAPF_Results"});
     private final String resultsOutputDir;
     protected String resultsFilePrefix = "results";
+    protected final I_VisualizeSolution visualizer;
 
-    protected A_RunManager(String resultsOutputDir) {
+    protected A_RunManager(String resultsOutputDir, I_VisualizeSolution visualizer) {
         this.resultsOutputDir = Objects.requireNonNullElse(resultsOutputDir, DEFAULT_RESULTS_OUTPUT_DIR);
         verifyOutputPath(this.resultsOutputDir);
+        this.visualizer = visualizer;
+    }
+    protected A_RunManager(String resultsOutputDir) {
+        this(resultsOutputDir, null);
     }
 
     public static boolean verifyOutputPath(String path) {
