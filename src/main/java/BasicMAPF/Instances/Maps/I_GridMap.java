@@ -1,6 +1,6 @@
 package BasicMAPF.Instances.Maps;
 
-public interface I_PlanarMap extends I_ExplicitMap{
+public interface I_GridMap extends I_ExplicitMap{
 
         int getWidth();
         int getHeight();

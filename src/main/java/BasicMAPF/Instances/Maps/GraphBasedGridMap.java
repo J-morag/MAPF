@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GraphBasedGridMap extends GraphMap implements I_PlanarMap{
+public class GraphBasedGridMap extends GraphMap implements I_GridMap {
 
     public final int height;
     public final int width;

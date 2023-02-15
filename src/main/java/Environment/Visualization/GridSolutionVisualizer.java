@@ -2,17 +2,17 @@ package Environment.Visualization;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.I_PlanarMap;
+import BasicMAPF.Instances.Maps.I_GridMap;
 import BasicMAPF.Solvers.Solution;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SolutionVisualizer {
+public class GridSolutionVisualizer {
 
-    public static void visualizeSolution(MAPF_Instance instance, Solution solution) {
-        if (! (instance.map instanceof I_PlanarMap map)){
-            throw new IllegalArgumentException("SolutionVisualizer can only visualize planar maps");
+    public static void visualizeSolution(MAPF_Instance instance, Solution solution) throws IllegalArgumentException {
+        if (! (instance.map instanceof I_GridMap map)){
+            throw new IllegalArgumentException("SolutionVisualizer can only visualize grid maps");
         }
 
         List<char[][]> grids = new ArrayList<>();
@@ -36,7 +36,7 @@ public class SolutionVisualizer {
             }
             grids.add(grid);
         }
-        GridVisualizer.visualize(grids, 500);
+        GridVisualizer.visualize(grids, 250);
     }
 
 }

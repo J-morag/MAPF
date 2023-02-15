@@ -9,10 +9,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class GridVisualizer extends JPanel {
-    public static final int CELL_SIZE = 5;
+    public static final int DEFAULT_CELL_SIZE = 20;
+    public static final int GRID_MAX_WIDTH_PIXELS = 1000;
+    public static final int GRID_MAX_HEIGHT_PIXELS = 1000;
+    private int cellSize;
     private final List<char[][]> grids;
     private int iterationTime;
+
     private int currentIndex;
+
     private Timer timer;
     private boolean paused;
     public JButton pausePlayButton;
@@ -22,7 +27,13 @@ public class GridVisualizer extends JPanel {
         this.currentIndex = 0;
         this.paused = false;
         this.pausePlayButton = pausePlayButton;
-        setPreferredSize(new Dimension(grids.get(0)[0].length * CELL_SIZE, grids.get(0).length * CELL_SIZE));
+
+        this.cellSize = Math.min(GRID_MAX_WIDTH_PIXELS / grids.get(0)[0].length, GRID_MAX_HEIGHT_PIXELS / grids.get(0).length);
+        this.cellSize = Math.min(this.cellSize, DEFAULT_CELL_SIZE);
+        setPreferredSize(new Dimension(grids.get(0)[0].length * this.cellSize, grids.get(0).length * this.cellSize));
+    }
+    public int getIterationTime() {
+        return iterationTime;
     }
 
     public int getCurrentIndex() {
@@ -88,7 +99,7 @@ public class GridVisualizer extends JPanel {
             for (int col = 0; col < cols; col++) {
                 Color color = getColor(grid[row][col]);
                 g.setColor(color);
-                g.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                g.fillRect(col * this.cellSize, row * this.cellSize, this.cellSize, this.cellSize);
             }
         }
     }
@@ -107,16 +118,21 @@ public class GridVisualizer extends JPanel {
         return paused;
     }
 
-    public static void visualize(List<char[][]> grids, int iterationTime) {
+    public static void visualize(List<char[][]> grids, int initialIterationTime) {
         JFrame frame = new JFrame("Char Grid");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        GridVisualizer gridVisualizer = new GridVisualizer(grids, iterationTime, new JButton("Pause"));
-        frame.add(gridVisualizer);
+        Container contentPanel = frame.getContentPane();
+        JPanel gridPanel = new JPanel();
+        JPanel controlPanel = new JPanel();
+//        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+
+        GridVisualizer gridVisualizer = new GridVisualizer(grids, initialIterationTime, new JButton("Pause"));
+        gridPanel.add(gridVisualizer);
 
         JButton startButton = new JButton("Start");
         startButton.addActionListener(e -> gridVisualizer.startIteration());
-        frame.add(startButton);
+        controlPanel.add(startButton);
 
         JButton pausePlayButton = gridVisualizer.pausePlayButton;
         pausePlayButton.addActionListener(e -> {
@@ -128,17 +144,17 @@ public class GridVisualizer extends JPanel {
                 pausePlayButton.setText("Play");
             }
         });
-        frame.add(pausePlayButton);
+        controlPanel.add(pausePlayButton);
 
         JButton stepBackwardButton = new JButton("Step -");
         stepBackwardButton.setEnabled(false);
         stepBackwardButton.addActionListener(e -> gridVisualizer.stepBackward());
-        frame.add(stepBackwardButton);
+        controlPanel.add(stepBackwardButton);
 
         JButton stepForwardButton = new JButton("Step +");
         stepForwardButton.setEnabled(false);
         stepForwardButton.addActionListener(e -> gridVisualizer.stepForward());
-        frame.add(stepForwardButton);
+        controlPanel.add(stepForwardButton);
 
         JButton resetButton = new JButton("Reset");
         resetButton.addActionListener(e -> {
@@ -146,14 +162,11 @@ public class GridVisualizer extends JPanel {
             stepBackwardButton.setEnabled(false);
             stepForwardButton.setEnabled(false);
         });
-        frame.add(resetButton);
+        controlPanel.add(resetButton);
 
-        javax.swing.Timer timer = new javax.swing.Timer(500, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                stepBackwardButton.setEnabled(gridVisualizer.isPaused() && gridVisualizer.getCurrentIndex() > 0);
-                stepForwardButton.setEnabled(gridVisualizer.isPaused() && gridVisualizer.getCurrentIndex() < grids.size() - 1);
-            }
+        javax.swing.Timer timer = new javax.swing.Timer(500, e -> {
+            stepBackwardButton.setEnabled(gridVisualizer.isPaused() && gridVisualizer.getCurrentIndex() > 0);
+            stepForwardButton.setEnabled(gridVisualizer.isPaused() && gridVisualizer.getCurrentIndex() < grids.size() - 1);
         });
 
         startButton.addActionListener(e -> {
@@ -163,7 +176,7 @@ public class GridVisualizer extends JPanel {
         });
 
         // Create the slider with default value of 500ms and range of 50ms to 2s
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, 50, 2000, iterationTime);
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 50, 2000, initialIterationTime);
         slider.setMajorTickSpacing(900);
         slider.setMinorTickSpacing(100);
         slider.setPaintTicks(true);
@@ -171,13 +184,50 @@ public class GridVisualizer extends JPanel {
         slider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
             if (!source.getValueIsAdjusting()) {
-                int newDelay = source.getValue();
-                gridVisualizer.iterationTime = newDelay;
+                gridVisualizer.iterationTime = source.getValue();
                 gridVisualizer.startIteration();
             }
         });
+        controlPanel.add(slider);
 
-        frame.add(slider);
+        // Add a panel for the status labels
+        JPanel statusPanel = new JPanel();
+        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+        JLabel indexLabel = new JLabel(String.format("Iteration: %1$4s", gridVisualizer.getCurrentIndex()));
+        JLabel timeLabel = new JLabel(String.format("Time: %1$4s ms", gridVisualizer.getIterationTime()));
+        statusPanel.add(Box.createHorizontalGlue());
+        statusPanel.add(indexLabel);
+        statusPanel.add(Box.createHorizontalStrut(10));
+        statusPanel.add(timeLabel);
+        statusPanel.add(Box.createHorizontalGlue());
+//        frame.add(statusPanel, BorderLayout.SOUTH);
+
+        // Create a Timer to update the labels
+        javax.swing.Timer labelTimer = new javax.swing.Timer(100, e -> {
+//                if (! gridVisualizer.paused) {
+                // Update the labels
+                indexLabel.setText("Time Step: " + gridVisualizer.getCurrentIndex());
+                timeLabel.setText("Time Step Duration: " + gridVisualizer.getIterationTime() + " ms");
+//                }
+        });
+        labelTimer.start();
+
+        // Create a vertical box layout to stack the controls, status, and grid
+        Box box = Box.createVerticalBox();
+        contentPanel.add(box);
+
+        // Add the controls panel to the box
+        box.add(controlPanel);
+
+        // Add the status panel to the box
+        box.add(statusPanel);
+
+        // Add the grid panel to the box and give it a vertical glue to push it to the top
+        gridPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        box.add(Box.createVerticalGlue());
+        box.add(gridPanel);
+
+
 
         frame.setLayout(new FlowLayout());
         frame.pack();

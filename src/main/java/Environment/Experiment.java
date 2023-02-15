@@ -8,6 +8,7 @@ import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
+import Environment.Visualization.I_VisualizeSolution;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -55,6 +56,7 @@ public class Experiment {
     public long timeoutEach;
     public boolean sharedGoals = false;
     public boolean sharedSources = false;
+    public I_VisualizeSolution visualizer = null;
 
     public Experiment(String experimentName, InstanceManager instanceManager, Integer numOfInstances, Integer timeoutEach) {
         this.experimentName = experimentName;
@@ -189,6 +191,15 @@ public class Experiment {
             }
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
             System.out.println("Sum of Individual Costs: " + getSolutionCost(solution));
+
+            if (visualizer != null) {
+                try {
+                    visualizer.visualizeSolution(instance, solution);
+                }
+                catch (IllegalArgumentException e){
+                    System.err.println(e.getMessage());
+                }
+            }
         } else { // failed to solve
             recordFailure(instance, minNumFailedAgentsForInstance, solver);
         }
