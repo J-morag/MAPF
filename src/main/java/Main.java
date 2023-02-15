@@ -13,6 +13,7 @@ import BasicMAPF.Solvers.Solution;
 import Environment.RunManagers.*;
 import Environment.Visualization.I_VisualizeSolution;
 import Environment.Visualization.GridSolutionVisualizer;
+import LifelongMAPF.LifelongRunManagers.LifelongGenericRunManager;
 import org.apache.commons.cli.*;
 import LifelongMAPF.LifelongRunManagers.LifelongRunManagerMovingAI;
 
@@ -67,6 +68,10 @@ public class Main {
         Option visualiseOption = new Option("v", "visualise", false,
                 "To visualise the solution. Only  works with grid maps!");
         options.addOption(visualiseOption);
+
+        Option lifelongOption = new Option("l", "lifelong", false,
+                String.format("To run lifelong experiments. Doesn't work with %s format", STR_BGU));
+        options.addOption(lifelongOption);
 
         Option nameOption = Option.builder("n").longOpt("name")
                 .argName("name")
@@ -139,6 +144,7 @@ public class Main {
             String experimentName = "Unnamed Experiment";
             boolean skipAfterFail = false;
             I_VisualizeSolution visualiser = null;
+            boolean lifelong = false;
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
@@ -155,6 +161,11 @@ public class Main {
             if (cmd.hasOption("v")) {
                 System.out.println("visualise set: Will visualise the solution.");
                 visualiser = GridSolutionVisualizer::visualizeSolution;
+            }
+
+            if (cmd.hasOption("l")) {
+                System.out.println("lifelong set: Will run Lifelong MAPF.");
+                lifelong = true;
             }
 
             if (cmd.hasOption("n")) {
@@ -192,13 +203,16 @@ public class Main {
                 String optInstancesFormat = cmd.getOptionValue("instancesFormat");
                 System.out.println("Instances Format: " + optInstancesFormat);
                 switch (optInstancesFormat) {
-                    case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI();
+                    case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
                     case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse();
                     default -> {
                         System.out.printf("Unrecognized instance format: %s", optInstancesFormat);
                         System.exit(0);
                     }
+                }
+                if (lifelong && optInstancesFormat.equals(STR_BGU)){
+                    throw new IllegalArgumentException("Lifelong MAPF is not supported for BGU instances.");
                 }
             }
             else {
@@ -217,8 +231,14 @@ public class Main {
             }
 
             // Run!
-            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser)
-                    .runAllExperiments();
+            if (lifelong){
+                new LifelongGenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser)
+                        .runAllExperiments();
+            }
+            else {
+                new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser)
+                        .runAllExperiments();
+            }
 
         } catch (ParseException e) {
             System.out.println(e.getMessage());

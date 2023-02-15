@@ -3,17 +3,31 @@ package LifelongMAPF.LifelongRunManagers;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.I_Solver;
 import Environment.Experiment;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
+import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public abstract class A_LifelongRunManager extends A_RunManager {
 
     public A_LifelongRunManager(String resultsOutputDir) {
-        super(resultsOutputDir);
-        metricsHeader = new String[]{
+        this(resultsOutputDir, null);
+    }
+
+    public A_LifelongRunManager(String resultsOutputDir, I_VisualizeSolution visualizer) {
+        super(resultsOutputDir, visualizer);
+        metricsHeader = getMetricsHeader();
+    }
+
+    public String[] getMetricsHeader() {
+        return new String[]{
                 InstanceReport.StandardFields.experimentName,
                 InstanceReport.StandardFields.mapName,
                 InstanceReport.StandardFields.instanceName,
@@ -56,17 +70,29 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
     @Override
     protected @NotNull S_Metrics.InstanceReportToString getStdoutReportToString() {
+        return getInstanceReportToHumanReadableStringSkipWaypointTimes();
+    }
+
+    @NotNull
+    private static S_Metrics.InstanceReportToString getInstanceReportToHumanReadableStringSkipWaypointTimes() {
         return S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes;
     }
 
     @Override
     public void setSolvers() {
-        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartial());
-        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point75WeightPartial());
-        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point50WeightPartial());
-        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point25WeightPartial());
-        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInitCutoffPartial());
-        super.solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
+        super.solvers.addAll(getSolvers());
+    }
+
+    @NotNull
+    public static Collection<? extends I_Solver> getSolvers() {
+        List<I_Solver> solvers = new ArrayList<>();
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartial());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point75WeightPartial());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point50WeightPartial());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point25WeightPartial());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInitCutoffPartial());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
+        return solvers;
     }
 
     protected void addAllMapsAndInstances(String instancesDir, int[] agentNums){
