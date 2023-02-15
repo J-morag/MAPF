@@ -38,7 +38,7 @@ public class GenericRunManager extends A_RunManager {
     void setSolvers() {
         // TODO modular solvers?
         super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                 null, null));
         super.solvers.add(new CBS_Solver());
     }
