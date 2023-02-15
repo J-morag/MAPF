@@ -13,9 +13,7 @@ public class GridVisualizer extends JPanel {
     private int cellSize;
     private final List<char[][]> grids;
     private int iterationTime;
-
     private int currentIndex;
-
     private Timer timer;
     private boolean paused;
     public JButton pausePlayButton;
