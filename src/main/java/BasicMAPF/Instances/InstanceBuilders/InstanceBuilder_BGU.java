@@ -15,6 +15,7 @@ import java.util.Stack;
 public class InstanceBuilder_BGU implements I_InstanceBuilder {
 
     public static final MapDimensions.Enum_mapOrientation MAP_ORIENTATION = MapDimensions.Enum_mapOrientation.Y_HORIZONTAL_X_VERTICAL;
+    public static final boolean ASSUME_STRONGLY_CONNECTED = true;
 
     private final String INDICATOR_AGENTS = "Agents:";
     private final String SEPARATOR_AGENTS = ",";
@@ -95,7 +96,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
                     String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, mapDimensionsFromFile);
 
                     // build map
-                    graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, mapDimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles);
+                    graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, mapDimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles, ASSUME_STRONGLY_CONNECTED);
 
                     break; // end case
 

@@ -21,6 +21,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
     public static final String FILE_TYPE_MAP = ".map";
     public static final String FILE_TYPE_SCENARIO = ".scen";
+    public static final boolean ASSUME_STRONGLY_CONNECTED = true;
 
     // Indicators
     private final String INDICATOR_MAP = "map";
@@ -249,7 +250,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                 String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, dimensionsFromFile);
 
                 // build map
-                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles);
+                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles, ASSUME_STRONGLY_CONNECTED);
                 break;
             }
             nextLine = reader.getNextLine();
