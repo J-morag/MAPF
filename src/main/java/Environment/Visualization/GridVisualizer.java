@@ -175,8 +175,8 @@ public class GridVisualizer extends JPanel {
             pausePlayButton.setText("Pause");
         });
 
-        // Create the slider with default value of 500ms and range of 50ms to 2s
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, 50, 2000, initialIterationTime);
+        // Create the slider with default value of 500ms and range of 10ms to 2s
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 10, 2000, initialIterationTime);
         slider.setMajorTickSpacing(900);
         slider.setMinorTickSpacing(100);
         slider.setPaintTicks(true);
