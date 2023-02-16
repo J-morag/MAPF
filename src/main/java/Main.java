@@ -140,7 +140,6 @@ public class Main {
         try {
             String instancesDir;
             int[] agentNums = null;
-            I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI();
             String experimentName = "Unnamed Experiment";
             boolean skipAfterFail = false;
             I_VisualizeSolution visualiser = null;
@@ -167,6 +166,8 @@ public class Main {
                 System.out.println("lifelong set: Will run Lifelong MAPF.");
                 lifelong = true;
             }
+
+            I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
 
             if (cmd.hasOption("n")) {
                 String optName = cmd.getOptionValue("name");
