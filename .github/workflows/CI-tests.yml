@@ -2,10 +2,9 @@ name: CI-tests
 
 on:
   push:
-    branches:
-      - '**'
+    branches: [ master, lifelong ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, lifelong ]
 
 jobs:
   run_tests:
