@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class GridSolutionVisualizer {
 
-    public static void visualizeSolution(MAPF_Instance instance, Solution solution) throws IllegalArgumentException {
+    public static void visualizeSolution(MAPF_Instance instance, Solution solution, String title) throws IllegalArgumentException {
         if (!(instance.map instanceof I_GridMap map)) {
             throw new IllegalArgumentException("SolutionVisualizer can only visualize grid maps");
         }
@@ -47,6 +47,6 @@ public class GridSolutionVisualizer {
             grids.add(grid);
             finishedGoals.add(sumFinishedAgents.size());
         }
-        GridVisualizer.visualize(grids, finishedGoals, 250);
+        GridVisualizer.visualize(grids, finishedGoals, 250, title);
     }
 }

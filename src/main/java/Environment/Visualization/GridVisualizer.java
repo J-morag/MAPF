@@ -113,7 +113,7 @@ public class GridVisualizer extends JPanel {
         return switch (c) {
             case 'o' -> Color.BLACK;
             case 'f' -> Color.WHITE;
-            case 'a' -> Color.RED;
+            case 'a' -> Color.PINK;
             case 'g' -> Color.GREEN;
             default -> throw new IllegalArgumentException("Invalid char: " + c);
         };
@@ -131,8 +131,8 @@ public class GridVisualizer extends JPanel {
         return paused;
     }
 
-    public static void visualize(List<char[][]> grids, List<Integer> finishedGoals, int initialIterationTime) {
-        JFrame frame = new JFrame("Char Grid");
+    public static void visualize(List<char[][]> grids, List<Integer> finishedGoals, int initialIterationTime, String title) {
+        JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Container contentPanel = frame.getContentPane();

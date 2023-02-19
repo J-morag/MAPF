@@ -36,7 +36,7 @@ public class VisualizationDemo {
 
         List<char[][]> grids = Arrays.asList(grid1, grid2, grid3);
 
-        GridVisualizer.visualize(grids, grids.stream().map(g -> 0).collect(Collectors.toList()), 250);
+        GridVisualizer.visualize(grids, grids.stream().map(g -> 0).collect(Collectors.toList()), 250, "Visualization Demo");
     }
 
 }

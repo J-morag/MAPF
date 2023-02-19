@@ -263,7 +263,7 @@ public class Main {
         System.out.println(solution.readableToString());
         outputResults();
 
-        GridSolutionVisualizer.visualizeSolution(instance, solution);
+        GridSolutionVisualizer.visualizeSolution(instance, solution, solver.name() + " - " + instance.extendedName);
     }
 
     public static void runMultipleExperimentsExample(){
