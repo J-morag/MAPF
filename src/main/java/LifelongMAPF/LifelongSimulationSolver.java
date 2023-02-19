@@ -215,8 +215,8 @@ public class LifelongSimulationSolver extends A_Solver {
                     checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
                 }
                 digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
-                int numAgentsWithPlansInSolutionBeforeBlocking = subgroupSolution != null ? subgroupSolution.size() : 0;
-                sumAttemptedAgentsThatFailed += selectedTimelyOfflineAgentsSubset.size() - numAgentsWithPlansInSolutionBeforeBlocking;
+                int numAgentsWithPlansInSolutionBeforeEnforcingSafety = subgroupSolution != null ? subgroupSolution.size() : 0;
+                sumAttemptedAgentsThatFailed += selectedTimelyOfflineAgentsSubset.size() - numAgentsWithPlansInSolutionBeforeEnforcingSafety;
 
                 Set<Agent> failedAgentsAfterPlanning = new HashSet<>();
                 RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(nextPlansForNotSelectedAgents, null);
@@ -226,7 +226,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 sumBlockedSizesAfterPlanning += failedAgentsAfterPlanning.size();
 
                 if (DEBUG){
-                    printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeBlocking, failedAgentsAfterPlanning.size());
+                    printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeEnforcingSafety, failedAgentsAfterPlanning.size());
                 }
             }
             else if (DEBUG){
@@ -601,7 +601,7 @@ public class LifelongSimulationSolver extends A_Solver {
         List<Agent> shuffledAgentsSubset = new ArrayList<>(timelyOfflineAgentsSubset);
         Collections.shuffle(shuffledAgentsSubset, this.random);
         return new MAPF_Instance(this.lifelongInstance.name + " subproblem at " + farthestCommittedTime,
-                this.lifelongInstance.map, timelyOfflineAgentsSubset.toArray(Agent[]::new),
+                this.lifelongInstance.map, shuffledAgentsSubset.toArray(Agent[]::new),
                 this.lifelongInstance.extendedName + " subproblem at " + farthestCommittedTime);
     }
 
