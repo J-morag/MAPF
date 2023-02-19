@@ -235,13 +235,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
     /*  = wind down =  */
 
     protected void writeMetricsToReport(Solution solution) {
-        // skips super's writeMetricsToReport(Solution solution).
-        endTime = System.nanoTime()/1000000;
+        super.writeMetricsToReport(solution);
 
         if(instanceReport != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.expandedNodes);
             instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.generatedNodes);
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)((endTime-startTime)/1000));
         }
     }
 
