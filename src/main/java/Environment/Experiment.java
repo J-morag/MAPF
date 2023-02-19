@@ -195,7 +195,7 @@ public class Experiment {
 
             if (visualizer != null) {
                 try {
-                    visualizer.visualizeSolution(instance, solution);
+                    visualizer.visualizeSolution(instance, solution, solver.name() + " - " + instanceName);
                 }
                 catch (IllegalArgumentException e){
                     System.err.println(e.getMessage());
