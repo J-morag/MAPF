@@ -113,8 +113,9 @@ public class GridVisualizer extends JPanel {
         return switch (c) {
             case 'o' -> Color.BLACK;
             case 'f' -> Color.WHITE;
-            case 'a' -> Color.RED;
+            case 'a' -> Color.BLUE;
             case 'g' -> Color.GREEN;
+            case 'l' -> Color.RED;
             default -> throw new IllegalArgumentException("Invalid char: " + c);
         };
     }
@@ -224,7 +225,7 @@ public class GridVisualizer extends JPanel {
 //                if (! gridVisualizer.paused) {
                 // Update the labels
                 timeStepLabel.setText("Time Step: " + gridVisualizer.getCurrentIndex());
-                finishedGoalsLabel.setText("Finished Goals: " + gridVisualizer.numFinishedGoals() + " / " + gridVisualizer.maxFinishedGoals());
+                finishedGoalsLabel.setText("Finished Goals: " + gridVisualizer.numFinishedGoals());
                 durationLabel.setText("Time Step Duration: " + gridVisualizer.getIterationTime() + " ms");
 //                }
         });

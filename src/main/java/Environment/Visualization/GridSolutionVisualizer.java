@@ -45,7 +45,7 @@ public class GridSolutionVisualizer {
                         grid[xy[0]][xy[1]] = 'g';
                         sumFinishedWaypoints++;
                     } else if (atLastLocationInPlan) {
-                        grid[xy[0]][xy[1]] = 's';
+                        grid[xy[0]][xy[1]] = 'l';
                     }
                     else {
                         grid[xy[0]][xy[1]] = 'a';

@@ -160,10 +160,13 @@ public class LifelongSolution extends Solution{
     private int totalNumTaskInInstance() {
         int res = 0;
         for (LifelongAgent agent: this.agents){
-            List<I_Coordinate> tasksIncludingSource = agent.waypoints;
-            res += tasksIncludingSource.size();
+            res += numAgentTasksIncludingSource(agent);
         }
         return res;
+    }
+
+    private static int numAgentTasksIncludingSource(LifelongAgent agent) {
+        return agent.waypoints.size();
     }
 
     private SortedMap<Integer, Integer> timeToNumTasksCompleted(){
