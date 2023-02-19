@@ -144,7 +144,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if(parameters instanceof RunParameters_PP parametersPP){
 
             //reorder according to requested priority
-            if(parametersPP.preferredPriorityOrder != null) {reorderAgentsByPriority(parametersPP.preferredPriorityOrder);}
+            if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
+                reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
+            }
 
             if(parametersPP.heuristic != null) {
                 this.heuristic = parametersPP.heuristic;
@@ -167,7 +169,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 tmpAgents.remove(orderedAgent);
             }
         }
-        this.agents.addAll(tmpAgents); //add remaining agents not found in the requested order collection.
+        if (!tmpAgents.isEmpty()){
+            throw new IllegalArgumentException("The requested priority order does not contain all agents.");
+        }
     }
 
     /*  = algorithm =  */
