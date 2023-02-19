@@ -2,6 +2,7 @@ package Environment.Visualization;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VisualizationDemo {
 
@@ -35,7 +36,7 @@ public class VisualizationDemo {
 
         List<char[][]> grids = Arrays.asList(grid1, grid2, grid3);
 
-        GridVisualizer.visualize(grids, 250);
+        GridVisualizer.visualize(grids, grids.stream().map(g -> 0).collect(Collectors.toList()), 250);
     }
 
 }
