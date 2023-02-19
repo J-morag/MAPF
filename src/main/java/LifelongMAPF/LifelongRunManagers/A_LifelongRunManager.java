@@ -86,12 +86,24 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     @NotNull
     public static Collection<? extends I_Solver> getSolvers() {
         List<I_Solver> solvers = new ArrayList<>();
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFP());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFP());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFP());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartial());
+        solvers.add(LifelongSolversFactory.baselineRHCR_w05_h03());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartial());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPOneDeepThenWidePartial());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartial());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartial());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartial());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point75WeightPartial());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point50WeightPartial());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point25WeightPartial());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInitCutoffPartial());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point75WeightPartial());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point50WeightPartial());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point25WeightPartial());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInitCutoffPartial());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
+
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w05());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05());
         return solvers;
     }
 

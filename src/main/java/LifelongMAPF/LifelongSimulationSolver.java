@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.RunParametersLNS;
@@ -21,6 +22,8 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
+import LifelongMAPF.SingleAgentFailPolicies.I_SingleAgentFailPolicy;
+import LifelongMAPF.SingleAgentFailPolicies.StayOnceFailPolicy;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +41,9 @@ import java.util.stream.Collectors;
  */
 public class LifelongSimulationSolver extends A_Solver {
 
+    /* static fields */
+    private static final StayOnceFailPolicy STAY_ONCE_FAIL_POLICY = new StayOnceFailPolicy();
+
     /* fields related to instance */
     /**
      * An offline solver to use for solving online problems.
@@ -48,6 +54,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private static final boolean DEBUG = true;
     private final Double congestionMultiplier;
     private final PartialSolutionsStrategy partialSolutionsStrategy;
+    private final I_SingleAgentFailPolicy SAFailPolicy;
 
     /*  = fields related to run =  */
 
@@ -78,7 +85,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
                                     I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
-                                    @Nullable PartialSolutionsStrategy partialSolutionsStrategy) {
+                                    @Nullable PartialSolutionsStrategy partialSolutionsStrategy, @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy) {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
@@ -92,6 +99,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.planningTrigger = Objects.requireNonNullElse(planningTrigger, new ActiveButPlanEndedTrigger());
         this.agentSelector = Objects.requireNonNullElse(agentSelector, new AllStationaryAgentsSubsetSelector());
         this.name = "Lifelong_" + offlineSolver.name();
+        SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
     }
 
     @Override
@@ -165,7 +173,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
         Solution latestSolution = new Solution();
         for (LifelongAgent a : this.lifelongAgents){
-            latestSolution.putPlan(getSingleStayPlan(0, a, lifelongInstance.map.getMapLocation(a.source)));
+            latestSolution.putPlan(STAY_ONCE_FAIL_POLICY.getFailPolicyPlan(0, a, lifelongInstance.map.getMapLocation(a.source), null));
         }
         List<LifelongAgent> agentsWaitingToStart = new ArrayList<>(this.lifelongAgents);
 
@@ -182,7 +190,9 @@ public class LifelongSimulationSolver extends A_Solver {
             Set<Agent> blockedAgentsBeforePlanningIteration = new HashSet<>();
             // done agents get "stay in place once". Same if they were blocked before
             List<SingleAgentPlan> advancedPlansToCurrentTime = getAdvancedPlansForAgents(farthestCommittedTime, latestSolution, lifelongAgentsToTimelyOfflineAgents, this.lifelongAgents);
-            latestSolution = enforceSafeExecutionNextTimeStep(advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration);
+            // TODO maybe just mark them? It would mean we won't block recursively.
+            latestSolution = enforceSafeExecutionNextTimeStep(advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
+                    new RemovableConflictAvoidanceTableWithContestedGoals(), STAY_ONCE_FAIL_POLICY);
 
             Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
             selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
@@ -208,14 +218,15 @@ public class LifelongSimulationSolver extends A_Solver {
                 int numAgentsWithPlansInSolutionBeforeBlocking = subgroupSolution != null ? subgroupSolution.size() : 0;
                 sumAttemptedAgentsThatFailed += selectedTimelyOfflineAgentsSubset.size() - numAgentsWithPlansInSolutionBeforeBlocking;
 
-                Set<Agent> blockedAgentsAfterPlanning = new HashSet<>();
-                latestSolution = addUncoveredAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, blockedAgentsAfterPlanning, this.lifelongInstance);
-                latestSolution = enforceSafeExecutionNextTimeStep(latestSolution, farthestCommittedTime, blockedAgentsAfterPlanning);
+                Set<Agent> failedAgentsAfterPlanning = new HashSet<>();
+                RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(nextPlansForNotSelectedAgents, null);
+                latestSolution = addFailedAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, failedAgentsAfterPlanning, this.lifelongInstance, cat);
+                latestSolution = enforceSafeExecutionNextTimeStep(latestSolution, farthestCommittedTime, failedAgentsAfterPlanning, cat, SAFailPolicy);
 
-                sumBlockedSizesAfterPlanning += blockedAgentsAfterPlanning.size();
+                sumBlockedSizesAfterPlanning += failedAgentsAfterPlanning.size();
 
                 if (DEBUG){
-                    printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeBlocking, blockedAgentsAfterPlanning.size());
+                    printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeBlocking, failedAgentsAfterPlanning.size());
                 }
             }
             else if (DEBUG){
@@ -296,18 +307,25 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     @NotNull
-    private static Solution addUncoveredAgents(int farthestCommittedTime, Set<Agent> selectedTimelyOfflineAgentsSubset,
-                                               List<SingleAgentPlan> nextPlansForNotSelectedAgents, @Nullable Solution subgroupSolution,
-                                               Set<Agent> blockedAgents, MAPF_Instance lifelongInstance) {
-        // handle fails by agents with no plan staying in place
+    private Solution addFailedAgents(int farthestCommittedTime, Set<Agent> selectedTimelyOfflineAgentsSubset,
+                                     List<SingleAgentPlan> nextPlansForNotSelectedAgents, @Nullable Solution subgroupSolution,
+                                     Set<Agent> failedAgents, MAPF_Instance lifelongInstance, RemovableConflictAvoidanceTableWithContestedGoals catWithNotSelectedAgents) {
+        // handle fails
         List<SingleAgentPlan> invalidSolutionAsList = new ArrayList<>();
+        if (subgroupSolution != null){
+            catWithNotSelectedAgents.addAll(subgroupSolution);
+        }
+
 
         for (Agent a :
                 selectedTimelyOfflineAgentsSubset) {
             if (subgroupSolution == null || subgroupSolution.getPlanFor(a) == null){
                 I_Location agentLocation = lifelongInstance.map.getMapLocation(a.source);
-                invalidSolutionAsList.add(getSingleStayPlan(farthestCommittedTime, a, agentLocation));
-                blockedAgents.add(a);
+                // TODO replace with stay at this stage?
+                SingleAgentPlan failPlan = this.SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, a, agentLocation, catWithNotSelectedAgents);
+                invalidSolutionAsList.add(failPlan);
+                catWithNotSelectedAgents.addPlan(failPlan);
+                failedAgents.add(a);
             }
             else {
                 invalidSolutionAsList.add(subgroupSolution.getPlanFor(a));
@@ -321,15 +339,17 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     /**
-     * When a conflict between paths is found for the next time step, one (arbitrary) path is interrupted and replaced
-     * with staying in place if doing so resolves the conflict. Otherwise, both are interrupted.
+     * When a conflict between paths is found for the next time step, one (preferably an already failed) path is
+     * interrupted and replaced with a fail policy if doing so resolves the conflict. Otherwise, both are interrupted.
      *
      * @param solutionThatMayContainConflicts a solution with any number of conflicts
-     * @param blockedAgents agents that were blocked and got a single stay plan instead of the plan they had.
-     * @return a repaired solution with no conflicts in the next time step.
+     * @param failedAgents                   agents that are already failed.
+     * @param cat                            a conflict avoidance table that contains all current plans for all agents, including failed agents.
+     * @return a repaired solution with no conflicts at the next time step.
      */
-    private static Solution enforceSafeExecutionNextTimeStep(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
-                                                             int farthestCommittedTime, Set<Agent> blockedAgents){
+    private static Solution enforceSafeExecutionNextTimeStep(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, int farthestCommittedTime,
+                                                             Set<Agent> failedAgents, @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
+                                                             I_SingleAgentFailPolicy SAFailPolicy){
         Solution solutionWithoutConflicts = new Solution(solutionThatMayContainConflicts);
         boolean hadConflictsCurrentIteration = true;
         while (hadConflictsCurrentIteration){
@@ -353,20 +373,40 @@ public class LifelongSimulationSolver extends A_Solver {
                         A_Conflict conflict = A_Conflict.conflictBetween(plan1FirstMove, plan2FirstMove);
                         if (conflict != null){
                             // try to resolve conflict by interrupting one (preferably) or both plans.
-                            SingleAgentPlan agent1StayPlan = getSingleStayPlan(farthestCommittedTime, plan1.agent, plan1FirstMove.prevLocation);
-                            SingleAgentPlan agent2StayPlan = getSingleStayPlan(farthestCommittedTime, plan2.agent, plan2FirstMove.prevLocation);
-                            if (A_Conflict.conflictBetween(plan2FirstMove, agent1StayPlan.getFirstMove()) == null){
-                                newPlan1 = agent1StayPlan;
-                            } else if (A_Conflict.conflictBetween(plan1FirstMove, agent2StayPlan.getFirstMove()) == null) {
-                                newPlan2 = agent2StayPlan;
-                            }
-                            else {
-                                newPlan1 = agent1StayPlan;
-                                newPlan2 = agent2StayPlan;
-                                if (DEBUG && agent1StayPlan.conflictsWith(agent2StayPlan, false, false)){
-                                    throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
-                                            agent1StayPlan.firstConflict(agent2StayPlan), plan1, plan2, newPlan1, newPlan2));
+                            // prefer interrupting an agent that is already in a fail state
+                            if (failedAgents.contains(plan1.agent)){
+                                newPlan1 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan1, plan2FirstMove);
+                                if (newPlan1 != null) {
+                                    cat.replacePlan(plan1, newPlan1);
+                                    break;
                                 }
+                                newPlan2 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan2, plan1FirstMove);
+                                if (newPlan2 != null) {
+                                    cat.replacePlan(plan2, newPlan2);
+                                    break;
+                                }
+                            } else {
+                                newPlan2 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan2, plan1FirstMove);
+                                if (newPlan2 != null) {
+                                    cat.replacePlan(plan2, newPlan2);
+                                    break;
+                                }
+                                newPlan1 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan1, plan2FirstMove);
+                                if (newPlan1 != null) {
+                                    cat.replacePlan(plan1, newPlan1);
+                                    break;
+                                }
+                            }
+
+                            // if we got here, we couldn't resolve the conflict by interrupting one plan, so we have to interrupt both
+
+                            newPlan1 = STAY_ONCE_FAIL_POLICY.getFailPolicyPlan(farthestCommittedTime, plan1.agent, plan1FirstMove.prevLocation, null);
+                            cat.replacePlan(plan1, newPlan1);
+                            newPlan2 = STAY_ONCE_FAIL_POLICY.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2FirstMove.prevLocation, null);
+                            cat.replacePlan(plan2, newPlan2);
+                            if (DEBUG && newPlan1.conflictsWith(newPlan2, false, false)){
+                                throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
+                                        newPlan1.firstConflict(newPlan2), plan1, plan2, newPlan1, newPlan2));
                             }
                         }
                     }
@@ -377,11 +417,11 @@ public class LifelongSimulationSolver extends A_Solver {
                 hadConflictsCurrentIteration = true;
                 if (newPlan1 != null){
                     solutionWithoutConflicts.putPlan(newPlan1);
-                    blockedAgents.add(newPlan1.agent);
+                    failedAgents.add(newPlan1.agent);
                 }
                 if (newPlan2 != null){
                     solutionWithoutConflicts.putPlan(newPlan2);
-                    blockedAgents.add(newPlan2.agent);
+                    failedAgents.add(newPlan2.agent);
                 }
             }
         }
@@ -396,6 +436,19 @@ public class LifelongSimulationSolver extends A_Solver {
 //                    %s""", solutionWithoutConflicts, solutionWithoutConflicts.arbitraryConflict(true, true)));
 //        } // TODO what to do with this now that there is a horizon? Should check if safe for k steps? But we also have blocked agents
         return solutionWithoutConflicts;
+    }
+
+    @Nullable
+    private static SingleAgentPlan tryToResolveByGettingFailPlan(int farthestCommittedTime, @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
+                                                                 I_SingleAgentFailPolicy SAFailPolicy, SingleAgentPlan originalPlan, Move otherAgentPlanFirstMove) {
+        cat.removePlan(originalPlan);
+        SingleAgentPlan failPlan = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, originalPlan.agent, originalPlan.getFirstMove().prevLocation, cat);
+        cat.addPlan(originalPlan);
+        if (A_Conflict.conflictBetween(otherAgentPlanFirstMove, failPlan.getFirstMove()) == null){
+            // resolved by interrupting this plan
+            return failPlan;
+        }
+        return null;
     }
 
     private static void verifyNextStepSafe(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionWithoutConflicts) {
@@ -442,7 +495,7 @@ public class LifelongSimulationSolver extends A_Solver {
             SingleAgentPlan existingPlan = latestSolution.getPlanFor(lifelongAgent);
             if (existingPlan.getEndTime() <= farthestCommittedTime){
                 // stay plan if plan ended
-                advancedPlans.add(getSingleStayPlan(farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents.get(lifelongAgent), existingPlan.getLastMove().currLocation));
+                advancedPlans.add(STAY_ONCE_FAIL_POLICY.getFailPolicyPlan(farthestCommittedTime, lifelongAgentsToTimelyOfflineAgents.get(lifelongAgent), existingPlan.getLastMove().currLocation, null));
             }
             else {
                 // continue with current plan
@@ -450,16 +503,6 @@ public class LifelongSimulationSolver extends A_Solver {
             }
         }
         return advancedPlans;
-    }
-
-    @NotNull
-    private static SingleAgentPlan getSingleStayPlan(int farthestCommittedTime, Agent a, I_Location agentLocation) {
-        return new SingleAgentPlan(a, List.of(getStayMove(farthestCommittedTime, a, agentLocation)));
-    }
-
-    @NotNull
-    private static Move getStayMove(int farthestCommittedTime, Agent a, I_Location agentLocation) {
-        return new Move(a, farthestCommittedTime + 1, agentLocation, agentLocation);
     }
 
     private Map<Agent, Queue<I_Coordinate>> getDestinationQueues(MAPF_Instance instance) {

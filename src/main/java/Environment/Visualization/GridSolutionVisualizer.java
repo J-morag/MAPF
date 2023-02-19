@@ -33,7 +33,7 @@ public class GridSolutionVisualizer {
                 if (map.isObstacle(xy)) {
                     throw new IllegalArgumentException(String.format("Agent %s is on an obstacle", agent));
                 }
-                grid[xy[0]][xy[1]] = solution.getPlanFor(agent).getEndTime() > time ? 'a': 'g';
+                grid[xy[0]][xy[1]] = time > 0 && solution.getPlanFor(agent).getEndTime() <= time ? 'g': 'a';
                 if (solution instanceof LifelongSolution lifelongSolution){
                     if (lifelongSolution.agentAchievedAWaypointAtTime(agent, time)){
                         grid[xy[0]][xy[1]] = 'g';

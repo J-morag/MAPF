@@ -40,6 +40,7 @@ public class Experiment {
      * so removing them will save space in long experiments.
      */
     public boolean keepSolutionInReport = false;
+    public boolean keepWaypointTimesInReport = false;
     /**
      * If reports are written to an {@link java.io.OutputStream} (through {@link S_Metrics}) immediately upon being committed,
      * it may be preferred to just remove them afterwards, rather than keep accumulating them.
@@ -211,6 +212,9 @@ public class Experiment {
 
         if (!keepSolutionInReport) {
             instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
+        }
+        if (!keepWaypointTimesInReport){
+            instanceReport.putStringValue("waypointTimes", "");
         }
 
         // Now that the report is complete, commit it

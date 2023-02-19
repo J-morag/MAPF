@@ -48,6 +48,7 @@ public interface I_LifelongAgentSelector {
      * @return the agents that are idle - have reached last destination and are idle there.
      */
     default Set<LifelongAgent> idleFinishedAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues){
+        // TODO extend to support agents moving freely after their last destination?
         Set<LifelongAgent> agents = agentsAtPreviousTarget(lifelongInstance, currentSolutionStartingFromCurrentTime);
         agents.removeIf(agent -> ! ActiveButPlanEndedTrigger.isPlanEndsAtAgentFinalDestination(agentDestinationQueues, agent, currentSolutionStartingFromCurrentTime.getPlanFor(agent)));
         return agents;
@@ -61,6 +62,7 @@ public interface I_LifelongAgentSelector {
             LifelongAgent lifelongAgentAsLifelongAgent = (LifelongAgent)lifelongAgentAsAgent;
             SingleAgentPlan plan = currentSolutionStartingFromCurrentTime.getPlanFor(lifelongAgentAsLifelongAgent);
 
+            // TODO extend to support fail policies other than "block"? Which means also changing the name and function of this method.
             if (plan.getFirstMove().currLocation.getCoordinate().equals(plan.getLastMove().currLocation.getCoordinate())) { // also covers blocked agents
                 res.add(lifelongAgentAsLifelongAgent);
             }
