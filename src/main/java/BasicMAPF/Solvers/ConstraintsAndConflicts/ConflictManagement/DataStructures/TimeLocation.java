@@ -18,12 +18,16 @@ public class TimeLocation {
         this.location = location;
     }
 
+    public TimeLocation setTo(int time, I_Location location){
+        this.time = time;
+        this.location = location;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TimeLocation)) return false;
-
-        TimeLocation that = (TimeLocation) o;
+        if (!(o instanceof TimeLocation that)) return false;
 
         if (time != that.time) return false;
         return location.equals(that.location);

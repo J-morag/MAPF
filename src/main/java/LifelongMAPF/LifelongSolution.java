@@ -141,6 +141,14 @@ public class LifelongSolution extends Solution{
         return sb.toString();
     }
 
+    public boolean agentAchievedAWaypointAtTime(Agent agent, int time){
+        List<Integer> waypointArrivalTimes = this.agentsWaypointArrivalTimes.get(agent);
+        if (waypointArrivalTimes == null){
+            throw new IllegalArgumentException("No waypoint arrival times for agent " + agent);
+        }
+        return Collections.binarySearch(waypointArrivalTimes, time) > 0;
+    }
+
     private int totalNumTasksCompleted() {
         int res = 0;
         for (List<Integer> waypointTimes: this.agentsWaypointArrivalTimes.values()){

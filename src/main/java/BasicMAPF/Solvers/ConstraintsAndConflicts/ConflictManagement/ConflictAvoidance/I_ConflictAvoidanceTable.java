@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement;
+package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance;
 
 import BasicMAPF.Solvers.Move;
 
