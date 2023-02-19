@@ -17,8 +17,17 @@ public class GridVisualizer extends JPanel {
     private Timer timer;
     private boolean paused;
     public JButton pausePlayButton;
-    public GridVisualizer(List<char[][]> grids, int iterationTime, JButton pausePlayButton) {
+    private final List<Integer> finishedGoals;
+
+    public GridVisualizer(List<char[][]> grids, List<Integer> finishedGoals, int iterationTime, JButton pausePlayButton) {
+        if (grids == null || grids.size() == 0) {
+            throw new IllegalArgumentException("grids cannot be null or empty");
+        }
+        if (finishedGoals == null || finishedGoals.size() != grids.size()) {
+            throw new IllegalArgumentException("finishedGoals cannot be null and has to be co-indexed with grids");
+        }
         this.grids = grids;
+        this.finishedGoals = finishedGoals;
         this.iterationTime = iterationTime;
         this.currentIndex = 0;
         this.paused = false;
@@ -110,11 +119,19 @@ public class GridVisualizer extends JPanel {
         };
     }
 
+    private int numFinishedGoals() {
+        return this.finishedGoals.get(currentIndex);
+    }
+
+    private int maxFinishedGoals() {
+        return finishedGoals.get(finishedGoals.size() - 1);
+    }
+
     public boolean isPaused() {
         return paused;
     }
 
-    public static void visualize(List<char[][]> grids, int initialIterationTime) {
+    public static void visualize(List<char[][]> grids, List<Integer> finishedGoals, int initialIterationTime) {
         JFrame frame = new JFrame("Char Grid");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -123,7 +140,7 @@ public class GridVisualizer extends JPanel {
         JPanel controlPanel = new JPanel();
 //        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
 
-        GridVisualizer gridVisualizer = new GridVisualizer(grids, initialIterationTime, new JButton("Pause"));
+        GridVisualizer gridVisualizer = new GridVisualizer(grids, finishedGoals, initialIterationTime, new JButton("Pause"));
         gridPanel.add(gridVisualizer);
 
         JButton startButton = new JButton("Start");
@@ -188,13 +205,17 @@ public class GridVisualizer extends JPanel {
 
         // Add a panel for the status labels
         JPanel statusPanel = new JPanel();
+
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
-        JLabel indexLabel = new JLabel(String.format("Iteration: %1$4s", gridVisualizer.getCurrentIndex()));
-        JLabel timeLabel = new JLabel(String.format("Time: %1$4s ms", gridVisualizer.getIterationTime()));
+        JLabel timeStepLabel = new JLabel();
+        JLabel finishedGoalsLabel = new JLabel();
+        JLabel durationLabel = new JLabel();
         statusPanel.add(Box.createHorizontalGlue());
-        statusPanel.add(indexLabel);
+        statusPanel.add(timeStepLabel);
         statusPanel.add(Box.createHorizontalStrut(10));
-        statusPanel.add(timeLabel);
+        statusPanel.add(finishedGoalsLabel);
+        statusPanel.add(Box.createHorizontalStrut(10));
+        statusPanel.add(durationLabel);
         statusPanel.add(Box.createHorizontalGlue());
 //        frame.add(statusPanel, BorderLayout.SOUTH);
 
@@ -202,8 +223,9 @@ public class GridVisualizer extends JPanel {
         javax.swing.Timer labelTimer = new javax.swing.Timer(100, e -> {
 //                if (! gridVisualizer.paused) {
                 // Update the labels
-                indexLabel.setText("Time Step: " + gridVisualizer.getCurrentIndex());
-                timeLabel.setText("Time Step Duration: " + gridVisualizer.getIterationTime() + " ms");
+                timeStepLabel.setText("Time Step: " + gridVisualizer.getCurrentIndex());
+                finishedGoalsLabel.setText("Finished Goals: " + gridVisualizer.numFinishedGoals() + " / " + gridVisualizer.maxFinishedGoals());
+                durationLabel.setText("Time Step Duration: " + gridVisualizer.getIterationTime() + " ms");
 //                }
         });
         labelTimer.start();
