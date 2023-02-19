@@ -21,7 +21,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSo
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
-import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.SingleAgentFailPolicies.I_SingleAgentFailPolicy;
 import LifelongMAPF.SingleAgentFailPolicies.StayOnceFailPolicy;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
@@ -97,7 +97,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
 
         this.planningTrigger = Objects.requireNonNullElse(planningTrigger, new ActiveButPlanEndedTrigger());
-        this.agentSelector = Objects.requireNonNullElse(agentSelector, new AllStationaryAgentsSubsetSelector());
+        this.agentSelector = Objects.requireNonNullElse(agentSelector, new StationaryAgentsSubsetSelector());
         this.name = "Lifelong_" + offlineSolver.name();
         SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
     }

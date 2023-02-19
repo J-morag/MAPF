@@ -20,10 +20,10 @@ import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import LifelongMAPF.AgentSelectors.AllAgentsEveryPTimestepsSubsetSeletor;
-import LifelongMAPF.AgentSelectors.AllAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
-import LifelongMAPF.AgentSelectors.AllStationaryAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.PeriodicSelector;
+import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,28 +132,28 @@ class LifelongSimulationSolverTest {
     });
     private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
-    I_Solver snapshotOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
+    I_Solver snapshotOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy(), null);
-    I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
+    I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy(), null);
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy(), null);
-    I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
+    I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, false, null), null, new WidePartialSolutionsStrategy(), null);
-    I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
+    I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy(), null);
-    I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
+    I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy(), null);
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy(), null);
 
-    I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSubsetSelector(),
+    I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSelector(),
             new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null), null, new WidePartialSolutionsStrategy(), null);
 
-    I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsEveryPTimestepsSubsetSeletor(5),
+    I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, 20), null, new WidePartialSolutionsStrategy(), null);
 
-    I_Solver mandatoryAgentsPrPrDeepPartial = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllStationaryAgentsSubsetSelector(),
+    I_Solver mandatoryAgentsPrPrDeepPartial = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null), null, new WidePartialSolutionsStrategy(), null);
 
     InstanceReport instanceReport;

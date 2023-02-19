@@ -10,24 +10,38 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class AllStationaryAgentsSubsetSelector implements I_LifelongAgentSelector {
+public class StationaryAgentsSubsetSelector implements I_LifelongAgentSelector {
 
-    int maxGroupSize;
+    final int maxGroupSize;
+    public final PeriodicSelector periodicSelector;
 
-    public AllStationaryAgentsSubsetSelector(Integer maxGroupSize) {
+    public StationaryAgentsSubsetSelector(Integer maxGroupSize, PeriodicSelector periodicSelector) {
         this.maxGroupSize = Objects.requireNonNullElse(maxGroupSize, Integer.MAX_VALUE);
+        this.periodicSelector = Objects.requireNonNullElse(periodicSelector, new PeriodicSelector(1));
     }
 
-    public AllStationaryAgentsSubsetSelector(){
-        this(null);
+    public StationaryAgentsSubsetSelector(Integer maxGroupSize) {
+        this(maxGroupSize, null);
+    }
+
+    public StationaryAgentsSubsetSelector(PeriodicSelector periodicSelector) {
+        this(null, periodicSelector);
+    }
+
+    public StationaryAgentsSubsetSelector(){
+        this(null, null);
     }
 
     @Override
     public Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime,
                                                        Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart,
                                                        Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination) {
-        Set<Agent> allStationaryAgents = getAllStationaryAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, agentsWaitingToStart, maxGroupSize);
-        return new AgentSelectionPredicate(allStationaryAgents);
+        if (periodicSelector.timeMeetsOrExceedsPeriod(currentSolutionStartingFromCurrentTime)) {
+            return new AgentSelectionPredicate(getAllStationaryAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, agentsWaitingToStart, maxGroupSize));
+        }
+        else {
+            return new AgentSelectionPredicate(null);
+        }
     }
 
     @NotNull
