@@ -353,5 +353,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
+        this.heuristic = null;
     }
 }

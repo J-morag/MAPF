@@ -247,6 +247,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     protected void releaseMemory() {
         super.releaseMemory();
         this.constraints = null;
+        this.gAndH = null;
         this.instanceReport = null;
         this.openList.clear();
         this.closed.clear();
@@ -254,6 +255,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.map = null;
         this.existingSolution = null;
         this.existingPlan = null;
+        this.conflictAvoidanceTable = null;
+        this.sourceCoor = null;
+        this.targetCoor = null;
+        this.goalCondition = null;
     }
 
     private int numConflicts(Move move){
