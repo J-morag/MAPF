@@ -24,6 +24,7 @@ import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
+import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -1044,7 +1045,7 @@ class LifelongSimulationSolverTest {
 
     @Test
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_AllAgentsLNS() {
-        I_Solver solver = baselineRHCR_w20_p5;
+        I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMaze;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
@@ -1275,5 +1276,67 @@ class LifelongSimulationSolverTest {
         isFullSolution(solved, testInstance);
     }
 
+    /* = Lots = */
+
+    @Test
+    void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+
+    }
+
+    @Test
+    void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
 
 }
