@@ -418,6 +418,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
+        this.heuristic = null;
     }
 
     /*  = interfaces =  */
