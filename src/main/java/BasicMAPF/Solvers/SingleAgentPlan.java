@@ -307,17 +307,16 @@ public class SingleAgentPlan implements Iterable<Move> {
 
             // if plans for "start at goal and stay there" are represented as an empty plan, we will have to make this check
             if (earlyEndingPlan.getEndTime() == -1){
-                throw new UnsupportedOperationException("Plans for agents that start at their goal are not supported.");
-//                // can skip late ending plan's start location, since if they conflict on start locations it is an
-//                // impossible instance (so we shouldn't get one)
-//                for (int t = 1; t < Math.min(timeHorizon, lateEndingPlan.getEndTime() + sharedGoalsTimeOffset); t++) {
-//                    I_Location steppingIntoLocation = lateEndingPlan.moveAt(t).currLocation;
-//                    if (steppingIntoLocation.getCoordinate().equals(earlyEndingPlan.agent.target)){
-//                        Move stayMove = new Move(earlyEndingPlan.agent, t, steppingIntoLocation, steppingIntoLocation);
-//                        A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(t), stayMove);
-//                        return goalConflict;
-//                    }
-//                }
+                // can skip late ending plan's start location, since if they conflict on start locations it is an
+                // impossible instance (so we shouldn't get one)
+                for (int t = 1; t < Math.min(timeHorizon, lateEndingPlan.getEndTime() + sharedGoalsTimeOffset); t++) {
+                    I_Location steppingIntoLocation = lateEndingPlan.moveAt(t).currLocation;
+                    if (steppingIntoLocation.getCoordinate().equals(earlyEndingPlan.agent.target)){
+                        Move stayMove = new Move(earlyEndingPlan.agent, t, steppingIntoLocation, steppingIntoLocation);
+                        A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(t), stayMove);
+                        return goalConflict;
+                    }
+                }
             }
             else{
                 // look for the late ending plan stepping into the agent from the early ending plan, sitting at its goal.
