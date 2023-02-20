@@ -129,7 +129,7 @@ public class LifelongSimulationSolver extends A_Solver {
             this.initialConstraints.sharedSources = true;
             this.initialConstraints.sharedGoals = true;
         }
-        this.cachingDistanceTableHeuristic = new CachingDistanceTableHeuristic(1);
+        this.cachingDistanceTableHeuristic = new CachingDistanceTableHeuristic(1, instance.agents.size());
         this.cachingDistanceTableHeuristic.setCurrentMap(instance.map);
         if (parameters instanceof LifelongRunParameters lrp){
             this.minResponseTime = lrp.minResponseTime;
@@ -615,7 +615,7 @@ public class LifelongSimulationSolver extends A_Solver {
         AStarGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;
         if (congestionMultiplier != null && congestionMultiplier > 0){
             List<Agent> agents = new ArrayList<>(selectedTimelyOfflineAgentsSubset);
-            costAndHeuristic = new DistanceTableAStarHeuristic(agents, this.lifelongInstance.map, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
+            costAndHeuristic = new DistanceTableAStarHeuristic(agents, this.lifelongInstance.map, null, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
         }
 
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));

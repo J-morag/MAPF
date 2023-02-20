@@ -45,7 +45,7 @@ public class CachingDistanceTableHeuristic implements AStarGAndH {
 
     @NotNull
     private DistanceTableAStarHeuristic getNewDistanceTable(I_Map map) {
-        return new DistanceTableAStarHeuristic(null, map, targetCacheSizePerMap);
+        return new DistanceTableAStarHeuristic(null, map, targetCacheSizePerMap, null);
     }
 
     @Override
