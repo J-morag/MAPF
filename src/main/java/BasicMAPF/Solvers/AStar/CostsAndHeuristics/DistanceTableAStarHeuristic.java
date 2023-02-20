@@ -7,8 +7,10 @@ import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.Move;
+import org.apache.commons.collections4.map.LRUMap;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import BasicMAPF.Solvers.Move;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -42,9 +44,51 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * Constructor. Create a dictionary of real distances from anywhere in the map, to any location that is a target of any agent.
      * @param agents agents (targets) we need to include in the distance table.
      * @param map the map this heuristic will work on.
+     * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
+     * @param congestionMap will apply a congestion penalty if this isn't null.
+     */
+    public DistanceTableAStarHeuristic(@Nullable List<? extends Agent> agents, I_Map map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
+        this.map = map;
+        this.congestionMap = congestionMap;
+        if (lruCacheSize != null && lruCacheSize < 1)
+            throw new IllegalArgumentException("If used, the LRU cache size must be at least 1.");
+        this.distanceDictionaries = getInitDistanceDictionaries(lruCacheSize);
+        if (agents != null){
+            if (lruCacheSize != null && lruCacheSize < agents.size())
+                throw new IllegalArgumentException("LRU cache size must be at least as large as the number of agents.");
+            for (Agent agent : agents) {
+                addAgentToHeuristic(agent);
+            }
+        }
+    }
+
+    /**
+     * Constructor. Create a dictionary of real distances from anywhere in the map, to any location that is a target of any agent.
+     * @param agents agents (targets) we need to include in the distance table.
+     * @param map the map this heuristic will work on.
      */
     public DistanceTableAStarHeuristic(List<? extends Agent> agents, I_Map map) {
-        this(agents, map, null);
+        this(agents, map, null, null);
+    }
+
+    /**
+     * Constructor. Create a dictionary of real distances from anywhere in the map to anywhere in the map.
+     * This makes the heuristic essentially the "All Pairs Shortest Path" heuristic.
+     * @param map the map this heuristic will work on.
+     * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
+     * @param congestionMap will apply a congestion penalty if this isn't null.
+     */
+    public DistanceTableAStarHeuristic(@NotNull I_ExplicitMap map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
+        this.map = map;
+        this.congestionMap = congestionMap;
+        if (lruCacheSize != null && lruCacheSize < 1)
+            throw new IllegalArgumentException("If used, the LRU cache size must be at least 1.");
+        if (lruCacheSize != null && lruCacheSize < map.getAllLocations().size())
+            throw new IllegalArgumentException("lruCacheSize must be at least as large as the number of locations in the map (" + map.getAllLocations().size() + ")");
+        this.distanceDictionaries = getInitDistanceDictionaries(lruCacheSize);
+        for (I_Location location : map.getAllLocations()) {
+            addTargetToHeuristic(location);
+        }
     }
 
     /**
@@ -53,21 +97,11 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * @param map the map this heuristic will work on.
      */
     public DistanceTableAStarHeuristic(I_ExplicitMap map) {
-        this(map, null);
+        this(map, null, null);
     }
 
-    /**
-     * Constructor. Create a dictionary of real distances from anywhere in the map, to any location that is a target of any agent.
-     * @param agents agents (targets) we need to include in the distance table.
-     * @param map the map this heuristic will work on.
-     * @param congestionMap will apply a congestion penalty if this isn't null.
-     */
-    public DistanceTableAStarHeuristic(List<? extends Agent> agents, I_Map map, @Nullable CongestionMap congestionMap) {
-        this(map, congestionMap);
-        for (Agent agent : agents) {
-            addAgentToHeuristic(agent);
-        }
-//        this(agents.stream().map(a -> map.getMapLocation(a.target)).collect(Collectors.toList()), map, null);
+    private Map<I_Location, Map<I_Location, Integer>> getInitDistanceDictionaries(Integer lruCacheSize) {
+        return lruCacheSize != null ? new LRUMap<>(lruCacheSize): new HashMap<>();
     }
 
     public void addAgentToHeuristic(Agent agent) {

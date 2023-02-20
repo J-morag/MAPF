@@ -4,6 +4,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import org.apache.commons.collections4.map.LRUMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -15,7 +16,9 @@ import java.util.*;
  * is significantly more expensive than subsequent calls. Use with caution!
  */
 public class CachingDistanceTableHeuristic implements AStarGAndH {
-    private final int mapCacheSize;
+    private final static int DEFAULT_MAP_CACHE_SIZE = 1;
+    private final static int DEFAULT_TARGET_CACHE_SIZE = 1000;
+    private final int targetCacheSizePerMap;
     /**
      * Dictionary from {@link I_Map map} to a {@link DistanceTableAStarHeuristic distance table heuristic} for it.
      */
@@ -23,24 +26,34 @@ public class CachingDistanceTableHeuristic implements AStarGAndH {
     private I_Map currentMap;
 
     public CachingDistanceTableHeuristic() {
-        this(1);
+        this(DEFAULT_MAP_CACHE_SIZE, DEFAULT_TARGET_CACHE_SIZE);
     }
 
-    public CachingDistanceTableHeuristic(int mapCacheSize) {
-        this.mapCacheSize = mapCacheSize;
+    public CachingDistanceTableHeuristic(int mapCacheSize, int targetCacheSizePerMap) {
+        if (mapCacheSize < 1)
+            throw new IllegalArgumentException("Map cache size must be at least 1.");
         this.distanceTables = new LRUMap<>(mapCacheSize);
+        this.targetCacheSizePerMap = targetCacheSizePerMap;
     }
 
     public void setCurrentMap(I_Map map){
         this.currentMap = map;
         if (!this.distanceTables.containsKey(map)) {
-            this.distanceTables.put(map, new DistanceTableAStarHeuristic(new ArrayList<>(0), map));
+            this.distanceTables.put(map, getNewDistanceTable(map));
         }
+    }
+
+    @NotNull
+    private DistanceTableAStarHeuristic getNewDistanceTable(I_Map map) {
+        return new DistanceTableAStarHeuristic(null, map, targetCacheSizePerMap, null);
     }
 
     @Override
     public float getH(SingleAgentAStar_Solver.AStarState state) {
         DistanceTableAStarHeuristic dt = this.distanceTables.get(this.currentMap);
+        if (dt == null){
+            throw new IllegalStateException("Current map not set. Call setCurrentMap(I_Map) before querying.");
+        }
         I_Location target = this.currentMap.getMapLocation(state.getMove().agent.target);
         if (dt.getDistanceDictionaries().containsKey(target)){
             return dt.getH(state);
