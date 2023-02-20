@@ -86,9 +86,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     @NotNull
     public static Collection<? extends I_Solver> getSolvers() {
         List<I_Solver> solvers = new ArrayList<>();
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFP());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFP());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFP());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFP());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFP());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFP());
         solvers.add(LifelongSolversFactory.baselineRHCR_w05_h03());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartial());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w5_h3());
