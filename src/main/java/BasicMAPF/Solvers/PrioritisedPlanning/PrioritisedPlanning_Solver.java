@@ -89,7 +89,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * How far forward in time to consider conflicts. Further than this time conflicts will be ignored.
      */
-    public final int RHCR_Horizon;
+    public final Integer RHCR_Horizon;
 
 
     /*  = Constructors =  */
@@ -129,8 +129,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
-        if (this.RHCR_Horizon < 1){
+        this.RHCR_Horizon = RHCR_Horizon;
+        if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
 
@@ -156,8 +156,21 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         super.init(instance, parameters);
 
         this.agents = new ArrayList<>(instance.agents);
+
         this.problemStartTime = parameters.problemStartTime;
-        this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+
+        if (parameters.constraints != null){
+            if (this.RHCR_Horizon != null){
+                this.constraints = new ConstraintSet(parameters.constraints, horizonAsAbsoluteTime(this.problemStartTime, this.RHCR_Horizon));
+            }
+            else {
+                this.constraints = new ConstraintSet(parameters.constraints);
+            }
+        }
+        else{
+            this.constraints = new ConstraintSet();
+        }
+
         this.constraints.sharedGoals = this.sharedGoals;
         this.constraints.sharedSources = this.sharedSources;
         this.random = Objects.requireNonNullElse(parameters.randomNumberGenerator, new Random(42));
@@ -266,8 +279,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                     solution.putPlan(planForAgent);
 
                     //add constraints to prevent the next agents from conflicting with the new plan
-                    currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent,
-                            this.RHCR_Horizon == Integer.MAX_VALUE ? this.RHCR_Horizon : problemStartTime + this.RHCR_Horizon));
+                    if (this.RHCR_Horizon == null){
+                        currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
+                    }
+                    else {
+                        currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent, horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon)));
+                    }
                     // if using congestion, add this plan to the congestion map
                     if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
                             && distanceTable.congestionMap != null){
@@ -348,6 +365,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestSolution != null ? bestSolution.size() : 0);
             return bestSolution;
         }
+    }
+
+    private int horizonAsAbsoluteTime(int problemStartTime, int horizon) {
+        return Math.addExact(problemStartTime, horizon);
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {

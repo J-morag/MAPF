@@ -261,6 +261,15 @@ public class LifelongSolversFactory {
         return stationaryAgentsPrPCutoff25PercentPartialRHCR_w05;
     }
 
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w01(){
+        A_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w01 = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 1), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
+        stationaryAgentsPrPCutoff25PercentPartialRHCR_w01.name = "stationaryAgentsPrPCutoff25PercentPartialRHCR_w01";
+        return stationaryAgentsPrPCutoff25PercentPartialRHCR_w01;
+    }
+
     public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w05_h03(){
         A_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w05_h03 = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,

@@ -5,6 +5,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
 import BasicMAPF.Solvers.Solution;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -48,11 +49,7 @@ public class ConstraintSet{
     }
 
     public ConstraintSet(ConstraintSet toCopy){
-        if(toCopy == null) {throw new IllegalArgumentException();}
-        this.sharedGoals = toCopy.sharedGoals;
-        this.sharedSources = toCopy.sharedSources;
-        this.addAll(toCopy);
-        this.lastConstraintTime = toCopy.lastConstraintTime;
+        this(toCopy, toCopy.lastConstraintTime);
     }
 
     public ConstraintSet(Collection<? extends Constraint> seedConstraints) {
@@ -60,6 +57,14 @@ public class ConstraintSet{
         if(seedConstraints == null) {throw new IllegalArgumentException();}
         this.addAll(seedConstraints);
     }
+
+    public ConstraintSet(@NotNull ConstraintSet toCopy, int upToAndIncludingTime) {
+        this.sharedGoals = toCopy.sharedGoals;
+        this.sharedSources = toCopy.sharedSources;
+        this.addAll(toCopy, upToAndIncludingTime);
+        this.lastConstraintTime = Math.min(upToAndIncludingTime, toCopy.lastConstraintTime);
+    }
+
 
     /*  = Set Interface =  */
 
@@ -117,13 +122,21 @@ public class ConstraintSet{
     }
 
     public void addAll(ConstraintSet other) {
+        addAll(other, Integer.MAX_VALUE);
+    }
+
+    private void addAll(ConstraintSet other, int upToTime) {
         for (I_ConstraintGroupingKey cw : other.constraints.keySet()) {
             for (Constraint cons : other.constraints.get(cw)) {
-                this.add(cons);
+                if (cons.time <= upToTime) {
+                    this.add(cons);
+                }
             }
         }
         for (I_Location loc : other.goalConstraints.keySet()){
-            this.add(other.goalConstraints.get(loc));
+            if (other.goalConstraints.get(loc).time <= upToTime){
+                this.add(other.goalConstraints.get(loc));
+            }
         }
     }
 

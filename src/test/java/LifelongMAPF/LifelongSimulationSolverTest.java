@@ -1170,6 +1170,70 @@ class LifelongSimulationSolverTest {
     }
 
 
+    /* = Mandatory Agents PrPr With RHCR window of 1 = */
+
+    @Test
+    void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialRHCR_w01() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w01();
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialRHCR_w01() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w01();
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+
+    }
+
+    @Test
+    void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialRHCR_w01() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w01();
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialRHCR_w01() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w01();
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialRHCR_w01() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w01();
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+
     /* = Mandatory Agents PrPr Deep Partial = */
 
     @Test
