@@ -8,6 +8,7 @@ import BasicMAPF.Solvers.Solution;
 import LifelongMAPF.LifelongAgent;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -73,13 +74,13 @@ public interface I_LifelongAgentSelector {
     class AgentSelectionPredicate implements Predicate<Agent>{
         private final Set<Agent> selectedAgents;
 
-        public AgentSelectionPredicate(Set<Agent> selectedAgents) {
+        public AgentSelectionPredicate(@Nullable Set<Agent> selectedAgents) {
             this.selectedAgents = selectedAgents;
         }
 
         @Override
         public boolean test(Agent agent) {
-            return selectedAgents.contains(agent);
+            return selectedAgents != null && selectedAgents.contains(agent);
         }
     }
 }

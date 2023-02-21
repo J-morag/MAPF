@@ -43,7 +43,7 @@ public class FreespaceConflictingAgentsSelector implements I_LifelongAgentSelect
     @NotNull
     private Set<LifelongAgent> getStationaryAgentsAndTheirFreespaceConflictingAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart) {
         // TODO fill iteratively with the blocking agents (when max group is limited)? Assuming it's better to have a small seed and their blockers than a big seeds and 0 blockers because we reached max group size.
-        Set<Agent> stationaryAgents = AllStationaryAgentsSubsetSelector.getAllStationaryAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, agentsWaitingToStart, maxGroupSize);
+        Set<Agent> stationaryAgents = StationaryAgentsSubsetSelector.getAllStationaryAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, agentsWaitingToStart, maxGroupSize);
         Set<LifelongAgent> selectedAgents = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.keySet());
         selectedAgents.retainAll(stationaryAgents);
 

@@ -201,8 +201,19 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @return the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
      */
     public A_Conflict firstConflict(SingleAgentPlan other){
-        return this.firstConflict(other, false, false);
+        return this.firstConflict(other, false, false, null);
     }
+
+    /**
+     * Returns the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
+     * @param other another {@link SingleAgentPlan}.
+     * @param timeHorizon the maximum time to check for conflicts. If null, checks all the way to the end of the plan.
+     * @return the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
+     */
+    public A_Conflict firstConflict(SingleAgentPlan other, int timeHorizon){
+        return this.firstConflict(other, false, false, timeHorizon);
+    }
+
 
     /**
      * Returns the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
@@ -212,11 +223,24 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @return the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
      */
     public A_Conflict firstConflict(SingleAgentPlan other, boolean sharedGoalsEnabled, boolean sharedSourcesEnabled){
+        return firstConflict(other, sharedGoalsEnabled, sharedSourcesEnabled, null);
+    }
+
+    /**
+     * Returns the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
+     * @param other another {@link SingleAgentPlan}.
+     * @param sharedGoalsEnabled if agents can share the same goal location
+     * @param sharedSourcesEnabled if agents share the same source and so don't conflict if one of them has been staying there since the start
+     * @param timeHorizon the maximum time to check for conflicts. If null, will check until the end of the shortest plan.
+     * @return the first (lowest time) conflict between this and the other plan. If they don't conflict, returns null.
+     */
+    public A_Conflict firstConflict(SingleAgentPlan other, boolean sharedGoalsEnabled, boolean sharedSourcesEnabled, Integer timeHorizon){
         // find lower and upper bound for time, and check only in that range
         //the min time to check is the max first move time
         int minTime = Math.max(this.getFirstMoveTime(), other.getFirstMoveTime());
         //the max time to check is the min last move time
         int maxTime = Math.min(this.getEndTime(), other.getEndTime());
+        timeHorizon = timeHorizon == null ? Integer.MAX_VALUE: timeHorizon;
         // if they both get to their goals at the same time and share it, it can't have a conflict
         if (sharedGoalsEnabled && this.moveAt(this.getEndTime()).currLocation.
                 equals(other.moveAt(other.getEndTime()).currLocation)
@@ -226,7 +250,7 @@ public class SingleAgentPlan implements Iterable<Move> {
         boolean localStayingAtSource = true;
         boolean otherStayingAtSource = true;
 
-        for(int time = minTime; time<= maxTime; time++){
+        for(int time = minTime; time <= Math.min(maxTime, timeHorizon); time++){
             Move localMove = this.moveAt(time);
             localStayingAtSource &= localMove.prevLocation.equals(localMove.currLocation);
             Move otherMoveAtTime = other.moveAt(time);
@@ -240,7 +264,7 @@ public class SingleAgentPlan implements Iterable<Move> {
 
         // if we've made it all the way here, the plans don't conflict in their shared timespan.
         // now check if one plan ended and then the other plan had a move that conflicts with the first plan's last position (goal)
-        return firstConflictAtGoal(other, maxTime, sharedGoalsEnabled);
+        return firstConflictAtGoal(other, maxTime, sharedGoalsEnabled, timeHorizon);
     }
 
     /**
@@ -265,12 +289,14 @@ public class SingleAgentPlan implements Iterable<Move> {
 
     /**
      * helper function for {@link #firstConflict(SingleAgentPlan)}.
-     * @param other another plan.
-     * @param maxTime the maximum time at which both plans have moves.
+     *
+     * @param other              another plan.
+     * @param maxTime            the maximum time at which both plans have moves.
      * @param sharedGoalsEnabled if the agents can share the same goal
+     * @param timeHorizon
      * @return a conflict if one of the plans ends, and then the other plan makes a move that conflicts with the ended plan's agent staying at its goal. else null.
      */
-    protected A_Conflict firstConflictAtGoal(SingleAgentPlan other, int maxTime, boolean sharedGoalsEnabled) {
+    protected A_Conflict firstConflictAtGoal(SingleAgentPlan other, int maxTime, boolean sharedGoalsEnabled, Integer timeHorizon) {
         // if they share goals, the last move of the late ending plan can't be a conflict with the early ending plan.
         int sharedGoalsTimeOffset = sharedGoalsEnabled &&
                 this.moveAt(this.getEndTime()).currLocation.equals(other.moveAt(other.getEndTime()).currLocation) ? -1 : 0;
@@ -283,7 +309,7 @@ public class SingleAgentPlan implements Iterable<Move> {
             if (earlyEndingPlan.getEndTime() == -1){
                 // can skip late ending plan's start location, since if they conflict on start locations it is an
                 // impossible instance (so we shouldn't get one)
-                for (int t = 1; t < lateEndingPlan.getEndTime() + sharedGoalsTimeOffset; t++) {
+                for (int t = 1; t < Math.min(timeHorizon, lateEndingPlan.getEndTime() + sharedGoalsTimeOffset); t++) {
                     I_Location steppingIntoLocation = lateEndingPlan.moveAt(t).currLocation;
                     if (steppingIntoLocation.getCoordinate().equals(earlyEndingPlan.agent.target)){
                         Move stayMove = new Move(earlyEndingPlan.agent, t, steppingIntoLocation, steppingIntoLocation);
@@ -295,7 +321,7 @@ public class SingleAgentPlan implements Iterable<Move> {
             else{
                 // look for the late ending plan stepping into the agent from the early ending plan, sitting at its goal.
                 I_Location goalLocation = earlyEndingPlan.moveAt(maxTime).currLocation;
-                for (int time = maxTime+1; time <= lateEndingPlan.getEndTime() + sharedGoalsTimeOffset && time >= lateEndingPlan.getFirstMoveTime(); time++) {
+                for (int time = maxTime+1; time <= Math.min(timeHorizon, lateEndingPlan.getEndTime() + sharedGoalsTimeOffset) && time >= lateEndingPlan.getFirstMoveTime(); time++) {
                     Move stayMove = new Move(earlyEndingPlan.agent, time, goalLocation, goalLocation);
                     A_Conflict goalConflict = A_Conflict.conflictBetween(lateEndingPlan.moveAt(time), stayMove);
                     if(goalConflict != null){
