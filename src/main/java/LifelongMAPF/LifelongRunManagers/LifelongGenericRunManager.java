@@ -5,7 +5,9 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
+import LifelongMAPF.LifleongExperiment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class LifelongGenericRunManager extends A_LifelongRunManager{
 
@@ -15,9 +17,12 @@ public class LifelongGenericRunManager extends A_LifelongRunManager{
     private final String experimentName;
     private final boolean skipAfterFail;
     private final String instancesRegex;
+    private final Long minResponseTime;
+    private final Integer maxTimeSteps;
     public LifelongGenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder,
-                             @NotNull String experimentName, boolean skipAfterFail, String instancesRegex,
-                             String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer) {
+                                     @NotNull String experimentName, boolean skipAfterFail, String instancesRegex,
+                                     String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer,
+                                     @Nullable Long minResponseTime, @Nullable Integer maxTimeSteps) {
         super(resultsOutputDir, solutionVisualizer);
         if (agentNums == null){
             throw new IllegalArgumentException("AgentNums can't be null");
@@ -29,6 +34,8 @@ public class LifelongGenericRunManager extends A_LifelongRunManager{
         this.skipAfterFail = skipAfterFail;
         this.instancesRegex = instancesRegex;
         this.resultsFilePrefix = resultsFilePrefix;
+        this.minResponseTime = minResponseTime;
+        this.maxTimeSteps = maxTimeSteps;
     }
 
     @Override
@@ -50,7 +57,7 @@ public class LifelongGenericRunManager extends A_LifelongRunManager{
         InstanceManager instanceManager = new InstanceManager(instancesDir, instanceBuilder, properties);
 
         /*  =   Add new experiment   =  */
-        Experiment experiment = new Experiment(experimentName, instanceManager);
+        Experiment experiment = new LifleongExperiment(experimentName, instanceManager, minResponseTime, maxTimeSteps);
         experiment.skipAfterFail = this.skipAfterFail;
         experiment.visualizer = this.visualizer;
         this.experiments.add(experiment);

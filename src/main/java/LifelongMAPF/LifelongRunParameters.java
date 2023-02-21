@@ -1,6 +1,7 @@
 package LifelongMAPF;
 
 import BasicMAPF.Solvers.RunParameters;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ public class LifelongRunParameters extends RunParameters {
      */
     public final int maxTimeSteps;
 
-    public LifelongRunParameters(RunParameters rp, Long minResponseTime, Integer maxTimeSteps) {
+    public LifelongRunParameters(RunParameters rp, @Nullable Long minResponseTime, @Nullable Integer maxTimeSteps) {
         super(rp);
         this.minResponseTime = Objects.requireNonNullElse(minResponseTime, 1000L);
         if (this.minResponseTime < 1){

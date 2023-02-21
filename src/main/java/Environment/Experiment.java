@@ -9,6 +9,7 @@ import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
 import Environment.Visualization.I_VisualizeSolution;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -172,7 +173,7 @@ public class Experiment {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 0);
         }
 
-        RunParameters runParameters = new RunParameters(timeoutEach, null, instanceReport, null);
+        RunParameters runParameters = getRunParameters(instanceReport);
 
         String instanceName = instance.extendedName;
         int numAgents = instance.agents.size();
@@ -228,6 +229,11 @@ public class Experiment {
         }
 
         return validSolution;
+    }
+
+    @NotNull
+    protected RunParameters getRunParameters(InstanceReport instanceReport) {
+        return new RunParameters(timeoutEach, null, instanceReport, null);
     }
 
     private boolean isValidSolutionForInstance(MAPF_Instance instance, Solution solution) {

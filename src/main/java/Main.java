@@ -113,6 +113,22 @@ public class Main {
                 .build();
         options.addOption(instancesRegexOption);
 
+        Option responseTimeOption = Option.builder("rTime").longOpt("responseTime")
+                .argName("responseTime")
+                .hasArg()
+                .required(false)
+                .desc("Set the minimum response time per time step for the solver. Optional.")
+                .build();
+        options.addOption(responseTimeOption);
+
+        Option timeStepsOption = Option.builder("tSteps").longOpt("timeSteps")
+                .argName("timeSteps")
+                .hasArg()
+                .required(false)
+                .desc("Set the maximum number of time steps per instance. Optional.")
+                .build();
+        options.addOption(timeStepsOption);
+
         Option InstancesFormatOption = Option.builder("iForm").longOpt("instancesFormat")
                 .argName("instancesFormat")
                 .hasArg()
@@ -147,6 +163,8 @@ public class Main {
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
+            Long minResponseTime;
+            Integer maxTimeSteps;
 
             // Parse arguments
 
@@ -179,7 +197,7 @@ public class Main {
             System.out.println("Instances Dir: " + optInstancesDir);
             instancesDir = optInstancesDir;
             if (! new File(instancesDir).exists()){
-                System.out.printf("Could not locate the provided instances dir (%s)", instancesDir);
+                System.out.printf("Could not locate the provided instances dir (%s)!", instancesDir);
                 System.exit(0);
             }
 
@@ -192,6 +210,26 @@ public class Main {
 
             if(cmd.hasOption("resPref")) {
                 optResultsFilePrefix = cmd.getOptionValue(STR_RESULTS_FILE_PREFIX);
+            }
+
+            if(cmd.hasOption("rTime")) {
+                if (!lifelong) {
+                    System.out.println("Response time is only supported for lifelong MAPF!");
+                    System.exit(0);
+                }
+                minResponseTime = Long.parseLong(cmd.getOptionValue("responseTime"));
+            } else {
+                minResponseTime = null;
+            }
+
+            if(cmd.hasOption("tSteps")) {
+                if (!lifelong) {
+                    System.out.println("Time steps is only supported for lifelong MAPF!");
+                    System.exit(0);
+                }
+                maxTimeSteps = Integer.parseInt(cmd.getOptionValue("timeSteps"));
+            } else {
+                maxTimeSteps = null;
             }
 
             if (cmd.hasOption(STR_INSTANCES_REGEX)){
@@ -213,7 +251,7 @@ public class Main {
                     }
                 }
                 if (lifelong && optInstancesFormat.equals(STR_BGU)){
-                    throw new IllegalArgumentException("Lifelong MAPF is not supported for BGU instances.");
+                    throw new IllegalArgumentException("Lifelong MAPF is not supported for BGU instances!");
                 }
             }
             else {
@@ -227,13 +265,13 @@ public class Main {
                 agentNums = Arrays.stream(optAgents).mapToInt(Integer::parseInt).toArray();
             }
             catch (NumberFormatException e){
-                System.out.printf("%s should be an array of integers, got %s", STR_AGENT_NUMS, Arrays.toString(optAgents));
+                System.out.printf("%s should be an array of integers, got %s!", STR_AGENT_NUMS, Arrays.toString(optAgents));
                 System.exit(0);
             }
 
             // Run!
             if (lifelong){
-                new LifelongGenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser)
+                new LifelongGenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser, minResponseTime, maxTimeSteps)
                         .runAllExperiments();
             }
             else {
