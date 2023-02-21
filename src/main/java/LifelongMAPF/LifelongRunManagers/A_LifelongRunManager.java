@@ -126,6 +126,8 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
 
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05_h03());
+
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w5_h3_lookahead3());
         solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w5_h3_lookahead3());
         return solvers;
