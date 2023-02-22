@@ -89,14 +89,21 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFP());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFP());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFP());
-        solvers.add(LifelongSolversFactory.baselineRHCR_w05_h03());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartial());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w5_h3());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w5_h3_lookahead3());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w05_h03());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w05_h03_lookahead3());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w05_h03_lookahead3());
 
         solvers.add(LifelongSolversFactory.allAgentsPrPNoPartial());
-        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialRHCR_w5_h3());
-        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialRHCR_w5_h3_lookahead3());
+        solvers.add(LifelongSolversFactory.baselineRHCR_w05_h03());
+        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialRHCR_w05_h03());
+        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialRHCR_w05_h03_lookahead3());
+        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w05_h03_lookahead3());
+
+        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_h03());
+        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_h03_lookahead3());
+        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_h03_lookahead5());
+        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_lookahead3());
 
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartial());
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPOneDeepThenWidePartial());
@@ -119,18 +126,10 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w05_lookahead5());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_lookahead5());
 
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_h03());
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_h03_lookahead3());
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_h03_lookahead5());
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05_lookahead3());
-
-
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05_h03());
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05_h03_lookahead3());
 
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w5_h3_lookahead3());
-        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w5_h3_lookahead3());
         return solvers;
     }
 
