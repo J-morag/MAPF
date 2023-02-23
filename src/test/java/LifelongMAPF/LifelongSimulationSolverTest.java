@@ -1343,8 +1343,8 @@ class LifelongSimulationSolverTest {
     /* = Lots = */
 
     @Test
-    void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+    void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1355,8 +1355,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+    void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1368,8 +1368,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+    void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1380,8 +1380,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+    void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1392,8 +1392,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05();
+    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
