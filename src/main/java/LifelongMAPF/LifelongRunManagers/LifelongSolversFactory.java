@@ -81,6 +81,94 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver baselineRHCR_w05_h05(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 5), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver baselineRHCR_w10_h03(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver baselineRHCR_w10_h05(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver baselineRHCR_w15_h03(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 15), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver baselineRHCR_w15_h05(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 15), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver baselineRHCR_w20_h03(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 20), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver baselineRHCR_w20_h05(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 20), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver baselineRHCR_w20_h10(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(10)),
+                new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, true, 20), null, new DisallowedPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
     public static I_Solver stationaryAgentsPrPNoPartial(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
@@ -93,11 +181,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPNoPartialRHCR_w05_h03(){
+    public static I_Solver stationaryAgentsPrPNoPartialRHCR_w10_h03(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, 5), null, new DisallowedPartialSolutionsStrategy(), null, null);
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), null, null);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -105,11 +193,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPNoPartialRHCR_w05_h03_lookahead3(){
+    public static I_Solver stationaryAgentsPrPNoPartialRHCR_w10_h03_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, 5), null, new DisallowedPartialSolutionsStrategy(), null, 3);
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), null, 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -117,11 +205,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPNoPartialOneActionFPRHCR_w05_h03_lookahead3(){
+    public static I_Solver stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, 5), null, new DisallowedPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -141,11 +229,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsPrPNoPartialRHCR_w05_h03(){
+    public static I_Solver allAgentsPrPNoPartialRHCR_w10_h03(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, 5), null, new DisallowedPartialSolutionsStrategy(), null, null);
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), null, null);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -153,11 +241,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsPrPNoPartialRHCR_w05_h03_lookahead3(){
+    public static I_Solver allAgentsPrPNoPartialRHCR_w10_h03_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, 5), null, new DisallowedPartialSolutionsStrategy(), null, 3);
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), null, 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -165,11 +253,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsPrPNoPartialOneActionFPRHCR_w05_h03_lookahead3(){
+    public static I_Solver allAgentsPrPNoPartialOneActionFPRHCR_w10_h03_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, true, 5), null, new DisallowedPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+                        true, true, 10), null, new DisallowedPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -179,6 +267,18 @@ public class LifelongSolversFactory {
 
     public static I_Solver stationaryAgentsPrPWidePartial(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new WidePartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver allAgentsPrPWidePartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null), null, new WidePartialSolutionsStrategy(), null, null);
@@ -203,6 +303,18 @@ public class LifelongSolversFactory {
 
     public static I_Solver stationaryAgentsPrPDeepPartial(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new DeepPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver allAgentsPrPDeepPartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null), null, new DeepPartialSolutionsStrategy(), null, null);
@@ -237,6 +349,66 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver stationaryAgentsPrPOneDeepThenWidePartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new OneDeepThenWidePartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new WidePartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver allAgentsPrPOneDeepThenWidePartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new OneDeepThenWidePartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver allAgentsPrPDeepUntilFoundThenWidePartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new DeepUntilFoundFullPartialSolutionsStrategy(), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
     public static I_Solver stationaryAgentsPrPDeepUntilFoundThenWidePartial(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
@@ -249,8 +421,32 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver stationaryAgentsPrPDeepUntilFoundThenWidePartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new DeepUntilFoundFullPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
     public static I_Solver stationaryAgentsPrPCutoffStochasticIndexNoWeightPartial(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new StochasticIndexBasedPartialSolutionsStrategy(1.0, null), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver allAgentsPrPCutoffStochasticIndexNoWeightPartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null), null, new StochasticIndexBasedPartialSolutionsStrategy(1.0, null), null, null);
@@ -297,8 +493,20 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoffAdaptiveIndex25PercentInitCutoffPartial(){
+    public static I_Solver stationaryAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartial(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new AdaptiveIndexPartialSolutionsStrategy(0.25, 0.1, 42), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver allAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null), null, new AdaptiveIndexPartialSolutionsStrategy(0.25, 0.1, 42), null, null);
@@ -321,6 +529,30 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver stationaryAgentsPrPCutoff50PercentPartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new IndexBasedPartialSolutionsStrategy(0.50), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPCutoff75PercentPartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new IndexBasedPartialSolutionsStrategy(0.75), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
     public static I_Solver allAgentsPrPCutoff25PercentPartial(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
@@ -333,11 +565,35 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w05(){
+    public static I_Solver allAgentsPrPCutoff50PercentPartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new IndexBasedPartialSolutionsStrategy(0.50), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver allAgentsPrPCutoff75PercentPartial(){
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, null), null, new IndexBasedPartialSolutionsStrategy(0.75), null, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w10(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -357,11 +613,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w05_h03(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w10_h03(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -369,11 +625,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w05_h03_lookahead3(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w10_h03_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -381,11 +637,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w05_lookahead3(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w10_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -393,11 +649,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w05_lookahead5(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_w10_Lookahead5(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 5);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 5);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -405,7 +661,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_lookahead5(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialRHCR_Lookahead5(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
@@ -417,11 +673,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w05_h03(){
+    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w10_h03(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -429,11 +685,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w05_h03_lookahead3(){
+    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w10_h03_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -441,11 +697,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w05_h03_lookahead5(){
+    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w10_h03_Lookahead5(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 5);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 5);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -453,7 +709,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w05_lookahead3(){
+    public static I_Solver allAgentsPrPCutoff25PercentPartialRHCR_w05_Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
@@ -477,11 +733,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), new OneActionFailPolicy(true), null);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), new OneActionFailPolicy(true), null);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -489,11 +745,11 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05_h03(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), new OneActionFailPolicy(true), null);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), new OneActionFailPolicy(true), null);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -501,11 +757,59 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w05_h03_lookahead3(){
+    public static I_Solver stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead3(){
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 5), null, new IndexBasedPartialSolutionsStrategy(0.25), new OneActionFailPolicy(true), 3);
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.25), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPCutoff50PercentPartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.50), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPCutoff75PercentPartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new IndexBasedPartialSolutionsStrategy(0.75), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPCutoffStochasticIndexNoWeightPartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new StochasticIndexBasedPartialSolutionsStrategy(1.0, null), new OneActionFailPolicy(true), 3);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartialOneActionFPRHCR_w10_h03Lookahead3(){
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, 10), null, new AdaptiveIndexPartialSolutionsStrategy(0.25, 0.1, 42), new OneActionFailPolicy(true), 3);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
