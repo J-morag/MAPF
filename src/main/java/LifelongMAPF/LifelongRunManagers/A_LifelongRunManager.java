@@ -96,8 +96,8 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //
 //        solvers.add(LifelongSolversFactory.baselineRHCR_w05_h03());
 //        solvers.add(LifelongSolversFactory.baselineRHCR_w05_h05());
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w10_h03());
-        solvers.add(LifelongSolversFactory.baselineRHCR_w10_h05()); // baseline and friends experiment
+        solvers.add(LifelongSolversFactory.baselineRHCR_w10_h03()); // baseline and friends experiment
+//        solvers.add(LifelongSolversFactory.baselineRHCR_w10_h05());
 //        solvers.add(LifelongSolversFactory.baselineRHCR_w15_h03());
 //        solvers.add(LifelongSolversFactory.baselineRHCR_w15_h05());
 //        solvers.add(LifelongSolversFactory.baselineRHCR_w20_h03());
