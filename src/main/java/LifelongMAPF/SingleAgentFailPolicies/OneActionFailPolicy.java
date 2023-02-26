@@ -6,6 +6,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -18,8 +19,11 @@ public class OneActionFailPolicy implements I_SingleAgentFailPolicy {
     }
 
     @Override
-    public @NotNull SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, I_ConflictAvoidanceTable softConstraints) {
+    public @NotNull SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, @Nullable I_ConflictAvoidanceTable softConstraints) {
         Move stayMove = I_SingleAgentFailPolicy.getStayMove(farthestCommittedTime, a, agentLocation);
+        if (softConstraints == null)
+            // TODO log warning?
+            return new SingleAgentPlan(a, List.of(stayMove));
         int minConflicts = softConstraints.numConflicts(stayMove);
         Move bestMove = stayMove;
 

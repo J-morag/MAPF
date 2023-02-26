@@ -380,6 +380,7 @@ public class LifelongSimulationSolver extends A_Solver {
                         A_Conflict conflict = plan1.firstConflict(plan2, farthestCommittedTime + lookaheadHorizonLength);
                         if (conflict != null) {
                             // try to resolve conflict by interrupting one (preferably) or both plans.
+
                             // prefer interrupting an agent that is already in a fail state
                             if (failedAgents.contains(plan1.agent)){
                                 newPlan1 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan1, plan2, lookaheadHorizonLength);
@@ -407,10 +408,13 @@ public class LifelongSimulationSolver extends A_Solver {
 
                             // if we got here, we couldn't resolve the conflict by interrupting one plan, so we have to interrupt both
 
-                            newPlan1 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan1.agent, plan1.getFirstMove().prevLocation, null);
-                            cat.replacePlan(plan1, newPlan1);
-                            newPlan2 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2.getFirstMove().prevLocation, null);
-                            cat.replacePlan(plan2, newPlan2);
+                            cat.removePlan(plan1);
+                            newPlan1 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan1.agent, plan1.getFirstMove().prevLocation, cat);
+                            cat.addPlan(newPlan1);
+
+                            cat.removePlan(plan2);
+                            newPlan2 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2.getFirstMove().prevLocation, cat);
+                            cat.addPlan(newPlan2);
                             if (DEBUG && newPlan1.conflictsWith(newPlan2, false, false)){
                                 throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
                                         newPlan1.firstConflict(newPlan2), plan1, plan2, newPlan1, newPlan2));
