@@ -261,7 +261,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
     }
 
     private int numConflicts(Move move){
-        return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move);
+        // TODO to support PIBT paths with tie breaking by num conflicts, may have to create duplicate nodes after
+        //  reaching a goal, one as a last move and one as an intermediate move, because they would have a different number of conflicts.
+        return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move, false);
     }
 
     /*  = inner classes =  */
