@@ -24,13 +24,13 @@ public class OneActionFailPolicy implements I_SingleAgentFailPolicy {
         if (softConstraints == null)
             // TODO log warning?
             return new SingleAgentPlan(a, List.of(stayMove));
-        int minConflicts = softConstraints.numConflicts(stayMove);
+        int minConflicts = softConstraints.numConflicts(stayMove, true);
         Move bestMove = stayMove;
 
         for (I_Location neighbor:
              agentLocation.outgoingEdges()) {
             Move move = new Move(a, farthestCommittedTime + 1, agentLocation, neighbor);
-            int numConflicts = softConstraints.numConflicts(move);
+            int numConflicts = softConstraints.numConflicts(move, true);
             // ensures that stay is preferred over move for the same number of conflicts
             if (numConflicts < minConflicts && (!onlyMoveIfNoConflicts || numConflicts == 0)){
                 minConflicts = numConflicts;
