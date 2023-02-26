@@ -35,7 +35,7 @@ public class SingleUseConflictAvoidanceTable extends A_ConflictAvoidanceTable {
     }
 
     @Override
-    protected void checkInitGoalOccupancies() {
+    protected void initDataStructures() {
         if (goalOccupancies == null){
             this.goalOccupancies = new HashMap<>();
         }
@@ -43,7 +43,6 @@ public class SingleUseConflictAvoidanceTable extends A_ConflictAvoidanceTable {
 
     @Override
     protected void addGoalOccupancy(I_Location location, Move finalMove){
-        checkInitGoalOccupancies();
         // add 1 to entry time, so as not to count twice with the entry and in allOccupancies, and also not miss the
         // possible swapping conflict on the last move in the plan (if we were to instead remove the last from allOccupancies)
         if(checkGoals){
@@ -52,9 +51,7 @@ public class SingleUseConflictAvoidanceTable extends A_ConflictAvoidanceTable {
     }
 
     @Override
-    protected int getNumGoalConflicts(Move move, TimeLocation to){
-        checkInitGoalOccupancies();
-
+    protected int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove){
         int numGoalConflicts = 0;
         // check for a goal occupancy conflicting with this move
         if(goalOccupancies.containsKey(to.location) && goalOccupancies.get(to.location) <= to.time){
@@ -65,6 +62,7 @@ public class SingleUseConflictAvoidanceTable extends A_ConflictAvoidanceTable {
         // doesn't check if this is a goal move and how many conflicts that would create, which should be OK since
         // the number would be determined by the start time of staying in goal, and this method is used for tie-breaking
         // between equal length plans, so staying at goal at a different time would be a different length plan anyway
+        // TODO add support for this anyway? Need it for PIBT style paths...
         return numGoalConflicts;
     }
 
