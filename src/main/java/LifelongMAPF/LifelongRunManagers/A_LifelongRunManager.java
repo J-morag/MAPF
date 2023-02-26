@@ -126,9 +126,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndex0Point25WeightPartial());
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInitCutoffPartial());
 
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w05());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
+//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w05());
 
 
 //        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial());
