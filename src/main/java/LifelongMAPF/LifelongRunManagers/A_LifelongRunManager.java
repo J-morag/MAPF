@@ -111,7 +111,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 ////        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead3());
 ////
 //        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w10_h03()); // baseline and friends experiment
-//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialOneActionRHCR_w10_h03()); // baseline and friends experiment
+        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialOneActionRHCR_w10_h03()); // baseline and friends experiment // lookaheads experiment
 ////        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w10_h03Lookahead3());
 ////        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w10_h03Lookahead5());
 ////        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05Lookahead3());
@@ -130,25 +130,25 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 ////        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial());
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w05());
 
-        solvers.add(LifelongSolversFactory.allAgentsPrPDeepUntilFoundThenWidePartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPOneDeepThenWidePartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPWidePartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff50PercentPartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff75PercentPartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoffStochasticIndexNoWeightPartial()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartial()); // comparing macro FPs experiment
-
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPOneDeepThenWidePartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff50PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff75PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPDeepUntilFoundThenWidePartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPOneDeepThenWidePartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPWidePartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff50PercentPartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff75PercentPartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoffStochasticIndexNoWeightPartial()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartial()); // comparing macro FPs experiment
+//
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPOneDeepThenWidePartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff50PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff75PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartialOneActionFPRHCR_w10_h03Lookahead3()); // comparing macro FPs experiment
 
 ////        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial());
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10());
@@ -162,7 +162,13 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 ////
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10());
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // baseline and friends experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // baseline and friends experiment // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead1()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead2()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead4()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead5()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
 
         return solvers;
     }
