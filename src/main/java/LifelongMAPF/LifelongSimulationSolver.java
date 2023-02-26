@@ -415,7 +415,7 @@ public class LifelongSimulationSolver extends A_Solver {
                             cat.removePlan(plan2);
                             newPlan2 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2.getFirstMove().prevLocation, cat);
                             cat.addPlan(newPlan2);
-                            if (DEBUG && newPlan1.conflictsWith(newPlan2, false, false)){
+                            if (DEBUG && newPlan1.firstConflict(newPlan2, farthestCommittedTime + lookaheadHorizonLength) != null){
                                 throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
                                         newPlan1.firstConflict(newPlan2), plan1, plan2, newPlan1, newPlan2));
                             }
