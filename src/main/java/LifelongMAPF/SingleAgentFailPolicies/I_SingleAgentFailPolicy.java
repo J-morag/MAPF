@@ -6,10 +6,11 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.Solvers.Move;
 import BasicMAPF.Solvers.SingleAgentPlan;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface I_SingleAgentFailPolicy {
     @NotNull
-    SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, I_ConflictAvoidanceTable softConstraints);
+    SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, @Nullable I_ConflictAvoidanceTable softConstraints);
 
     @NotNull
     static Move getStayMove(int farthestCommittedTime, Agent a, I_Location agentLocation) {
