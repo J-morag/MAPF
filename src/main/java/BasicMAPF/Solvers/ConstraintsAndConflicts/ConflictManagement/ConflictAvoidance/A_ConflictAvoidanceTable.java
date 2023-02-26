@@ -48,6 +48,7 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
      * @param excludedAgent                     an agent whose plan is to be ignored (optional).
      */
     public A_ConflictAvoidanceTable(@Nullable Iterable<? extends SingleAgentPlan> plans, @Nullable Agent excludedAgent) {
+        initDataStructures();
         if(plans != null){
             for (SingleAgentPlan plan: plans){
                 if(excludedAgent == null || ! excludedAgent.equals(plan.agent)){
@@ -80,21 +81,19 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
 
     }
 
-    private void addOccupancy(TimeLocation timeLocation, Move move){
+    protected void addOccupancy(TimeLocation timeLocation, Move move){
         List<Move> occupanciesAtTimeLocation = regularOccupancies.computeIfAbsent(timeLocation, tl -> new ArrayList<>());
         occupanciesAtTimeLocation.add(move);
     }
-    protected abstract void checkInitGoalOccupancies();
+    protected abstract void initDataStructures();
 
     protected abstract void addGoalOccupancy(I_Location location, Move finalMove);
 
 
     /**
-     * Returns the number of conflicts that would be created by the given move.
-     * @param move the move to check for conflicts
-     * @return the number of conflicts that would be created by the given move.
+     * {@inheritDoc}
      */
-    public int numConflicts(Move move) {
+    public int numConflicts(Move move, boolean isALastMove) {
         TimeLocation from = reusableTimeLocation1.setTo(move.timeNow - 1, move.prevLocation);
 
         TimeLocation to = reusableTimeLocation2.setTo(move.timeNow, move.currLocation);
@@ -102,7 +101,7 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
         int numVertexConflicts = getNumVertexConflictsExcludingGoalConflicts(move, to);
 
         if(checkGoals){
-            numVertexConflicts += getNumGoalConflicts(move, to);
+            numVertexConflicts += getNumGoalConflicts(move, to, isALastMove);
         }
 
         // time locations of a move that would create a swapping conflict
@@ -146,6 +145,6 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
         return numVertexConflicts;
     }
 
-    abstract int getNumGoalConflicts(Move move, TimeLocation to);
+    abstract int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove);
 }
 

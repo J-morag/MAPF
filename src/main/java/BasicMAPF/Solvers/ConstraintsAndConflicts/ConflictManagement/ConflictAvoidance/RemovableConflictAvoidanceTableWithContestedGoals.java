@@ -31,7 +31,9 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     /**
      * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them..
      */
-    private Map<I_Location, List<AgentAtGoal>> goalOccupancies = new HashMap<>();
+    private Map<I_Location, List<AgentAtGoal>> goalOccupancies;
+    private Map<I_Location, ArrayList<Move>> regularOccupanciesSorted;
+    private static final MoveTimeComparator MOVE_TIME_COMPARATOR = new MoveTimeComparator();
 
     /**
      * {@inheritDoc}
@@ -61,23 +63,36 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     }
 
     @Override
-    protected void checkInitGoalOccupancies() {
+    protected void addOccupancy(TimeLocation timeLocation, Move move) {
+        super.addOccupancy(timeLocation, move);
+
+        ArrayList<Move> moves = this.regularOccupanciesSorted.computeIfAbsent(timeLocation.location, k -> new ArrayList<>());
+        int insertionIndex = Collections.binarySearch(moves, move, MOVE_TIME_COMPARATOR);
+        if (insertionIndex < 0){
+            insertionIndex = -insertionIndex - 1;
+        }
+        moves.add(insertionIndex, move);
+    }
+
+    @Override
+    protected void initDataStructures() {
         if (this.goalOccupancies == null){
             this.goalOccupancies = new HashMap<>();
+        }
+        if (this.regularOccupanciesSorted == null){
+            this.regularOccupanciesSorted = new HashMap<>();
         }
     }
 
     @Override
     protected void addGoalOccupancy(I_Location location, Move finalMove) {
-        checkInitGoalOccupancies();
         List<AgentAtGoal> agentsAtGoal = goalOccupancies.computeIfAbsent(location, k -> new ArrayList<>());
         // add 1 to time so as not to overlap with the vertex conflict
         agentsAtGoal.add(new AgentAtGoal(finalMove.agent, finalMove.timeNow + 1));
     }
 
     @Override
-    int getNumGoalConflicts(Move move, TimeLocation to) {
-        checkInitGoalOccupancies();
+    int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove) {
         List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         if (agentsAtGoal == null) {
             return 0;
@@ -86,6 +101,22 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
         for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
             if (agentAtGoal.time <= to.time) {
                 numConflicts++;
+            }
+        }
+
+        // look for conflicts where this a goal move and the other agent is not a goal move
+        if (isALastMove){
+            ArrayList<Move> sortedMovesAtLocation = regularOccupanciesSorted.get(move.currLocation);
+            if (sortedMovesAtLocation != null && !sortedMovesAtLocation.isEmpty()){
+                // use binary search to count how many occupancies exist after the move
+                int timeIndex = Collections.binarySearch(sortedMovesAtLocation, move, MOVE_TIME_COMPARATOR);
+                if (timeIndex >= 0){ // time is in the list
+                    numConflicts += sortedMovesAtLocation.size() - timeIndex - 1;
+                }
+                if (timeIndex < 0){
+                    int numSmallerOrEqualElements = -timeIndex - 1;
+                    numConflicts += sortedMovesAtLocation.size() - numSmallerOrEqualElements;
+                }
             }
         }
         return numConflicts;
@@ -119,6 +150,16 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
                 regularOccupancies.remove(timeLocation);
             }
         }
+        List<Move> sortedOccupanciesAtTimeLocation = regularOccupanciesSorted.get(timeLocation.location);
+        if(sortedOccupanciesAtTimeLocation != null){
+            int index = Collections.binarySearch(sortedOccupanciesAtTimeLocation, move, MOVE_TIME_COMPARATOR);
+            if (index >= 0){
+                sortedOccupanciesAtTimeLocation.remove(index);
+            }
+            if(removeOccupancyListsWhenEmptied && sortedOccupanciesAtTimeLocation.isEmpty()){
+                regularOccupanciesSorted.remove(timeLocation.location);
+            }
+        }
     }
 
     private void removeGoalOccupancy(I_Location currLocation, Move move) {
@@ -134,5 +175,12 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     public void replacePlan(SingleAgentPlan plan, SingleAgentPlan newPlan) {
         removePlan(plan);
         addPlan(newPlan);
+    }
+
+    private static class MoveTimeComparator implements Comparator<Move> {
+        @Override
+        public int compare(Move o1, Move o2) {
+            return Integer.compare(o1.timeNow, o2.timeNow);
+        }
     }
 }
