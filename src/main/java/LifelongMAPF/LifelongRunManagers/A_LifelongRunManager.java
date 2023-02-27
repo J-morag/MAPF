@@ -86,46 +86,34 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     @NotNull
     public static Collection<? extends I_Solver> getSolvers() {
         List<I_Solver> solvers = new ArrayList<>();
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFP());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFP());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFP());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w10_h03());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w10_h03Lookahead3()); // baseline and friends experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead3()); // baseline and friends experiment
-//
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w05_h03());
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w05_h05());
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialRHCR_w10_h03Lookahead2()); // baseline and friends experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // comparing macro FPs experiment
         solvers.add(LifelongSolversFactory.baselineRHCR_w10_h03()); // baseline and friends experiment
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w10_h05());
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w15_h03());
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w15_h05());
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w20_h03());
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w20_h05());
-//        solvers.add(LifelongSolversFactory.baselineRHCR_w20_h10());
-//
-//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartial());
-//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialRHCR_w10_h03());
-//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialRHCR_w10_h03Lookahead3());
         solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w10_h03()); // baseline and friends experiment
-//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead3());
-//
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w10_h03()); // baseline and friends experiment
-        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialOneActionRHCR_w10_h03()); // baseline and friends experiment
-//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w10_h03Lookahead5());
-//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartialRHCR_w05Lookahead3());
-//
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPOneDeepThenWidePartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff50PercentPartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff75PercentPartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartial());
+        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartialRHCR_w10_h03()); // baseline and friends experiment
+        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartialOneActionRHCR_w10_h03()); // baseline and friends experiment // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialRHCR_w10_h03Lookahead2()); // baseline and friends experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // lookaheads experiment
 
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead1()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead4()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
+
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead2()); // comparing macro FPs experiment
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead2()); // comparing macro FPs experiment
+
+        //extended comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartialOneActionFPRHCR_w10_h03Lookahead2());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPOneDeepThenWidePartialOneActionFPRHCR_w10_h03Lookahead2());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead2());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff50PercentPartialOneActionFPRHCR_w10_h03Lookahead2());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff75PercentPartialOneActionFPRHCR_w10_h03Lookahead2());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartialOneActionFPRHCR_w10_h03Lookahead2());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartialOneActionFPRHCR_w10_h03Lookahead2());
+//
 //        solvers.add(LifelongSolversFactory.allAgentsPrPDeepUntilFoundThenWidePartial());
 //        solvers.add(LifelongSolversFactory.allAgentsPrPOneDeepThenWidePartial());
 //        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartial());
@@ -135,30 +123,6 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff75PercentPartial());
 //        solvers.add(LifelongSolversFactory.allAgentsPrPCutoffStochasticIndexNoWeightPartial());
 //        solvers.add(LifelongSolversFactory.allAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartial());
-//
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPOneDeepThenWidePartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff50PercentPartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff75PercentPartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffStochasticIndexNoWeightPartialOneActionFPRHCR_w10_h03Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartialOneActionFPRHCR_w10_h03Lookahead3());
-
-//        solvers.add(LifelongSolversFactory.allAgentsPrPCutoff25PercentPartial());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10());
-//
-//
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10_h03());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10_h03Lookahead3()); // baseline and friends experiment
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10Lookahead3());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10Lookahead5());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCRLookahead5());
-//
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03());
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10_h03Lookahead3()); // baseline and friends experiment
 
         return solvers;
     }
