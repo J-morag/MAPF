@@ -408,13 +408,18 @@ public class LifelongSimulationSolver extends A_Solver {
 
                             // if we got here, we couldn't resolve the conflict by interrupting one plan, so we have to interrupt both
 
+                            // reserve the option of staying in place for agent2 to guarantee solving this conflict
+                            SingleAgentPlan stayPlan2 = STAY_ONCE_FAIL_POLICY.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2.getFirstMove().prevLocation, cat);
+                            cat.replacePlan(plan2, stayPlan2);
+
                             cat.removePlan(plan1);
                             newPlan1 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan1.agent, plan1.getFirstMove().prevLocation, cat);
                             cat.addPlan(newPlan1);
 
-                            cat.removePlan(plan2);
+                            cat.removePlan(stayPlan2);
                             newPlan2 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2.getFirstMove().prevLocation, cat);
                             cat.addPlan(newPlan2);
+
                             if (DEBUG && newPlan1.firstConflict(newPlan2, farthestCommittedTime + lookaheadHorizonLength) != null){
                                 throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
                                         newPlan1.firstConflict(newPlan2), plan1, plan2, newPlan1, newPlan2));
