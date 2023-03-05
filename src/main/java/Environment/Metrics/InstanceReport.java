@@ -37,6 +37,7 @@ public class InstanceReport {
         public final static String generatedNodes = "Generated Nodes  (High Level)";
         public final static String startDateTime = "Start Date";
         public final static String endDateTime = "End Date";
+        public final static String processorInfo = "Processor Info";
         public final static String elapsedTimeMS = "Elapsed Time (ms)";
         public final static String totalLowLevelTimeMS = "Total Low Level Time (ms)";
         public final static String timeoutThresholdMS = "Timeout Threshold";

@@ -101,7 +101,10 @@ public abstract class A_RunManager {
                     InstanceReport.StandardFields.valid,
                     InstanceReport.StandardFields.elapsedTimeMS,
                     InstanceReport.StandardFields.solutionCost,
-                    InstanceReport.StandardFields.solution});
+                    InstanceReport.StandardFields.solution,
+                    InstanceReport.StandardFields.startDateTime,
+                    InstanceReport.StandardFields.processorInfo,
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

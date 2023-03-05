@@ -5,6 +5,8 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -12,8 +14,8 @@ import java.util.concurrent.TimeUnit;
  * Performs that functionality that is common to all solvers.
  */
 public abstract class A_Solver implements I_Solver{
-    protected long DEFAULT_TIMEOUT = 5*60*1000; //5 minutes
-
+    protected final static long DEFAULT_TIMEOUT = 5*60*1000; //5 minutes
+    protected final static String processorInfo = getProcessorInfo();
     protected long maximumRuntime;
     protected long softTimeout;
     protected InstanceReport instanceReport;
@@ -62,7 +64,7 @@ public abstract class A_Solver implements I_Solver{
         this.abortedForTimeout = false;
         this.totalLowLevelStatesGenerated = 0;
         this.totalLowLevelStatesExpanded = 0;
-        this.maximumRuntime = (parameters.timeout >= 0) ? parameters.timeout : this.DEFAULT_TIMEOUT;
+        this.maximumRuntime = (parameters.timeout >= 0) ? parameters.timeout : DEFAULT_TIMEOUT;
         this.softTimeout = Math.min(parameters.softTimeout, this.maximumRuntime);
         this.instanceReport = parameters.instanceReport == null ? S_Metrics.newInstanceReport()
                 : parameters.instanceReport;
@@ -89,6 +91,7 @@ public abstract class A_Solver implements I_Solver{
 
         instanceReport.putIntegerValue(InstanceReport.StandardFields.timeoutThresholdMS, (int) this.maximumRuntime);
         instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startDate).toString());
+        instanceReport.putStringValue(InstanceReport.StandardFields.processorInfo, processorInfo);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));
         if(solution != null){
             instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
@@ -99,6 +102,16 @@ public abstract class A_Solver implements I_Solver{
         }
         instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.totalLowLevelStatesGenerated);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.totalLowLevelStatesExpanded);
+    }
+
+    private static String getProcessorInfo() {
+        try (java.util.stream.Stream<String> lines = Files.lines(Paths.get("/proc/cpuinfo"))) {
+                    return lines.filter(line -> line.startsWith("model name"))
+                    .map(line -> line.replaceAll(".*: ", ""))
+                    .findFirst().orElse("");
+        } catch (IOException e) {
+            return "N/A";
+        }
     }
 
     /**
