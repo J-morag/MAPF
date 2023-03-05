@@ -26,12 +26,18 @@ public class AllAgentsSelector implements I_LifelongAgentSelector{
 
     @Override
     public Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination) {
-        if (periodicSelector.timeMeetsOrExceedsPeriod(currentSolutionStartingFromCurrentTime)){
+        boolean isPlanningTime = timeToPlan(currentSolutionStartingFromCurrentTime.getStartTime());
+        if (isPlanningTime){
             return getAllAgentsPredicate(lifelongInstance);
         }
         else {
             return new AgentSelectionPredicate(null);
         }
+    }
+
+    @Override
+    public boolean timeToPlan(int farthestCommittedTime) {
+        return periodicSelector.timeMeetsOrExceedsPeriod(farthestCommittedTime);
     }
 
     @NotNull

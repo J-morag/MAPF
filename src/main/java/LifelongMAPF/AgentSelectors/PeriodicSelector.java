@@ -16,14 +16,15 @@ public class PeriodicSelector {
         this(1);
     }
 
-    public boolean timeMeetsOrExceedsPeriod(@NotNull Solution currentSolutionStartingFromCurrentTime) {
-        if (currentSolutionStartingFromCurrentTime.getStartTime() != 0 &&
-                currentSolutionStartingFromCurrentTime.getStartTime() <= latestPlanningTime) {
-            throw new IllegalStateException(String.format("Periodic Selector wasn't reset properly. Solution start time: %d, latest planning time: %d", currentSolutionStartingFromCurrentTime.getStartTime(), latestPlanningTime));
+    public boolean timeMeetsOrExceedsPeriod(int currentTime) {
+        if (currentTime != 0 &&
+                currentTime < latestPlanningTime) {
+            throw new IllegalStateException(String.format("Periodic Selector wasn't reset properly. Solution start time: %d, latest planning time: %d", currentTime, latestPlanningTime));
         }
-        if (currentSolutionStartingFromCurrentTime.getStartTime() == 0 ||
-                currentSolutionStartingFromCurrentTime.getStartTime() - latestPlanningTime >= replanningPeriod) {
-            latestPlanningTime = currentSolutionStartingFromCurrentTime.getStartTime();
+        if (currentTime == 0 ||
+                currentTime == latestPlanningTime || // for repeat queries
+                currentTime - latestPlanningTime >= replanningPeriod) {
+            latestPlanningTime = currentTime;
             return true;
         }
         return false;

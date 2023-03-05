@@ -197,7 +197,8 @@ public class LifelongSimulationSolver extends A_Solver {
             // done agents get "stay in place once". Same if they were blocked before
             List<SingleAgentPlan> advancedPlansToCurrentTime = getAdvancedPlansForAgents(farthestCommittedTime, latestSolution, lifelongAgentsToTimelyOfflineAgents, this.lifelongAgents);
             // TODO maybe just mark them? It would mean we won't block recursively.
-            latestSolution = enforceSafeExecution(safetyEnforcementLookaheadLength, advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
+            latestSolution = enforceSafeExecution(agentSelector.timeToPlan(farthestCommittedTime) ? safetyEnforcementLookaheadLength : 1,
+                    advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
                     new RemovableConflictAvoidanceTableWithContestedGoals(), STAY_ONCE_FAIL_POLICY);
 
             Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
@@ -359,6 +360,10 @@ public class LifelongSimulationSolver extends A_Solver {
                                                  int farthestCommittedTime, Set<Agent> failedAgents,
                                                  @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
                                                  I_SingleAgentFailPolicy SAFailPolicy){
+        if (lookaheadHorizonLength < 1){
+            throw new RuntimeException("lookaheadHorizonLength must be at least 1");
+        }
+
         Solution solutionWithoutConflicts = new Solution(solutionThatMayContainConflicts);
         boolean hadConflictsCurrentIteration = true;
         while (hadConflictsCurrentIteration){

@@ -32,6 +32,10 @@ public interface I_LifelongAgentSelector {
                                                 Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart,
                                                 Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination);
 
+    default boolean timeToPlan(int farthestCommittedTime){
+        return true;
+    }
+
     /**
      * @param lifelongInstance the lifelong instance
      * @param currentSolutionStartingFromCurrentTime the current solution being followed
