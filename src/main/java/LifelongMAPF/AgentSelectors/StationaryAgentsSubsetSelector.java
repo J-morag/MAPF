@@ -36,12 +36,17 @@ public class StationaryAgentsSubsetSelector implements I_LifelongAgentSelector {
     public Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime,
                                                        Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart,
                                                        Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination) {
-        if (periodicSelector.timeMeetsOrExceedsPeriod(currentSolutionStartingFromCurrentTime)) {
+        if (timeToPlan(currentSolutionStartingFromCurrentTime.getStartTime())) {
             return new AgentSelectionPredicate(getAllStationaryAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, agentsWaitingToStart, maxGroupSize));
         }
         else {
             return new AgentSelectionPredicate(null);
         }
+    }
+
+    @Override
+    public boolean timeToPlan(int farthestCommittedTime) {
+        return periodicSelector.timeMeetsOrExceedsPeriod(farthestCommittedTime);
     }
 
     @NotNull
