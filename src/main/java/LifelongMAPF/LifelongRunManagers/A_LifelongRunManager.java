@@ -95,9 +95,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialRHCR_w10_h03Lookahead2()); // baseline and friends experiment
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // lookaheads experiment // comparing macro FPs experiment
 //
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead1()); // lookaheads experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // lookaheads experiment
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead4()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead1()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead4()); // lookaheads experiment
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5()); // lookaheads experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead6()); // lookaheads experiment
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
