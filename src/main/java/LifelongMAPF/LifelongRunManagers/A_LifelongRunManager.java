@@ -42,6 +42,8 @@ public abstract class A_LifelongRunManager extends A_RunManager {
                 InstanceReport.StandardFields.expandedNodes,
                 InstanceReport.StandardFields.solutionCost,
                 InstanceReport.StandardFields.solution,
+                InstanceReport.StandardFields.startDateTime,
+                InstanceReport.StandardFields.processorInfo,
                 "reachedTimestepInPlanning",
                 "numPlanningIterations",
                 "avgGroupSize",
