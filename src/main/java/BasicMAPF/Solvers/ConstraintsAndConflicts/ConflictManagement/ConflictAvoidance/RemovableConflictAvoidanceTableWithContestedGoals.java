@@ -94,13 +94,12 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     @Override
     int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove) {
         List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
-        if (agentsAtGoal == null) {
-            return 0;
-        }
         int numConflicts = 0;
-        for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
-            if (agentAtGoal.time <= to.time) {
-                numConflicts++;
+        if (agentsAtGoal != null) {
+            for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
+                if (agentAtGoal.time <= to.time) {
+                    numConflicts++;
+                }
             }
         }
 
