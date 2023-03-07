@@ -2,6 +2,7 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvo
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocation;
 import BasicMAPF.Solvers.Move;
@@ -174,6 +175,111 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     public void replacePlan(SingleAgentPlan plan, SingleAgentPlan newPlan) {
         removePlan(plan);
         addPlan(newPlan);
+    }
+
+    public int firstConflictTime(Move move, boolean isALastMove) {
+        TimeLocation from = reusableTimeLocation1.setTo(move.timeNow - 1, move.prevLocation);
+
+        TimeLocation to = reusableTimeLocation2.setTo(move.timeNow, move.currLocation);
+
+        Move conflictingMove = getAMoveWithVertexConflictExcludingGoalConflicts(move, to);
+        if (conflictingMove != null){
+            return conflictingMove.timeNow;
+        }
+
+        int firstGoalConflictTime = -1;
+
+        if(checkGoals){ // TODO move this to the end to optimize?
+            firstGoalConflictTime = getFirstGoalConflict(move, to, isALastMove);
+//            if (conflictingMove != null){
+////                return getConflict(move, conflictingMove);
+//                return conflictingMove.timeNow;
+//            }
+        }
+
+        // time locations of a move that would create a swapping conflict
+        TimeLocation reverseFrom = to;
+        reverseFrom.time -= 1;
+        TimeLocation reverseTo = from;
+        reverseTo.time += 1;
+
+        conflictingMove = getAMoveWithSwappingConflict(reverseFrom, reverseTo);
+        if (conflictingMove != null){
+            return conflictingMove.timeNow;
+        }
+
+        return firstGoalConflictTime; // only the goal conflicts can have a time greater than the move's time
+    }
+
+    private Move getAMoveWithSwappingConflict(TimeLocation reverseFrom, TimeLocation reverseTo) {
+        if(regularOccupancies.containsKey(reverseFrom) && regularOccupancies.containsKey(reverseTo)){
+            // so there are occupancies at the times + locations of interest, now check if they are from a move from
+            // reverseFrom to reverseTo
+            for(Move fromMove : regularOccupancies.get(reverseFrom)){
+                if (fromMove.currLocation.equals(reverseTo.location)){
+                    return fromMove;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Move getAMoveWithVertexConflictExcludingGoalConflicts(Move move, TimeLocation to) {
+        if(regularOccupancies.containsKey(to)){
+            if (sharedSources && move.isStayAtSource){
+                // conflicts excluding stay at source
+                for (Move otherMove : regularOccupancies.get(to)){
+                    if (!otherMove.isStayAtSource){
+                        return otherMove;
+                    }
+                }
+            }
+            else {
+                for (Move otherMove : regularOccupancies.get(to)) {
+                    return otherMove;
+                }
+            }
+        }
+        return null;
+    }
+
+    private int getFirstGoalConflict(Move move, TimeLocation to, boolean isALastMove) {
+        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
+        int earliestGoalConflict = -1;
+        if (agentsAtGoal != null) {
+            for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
+                if (agentAtGoal.time <= to.time) {
+                    if (earliestGoalConflict == -1 || agentAtGoal.time < earliestGoalConflict) {
+                        earliestGoalConflict = agentAtGoal.time;
+                    }
+                }
+            }
+        }
+
+        // look for conflicts where this a goal move and the other agent is not a goal move
+        if (isALastMove){
+            ArrayList<Move> sortedMovesAtLocation = regularOccupanciesSorted.get(move.currLocation);
+            if (sortedMovesAtLocation != null && !sortedMovesAtLocation.isEmpty()){
+                // use binary search to find occupancies exist after the move
+                int timeIndex = Collections.binarySearch(sortedMovesAtLocation, move, MOVE_TIME_COMPARATOR);
+                if (timeIndex < 0){
+                    timeIndex = -timeIndex - 1;
+                }
+                for (int i = timeIndex; i < sortedMovesAtLocation.size(); i++){
+                    Move otherMove = sortedMovesAtLocation.get(i);
+                    if (earliestGoalConflict > -1 && otherMove.timeNow >= earliestGoalConflict){
+                        break;
+                    }
+                    if (otherMove.timeNow == move.timeNow){
+                        continue;
+                    }
+                    else if (earliestGoalConflict == -1 || otherMove.timeNow < earliestGoalConflict){
+                        earliestGoalConflict = otherMove.timeNow;
+                    }
+                }
+            }
+        }
+        return earliestGoalConflict;
     }
 
     private static class MoveTimeComparator implements Comparator<Move> {
