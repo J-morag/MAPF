@@ -81,6 +81,9 @@ public class LifelongSimulationSolver extends A_Solver {
     Map<LifelongAgent, I_Coordinate> agentsActiveDestination;
     Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationStartTimes;
     Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes;
+    private int sumFailPolicyIterations;
+    private int countFailPolicyLoops;
+    private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
     private final Integer safetyEnforcementLookaheadLength;
 
@@ -199,7 +202,7 @@ public class LifelongSimulationSolver extends A_Solver {
             // TODO maybe just mark them? It would mean we won't block recursively.
             latestSolution = enforceSafeExecution(agentSelector.timeToPlan(farthestCommittedTime) ? safetyEnforcementLookaheadLength : 1,
                     advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
-                    new RemovableConflictAvoidanceTableWithContestedGoals(), STAY_ONCE_FAIL_POLICY);
+                    new RemovableConflictAvoidanceTableWithContestedGoals(advancedPlansToCurrentTime, null), STAY_ONCE_FAIL_POLICY);
 
             Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
             selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
@@ -356,97 +359,54 @@ public class LifelongSimulationSolver extends A_Solver {
      * @param cat                            a conflict avoidance table that contains all current plans for all agents, including failed agents.
      * @return a repaired solution with no conflicts at the next time step.
      */
-    private static Solution enforceSafeExecution(int lookaheadHorizonLength, Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
-                                                 int farthestCommittedTime, Set<Agent> failedAgents,
-                                                 @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
-                                                 I_SingleAgentFailPolicy SAFailPolicy){
+    private Solution enforceSafeExecution(int lookaheadHorizonLength, Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
+                                          int farthestCommittedTime, Set<Agent> failedAgents,
+                                          @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
+                                          I_SingleAgentFailPolicy SAFailPolicy){
         if (lookaheadHorizonLength < 1){
             throw new RuntimeException("lookaheadHorizonLength must be at least 1");
         }
-
+        int iterations = 0;
+        Set<Agent> mobileAgents = new HashSet<>();
+        for (SingleAgentPlan plan :
+                solutionThatMayContainConflicts) {
+            if (!isStayInPlacePlan(plan)){
+                mobileAgents.add(plan.agent);
+            }
+        }
         Solution solutionWithoutConflicts = new Solution(solutionThatMayContainConflicts);
         boolean hadConflictsCurrentIteration = true;
         while (hadConflictsCurrentIteration){
             hadConflictsCurrentIteration = false;
-            SingleAgentPlan newPlan1 = null;
-            SingleAgentPlan newPlan2 = null;
 
-            for (SingleAgentPlan plan1 :
-                    solutionWithoutConflicts) {
-                if (newPlan1 != null || newPlan2 != null){
-                    break;
-                }
-                for (SingleAgentPlan plan2 :
-                        solutionWithoutConflicts) {
-                    if (newPlan1 != null || newPlan2 != null){
+            Iterator<Agent> mobileAgentsIterator = mobileAgents.iterator();
+            while (mobileAgentsIterator.hasNext()) {
+                Agent agent = mobileAgentsIterator.next();
+                SingleAgentPlan plan = solutionWithoutConflicts.getPlanFor(agent);
+                cat.removePlan(plan);
+                for (int t = plan.getFirstMoveTime(); t <= plan.getEndTime() && t <= farthestCommittedTime + lookaheadHorizonLength; t++) {
+                    int firstConflictTime = cat.firstConflictTime(plan.moveAt(t), t == plan.getEndTime());
+                    if (firstConflictTime != -1 && firstConflictTime <= farthestCommittedTime + lookaheadHorizonLength) {
+                        plan = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan.agent, plan.getFirstMove().prevLocation, cat);
+
+                        solutionWithoutConflicts.putPlan(plan);
+                        failedAgents.add(plan.agent);
+                        if (isStayInPlacePlan(plan)){
+                            mobileAgentsIterator.remove();
+                        }
+
+                        iterations++;
+                        hadConflictsCurrentIteration = true;
                         break;
                     }
-                    if (! plan1.agent.equals(plan2.agent)) {
-                        A_Conflict conflict = plan1.firstConflict(plan2, farthestCommittedTime + lookaheadHorizonLength);
-                        if (conflict != null) {
-                            // try to resolve conflict by interrupting one (preferably) or both plans.
-
-                            // prefer interrupting an agent that is already in a fail state
-                            if (failedAgents.contains(plan1.agent)){
-                                newPlan1 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan1, plan2, lookaheadHorizonLength);
-                                if (newPlan1 != null) {
-                                    cat.replacePlan(plan1, newPlan1);
-                                    break;
-                                }
-                                newPlan2 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan2, plan1, lookaheadHorizonLength);
-                                if (newPlan2 != null) {
-                                    cat.replacePlan(plan2, newPlan2);
-                                    break;
-                                }
-                            } else {
-                                newPlan2 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan2, plan1, lookaheadHorizonLength);
-                                if (newPlan2 != null) {
-                                    cat.replacePlan(plan2, newPlan2);
-                                    break;
-                                }
-                                newPlan1 = tryToResolveByGettingFailPlan(farthestCommittedTime, cat, SAFailPolicy, plan1, plan2, lookaheadHorizonLength);
-                                if (newPlan1 != null) {
-                                    cat.replacePlan(plan1, newPlan1);
-                                    break;
-                                }
-                            }
-
-                            // if we got here, we couldn't resolve the conflict by interrupting one plan, so we have to interrupt both
-
-                            // reserve the option of staying in place for agent2 to guarantee solving this conflict
-                            SingleAgentPlan stayPlan2 = STAY_ONCE_FAIL_POLICY.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2.getFirstMove().prevLocation, cat);
-                            cat.replacePlan(plan2, stayPlan2);
-
-                            cat.removePlan(plan1);
-                            newPlan1 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan1.agent, plan1.getFirstMove().prevLocation, cat);
-                            cat.addPlan(newPlan1);
-
-                            cat.removePlan(stayPlan2);
-                            newPlan2 = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan2.agent, plan2.getFirstMove().prevLocation, cat);
-                            cat.addPlan(newPlan2);
-
-                            if (DEBUG && newPlan1.firstConflict(newPlan2, farthestCommittedTime + lookaheadHorizonLength) != null){
-                                throw new RuntimeException(String.format("Both agents staying in place should not result in a conflict. \nconflict = %1$s \noriginal plan1 = %2$s\noriginal plan2= %3$s\nnew plan1= %4$s\nnew plan 2=%5$s",
-                                        newPlan1.firstConflict(newPlan2), plan1, plan2, newPlan1, newPlan2));
-                            }
-                        }
-                    }
                 }
-            }
-
-            if (newPlan1 != null || newPlan2 != null){
-                hadConflictsCurrentIteration = true;
-                if (newPlan1 != null){
-                    solutionWithoutConflicts.putPlan(newPlan1);
-                    failedAgents.add(newPlan1.agent);
-                }
-                if (newPlan2 != null){
-                    solutionWithoutConflicts.putPlan(newPlan2);
-                    failedAgents.add(newPlan2.agent);
-                }
+                cat.addPlan(plan);
             }
         }
 
+        this.sumFailPolicyIterations += iterations;
+        this.countFailPolicyLoops++;
+        this.maxFailPolicyIterations = Math.max(this.maxFailPolicyIterations, iterations);
         if (DEBUG){
             verifyNextStepSafe(solutionThatMayContainConflicts, solutionWithoutConflicts);
         }
@@ -459,18 +419,8 @@ public class LifelongSimulationSolver extends A_Solver {
         return solutionWithoutConflicts;
     }
 
-    @Nullable
-    private static SingleAgentPlan tryToResolveByGettingFailPlan(int farthestCommittedTime, @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
-                                                                 I_SingleAgentFailPolicy SAFailPolicy, SingleAgentPlan originalPlan,
-                                                                 SingleAgentPlan otherPlan, int lookaheadHorizonLength) {
-        cat.removePlan(originalPlan);
-        SingleAgentPlan failPlan = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, originalPlan.agent, originalPlan.getFirstMove().prevLocation, cat);
-        cat.addPlan(originalPlan);
-        if (failPlan.firstConflict(otherPlan, farthestCommittedTime + lookaheadHorizonLength) == null){
-            // resolved by interrupting this plan
-            return failPlan;
-        }
-        return null;
+    private static boolean isStayInPlacePlan(SingleAgentPlan plan) {
+        return plan.size() == 1 && plan.getFirstMove().prevLocation.equals(plan.getFirstMove().currLocation);
     }
 
     private static void verifyNextStepSafe(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionWithoutConflicts) {
@@ -756,9 +706,11 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putIntegerValue("throughputAtT300", lifelongSolution.throughputAtT(300));
         super.instanceReport.putIntegerValue("throughputAtT400", lifelongSolution.throughputAtT(400));
         super.instanceReport.putIntegerValue("throughputAtT500", lifelongSolution.throughputAtT(500));
+        super.instanceReport.putIntegerValue("maxFailPolicyIterations", this.maxFailPolicyIterations);
 
         super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
         super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
+        super.instanceReport.putFloatValue("avgFailPolicyIterations", this.sumFailPolicyIterations / (float)this.countFailPolicyLoops);
     }
 
     @Override
