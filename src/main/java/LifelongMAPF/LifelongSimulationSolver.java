@@ -81,6 +81,9 @@ public class LifelongSimulationSolver extends A_Solver {
     Map<LifelongAgent, I_Coordinate> agentsActiveDestination;
     Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationStartTimes;
     Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes;
+    private int sumFailPolicyIterations;
+    private int countFailPolicyLoops;
+    private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
     private final Integer safetyEnforcementLookaheadLength;
 
@@ -356,13 +359,14 @@ public class LifelongSimulationSolver extends A_Solver {
      * @param cat                            a conflict avoidance table that contains all current plans for all agents, including failed agents.
      * @return a repaired solution with no conflicts at the next time step.
      */
-    private static Solution enforceSafeExecution(int lookaheadHorizonLength, Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
-                                                 int farthestCommittedTime, Set<Agent> failedAgents,
-                                                 @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
-                                                 I_SingleAgentFailPolicy SAFailPolicy){
+    private Solution enforceSafeExecution(int lookaheadHorizonLength, Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
+                                          int farthestCommittedTime, Set<Agent> failedAgents,
+                                          @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
+                                          I_SingleAgentFailPolicy SAFailPolicy){
         if (lookaheadHorizonLength < 1){
             throw new RuntimeException("lookaheadHorizonLength must be at least 1");
         }
+        int iterations = 0;
 
         Solution solutionWithoutConflicts = new Solution(solutionThatMayContainConflicts);
         boolean hadConflictsCurrentIteration = true;
@@ -436,6 +440,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
             if (newPlan1 != null || newPlan2 != null){
                 hadConflictsCurrentIteration = true;
+                iterations++;
                 if (newPlan1 != null){
                     solutionWithoutConflicts.putPlan(newPlan1);
                     failedAgents.add(newPlan1.agent);
@@ -447,6 +452,9 @@ public class LifelongSimulationSolver extends A_Solver {
             }
         }
 
+        this.sumFailPolicyIterations += iterations;
+        this.countFailPolicyLoops++;
+        this.maxFailPolicyIterations = Math.max(this.maxFailPolicyIterations, iterations);
         if (DEBUG){
             verifyNextStepSafe(solutionThatMayContainConflicts, solutionWithoutConflicts);
         }
@@ -756,9 +764,11 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putIntegerValue("throughputAtT300", lifelongSolution.throughputAtT(300));
         super.instanceReport.putIntegerValue("throughputAtT400", lifelongSolution.throughputAtT(400));
         super.instanceReport.putIntegerValue("throughputAtT500", lifelongSolution.throughputAtT(500));
+        super.instanceReport.putIntegerValue("maxFailPolicyIterations", this.maxFailPolicyIterations);
 
         super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
         super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
+        super.instanceReport.putFloatValue("avgFailPolicyIterations", this.sumFailPolicyIterations / (float)this.countFailPolicyLoops);
     }
 
     @Override

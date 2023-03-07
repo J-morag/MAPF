@@ -49,6 +49,8 @@ public abstract class A_LifelongRunManager extends A_RunManager {
                 "avgGroupSize",
                 "avgFailedAgents",
                 "avgBlockedAgents",
+                "maxFailPolicyIterations",
+                "avgFailPolicyIterations",
                 "waypointTimes",
                 "SOC",
                 "makespan",
