@@ -22,6 +22,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
+import LifelongMAPF.SingleAgentFailPolicies.AllStayOnceFailPolicy;
 import LifelongMAPF.SingleAgentFailPolicies.I_SingleAgentFailPolicy;
 import LifelongMAPF.SingleAgentFailPolicies.StayOnceFailPolicy;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
@@ -231,8 +232,14 @@ public class LifelongSimulationSolver extends A_Solver {
                 Set<Agent> failedAgentsAfterPlanning = new HashSet<>();
                 RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(nextPlansForNotSelectedAgents, null);
                 latestSolution = addFailedAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, failedAgentsAfterPlanning, this.lifelongInstance, cat);
-                latestSolution = enforceSafeExecution(safetyEnforcementLookaheadLength, latestSolution, farthestCommittedTime,
-                        failedAgentsAfterPlanning, cat, SAFailPolicy);
+                if ( ! failedAgentsAfterPlanning.isEmpty() && SAFailPolicy instanceof AllStayOnceFailPolicy allStayOnceFailPolicy){
+                    latestSolution = allStayOnceFailPolicy.stopAll(latestSolution);
+                    failedAgentsAfterPlanning.addAll(lifelongAgents); // all agents are blocked
+                }
+                else{
+                    latestSolution = enforceSafeExecution(safetyEnforcementLookaheadLength, latestSolution, farthestCommittedTime,
+                            failedAgentsAfterPlanning, cat, SAFailPolicy);
+                }
 
                 sumBlockedSizesAfterPlanning += failedAgentsAfterPlanning.size();
 
