@@ -115,7 +115,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // comparing macro FPs experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // lookaheads experiment // comparing macro FPs experiment
 
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPLookahead1()); // greedy
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPLookahead1()); // greedy
 
         //extended comparing macro FPs experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartialOneActionFPRHCR_w10_h03Lookahead2());
