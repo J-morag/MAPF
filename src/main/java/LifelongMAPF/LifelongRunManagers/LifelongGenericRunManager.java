@@ -57,7 +57,7 @@ public class LifelongGenericRunManager extends A_LifelongRunManager{
         InstanceManager instanceManager = new InstanceManager(instancesDir, instanceBuilder, properties);
 
         /*  =   Add new experiment   =  */
-        Experiment experiment = new LifleongExperiment(experimentName, instanceManager, minResponseTime, maxTimeSteps);
+        Experiment experiment = new LifleongExperiment(experimentName, instanceManager, null, getTimeoutEach(), minResponseTime, maxTimeSteps);
         experiment.skipAfterFail = this.skipAfterFail;
         experiment.visualizer = this.visualizer;
         this.experiments.add(experiment);
