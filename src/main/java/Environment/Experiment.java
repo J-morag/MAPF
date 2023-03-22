@@ -3,6 +3,9 @@ package Environment;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Enum_MapLocationType;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
+import BasicMAPF.Instances.Maps.I_Location;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.I_Solver;
@@ -74,15 +77,34 @@ public class Experiment {
 
     public InstanceReport setReport(MAPF_Instance instance, I_Solver solver) {
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        /*  = Put values in report =  */
+
         instanceReport.putStringValue(InstanceReport.StandardFields.experimentName, this.experimentName);
         instanceReport.putStringValue(InstanceReport.StandardFields.instanceName, instance.extendedName);
         instanceReport.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
+        putMapStats(instanceReport, instance);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
         instanceReport.putIntegerValue(InstanceReport.StandardFields.obstacleRate, instance.getObstaclePercentage());
         instanceReport.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
         return instanceReport;
+    }
+
+    private void putMapStats(InstanceReport instanceReport, MAPF_Instance instance) {
+        if (instance.map instanceof I_ExplicitMap explicitMap) {
+            int traversableLocations = 0;
+            int sumInDegree = 0;
+            int sumOutDegree = 0;
+            for (I_Location loc : explicitMap.getAllLocations()) {
+                if (loc.getType().equals(Enum_MapLocationType.EMPTY) || loc.getType().equals(Enum_MapLocationType.NO_STOP)) {
+                    traversableLocations++;
+                    sumInDegree += loc.incomingEdges().size();
+                    sumOutDegree += loc.outgoingEdges().size();
+                }
+            }
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.numTraversableLocations , traversableLocations);
+            instanceReport.putFloatValue(InstanceReport.StandardFields.avgInDegree, sumInDegree / (float)traversableLocations);
+            instanceReport.putFloatValue(InstanceReport.StandardFields.avgOutDegree, sumOutDegree / (float)traversableLocations);
+        }
     }
 
 
