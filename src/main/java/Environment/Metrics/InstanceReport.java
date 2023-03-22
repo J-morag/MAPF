@@ -40,6 +40,7 @@ public class InstanceReport {
         public final static String processorInfo = "Processor Info";
         public final static String elapsedTimeMS = "Elapsed Time (ms)";
         public final static String totalLowLevelTimeMS = "Total Low Level Time (ms)";
+        public final static String totalLowLevelCalls = "Total Calls to Low Level";
         public final static String timeoutThresholdMS = "Timeout Threshold";
         public final static String solved = "Solved";
         public final static String valid = "Valid";

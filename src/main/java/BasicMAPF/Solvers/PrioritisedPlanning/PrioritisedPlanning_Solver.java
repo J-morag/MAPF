@@ -62,7 +62,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     private AStarGAndH heuristic;
 
-      /**
+    /**
      * if agents share goals, they will not conflict at their goal.
      */
     public boolean sharedGoals;
@@ -308,19 +308,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     private static InstanceReport initSubproblemReport(MAPF_Instance instance) {
-        InstanceReport subproblemReport = S_Metrics.newInstanceReport();
+        InstanceReport subproblemReport = new InstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
         return subproblemReport;
-    }
-
-    private void digestSubproblemReport(InstanceReport subproblemReport) {
-        Integer statesGenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
-        this.totalLowLevelStatesGenerated += statesGenerated==null ? 0 : statesGenerated;
-        Integer statesExpanded = subproblemReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-        this.totalLowLevelStatesExpanded += statesExpanded==null ? 0 : statesExpanded;
-        //we consolidate the subproblem report into the main report, and remove the subproblem report.
-        S_Metrics.removeReport(subproblemReport);
     }
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
