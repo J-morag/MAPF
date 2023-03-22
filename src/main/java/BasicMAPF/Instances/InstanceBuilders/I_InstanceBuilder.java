@@ -158,7 +158,7 @@ public interface I_InstanceBuilder {
 
                 Enum_MapLocationType locationType = locationTypeHashMap.get(character);
 
-                if ( locationType.equals(Enum_MapLocationType.WALL)){
+                if ( locationType.equals(Enum_MapLocationType.WALL) || locationType.equals(Enum_MapLocationType.TREE)){
                     actualNumOfObstacles++; // add one wall to counter
                 }else{
                     numOfNonObstacles++; // add one to non obstacle counter

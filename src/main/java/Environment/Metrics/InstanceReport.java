@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class InstanceReport {
 
-    //max location size of excel, plus room for wrapping with "" plus some safety
+    //max location size of Excel, plus room for wrapping with "" plus some safety
     private static final int MAX_STRING_SIZE = 32767 - 12;
     public static final String EXTENSION_STRING = " - Extended ";
 
@@ -30,6 +30,9 @@ public class InstanceReport {
         public final static String mapName = "Map Name";
         public final static String numAgents = "# Agents";
         public final static String obstacleRate = "% Obstacles";
+        public final static String numTraversableLocations = "# Traversable Locations";
+        public final static String avgInDegree = "Avg In Degree";
+        public final static String avgOutDegree = "Avg Out Degree";
         public final static String solver = "Solver";
         public final static String expandedNodesLowLevel = "Expanded Nodes (Low Level)";
         public final static String expandedNodes = "Expanded Nodes (High Level)";
