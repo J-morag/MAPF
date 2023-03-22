@@ -344,7 +344,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      * @return a solution to a single agent sub-problem. Typically the same object as currentSolution, after being modified.
      */
     private Solution solveSubproblem(Agent agent, Solution currentSolution, ConstraintSet constraints) {
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = new InstanceReport();
         RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport, agent);
         Solution subproblemSolution = this.lowLevelSolver.solve(this.instance.getSubproblemFor(agent), subproblemParameters);
         digestSubproblemReport(instanceReport);
@@ -366,17 +366,6 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
             subproblemParametes = astarSbuproblemParameters;
         }
         return subproblemParametes;
-    }
-
-    private void digestSubproblemReport(InstanceReport subproblemReport) {
-        Integer statesGenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
-        super.totalLowLevelStatesGenerated += statesGenerated==null ? 0 : statesGenerated;
-        Integer statesExpanded = subproblemReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-        super.totalLowLevelStatesExpanded += statesExpanded==null ? 0 : statesExpanded;
-        Integer lowLevelRuntime = subproblemReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-        super.instanceReport.integerAddition(InstanceReport.StandardFields.totalLowLevelTimeMS, lowLevelRuntime);
-        //we consolidate the subproblem report into the main report, and remove the subproblem report.
-        S_Metrics.removeReport(subproblemReport);
     }
 
     /**

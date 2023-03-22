@@ -9,7 +9,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
@@ -19,7 +19,6 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.SingleAgentFailPolicies.AllStayOnceFailPolicy;
@@ -87,6 +86,10 @@ public class LifelongSimulationSolver extends A_Solver {
     private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
     private final Integer safetyEnforcementLookaheadLength;
+    private int totalAStarNodesGenerated;
+    private int totalAStarNodesExpanded;
+    private int totalAStarRuntimeMS;
+    private int totalAStarCalls;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
                                     I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
@@ -151,6 +154,10 @@ public class LifelongSimulationSolver extends A_Solver {
             this.maxTimeSteps = tmpForDefaults.maxTimeSteps;
         }
         this.partialSolutionsStrategy.resetState(this.random);
+        totalAStarNodesGenerated = 0;
+        totalAStarNodesExpanded = 0;
+        totalAStarRuntimeMS = 0;
+        totalAStarCalls = 0;
     }
 
     private static List<LifelongAgent> verifyAndCastAgents(List<Agent> agents) {
@@ -637,18 +644,31 @@ public class LifelongSimulationSolver extends A_Solver {
         return trimmedPlan;
     }
 
+    @Override
+    protected void digestSubproblemReport(InstanceReport subproblemReport) {
+        throw new RuntimeException("Should not be called. Use digestSubproblemReport(InstanceReport subproblemInstanceReport, MAPF_Instance timelyOfflineProblem) instead.");
+    }
+
     protected void digestSubproblemReport(InstanceReport subproblemInstanceReport, MAPF_Instance timelyOfflineProblem) {
-        Integer statesGenerated = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
-        this.totalLowLevelStatesGenerated += statesGenerated == null ? 0 : statesGenerated;
-        Integer statesExpanded = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-        this.totalLowLevelStatesExpanded += statesExpanded == null ? 0 : statesExpanded;
-        Integer lowLevelRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-        this.instanceReport.integerAddition(InstanceReport.StandardFields.totalLowLevelTimeMS, lowLevelRuntime == null ? 0 : lowLevelRuntime);
-        Integer generatedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
-        this.instanceReport.integerAddition(InstanceReport.StandardFields.generatedNodes, generatedNodes == null ? 0 : generatedNodes);
-        Integer expandedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
-        this.instanceReport.integerAddition(InstanceReport.StandardFields.expandedNodes, expandedNodes == null ? 0 : expandedNodes);
-        S_Metrics.removeReport(subproblemInstanceReport);
+        if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof CBS_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
+            Integer AStarNodesGenerated = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
+            this.totalAStarNodesGenerated += AStarNodesGenerated == null ? 0 : AStarNodesGenerated;
+            Integer AStarNodesExpanded = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+            this.totalAStarNodesExpanded += AStarNodesExpanded == null ? 0 : AStarNodesExpanded;
+            Integer AStarRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+            this.totalAStarRuntimeMS += AStarRuntime == null ? 0 : AStarRuntime;
+            Integer AStarCalls = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls);
+            this.totalAStarCalls += AStarCalls == null ? 0 : AStarCalls;
+        }
+
+        Integer offlineSolverRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        super.totalLowLevelTimeMS += offlineSolverRuntime == null ? 0 : offlineSolverRuntime;
+        Integer offlineSolverGeneratedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
+        super.totalLowLevelNodesGenerated += offlineSolverGeneratedNodes == null ? 0 : offlineSolverGeneratedNodes;
+        Integer offlineSolverExpandedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+        super.totalLowLevelNodesExpanded += offlineSolverExpandedNodes == null ? 0 : offlineSolverExpandedNodes;
+        super.totalLowLevelCalls++;
+
         if (this.offlineSolver instanceof  PrioritisedPlanning_Solver){
             int numAgents = timelyOfflineProblem.agents.size();
             int numAttempts = subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countInitialAttemptsMetricString) + subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countContingencyAttemptsMetricString);
@@ -694,6 +714,12 @@ public class LifelongSimulationSolver extends A_Solver {
             super.instanceReport.putFloatValue("averageNumAttempts", (float) (sumIterations / numAgentsAndNumIterationsMetric.size()));
             super.instanceReport.putFloatValue("averageNumAttemptsOver100Agents", (float) (sumIterationsOver100Agents / numSamplesOver100Agents));
             super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
+        }
+        if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof CBS_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
+            super.instanceReport.putIntegerValue("totalAStarNodesGenerated", this.totalAStarNodesGenerated);
+            super.instanceReport.putIntegerValue("totalAStarNodesExpanded", this.totalAStarNodesExpanded);
+            super.instanceReport.putIntegerValue("totalAStarRuntimeMS", this.totalAStarRuntimeMS);
+            super.instanceReport.putIntegerValue("totalAStarCalls", this.totalAStarCalls);
         }
 
         LifelongSolution lifelongSolution = ((LifelongSolution)solution);

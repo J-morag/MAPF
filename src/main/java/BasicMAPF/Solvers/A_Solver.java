@@ -25,8 +25,10 @@ public abstract class A_Solver implements I_Solver{
     protected long startDate;
     protected long endTime;
     protected boolean abortedForTimeout;
-    protected int totalLowLevelStatesGenerated;
-    protected int totalLowLevelStatesExpanded;
+    protected int totalLowLevelNodesGenerated;
+    protected int totalLowLevelNodesExpanded;
+    protected int totalLowLevelTimeMS;
+    protected int totalLowLevelCalls;
     public String name;
 
     /**
@@ -62,8 +64,10 @@ public abstract class A_Solver implements I_Solver{
         this.startDate = System.currentTimeMillis();
         this.endTime = 0;
         this.abortedForTimeout = false;
-        this.totalLowLevelStatesGenerated = 0;
-        this.totalLowLevelStatesExpanded = 0;
+        this.totalLowLevelNodesGenerated = 0;
+        this.totalLowLevelNodesExpanded = 0;
+        this.totalLowLevelTimeMS = 0;
+        this.totalLowLevelCalls = 0;
         this.maximumRuntime = (parameters.timeout >= 0) ? parameters.timeout : DEFAULT_TIMEOUT;
         this.softTimeout = Math.min(parameters.softTimeout, this.maximumRuntime);
         this.instanceReport = parameters.instanceReport == null ? S_Metrics.newInstanceReport()
@@ -80,6 +84,16 @@ public abstract class A_Solver implements I_Solver{
     /*  = algorithm =  */
 
     protected abstract Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters);
+
+    protected void digestSubproblemReport(InstanceReport subproblemReport) {
+        Integer statesGenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
+        this.totalLowLevelNodesGenerated += statesGenerated==null ? 0 : statesGenerated;
+        Integer statesExpanded = subproblemReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+        this.totalLowLevelNodesExpanded += statesExpanded==null ? 0 : statesExpanded;
+        Integer totalLowLevelTimeMS = subproblemReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        this.totalLowLevelTimeMS += totalLowLevelTimeMS==null ? 0 : totalLowLevelTimeMS;
+        this.totalLowLevelCalls++;
+    }
 
     /*  = wind down =  */
 
@@ -100,8 +114,10 @@ public abstract class A_Solver implements I_Solver{
         else{
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
         }
-        instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.totalLowLevelStatesGenerated);
-        instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.totalLowLevelStatesExpanded);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.totalLowLevelNodesGenerated);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.totalLowLevelNodesExpanded);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS, this.totalLowLevelTimeMS);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls, this.totalLowLevelCalls);
     }
 
     private static String getProcessorInfo() {
