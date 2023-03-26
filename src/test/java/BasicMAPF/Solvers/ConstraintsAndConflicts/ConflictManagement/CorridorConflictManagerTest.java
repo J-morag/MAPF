@@ -167,7 +167,7 @@ class CorridorConflictManagerTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
@@ -186,6 +186,7 @@ class CorridorConflictManagerTest {
                             InstanceReport.StandardFields.expandedNodesLowLevel});
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
