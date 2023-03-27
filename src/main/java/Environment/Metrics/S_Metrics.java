@@ -1,12 +1,11 @@
 package Environment.Metrics;
 
 
+import Environment.RunManagers.A_RunManager;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 
 /**
  * This is a static class, responsible for collecting and exporting metrics generated during experiments.
@@ -181,26 +180,11 @@ public class S_Metrics {
     public static void addSolutionExportOutputStream(String pathName) throws IOException {
         int index = S_Metrics.getAllReports().size() - 1;
 
-        if (verifyOutputPath(pathName)) {
+        if (A_RunManager.verifyOutputPath(pathName)) {
             String fullPathName = pathName + "/" + index + ".txt";
             addOutputStream(new FileOutputStream(fullPathName), S_Metrics::instanceReportToSolutionString);
         }
     }
-
-
-    public static boolean verifyOutputPath(String path) {
-        File directory = new File(path);
-        if (! directory.exists()){
-            boolean created = directory.mkdir();
-            if(!created){
-                String errString = "Could not locate or create output directory.";
-                System.out.println(errString);
-                return false;
-            }
-        }
-        return true;
-    }
-
 
 
     public static void removeOutputStream(OutputStream outputStream){

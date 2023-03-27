@@ -111,5 +111,16 @@ class S_MetricsTest {
         }
     }
 
+    @Test
+    void addSolutionExportOutputStream() {
+        try{
+            S_Metrics.addSolutionExportOutputStream("D:/");
+            S_Metrics.addSolutionExportOutputStream("doesNotExists"); // still works, creates new directory
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     // nicetohave also add automated test (using asserts)
 }
