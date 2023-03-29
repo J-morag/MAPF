@@ -13,15 +13,13 @@ import java.util.function.Predicate;
 /**
  * A STATEFUL agent selector that selects all agents once (and only once) per every predetermined period length.
  */
-public class AllAgentsSelector implements I_LifelongAgentSelector{
-    public final PeriodicSelector periodicSelector;
+public class AllAgentsSelector extends A_LifelongAgentSelector{
 
     public AllAgentsSelector(PeriodicSelector periodicSelector) {
-        this.periodicSelector = Objects.requireNonNullElse(periodicSelector, new PeriodicSelector(1));
+        super(periodicSelector);
     }
 
     public AllAgentsSelector() {
-        this(null);
     }
 
     @Override
@@ -33,11 +31,6 @@ public class AllAgentsSelector implements I_LifelongAgentSelector{
         else {
             return new AgentSelectionPredicate(null);
         }
-    }
-
-    @Override
-    public boolean timeToPlan(int farthestCommittedTime) {
-        return periodicSelector.timeMeetsOrExceedsPeriod(farthestCommittedTime);
     }
 
     @NotNull

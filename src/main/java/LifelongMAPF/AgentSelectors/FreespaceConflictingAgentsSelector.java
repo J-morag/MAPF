@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * Computes an individual optimal free-space path for each agent without a path, selects agents whose current path
  * conflicts with any of the individual optimal paths.
  */
-public class FreespaceConflictingAgentsSelector implements I_LifelongAgentSelector {
+public class FreespaceConflictingAgentsSelector extends A_LifelongAgentSelector{
 
     SingleAgentAStar_Solver singleAgentSolver;
     int maxGroupSize;

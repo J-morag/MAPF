@@ -85,7 +85,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private int countFailPolicyLoops;
     private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
-    private final Integer safetyEnforcementLookaheadLength;
+    private final Integer selectionLookaheadLength;
     private int totalAStarNodesGenerated;
     private int totalAStarNodesExpanded;
     private int totalAStarRuntimeMS;
@@ -94,7 +94,7 @@ public class LifelongSimulationSolver extends A_Solver {
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
                                     I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
                                     @Nullable PartialSolutionsStrategy partialSolutionsStrategy,
-                                    @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy, @Nullable Integer safetyEnforcementLookaheadLength) {
+                                    @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy, @Nullable Integer selectionLookaheadLength) {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
@@ -109,10 +109,10 @@ public class LifelongSimulationSolver extends A_Solver {
         this.agentSelector = Objects.requireNonNullElse(agentSelector, new StationaryAgentsSubsetSelector());
         this.name = "Lifelong_" + offlineSolver.name();
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
-        if (safetyEnforcementLookaheadLength != null && safetyEnforcementLookaheadLength < 1)
+        if (selectionLookaheadLength != null && selectionLookaheadLength < 1)
             throw new IllegalArgumentException("Safety enforcement lookahead must be at least 1 (or null for default value of 1)." +
-                    " Given value: " + safetyEnforcementLookaheadLength);
-        this.safetyEnforcementLookaheadLength = Objects.requireNonNullElse(safetyEnforcementLookaheadLength, 1);
+                    " Given value: " + selectionLookaheadLength);
+        this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, 1);
     }
 
     @Override
@@ -207,10 +207,16 @@ public class LifelongSimulationSolver extends A_Solver {
             Set<Agent> blockedAgentsBeforePlanningIteration = new HashSet<>();
             // done agents get "stay in place once". Same if they were blocked before
             List<SingleAgentPlan> advancedPlansToCurrentTime = getAdvancedPlansForAgents(farthestCommittedTime, latestSolution, lifelongAgentsToTimelyOfflineAgents, this.lifelongAgents);
-            // TODO maybe just mark them? It would mean we won't block recursively.
-            latestSolution = enforceSafeExecution(agentSelector.timeToPlan(farthestCommittedTime) ? safetyEnforcementLookaheadLength : 1,
-                    advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
-                    new RemovableConflictAvoidanceTableWithContestedGoals(advancedPlansToCurrentTime, null), STAY_ONCE_FAIL_POLICY);
+            // don't check conflicts between planning iterations (they shouldn't happen when k-safe <= planning frequency)
+            if (agentSelector.timeToPlan(farthestCommittedTime)){
+                // TODO maybe just mark them? It would mean we won't block recursively.
+                latestSolution = enforceSafeExecution(agentSelector.timeToPlan(farthestCommittedTime) ? selectionLookaheadLength : 1,
+                        advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
+                        new RemovableConflictAvoidanceTableWithContestedGoals(advancedPlansToCurrentTime, null), STAY_ONCE_FAIL_POLICY);
+            }
+            else {
+                latestSolution = new Solution(advancedPlansToCurrentTime);
+            }
 
             Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
             selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
@@ -244,7 +250,8 @@ public class LifelongSimulationSolver extends A_Solver {
                     failedAgentsAfterPlanning.addAll(lifelongAgents); // all agents are blocked
                 }
                 else{
-                    latestSolution = enforceSafeExecution(safetyEnforcementLookaheadLength, latestSolution, farthestCommittedTime,
+                    int failPolicyKSafety = agentSelector.getPlanningFrequency();
+                    latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
                             failedAgentsAfterPlanning, cat, SAFailPolicy);
                 }
 
