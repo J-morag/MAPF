@@ -207,10 +207,16 @@ public class LifelongSimulationSolver extends A_Solver {
             Set<Agent> blockedAgentsBeforePlanningIteration = new HashSet<>();
             // done agents get "stay in place once". Same if they were blocked before
             List<SingleAgentPlan> advancedPlansToCurrentTime = getAdvancedPlansForAgents(farthestCommittedTime, latestSolution, lifelongAgentsToTimelyOfflineAgents, this.lifelongAgents);
-            // TODO maybe just mark them? It would mean we won't block recursively.
-            latestSolution = enforceSafeExecution(agentSelector.timeToPlan(farthestCommittedTime) ? selectionLookaheadLength : 1,
-                    advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
-                    new RemovableConflictAvoidanceTableWithContestedGoals(advancedPlansToCurrentTime, null), STAY_ONCE_FAIL_POLICY);
+            // don't check conflicts between planning iterations (they shouldn't happen when k-safe <= planning frequency)
+            if (agentSelector.timeToPlan(farthestCommittedTime)){
+                // TODO maybe just mark them? It would mean we won't block recursively.
+                latestSolution = enforceSafeExecution(agentSelector.timeToPlan(farthestCommittedTime) ? selectionLookaheadLength : 1,
+                        advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
+                        new RemovableConflictAvoidanceTableWithContestedGoals(advancedPlansToCurrentTime, null), STAY_ONCE_FAIL_POLICY);
+            }
+            else {
+                latestSolution = new Solution(advancedPlansToCurrentTime);
+            }
 
             Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
             selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
