@@ -10,14 +10,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class StationaryAgentsSubsetSelector implements I_LifelongAgentSelector {
+public class StationaryAgentsSubsetSelector extends A_LifelongAgentSelector {
 
     final int maxGroupSize;
-    public final PeriodicSelector periodicSelector;
 
     public StationaryAgentsSubsetSelector(Integer maxGroupSize, PeriodicSelector periodicSelector) {
+        super(periodicSelector);
         this.maxGroupSize = Objects.requireNonNullElse(maxGroupSize, Integer.MAX_VALUE);
-        this.periodicSelector = Objects.requireNonNullElse(periodicSelector, new PeriodicSelector(1));
     }
 
     public StationaryAgentsSubsetSelector(Integer maxGroupSize) {
@@ -42,11 +41,6 @@ public class StationaryAgentsSubsetSelector implements I_LifelongAgentSelector {
         else {
             return new AgentSelectionPredicate(null);
         }
-    }
-
-    @Override
-    public boolean timeToPlan(int farthestCommittedTime) {
-        return periodicSelector.timeMeetsOrExceedsPeriod(farthestCommittedTime);
     }
 
     @NotNull

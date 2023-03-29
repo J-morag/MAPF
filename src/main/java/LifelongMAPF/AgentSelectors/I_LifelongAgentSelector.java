@@ -36,6 +36,10 @@ public interface I_LifelongAgentSelector {
         return true;
     }
 
+    default int getPlanningFrequency(){
+        return 1;
+    }
+
     /**
      * @param lifelongInstance the lifelong instance
      * @param currentSolutionStartingFromCurrentTime the current solution being followed
