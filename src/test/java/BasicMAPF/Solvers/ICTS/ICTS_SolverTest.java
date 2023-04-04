@@ -199,7 +199,7 @@ class ICTS_SolverTest {
         try {
             long timeout = 5 /*seconds*/
                     *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
             int numValid = 0;
@@ -277,7 +277,7 @@ class ICTS_SolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -296,9 +296,11 @@ class ICTS_SolverTest {
                                 InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
+                fail();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
         }
 
     }
@@ -444,7 +446,7 @@ class ICTS_SolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
@@ -464,6 +466,7 @@ class ICTS_SolverTest {
                             InstanceReport.StandardFields.expandedNodesLowLevel});
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
