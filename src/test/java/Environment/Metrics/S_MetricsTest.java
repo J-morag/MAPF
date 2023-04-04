@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 class S_MetricsTest {
 
     private static final String outputFile = IO_Manager.buildPath(new String[]{   IO_Manager.testResources_Directory, "S_MetricsTest.csv"});
@@ -20,6 +22,7 @@ class S_MetricsTest {
             if(deleted) System.out.println("Deleted previous output file...\n");
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
@@ -65,6 +68,7 @@ class S_MetricsTest {
             writeSomeInstanceReports(true);
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
@@ -75,6 +79,7 @@ class S_MetricsTest {
             writeSomeInstanceReports(true);
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
@@ -85,6 +90,7 @@ class S_MetricsTest {
             writeSomeInstanceReports(true);
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
@@ -97,6 +103,7 @@ class S_MetricsTest {
             writeSomeInstanceReports(false);
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
         S_Metrics.exportAll();
     }
@@ -108,6 +115,7 @@ class S_MetricsTest {
             S_Metrics.exportCSV(System.out, new String[]{"iName", "int1", "fl1"});
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 

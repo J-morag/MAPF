@@ -17,6 +17,7 @@ import java.util.function.Consumer;
  * If the collection contains more than one plan, it is a solution to a Multi Agent Path Finding problem.
  */
 public class Solution implements Iterable<SingleAgentPlan>{
+    private static final int looseMaxSolutionStringChars = 10000 /*lines*/ * 20 /*chars (roughly)*/;
     /**
      * A {@link Map}, mapping {@link Agent agents} to their {@link SingleAgentPlan plans}.
      */
@@ -286,6 +287,10 @@ public class Solution implements Iterable<SingleAgentPlan>{
         Collections.sort(agents, Comparator.comparing(agent -> agent.iD));
         for(Agent agent : agents){
             sb.append(this.agentPlans.get(agent));
+            if (sb.length() > looseMaxSolutionStringChars){
+                sb.append("... (truncated)");
+                break;
+            }
         }
         sb.append('\n');
         return sb;

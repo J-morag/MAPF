@@ -240,7 +240,7 @@ class PrioritisedPlanningSolverTest {
         try {
             long timeout = 5 /*seconds*/
                     *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
             int numValid = 0;
@@ -317,7 +317,7 @@ class PrioritisedPlanningSolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -336,9 +336,11 @@ class PrioritisedPlanningSolverTest {
                                 InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
+                fail();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
         }
 
     }
@@ -359,7 +361,7 @@ class PrioritisedPlanningSolverTest {
         try {
             long timeout = 5 /*seconds*/
                     *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
             int numValid = 0;
@@ -436,7 +438,7 @@ class PrioritisedPlanningSolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -455,9 +457,11 @@ class PrioritisedPlanningSolverTest {
                                 InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
+                fail();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
         }
 
     }
@@ -478,7 +482,7 @@ class PrioritisedPlanningSolverTest {
         try {
             long timeout = 5 /*seconds*/
                     *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
             int numValid = 0;
@@ -555,7 +559,7 @@ class PrioritisedPlanningSolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -574,9 +578,11 @@ class PrioritisedPlanningSolverTest {
                                 InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
+                fail();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
         }
     }
 
@@ -685,7 +691,7 @@ class PrioritisedPlanningSolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
@@ -705,6 +711,7 @@ class PrioritisedPlanningSolverTest {
                             InstanceReport.StandardFields.expandedNodesLowLevel});
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
