@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
@@ -55,6 +56,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private final Double congestionMultiplier;
     private final PartialSolutionsStrategy partialSolutionsStrategy;
     private final I_SingleAgentFailPolicy SAFailPolicy;
+    private final int failPolicyKSafety;
 
     /*  = fields related to run =  */
 
@@ -107,6 +109,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
         this.planningTrigger = Objects.requireNonNullElse(planningTrigger, new ActiveButPlanEndedTrigger());
         this.agentSelector = Objects.requireNonNullElse(agentSelector, new StationaryAgentsSubsetSelector());
+        this.failPolicyKSafety = agentSelector.getPlanningFrequency();
         this.name = "Lifelong_" + offlineSolver.name();
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
         if (selectionLookaheadLength != null && selectionLookaheadLength < 1)
@@ -210,8 +213,8 @@ public class LifelongSimulationSolver extends A_Solver {
             // don't check conflicts between planning iterations (they shouldn't happen when k-safe <= planning frequency)
             if (agentSelector.timeToPlan(farthestCommittedTime)){
                 // TODO maybe just mark them? It would mean we won't block recursively.
-                latestSolution = enforceSafeExecution(agentSelector.timeToPlan(farthestCommittedTime) ? selectionLookaheadLength : 1,
-                        advancedPlansToCurrentTime, farthestCommittedTime, blockedAgentsBeforePlanningIteration,
+                latestSolution = enforceSafeExecution(selectionLookaheadLength,advancedPlansToCurrentTime,
+                        farthestCommittedTime, blockedAgentsBeforePlanningIteration,
                         new RemovableConflictAvoidanceTableWithContestedGoals(advancedPlansToCurrentTime, null), STAY_ONCE_FAIL_POLICY);
             }
             else {
@@ -250,7 +253,6 @@ public class LifelongSimulationSolver extends A_Solver {
                     failedAgentsAfterPlanning.addAll(lifelongAgents); // all agents are blocked
                 }
                 else{
-                    int failPolicyKSafety = agentSelector.getPlanningFrequency();
                     latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
                             failedAgentsAfterPlanning, cat, SAFailPolicy);
                 }
@@ -371,21 +373,20 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     /**
-     * When a conflict between paths is found for the next time step, one (preferably an already failed) path is
-     * interrupted and replaced with a fail policy if doing so resolves the conflict. Otherwise, both are interrupted.
+     * Gets a solution with conflicts and returns a solution that is k-safe.
      *
-     * @param lookaheadHorizonLength          How far to look ahead for conflicts.
+     * @param detectConflictsHorizon          How far to look ahead for conflicts.
      * @param solutionThatMayContainConflicts a solution with any number of conflicts
      * @param failedAgents                   agents that are already failed.
      * @param cat                            a conflict avoidance table that contains all current plans for all agents, including failed agents.
      * @return a repaired solution with no conflicts at the next time step.
      */
-    private Solution enforceSafeExecution(int lookaheadHorizonLength, Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
+    private Solution enforceSafeExecution(int detectConflictsHorizon, Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts,
                                           int farthestCommittedTime, Set<Agent> failedAgents,
                                           @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
                                           I_SingleAgentFailPolicy SAFailPolicy){
-        if (lookaheadHorizonLength < 1){
-            throw new RuntimeException("lookaheadHorizonLength must be at least 1");
+        if (detectConflictsHorizon < 1){
+            throw new RuntimeException("detectConflictsHorizon must be at least 1");
         }
         int iterations = 0;
         Set<Agent> mobileAgents = new HashSet<>();
@@ -405,9 +406,9 @@ public class LifelongSimulationSolver extends A_Solver {
                 Agent agent = mobileAgentsIterator.next();
                 SingleAgentPlan plan = solutionWithoutConflicts.getPlanFor(agent);
                 cat.removePlan(plan);
-                for (int t = plan.getFirstMoveTime(); t <= plan.getEndTime() && t <= farthestCommittedTime + lookaheadHorizonLength; t++) {
+                for (int t = plan.getFirstMoveTime(); t <= plan.getEndTime() && t <= farthestCommittedTime + detectConflictsHorizon; t++) {
                     int firstConflictTime = cat.firstConflictTime(plan.moveAt(t), t == plan.getEndTime());
-                    if (firstConflictTime != -1 && firstConflictTime <= farthestCommittedTime + lookaheadHorizonLength) {
+                    if (firstConflictTime != -1 && firstConflictTime <= farthestCommittedTime + detectConflictsHorizon) {
                         plan = SAFailPolicy.getFailPolicyPlan(farthestCommittedTime, plan.agent, plan.getFirstMove().prevLocation, cat);
 
                         solutionWithoutConflicts.putPlan(plan);
@@ -429,14 +430,8 @@ public class LifelongSimulationSolver extends A_Solver {
         this.countFailPolicyLoops++;
         this.maxFailPolicyIterations = Math.max(this.maxFailPolicyIterations, iterations);
         if (DEBUG){
-            verifyNextStepSafe(solutionThatMayContainConflicts, solutionWithoutConflicts);
+            verifyNextKStepsSafe(solutionThatMayContainConflicts, solutionWithoutConflicts, detectConflictsHorizon);
         }
-//        if (DEBUG && ! solutionWithoutConflicts.isValidSolution(true, true)){
-//            throw new RuntimeException(String.format("""
-//                    The solution should be safe for the duration of the rolling horizon.
-//                    %s
-//                    %s""", solutionWithoutConflicts, solutionWithoutConflicts.arbitraryConflict(true, true)));
-//        } // TODO what to do with this now that there is a rolling horizon? Should check if safe for k steps? But we also have blocked agents
         return solutionWithoutConflicts;
     }
 
@@ -444,30 +439,35 @@ public class LifelongSimulationSolver extends A_Solver {
         return plan.size() == 1 && plan.getFirstMove().prevLocation.equals(plan.getFirstMove().currLocation);
     }
 
-    private static void verifyNextStepSafe(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionWithoutConflicts) {
-        Solution oneStepSolution = getOneStepSolution(solutionWithoutConflicts);
-        boolean isSafeNextStep = isSafeOneStepSolution(oneStepSolution);
-        if ( ! isSafeNextStep){
+    private static void verifyNextKStepsSafe(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionWithoutConflicts, int kSafety) {
+        Solution kStepSolution = getKStepSolution(solutionWithoutConflicts, kSafety);
+        A_Conflict conflict = kStepSolution.arbitraryConflict(false, false);
+        if ( conflict != null){
             throw new RuntimeException(String.format("""
                     Got conflicts in next step after supposedly enforcing safe next time step execution.\s
                      original solution: %s
                      solution after enforcement: %s
-                     next step solution : %s""", solutionThatMayContainConflicts.toString(), solutionWithoutConflicts, oneStepSolution));
+                     next step solution : %s
+                     conflict : %s"""
+                    , solutionThatMayContainConflicts.toString(), solutionWithoutConflicts, kStepSolution, conflict));
         }
-    }
-
-    public static boolean isSafeOneStepSolution(Solution oneStepSolution) {
-        return oneStepSolution.isValidSolution(false, false);
     }
 
     @NotNull
-    public static Solution getOneStepSolution(Solution solutionWithoutConflicts) {
-        Solution oneStepSolution = new Solution();
+    public static Solution getKStepSolution(Solution solutionWithoutConflicts, int k) {
+        Solution kStepSolution = new Solution();
         for (SingleAgentPlan plan :
                 solutionWithoutConflicts) {
-            oneStepSolution.putPlan(new SingleAgentPlan(plan.agent, List.of(plan.getFirstMove())));
+            SingleAgentPlan kStepPlan = new SingleAgentPlan(plan.agent);
+            for (Move move : plan) {
+                kStepPlan.addMove(move);
+                if (kStepPlan.size() == k){
+                    break;
+                }
+            }
+            kStepSolution.putPlan(kStepPlan);
         }
-        return oneStepSolution;
+        return kStepSolution;
     }
 
     private static boolean isMoveToSharedGoal(Move plan1FirstMove, Move plan2FirstMove) {
