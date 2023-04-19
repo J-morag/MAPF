@@ -95,6 +95,8 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     }
 
     private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents, String scenarioPath) {
+        String[] splitScenarioPath = scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
+        String instanceName = splitScenarioPath[splitScenarioPath.length-1];
         if (this.lifelong){
             Set<I_Coordinate> allCoordinates = new HashSet<>();
             for (Agent a :
@@ -102,7 +104,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 allCoordinates.addAll(((LifelongAgent)a).waypoints);
             }
             ArrayList<I_Coordinate> coordinatesQueue = new ArrayList<>(allCoordinates);
-            Collections.shuffle(coordinatesQueue, new Random(scenarioPath.hashCode()));
+            Collections.shuffle(coordinatesQueue, new Random(instanceName.hashCode()));
 
             List<Agent> res = new ArrayList<>();
             for (Agent a :
