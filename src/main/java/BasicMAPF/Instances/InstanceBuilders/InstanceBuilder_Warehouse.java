@@ -79,7 +79,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
             Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty);
             if (forceNoSharedSourceAndFinalDestinations){
-                agents = agentsToNoSharedSourceAndFinalDestinations(agents, moving_ai_path.scenarioPath);
+                agents = agentsToNoSharedSourceAndFinalDestinations(agents, moving_ai_path.scenarioPath, new HashSet<>(graphMap.getAllLocations()));
             }
 
             if (mapName == null || agents == null) {
@@ -94,27 +94,22 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         }
     }
 
-    private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents, String scenarioPath) {
+    private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents, String scenarioPath, Set<? extends I_Location> allLocationsInMap) {
         String[] splitScenarioPath = scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
-        String instanceName = splitScenarioPath[splitScenarioPath.length-1];
+        String scenarioName = splitScenarioPath[splitScenarioPath.length-1];
         if (this.lifelong){
-            Set<I_Coordinate> allCoordinates = new HashSet<>();
-            for (Agent a :
-                    agents) {
-                allCoordinates.addAll(((LifelongAgent)a).waypoints);
-            }
-            ArrayList<I_Coordinate> coordinatesQueue = new ArrayList<>(allCoordinates);
-            Collections.shuffle(coordinatesQueue, new Random(instanceName.hashCode()));
+            ArrayList<I_Location> locationQueue = new ArrayList<>(allLocationsInMap);
+            Collections.shuffle(locationQueue, new Random(scenarioName.hashCode()));
 
             List<Agent> res = new ArrayList<>();
             for (Agent a :
                     agents) {
-                if (coordinatesQueue.isEmpty()){
+                if (locationQueue.isEmpty()){
                     break;
                 }
                 else {
                     List<I_Coordinate> waypoints = new ArrayList<>(((LifelongAgent)a).waypoints);
-                    I_Coordinate uniqueCoordinate = coordinatesQueue.remove(0);
+                    I_Coordinate uniqueCoordinate = locationQueue.remove(0).getCoordinate();
                     if (!a.source.equals(uniqueCoordinate)){
                         waypoints.add(0, uniqueCoordinate);
                     }
