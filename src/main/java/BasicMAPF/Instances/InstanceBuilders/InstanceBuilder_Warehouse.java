@@ -79,6 +79,9 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
         for (int numOfAgentsFromProperty : numOfAgentsFromProperties) {
             Agent[] agents = getAgentsFromLines(agentLines, numOfAgentsFromProperty);
+            if (mapName == null || agents == null) {
+                continue; /* Invalid parameters */
+            }
 
             Set<I_Coordinate> coordinatesForSourcesOrTargets = new HashSet<>();
             for (Agent agent : agents) {
@@ -96,9 +99,6 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 agents = agentsToNoSharedSourceAndFinalDestinations(agents, moving_ai_path.scenarioPath, coordinatesForSourcesOrTargets);
             }
 
-            if (mapName == null || agents == null) {
-                continue; /* Invalid parameters */
-            }
 
             mapf_instance = makeInstance(mapName, graphMap, agents, moving_ai_path);
             if (instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches()){
@@ -111,7 +111,10 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     private Set<I_Coordinate> addImmediateNeighbors(Set<I_Coordinate> sourceOrTargetCoordinates, GraphMap graphMap) {
         Set<I_Coordinate> res = new HashSet<>(sourceOrTargetCoordinates);
         for (I_Coordinate coordinate : sourceOrTargetCoordinates) {
-            for (I_Location location : graphMap.getMapLocation(coordinate).outgoingEdges) {
+            for (I_Location location : graphMap.getMapLocation(coordinate).outgoingEdges()) {
+                res.add(location.getCoordinate());
+            }
+            for (I_Location location : graphMap.getMapLocation(coordinate).incomingEdges()) {
                 res.add(location.getCoordinate());
             }
         }
