@@ -74,8 +74,8 @@ public class LifelongSimulationSolver extends A_Solver {
     private int maxTimeSteps;
     private int reachedTimestepInPlanning;
     private float avgGroupSizeMetric;
-    private float avgFailedAgentsMetric;
-    private float avgBlockedAgentsMetric;
+    private float avgFailedAgentsAfterPlanningMetric;
+    private float avgFailedAgentsAfterPolicyMetric;
     private List<int[]> numAgentsAndNumIterationsMetric;
     private int numPlanningIterations;
     private CachingDistanceTableHeuristic cachingDistanceTableHeuristic;
@@ -127,8 +127,8 @@ public class LifelongSimulationSolver extends A_Solver {
         this.random = new Random(42);
         this.reachedTimestepInPlanning = 0;
         this.avgGroupSizeMetric = 0;
-        this.avgFailedAgentsMetric = 0;
-        this.avgBlockedAgentsMetric = 0;
+        this.avgFailedAgentsAfterPlanningMetric = 0;
+        this.avgFailedAgentsAfterPolicyMetric = 0;
         this.numAgentsAndNumIterationsMetric = new ArrayList<>();
         this.numPlanningIterations = 0;
         this.numDestinationsAchieved = 0;
@@ -187,7 +187,7 @@ public class LifelongSimulationSolver extends A_Solver {
         Map<Agent, Queue<I_Coordinate>> agentDestinationQueues = getDestinationQueues(instance);
 
         int sumGroupSizes = 0;
-        int sumBlockedSizesAfterPlanning = 0;
+        int sumFailedAgentsAfterPolicy = 0;
         int sumAttemptedAgentsThatFailed = 0;
         int farthestCommittedTime = 0; // at this time locations are committed, and we choose locations for next time
 
@@ -225,12 +225,15 @@ public class LifelongSimulationSolver extends A_Solver {
             selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
                     , lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentDestinationQueues, agentsActiveDestination)).collect(Collectors.toSet());
 
+            Set<Agent> failedAgents = new HashSet<>();
+            Set<LifelongAgent> notSelectedAgents = getUnchangingAgents(selectedTimelyOfflineAgentsSubset);
+            List<SingleAgentPlan> nextPlansForNotSelectedAgents = subsetPlansCollection(latestSolution, notSelectedAgents);
+            RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(nextPlansForNotSelectedAgents, null);
+            int numAgentsWithPlansInSolutionBeforeEnforcingSafety = 0;
+
             if ( ! selectedTimelyOfflineAgentsSubset.isEmpty()){ // solve an offline MAPF problem of the current conditions
 
                 agentsWaitingToStart.removeAll(selectedTimelyOfflineAgentsSubset);
-                Set<LifelongAgent> notSelectedAgents = getUnchangingAgents(selectedTimelyOfflineAgentsSubset);
-                List<SingleAgentPlan> nextPlansForNotSelectedAgents = subsetPlansCollection(latestSolution, notSelectedAgents);
-
                 numPlanningIterations++;
                 sumGroupSizes += selectedTimelyOfflineAgentsSubset.size();
 
@@ -242,29 +245,25 @@ public class LifelongSimulationSolver extends A_Solver {
                     checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
                 }
                 digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
-                int numAgentsWithPlansInSolutionBeforeEnforcingSafety = subgroupSolution != null ? subgroupSolution.size() : 0;
+                numAgentsWithPlansInSolutionBeforeEnforcingSafety = subgroupSolution != null ? subgroupSolution.size() : 0;
                 sumAttemptedAgentsThatFailed += selectedTimelyOfflineAgentsSubset.size() - numAgentsWithPlansInSolutionBeforeEnforcingSafety;
 
-                Set<Agent> failedAgentsAfterPlanning = new HashSet<>();
-                RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(nextPlansForNotSelectedAgents, null);
-                latestSolution = addFailedAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, failedAgentsAfterPlanning, this.lifelongInstance, cat);
-                if ( ! failedAgentsAfterPlanning.isEmpty() && SAFailPolicy instanceof AllStayOnceFailPolicy allStayOnceFailPolicy){
-                    latestSolution = allStayOnceFailPolicy.stopAll(latestSolution);
-                    failedAgentsAfterPlanning.addAll(lifelongAgents); // all agents are blocked
-                }
-                else{
-                    latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
-                            failedAgentsAfterPlanning, cat, SAFailPolicy);
-                }
-
-                sumBlockedSizesAfterPlanning += failedAgentsAfterPlanning.size();
-
-                if (DEBUG){
-                    printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeEnforcingSafety, failedAgentsAfterPlanning.size());
-                }
+                latestSolution = addFailedAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, failedAgents, this.lifelongInstance, cat);
             }
-            else if (DEBUG){
-                printProgressAndStats(farthestCommittedTime, 0, 0, blockedAgentsBeforePlanningIteration.size());
+
+            if ( ! failedAgents.isEmpty() && SAFailPolicy instanceof AllStayOnceFailPolicy allStayOnceFailPolicy){ // TODO fix this so it's not a special case
+                latestSolution = allStayOnceFailPolicy.stopAll(latestSolution);
+                failedAgents.addAll(lifelongAgents); // all agents stay in place
+            }
+            else {
+                latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
+                        failedAgents, cat, SAFailPolicy);
+            }
+
+            sumFailedAgentsAfterPolicy += failedAgents.size();
+
+            if (DEBUG){
+                printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeEnforcingSafety, failedAgents.size());
             }
 
             solutionsAtTimes.put(farthestCommittedTime, latestSolution);
@@ -274,8 +273,8 @@ public class LifelongSimulationSolver extends A_Solver {
                     latestSolution, agentDestinationQueues, this.lifelongAgents);
         }
         this.avgGroupSizeMetric = (float) sumGroupSizes / (float) numPlanningIterations;
-        this.avgFailedAgentsMetric = (float) sumAttemptedAgentsThatFailed / (float) numPlanningIterations;
-        this.avgBlockedAgentsMetric = (float) sumBlockedSizesAfterPlanning / (float) numPlanningIterations;
+        this.avgFailedAgentsAfterPlanningMetric = (float) sumAttemptedAgentsThatFailed / (float) numPlanningIterations;
+        this.avgFailedAgentsAfterPolicyMetric = (float) sumFailedAgentsAfterPolicy / (float) numPlanningIterations;
         this.reachedTimestepInPlanning = farthestCommittedTime;
 
         if (DEBUG){
@@ -303,7 +302,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
     private void printProgressAndStats(int farthestCommittedTime, int selectedTimelyOfflineAgentsSubset, int subgroupSolution, int numStunnedAgents) {
         System.out.print("\rLifelongSim: ");
-        System.out.printf("iteration %1$3s, @ timestep %2$3s, #agent/solved/(newly)blocked %3$3s",
+        System.out.printf("iteration %1$3s, @ timestep %2$3s, #chosen/#solved/#failed(after fail policy) %3$3s",
                 numPlanningIterations, farthestCommittedTime, selectedTimelyOfflineAgentsSubset);
         System.out.printf("/%1$3s", subgroupSolution);
         System.out.printf("/%1$3s", numStunnedAgents);
@@ -690,8 +689,8 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putIntegerValue("reachedTimestepInPlanning", this.reachedTimestepInPlanning);
         super.instanceReport.putIntegerValue("numPlanningIterations", this.numPlanningIterations);
         super.instanceReport.putFloatValue("avgGroupSize", this.avgGroupSizeMetric);
-        super.instanceReport.putFloatValue("avgFailedAgents", this.avgFailedAgentsMetric);
-        super.instanceReport.putFloatValue("avgBlockedAgents", this.avgBlockedAgentsMetric);
+        super.instanceReport.putFloatValue("avgFailedAgentsAfterPlanning", this.avgFailedAgentsAfterPlanningMetric);
+        super.instanceReport.putFloatValue("avgFailedAgentsAfterPolicy", this.avgFailedAgentsAfterPolicyMetric);
 
         if (!numAgentsAndNumIterationsMetric.isEmpty()){ // only when using PrP as the offline solver
             this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[1]));
