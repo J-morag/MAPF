@@ -73,6 +73,10 @@ public class Main {
                 String.format("To run lifelong experiments. Doesn't work with %s format", STR_BGU));
         options.addOption(lifelongOption);
 
+        Option randWaypointsOption = new Option("rand", "forceRandWaypoints", false,
+                "To force random waypoints for the agents. Only works with Warehouse format.");
+        options.addOption(randWaypointsOption);
+
         Option nameOption = Option.builder("n").longOpt("name")
                 .argName("name")
                 .hasArg()
@@ -160,6 +164,7 @@ public class Main {
             boolean skipAfterFail = false;
             I_VisualizeSolution visualiser = null;
             boolean lifelong = false;
+            boolean forceRandWaypoints = false;
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
@@ -186,6 +191,11 @@ public class Main {
             }
 
             I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
+
+            if (cmd.hasOption("rand")) {
+                System.out.println("forceRandWaypoints set: Will force random waypoints for the agents.");
+                forceRandWaypoints = true;
+            }
 
             if (cmd.hasOption("n")) {
                 String optName = cmd.getOptionValue("name");
@@ -241,10 +251,14 @@ public class Main {
             if (cmd.hasOption("iForm")) {
                 String optInstancesFormat = cmd.getOptionValue("instancesFormat");
                 System.out.println("Instances Format: " + optInstancesFormat);
+                if (forceRandWaypoints && ! optInstancesFormat.equals(STR_WAREHOUSE)){
+                    System.out.println("Force random waypoints only supported for warehouse instances!");
+                    System.exit(0);
+                }
                 switch (optInstancesFormat) {
                     case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
-                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse();
+                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, lifelong, null, forceRandWaypoints);
                     default -> {
                         System.out.printf("Unrecognized instance format: %s", optInstancesFormat);
                         System.exit(0);
