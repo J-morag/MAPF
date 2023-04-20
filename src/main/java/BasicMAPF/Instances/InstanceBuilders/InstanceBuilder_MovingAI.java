@@ -67,7 +67,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         put(TREE, Enum_MapLocationType.TREE);
     }};
 
-    static private final int defaultNumWaypoints = 102;
+    static private final int DEFAULT_NUM_WAYPOINTS = 102;
 
     public boolean reuseAgents = true;
     private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
@@ -126,7 +126,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                 for (int j = 0; j < agents.length; j++) {
                     Agent agent = agents[j];
 
-                    I_Coordinate[] waypoints = new I_Coordinate[defaultNumWaypoints];
+                    I_Coordinate[] waypoints = new I_Coordinate[DEFAULT_NUM_WAYPOINTS];
                     waypoints[0] = agent.source;
                     waypoints[waypoints.length - 1] = agent.target;
                     for (int k = 1; k < waypoints.length - 1; k++) {

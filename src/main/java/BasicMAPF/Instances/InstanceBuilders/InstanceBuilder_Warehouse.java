@@ -33,7 +33,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     public static final String FILE_TYPE_MAP = ".json";
     public static final String FILE_TYPE_SCENARIO = ".csv";
     public static final int SKIP_LINES_SCENARIO = 1;
-    public static final int NUM_TARGETS_PER_AGENT = 20;
+    static private final int DEFAULT_NUM_WAYPOINTS = 100;
     public static final String SEPARATOR_SCENARIO = ",";
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;
@@ -46,15 +46,17 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     private final boolean dropDisabledEdges;
     public final boolean lifelong;
     private final boolean forceNoSharedSourceAndFinalDestinations;
+    private final boolean randomWaypoints;
 
     public InstanceBuilder_Warehouse() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
-    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong, Boolean forceNoSharedSourceAndFinalDestinations) {
+    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong, Boolean forceNoSharedSourceAndFinalDestinations, Boolean randomWaypoints) {
         this.dropDisabledEdges = Objects.requireNonNullElse(dropDisabledEdges, true);
         this.lifelong = Objects.requireNonNullElse(lifelong, true);
         this.forceNoSharedSourceAndFinalDestinations = Objects.requireNonNullElse(forceNoSharedSourceAndFinalDestinations, this.lifelong);
+        this.randomWaypoints = Objects.requireNonNullElse(randomWaypoints, false);
     }
 
     @Override
@@ -76,10 +78,22 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         ArrayList<ArrayList<String>> agentLines = getAgentLines(moving_ai_path, Arrays.stream(numOfAgentsFromProperties).max().getAsInt());
 
         for (int numOfAgentsFromProperty : numOfAgentsFromProperties) {
+            Agent[] agents = getAgentsFromLines(agentLines, numOfAgentsFromProperty);
 
-            Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty);
+            Set<I_Coordinate> coordinatesForSourcesOrTargets = new HashSet<>();
+            for (Agent agent : agents) {
+                coordinatesForSourcesOrTargets.add(agent.source);
+                coordinatesForSourcesOrTargets.add(agent.target);
+            }
+            // to easily mostly guarantee reachability, get extra neighbors from neighbors of sources and targets, not random coordinates in the map
+            coordinatesForSourcesOrTargets = addImmediateNeighbors(coordinatesForSourcesOrTargets, graphMap);
+
+            if (randomWaypoints){
+                agents = getAgentsWithRandomWaypoints(numOfAgentsFromProperty, moving_ai_path.scenarioPath, coordinatesForSourcesOrTargets, DEFAULT_NUM_WAYPOINTS);
+            }
+
             if (forceNoSharedSourceAndFinalDestinations){
-                agents = agentsToNoSharedSourceAndFinalDestinations(agents, moving_ai_path.scenarioPath, new HashSet<>(graphMap.getAllLocations()));
+                agents = agentsToNoSharedSourceAndFinalDestinations(agents, moving_ai_path.scenarioPath, coordinatesForSourcesOrTargets);
             }
 
             if (mapName == null || agents == null) {
@@ -94,22 +108,49 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         }
     }
 
-    private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents, String scenarioPath, Set<? extends I_Location> allLocationsInMap) {
+    private Set<I_Coordinate> addImmediateNeighbors(Set<I_Coordinate> sourceOrTargetCoordinates, GraphMap graphMap) {
+        Set<I_Coordinate> res = new HashSet<>(sourceOrTargetCoordinates);
+        for (I_Coordinate coordinate : sourceOrTargetCoordinates) {
+            for (I_Location location : graphMap.getMapLocation(coordinate).outgoingEdges) {
+                res.add(location.getCoordinate());
+            }
+        }
+        return res;
+    }
+
+    private Agent[] getAgentsWithRandomWaypoints(int numOfAgentsFromProperty, String scenarioPath, Set<I_Coordinate> usableCoordinates, int numWaypoints) {
+        List<Agent> res = new ArrayList<>();
         String[] splitScenarioPath = scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
-        String scenarioName = splitScenarioPath[splitScenarioPath.length-1];
+        String scenarioName = splitScenarioPath[splitScenarioPath.length - 1];
+        Random random = new Random(scenarioName.hashCode());
+        for (int i = 0; i < numOfAgentsFromProperty; i++) {
+            ArrayList<I_Coordinate> randomCoordinates = new ArrayList<>(usableCoordinates);
+            Collections.shuffle(randomCoordinates, random);
+            ArrayList<I_Coordinate> waypoints = new ArrayList<>();
+            for (int j = 0; j < numWaypoints; j++) {
+                waypoints.add(randomCoordinates.remove(0));
+            }
+            res.add(new LifelongAgent(i, waypoints.get(0), waypoints.get(waypoints.size()-1), waypoints.toArray(new I_Coordinate[0])));
+        }
+        return res.toArray(new Agent[0]);
+    }
+
+    private Agent[] agentsToNoSharedSourceAndFinalDestinations(Agent[] agents, String scenarioPath, Set<I_Coordinate> usableCoordinates) {
         if (this.lifelong){
-            ArrayList<I_Location> locationQueue = new ArrayList<>(allLocationsInMap);
-            Collections.shuffle(locationQueue, new Random(scenarioName.hashCode()));
+            String[] splitScenarioPath = scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
+            String scenarioName = splitScenarioPath[splitScenarioPath.length-1];
+            ArrayList<I_Coordinate> coordinateQueue = new ArrayList<>(usableCoordinates);
+            Collections.shuffle(coordinateQueue, new Random(scenarioName.hashCode()));
 
             List<Agent> res = new ArrayList<>();
             for (Agent a :
                     agents) {
-                if (locationQueue.isEmpty()){
+                if (coordinateQueue.isEmpty()){
                     break;
                 }
                 else {
                     List<I_Coordinate> waypoints = new ArrayList<>(((LifelongAgent)a).waypoints);
-                    I_Coordinate uniqueCoordinate = locationQueue.remove(0).getCoordinate();
+                    I_Coordinate uniqueCoordinate = coordinateQueue.remove(0);
                     if (!a.source.equals(uniqueCoordinate)){
                         waypoints.add(0, uniqueCoordinate);
                     }
@@ -131,7 +172,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
 
     // Returns an array of agents using the line queue
-    private Agent[] getAgents(ArrayList<ArrayList<String>> agentLinesList, int numOfAgents) {
+    private Agent[] getAgentsFromLines(ArrayList<ArrayList<String>> agentLinesList, int numOfAgents) {
         if( agentLinesList == null){ return null; }
         agentLinesList.removeIf(Objects::isNull);
         Agent[] arrayOfAgents = new Agent[Math.min(numOfAgents,agentLinesList.size())];
