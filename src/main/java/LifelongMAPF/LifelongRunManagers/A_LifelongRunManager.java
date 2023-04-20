@@ -123,13 +123,13 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // lookaheads experiment // comparing macro FPs experiment
 
 
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy
-//        solvers.add(LifelongSolversFactory.allAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy + AllAgents
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPLookahead1()); // greedy + restarts (persist)
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w10Lookahead1()); // greedy + RHCR_w10
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w20Lookahead1()); // greedy + RHCR_w20
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w30Lookahead1()); // greedy + RHCR_w30
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead3()); // greedy + lh=3
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy
+        solvers.add(LifelongSolversFactory.allAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy + AllAgents
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPLookahead1()); // greedy + restarts (persist)
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w10Lookahead1()); // greedy + RHCR_w10
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w20Lookahead1()); // greedy + RHCR_w20
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w30Lookahead1()); // greedy + RHCR_w30
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead3()); // greedy + lh=3
 
 
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h01Lookahead2()); // best and period=1
