@@ -136,6 +136,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w20Lookahead1()); // greedy + RHCR_w20
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w30Lookahead1()); // greedy + RHCR_w30
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead3()); // greedy + lh=3
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead5()); // greedy + lh=5
 
 
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h01Lookahead2()); // best and period=1
