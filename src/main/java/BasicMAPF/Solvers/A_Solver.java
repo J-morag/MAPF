@@ -110,6 +110,7 @@ public abstract class A_Solver implements I_Solver{
         if(solution != null){
             instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
+            instanceReport.putSolution(solution);
         }
         else{
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
