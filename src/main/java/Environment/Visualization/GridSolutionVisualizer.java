@@ -38,9 +38,9 @@ public class GridSolutionVisualizer {
                 if (map.isObstacle(xy)) {
                     throw new IllegalArgumentException(String.format("Agent %s is on an obstacle", agent));
                 }
-                boolean atLastLocationInPlan = solution.getPlanFor(agent).getEndTime() <= time;
+                boolean atLastLocationInPlan = isAtLastLocationInPlan(solution, time, agent);
                 if (solution instanceof LifelongSolution lifelongSolution){
-                    boolean achievedWaypoint = lifelongSolution.agentAchievedAWaypointAtTime(agent, time);
+                    boolean achievedWaypoint = isAchievedWaypoint(time, agent, lifelongSolution);
                     if (achievedWaypoint){
                         grid[xy[0]][xy[1]] = 'g';
                         sumFinishedWaypoints++;
@@ -64,5 +64,13 @@ public class GridSolutionVisualizer {
             finishedGoals.add(solution instanceof LifelongSolution ? sumFinishedWaypoints: sumFinishedGoals.size());
         }
         GridVisualizer.visualize(grids, finishedGoals, 250, title);
+    }
+
+    public static boolean isAchievedWaypoint(int time, Agent agent, LifelongSolution lifelongSolution) {
+        return lifelongSolution.agentAchievedAWaypointAtTime(agent, time);
+    }
+
+    public static boolean isAtLastLocationInPlan(Solution solution, int time, Agent agent) {
+        return solution.getPlanFor(agent).getEndTime() <= time;
     }
 }

@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Maps.Coordinates.MillimetricCoordinate_2D;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.Solution;
+import LifelongMAPF.LifelongSolution;
 
 import java.util.*;
 
@@ -56,6 +57,14 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
                     agentPaintColor = 'g';
                     sumFinishedAgents.add(agent);
                 }
+                if (solution instanceof LifelongSolution lifelongSolution){
+                    if (GridSolutionVisualizer.isAchievedWaypoint(time, agent, lifelongSolution)){
+                        agentPaintColor = 'g';
+                    } else if (GridSolutionVisualizer.isAtLastLocationInPlan(solution, time, agent)) {
+                        agentPaintColor = 'l';
+                    }
+                }
+
                 // paint the agent with some volume
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
