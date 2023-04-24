@@ -1,6 +1,7 @@
 package Environment.RunManagers;
 
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
@@ -55,6 +56,10 @@ public class GenericRunManager extends A_RunManager {
         Experiment experiment = new Experiment(experimentName, instanceManager);
         experiment.skipAfterFail = this.skipAfterFail;
         experiment.visualizer = this.visualizer;
+        if (instanceBuilder instanceof InstanceBuilder_Warehouse){ // TODO remove when scenarios are fixed to prevent shared sources and goals
+            experiment.sharedGoals = true;
+            experiment.sharedSources = true;
+        }
         this.experiments.add(experiment);
     }
 

@@ -13,6 +13,7 @@ import BasicMAPF.Solvers.Solution;
 import Environment.RunManagers.*;
 import Environment.Visualization.I_VisualizeSolution;
 import Environment.Visualization.GridSolutionVisualizer;
+import Environment.Visualization.MillimetricCoordinatesGraphSolutionVisualizer;
 import LifelongMAPF.LifelongRunManagers.LifelongGenericRunManager;
 import org.apache.commons.cli.*;
 import LifelongMAPF.LifelongRunManagers.LifelongRunManagerMovingAI;
@@ -66,7 +67,7 @@ public class Main {
         options.addOption(skipOption);
 
         Option visualiseOption = new Option("v", "visualise", false,
-                "To visualise the solution. Only  works with grid maps!");
+                "To visualise the solution.");
         options.addOption(visualiseOption);
 
         Option lifelongOption = new Option("l", "lifelong", false,
@@ -180,11 +181,6 @@ public class Main {
                 skipAfterFail = true;
             }
 
-            if (cmd.hasOption("v")) {
-                System.out.println("visualise set: Will visualise the solution.");
-                visualiser = GridSolutionVisualizer::visualizeSolution;
-            }
-
             if (cmd.hasOption("l")) {
                 System.out.println("lifelong set: Will run Lifelong MAPF.");
                 lifelong = true;
@@ -270,6 +266,18 @@ public class Main {
             }
             else {
                 System.out.printf("Using default instance format %s", STR_MOVING_AI);
+            }
+
+            if (cmd.hasOption("v")) {
+                System.out.println("visualise set: Will visualise the solution.");
+                if (instanceBuilder instanceof InstanceBuilder_MovingAI || instanceBuilder instanceof InstanceBuilder_BGU)
+                    visualiser = GridSolutionVisualizer::visualizeSolution;
+                else if (instanceBuilder instanceof InstanceBuilder_Warehouse)
+                    visualiser = MillimetricCoordinatesGraphSolutionVisualizer::visualizeSolution;
+                else {
+                    System.out.println(String.format("No visualiser available for instance format %s.", instanceBuilder.getClass().getName()));
+                    System.exit(0);
+                }
             }
 
             String[] optAgents = cmd.getOptionValues(STR_AGENT_NUMS);

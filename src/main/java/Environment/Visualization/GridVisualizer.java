@@ -8,6 +8,7 @@ import java.util.TimerTask;
 
 public class GridVisualizer extends JPanel {
     public static final int DEFAULT_CELL_SIZE = 20;
+    public static final int MIN_CELL_SIZE = 2;
     public static final int GRID_MAX_WIDTH_PIXELS = 1000;
     public static final int GRID_MAX_HEIGHT_PIXELS = 1000;
     private int cellSize;
@@ -35,6 +36,7 @@ public class GridVisualizer extends JPanel {
 
         this.cellSize = Math.min(GRID_MAX_WIDTH_PIXELS / grids.get(0)[0].length, GRID_MAX_HEIGHT_PIXELS / grids.get(0).length);
         this.cellSize = Math.min(this.cellSize, DEFAULT_CELL_SIZE);
+        this.cellSize = Math.max(this.cellSize, MIN_CELL_SIZE);
         setPreferredSize(new Dimension(grids.get(0)[0].length * this.cellSize, grids.get(0).length * this.cellSize));
     }
     public int getIterationTime() {
