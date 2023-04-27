@@ -209,15 +209,19 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                         intermediateVertices.add(intermediateVertex);
                     }
                     intermediateVertices.add(neighborCoordinate);
-                    neighbors.add(intermediateVertices.get(0));
-                    for (int j = 0; j < intermediateVertices.size() - 1; j++) {
-                        // avoid possibility of duplicates overriding each other because of going from both sides
-                        List<Coordinate_2D> jNeighbors = coordinatesAdjacencyLists.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
-                        jNeighbors.add(intermediateVertices.get(j+1));
-                        List<Integer> jNeighborsWeights = coordinatesEdgeWeights.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
-                        jNeighborsWeights.add(1);
+                    if (!intermediateVertices.get(0).equals(currentStickerCoordinate)){ // avoid self edges as a result of merged coordinates
+                        neighbors.add(intermediateVertices.get(0));
+                        edgeWeights.add(1);
                     }
-                    edgeWeights.add(1);
+                    for (int j = 0; j < intermediateVertices.size() - 1; j++) {
+                        if (! currentStickerCoordinate.equals(intermediateVertices.get(j))){ // avoid self edges as a result of merged coordinates
+                            // avoid possibility of duplicates overriding each other because of going from both sides
+                            List<Coordinate_2D> jNeighbors = coordinatesAdjacencyLists.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
+                            jNeighbors.add(intermediateVertices.get(j+1));
+                            List<Integer> jNeighborsWeights = coordinatesEdgeWeights.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
+                            jNeighborsWeights.add(1);
+                        }
+                    }
                 }
             }
 
