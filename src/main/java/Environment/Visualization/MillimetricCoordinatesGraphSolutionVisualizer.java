@@ -12,7 +12,7 @@ import java.util.*;
 
 public class MillimetricCoordinatesGraphSolutionVisualizer {
 
-    private static final int MM_RESOLUTION = 100;
+    private static final int MM_RESOLUTION = 70;
     private static final boolean paintOverVertices = true;
 
     public static void visualizeSolution(MAPF_Instance instance, Solution solution, String title) throws IllegalArgumentException {
@@ -69,7 +69,7 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
                         if (xy[0] + i >= 0 && xy[0] + i < width && xy[1] + j >= 0 && xy[1] + j < height) {
-//                            if (grid[xy[0] + i][xy[1] + j] == 'a' || grid[xy[0] + i][xy[1] + j] == 'g'){ // TODO uncomment when scenarios are fixed to avoid shared source and goal
+//                            if (grid[xy[0] + i][xy[1] + j] == 'a' || grid[xy[0] + i][xy[1] + j] == 'g'){ // TODO uncomment when scenarios are fixed to avoid shared source and goal and verify that coordinates spacing is sufficient
 //                                throw new IllegalArgumentException("Agent " + agent + " is overlapping with another agent at time " + time + " at location " + solution.getAgentLocation(agent, time) + " (x=" + xy[0] + ", y=" + xy[1] + ")" + "solution: " + solution);
 //                            }
                             if (paintOverVertices || grid[xy[0] + i][xy[1] + j] == 'f') {
