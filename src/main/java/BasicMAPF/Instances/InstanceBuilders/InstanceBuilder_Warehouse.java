@@ -37,7 +37,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     public static final String SEPARATOR_SCENARIO = ",";
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;
-    public static final int MERGE_COORDINATES_THRESHOLD = 250;
+    public static final int MERGE_COORDINATES_THRESHOLD = 100;
 
     /*  =Default Values=    */
     private final int defaultNumOfAgents = 10;
@@ -282,6 +282,11 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             JSONArray edgesJA = vertexData.getJSONArray(1);
             List<Coordinate_2D> neighbors = new ArrayList<>(edgesJA.length());
             List<Integer> edgeWeights = new ArrayList<>(edgesJA.length());
+            if (coordinatesAdjacencyLists.containsKey(currentStickerCoordinate)){
+//                throw new RuntimeException("Duplicate coordinate in map file: " + currentStickerCoordinate);
+                neighbors = coordinatesAdjacencyLists.get(currentStickerCoordinate);
+                edgeWeights = coordinatesEdgeWeights.get(currentStickerCoordinate);
+            }
             for (int i = 0; i < edgesJA.length(); i++) {
                 JSONArray currentEdge = edgesJA.getJSONArray(i);
                 // edge is composed of a neighbor (coordinate) and an edge weight
@@ -301,7 +306,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                     for (int j = 1; j < realDistance; j++) {
                         Coordinate_2D intermediateVertex = toCoor2D(currentStickerCoordinate.x_value + (delta_x/realDistance)*j,
                                 currentStickerCoordinate.y_value + (delta_y/realDistance)*j, canonicalCoordinates);
-                        locationTypes.put(intermediateVertex, Enum_MapLocationType.NO_STOP);
+                        locationTypes.put(intermediateVertex, Enum_MapLocationType.EMPTY);
                         intermediateVertices.add(intermediateVertex);
                     }
                     intermediateVertices.add(neighborCoordinate);
