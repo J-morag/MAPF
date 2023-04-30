@@ -30,6 +30,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         return new String[]{
                 InstanceReport.StandardFields.experimentName,
                 InstanceReport.StandardFields.mapName,
+                InstanceReport.StandardFields.numTraversableLocations,
+                InstanceReport.StandardFields.avgInDegree,
+                InstanceReport.StandardFields.avgOutDegree,
                 InstanceReport.StandardFields.instanceName,
                 InstanceReport.StandardFields.numAgents,
                 InstanceReport.StandardFields.solver,
@@ -124,6 +127,28 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead2()); // comparing macro FPs experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // comparing macro FPs experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead2()); // baseline and friends experiment // lookaheads experiment // comparing macro FPs experiment
+
+
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy
+        solvers.add(LifelongSolversFactory.allAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy + AllAgents
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPLookahead1()); // greedy + restarts (persist)
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w10Lookahead1()); // greedy + RHCR_w10
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w20Lookahead1()); // greedy + RHCR_w20
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPRHCR_w30Lookahead1()); // greedy + RHCR_w30
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead3()); // greedy + lh=3
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead5()); // greedy + lh=5
+
+
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h01Lookahead2()); // best and period=1
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead1()); // best and LH=1
+//
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h01Lookahead2()); // baseline and friends experiment // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w10_h01()); // baseline and friends experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartialOneActionRHCR_w10_h01()); // baseline and friends experiment // lookaheads experiment
+
+
+
+
 
         //extended comparing macro FPs experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepUntilFoundThenWidePartialOneActionFPRHCR_w10_h03Lookahead2());
