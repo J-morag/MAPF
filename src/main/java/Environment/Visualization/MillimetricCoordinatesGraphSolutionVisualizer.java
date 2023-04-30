@@ -10,6 +10,8 @@ import LifelongMAPF.LifelongSolution;
 
 import java.util.*;
 
+import static Environment.Visualization.GridSolutionVisualizer.isAtLastLocationInPlan;
+
 public class MillimetricCoordinatesGraphSolutionVisualizer {
 
     private static final int MM_RESOLUTION = 70;
@@ -51,17 +53,19 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
             for (Agent agent : instance.agents) {
                 MillimetricCoordinate_2D mmCoord = (MillimetricCoordinate_2D) solution.getAgentLocation(agent, time).getCoordinate();
                 int[] xy = new int[]{mmCoord.x_value / MM_RESOLUTION, mmCoord.y_value / MM_RESOLUTION};
-                boolean atGoal = solution.getPlanFor(agent).getEndTime() <= time;
                 char agentPaintColor = 'a';
-                if (atGoal) {
-                    agentPaintColor = 'g';
-                    sumFinishedAgents.add(agent);
-                }
                 if (solution instanceof LifelongSolution lifelongSolution){
                     if (GridSolutionVisualizer.isAchievedWaypoint(time, agent, lifelongSolution)){
                         agentPaintColor = 'g';
-                    } else if (GridSolutionVisualizer.isAtLastLocationInPlan(solution, time, agent)) {
+                        sumFinishedAgents.add(agent);
+                    } else if (isAtLastLocationInPlan(solution, time, agent)) {
                         agentPaintColor = 'l';
+                    }
+                }
+                else {
+                    if (isAtLastLocationInPlan(solution, time, agent)) {
+                        agentPaintColor = 'g';
+                        sumFinishedAgents.add(agent);
                     }
                 }
 
