@@ -192,7 +192,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         for (int id = 0; id < numOfAgents; id++) {
             if( id < arrayOfAgents.length ){
                 LifelongAgent agentToAdd = new LifelongAgent(buildSingleAgentOffline(id ,agentLinesList.get(id), canonicalCoordinates),
-                        buildSingleAgentWaypoints(agentLinesList.get(id)));
+                        buildSingleAgentWaypoints(agentLinesList.get(id), canonicalCoordinates));
                 arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
             }
         }
@@ -209,11 +209,11 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     /**
      * @return an array of waypoints for a lifelong agent.
      */
-    private I_Coordinate[] buildSingleAgentWaypoints(ArrayList<String> agentLines) {
+    private I_Coordinate[] buildSingleAgentWaypoints(ArrayList<String> agentLines, Set<Coordinate_2D> canonicalCoordinates) {
         I_Coordinate[] waypoints = new I_Coordinate[agentLines.size()];
         for (int i = 0; i < waypoints.length; i++) {
             String[] agentLineSplit = agentLines.get(i).split(SEPARATOR_SCENARIO);
-            waypoints[i] = toCoor2D(agentLineSplit[INDEX_XVALUE].strip(), agentLineSplit[INDEX_YVALUE].strip());
+            waypoints[i] = toCoor2D(agentLineSplit[INDEX_XVALUE].strip(), agentLineSplit[INDEX_YVALUE].strip(), canonicalCoordinates);
         }
         return waypoints;
     }
