@@ -13,6 +13,7 @@ import java.util.*;
 import static Environment.Visualization.GridSolutionVisualizer.isAtLastLocationInPlan;
 
 public class MillimetricCoordinatesGraphSolutionVisualizer {
+    // TODO DRY this class and GridSolutionVisualizer
 
     private static final int MM_RESOLUTION = 70;
     private static final boolean paintOverVertices = true;
@@ -39,6 +40,7 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
         List<char[][]> grids = new ArrayList<>();
         List<Integer> finishedGoals = new ArrayList<>();
         Set<Agent> sumFinishedAgents = new HashSet<>();
+        int sumFinishedWaypoints = 0;
         for (int time = 0; time < solution.endTime(); time++) {
             char[][] grid = new char[width][height];
             for (int y = 0; y < height; y++) {
@@ -57,7 +59,7 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
                 if (solution instanceof LifelongSolution lifelongSolution){
                     if (GridSolutionVisualizer.isAchievedWaypoint(time, agent, lifelongSolution)){
                         agentPaintColor = 'g';
-                        sumFinishedAgents.add(agent);
+                        sumFinishedWaypoints++;
                     } else if (isAtLastLocationInPlan(solution, time, agent)) {
                         agentPaintColor = 'l';
                     }
@@ -84,7 +86,7 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
                 }
             }
             grids.add(grid);
-            finishedGoals.add(sumFinishedAgents.size());
+            finishedGoals.add(solution instanceof LifelongSolution ? sumFinishedWaypoints: sumFinishedAgents.size());
         }
         GridVisualizer.visualize(grids, finishedGoals, 250, title);
     }
