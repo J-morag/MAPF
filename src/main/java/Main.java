@@ -68,6 +68,10 @@ public class Main {
                 "To visualise the solution.");
         options.addOption(visualiseOption);
 
+        Option forceBiDiEdgesOption = new Option("bidi", "forceBiDiEdges", false,
+                "To force warehouse maps to have all bi-directional edges.");
+        options.addOption(forceBiDiEdgesOption);
+
         Option nameOption = Option.builder("n").longOpt("name")
                 .argName("name")
                 .hasArg()
@@ -138,6 +142,7 @@ public class Main {
             I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI();
             String experimentName = "Unnamed Experiment";
             boolean skipAfterFail = false;
+            boolean forceBiDiEdges = false;
             I_VisualizeSolution visualiser = null;
             String instancesRegex = null;
             String resultsOutputDir = null;
@@ -150,6 +155,11 @@ public class Main {
             if(cmd.hasOption("s")) {
                 System.out.println("skipAfterFail set: Will skip trying more agents for the same instance and solver after failing.");
                 skipAfterFail = true;
+            }
+
+            if(cmd.hasOption("bidi")) {
+                System.out.println("forceBiDiEdges set: Will force warehouse maps to have all bi-directional edges.");
+                forceBiDiEdges = true;
             }
 
             if (cmd.hasOption("n")) {
@@ -189,11 +199,14 @@ public class Main {
                 switch (optInstancesFormat) {
                     case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI();
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
-                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse();
+                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, forceBiDiEdges);
                     default -> {
                         System.out.printf("Unrecognized instance format: %s", optInstancesFormat);
                         System.exit(0);
                     }
+                }
+                if ( ! (instanceBuilder instanceof InstanceBuilder_Warehouse) && forceBiDiEdges) {
+                    System.out.println("forceBiDiEdges set but instance format is not warehouse. Ignoring.");
                 }
             }
             else {
@@ -207,7 +220,7 @@ public class Main {
                 else if (instanceBuilder instanceof InstanceBuilder_Warehouse)
                     visualiser = MillimetricCoordinatesGraphSolutionVisualizer::visualizeSolution;
                 else {
-                    System.out.println(String.format("No visualiser available for instance format %s.", instanceBuilder.getClass().getName()));
+                    System.out.printf("No visualiser available for instance format %s.%n", instanceBuilder.getClass().getName());
                     System.exit(0);
                 }
             }

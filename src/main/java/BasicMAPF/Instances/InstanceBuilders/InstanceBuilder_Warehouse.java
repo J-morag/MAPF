@@ -42,14 +42,18 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
     private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
 
+    /* = Instance Fields = */
+
     private final boolean dropDisabledEdges;
+    private final boolean forceEdgesBidirectional;
 
     public InstanceBuilder_Warehouse() {
-        this(null);
+        this(null, null);
     }
 
-    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges) {
+    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean forceEdgesBidirectional) {
         this.dropDisabledEdges = Objects.requireNonNullElse(dropDisabledEdges, true);
+        this.forceEdgesBidirectional = Objects.requireNonNullElse(forceEdgesBidirectional, true);
     }
 
     @Override
@@ -234,6 +238,29 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 coordinatesAdjacencyLists.put(currentStickerCoordinate, neighbors);
                 coordinatesEdgeWeights.put(currentStickerCoordinate, edgeWeights);
                 locationTypes.put(currentStickerCoordinate, Enum_MapLocationType.EMPTY);
+            }
+        }
+
+        if (forceEdgesBidirectional){
+            for (Coordinate_2D coordinate : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
+                List<Coordinate_2D> neighbors = coordinatesAdjacencyLists.get(coordinate);
+                for (int neighborIndex = 0; neighborIndex < neighbors.size(); neighborIndex++) {
+                    Coordinate_2D neighborOutgoingEdge = neighbors.get(neighborIndex);
+                    int neighborOutgoingEdgeWeight = coordinatesEdgeWeights.get(coordinate).get(neighborIndex);
+
+                    // add reverse edge
+                    List<Coordinate_2D> neighborNeighbors = coordinatesAdjacencyLists.get(neighborOutgoingEdge);
+                    List<Integer> neighborNeighborsWeights = coordinatesEdgeWeights.get(neighborOutgoingEdge);
+                    if (neighborNeighbors != null && neighborNeighborsWeights != null){
+                        if (!neighborNeighbors.contains(coordinate)){
+                            neighborNeighbors.add(coordinate);
+                            neighborNeighborsWeights.add(neighborOutgoingEdgeWeight);
+                        }
+                    }
+                    else {
+                        throw new IllegalStateException("Missing neighbor: " + neighborOutgoingEdge);
+                    }
+                }
             }
         }
 
