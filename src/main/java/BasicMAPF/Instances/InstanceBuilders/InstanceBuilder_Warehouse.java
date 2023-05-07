@@ -53,7 +53,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     private final boolean forceEdgesBidirectional;
 
     public InstanceBuilder_Warehouse() {
-        this(null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong, Boolean forceNoSharedSourceAndFinalDestinations, Boolean randomWaypoints, Boolean forceEdgesBidirectional) {
