@@ -78,6 +78,10 @@ public class Main {
                 "To force random waypoints for the agents. Only works with Warehouse format.");
         options.addOption(randWaypointsOption);
 
+        Option forceBiDiEdgesOption = new Option("bidi", "forceBiDiEdges", false,
+                "To force warehouse maps to have all bi-directional edges.");
+        options.addOption(forceBiDiEdgesOption);
+
         Option nameOption = Option.builder("n").longOpt("name")
                 .argName("name")
                 .hasArg()
@@ -163,6 +167,7 @@ public class Main {
             int[] agentNums = null;
             String experimentName = "Unnamed Experiment";
             boolean skipAfterFail = false;
+            boolean forceBiDiEdges = false;
             I_VisualizeSolution visualiser = null;
             boolean lifelong = false;
             boolean forceRandWaypoints = false;
@@ -191,6 +196,11 @@ public class Main {
             if (cmd.hasOption("rand")) {
                 System.out.println("forceRandWaypoints set: Will force random waypoints for the agents.");
                 forceRandWaypoints = true;
+            }
+
+            if(cmd.hasOption("bidi")) {
+                System.out.println("forceBiDiEdges set: Will force warehouse maps to have all bi-directional edges.");
+                forceBiDiEdges = true;
             }
 
             if (cmd.hasOption("n")) {
@@ -254,7 +264,7 @@ public class Main {
                 switch (optInstancesFormat) {
                     case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
-                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, lifelong, null, forceRandWaypoints);
+                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, lifelong, null, forceRandWaypoints, forceBiDiEdges);
                     default -> {
                         System.out.printf("Unrecognized instance format: %s", optInstancesFormat);
                         System.exit(0);
@@ -262,6 +272,9 @@ public class Main {
                 }
                 if (lifelong && optInstancesFormat.equals(STR_BGU)){
                     throw new IllegalArgumentException("Lifelong MAPF is not supported for BGU instances!");
+                }
+                if ( ! (instanceBuilder instanceof InstanceBuilder_Warehouse) && forceBiDiEdges) {
+                    System.out.println("forceBiDiEdges set but instance format is not warehouse. Ignoring.");
                 }
             }
             else {
@@ -275,7 +288,7 @@ public class Main {
                 else if (instanceBuilder instanceof InstanceBuilder_Warehouse)
                     visualiser = MillimetricCoordinatesGraphSolutionVisualizer::visualizeSolution;
                 else {
-                    System.out.println(String.format("No visualiser available for instance format %s.", instanceBuilder.getClass().getName()));
+                    System.out.printf("No visualiser available for instance format %s.%n", instanceBuilder.getClass().getName());
                     System.exit(0);
                 }
             }
