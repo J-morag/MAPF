@@ -117,7 +117,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
         // shorter planning period!
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy + IntegratedFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1IntegratedFP()); // greedy + IntegratedFP
         return solvers;
     }
 
