@@ -21,7 +21,6 @@ import static com.google.common.math.IntMath.factorial;
  * An implementation of the Prioritised Planning algorithm for Multi Agent Path Finding.
  * It solves {@link MAPF_Instance MAPF problems} very quickly, but does not guarantee optimality, and will very likely
  * return a sub-optimal {@link Solution}.
- * Agents disappear at goal!
  */
 public class PrioritisedPlanning_Solver extends A_Solver {
 
