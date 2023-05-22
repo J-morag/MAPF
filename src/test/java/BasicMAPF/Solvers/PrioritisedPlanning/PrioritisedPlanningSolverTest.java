@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,7 +120,7 @@ class PrioritisedPlanningSolverTest {
     void failsBeforeTimeoutWithRandomInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00, agent55to34, agent43to53});
         I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null);
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
@@ -139,7 +138,7 @@ class PrioritisedPlanningSolverTest {
     void failsBeforeTimeoutWithDeterministicInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent55to34, agent43to53, agent00to10, agent10to00});
         I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null, null);
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
@@ -158,20 +157,20 @@ class PrioritisedPlanningSolverTest {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
         long timeout = 10*1000;
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null);
         Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null, null);
         solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         // sanity check that it does indeed fail without the contingency
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(), null, null, null);
+                new RestartsStrategy(), null, null, null, null);
         solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         // should fail without the contingency
         assertNull(solved);
@@ -185,7 +184,7 @@ class PrioritisedPlanningSolverTest {
         long hardTimeout = 5L * 1000;
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null, null, null);
         Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParameters(hardTimeout, null, instanceReport, null, softTimeout));
 
         System.out.println(solved.readableToString());
@@ -351,7 +350,7 @@ class PrioritisedPlanningSolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null, null);
+                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -472,7 +471,7 @@ class PrioritisedPlanningSolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -595,11 +594,11 @@ class PrioritisedPlanningSolverTest {
         boolean useAsserts = true;
 
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(), null, null, null);
+                null, new RestartsStrategy(), null, null, null, null);
         String nameBaseline = baselineSolver.name();
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
+                null, new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null);
         String nameExperimental = competitorSolver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -717,7 +716,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void sharedGoals(){
-        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, true, null, null);
+        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, true, null, null, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});

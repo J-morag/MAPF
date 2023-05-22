@@ -43,4 +43,8 @@ public class CongestionMap {
         Set<Agent> agentsAtLoc = agentsAtLocations.get(loc);
         return agentsAtLoc != null ? agentsAtLoc.size() : 0;
     }
+
+    public void clear(){
+        agentsAtLocations.clear();
+    }
 }

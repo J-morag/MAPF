@@ -5,16 +5,18 @@ import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.*;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.I_LifelongCompatibleSolver;
+import org.apache.commons.lang.mutable.MutableInt;
 
 import java.util.*;
 
@@ -49,6 +51,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     private ConstraintSet constraints;
 
     private Random random;
+    private Set<Agent> failedAgents;
+    private RemovableConflictAvoidanceTableWithContestedGoals initialConflictAvoidanceTable;
 
     /*  =  = Fields related to the class instance =  */
 
@@ -90,6 +94,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * How far forward in time to consider conflicts. Further than this time conflicts will be ignored.
      */
     public final Integer RHCR_Horizon;
+    public final FailPolicy failPolicy;
 
 
     /*  = Constructors =  */
@@ -101,7 +106,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null, null, null);
     }
 
     /**
@@ -109,20 +114,23 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null, null, null);
+        this(null, agentComparator, null, null, null, null, null, null);
     }
 
     /**
      * Constructor.
-     * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
-     * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
-     * @param solutionCostFunction A cost function to evaluate solutions with. Only used when using random restarts.
-     * @param restartsStrategy how to do restarts.
-     * @param sharedGoals if agents share goals, they will not conflict at their goal.
+     *
+     * @param lowLevelSolver        A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
+     * @param agentComparator       How to sort the agents. This sort determines their priority. High priority first.
+     * @param solutionCostFunction  A cost function to evaluate solutions with. Only used when using random restarts.
+     * @param restartsStrategy      how to do restarts.
+     * @param sharedGoals           if agents share goals, they will not conflict at their goal.
+     * @param failPolicy
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources, Integer RHCR_Horizon) {
+                                      Boolean sharedGoals, Boolean sharedSources, Integer RHCR_Horizon,
+                                      FailPolicy failPolicy) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
@@ -130,6 +138,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.RHCR_Horizon = RHCR_Horizon;
+        this.failPolicy = failPolicy;
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
@@ -141,7 +150,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -178,7 +187,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
         }
-        // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
+
+        this.failedAgents = new HashSet<>();
+        this.initialConflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+
         if(parameters instanceof RunParameters_PP parametersPP){
 
             //reorder according to requested priority
@@ -195,6 +207,14 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             else {this.heuristic = new DistanceTableAStarHeuristic(this.agents, instance.map);} // TODO replace with distance table? should usually be worth it
 
             this.partialSolutionsStrategy = parametersPP.partialSolutionsStrategy;
+
+            if (parametersPP.failedAgents != null){
+                this.failedAgents = parametersPP.failedAgents;
+            }
+
+            if (parametersPP.conflictAvoidanceTable != null){
+                this.initialConflictAvoidanceTable = parametersPP.conflictAvoidanceTable;
+            }
         }
 
         this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
@@ -235,6 +255,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     protected Solution solvePrioritisedPlanning(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = null;
         Solution bestPartialSolution = new Solution();
+        int bestPartialSolutionSingleAgentSuccesses = 0;
+        Set<Agent> bestPartialSolutionFailedAgents = new HashSet<>();
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
         randomOrderings.add(new ArrayList<>(agents));
@@ -247,7 +269,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
             Solution solution = new Solution();
             ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
-            List<Agent> agentsWeFailedOn = new ArrayList<>();
+            RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals(this.initialConflictAvoidanceTable);
+            Set<Agent> failedAgents = new HashSet<>();
+            Agent firstFailedAgent = null;
+            MutableInt failPolicyIterations = new MutableInt(0);
             //solve for each agent while avoiding the plans of previous agents (standard PrP)
             for (int agentIndex = 0; agentIndex < agents.size(); agentIndex++){
                 Agent agent = agents.get(agentIndex);
@@ -258,14 +283,48 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
                         bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY);
 
-                // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
-                if (planForAgent == null) { // TODO will have to modify this when we support partial plans
-                    agentsWeFailedOn.add(agent);
+                if (planForAgent == null) { // TODO will have to modify this if we support partial plans from A*
+                    failedAgents.add(agent);
+                    if (firstFailedAgent == null) firstFailedAgent = agent;
+                    if (// TODO smarter failedToPlanForCurrentAgent and alreadyFoundFullSolution when we get partial plans
+                            failPolicy != null &&
+                                    ! this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null))
+                    {
+                        SingleAgentPlan initialFailPlan = failPolicy.getFailPolicyPlan(problemStartTime, agent, instance.map.getMapLocation(agent.source), conflictAvoidanceTable);
+                        solution.putPlan(initialFailPlan);
+                        conflictAvoidanceTable.addPlan(initialFailPlan);
+                        int numFailedAgentsBeforeFailPolicy = failedAgents.size();
+                        solution = this.failPolicy.getKSafeSolution(solution, problemStartTime, failedAgents, conflictAvoidanceTable, failPolicyIterations);
+
+                        if (failedAgents.size() > numFailedAgentsBeforeFailPolicy){
+                            currentConstraints = new ConstraintSet(initialConstraints);
+                            if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
+                                    && distanceTable.congestionMap != null){
+                                distanceTable.congestionMap.clear();
+                            }
+                        }
+
+                        for (SingleAgentPlan singleAgentPlan : solution) {
+                            addPlanToConstraints(currentConstraints, singleAgentPlan);
+                            addPlanToCongestionMap(singleAgentPlan);
+                            // and the conflict avoidance table is already updated
+                        }
+                    }
+
+                    int successfulAgents = agentIndex + 1 - failedAgents.size();
+
                     if (this.partialSolutionsStrategy.allowed() && solution != bestPartialSolution &&
-                            (solution.size() > bestPartialSolution.size() ||
-                                    (solution.size() == bestPartialSolution.size() &&
+                            (successfulAgents > bestPartialSolutionSingleAgentSuccesses ||
+                                    (successfulAgents == bestPartialSolutionSingleAgentSuccesses &&
                                             this.solutionCostFunction.solutionCost(solution) < this.solutionCostFunction.solutionCost(bestPartialSolution)))){
                         bestPartialSolution = solution;
+                        bestPartialSolutionSingleAgentSuccesses = successfulAgents;
+                        bestPartialSolutionFailedAgents = failedAgents;
+                    } else if (this.partialSolutionsStrategy.allowed() && solution != bestPartialSolution &&
+                            (failedAgents.size() > bestPartialSolutionFailedAgents.size() ||
+                                    (failedAgents.size() == bestPartialSolutionFailedAgents.size() &&
+                                            this.solutionCostFunction.solutionCost(solution) < this.solutionCostFunction.solutionCost(bestPartialSolution)))) {
+                        break;
                     }
 
                     if (// TODO smarter failedToPlanForCurrentAgent and alreadyFoundFullSolution when we get partial plans
@@ -274,22 +333,13 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         break;
                     }
                 }
-                else { // TODO will have to modify this when we support partial plans
+                else {
                     //save the plan for this agent
                     solution.putPlan(planForAgent);
-
                     //add constraints to prevent the next agents from conflicting with the new plan
-                    if (this.RHCR_Horizon == null){
-                        currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
-                    }
-                    else {
-                        currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent, horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon)));
-                    }
-                    // if using congestion, add this plan to the congestion map
-                    if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
-                            && distanceTable.congestionMap != null){
-                        distanceTable.congestionMap.registerPlan(planForAgent); // TODO horizon?
-                    }
+                    addPlanToConstraints(currentConstraints, planForAgent);
+
+                    addPlanToCongestionMap(planForAgent);
                 }
             }
 
@@ -297,18 +347,19 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             /* = random/deterministic restarts = */
 
             if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
-            if (agentsWeFailedOn.size() == 0 &&
+            if (failedAgents.size() == 0 &&
                     (bestSolution == null ||
                             (solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)))){
                 bestSolution = solution;
             }
 
             // report the completed attempt
+            this.instanceReport.putIntegerValue("fail policy iterations", failPolicyIterations.intValue());
             if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
                 this.instanceReport.putIntegerValue(countInitialAttemptsMetricString, attemptNumber + 1);
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", agentsWeFailedOn.size());
+                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", failedAgents.size());
             }
             else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
                 this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, attemptNumber - restartsStrategy.numInitialRestarts);
@@ -339,9 +390,9 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 randomOrderings.add(new ArrayList<>(this.agents));
             }
             else if (restartsKind == RestartsStrategy.RestartsKind.deterministicRescheduling){
-                if ( ! agentsWeFailedOn.isEmpty()){
-                    this.agents.remove(agentsWeFailedOn.get(0));
-                    this.agents.add(0, agentsWeFailedOn.get(0));
+                if ( ! failedAgents.isEmpty()){
+                    this.agents.remove(firstFailedAgent);
+                    this.agents.add(0, firstFailedAgent);
                     if (deterministicOrderings.contains(this.agents)){
                         break; // deterministic ordering can end up in a loop - terminates if repeats itself
                     }
@@ -356,14 +407,30 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 //        instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
 
         if (this.partialSolutionsStrategy.allowed() && bestSolution == null){
-            // TODO smarter numSolvedAgents when we support partial plans
-            this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestPartialSolution.size());
+            this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestPartialSolutionSingleAgentSuccesses);
+            this.failedAgents.addAll(bestPartialSolutionFailedAgents); // kind of ugly. This is a part of the output basically. Add to instance report?
             return bestPartialSolution;
         }
         else {
-            // TODO smarter numSolvedAgents when we support partial plans
             this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestSolution != null ? bestSolution.size() : 0);
             return bestSolution;
+        }
+    }
+
+    private void addPlanToCongestionMap(SingleAgentPlan planForAgent) {
+        // if using congestion, add this plan to the congestion map
+        if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
+                && distanceTable.congestionMap != null){
+            distanceTable.congestionMap.registerPlan(planForAgent); // TODO horizon?
+        }
+    }
+
+    private void addPlanToConstraints(ConstraintSet currentConstraints, SingleAgentPlan planForAgent) {
+        if (this.RHCR_Horizon == null){
+            currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
+        }
+        else {
+            currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent, horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon)));
         }
     }
 
