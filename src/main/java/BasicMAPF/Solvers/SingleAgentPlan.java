@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 public class SingleAgentPlan implements Iterable<Move> {
     private List<Move> moves;
     public final Agent agent;
+    private boolean planContainsTarget = false;
 
     /**
      * @param moves a sequence of moves for the agent. Can be empty. All {@link Move}s must be moves for the same {@link Agent},
@@ -24,10 +25,8 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public SingleAgentPlan(Agent agent, Iterable<Move> moves) {
         if(moves == null || agent == null) throw new IllegalArgumentException();
-        ArrayList<Move> localMovesCopy = Lists.newArrayList(moves);
-        if(!isValidMoveSequenceForAgent(localMovesCopy, agent)) throw new IllegalArgumentException();
         this.agent = agent;
-        this.moves = localMovesCopy;
+        setMoves(moves);
     }
 
     /**
@@ -37,6 +36,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public SingleAgentPlan(SingleAgentPlan planToCopy){
         this(planToCopy.agent, planToCopy.moves);
+        this.planContainsTarget = planToCopy.planContainsTarget;
     }
 
     public SingleAgentPlan(Agent agent) {
@@ -76,13 +76,14 @@ public class SingleAgentPlan implements Iterable<Move> {
     public void addMove(Move newMove){
         if(isValidNextMoveForAgent(this.moves, newMove, this.agent)){
             this.moves.add(newMove);
+            this.planContainsTarget |= newMove.currLocation.getCoordinate().equals(agent.target);
         }
         else {throw new IllegalArgumentException();}
     }
 
     /**
      * Appends a new sequence of moves to the current plan. The joint sequence must meet the same conditions as in
-     * {@link #setMoves(List)}.
+     * {@link #setMoves(Iterable)}.
      * @param newMoves a sequence of moves to append to the current plan.
      */
     public void addMoves(List<Move> newMoves){
@@ -109,23 +110,18 @@ public class SingleAgentPlan implements Iterable<Move> {
      * {@link Move#timeNow} must form an ascending series with d=1. Must start at {@link #agent}s source.
      * @param newMoves a sequence of moves for the agent.
      */
-    public void setMoves(List<Move> newMoves){
+    public void setMoves(Iterable<Move> newMoves){
         if(newMoves == null) throw new IllegalArgumentException();
-        if(isValidMoveSequenceForAgent(newMoves, agent)){
-            this.moves = new ArrayList<>(newMoves);
-        }
-        else{
-            throw new IllegalArgumentException();
+        ArrayList<Move> localMovesCopy = Lists.newArrayList(newMoves);
+        if(!isValidMoveSequenceForAgent(localMovesCopy, agent)) throw new IllegalArgumentException("invalid move sequence for agent");
+        this.moves = localMovesCopy;
+        for (Move move: this.moves) {
+            if (move.currLocation.getCoordinate().equals(agent.target)){
+                this.planContainsTarget = true;
+                break;
+            }
         }
     }
-
-//    /**
-//     * Returns a list of the moves in the plan. The returned list is a copy, and changes made in it will not effect the
-//     * plan.
-//     * @return a list of the moves in the plan. The returned list is a copy, and changes made in it will not effect the
-//     *      plan.
-//     */
-//    public List<Move> getMoves(){return new ArrayList<>(this.moves);}
 
     /**
      * Return the move in the plan where {@link Move#timeNow} equals the given time.
