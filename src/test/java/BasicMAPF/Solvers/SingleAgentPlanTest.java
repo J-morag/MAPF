@@ -1,47 +1,50 @@
 package BasicMAPF.Solvers;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.Maps.*;
+import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import Environment.Metrics.InstanceReport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static BasicMAPF.TestConstants.Maps.mapCircle;
-import static BasicMAPF.TestConstants.Coordiantes.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static BasicMAPF.TestConstants.Agents.agent33to12;
+import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Instances.instanceEmpty1;
+import static BasicMAPF.TestConstants.Maps.mapCircle;
+import static org.junit.jupiter.api.Assertions.*;
+
 class SingleAgentPlanTest {
-    private I_Location location12 = mapCircle.getMapLocation(coor12);
-    private I_Location location13 = mapCircle.getMapLocation(coor13);
-    private I_Location location14 = mapCircle.getMapLocation(coor14);
-    private I_Location location22 = mapCircle.getMapLocation(coor22);
-    private I_Location location24 = mapCircle.getMapLocation(coor24);
-    private I_Location location32 = mapCircle.getMapLocation(coor32);
-    private I_Location location33 = mapCircle.getMapLocation(coor33);
-    private I_Location location34 = mapCircle.getMapLocation(coor34);
-    private Agent agent1 = new Agent(0, coor13, coor14);
-    private Agent agent2 = new Agent(1, coor24, coor24);
+    private final I_Location location12 = mapCircle.getMapLocation(coor12);
+    private final I_Location location13 = mapCircle.getMapLocation(coor13);
+    private final I_Location location14 = mapCircle.getMapLocation(coor14);
+    private final I_Location location22 = mapCircle.getMapLocation(coor22);
+    private final I_Location location24 = mapCircle.getMapLocation(coor24);
+    private final I_Location location32 = mapCircle.getMapLocation(coor32);
+    private final I_Location location33 = mapCircle.getMapLocation(coor33);
+    private final I_Location location34 = mapCircle.getMapLocation(coor34);
+    private final Agent agent1 = new Agent(0, coor13, coor14);
+    private final Agent agent2 = new Agent(1, coor24, coor24);
 
 
     /*  =valid inputs=  */
     //note that validity of move from one location to the next (neighbors or not) is not checked by SingleAgentPlan
-    private Move move1agent1 = new Move(agent1, 1, location13, location14);
+    private final Move move1agent1 = new Move(agent1, 1, location13, location14);
     private Move move2agent1 = new Move(agent1, 2, location14, location24);
-    private Move move3agent1 = new Move(agent1, 3, location24, location14);
-    private Move move1agent2 = new Move(agent2, 1, location24, location24);
+    private final Move move3agent1 = new Move(agent1, 3, location24, location14);
+    private final Move move1agent2 = new Move(agent2, 1, location24, location24);
 
-    private Move move4agent1 = new Move(agent1, 4, location14, location13);
+    private final Move move4agent1 = new Move(agent1, 4, location14, location13);
 
     /*  =invalid inputs=  */
-    private Move move4agent1BadTime = new Move(agent1, 1, location14, location24);
-    private Move move4agent1BadAgent = new Move(agent2, 4, location14, location24);
+    private final Move move4agent1BadTime = new Move(agent1, 1, location14, location24);
+    private final Move move4agent1BadAgent = new Move(agent2, 4, location14, location24);
 
     /*  =plans=  */
     private SingleAgentPlan emptyPlanAgent1;
-    private SingleAgentPlan emptyPlanAgent2;
     private SingleAgentPlan existingPlanAgent1;
     private SingleAgentPlan existingPlanAgent2;
 
@@ -49,7 +52,6 @@ class SingleAgentPlanTest {
     void setUp() {
         /*  =init plans=  */
         emptyPlanAgent1 = new SingleAgentPlan(agent1);
-        emptyPlanAgent2 = new SingleAgentPlan(agent2);
 
         List<Move> agent1Moves123 = new ArrayList<>();
         agent1Moves123.add(move1agent1);
@@ -101,9 +103,9 @@ class SingleAgentPlanTest {
         assertThrows(IllegalArgumentException.class,
                 ()-> existingPlanAgent1.addMoves(a1moves123)); //bad times
         assertThrows(IllegalArgumentException.class,
-                ()-> emptyPlanAgent1.addMoves(Arrays.asList(move1agent2))); //bad agent
+                ()-> emptyPlanAgent1.addMoves(List.of(move1agent2))); //bad agent
         assertThrows(IllegalArgumentException.class,
-                ()-> existingPlanAgent1.addMoves(Arrays.asList(new Move(agent2, 5, location14, location14)))); //bad agent
+                ()-> existingPlanAgent1.addMoves(List.of(new Move(agent2, 5, location14, location14)))); //bad agent
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.addMoves(Arrays.asList(
                         move1agent1, new Move(agent2, 2, location14,location14), move3agent1))); //bad agent middle
@@ -137,9 +139,9 @@ class SingleAgentPlanTest {
         /*  =should throw=  */
         setUp();
         assertThrows(IllegalArgumentException.class,
-                ()-> emptyPlanAgent1.setMoves(Arrays.asList(move1agent2))); //bad agent
+                ()-> emptyPlanAgent1.setMoves(List.of(move1agent2))); //bad agent
         assertThrows(IllegalArgumentException.class,
-                ()-> existingPlanAgent1.setMoves(Arrays.asList(new Move(agent2, 5, location14, location14)))); //bad agent
+                ()-> existingPlanAgent1.setMoves(List.of(new Move(agent2, 5, location14, location14)))); //bad agent
         assertThrows(IllegalArgumentException.class,
                 ()-> emptyPlanAgent1.setMoves(Arrays.asList(
                         move1agent1, new Move(agent2, 2, location14,location14), move3agent1))); //bad agent middle
@@ -160,7 +162,7 @@ class SingleAgentPlanTest {
         /*  =as initiated=  */
         assertEquals(-1, emptyPlanAgent1.getPlanStartTime());
         assertEquals(0, existingPlanAgent1.getPlanStartTime());
-        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, location13, location12)));
+        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, List.of(new Move(agent1, 4, location13, location12)));
         assertEquals(3, planStartsAt3.getPlanStartTime());
 
         /*  =when modified=  */
@@ -175,7 +177,7 @@ class SingleAgentPlanTest {
         /*  =as initiated=  */
         assertEquals(-1, emptyPlanAgent1.getEndTime());
         assertEquals(3, existingPlanAgent1.getEndTime());
-        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, location13, location12)));
+        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, List.of(new Move(agent1, 4, location13, location12)));
         assertEquals(4, planStartsAt3.getEndTime());
 
         /*  =when modified=  */
@@ -190,7 +192,7 @@ class SingleAgentPlanTest {
         /*  =as initiated=  */
         assertEquals(0, emptyPlanAgent1.size());
         assertEquals(3, existingPlanAgent1.size());
-        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, Arrays.asList(new Move(agent1, 4, location13, location12)));
+        SingleAgentPlan planStartsAt3 = new SingleAgentPlan(agent1, List.of(new Move(agent1, 4, location13, location12)));
         assertEquals(1, planStartsAt3.size());
 
         /*  =when modified=  */
@@ -252,5 +254,92 @@ class SingleAgentPlanTest {
 
         assertFalse(planAgent1.conflictsWith(alternateAgent2));
         assertFalse(alternateAgent2.conflictsWith(planAgent1));
+    }
+
+    @Test
+    void markTargetWasVisitedGradualBuild() {
+        Agent agent1 = new Agent(0, coor13, coor33);
+
+        SingleAgentPlan planAgent1 = new SingleAgentPlan(agent1);
+        planAgent1.addMove(new Move(agent1, 1, location13, location14));
+        planAgent1.addMove(new Move(agent1, 2, location14, location24));
+        planAgent1.addMove(new Move(agent1, 3, location24, location34));
+        planAgent1.addMove(new Move(agent1, 4, location34, location33));
+
+        assertTrue(planAgent1.containsTarget());
+    }
+
+    @Test
+    void markTargetWasVisitedBatchBuild() {
+        Agent agent1 = new Agent(0, coor13, coor33);
+
+        List<Move> moves = List.of(new Move[]{new Move(agent1, 1, location13, location14), new Move(agent1, 2, location14, location24),
+                new Move(agent1, 3, location24, location34), new Move(agent1, 4, location34, location33)});
+
+        SingleAgentPlan planAgent1 = new SingleAgentPlan(agent1, moves);
+
+        assertTrue(planAgent1.containsTarget());
+    }
+
+    @Test
+    void markTargetWasVisitedNotLastMove() {
+        Agent agent1 = new Agent(0, coor13, coor33);
+
+        List<Move> moves = List.of(new Move[]{new Move(agent1, 1, location13, location14), new Move(agent1, 2, location14, location24),
+                new Move(agent1, 3, location24, location34), new Move(agent1, 4, location34, location33), new Move(agent1, 5, location33, location32)});
+
+        SingleAgentPlan planAgent1 = new SingleAgentPlan(agent1, moves);
+
+        assertTrue(planAgent1.containsTarget());
+    }
+    @Test
+    void doesntMarkTargetWasVisitedWhenWasNotVisited() {
+        Agent agent1 = new Agent(0, coor13, coor33);
+
+        List<Move> moves = List.of(new Move[]{new Move(agent1, 1, location13, location14), new Move(agent1, 2, location14, location24),
+                new Move(agent1, 3, location24, location34)});
+
+        SingleAgentPlan planAgent1 = new SingleAgentPlan(agent1, moves);
+
+        assertFalse(planAgent1.containsTarget());
+    }
+
+    @Test
+    void marksTargetVisitedWhenGeneratedBySolve() {
+        SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
+        Solution solution = solver.solve(instanceEmpty1, new RunParameters(new InstanceReport()));
+        System.out.println(solution);
+        SingleAgentPlan plan = solution.getPlanFor(agent33to12);
+        assertTrue(plan.containsTarget());
+    }
+
+    @Test
+    void marksTargetNotVisitedAfterCleared() {
+        Agent agent1 = new Agent(0, coor13, coor33);
+        List<Move> moves = List.of(new Move[]{new Move(agent1, 1, location13, location14), new Move(agent1, 2, location14, location24),
+                new Move(agent1, 3, location24, location34), new Move(agent1, 4, location34, location33), new Move(agent1, 5, location33, location32)});
+        SingleAgentPlan planAgent1 = new SingleAgentPlan(agent1, moves);
+        assertTrue(planAgent1.containsTarget());
+
+        planAgent1.clearMoves();
+        moves = List.of(new Move[]{new Move(agent1, 1, location13, location14), new Move(agent1, 2, location14, location24),
+                new Move(agent1, 3, location24, location34)});
+        planAgent1 = new SingleAgentPlan(agent1, moves);
+        assertFalse(planAgent1.containsTarget());
+    }
+
+    @Test
+    void marksTargetVisitedAfterCleared() {
+        Agent agent1 = new Agent(0, coor13, coor33);
+        List<Move> moves = List.of(new Move[]{new Move(agent1, 1, location13, location14), new Move(agent1, 2, location14, location24),
+                new Move(agent1, 3, location24, location34), new Move(agent1, 4, location34, location33), new Move(agent1, 5, location33, location32)});
+        SingleAgentPlan planAgent1 = new SingleAgentPlan(agent1, moves);
+        assertTrue(planAgent1.containsTarget());
+
+        planAgent1.clearMoves();
+        moves = List.of(new Move[]{new Move(agent1, 1, location13, location14), new Move(agent1, 2, location14, location24),
+                new Move(agent1, 3, location24, location34), new Move(agent1, 4, location34, location33), new Move(agent1, 5, location33, location32)});
+        planAgent1 = new SingleAgentPlan(agent1, moves);
+        assertTrue(planAgent1.containsTarget());
     }
 }
