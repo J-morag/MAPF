@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 public class SingleAgentPlan implements Iterable<Move> {
     private List<Move> moves;
     public final Agent agent;
-    private boolean planContainsTarget = false;
+    private boolean containsTarget = false;
 
     /**
      * @param moves a sequence of moves for the agent. Can be empty. All {@link Move}s must be moves for the same {@link Agent},
@@ -36,7 +36,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public SingleAgentPlan(SingleAgentPlan planToCopy){
         this(planToCopy.agent, planToCopy.moves);
-        this.planContainsTarget = planToCopy.planContainsTarget;
+        this.containsTarget = planToCopy.containsTarget;
     }
 
     public SingleAgentPlan(Agent agent) {
@@ -76,7 +76,7 @@ public class SingleAgentPlan implements Iterable<Move> {
     public void addMove(Move newMove){
         if(isValidNextMoveForAgent(this.moves, newMove, this.agent)){
             this.moves.add(newMove);
-            this.planContainsTarget |= newMove.currLocation.getCoordinate().equals(agent.target);
+            this.containsTarget |= newMove.currLocation.getCoordinate().equals(agent.target);
         }
         else {throw new IllegalArgumentException();}
     }
@@ -88,13 +88,8 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public void addMoves(List<Move> newMoves){
         if(newMoves == null){throw new IllegalArgumentException();}
-        List<Move> tmpMoves = new ArrayList<>(this.moves);
-        tmpMoves.addAll(newMoves);
-        if(isValidMoveSequenceForAgent(tmpMoves, agent)){
-            this.moves = tmpMoves;
-        }
-        else{
-            throw new IllegalArgumentException();
+        for (Move move: newMoves) {
+            addMove(move);
         }
     }
 
@@ -102,7 +97,10 @@ public class SingleAgentPlan implements Iterable<Move> {
      * Clears the plan. Be careful when using this. The agent remains the same agent, and classes that use this plan
      * may behave unexpectedly if the plan they hold suddenly changes.
      */
-    public void clearMoves(){this.moves.clear();}
+    public void clearMoves(){
+        this.moves.clear();
+        this.containsTarget = false;
+    }
 
     /**
      * Replaces the current plan with a copy of the given sequence of moves.
@@ -117,7 +115,7 @@ public class SingleAgentPlan implements Iterable<Move> {
         this.moves = localMovesCopy;
         for (Move move: this.moves) {
             if (move.currLocation.getCoordinate().equals(agent.target)){
-                this.planContainsTarget = true;
+                this.containsTarget = true;
                 break;
             }
         }
@@ -167,6 +165,10 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @return the last {@link Move} in the plan, or null if the plan is empty.
      */
     public Move getLastMove(){return moves.isEmpty() ? null : moves.get(moves.size() - 1);}
+
+    public boolean containsTarget() {
+        return containsTarget;
+    }
 
     /**
      * Returns the total time of the plan, which is the difference between end and start times. It is the same as the number of moves in the plan.
