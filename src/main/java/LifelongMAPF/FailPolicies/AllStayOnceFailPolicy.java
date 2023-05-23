@@ -1,4 +1,4 @@
-package LifelongMAPF.SingleAgentFailPolicies;
+package LifelongMAPF.FailPolicies;
 
 import BasicMAPF.Solvers.SingleAgentPlan;
 import BasicMAPF.Solvers.Solution;

@@ -2,11 +2,15 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.A_ConflictAvoidanceTable;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.RunParameters;
 import BasicMAPF.Solvers.Solution;
+
+import java.util.Set;
 
 /**
  * {@link RunParameters} for {@link PrioritisedPlanning_Solver}.
@@ -27,6 +31,11 @@ public class RunParameters_PP extends RunParameters {
      */
     public final AStarGAndH heuristic;
     public PartialSolutionsStrategy partialSolutionsStrategy;
+    /**
+     * Collect failed agents here
+     */
+    public Set<Agent> failedAgents;
+    public RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable;
 
     public RunParameters_PP(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Agent[] preferredPriorityOrder, AStarGAndH heuristic, Long softTimeout) {
         super(timeout, constraints, instanceReport, existingSolution, softTimeout);

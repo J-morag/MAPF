@@ -47,6 +47,24 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
         super();
     }
 
+    public RemovableConflictAvoidanceTableWithContestedGoals(RemovableConflictAvoidanceTableWithContestedGoals other){
+        if (other.goalOccupancies != null){
+            this.goalOccupancies = new HashMap<>();
+            for (Map.Entry<I_Location, List<AgentAtGoal>> entry : other.goalOccupancies.entrySet()){
+                this.goalOccupancies.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+        }
+        if (other.regularOccupanciesSorted != null){
+            this.regularOccupanciesSorted = new HashMap<>();
+            for (Map.Entry<I_Location, ArrayList<Move>> entry : other.regularOccupanciesSorted.entrySet()){
+                this.regularOccupanciesSorted.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+        }
+        if (other.coveredAgents != null){
+            this.coveredAgents = new HashSet<>(other.coveredAgents);
+        }
+    }
+
     /**
      * Adds a plan to the table. If the agent already has a plan in the table, will throw an exception.
      * @param plan the plan to add

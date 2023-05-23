@@ -1,4 +1,4 @@
-package LifelongMAPF.SingleAgentFailPolicies;
+package LifelongMAPF.FailPolicies;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
