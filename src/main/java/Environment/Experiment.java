@@ -231,10 +231,6 @@ public class Experiment {
             System.out.println("Elapsed time (ms): " + elapsedTime);
         }
 
-        if (!keepSolutionInReport) {
-            instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
-        }
-
         // Now that the report is complete, commit it
         try {
             instanceReport.commit();
@@ -243,6 +239,10 @@ public class Experiment {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (!keepSolutionInReport) {
+            instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
         }
 
         return validSolution;
