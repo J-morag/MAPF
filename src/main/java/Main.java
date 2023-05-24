@@ -1,15 +1,7 @@
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
-import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.MAPF_Instance;
-import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
 import Environment.RunManagers.*;
 import Environment.Visualization.I_VisualizeSolution;
 import Environment.Visualization.GridSolutionVisualizer;
@@ -17,27 +9,12 @@ import Environment.Visualization.MillimetricCoordinatesGraphSolutionVisualizer;
 import org.apache.commons.cli.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.util.Arrays;
 
 import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 
 
-/**
- * We wanted to keep {@link #main(String[])} short and simple as possible
- * Things to consider before running:
- *      1. Check that the {@link #exampleResultsOutputDir} is correct
- *      2. Check that {@link #outputResults()} is as you need
- *      3. Running an experiment should be done through a {@link A_RunManager}.
- *          Solving a single Instance is also possible by giving a path.
- * For more information, view the examples below
- */
 public class Main {
-
-    // where to put generated reports. The default is a new folder called MAPF_Results, under the user's home directory.
-    public static final String exampleResultsOutputDir = A_RunManager.DEFAULT_RESULTS_OUTPUT_DIR;
     public static final String STR_AGENT_NUMS = "agentNums";
     private static final String STR_MOVING_AI = "MovingAI";
     private static final String STR_BGU = "BGU";
@@ -48,93 +25,22 @@ public class Main {
     private static final String STR_RESULTS_FILE_PREFIX = "resultsFilePrefix";
 
     public static void main(String[] args) {
-        if (args.length > 0){
-            CLIMain(args);
-        }
-        else {
-            // Example
-            staticMain();
-        }
+        CLIMain(args);
     }
 
     private static void CLIMain(String[] args) {
         Options options = new Options();
-
-        Option skipOption = new Option("s", "skipAfterFail", false,
-                "To skip attempting the same instance with the same solver, but with more agents, if we already failed with less agents.");
-        options.addOption(skipOption);
-
-        Option visualiseOption = new Option("v", "visualise", false,
-                "To visualise the solution.");
-        options.addOption(visualiseOption);
-
-        Option forceBiDiEdgesOption = new Option("bidi", "forceBiDiEdges", false,
-                "To force warehouse maps to have all bi-directional edges.");
-        options.addOption(forceBiDiEdgesOption);
-
-        Option nameOption = Option.builder("n").longOpt("name")
-                .argName("name")
-                .hasArg()
-                .required(false)
-                .desc("Name for the experiment. Optional.")
-                .build();
-        options.addOption(nameOption);
-
-        Option instancesDirOption = Option.builder("iDir").longOpt(STR_INSTANCES_DIR)
-                .argName(STR_INSTANCES_DIR)
-                .hasArg()
-                .required(true)
-                .desc("Set the directory (path) where maps and instances are to be found. Required.")
-                .build();
-        options.addOption(instancesDirOption);
-
-        Option resultsDirOption = Option.builder("resDir").longOpt(STR_RESULTS_DIR_OPTION)
-                .argName(STR_RESULTS_DIR_OPTION)
-                .hasArg()
-                .required(false)
-                .desc("The directory (path) where results will be saved. Will be created if it doesn't exist. Optional.")
-                .build();
-        options.addOption(resultsDirOption);
-
-        Option resultsFileOption = Option.builder("resPref").longOpt(STR_RESULTS_FILE_PREFIX)
-                .argName(STR_RESULTS_FILE_PREFIX)
-                .hasArg()
-                .required(false)
-                .desc("The prefix to give results file names. Optional.")
-                .build();
-        options.addOption(resultsFileOption);
-
-        Option instancesRegexOption = Option.builder("iRegex").longOpt(STR_INSTANCES_REGEX)
-                .argName(STR_INSTANCES_REGEX)
-                .hasArg()
-                .required(false)
-                .desc("If given, only instances matching this Regex will be used. Optional.")
-                .build();
-        options.addOption(instancesRegexOption);
-
-        Option InstancesFormatOption = Option.builder("iForm").longOpt("instancesFormat")
-                .argName("instancesFormat")
-                .hasArg()
-                .required(false)
-                .desc(String.format("Set the format of the instances. " +
-                        "Supports %s format (https://movingai.com/benchmarks/formats.html) and %s format.", STR_MOVING_AI, STR_BGU)
-                        + " Optional (default is " + STR_MOVING_AI + ").")
-                .build();
-        options.addOption(InstancesFormatOption);
-
-        Option agentNumsOption = Option.builder("a").longOpt(STR_AGENT_NUMS)
-                .argName(STR_AGENT_NUMS)
-                .hasArgs()
-                .required(true)
-                .valueSeparator(',')
-                .desc("Set the numbers of agents to try. Use ',' (comma) as a separator and no spaces." +
-                        " Will use the maximum available if an instance does not have enough agents. Required.")
-                .build();
-        options.addOption(agentNumsOption);
+        addOptions(options);
 
         CommandLine cmd;
         CommandLineParser parser = new DefaultParser();
         HelpFormatter helper = new HelpFormatter();
+
+
+        if (args.length == 0){
+            System.out.println("No arguments were given. To run a built-in example, run ExampleMain.main(args).");
+            helper.printHelp("java -jar <jar name>", options, true);
+        }
 
         try {
             String instancesDir;
@@ -242,101 +148,86 @@ public class Main {
 
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            helper.printHelp("Usage:", options);
+            helper.printHelp("Usage:", options, true);
             System.exit(0);
         }
     }
 
-    private static void staticMain() {
-        if (verifyOutputPath(exampleResultsOutputDir)){
-            // will solve a single instance, print the solution, and start a visualization of the solution
-            solveOneInstanceWithVisualizationExample();
-            // will solve multiple instances and print a simple report for each instance
-            runMultipleExperimentsExample();
-            // will solve a set of instances. These instances have known optimal solution costs (found at
-            // src\test\resources\TestingBenchmark\Results.csv), and so can be used as a benchmark.
-            runTestingBenchmarkExperiment();
-            // all examples will also produce a report in CSV format, and save it to resultsOutputDir (see above)
-        }
-    }
+    private static void addOptions(Options options) {
+        Option helpOption = new Option("h", "help", false,"");
+        options.addOption(helpOption);
 
-    public static void solveOneInstanceWithVisualizationExample(){
-        // write the reports to System.out
-        addConsoleAsOutputStream();
+        Option skipOption = new Option("s", "skipAfterFail", false,
+                "To skip attempting the same instance with the same solver, but with more agents, if we already failed with less agents.");
+        options.addOption(skipOption);
 
-        /*  =   Set Path   =*/
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                                                            "Instances", "BGU_Instances", "den520d-10-0"});
-        InstanceManager.InstancePath instancePath = new InstanceManager.InstancePath(path);
+        Option visualiseOption = new Option("v", "visualise", false,
+                "To visualise the solution.");
+        options.addOption(visualiseOption);
 
+        Option forceBiDiEdgesOption = new Option("bidi", "forceBiDiEdges", false,
+                "To force warehouse maps to have all bi-directional edges.");
+        options.addOption(forceBiDiEdgesOption);
 
-        /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(null, new InstanceBuilder_BGU());
+        Option nameOption = Option.builder("n").longOpt("name")
+                .argName("name")
+                .hasArg()
+                .required(false)
+                .desc("Name for the experiment. Optional.")
+                .build();
+        options.addOption(nameOption);
 
-        MAPF_Instance instance = A_RunManager.getInstanceFromPath(instanceManager, instancePath);
+        Option instancesDirOption = Option.builder("iDir").longOpt(STR_INSTANCES_DIR)
+                .argName(STR_INSTANCES_DIR)
+                .hasArg()
+                .required(true)
+                .desc("Set the directory (path) where maps and instances are to be found. Required.")
+                .build();
+        options.addOption(instancesDirOption);
 
-        // Solve
-        CBS_Solver solver = new CBS_Solver();
-        RunParameters runParameters = new RunParameters();
-        Solution solution = solver.solve(instance, runParameters);
+        Option resultsDirOption = Option.builder("resDir").longOpt(STR_RESULTS_DIR_OPTION)
+                .argName(STR_RESULTS_DIR_OPTION)
+                .hasArg()
+                .required(false)
+                .desc("The directory (path) where results will be saved. Will be created if it doesn't exist. Optional.")
+                .build();
+        options.addOption(resultsDirOption);
 
-        //output results
-        System.out.println(solution.readableToString());
-        outputResults();
+        Option resultsFileOption = Option.builder("resPref").longOpt(STR_RESULTS_FILE_PREFIX)
+                .argName(STR_RESULTS_FILE_PREFIX)
+                .hasArg()
+                .required(false)
+                .desc("The prefix to give results file names. Optional.")
+                .build();
+        options.addOption(resultsFileOption);
 
-        GridSolutionVisualizer.visualizeSolution(instance, solution, solver.name() + " - " + instance.extendedName);
-    }
+        Option instancesRegexOption = Option.builder("iRegex").longOpt(STR_INSTANCES_REGEX)
+                .argName(STR_INSTANCES_REGEX)
+                .hasArg()
+                .required(false)
+                .desc("If given, only instances matching this Regex will be used. Optional.")
+                .build();
+        options.addOption(instancesRegexOption);
 
-    public static void runMultipleExperimentsExample(){
-        RunManagerSimpleExample runManagerSimpleExample = new RunManagerSimpleExample();
-        runManagerSimpleExample.runAllExperiments();
-    }
+        Option InstancesFormatOption = Option.builder("iForm").longOpt("instancesFormat")
+                .argName("instancesFormat")
+                .hasArg()
+                .required(false)
+                .desc(String.format("Set the format of the instances. " +
+                        "Supports %s format (https://movingai.com/benchmarks/formats.html) and %s format.", STR_MOVING_AI, STR_BGU)
+                        + " Optional (default is " + STR_MOVING_AI + ").")
+                .build();
+        options.addOption(InstancesFormatOption);
 
-    public static void runTestingBenchmarkExperiment(){
-        TestingBenchmarkRunManager testingBenchmarkRunManager = new TestingBenchmarkRunManager();
-        testingBenchmarkRunManager.runAllExperiments();
-    }
-
-    private static void addConsoleAsOutputStream() {
-        try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * An example of a simple output of results to a file. It is best to handle this inside your custom
-     * {@link A_RunManager run managers} instead.
-     * Note that you can add more fields here, if you want metrics that are collected and not exported.
-     * Note that you can easily add other metrics which are not currently collected. see {@link S_Metrics}.
-     */
-    private static void outputResults() {
-        try {
-            Thread.sleep(30);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String updatedPath =  IO_Manager.buildPath(new String[]{exampleResultsOutputDir, "results " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
-        try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
-                    new String[]{   InstanceReport.StandardFields.experimentName,
-                                    InstanceReport.StandardFields.mapName,
-                                    InstanceReport.StandardFields.instanceName,
-                                    InstanceReport.StandardFields.numAgents,
-                                    InstanceReport.StandardFields.obstacleRate,
-                                    InstanceReport.StandardFields.solver,
-                                    InstanceReport.StandardFields.solved,
-                                    InstanceReport.StandardFields.valid,
-                                    InstanceReport.StandardFields.elapsedTimeMS,
-                                    InstanceReport.StandardFields.solutionCost,
-                                    InstanceReport.StandardFields.solution});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        S_Metrics.clearReports();
+        Option agentNumsOption = Option.builder("a").longOpt(STR_AGENT_NUMS)
+                .argName(STR_AGENT_NUMS)
+                .hasArgs()
+                .required(true)
+                .valueSeparator(',')
+                .desc("Set the numbers of agents to try. Use ',' (comma) as a separator and no spaces." +
+                        " Will use the maximum available if an instance does not have enough agents. Required.")
+                .build();
+        options.addOption(agentNumsOption);
     }
 
 }
