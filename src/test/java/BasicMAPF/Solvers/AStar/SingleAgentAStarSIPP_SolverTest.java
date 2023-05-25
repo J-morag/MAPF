@@ -31,7 +31,7 @@ import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class SingleAgentAStar_SolverTest {
+class SingleAgentAStarSIPP_SolverTest {
 
     private I_Location location12Circle = mapCircle.getMapLocation(coor12);
     private I_Location location13Circle = mapCircle.getMapLocation(coor13);
@@ -64,7 +64,7 @@ class SingleAgentAStar_SolverTest {
     private MAPF_Instance instanceMaze3 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent43to53});
     private MAPF_Instance instanceMaze4 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent53to15});
 
-    I_Solver aStar = new SingleAgentAStar_Solver();
+    I_Solver aStar = new SingleAgentAStarSIPP_Solver();
 
     InstanceReport instanceReport;
 
@@ -467,7 +467,7 @@ class SingleAgentAStar_SolverTest {
 
     private class UnitCostAndNoHeuristic implements AStarGAndH {
         @Override
-        public float getH(SingleAgentAStar_Solver.AStarState state) {
+        public float getH(SingleAgentAStarSIPP_Solver.AStarState state) {
             return 0;
         }
 
@@ -601,7 +601,7 @@ class SingleAgentAStar_SolverTest {
         }
 
         @Override
-        public float getH(SingleAgentAStar_Solver.AStarState state) {
+        public float getH(SingleAgentAStarSIPP_Solver.AStarState state) {
             return 0;
         }
 

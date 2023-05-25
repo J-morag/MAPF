@@ -20,7 +20,7 @@ public class ConstraintSet{
      * Basically a dictionary from [time,location] to agents who can't go there at that time, and locations from which
      * they can't go there at that time.
      */
-    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
+    public final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
 
     /**
      * Goal constraints. Locations in this collection are reserved starting from the constraint's time, indefinitely.
