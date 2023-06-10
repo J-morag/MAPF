@@ -78,6 +78,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private float avgGroupSizeMetric;
     private float avgFailedAgentsAfterPlanningMetric;
     private float avgFailedAgentsAfterPolicyMetric;
+    private float avgReachedIndexInPlanningFractionMetric;
     private List<int[]> numAgentsAndNumIterationsMetric;
     private int numPlanningIterations;
     private CachingDistanceTableHeuristic cachingDistanceTableHeuristic;
@@ -191,6 +192,7 @@ public class LifelongSimulationSolver extends A_Solver {
         int sumGroupSizes = 0;
         int sumFailedAgentsAfterPolicy = 0;
         int sumAttemptedAgentsThatFailed = 0;
+        float sumReachedIndexInPlanningFraction = 0;
         int farthestCommittedTime = 0; // at this time locations are committed, and we choose locations for next time
 
         Solution latestSolution = new Solution();
@@ -211,10 +213,10 @@ public class LifelongSimulationSolver extends A_Solver {
             Set<Agent> blockedAgentsBeforePlanningIteration = new HashSet<>();
             // done agents get "stay in place once". Same if they were blocked before
             List<SingleAgentPlan> advancedPlansToCurrentTime = getAdvancedPlansForAgents(farthestCommittedTime, latestSolution, lifelongAgentsToTimelyOfflineAgents, this.lifelongAgents);
-            // don't check conflicts between planning iterations (they shouldn't happen when k-safe <= planning frequency)
+            // don't check conflicts between planning iterations (they shouldn't happen when k-safe >= planning frequency)
             if (agentSelector.timeToPlan(farthestCommittedTime)){
                 // TODO maybe just mark them? It would mean we won't block recursively.
-                latestSolution = enforceSafeExecution(selectionLookaheadLength,advancedPlansToCurrentTime,
+                latestSolution = enforceSafeExecution(selectionLookaheadLength, advancedPlansToCurrentTime,
                         farthestCommittedTime, blockedAgentsBeforePlanningIteration,
                         new RemovableConflictAvoidanceTableWithContestedGoals(advancedPlansToCurrentTime, null), STAY_ONCE_FAIL_POLICY);
             }
@@ -230,7 +232,8 @@ public class LifelongSimulationSolver extends A_Solver {
             Set<LifelongAgent> notSelectedAgents = getUnchangingAgents(selectedTimelyOfflineAgentsSubset);
             List<SingleAgentPlan> nextPlansForNotSelectedAgents = subsetPlansCollection(latestSolution, notSelectedAgents);
             RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(nextPlansForNotSelectedAgents, null);
-            int numAgentsWithPlansInSolutionBeforeEnforcingSafety = 0;
+            int numFailedAgentsAfterPlanner = 0;
+            Integer reachedIndexInPlanner = null;
 
             if ( ! selectedTimelyOfflineAgentsSubset.isEmpty()){ // solve an offline MAPF problem of the current conditions
 
@@ -247,10 +250,14 @@ public class LifelongSimulationSolver extends A_Solver {
                     checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
                 }
                 digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
-                numAgentsWithPlansInSolutionBeforeEnforcingSafety = subgroupSolution != null ? subgroupSolution.size() : 0;
-                sumAttemptedAgentsThatFailed += selectedTimelyOfflineAgentsSubset.size() - numAgentsWithPlansInSolutionBeforeEnforcingSafety;
 
+                if (offlineSolver instanceof PrioritisedPlanning_Solver){
+                    reachedIndexInPlanner = timelyOfflineProblemRunParameters.instanceReport.getIntegerValue(PrioritisedPlanning_Solver.maxReachedIndexBeforeTimeoutString);
+                    sumReachedIndexInPlanningFraction += (float) reachedIndexInPlanner / (float) selectedTimelyOfflineAgentsSubset.size();
+                }
                 latestSolution = addMissingAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, failedAgents, this.lifelongInstance, cat);
+                numFailedAgentsAfterPlanner = failedAgents.size();
+                sumAttemptedAgentsThatFailed += numFailedAgentsAfterPlanner;
             }
 
             latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
@@ -259,7 +266,7 @@ public class LifelongSimulationSolver extends A_Solver {
             sumFailedAgentsAfterPolicy += failedAgents.size();
 
             if (DEBUG){
-                printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numAgentsWithPlansInSolutionBeforeEnforcingSafety, failedAgents.size());
+                printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexInPlanner);
             }
 
             solutionsAtTimes.put(farthestCommittedTime, latestSolution);
@@ -271,6 +278,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.avgGroupSizeMetric = (float) sumGroupSizes / (float) numPlanningIterations;
         this.avgFailedAgentsAfterPlanningMetric = (float) sumAttemptedAgentsThatFailed / (float) numPlanningIterations;
         this.avgFailedAgentsAfterPolicyMetric = (float) sumFailedAgentsAfterPolicy / (float) numPlanningIterations;
+        this.avgReachedIndexInPlanningFractionMetric = sumReachedIndexInPlanningFraction / (float) numPlanningIterations;
         this.reachedTimestepInPlanning = farthestCommittedTime;
 
         if (DEBUG){
@@ -296,15 +304,19 @@ public class LifelongSimulationSolver extends A_Solver {
         return plansSubset;
     }
 
-    private void printProgressAndStats(int farthestCommittedTime, int selectedTimelyOfflineAgentsSubset, int subgroupSolution, int numStunnedAgents) {
+    private void printProgressAndStats(int farthestCommittedTime, int selectedTimelyOfflineAgentsSubset, int numAgentsWithPlansInSolutionBeforeEnforcingSafety, int numFailedAgents, Integer reachedIndexInPlanner) {
         System.out.print("\rLifelongSim: ");
-        System.out.printf("iteration %1$3s, @ timestep %2$3s, #chosen/#solved/#failed(after fail policy) %3$3s",
+        System.out.printf("iteration %1$3s, @ timestep %2$3s, #chosen/#reachedIndex/#failed(planner)/#failed(FP) %3$3s",
                 numPlanningIterations, farthestCommittedTime, selectedTimelyOfflineAgentsSubset);
-        System.out.printf("/%1$3s", subgroupSolution);
-        System.out.printf("/%1$3s", numStunnedAgents);
+        System.out.printf("/%1$3s", reachedIndexInPlanner != null ? reachedIndexInPlanner : "N/A");
+        System.out.printf("/%1$3s", numAgentsWithPlansInSolutionBeforeEnforcingSafety);
+        System.out.printf("/%1$3s", numFailedAgents);
         System.out.printf(", destinations achieved (prev iter.) %d [avg_thr %.2f]",
                 this.numDestinationsAchieved, (farthestCommittedTime > 0 ? (float)(numDestinationsAchieved) / farthestCommittedTime : 0));
         System.out.print('\r');
+        if (reachedIndexInPlanner != null && reachedIndexInPlanner + 1 > selectedTimelyOfflineAgentsSubset){
+            throw new RuntimeException("ERROR: reached index in planner is larger than the number of agents in the subgroup");
+        }
     }
 
     private static void verifyAgentsActiveDestinationEndTimes(SortedMap<Integer, Solution> solutionsAtTimes, Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes) {

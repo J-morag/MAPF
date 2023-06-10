@@ -15,6 +15,7 @@ import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import LifelongMAPF.FailPolicies.FailPolicy;
+import LifelongMAPF.FailPolicies.StayOnceFailPolicy;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import org.apache.commons.lang.mutable.MutableInt;
 
@@ -34,6 +35,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /* = Constants = */
     public final static String countInitialAttemptsMetricString = "count initial attempts";
     public final static String countContingencyAttemptsMetricString = "count contingency attempts";
+    public final static String maxReachedIndexBeforeTimeoutString = "max reached index";
 
     /*  =  = Fields related to the MAPF instance =  */
     /**
@@ -52,6 +54,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     private Random random;
     private Set<Agent> failedAgents;
     private RemovableConflictAvoidanceTableWithContestedGoals initialConflictAvoidanceTable;
+    int maxReachedIndex;
 
     /*  =  = Fields related to the class instance =  */
 
@@ -137,7 +140,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.RHCR_Horizon = RHCR_Horizon;
-        this.failPolicy = failPolicy;
+        this.failPolicy = Objects.requireNonNullElse(failPolicy, new FailPolicy(RHCR_Horizon, new StayOnceFailPolicy()));
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
@@ -189,6 +192,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
         this.failedAgents = new HashSet<>();
         this.initialConflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+
+        this.maxReachedIndex = -1;
 
         if(parameters instanceof RunParameters_PP parametersPP){
 
@@ -276,20 +281,19 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             for (int agentIndex = 0; agentIndex < agents.size(); agentIndex++){
                 Agent agent = agents.get(agentIndex);
                 if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
+                maxReachedIndex = Math.max(maxReachedIndex, agentIndex);
 
                 //solve the subproblem for one agent
                 SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
                         bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY);
 
-                if (planForAgent == null) { // TODO will have to modify this if we support partial plans from A*
+                if (planForAgent == null || ! planForAgent.containsTarget()) {
                     failedAgents.add(agent);
                     if (firstFailedAgent == null) firstFailedAgent = agent;
-                    if (// TODO smarter failedToPlanForCurrentAgent and alreadyFoundFullSolution when we get partial plans
-                            failPolicy != null &&
-                                    ! this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null))
-                    {
-                        SingleAgentPlan initialFailPlan = failPolicy.getFailPolicyPlan(problemStartTime, agent, instance.map.getMapLocation(agent.source), conflictAvoidanceTable);
+                    if (! this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null)) {
+                        SingleAgentPlan initialFailPlan = planForAgent != null ? planForAgent : // So we got a partial plan from A*
+                                failPolicy.getFailPolicyPlan(problemStartTime, agent, instance.map.getMapLocation(agent.source), conflictAvoidanceTable);
                         solution.putPlan(initialFailPlan);
                         conflictAvoidanceTable.addPlan(initialFailPlan);
                         int numFailedAgentsBeforeFailPolicy = failedAgents.size();
@@ -473,6 +477,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
+        instanceReport.putIntegerValue(maxReachedIndexBeforeTimeoutString, maxReachedIndex);
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
@@ -482,6 +487,9 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         }
         if (!instanceReport.hasField(countContingencyAttemptsMetricString)){
             this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, 0);
+        }
+        if (!instanceReport.hasField(maxReachedIndexBeforeTimeoutString)){
+            this.instanceReport.putIntegerValue(maxReachedIndexBeforeTimeoutString, 0);
         }
     }
 
