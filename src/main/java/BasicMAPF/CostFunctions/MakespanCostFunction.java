@@ -1,6 +1,6 @@
 package BasicMAPF.CostFunctions;
 
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 public class MakespanCostFunction implements I_SolutionCostFunction{
 

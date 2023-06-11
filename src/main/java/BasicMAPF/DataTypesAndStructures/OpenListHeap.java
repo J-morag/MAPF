@@ -1,4 +1,6 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
+
+import BasicMAPF.Solvers.I_OpenList;
 
 import java.util.*;
 

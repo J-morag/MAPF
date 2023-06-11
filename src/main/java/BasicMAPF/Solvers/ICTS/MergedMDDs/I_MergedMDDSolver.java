@@ -3,7 +3,7 @@ package BasicMAPF.Solvers.ICTS.MergedMDDs;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.ICTS.MDDs.MDD;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.util.Map;
 

@@ -8,7 +8,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.CorridorConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 import java.util.HashSet;
 import java.util.Objects;

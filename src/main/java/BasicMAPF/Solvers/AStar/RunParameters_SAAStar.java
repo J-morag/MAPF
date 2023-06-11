@@ -6,8 +6,8 @@ import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 public class RunParameters_SAAStar extends RunParameters {
     /**

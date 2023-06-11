@@ -1,5 +1,6 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
 
+import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;

@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers;
 
+import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;

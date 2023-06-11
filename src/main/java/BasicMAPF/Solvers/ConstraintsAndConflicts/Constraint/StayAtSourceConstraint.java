@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 /**
  * Identical to a vertex constraint, except it doesn't constrain any of the other agents that share the source location,
