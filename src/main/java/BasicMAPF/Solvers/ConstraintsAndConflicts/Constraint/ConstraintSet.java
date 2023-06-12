@@ -20,7 +20,7 @@ public class ConstraintSet{
      * Basically a dictionary from [time,location] to agents who can't go there at that time, and locations from which
      * they can't go there at that time.
      */
-    public final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
+    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
 
     /**
      * Goal constraints. Locations in this collection are reserved starting from the constraint's time, indefinitely.
@@ -45,6 +45,9 @@ public class ConstraintSet{
     public ConstraintSet(Boolean sharedGoals, Boolean sharedSources) {
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
+    }
+    public Set<I_ConstraintGroupingKey> getKeySet(){
+        return constraints.keySet();
     }
 
     public ConstraintSet(ConstraintSet toCopy){

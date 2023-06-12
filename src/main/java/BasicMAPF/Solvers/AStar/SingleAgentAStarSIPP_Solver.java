@@ -1,5 +1,8 @@
 package BasicMAPF.Solvers.AStar;
 
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Instances.Maps.Enum_MapLocationType;
+import BasicMAPF.Instances.Maps.GraphMapVertex;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintGroupingKey;
@@ -11,46 +14,16 @@ import java.util.*;
 
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
-    HashMap<I_Location, ArrayList<int[]>> constraintsByLocation = null;
+    private HashMap<I_Location, ArrayList<Interval>> constraintsByLocation;
+
+    private record Interval(int start, int end) {
+    }
 
     @Override
     protected Solution solveAStar() {
 
-        constraintsByLocation = constraintsToTimeIntervals(this.constraints);
-
-        // if failed to init OPEN then the problem cannot be solved as defined (bad constraints? bad existing plan?)
-        if (!initOpen()) return null;
-
-        AStarState currentState;
-
-        while ((currentState = openList.poll()) != null) { //dequeu in the while condition
-            if (checkTimeout()) {
-                return null;
-            }
-            // early stopping if we already exceed fBudget.
-            if (currentState.getF() > fBudget) {
-                return null;
-            }
-            closed.add(currentState);
-
-            // nicetohave - change to early goal test
-            if (isGoalState(currentState)) {
-                // check to see if a rejecting constraint on the goal's location exists at some point in the future,
-                // which would mean we can't finish the plan there and stay forever
-                int firstRejectionAtLocationTime = agentsStayAtGoal ? constraints.rejectsEventually(currentState.move) : -1;
-
-                if (firstRejectionAtLocationTime == -1) { // no rejections
-                    // update this.existingPlan which is contained in this.existingSolution
-                    currentState.backTracePlan(this.existingPlan);
-                    return this.existingSolution; // the goal is good, and we can return the plan.
-                } else { // we are rejected from the goal location at some point in the future.
-                    expand(currentState);
-                }
-            } else { //expand
-                expand(currentState); //doesn't generate closed or duplicate states
-            }
-        }
-        return null; //no goal state found (problem unsolvable)
+        constraintsByLocation = constraintsToFreeTimeIntervals(this.constraints, this.map.getAllGraphLocations());
+        return super.solveAStar();
     }
 
     @Override
@@ -63,179 +36,185 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                 return false;
             }
 
-            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()), null, 0, 0));
+            openList.add(new AStarSIPPState(existingPlan.moveAt(existingPlan.getEndTime()), null, 0, 0, null));
         } else { // the existing plan is empty (no existing plan)
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
 
-            List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(sourceLocation.outgoingEdges());
+            List<I_Location> neighborLocations = new ArrayList<>(sourceLocation.outgoingEdges());
             if (Objects.equals(sourceLocation.getCoordinate(), this.targetCoor)) {
-                neighborLocationsIncludingCurrent.add(sourceLocation);
+                neighborLocations.add(sourceLocation);
             }
 
-            for (I_Location destination : neighborLocationsIncludingCurrent) {
+            for (I_Location destination : neighborLocations) {
                 Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
-                AStarState rootState = new AStarState(possibleMove, null, this.gAndH.cost(possibleMove), 0);
-                if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    openList.add(rootState);
-                } else { // check if it is possible to wait in place until destination will be clear
-//                    rootState = new AStarState(possibleMove, null, problemStartTime + 2, 0);
-                    int isPossible = waitAndMove(rootState);
-                    if (isPossible != -1) {
-                        rootState = new AStarState(possibleMove, null, isPossible, 0);
-                        openList.add(rootState);
-                    }
-                }
+                AStarSIPPState rootState = new AStarSIPPState(possibleMove, null, this.gAndH.cost(possibleMove), 0, null);
+                generateChild(rootState, possibleMove, true);
             }
         }
         // if none of the root nodes was valid, OPEN will be empty, and thus uninitialised.
         return !openList.isEmpty();
     }
 
+    @Override
     public void expand(@NotNull AStarState state) {
+        if (state.move.currLocation.getType() == Enum_MapLocationType.NO_STOP) {
+            throw new RuntimeException("UnsupportedOperationException");
+        }
         expandedNodes++;
-        // can move to neighboring locations or stay put
-        List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(state.move.currLocation.outgoingEdges());
-        // no point to do stay moves or search the time dimension after the time of last constraint.
-        // this makes A* complete even when there are goal constraints (infinite constraints)
+        // can move to neighboring locations
+        List<I_Location> neighborLocations = new ArrayList<>(state.move.currLocation.outgoingEdges());
 
-        for (I_Location destination : neighborLocationsIncludingCurrent) {
-            // give all moves after last constraint time the same time so that they're equal. patch the plan later to correct times
+        for (I_Location destination : neighborLocations) {
             Move possibleMove = new Move(state.move.agent, state.move.timeNow + 1,
                     state.move.currLocation, destination);
-            AStarState existingState;
-            AStarState child = new AStarState(possibleMove, state,
-                    state.g + SingleAgentAStarSIPP_Solver.this.gAndH.cost(possibleMove),
-                    state.conflicts + numConflicts(possibleMove));
-            boolean isChild = false;
-            // move not prohibited by existing constraint
-            if (constraints.accepts(possibleMove)) {
-                isChild = true;
-            } else { // check if it is possible to wait in place until destination will be clear
-                int isPossible = waitAndMove(child);
-                if (isPossible != -1) {
-                    child = new AStarState(possibleMove, state,
-                            isPossible,
-                            state.conflicts + numConflicts(possibleMove));
-                    isChild = true;
-                }
-            }
+            generateChild((AStarSIPPState) state, possibleMove, false);
+        }
+    }
+    private void generateChild(AStarSIPPState state, Move possibleMove, boolean init) {
+        I_Location prevLocation = possibleMove.prevLocation;
+        I_Location currLocation = possibleMove.currLocation;
+        List<Interval> freeIntervalsCurrLocation = constraintsByLocation.get(currLocation);
+        int nextMoveStartTime = possibleMove.timeNow;
+        AStarSIPPState child;
+        Interval prevLocationRelevantInterval;
+        if (!init){
+            prevLocationRelevantInterval = state.timeInterval;
+        }
+        else {
+            prevLocationRelevantInterval = constraintsByLocation.get(prevLocation).get(0);
+        }
 
-            if (isChild) {
-                if (closed.contains(child)) { // state visited already
-                    // TODO for inconsistent heuristics - if the new one has a lower f, remove the old one from closed
-                    // and add the new one to open
-                } else if (null != (existingState = openList.get(child))) { //an equal state is waiting in open
-                    //keep the one with min G
-                    state.keepTheStateWithMinG(child, existingState); //O(LOGn)
-                } else { // it's a new state
-                    openList.add(child);
+        for (Interval currInterval : freeIntervalsCurrLocation) {
+            if (currInterval.end >= nextMoveStartTime) {
+                if ((currInterval.start <= nextMoveStartTime)) {
+                    if (!init) {
+                        child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), 0, currInterval);
+                    } else {
+                        child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, currInterval);
+                    }
+                    addToOpenList(child);
+                } else {
+                    if (prevLocationRelevantInterval.end >= currInterval.start - 1) {
+                        int timeToWait = currInterval.start - nextMoveStartTime;
+                        possibleMove = new Move(agent, nextMoveStartTime, prevLocation, prevLocation);
+                        if (!init) {
+                            child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval);
+                        } else {
+                            child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, prevLocationRelevantInterval);
+                        }
+
+                        for (int t = 1; t < timeToWait; t++) {
+                            possibleMove = new Move(agent, nextMoveStartTime + t, prevLocation, prevLocation);
+                            child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval);
+                        }
+                        possibleMove = new Move(agent, nextMoveStartTime + timeToWait, prevLocation, currLocation);
+                        child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), currInterval);
+                        addToOpenList(child);
+                    }
+                    else return;
                 }
             }
         }
     }
 
 
-    private int waitAndMove(AStarState state) {
-        // this function check if it is possible to wait in place until the destination is
-        // clear of constraints. if it does, it returns the new g value which is equal to the time
-        // the agent waited in place
-        int[] prevRelevantInterval = null;
-        boolean isPossible = false;
-        I_Location prevLocation = state.move.prevLocation;
-        I_Location currLocation = state.move.currLocation;
-        ArrayList<int[]> prevLocationConstraints = constraintsByLocation.get(prevLocation);
-        ArrayList<int[]> currLocationConstraints = constraintsByLocation.get(currLocation);
-        int newProblemStartTime = state.move.timeNow + 1;
-
-        // In case there are no constraints in prevLocation, then we just need to find when currLocation is clear
-        if (prevLocationConstraints == null) {
-            for (int[] currInterval : currLocationConstraints) {
-                if (currInterval[0] <= newProblemStartTime) {
-                    return currInterval[1] + 1;
-                }
-            }
+    private void addToOpenList(AStarSIPPState state) {
+        AStarSIPPState existingState;
+        if (closed.contains(state)) { // state visited already
+            // TODO for inconsistent heuristics - if the new one has a lower f, remove the old one from closed
+            // and add the new one to open
+        } else if (null != (existingState = (AStarSIPPState) openList.get(state))) { //an equal state is waiting in open
+            //keep the one with min G
+            state.keepTheStateWithMinG(state, existingState); //O(LOGn)
+        } else { // it's a new state
+            openList.add(state);
         }
-        // find relevant time interval of prevLocation
-        for (int[] prevInterval : prevLocationConstraints) {
-            if (prevInterval[0] <= newProblemStartTime) {
-                prevRelevantInterval = prevInterval;
-                isPossible = true;
-                break;
-            }
-        }
-        // check if it is possible to stay in place until destination is clear
-        if (isPossible) {
-            for (int[] currInterval : currLocationConstraints) {
-                if (newProblemStartTime > currInterval[1]) break;
-                if (prevRelevantInterval[1] >= currInterval[0]) {
-                    return -1;
-                }
-            }
-            return prevRelevantInterval[1] + 1;
-        }
-        else return -1;
     }
 
-    private HashMap<I_Location, ArrayList<int[]>> constraintsToTimeIntervals(ConstraintSet constraints) {
-        // Originally constraints are by location and time, for the SIPP algorithm
-        // we convert the production of the constraints into time intervals by location
-        HashMap<I_Location, ArrayList<int[]>> timeIntervals = new HashMap<>();
-
-        for (I_ConstraintGroupingKey timeLocation : constraints.constraints.keySet()) {
-            if (!timeIntervals.containsKey(timeLocation.getLocation())) {
-                timeIntervals.put(timeLocation.getLocation(), new ArrayList());
-            }
-                ArrayList locationList = timeIntervals.get(timeLocation.getLocation());
-                locationList.add((timeLocation.getTime()));
+    private static HashMap<I_Location, ArrayList<Interval>> constraintsToFreeTimeIntervals(ConstraintSet constraints, HashMap<I_Coordinate, GraphMapVertex> allGraphLocations) {
+        /*
+          Originally constraints are by location and time, for the SIPP algorithm
+          we convert the production of the constraints into time intervals by location
+         */
+        HashMap<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
+        List<Integer> timesList;
+        for (I_ConstraintGroupingKey timeLocation : constraints.getKeySet()) {
+            timesList = timeIntervals.computeIfAbsent(timeLocation.getLocation(), k -> new ArrayList<>());
+            timesList.add(timeLocation.getTime());
         }
+
+        HashMap<I_Location, ArrayList<Interval>> intervalMap = new HashMap<>();
         for (I_Location location : timeIntervals.keySet()) {
-            ArrayList timestamps = timeIntervals.get(location);
+            ArrayList<Integer> timestamps = timeIntervals.get(location);
 
             // Convert the timestamps to intervals using timestampsToIntervals function
-            List<int[]> intervals = timestampsToIntervals(timestamps);
+            ArrayList<Interval> intervals = timestampsToFreeIntervals(timestamps);
 
             // Update the output map with the intervals for the current location
-            timeIntervals.put(location, new ArrayList<>(intervals));
+            intervalMap.put(location, intervals);
         }
 
-        return timeIntervals;
-    }
-
-
-    public List<int[]> timestampsToIntervals(List<Integer> timestamps) {
-        // this function gets as input all constraints in a specific location
-        // and return all constraints in timeIntervals instead of timeStamps
-        List<int[]> intervals = new ArrayList<>();
-        Set<Integer> visited = new HashSet<>();
-
-        for (int i = 0; i < timestamps.size(); i++) {
-            int timestamp = timestamps.get(i);
-
-            // Skip duplicates
-            if (visited.contains(timestamp)) {
-                continue;
-            }
-            // Start a new interval
-            int start = timestamp;
-            int end = timestamp;
-
-            // Extend the interval as long as the next timestamp is one unit away
-            while (i + 1 < timestamps.size() && timestamps.get(i + 1) == end + 1) {
-                end = timestamps.get(i + 1);
-                i++;
-            }
-
-            // Add the interval to the list
-            intervals.add(new int[] {start, end});
-
-            // Mark all timestamps in the interval as visited
-            for (int j = start; j <= end; j++) {
-                visited.add(j);
+        // Add [0, inf] interval for locations in allGraphLocations that are not in intervalMap
+        for (I_Coordinate coordinate : allGraphLocations.keySet()) {
+            I_Location location = allGraphLocations.get(coordinate);
+            if (!intervalMap.containsKey(location)) {
+                ArrayList<Interval> infInterval = new ArrayList<>();
+                infInterval.add(new Interval(0, Integer.MAX_VALUE));
+                intervalMap.put(location, infInterval);
             }
         }
 
-        return intervals;
+        return intervalMap;
     }
+
+    public static ArrayList<Interval> timestampsToFreeIntervals(ArrayList<Integer> timestamps) {
+        // Sort timestamps in ascending order
+        Collections.sort(timestamps);
+
+        ArrayList<Interval> freeIntervals = new ArrayList<>();
+
+        // Add the first interval if it starts from more than 0
+        if (timestamps.get(0) > 0) {
+            freeIntervals.add(new Interval(0, timestamps.get(0) - 1));
+        }
+
+        // Iterate through timestamps to find free intervals
+        for (int i = 1; i < timestamps.size(); i++) {
+            if (timestamps.get(i) > timestamps.get(i - 1) + 1) {
+                freeIntervals.add(new Interval(timestamps.get(i - 1) + 1, timestamps.get(i) - 1));
+            }
+        }
+
+        // Add the last interval extending to positive infinity
+        freeIntervals.add(new Interval(timestamps.get(timestamps.size() - 1) + 1, Integer.MAX_VALUE));
+
+        return freeIntervals;
+    }
+
+    public class AStarSIPPState extends AStarState {
+        private final Interval timeInterval;
+
+        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, Interval timeInterval) {
+            super(move, prev, g, conflicts);
+            this.timeInterval = timeInterval;
+
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof AStarSIPPState that)) return false;
+
+            if (timeInterval.start != that.timeInterval.start) return false;
+            return move.currLocation.equals(that.move.currLocation);
+        }
+        @Override
+        public int hashCode() {
+            int result = move.currLocation.hashCode();
+            result = 31 * result + this.timeInterval.start;
+            return result;
+        }
+    }
+
 }
-
 

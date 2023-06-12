@@ -19,13 +19,13 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static BasicMAPF.Solvers.AStar.SingleAgentAStar_SolverTest.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
@@ -64,7 +64,7 @@ class SingleAgentAStarSIPP_SolverTest {
     private MAPF_Instance instanceMaze3 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent43to53});
     private MAPF_Instance instanceMaze4 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent53to15});
 
-    I_Solver aStar = new SingleAgentAStarSIPP_Solver();
+    I_Solver sipp = new SingleAgentAStarSIPP_Solver();
 
     InstanceReport instanceReport;
 
@@ -82,7 +82,7 @@ class SingleAgentAStarSIPP_SolverTest {
     @Test
     void oneMoveSolution() {
         MAPF_Instance testInstance = instance1stepSolution;
-        Solution s = aStar.solve(testInstance, new RunParameters());
+        Solution s = sipp.solve(testInstance, new RunParameters());
 
         Map<Agent, SingleAgentPlan> plans = new HashMap<>();
         SingleAgentPlan plan = new SingleAgentPlan(testInstance.agents.get(0));
@@ -99,7 +99,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         Agent agent = testInstance.agents.get(0);
 
-        Solution solved = aStar.solve(testInstance, new RunParameters());
+        Solution solved = sipp.solve(testInstance, new RunParameters());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location32Circle));
@@ -124,7 +124,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(vertexConstraint);
         RunParameters parameters = new RunParameters(constraints);
 
-        Solution solved = aStar.solve(testInstance, parameters);
+        Solution solved = sipp.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location33Circle));
@@ -150,7 +150,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(vertexConstraint);
         RunParameters parameters = new RunParameters(constraints);
 
-        Solution solved = aStar.solve(testInstance, parameters);
+        Solution solved = sipp.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location33Circle));
@@ -175,7 +175,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(swappingConstraint);
         RunParameters parameters = new RunParameters(constraints);
 
-        Solution solved = aStar.solve(testInstance, parameters);
+        Solution solved = sipp.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location33Circle));
@@ -204,7 +204,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(swappingConstraint3);
         RunParameters parameters = new RunParameters(constraints);
 
-        Solution solved = aStar.solve(testInstance, parameters);
+        Solution solved = sipp.solve(testInstance, parameters);
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
@@ -235,18 +235,89 @@ class SingleAgentAStarSIPP_SolverTest {
         Random rand = new Random();
         rand.setSeed(10);
         ConstraintSet constraints = new ConstraintSet();
-        for (int i = 1; i <= 30000; i++) {
+        Set<I_Location> checkDuplicates = new HashSet<>();
+        for (int t = 1; t <= 3000; t++) {
             for (int j = 0; j < 10; j++) {
-
                 I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                Constraint constraint = new Constraint(agent, i, null, randomLocation);
+                if (checkDuplicates.contains(randomLocation)){
+                    j--;
+                    continue;
+                }
+                checkDuplicates.add(randomLocation);
+                Constraint constraint = new Constraint(agent, t, null, randomLocation);
                 constraints.add(constraint);
             }
+            checkDuplicates = new HashSet<>();
         }
+        SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
         RunParameters parameters = new RunParameters(constraints);
+        long startTime = System.currentTimeMillis();
+        Solution sippSolution = sipp.solve(testInstance, parameters);
+        long endTime = System.currentTimeMillis();
 
-        Solution solved = aStar.solve(testInstance, parameters);
-        assertNotNull(solved);
+        int sippExpandedNodes = sipp.getExpandedNodes();
+        int sippGeneratedNodes = sipp.getGeneratedNodes();
+
+        List<Integer> sippPlanCosts = null;
+        if (sippSolution != null){
+            List<I_Location> sippPlanLocations = planLocations(sippSolution.getPlanFor(agent));
+            sippPlanCosts = getCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
+            System.out.println("SIPP:");
+            System.out.println("Running Time:");
+            System.out.println(endTime - startTime);
+            System.out.println("Expanded nodes:");
+            System.out.println(sippExpandedNodes);
+            System.out.println("Generated nodes:");
+            System.out.println(sippGeneratedNodes);
+        }
+        else{
+            System.out.println("SIPP Didn't Solve!!!");
+        }
+
+        SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
+        startTime = System.currentTimeMillis();
+        Solution aStarSolution = astar.solve(testInstance, parameters);
+        endTime = System.currentTimeMillis();
+
+        int astarExpandedNodes = astar.getExpandedNodes();
+        int astarGeneratedNodes = astar.getGeneratedNodes();
+
+        List<Integer> aStarPlanCosts = null;
+        if (aStarSolution != null){
+            List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));
+            aStarPlanCosts = getCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
+            System.out.println("aStar:");
+            System.out.println("Running Time:");
+            System.out.println(endTime - startTime);
+            System.out.println("Expanded nodes:");
+            System.out.println(astarExpandedNodes);
+            System.out.println("Generated nodes:");
+            System.out.println(astarGeneratedNodes);
+        }
+        else{
+            System.out.println("aStar Didn't Solve!!!");
+        }
+
+
+        System.out.println("Costs were:");
+        System.out.println(unitCostAndNoHeuristic);
+
+        assertNotNull(aStarSolution);
+        assertNotNull(sippSolution);
+
+        int costAStar = 0;
+        int costSipp = 0;
+        for (int i = 0; i < Math.max(aStarPlanCosts.size(), sippPlanCosts.size()); i++) {
+            if (i < aStarPlanCosts.size()){
+                costAStar += aStarPlanCosts.get(i);
+            }
+            if (i < sippPlanCosts.size()){
+                costSipp += sippPlanCosts.get(i);
+            }
+        }
+        assertEquals(costAStar, costSipp, "aStar cost " + costAStar + " should be the same as Sipp cost " + costSipp + "");
+        assertTrue(astarExpandedNodes > sippExpandedNodes, "aStar number of expanded nodes: " + astarExpandedNodes + " should be greater than Sipp number of expanded nodes: " + sippExpandedNodes + "");
+        assertTrue(astarGeneratedNodes > sippGeneratedNodes, "aStar number of generated nodes: " + astarGeneratedNodes + " should be greater than Sipp number of generated nodes: " + sippGeneratedNodes + "");
     }
 
     @Test
@@ -254,7 +325,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Agent agent = testInstance.agents.get(0);
 
-        Solution solved = aStar.solve(testInstance, new RunParameters());
+        Solution solved = sipp.solve(testInstance, new RunParameters());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location12Circle, location22Circle));
@@ -275,8 +346,8 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance2 = instanceEmpty2;
         Agent agent2 = testInstance2.agents.get(0);
 
-        Solution solved1 = aStar.solve(testInstance1, new RunParameters());
-        Solution solved2 = aStar.solve(testInstance2, new RunParameters());
+        Solution solved1 = sipp.solve(testInstance1, new RunParameters());
+        Solution solved2 = sipp.solve(testInstance2, new RunParameters());
 
         assertEquals(7, solved1.getPlanFor(agent1).size());
         assertEquals(5, solved2.getPlanFor(agent2).size());
@@ -288,7 +359,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
         // three second timeout
         RunParameters runParameters = new RunParameters(1000*3);
-        Solution solved = aStar.solve(testInstance, runParameters);
+        Solution solved = sipp.solve(testInstance, runParameters);
 
         assertNull(solved);
     }
@@ -302,7 +373,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal);
         RunParameters runParameters = new RunParameters(constraints);
 
-        Solution solved1 = aStar.solve(testInstance, runParameters);
+        Solution solved1 = sipp.solve(testInstance, runParameters);
 
         //was made longer because it has to come back to goal after avoiding the constraint
         assertEquals(10, solved1.getPlanFor(agent).size());
@@ -320,30 +391,20 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal1);
         RunParameters runParameters = new RunParameters(constraints);
 
-        Solution solved = aStar.solve(testInstance, runParameters);
+        Solution solved = sipp.solve(testInstance, runParameters);
 
-        SingleAgentPlan plan1 = new SingleAgentPlan(agent);
-        plan1.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        plan1.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        plan1.addMove(new Move(agent, 3, location32Circle, location33Circle));
-        plan1.addMove(new Move(agent, 4, location33Circle, location33Circle));
-        plan1.addMove(new Move(agent, 5, location33Circle, location32Circle));
-        plan1.addMove(new Move(agent, 6, location32Circle, location33Circle));
-        Solution expected1 = new Solution();
-        expected1.putPlan(plan1);
-
-        SingleAgentPlan plan2 = new SingleAgentPlan(agent);
-        plan2.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        plan2.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        plan2.addMove(new Move(agent, 3, location32Circle, location33Circle));
-        plan2.addMove(new Move(agent, 4, location33Circle, location33Circle));
-        plan2.addMove(new Move(agent, 5, location33Circle, location34Circle));
-        plan2.addMove(new Move(agent, 6, location34Circle, location33Circle));
-        Solution expected2 = new Solution();
-        expected2.putPlan(plan2);
+        SingleAgentPlan plan3 = new SingleAgentPlan(agent);
+        plan3.addMove(new Move(agent, 1, location12Circle, location22Circle));
+        plan3.addMove(new Move(agent, 2, location22Circle, location32Circle));
+        plan3.addMove(new Move(agent, 3, location32Circle, location32Circle));
+        plan3.addMove(new Move(agent, 4, location32Circle, location32Circle));
+        plan3.addMove(new Move(agent, 5, location32Circle, location32Circle));
+        plan3.addMove(new Move(agent, 6, location32Circle, location33Circle));
+        Solution expected = new Solution();
+        expected.putPlan(plan3);
 
         assertEquals(6, solved.getPlanFor(agent).size());
-        assertTrue(expected1.equals(solved) || expected2.equals(solved));
+        assertTrue(expected.equals(solved));
     }
 
     @Test
@@ -362,7 +423,7 @@ class SingleAgentAStarSIPP_SolverTest {
         }
         RunParameters runParameters = new RunParameters(constraints);
 
-        Solution solved1 = aStar.solve(testInstance, runParameters);
+        Solution solved1 = sipp.solve(testInstance, runParameters);
 
         //was made longer because it has to come back to goal after avoiding the constraint
         assertEquals(201, solved1.getPlanFor(agent).size());
@@ -381,7 +442,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal3);
         RunParameters runParameters = new RunParameters(constraints);
 
-        Solution solved1 = aStar.solve(testInstance, runParameters);
+        Solution solved1 = sipp.solve(testInstance, runParameters);
 
         //was made longer because it has to come back to goal after avoiding the constraint
         assertEquals(15, solved1.getPlanFor(agent).size());
@@ -401,7 +462,7 @@ class SingleAgentAStarSIPP_SolverTest {
         existingSolution.putPlan(existingPlan);
 
         // give the solver a plan to continue from
-        Solution solved = aStar.solve(testInstance, new RunParameters(existingSolution));
+        Solution solved = sipp.solve(testInstance, new RunParameters(existingSolution));
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
@@ -431,7 +492,7 @@ class SingleAgentAStarSIPP_SolverTest {
         RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
         runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
 
-        Solution solved1 = aStar.solve(testInstance, runParameters);
+        Solution solved1 = sipp.solve(testInstance, runParameters);
         System.out.println(solved1.getPlanFor(agent));
 
         // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
@@ -457,56 +518,21 @@ class SingleAgentAStarSIPP_SolverTest {
         RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
         runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
 
-        Solution solved1 = aStar.solve(testInstance, runParameters);
+        Solution solved1 = sipp.solve(testInstance, runParameters);
         System.out.println(solved1.getPlanFor(agent));
 
         // has to visit goal at some point, and then can finish the plan anywhere else,
         // but the surrounding locations also have constraints in the future, so has to take 2 steps
         assertEquals(9, solved1.getPlanFor(agent).size());
     }
-
-    private class UnitCostAndNoHeuristic implements AStarGAndH {
-        @Override
-        public float getH(SingleAgentAStarSIPP_Solver.AStarState state) {
-            return 0;
-        }
-
-        @Override
-        public int cost(Move move) {
-            return AStarGAndH.super.cost(move);
-        }
-
-        @Override
-        public boolean isConsistent() {
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "All edges = 1";
-        }
-    }
-
-    private final AStarGAndH unitCostAndNoHeuristic = new UnitCostAndNoHeuristic();
-
-    private static List<I_Location> planLocations(SingleAgentPlan planFromAStar) {
-        List<I_Location> aStarPlanLocations = new ArrayList<>();
-        for (Move move :
-                planFromAStar) {
-            if (move.timeNow == 1) {
-                aStarPlanLocations.add(move.prevLocation);
-            }
-            aStarPlanLocations.add(move.currLocation);
-        }
-        return aStarPlanLocations;
-    }
+    private final AStarGAndH unitCostAndNoHeuristic = new SingleAgentAStar_SolverTest.UnitCostAndNoHeuristic();
 
     @Test
     void optimalVsUCS1(){
         MAPF_Instance testInstance = instanceMaze1;
         Agent agent = testInstance.agents.get(0);
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
     }
 
     @Test
@@ -514,21 +540,21 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance = instanceMaze2;
         Agent agent = testInstance.agents.get(0);
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
     }
     @Test
     void optimalVsUCS3(){
         MAPF_Instance testInstance = instanceMaze3;
         Agent agent = testInstance.agents.get(0);
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
     }
     @Test
     void optimalVsUCS4(){
         MAPF_Instance testInstance = instanceMaze4;
         Agent agent = testInstance.agents.get(0);
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, unitCostAndNoHeuristic);
     }
     @Test
     void optimalVsUCSDynamic(){
@@ -543,7 +569,7 @@ class SingleAgentAStarSIPP_SolverTest {
                         Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
                         MAPF_Instance testInstance = new MAPF_Instance(
                                 maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
-                        compareAStarAndUCS(aStar, new InstanceReport(),
+                        compareAStarAndUCS(sipp, new InstanceReport(),
                                 agent, testInstance, unitCostAndNoHeuristic);
                     }
                 }
@@ -564,7 +590,7 @@ class SingleAgentAStarSIPP_SolverTest {
                         MAPF_Instance testInstance = new MAPF_Instance(
                                 maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
                         DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
-                        compareAStarAndUCS(aStar, new InstanceReport(),
+                        compareAStarAndUCS(sipp, new InstanceReport(),
                                 agent, testInstance, distanceTableAStarHeuristic);
                     }
                 }
@@ -584,53 +610,19 @@ class SingleAgentAStarSIPP_SolverTest {
                         Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
                         MAPF_Instance testInstance = new MAPF_Instance(
                                 maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
-                        compareAStarAndUCS(aStar, new InstanceReport(), agent, testInstance, new UnitCostsAndManhattanDistance(agent.target));
+                        compareAStarAndUCS(sipp, new InstanceReport(), agent, testInstance, new UnitCostsAndManhattanDistance(agent.target));
                     }
                 }
             }
         }
     }
-
-    private static class RandomButStableCostsFrom1To10AndNoHeuristic implements AStarGAndH{
-        Map<Edge, Integer> randomButStableCosts = new HashMap<>();
-        Random rand;
-
-        private RandomButStableCostsFrom1To10AndNoHeuristic(Long seed) {
-            seed = Objects.requireNonNullElse(seed, 42L);
-            rand = new Random(seed);
-        }
-
-        @Override
-        public float getH(SingleAgentAStarSIPP_Solver.AStarState state) {
-            return 0;
-        }
-
-        @Override
-        public int cost(Move move) {
-            Edge edge = new Edge(move);
-            return randomButStableCosts.computeIfAbsent(edge, e -> rand.nextInt(10) + 1);
-        }
-
-        @Override
-        public boolean isConsistent() {
-            return true;
-        }
-
-        @Override
-        public String toString() {
-//            SortedMap<Edge, Integer> sortedMap = new TreeMap<>(Comparator.comparingInt(e -> randomButStableCosts.get(e)));
-//            sortedMap.putAll(randomButStableCosts);
-            return randomButStableCosts.toString();
-        }
-    }
-
     @Test
     void optimalVsUCSWeightedEdges1(){
         MAPF_Instance testInstance = instanceMaze1;
         Agent agent = testInstance.agents.get(0);
         AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, randomStableCosts);
     }
     @Test
     void optimalVsUCSWeightedEdges2(){
@@ -638,7 +630,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
         AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, randomStableCosts);
     }
     @Test
     void optimalVsUCSWeightedEdges3(){
@@ -646,7 +638,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
         AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, randomStableCosts);
     }
     @Test
     void optimalVsUCSWeightedEdges4(){
@@ -654,7 +646,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
         AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
-        compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
+        compareAStarAndUCS(sipp, instanceReport, agent, testInstance, randomStableCosts);
     }
     @Test
     void optimalVsUCSWeightedEdgesDynamic(){
@@ -670,7 +662,7 @@ class SingleAgentAStarSIPP_SolverTest {
                         MAPF_Instance testInstance = new MAPF_Instance(
                                 maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
                         AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
-                        compareAStarAndUCS(aStar, new InstanceReport(), agent, testInstance, randomStableCosts);
+                        compareAStarAndUCS(sipp, new InstanceReport(), agent, testInstance, randomStableCosts);
                     }
                 }
             }
@@ -727,20 +719,5 @@ class SingleAgentAStarSIPP_SolverTest {
             }
         }
         assertEquals(costAStar, costUCS);
-    }
-
-    @NotNull
-    private static List<Integer> getCosts(Agent agent, AStarGAndH costFunction, List<I_Location> UCSPlanLocations) {
-        List<Integer> UCSPlanCosts = new ArrayList<>();
-        UCSPlanCosts.add(0);
-        I_Location prev = null;
-        for (I_Location curr :
-                UCSPlanLocations) {
-            if (prev != null){
-                UCSPlanCosts.add(costFunction.cost(new Move(agent, 1, prev, curr)));
-            }
-            prev = curr;
-        }
-        return UCSPlanCosts;
     }
 }
