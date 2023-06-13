@@ -49,7 +49,7 @@ public class PIBTExampleMain {
             PrioritisedPlanning_Solver PrP = new PrioritisedPlanning_Solver(null, null, null,
                     new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
                     null, null, false);
-            PrPWithPIBT.name = "PrP";
+            PrP.name = "PrP";
 
             genericRunManager.overrideSolvers(Arrays.asList(PrP, PrPWithPIBT));
             genericRunManager.runAllExperiments();
