@@ -297,7 +297,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
-        return PIBTStyleGoalCondition ? new PIBTStyleSolution(bestSolution) : bestSolution;
+        return (PIBTStyleGoalCondition && bestSolution != null) ? new PIBTStyleSolution(bestSolution) : bestSolution;
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {
