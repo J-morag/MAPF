@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0a64b272-b344-43b7-b807-cc1e57845fc6" name="Changes" comment="New implementation of the SIPP algorithm, this one is supposed to be better. It also supports your last correction (it won't expand child if it was in the same location on same time interval)">
+      <change beforePath="$PROJECT_DIR$/src/main/java/BasicMAPF/Instances/Maps/GraphMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BasicMAPF/Instances/Maps/GraphMap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BasicMAPF/Instances/Maps/I_Map.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BasicMAPF/Instances/Maps/I_Map.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/AStar/SingleAgentAStar_Solver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/AStar/SingleAgentAStar_Solver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/A_Solver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/A_Solver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/ConstraintsAndConflicts/Constraint/ConstraintSet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/ConstraintsAndConflicts/Constraint/ConstraintSet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/ConstraintsAndConflicts/Constraint/I_ConstraintGroupingKey.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/ConstraintsAndConflicts/Constraint/I_ConstraintGroupingKey.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/ConstraintsAndConflicts/Constraint/TimeLocation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/ConstraintsAndConflicts/Constraint/TimeLocation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Environment/Metrics/S_Metrics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Environment/Metrics/S_Metrics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Environment/RunManagers/A_RunManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Environment/RunManagers/A_RunManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/BasicMAPF/Solvers/AStar/SingleAgentAStar_SolverTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/BasicMAPF/Solvers/AStar/SingleAgentAStar_SolverTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/BasicMAPF/Solvers/ConstraintsAndConflicts/ConflictManagement/CorridorConflictManagerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/BasicMAPF/Solvers/ConstraintsAndConflicts/ConflictManagement/CorridorConflictManagerTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExportTestResults" outputFolder="$PROJECT_DIR$" userTempatePath="" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="J-morag &lt;38430800+j-morag@users.noreply.github.com&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="useMavenConfig" value="true" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="2N9JIBQ4ilajcmvkpc7UGik9L4U" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/RA - Roni/MAPF&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;JAVA&quot;
+    ]
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="MAPF" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CorridorConflictManagerTest.comparativeDiverseTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="MAPF" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement" />
+      <option name="MAIN_CLASS_NAME" value="BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManagerTest" />
+      <option name="METHOD_NAME" value="comparativeDiverseTest" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.CorridorConflictManagerTest.comparativeDiverseTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0a64b272-b344-43b7-b807-cc1e57845fc6" name="Changes" comment="" />
+      <created>1679070282693</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1679070282693</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Programming Assignment">
+      <created>1679755244086</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1679755244086</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Import from A_RunManager instead duplicating the code, few tests">
+      <created>1679927574792</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1679927574792</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Import from A_RunManager instead duplicating the code, few tests">
+      <created>1679928442960</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1679928442960</updated>
+    </task>
+    <task id="LOCAL-00004" summary="supports export of solution into text files">
+      <created>1682342181957</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1682342181957</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Implementation of the SIPP algorithm">
+      <created>1685019607000</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1685019607000</updated>
+    </task>
+    <task id="LOCAL-00006" summary="New implementation of the SIPP algorithm, this one is supposed to be better. It also supports your last correction (it won't expand child if it was in the same location on same time interval)">
+      <created>1686582809023</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1686582809023</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Programming Assignment" />
+    <MESSAGE value="Import from A_RunManager instead duplicating the code, few tests" />
+    <MESSAGE value="supports export of solution into text files" />
+    <MESSAGE value="Implementation of the SIPP algorithm" />
+    <MESSAGE value="New implementation of the SIPP algorithm, this one is supposed to be better. It also supports your last correction (it won't expand child if it was in the same location on same time interval)" />
+    <option name="LAST_COMMIT_MESSAGE" value="New implementation of the SIPP algorithm, this one is supposed to be better. It also supports your last correction (it won't expand child if it was in the same location on same time interval)" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/Environment/Metrics/S_Metrics.java</url>
+          <line>343</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/BasicMAPF/Solvers/AStar/SingleAgentAStar_SolverTest.java</url>
+          <line>370</line>
+          <option name="timeStamp" value="468" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/BasicMAPF/Solvers/AStar/SingleAgentAStar_SolverTest.java</url>
+          <line>465</line>
+          <option name="timeStamp" value="604" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/BasicMAPF/Solvers/OpenListHeap.java</url>
+          <line>81</line>
+          <option name="timeStamp" value="637" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/BasicMAPF/Solvers/AStar/SingleAgentAStarSIPP_SolverTest.java</url>
+          <line>126</line>
+          <option name="timeStamp" value="678" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="java.util.HashMap$Node" memberName="value" />
+      </pinned-members>
+    </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="JUnit">
+        <watch expression="closed" language="JAVA" />
+        <watch expression="openList" language="JAVA" />
+        <watch expression="this" />
+      </configuration>
+      <configuration name="Application">
+        <watch expression="e" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/MAPF$SingleAgentAStarSIPP_SolverTest.ic" NAME="SingleAgentAStarSIPP_SolverTest Coverage Results" MODIFIED="1686562032805" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>BasicMAPF.Solvers.AStar.*</FILTER>
+    </SUITE>
+  </component>
+</project>
