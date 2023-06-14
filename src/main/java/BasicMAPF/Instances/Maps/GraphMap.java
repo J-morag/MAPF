@@ -47,6 +47,11 @@ public class GraphMap implements I_ExplicitMap {
     }
 
     @Override
+    public HashMap<I_Coordinate, GraphMapVertex> getAllGraphLocations(){
+        return allGraphLocations;
+    }
+
+    @Override
     public boolean isValidCoordinate(I_Coordinate coordinate) {
         return this.allGraphLocations.containsKey(coordinate);
     }

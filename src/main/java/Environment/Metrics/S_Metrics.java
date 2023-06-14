@@ -177,15 +177,6 @@ public class S_Metrics {
         addOutputStream(outputStream, S_Metrics::instanceReportToStringCSV, S_Metrics::headerArrayToStringCSV);
     }
 
-    public static void addSolutionExportOutputStream(String pathName) throws IOException {
-        int index = S_Metrics.getAllReports().size() - 1;
-
-        if (A_RunManager.verifyOutputPath(pathName)) {
-            String fullPathName = pathName + "/" + index + ".txt";
-            addOutputStream(new FileOutputStream(fullPathName), S_Metrics::instanceReportToSolutionString);
-        }
-    }
-
 
     public static void removeOutputStream(OutputStream outputStream){
         int streamIndex = outputStreams.indexOf(outputStream);
@@ -336,6 +327,10 @@ public class S_Metrics {
                 }
             }
         }
+    }
+
+    public static void addSolutionExportOutputStream(String pathName) throws IOException {
+        addOutputStream(new FileOutputStream(pathName), S_Metrics::instanceReportToSolutionString);
     }
 
     private static void outputInstanceReportToStream(OutputStream outputStream, InstanceReport instanceReport,

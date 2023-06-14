@@ -46,6 +46,9 @@ public class ConstraintSet{
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
+    public Set<I_ConstraintGroupingKey> getKeySet(){
+        return constraints.keySet();
+    }
 
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}

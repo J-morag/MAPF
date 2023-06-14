@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
@@ -220,6 +221,41 @@ class SingleAgentAStar_SolverTest {
     }
 
     @Test
+    void largeNumberOfConstraints(){
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+        List<I_Location> locations = new ArrayList<>();
+        for (int i = 0; i <= 5; i++) {
+            for (int j = 0; j <= 5; j++) {
+                I_Coordinate newCoor = new Coordinate_2D(i, j);
+                I_Location newLocation = instanceEmpty1.map.getMapLocation(newCoor);
+                locations.add(newLocation);
+            }
+        }
+        Random rand = new Random();
+        rand.setSeed(10);
+        ConstraintSet constraints = new ConstraintSet();
+        Set<I_Location> checkDuplicates = new HashSet<I_Location>();
+        for (int t = 1; t <= 30; t++) {
+            for (int j = 0; j < 10; j++) {
+                I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
+                if (checkDuplicates.contains(randomLocation)){
+                    j--;
+                    continue;
+                }
+                checkDuplicates.add(randomLocation);
+                Constraint constraint = new Constraint(agent, t, null, randomLocation);
+                constraints.add(constraint);
+            }
+            checkDuplicates = new HashSet<I_Location>();
+        }
+        RunParameters parameters = new RunParameters(constraints);
+
+        Solution solved = aStar.solve(testInstance, parameters);
+        assertNotNull(solved);
+    }
+
+    @Test
     void circleOptimalityNorthwestToSoutheast(){
         MAPF_Instance testInstance = instanceCircle2;
         Agent agent = testInstance.agents.get(0);
@@ -435,7 +471,7 @@ class SingleAgentAStar_SolverTest {
         assertEquals(9, solved1.getPlanFor(agent).size());
     }
 
-    private class UnitCostAndNoHeuristic implements AStarGAndH {
+    public static class UnitCostAndNoHeuristic implements AStarGAndH {
         @Override
         public float getH(SingleAgentAStar_Solver.AStarState state) {
             return 0;
@@ -457,9 +493,9 @@ class SingleAgentAStar_SolverTest {
         }
     }
 
-    private final AStarGAndH unitCostAndNoHeuristic = new UnitCostAndNoHeuristic();
+    public final AStarGAndH unitCostAndNoHeuristic = new UnitCostAndNoHeuristic();
 
-    private static List<I_Location> planLocations(SingleAgentPlan planFromAStar) {
+    public static List<I_Location> planLocations(SingleAgentPlan planFromAStar) {
         List<I_Location> aStarPlanLocations = new ArrayList<>();
         for (Move move :
                 planFromAStar) {
@@ -561,11 +597,11 @@ class SingleAgentAStar_SolverTest {
         }
     }
 
-    private static class RandomButStableCostsFrom1To10AndNoHeuristic implements AStarGAndH{
+    public static class RandomButStableCostsFrom1To10AndNoHeuristic implements AStarGAndH{
         Map<Edge, Integer> randomButStableCosts = new HashMap<>();
         Random rand;
 
-        private RandomButStableCostsFrom1To10AndNoHeuristic(Long seed) {
+        public RandomButStableCostsFrom1To10AndNoHeuristic(Long seed) {
             seed = Objects.requireNonNullElse(seed, 42L);
             rand = new Random(seed);
         }
@@ -647,7 +683,7 @@ class SingleAgentAStar_SolverTest {
         }
     }
 
-    private void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
+    public void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
         RunParameters aStarRunParameters = new RunParameters_SAAStar(instanceReport, costFunction);
 
         String identifier = testInstance.name + " " + agent.source + " to " + agent.target;
@@ -700,7 +736,7 @@ class SingleAgentAStar_SolverTest {
     }
 
     @NotNull
-    private static List<Integer> getCosts(Agent agent, AStarGAndH costFunction, List<I_Location> UCSPlanLocations) {
+    public static List<Integer> getCosts(Agent agent, AStarGAndH costFunction, List<I_Location> UCSPlanLocations) {
         List<Integer> UCSPlanCosts = new ArrayList<>();
         UCSPlanCosts.add(0);
         I_Location prev = null;

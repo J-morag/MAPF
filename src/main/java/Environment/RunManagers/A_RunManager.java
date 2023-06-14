@@ -57,7 +57,7 @@ public abstract class A_RunManager {
     abstract void setSolvers();
     abstract void setExperiments();
 
-    public void runAllExperiments(){
+    public void runAllExperiments() {
         setOutputStreamsBeforeRunning();
 
         setSolvers();
@@ -112,13 +112,17 @@ public abstract class A_RunManager {
         sleepToAvoidOverridingPreviousResultsFiles();
 
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String pathWithStartTime = IO_Manager.buildPath(new String[]{resultsOutputDir, "log " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
+
+        String basePath = IO_Manager.buildPath(new String[]{resultsOutputDir, "log " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())});
+        String pathWithStartTime = basePath + ".csv";
+        String pathWithStartTimeSolution = basePath + ".txt";
+
         try {
             S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
+            S_Metrics.addSolutionExportOutputStream(pathWithStartTimeSolution);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     protected void exportAllResults() {
@@ -126,7 +130,7 @@ public abstract class A_RunManager {
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
         String pathWithEndTime =  IO_Manager.buildPath(new String[]{resultsOutputDir, "res " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
-            S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)            );
+            S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime));
         } catch (IOException e) {
             e.printStackTrace();
         }

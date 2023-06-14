@@ -50,4 +50,9 @@ public class TimeLocation implements I_ConstraintGroupingKey {
     public int getTime() {
         return this.time;
     }
+
+    @Override
+    public I_Location getLocation() {
+        return this.location;
+    }
 }

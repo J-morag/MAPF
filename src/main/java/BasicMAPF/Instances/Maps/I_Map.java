@@ -3,6 +3,7 @@ package BasicMAPF.Instances.Maps;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 public interface I_Map {
 
@@ -27,6 +28,8 @@ public interface I_Map {
      * @return a new {@link I_Map} from this {@link I_Map}, where some of the locations are removed.
      */
     I_Map getSubmapWithout(Collection<? extends I_Location> mapLocations);
+
+    HashMap<I_Coordinate, GraphMapVertex> getAllGraphLocations();
 
     boolean isStronglyConnected();
 }
