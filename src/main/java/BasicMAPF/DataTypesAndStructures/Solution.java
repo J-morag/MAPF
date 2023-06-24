@@ -233,6 +233,14 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return SOC;
     }
 
+    public int sumServiceTimes() {
+        int sumServiceTimes = 0;
+        for (SingleAgentPlan plan : this) {
+            sumServiceTimes += plan.firstVisitToTargetTime();
+        }
+        return sumServiceTimes;
+    }
+
     public int makespan(){
         int maxCost = 0;
         for (SingleAgentPlan plan :

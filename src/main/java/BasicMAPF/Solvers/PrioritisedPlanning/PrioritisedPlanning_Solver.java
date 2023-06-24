@@ -344,9 +344,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            if (solution instanceof PIBTStyleSolution){
-                instanceReport.putIntegerValue("SST", ((PIBTStyleSolution) solution).sumServiceTimes());
-            }
+            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
         }
     }
 

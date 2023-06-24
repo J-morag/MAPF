@@ -24,11 +24,4 @@ public class PIBTStyleSolution extends Solution {
         return plan.containsTarget();
     }
 
-    public int sumServiceTimes() {
-        int sumServiceTimes = 0;
-        for (SingleAgentPlan plan : this) {
-            sumServiceTimes += plan.firstVisitToTargetTime();
-        }
-        return sumServiceTimes;
-    }
 }
