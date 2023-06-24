@@ -37,17 +37,18 @@ public class PIBTExampleMain {
 
             String instancesDir = IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory,"Instances", "MovingAI_Instances"});
             int[] agentNums = new int[]{10};
+            int timeoutEach = 1000 * 30;
 
             GenericRunManager genericRunManager = new GenericRunManager(instancesDir, agentNums, new InstanceBuilder_MovingAI(),
-                    "PIBTExampleMain", true, null, DEFAULT_RESULTS_OUTPUT_DIR, null, null);
+                    "PIBTExampleMain", true, null, DEFAULT_RESULTS_OUTPUT_DIR, "PrP+PIBT", null, timeoutEach);
 
             PrioritisedPlanning_Solver PrPWithPIBT = new PrioritisedPlanning_Solver(null, null, null,
-                    new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+                    new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, true);
             PrPWithPIBT.name = "PrPWithPIBT";
 
             PrioritisedPlanning_Solver PrP = new PrioritisedPlanning_Solver(null, null, null,
-                    new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+                    new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, false);
             PrP.name = "PrP";
 

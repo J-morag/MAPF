@@ -23,10 +23,11 @@ public class GenericRunManager extends A_RunManager {
     private final boolean skipAfterFail;
     private final String instancesRegex;
     private List<I_Solver> solversOverride;
+    private final Integer timeoutEach;
 
     public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder,
                              @NotNull String experimentName, boolean skipAfterFail, String instancesRegex,
-                             String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer) {
+                             String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer, Integer timeoutEach) {
         super(resultsOutputDir, solutionVisualizer);
         if (agentNums == null){
             throw new IllegalArgumentException("AgentNums can't be null");
@@ -38,6 +39,7 @@ public class GenericRunManager extends A_RunManager {
         this.skipAfterFail = skipAfterFail;
         this.instancesRegex = instancesRegex;
         this.resultsFilePrefix = resultsFilePrefix;
+        this.timeoutEach = timeoutEach;
     }
     @Override
     void setSolvers() {
@@ -65,7 +67,7 @@ public class GenericRunManager extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(instancesDir, instanceBuilder, properties);
 
         /*  =   Add new experiment   =  */
-        Experiment experiment = new Experiment(experimentName, instanceManager);
+        Experiment experiment = new Experiment(experimentName, instanceManager, null, timeoutEach);
         experiment.skipAfterFail = this.skipAfterFail;
         experiment.visualizer = this.visualizer;
         if (instanceBuilder instanceof InstanceBuilder_Warehouse){ // TODO remove when scenarios are fixed to prevent shared sources and goals

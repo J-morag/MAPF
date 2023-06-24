@@ -143,7 +143,7 @@ public class Main {
             }
 
             // Run!
-            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser)
+            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser, null)
                     .runAllExperiments();
 
         } catch (ParseException e) {
