@@ -84,12 +84,11 @@ public class WaterfallPPRASFPComparator implements Comparator<SingleAgentAStar_S
     }
 
     public static int getTimeUntilNextConstraint(SingleAgentAStar_Solver.AStarState s, RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable) {
-//        int firstConflictTime = constraints.lastRejectAt(s.move.currLocation, s.move.agent);
         int firstConflictTime = conflictAvoidanceTable.firstConflictTime(s.move, true);
         if (firstConflictTime < 0)
-            firstConflictTime = Integer.MAX_VALUE;
-
-        return firstConflictTime - s.getMove().timeNow;
+            return Integer.MAX_VALUE;
+        else
+            return firstConflictTime - s.getMove().timeNow;
     }
 
     private int compareHValue(SingleAgentAStar_Solver.AStarState s1, SingleAgentAStar_Solver.AStarState s2) {
