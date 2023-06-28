@@ -1186,6 +1186,24 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf_cong0p1(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
+        boolean requireLockableToInfinity = true;
+        I_AStarFailPolicyFactory asfpf = new PostProcessWaterfallASFPFactory(null, null, RHCRHorizon, requireLockableToInfinity);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                0.1, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
     public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();

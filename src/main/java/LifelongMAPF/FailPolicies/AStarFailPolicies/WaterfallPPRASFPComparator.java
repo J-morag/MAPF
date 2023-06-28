@@ -56,10 +56,10 @@ public class WaterfallPPRASFPComparator implements Comparator<SingleAgentAStar_S
             return compared;
         }
 
-//        compared = compareGValue(s1, s2);
-//        if (compared != 0) {
-//            return compared;
-//        }
+        compared = compareGValue(s1, s2);
+        if (compared != 0) {
+            return compared;
+        }
 
         return compared;
     }
@@ -95,9 +95,9 @@ public class WaterfallPPRASFPComparator implements Comparator<SingleAgentAStar_S
         return Float.compare(s1.getF() - s1.getG(), s2.getF() - s2.getG());
     }
 
-//    private int compareGValue(SingleAgentAStar_Solver.AStarState s1, SingleAgentAStar_Solver.AStarState s2) {
-//        return Integer.compare(s1.getG(), s2.getG());
-//    }
+    private int compareGValue(SingleAgentAStar_Solver.AStarState s1, SingleAgentAStar_Solver.AStarState s2) {
+        return Integer.compare(s1.getG(), s2.getG());
+    }
 
     private int compareCongestion(SingleAgentAStar_Solver.AStarState s1, SingleAgentAStar_Solver.AStarState s2, CongestionMap congestionMap) {
         int s1Congestion = congestionMap.congestionAt(s1.move.currLocation);

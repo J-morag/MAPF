@@ -36,6 +36,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     public final static String countInitialAttemptsMetricString = "count initial attempts";
     public final static String countContingencyAttemptsMetricString = "count contingency attempts";
     public final static String maxReachedIndexBeforeTimeoutString = "max reached index";
+    private static final int DEBUG = 1;
 
     /*  =  = Fields related to the MAPF instance =  */
     /**
@@ -260,17 +261,16 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         Solution bestSolution = null;
         Solution bestPartialSolution = new Solution();
         int bestPartialSolutionSingleAgentSuccesses = 0;
+        int singleAgentFPsTriggered = 0;
         Set<Agent> bestPartialSolutionFailedAgents = new HashSet<>();
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
         randomOrderings.add(new ArrayList<>(agents));
         Set<List<Agent>> deterministicOrderings = new HashSet<>();
         deterministicOrderings.add(new ArrayList<>(agents));
+        int attemptNumber = 0;
         // if using random restarts, try more than once and randomize between them
-        for (int attemptNumber = 0;
-                ;
-             attemptNumber++) {
-
+        for (;;attemptNumber++) {
             Solution solution = new Solution();
             ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
             RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals(this.initialConflictAvoidanceTable);
@@ -286,9 +286,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 //solve the subproblem for one agent
                 SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
-                        bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY);
+                        bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY, solution);
 
-                if (planForAgent == null || ! planForAgent.containsTarget()) {
+                if (planForAgent == null || ! planForAgent.endsOnTarget()) { // TODO ends on target? contains target?
+                    if (planForAgent != null)
+                        singleAgentFPsTriggered++;
                     failedAgents.add(agent);
                     if (firstFailedAgent == null) firstFailedAgent = agent;
                     if (! this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null)) {
@@ -407,7 +409,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 }
             }
         }
-//        instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
+        if (DEBUG >= 2){
+            System.out.println("PrP attempts: " + attemptNumber + ", SAFPsTriggered: " + singleAgentFPsTriggered);
+        }
 
         if (this.partialSolutionsStrategy.allowed() && bestSolution == null){
             this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestPartialSolutionSingleAgentSuccesses);
@@ -441,11 +446,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         return Math.addExact(problemStartTime, horizon);
     }
 
-    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {
+    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -465,10 +470,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         return subproblemReport;
     }
 
-    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
+    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        return new RunParameters_SAAStar(new RunParameters(timeLeftToTimeout, new ConstraintSet(constraints),
-                subproblemReport,null, this.problemStartTime), this.heuristic /*nullable*/, maxCost);
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(timeLeftToTimeout, new ConstraintSet(constraints),
+                subproblemReport,new Solution(solutionSoFar) // should probably work without copying, but just to be safe
+                , this.problemStartTime), this.heuristic /*nullable*/, maxCost);
+        return runParameters;
     }
 
 

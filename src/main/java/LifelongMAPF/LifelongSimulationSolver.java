@@ -519,6 +519,7 @@ public class LifelongSimulationSolver extends A_Solver {
                     updateAgentActiveDestination(farthestCommittedTime, agent, destinationStartTimes, nextDestinationCoordinate);
                 }
             }
+            // TODO check if passed through destination?
             else if (! previousDestinationCoordinate.equals(initialCoordinateAtTime)) // still on the way to current destination
             {
                 nextDestinationCoordinate = previousDestinationCoordinate; // preserve current destination

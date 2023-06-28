@@ -356,7 +356,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public StringBuilder readableToString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Plan for agent ").append(agent.iD);
+        sb.append("Plan for agent ").append(agent);
         for(Move move : this){
             sb.append(move.readableToString());
         }

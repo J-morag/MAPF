@@ -47,17 +47,27 @@ public class PostProcessRankingAStarFP implements I_AStarFailPolicy {
         }
         SingleAgentPlan res = best != null ? best.backTracePlan(existingPlan) : StayOnceFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
         if (DEBUG >= 2) {
+            if (requireLockableToHorizon){
+                System.out.println("PostProcessRankingAStarFP.getFailPlan: found LockableToInf = " + (best != null));
+            }
             System.out.println("PostProcessRankingAStarFP.getFailPlan: res = " + res);
         }
         return res;
     }
 
-    private SingleAgentAStar_Solver.AStarState getBetterOfTwoStates(SingleAgentAStar_Solver.AStarState best,
+    private @Nullable SingleAgentAStar_Solver.AStarState getBetterOfTwoStates(SingleAgentAStar_Solver.AStarState best,
                                                                     SingleAgentAStar_Solver.AStarState state) {
-        if ((!requireLockableToHorizon || WaterfallPPRASFPComparator.getTimeUntilNextConstraint(state, conflictAvoidanceTable) >= this.horizon)
+        if (
+                (!requireLockableToHorizon || isLockableToHorizon(state))
                 && (best == null || comparator.compare(state, best) < 0)) {
             best = state;
         }
         return best;
     }
+
+    private boolean isLockableToHorizon(SingleAgentAStar_Solver.AStarState state) {
+        return WaterfallPPRASFPComparator.getTimeUntilNextConstraint(state, conflictAvoidanceTable) >= this.horizon;
+    }
+
+
 }
