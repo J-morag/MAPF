@@ -74,13 +74,15 @@ public class WaterfallPPRASFPComparator implements Comparator<SingleAgentAStar_S
             timeUntilNextConstraint2 = Math.min(timeUntilNextConstraint2, horizon);
         }
 
+        int timeUntilNextConstraintBucket1 = timeUntilNextConstraint1;
+        int timeUntilNextConstraintBucket2 = timeUntilNextConstraint2;
         if (lockableTimeBuckets != null){
-            timeUntilNextConstraint1 = Collections.binarySearch(lockableTimeBuckets, timeUntilNextConstraint1);
-            timeUntilNextConstraint2 = Collections.binarySearch(lockableTimeBuckets, timeUntilNextConstraint2);
+            timeUntilNextConstraintBucket1 = Collections.binarySearch(lockableTimeBuckets, timeUntilNextConstraint1);
+            timeUntilNextConstraintBucket2 = Collections.binarySearch(lockableTimeBuckets, timeUntilNextConstraint2);
         }
 
         // in reverse order, to prefer larger values
-        return Integer.compare(timeUntilNextConstraint2, timeUntilNextConstraint1);
+        return Integer.compare(timeUntilNextConstraintBucket2, timeUntilNextConstraintBucket1);
     }
 
     public static int getTimeUntilNextConstraint(SingleAgentAStar_Solver.AStarState s, RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable) {
