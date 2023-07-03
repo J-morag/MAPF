@@ -11,7 +11,6 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.A_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
@@ -483,6 +482,8 @@ public class LifelongSimulationSolver extends A_Solver {
 
             List<TimeCoordinate> destinationStartTimes = agentsActiveDestinationStartTimes.get(agent);
             List<TimeCoordinate> destinationEndTimes = agentsActiveDestinationEndTimes.get(agent);
+            SingleAgentPlan agentPlan = previousSolution.getPlanFor(agent);
+            int lastExecutedPlannedMoveTime = Math.min(farthestCommittedTime, agentPlan.getEndTime());
 
             // for the first instance take the first destination in the queue as the source, for instances after this
             // agent reached final destination (and stays), take final destination
@@ -496,7 +497,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 updateDestinationEndTimeAndCount(destinationEndTimes, 0, initialCoordinateAtTime, false);
             }
             else {
-                initialCoordinateAtTime = previousSolution.getPlanFor(agent).moveAt(Math.min(farthestCommittedTime, previousSolution.getPlanFor(agent).getEndTime())).currLocation.getCoordinate();
+                initialCoordinateAtTime = agentPlan.moveAt(lastExecutedPlannedMoveTime).currLocation.getCoordinate();
             }
 
             // for the first instance there is no previous destination, otherwise it's whichever destination was active
@@ -508,6 +509,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 previousDestinationCoordinate = destinationStartTimes.get(destinationStartTimes.size() - 1).coordinate;
             }
 
+            int reachedDestinationTime = reachedDestinationTime(agentPlan, lastExecutedPlannedMoveTime, previousDestinationCoordinate);
             // for the first instance, or if finished previous destination, dequeue next one destination, else continue towards current destination
             I_Coordinate nextDestinationCoordinate;
             if (previousDestinationCoordinate == null){ // first instance
@@ -519,8 +521,7 @@ public class LifelongSimulationSolver extends A_Solver {
                     updateAgentActiveDestination(farthestCommittedTime, agent, destinationStartTimes, nextDestinationCoordinate);
                 }
             }
-            // TODO check if passed through destination?
-            else if (! previousDestinationCoordinate.equals(initialCoordinateAtTime)) // still on the way to current destination
+            else if (reachedDestinationTime < 0) // still on the way to current destination
             {
                 nextDestinationCoordinate = previousDestinationCoordinate; // preserve current destination
             }
@@ -535,7 +536,7 @@ public class LifelongSimulationSolver extends A_Solver {
                     }
                 }
                 else { // got a new destination
-                    updateDestinationEndTimeAndCount(destinationEndTimes, farthestCommittedTime, previousDestinationCoordinate, true);
+                    updateDestinationEndTimeAndCount(destinationEndTimes, reachedDestinationTime, previousDestinationCoordinate, true);
                     updateAgentActiveDestination(farthestCommittedTime, agent, destinationStartTimes, nextDestinationCoordinate);
                 }
             }
@@ -543,6 +544,15 @@ public class LifelongSimulationSolver extends A_Solver {
             lifelongAgentsToOfflineAgents.put(agent, agentFromCurrentLocationToNextDestination);
         }
         return lifelongAgentsToOfflineAgents;
+    }
+
+    private static int reachedDestinationTime(SingleAgentPlan plan, int lastExecutedPlannedMoveTime, I_Coordinate destination) {
+        for (int t = plan.getFirstMoveTime(); t <= lastExecutedPlannedMoveTime; t++) {
+            if (plan.moveAt(t).currLocation.getCoordinate().equals(destination)){
+                return t;
+            }
+        }
+        return -1;
     }
 
     private void updateAgentActiveDestination(int farthestCommittedTime, LifelongAgent agent, List<TimeCoordinate> destinationStartTimes, I_Coordinate nextDestinationCoordinate) {

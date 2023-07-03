@@ -288,7 +288,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
                         bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY, solution);
 
-                if (planForAgent == null || ! planForAgent.endsOnTarget()) { // TODO ends on target? contains target?
+                if (planForAgent == null || ! planForAgent.containsTarget()) {
                     if (planForAgent != null)
                         singleAgentFPsTriggered++;
                     failedAgents.add(agent);
