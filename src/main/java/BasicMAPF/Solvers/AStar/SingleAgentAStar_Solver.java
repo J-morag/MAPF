@@ -16,7 +16,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import LifelongMAPF.FailPolicies.AStarFailPolicies.I_AStarFailPolicyFactory;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.I_AStarFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,8 +34,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
 
     public boolean agentsStayAtGoal;
-    public final I_AStarFailPolicyFactory failPolicyFactory;
-
+    public final I_AStarFailPolicy failPolicy;
     private ConstraintSet constraints;
     private AStarGAndH gAndH;
     private final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
@@ -65,14 +64,14 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this(agentsStayAtGoal, null);
     }
 
-    public SingleAgentAStar_Solver(@Nullable I_AStarFailPolicyFactory failPolicyFactory) {
-        this(null, failPolicyFactory);
+    public SingleAgentAStar_Solver(@Nullable I_AStarFailPolicy failPolicy) {
+        this(null, failPolicy);
     }
 
-    public SingleAgentAStar_Solver(@Nullable Boolean agentsStayAtGoal, @Nullable I_AStarFailPolicyFactory failPolicyFactory) {
+    public SingleAgentAStar_Solver(@Nullable Boolean agentsStayAtGoal, @Nullable I_AStarFailPolicy failPolicy) {
         super.name = "AStar";
         this.agentsStayAtGoal = Objects.requireNonNullElse(agentsStayAtGoal, true);
-        this.failPolicyFactory = failPolicyFactory;
+        this.failPolicy = failPolicy;
     }
 
     /*  = set up =  */
@@ -202,14 +201,14 @@ public class SingleAgentAStar_Solver extends A_Solver {
     }
 
     private Solution getFailPlan() {
-        if (this.failPolicyFactory == null){
+        if (this.failPolicy == null){
             return null;
         }
         else {
             CongestionMap congestionMap = new CongestionMap(this.existingSolution, null);
             RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(this.existingSolution, this.agent);
             Solution res = new Solution();
-            res.putPlan(this.failPolicyFactory.create(congestionMap, cat).getFailPlan(problemStartTime, agent, map.getMapLocation(sourceCoor), openList, closed, existingPlan));
+            res.putPlan(failPolicy.getFailPlan(problemStartTime, agent, map.getMapLocation(sourceCoor), openList, closed, existingPlan, congestionMap, cat));
             return res;
         }
     }

@@ -940,7 +940,7 @@ public class LifelongSolversFactory {
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
         Integer RHCRHorizon = null;
-        I_AStarFailPolicyFactory asfpf = new IAvoid1ASFPFactory();
+        I_AStarFailPolicy asfpf = new IAvoid1ASFP();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
@@ -958,7 +958,7 @@ public class LifelongSolversFactory {
         int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new OneActionFailPolicy(true);
         Integer RHCRHorizon = 10;
-        I_AStarFailPolicyFactory asfpf = new IAvoid1ASFPFactory();
+        I_AStarFailPolicy asfpf = new IAvoid1ASFP();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
@@ -975,7 +975,7 @@ public class LifelongSolversFactory {
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
         Integer RHCRHorizon = null;
-        I_AStarFailPolicyFactory asfpf = new PostProcessWaterfallASFPFactory(null, null, RHCRHorizon, null);
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), null, RHCRHorizon);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
@@ -992,7 +992,7 @@ public class LifelongSolversFactory {
         int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new OneActionFailPolicy(true);
         Integer RHCRHorizon = 10;
-        I_AStarFailPolicyFactory asfpf = new PostProcessWaterfallASFPFactory(null, null, RHCRHorizon, null);
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), null, RHCRHorizon);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
@@ -1173,7 +1173,7 @@ public class LifelongSolversFactory {
         I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToInfinity = true;
-        I_AStarFailPolicyFactory asfpf = new PostProcessWaterfallASFPFactory(null, null, RHCRHorizon, requireLockableToInfinity);
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
@@ -1191,7 +1191,7 @@ public class LifelongSolversFactory {
         I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToInfinity = true;
-        I_AStarFailPolicyFactory asfpf = new PostProcessWaterfallASFPFactory(null, null, RHCRHorizon, requireLockableToInfinity);
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
@@ -1209,7 +1209,7 @@ public class LifelongSolversFactory {
         I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToInfinity = false;
-        I_AStarFailPolicyFactory asfpf = new PostProcessWaterfallASFPFactory(null, null, RHCRHorizon, requireLockableToInfinity);
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
@@ -1227,7 +1227,7 @@ public class LifelongSolversFactory {
         I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToHorizon = true;
-        I_AStarFailPolicyFactory asfpf = new PostProcessWaterfallASFPFactory(null, null, replanningPeriod, requireLockableToHorizon);
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToHorizon, replanningPeriod);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
