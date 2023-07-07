@@ -3,8 +3,8 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvo
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocation;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -62,7 +62,7 @@ public class SingleUseConflictAvoidanceTable extends A_ConflictAvoidanceTable {
         // doesn't check if this is a goal move and how many conflicts that would create, which should be OK since
         // the number would be determined by the start time of staying in goal, and this method is used for tie-breaking
         // between equal length plans, so staying at goal at a different time would be a different length plan anyway
-        // TODO add support for this anyway? Need it for PIBT style paths...
+        // TODO add support for this anyway? Need it for PIBT style paths... But can just use RemovalbeConflictAvoidanceTable
         return numGoalConflicts;
     }
 

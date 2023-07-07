@@ -9,8 +9,8 @@ import BasicMAPF.Instances.Maps.I_Location;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
 
@@ -233,13 +233,6 @@ public class Experiment {
             System.out.println("Elapsed time (ms): " + elapsedTime);
         }
 
-        if (!keepSolutionInReport) {
-            instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
-        }
-        if (!keepWaypointTimesInReport){
-            instanceReport.putStringValue("waypointTimes", "");
-        }
-
         // Now that the report is complete, commit it
         try {
             instanceReport.commit();
@@ -248,6 +241,13 @@ public class Experiment {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (!keepSolutionInReport) {
+            instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
+        }
+        if (!keepWaypointTimesInReport){
+            instanceReport.putStringValue("waypointTimes", "");
         }
 
         return validSolution;

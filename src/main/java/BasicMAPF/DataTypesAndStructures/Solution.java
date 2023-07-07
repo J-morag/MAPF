@@ -1,9 +1,10 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
@@ -135,7 +136,12 @@ public class Solution implements Iterable<SingleAgentPlan>{
             if (plan.size() == 0){
                 continue;
             }
-            if (checkStartAndEnd(instance, plan)) return false;
+            // check start and end at source and target
+            if (!plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source)) /*start at source*/
+                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target))) /*end at target*/
+            {
+                return false;
+            }
             // agents always move from a vertex to its neighbor
             Move prevMove = plan.moveAt(plan.getFirstMoveTime());
             // check that the move is internally consistent
@@ -158,12 +164,12 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return true;
     }
 
-    /**
-     * check start and end at source and target
-     */
-    protected boolean checkStartAndEnd(MAPF_Instance instance, SingleAgentPlan plan) {
-        return !plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source)) /*start at source*/
-                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target)); /*end at target*/
+    protected boolean isAchievesTarget(MAPF_Instance instance, SingleAgentPlan plan) {
+        return plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target));
+    }
+
+    private static boolean isStartsAtSource(MAPF_Instance instance, SingleAgentPlan plan) {
+        return plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source));
     }
 
     /**
@@ -250,6 +256,14 @@ public class Solution implements Iterable<SingleAgentPlan>{
             }
         }
         return SOC;
+    }
+
+    public int sumServiceTimes() {
+        int sumServiceTimes = 0;
+        for (SingleAgentPlan plan : this) {
+            sumServiceTimes += plan.firstVisitToTargetTime();
+        }
+        return sumServiceTimes;
     }
 
     public int makespan(){

@@ -3,7 +3,7 @@ package Environment.Visualization;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_GridMap;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongSolution;
 
 import java.util.ArrayList;

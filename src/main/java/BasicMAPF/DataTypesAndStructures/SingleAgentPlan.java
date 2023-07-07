@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -16,8 +16,7 @@ import java.util.function.Consumer;
 public class SingleAgentPlan implements Iterable<Move> {
     private List<Move> moves;
     public final Agent agent;
-    private boolean containsTarget = false;
-    private boolean endsOnTarget = false;
+    private int firstVisitToTargetTime = -1;
 
     /**
      * @param moves a sequence of moves for the agent. Can be empty. All {@link Move}s must be moves for the same {@link Agent},
@@ -37,8 +36,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public SingleAgentPlan(SingleAgentPlan planToCopy){
         this(planToCopy.agent, planToCopy.moves);
-        this.containsTarget = planToCopy.containsTarget;
-        this.endsOnTarget = planToCopy.endsOnTarget;
+        this.firstVisitToTargetTime = planToCopy.firstVisitToTargetTime;
     }
 
     public SingleAgentPlan(Agent agent) {
@@ -78,9 +76,9 @@ public class SingleAgentPlan implements Iterable<Move> {
     public void addMove(Move newMove){
         if(isValidNextMoveForAgent(this.moves, newMove, this.agent)){
             this.moves.add(newMove);
-            boolean isMoveToTarget = isMoveToTarget(newMove);
-            this.containsTarget |= isMoveToTarget;
-            this.endsOnTarget = isMoveToTarget;
+            if (isMoveToTarget(newMove) && firstVisitToTargetTime == -1){
+                firstVisitToTargetTime = newMove.timeNow;
+            }
         }
         else {throw new IllegalArgumentException();}
     }
@@ -107,8 +105,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public void clearMoves(){
         this.moves.clear();
-        this.containsTarget = false;
-        this.endsOnTarget = false;
+        this.firstVisitToTargetTime = -1;
     }
 
     /**
@@ -124,11 +121,10 @@ public class SingleAgentPlan implements Iterable<Move> {
         this.moves = localMovesCopy;
         for (Move move: this.moves) {
             if (isMoveToTarget(move)){
-                this.containsTarget = true;
+                this.firstVisitToTargetTime = move.timeNow;
                 break;
             }
         }
-        this.endsOnTarget = this.size() > 0 && isMoveToTarget(this.getLastMove());
     }
 
     /**
@@ -179,11 +175,16 @@ public class SingleAgentPlan implements Iterable<Move> {
     public Move getLastMove(){return moves.isEmpty() ? null : moves.get(moves.size() - 1);}
 
     public boolean containsTarget() {
-        return containsTarget;
+        return firstVisitToTargetTime != -1;
+    }
+
+    public int firstVisitToTargetTime(){
+        return firstVisitToTargetTime;
     }
 
     public boolean endsOnTarget() {
-        return endsOnTarget;
+        return this.firstVisitToTargetTime == this.getEndTime() || // faster
+                isMoveToTarget(this.getLastMove());
     }
 
     /**

@@ -5,11 +5,14 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class GenericRunManager extends A_RunManager {
 
@@ -19,10 +22,12 @@ public class GenericRunManager extends A_RunManager {
     private final String experimentName;
     private final boolean skipAfterFail;
     private final String instancesRegex;
+    private List<I_Solver> solversOverride;
+    private final Integer timeoutEach;
 
     public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder,
                              @NotNull String experimentName, boolean skipAfterFail, String instancesRegex,
-                             String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer) {
+                             String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer, Integer timeoutEach) {
         super(resultsOutputDir, solutionVisualizer);
         if (agentNums == null){
             throw new IllegalArgumentException("AgentNums can't be null");
@@ -34,14 +39,23 @@ public class GenericRunManager extends A_RunManager {
         this.skipAfterFail = skipAfterFail;
         this.instancesRegex = instancesRegex;
         this.resultsFilePrefix = resultsFilePrefix;
+        this.timeoutEach = timeoutEach;
     }
     @Override
     protected void setSolvers() {
         // TODO modular solvers?
+        if (solversOverride != null){
+            super.solvers = solversOverride;
+            return;
+        }
         super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                null, null, null, null));
+                null, null, null, null, null));
         super.solvers.add(new CBS_Solver());
+    }
+
+    public void overrideSolvers(@NotNull List<I_Solver> solvers){
+        this.solversOverride = solvers;
     }
 
     @Override
@@ -53,7 +67,7 @@ public class GenericRunManager extends A_RunManager {
         InstanceManager instanceManager = new InstanceManager(instancesDir, instanceBuilder, properties);
 
         /*  =   Add new experiment   =  */
-        Experiment experiment = new Experiment(experimentName, instanceManager);
+        Experiment experiment = new Experiment(experimentName, instanceManager, null, timeoutEach);
         experiment.skipAfterFail = this.skipAfterFail;
         experiment.visualizer = this.visualizer;
         if (instanceBuilder instanceof InstanceBuilder_Warehouse){ // TODO remove when scenarios are fixed to prevent shared sources and goals

@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -2,11 +2,10 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvo
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocation;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -112,13 +111,20 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
 
     @Override
     int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove) {
-        // TODO throw an exception if sharedGoals is false?
-        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         int numConflicts = 0;
-        if (agentsAtGoal != null) {
-            for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
-                if (agentAtGoal.time <= to.time) {
-                    numConflicts++;
+
+        if ( ! (sharedGoals && isALastMove)){
+            // look for conflicts where the other agent is a goal move
+            // TODO throw an exception if sharedGoals is false?
+            List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
+            if (agentsAtGoal != null) {
+                for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
+                    if (agentAtGoal.time <= to.time
+                            // Only relevant if agents may finish their plans at locations other than their targets (any two last moves to the same location conflict)
+                            || isALastMove
+                    ) {
+                        numConflicts++;
+                    }
                 }
             }
         }
@@ -210,10 +216,6 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
 
         if(checkGoals){ // TODO move this to the end to optimize?
             firstGoalConflictTime = getFirstGoalConflict(move, to, isALastMove);
-//            if (conflictingMove != null){
-////                return getConflict(move, conflictingMove);
-//                return conflictingMove.timeNow;
-//            }
         }
 
         // time locations of a move that would create a swapping conflict
@@ -263,13 +265,22 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     }
 
     private int getFirstGoalConflict(Move move, TimeLocation to, boolean isALastMove) {
-        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         int earliestGoalConflict = -1;
-        if (agentsAtGoal != null) {
-            for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
-                if (agentAtGoal.time <= to.time) {
-                    if (earliestGoalConflict == -1 || agentAtGoal.time < earliestGoalConflict) {
-                        earliestGoalConflict = agentAtGoal.time;
+
+        if ( ! (sharedGoals && isALastMove)){
+            // look for conflicts where the other agent is a goal move
+            List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
+            if (agentsAtGoal != null) {
+                for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
+                    if (agentAtGoal.time <= to.time) {
+                        if (earliestGoalConflict == -1 || to.time < earliestGoalConflict) {
+                            earliestGoalConflict = to.time;
+                        }
+                    } else if (isALastMove) {
+                        // Only relevant if agents may finish their plans at locations other than their targets (any two last moves to the same location conflict)
+                        if (earliestGoalConflict == -1 || agentAtGoal.time < earliestGoalConflict) {
+                            earliestGoalConflict = agentAtGoal.time;
+                        }
                     }
                 }
             }
