@@ -17,6 +17,7 @@ public class SingleAgentPlan implements Iterable<Move> {
     private List<Move> moves;
     public final Agent agent;
     private boolean containsTarget = false;
+    private boolean endsOnTarget = false;
 
     /**
      * @param moves a sequence of moves for the agent. Can be empty. All {@link Move}s must be moves for the same {@link Agent},
@@ -37,6 +38,7 @@ public class SingleAgentPlan implements Iterable<Move> {
     public SingleAgentPlan(SingleAgentPlan planToCopy){
         this(planToCopy.agent, planToCopy.moves);
         this.containsTarget = planToCopy.containsTarget;
+        this.endsOnTarget = planToCopy.endsOnTarget;
     }
 
     public SingleAgentPlan(Agent agent) {
@@ -76,9 +78,15 @@ public class SingleAgentPlan implements Iterable<Move> {
     public void addMove(Move newMove){
         if(isValidNextMoveForAgent(this.moves, newMove, this.agent)){
             this.moves.add(newMove);
-            this.containsTarget |= newMove.currLocation.getCoordinate().equals(agent.target);
+            boolean isMoveToTarget = isMoveToTarget(newMove);
+            this.containsTarget |= isMoveToTarget;
+            this.endsOnTarget = isMoveToTarget;
         }
         else {throw new IllegalArgumentException();}
+    }
+
+    private boolean isMoveToTarget(Move newMove) {
+        return newMove.currLocation.getCoordinate().equals(agent.target);
     }
 
     /**
@@ -100,6 +108,7 @@ public class SingleAgentPlan implements Iterable<Move> {
     public void clearMoves(){
         this.moves.clear();
         this.containsTarget = false;
+        this.endsOnTarget = false;
     }
 
     /**
@@ -114,11 +123,12 @@ public class SingleAgentPlan implements Iterable<Move> {
         if(!isValidMoveSequenceForAgent(localMovesCopy, agent)) throw new IllegalArgumentException("invalid move sequence for agent");
         this.moves = localMovesCopy;
         for (Move move: this.moves) {
-            if (move.currLocation.getCoordinate().equals(agent.target)){
+            if (isMoveToTarget(move)){
                 this.containsTarget = true;
                 break;
             }
         }
+        this.endsOnTarget = this.size() > 0 && isMoveToTarget(this.getLastMove());
     }
 
     /**
@@ -170,6 +180,10 @@ public class SingleAgentPlan implements Iterable<Move> {
 
     public boolean containsTarget() {
         return containsTarget;
+    }
+
+    public boolean endsOnTarget() {
+        return endsOnTarget;
     }
 
     /**
@@ -342,7 +356,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public StringBuilder readableToString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Plan for agent ").append(agent.iD);
+        sb.append("Plan for agent ").append(agent);
         for(Move move : this){
             sb.append(move.readableToString());
         }

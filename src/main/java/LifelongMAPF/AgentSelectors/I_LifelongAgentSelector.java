@@ -71,7 +71,6 @@ public interface I_LifelongAgentSelector {
             LifelongAgent lifelongAgentAsLifelongAgent = (LifelongAgent)lifelongAgentAsAgent;
             SingleAgentPlan plan = currentSolutionStartingFromCurrentTime.getPlanFor(lifelongAgentAsLifelongAgent);
 
-            // TODO extend to support fail policies other than "block"? Which means also changing the name and function of this method.
             if (plan.getFirstMove().currLocation.getCoordinate().equals(plan.getLastMove().currLocation.getCoordinate())) { // also covers blocked agents
                 res.add(lifelongAgentAsLifelongAgent);
             }

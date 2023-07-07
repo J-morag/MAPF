@@ -1,5 +1,6 @@
 package LifelongMAPF.LifelongRunManagers;
 
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -8,11 +9,9 @@ import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.*;
 import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
-import LifelongMAPF.FailPolicies.FailPolicy;
-import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
+import LifelongMAPF.FailPolicies.*;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.*;
 import LifelongMAPF.LifelongSimulationSolver;
-import LifelongMAPF.FailPolicies.AllStayOnceFailPolicy;
-import LifelongMAPF.FailPolicies.OneActionFailPolicy;
 
 public class LifelongSolversFactory {
 
@@ -904,13 +903,100 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IntegratedFP(){
-        int replanningPeriod = 3;
-        I_SingleAgentFailPolicy fp = new OneActionFailPolicy(true);
+    public static I_Solver stationaryAgentsPrPDeepPartialStayOnceFPLookahead1IntegratedIAvoid(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, 10, new FailPolicy(replanningPeriod, fp)),
+                        true, false, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, 1);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+
+    public static I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IntegratedIAvoid(){
+        int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new OneActionFailPolicy(true);
+        Integer RHCRHorizon = 10;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, 5);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPDeepPartialStayOnceFPLookahead1IAvoidASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IAvoid1ASFP();
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, RHCRHorizon, null),
+                null, new DeepPartialSolutionsStrategy(), fp, 1);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+
+    public static I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP(){
+        int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new OneActionFailPolicy(true);
+        Integer RHCRHorizon = 10;
+        I_AStarFailPolicy asfpf = new IAvoid1ASFP();
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, RHCRHorizon, null),
+                null, new DeepPartialSolutionsStrategy(), fp, 5);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPDeepPartialStayOnceFPLookahead1WaterfallPPRASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), null, RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, RHCRHorizon, null),
+                null, new DeepPartialSolutionsStrategy(), fp, 1);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5WaterfallPPRASFP(){
+        int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new OneActionFailPolicy(true);
+        Integer RHCRHorizon = 10;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), null, RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                        true, false, RHCRHorizon, null),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
         solver.name = new Object() {}
                 .getClass()
@@ -1039,6 +1125,19 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1(){
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, null), null, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
     public static I_Solver stationaryAgentsPrPReplanSingleOneActionFPLookahead1IntegratedFP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new OneActionFailPolicy(true);
@@ -1046,6 +1145,93 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1IntegratedFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(null, null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
+        boolean requireLockableToInfinity = true;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf_cong0p1(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
+        boolean requireLockableToInfinity = true;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                0.1, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
+        boolean requireLockableToInfinity = false;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
+    public static I_Solver stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        Integer RHCRHorizon = null;
+        boolean requireLockableToHorizon = true;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToHorizon, replanningPeriod);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
         solver.name = new Object() {}
                 .getClass()

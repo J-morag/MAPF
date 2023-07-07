@@ -30,7 +30,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     private final AgentAtGoal reusableAgentAtGoal = new AgentAtGoal(null, 0);
     Set<Agent> coveredAgents;
     /**
-     * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them..
+     * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them.
      */
     private Map<I_Location, List<AgentAtGoal>> goalOccupancies;
     private Map<I_Location, ArrayList<Move>> regularOccupanciesSorted;
@@ -112,6 +112,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
 
     @Override
     int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove) {
+        // TODO throw an exception if sharedGoals is false?
         List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         int numConflicts = 0;
         if (agentsAtGoal != null) {
