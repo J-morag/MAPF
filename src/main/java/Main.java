@@ -23,6 +23,7 @@ public class Main {
     private static final String STR_WAREHOUSE = "Warehouse";
     private static final String STR_RESULTS_DIR_OPTION = "resultsOutputDir";
     private static final String STR_RESULTS_FILE_PREFIX = "resultsFilePrefix";
+    private static final String STR_TIMEOUT_EACH = "timeoutEach";
 
     public static void main(String[] args) {
         CLIMain(args);
@@ -53,6 +54,7 @@ public class Main {
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
+            int timeoutEach = 0;
 
             // Parse arguments
 
@@ -131,6 +133,18 @@ public class Main {
                 }
             }
 
+            if (cmd.hasOption(STR_TIMEOUT_EACH)) {
+                String optTimeoutEach = cmd.getOptionValue(STR_TIMEOUT_EACH);
+                System.out.println("Timeout Each: " + optTimeoutEach);
+                try {
+                    timeoutEach = Integer.parseInt(optTimeoutEach);
+                }
+                catch (NumberFormatException e){
+                    System.out.printf("%s should be an integer, got %s", STR_TIMEOUT_EACH, optTimeoutEach);
+                    System.exit(0);
+                }
+            }
+
             String[] optAgents = cmd.getOptionValues(STR_AGENT_NUMS);
             System.out.println("Agent nums: " + Arrays.toString(optAgents));
 
@@ -143,7 +157,7 @@ public class Main {
             }
 
             // Run!
-            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser, null)
+            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser, timeoutEach)
                     .runAllExperiments();
 
         } catch (ParseException e) {
@@ -228,6 +242,14 @@ public class Main {
                         " Will use the maximum available if an instance does not have enough agents. Required.")
                 .build();
         options.addOption(agentNumsOption);
+
+        Option timeoutEachOption = Option.builder("t").longOpt(STR_TIMEOUT_EACH)
+                .argName(STR_TIMEOUT_EACH)
+                .hasArg()
+                .required(false)
+                .desc("Set the timeout for each instance. Integer in milliseconds. Optional. Default is 300000 (5 minutes).")
+                .build();
+        options.addOption(timeoutEachOption);
     }
 
 }
