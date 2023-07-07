@@ -1,4 +1,4 @@
-package PIBTMAPF;
+package TransientMAPF;
 
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -19,7 +19,7 @@ import static Environment.RunManagers.A_RunManager.verifyOutputPath;
  * Solving a single Instance is also possible by giving a path.
  * For more information, view the examples below.
  */
-public class PIBTExampleMain {
+public class TransientMAPFExampleMain {
     public static void main(String[] args) {
         if (verifyOutputPath(DEFAULT_RESULTS_OUTPUT_DIR)){
             System.out.println("Will print results to the default directory: " + DEFAULT_RESULTS_OUTPUT_DIR);
@@ -40,19 +40,19 @@ public class PIBTExampleMain {
             int timeoutEach = 1000 * 30;
 
             GenericRunManager genericRunManager = new GenericRunManager(instancesDir, agentNums, new InstanceBuilder_MovingAI(),
-                    "PIBTExampleMain", true, null, DEFAULT_RESULTS_OUTPUT_DIR, "PrP+PIBT", null, timeoutEach);
+                    "TransientMAPFExampleMain", true, null, DEFAULT_RESULTS_OUTPUT_DIR, "PrP_vs_PrPT", null, timeoutEach);
 
-            PrioritisedPlanning_Solver PrPWithPIBT = new PrioritisedPlanning_Solver(null, null, null,
+            PrioritisedPlanning_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
                     new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, true);
-            PrPWithPIBT.name = "PrPWithPIBT";
+            PrPT.name = "PrPT";
 
             PrioritisedPlanning_Solver PrP = new PrioritisedPlanning_Solver(null, null, null,
                     new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, false);
             PrP.name = "PrP";
 
-            genericRunManager.overrideSolvers(Arrays.asList(PrP, PrPWithPIBT));
+            genericRunManager.overrideSolvers(Arrays.asList(PrP, PrPT));
             genericRunManager.runAllExperiments();
         }
     }

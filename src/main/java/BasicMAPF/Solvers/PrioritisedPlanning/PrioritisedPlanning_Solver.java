@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
-import PIBTMAPF.PIBTStyleSolution;
+import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -74,7 +74,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict 
      */
     public boolean sharedSources;
-    private Boolean PIBTStyleGoalCondition;
+    private Boolean TransientMAPFGoalCondition;
 
 
     /*  = Constructors =  */
@@ -107,14 +107,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources, Boolean PIBTStyleGoalCondition) {
+                                      Boolean sharedGoals, Boolean sharedSources, Boolean TransientMAPFGoalCondition) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
         this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.PIBTStyleGoalCondition = Objects.requireNonNullElse(PIBTStyleGoalCondition, false);
+        this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
 
         super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
@@ -297,7 +297,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
-        return (PIBTStyleGoalCondition && bestSolution != null) ? new PIBTStyleSolution(bestSolution) : bestSolution;
+        return (TransientMAPFGoalCondition && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {
@@ -328,7 +328,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters_SAAStar params = new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints),
                 subproblemReport, null, this.heuristic /*nullable*/, maxCost);
-        if (PIBTStyleGoalCondition){
+        if (TransientMAPFGoalCondition){
             params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
         }
         return params;

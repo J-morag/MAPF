@@ -1,6 +1,6 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
-import PIBTMAPF.PIBTStyleSolution;
+import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
@@ -225,8 +225,8 @@ class PrioritisedPlanningSolverTest {
     }
 
     @Test
-    void worksWithPIBTStylePaths() {
-        I_Solver PrPWithPIBTStyle = new PrioritisedPlanning_Solver(null, null, null, null, null, null, true);
+    void worksWithTMAPFPaths() {
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, true);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -235,15 +235,15 @@ class PrioritisedPlanningSolverTest {
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
 
-        Solution solvedPIBT = PrPWithPIBTStyle.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
-        assertTrue(solvedPIBT.solves(testInstance));
-        assertEquals(4 + 3, solvedPIBT.sumIndividualCosts()); // normal SOC function
-        assertEquals(4 + 2, ((PIBTStyleSolution) solvedPIBT).sumServiceTimes()); // PIBT cost function
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        assertTrue(solvedPrPT.solves(testInstance));
+        assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
     }
 
     @Test
-    void worksWithPIBTStylePathsAndRandomRestarts() {
-        I_Solver PrPWithPIBTStyle = new PrioritisedPlanning_Solver(null, null, null,
+    void worksWithTMAPFPathsAndRandomRestarts() {
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
                 null, null, true);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
@@ -257,10 +257,10 @@ class PrioritisedPlanningSolverTest {
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(8, solvedNormal.sumIndividualCosts());
 
-        Solution solvedPIBT = PrPWithPIBTStyle.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
-        assertTrue(solvedPIBT.solves(testInstance));
-        assertEquals(4 + 3, solvedPIBT.sumIndividualCosts()); // normal SOC function
-        assertEquals(4 + 2, ((PIBTStyleSolution) solvedPIBT).sumServiceTimes()); // PIBT cost function
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        assertTrue(solvedPrPT.solves(testInstance));
+        assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
     }
 
 

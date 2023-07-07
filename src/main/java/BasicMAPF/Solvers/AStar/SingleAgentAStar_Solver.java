@@ -174,7 +174,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 //  Also, this doesn't support multiple possible goal locations. But I guess nothing really does.
                 int firstRejectionAtLocationTime = agentsStayAtGoal ?
                         constraints.rejectsEventually(currentState.move,
-                                goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) // kinda messy. For PIBT style paths
+                                goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
                         : -1;
 
                 if(firstRejectionAtLocationTime == -1){ // no rejections
