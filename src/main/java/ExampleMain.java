@@ -3,8 +3,8 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
@@ -97,7 +97,7 @@ public class ExampleMain {
         GenericRunManager genericRunManager = new GenericRunManager(IO_Manager.buildPath( new String[]{
                 IO_Manager.resources_Directory,"Instances", "MovingAI_Instances"}), new int[]{10}, new InstanceBuilder_MovingAI(),
                 "GenericRunManagerExampleExperiment", true, "random-64-64-20-even-1.scen",
-                DEFAULT_RESULTS_OUTPUT_DIR, "genericRMExampleRes", null);
+                DEFAULT_RESULTS_OUTPUT_DIR, "genericRMExampleRes", null, null);
         genericRunManager.runAllExperiments();
     }
 

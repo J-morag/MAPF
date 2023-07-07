@@ -2,6 +2,10 @@ package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.DataTypesAndStructures.OpenListHeap;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
@@ -11,7 +15,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
@@ -417,7 +420,7 @@ public class CBS_Solver extends A_Solver {
         /**
          * The solution in this node. For every non-root node, this solution is after rerouting (solving low level) an
          * agent to overcome a conflict.
-         * Holds references to the same {@link BasicMAPF.Solvers.SingleAgentPlan plans} as in {@link #parent}, apart from the plan
+         * Holds references to the same {@link SingleAgentPlan plans} as in {@link #parent}, apart from the plan
          * of the re-routed agent.
          */
         private Solution solution;

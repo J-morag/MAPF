@@ -3,9 +3,9 @@ package BasicMAPF.Solvers.ICTS.MergedMDDs;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ICTS.MDDs.MDD;
 import BasicMAPF.Solvers.ICTS.MDDs.MDDNode;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.util.*;
 

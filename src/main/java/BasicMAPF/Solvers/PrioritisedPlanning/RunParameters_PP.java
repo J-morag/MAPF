@@ -4,8 +4,8 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 /**
  * {@link RunParameters} for {@link PrioritisedPlanning_Solver}.

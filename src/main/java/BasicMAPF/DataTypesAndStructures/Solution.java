@@ -1,9 +1,10 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import Environment.Metrics.InstanceReport;
@@ -129,9 +130,8 @@ public class Solution implements Iterable<SingleAgentPlan>{
             if (plan.size() == 0){
                 continue;
             }
-            // check start and end at source and target
-            if (!plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source)) /*start at source*/
-                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target))) /*end at target*/
+            // check source and target
+            if (!isStartsAtSource(instance, plan) || !isAchievesTarget(instance, plan) )
             {
                 return false;
             }
@@ -155,6 +155,14 @@ public class Solution implements Iterable<SingleAgentPlan>{
             }
         }
         return true;
+    }
+
+    protected boolean isAchievesTarget(MAPF_Instance instance, SingleAgentPlan plan) {
+        return plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target));
+    }
+
+    private static boolean isStartsAtSource(MAPF_Instance instance, SingleAgentPlan plan) {
+        return plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source));
     }
 
     /**
@@ -223,6 +231,14 @@ public class Solution implements Iterable<SingleAgentPlan>{
             }
         }
         return SOC;
+    }
+
+    public int sumServiceTimes() {
+        int sumServiceTimes = 0;
+        for (SingleAgentPlan plan : this) {
+            sumServiceTimes += plan.firstVisitToTargetTime();
+        }
+        return sumServiceTimes;
     }
 
     public int makespan(){

@@ -2,14 +2,19 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
+import TransientMAPF.TransientMAPFSolution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 
@@ -41,7 +46,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to be planned for, and the
-     * existing {@link BasicMAPF.Solvers.SingleAgentPlan plans} for other {@link Agent}s are to be avoided.
+     * existing {@link SingleAgentPlan plans} for other {@link Agent}s are to be avoided.
      */
     private final I_Solver lowLevelSolver;
     /**
@@ -69,6 +74,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict 
      */
     public boolean sharedSources;
+    private Boolean TransientMAPFGoalCondition;
 
 
     /*  = Constructors =  */
@@ -76,11 +82,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     /**
      * Constructor.
      * @param lowLevelSolver A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to
-     *                      be planned for, and the existing {@link BasicMAPF.Solvers.SingleAgentPlan plans} for other
+     *                      be planned for, and the existing {@link SingleAgentPlan plans} for other
      *                      {@link Agent}s are to be avoided.
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver) {
-        this(lowLevelSolver, null, null, null, null, null);
+        this(lowLevelSolver, null, null, null, null, null, null);
     }
 
     /**
@@ -88,7 +94,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param agentComparator How to sort the agents. This sort determines their priority. High priority first.
      */
     public PrioritisedPlanning_Solver(Comparator<Agent> agentComparator) {
-        this(null, agentComparator, null, null, null, null);
+        this(null, agentComparator, null, null, null, null, null);
     }
 
     /**
@@ -101,13 +107,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources) {
+                                      Boolean sharedGoals, Boolean sharedSources, Boolean TransientMAPFGoalCondition) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
         this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
+        this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
 
         super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
@@ -116,7 +123,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * Default constructor.
      */
     public PrioritisedPlanning_Solver(){
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -211,7 +218,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 //solve the subproblem for one agent
                 SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
-                        bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY);
+                        bestSolution != null ? solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
+                                : Float.POSITIVE_INFINITY);
 
                 // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
                 if (planForAgent == null) {
@@ -285,8 +293,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 }
             }
         }
-//        instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
-        return bestSolution;
+
+        return finalizeSolution(bestSolution);
+    }
+
+    private Solution finalizeSolution(Solution bestSolution) {
+        return (TransientMAPFGoalCondition && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {
@@ -315,8 +327,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        return new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints), subproblemReport,
-                null, this.heuristic /*nullable*/, maxCost);
+        RunParameters_SAAStar params = new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints),
+                subproblemReport, null, this.heuristic /*nullable*/, maxCost);
+        if (TransientMAPFGoalCondition){
+            params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
+        }
+        return params;
     }
 
 
@@ -327,8 +343,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         if(solution != null){
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
+            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
         }
     }
 

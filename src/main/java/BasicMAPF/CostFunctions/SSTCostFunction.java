@@ -2,14 +2,14 @@ package BasicMAPF.CostFunctions;
 
 import BasicMAPF.DataTypesAndStructures.Solution;
 
-public class SOCCostFunction implements I_SolutionCostFunction{
+public class SSTCostFunction implements  I_SolutionCostFunction{
     @Override
     public float solutionCost(Solution solution) {
-        return solution.sumIndividualCosts();
+        return solution.sumServiceTimes();
     }
 
     @Override
     public String name() {
-        return "SOC";
+        return "SST";
     }
 }

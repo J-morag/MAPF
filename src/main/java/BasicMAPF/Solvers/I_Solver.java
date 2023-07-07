@@ -1,5 +1,7 @@
 package BasicMAPF.Solvers;
 
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.MAPF_Instance;
 
 /**
