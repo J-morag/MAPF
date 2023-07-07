@@ -1,5 +1,7 @@
 package TransientMAPF;
 
+import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SSTCostFunction;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -37,22 +39,37 @@ public class TransientMAPFExampleMain {
 
             String instancesDir = IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory,"Instances", "MovingAI_Instances"});
             int[] agentNums = new int[]{10};
-            int timeoutEach = 1000 * 30;
+            int timeoutEach = 1000 * 10;
 
             GenericRunManager genericRunManager = new GenericRunManager(instancesDir, agentNums, new InstanceBuilder_MovingAI(),
-                    "TransientMAPFExampleMain", true, null, DEFAULT_RESULTS_OUTPUT_DIR, "PrP_vs_PrPT", null, timeoutEach);
+                    "TransientMAPFExampleMain", true, null, DEFAULT_RESULTS_OUTPUT_DIR,
+                    "PrP_vs_PrPT", null, timeoutEach);
 
-            PrioritisedPlanning_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
-                    new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+            // optimizing for SOC
+
+            PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
+                    new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, true);
-            PrPT.name = "PrPT";
+            PrPT_SOC.name = "PrPT_SOC";
 
-            PrioritisedPlanning_Solver PrP = new PrioritisedPlanning_Solver(null, null, null,
-                    new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+            PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
+                    new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, false);
-            PrP.name = "PrP";
+            PrP_SOC.name = "PrP_SOC";
 
-            genericRunManager.overrideSolvers(Arrays.asList(PrP, PrPT));
+            // optimizing for SST
+
+            PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
+                    new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                    null, null, true);
+            PrPT_SST.name = "PrPT_SST";
+
+            PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
+                    new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                    null, null, false);
+            PrP_SST.name = "PrP_SST";
+
+            genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST));
             genericRunManager.runAllExperiments();
         }
     }

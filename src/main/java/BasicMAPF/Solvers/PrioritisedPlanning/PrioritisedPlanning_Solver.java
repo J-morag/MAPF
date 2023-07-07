@@ -218,7 +218,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 //solve the subproblem for one agent
                 SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
-                        bestSolution != null ? bestSolution.sumIndividualCosts() - solution.sumIndividualCosts() : Float.POSITIVE_INFINITY);
+                        bestSolution != null ? solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
+                                : Float.POSITIVE_INFINITY);
 
                 // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
                 if (planForAgent == null) {
@@ -342,9 +343,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         if(solution != null){
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
             instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
+            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
         }
     }
 
