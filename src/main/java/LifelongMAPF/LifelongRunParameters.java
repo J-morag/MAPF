@@ -1,6 +1,6 @@
 package LifelongMAPF;
 
-import BasicMAPF.Solvers.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;

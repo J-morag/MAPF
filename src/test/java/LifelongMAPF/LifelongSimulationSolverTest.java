@@ -1,6 +1,7 @@
 package LifelongMAPF;
 
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -8,16 +9,19 @@ import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.WidePartialSolutionsStrategy;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.IAvoid1ASFP;
+import LifelongMAPF.FailPolicies.OneActionFailPolicy;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.junit.jupiter.api.AfterEach;
@@ -38,25 +42,31 @@ class LifelongSimulationSolverTest {
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
             new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy(), null, null);
     I_Solver replanSingle = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, false, null, null), null, new WidePartialSolutionsStrategy(), null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null), null, new WidePartialSolutionsStrategy(), null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
     I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null), null, new WidePartialSolutionsStrategy(), null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new FreespaceConflictingAgentsSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null), null, new WidePartialSolutionsStrategy(), null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new AllAgentsSelector(),
             new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null), null, new WidePartialSolutionsStrategy(), null, null);
 
     I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, 20, null), null, new WidePartialSolutionsStrategy(), null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, 20, null), null, new WidePartialSolutionsStrategy(), null, null);
 
     I_Solver mandatoryAgentsPrPrDeepPartial = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null), null, new WidePartialSolutionsStrategy(), null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
 
     I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP =
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP();
+    
+    I_Solver lotsAndPrPT = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+                    new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, null,
+                            new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                            true, false, false, 10, null),
+                    null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
 
     InstanceReport instanceReport;
 
@@ -70,12 +80,6 @@ class LifelongSimulationSolverTest {
         S_Metrics.removeReport(instanceReport);
     }
 
-
-    private static void isPartialSolution(MAPF_Instance instance, Solution solution) {
-        assertTrue(solution.isValidSolution(false, false)); //is valid (no conflicts)
-        assertTrue(solution.solves(instance, false, false)); // solves (could be partial)
-        assertFalse(new Solution(solution).solves(instance, false, false)); // solves (is full solution)
-    }
 
     /* = Snapshot Optimal = */
 
@@ -1116,7 +1120,7 @@ class LifelongSimulationSolverTest {
         isFullSolution(solved, testInstance);
     }
 
-
+    
     /* = Mandatory Agents PrPr Deep Partial = */
 
     @Test
@@ -1285,7 +1289,7 @@ class LifelongSimulationSolverTest {
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
     }
-
+    
     /* = Other Lots = */
 
     @Test
@@ -1340,6 +1344,71 @@ class LifelongSimulationSolverTest {
     @Test
     void startAdjacentGoAroundValidityTest_stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
         I_Solver solver = stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+
+
+    /* = Lifelong using PrPT (Transient MAPF) = */
+
+    @Test
+    void emptyMapValidityTest1_lotsAndPrPT() {
+        I_Solver solver = lotsAndPrPT;
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void circleMapValidityTest1_lotsAndPrPT() {
+        I_Solver solver = lotsAndPrPT;
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+
+    }
+
+    @Test
+    void circleMapValidityTest2_lotsAndPrPT() {
+        I_Solver solver = lotsAndPrPT;
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, 8, 5, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_lotsAndPrPT() {
+        I_Solver solver = lotsAndPrPT;
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_lotsAndPrPT() {
+        I_Solver solver = lotsAndPrPT;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));

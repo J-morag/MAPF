@@ -2,8 +2,8 @@ package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;

@@ -2,9 +2,9 @@ package LifelongMAPF.Triggers;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongAgent;
 
 import java.util.Map;

@@ -49,24 +49,24 @@ public class TransientMAPFExampleMain {
 
             PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, true);
+                    null, null, true, null, null);
             PrPT_SOC.name = "PrPT_SOC";
 
             PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, false);
+                    null, null, false, null, null);
             PrP_SOC.name = "PrP_SOC";
 
             // optimizing for SST
 
             PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, true);
+                    null, null, true, null, null);
             PrPT_SST.name = "PrPT_SST";
 
             PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, false);
+                    null, null, false, null, null);
             PrP_SST.name = "PrP_SST";
 
             genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST));

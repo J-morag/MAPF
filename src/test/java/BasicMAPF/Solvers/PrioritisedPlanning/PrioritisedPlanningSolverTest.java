@@ -227,7 +227,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, true);
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, true, null, null);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -246,14 +246,14 @@ class PrioritisedPlanningSolverTest {
     void worksWithTMAPFPathsAndRandomRestarts() {
         I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, true);
+                null, null, true, null, null);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
 
         I_Solver ppSolverWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, null);
+                null, null, null, null, null);
         Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(8, solvedNormal.sumIndividualCosts());

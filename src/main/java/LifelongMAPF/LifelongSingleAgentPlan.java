@@ -2,8 +2,8 @@ package LifelongMAPF;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import com.google.common.collect.Iterables;
 
 import java.util.HashMap;

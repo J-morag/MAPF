@@ -2,8 +2,8 @@ package LifelongMAPF;
 
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 

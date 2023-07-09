@@ -1,8 +1,5 @@
 package LifelongMAPF.AgentSelectors;
 
-import BasicMAPF.Solvers.Solution;
-import org.jetbrains.annotations.NotNull;
-
 public class PeriodicSelector {
 
     public final int replanningPeriod;

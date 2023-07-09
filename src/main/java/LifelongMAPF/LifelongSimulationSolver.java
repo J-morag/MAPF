@@ -4,6 +4,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
@@ -53,7 +54,7 @@ public class LifelongSimulationSolver extends A_Solver {
     protected final I_Solver offlineSolver;
     private final I_LifelongPlanningTrigger planningTrigger;
     private final I_LifelongAgentSelector agentSelector;
-    private static final boolean DEBUG = true;
+    private static final int DEBUG = 2;
     private final Double congestionMultiplier;
     private final PartialSolutionsStrategy partialSolutionsStrategy;
     private final I_SingleAgentFailPolicy SAFailPolicy;
@@ -245,7 +246,7 @@ public class LifelongSimulationSolver extends A_Solver {
                         nextPlansForNotSelectedAgents, selectedTimelyOfflineAgentsSubset, failedAgents, cat);
 
                 Solution subgroupSolution = offlineSolver.solve(timelyOfflineProblem, timelyOfflineProblemRunParameters); // TODO solver strategy ?
-                if (DEBUG && subgroupSolution != null){
+                if (DEBUG >= 1 && subgroupSolution != null){
                     checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
                 }
                 digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
@@ -257,15 +258,22 @@ public class LifelongSimulationSolver extends A_Solver {
                 latestSolution = addMissingAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, failedAgents, this.lifelongInstance, cat);
                 numFailedAgentsAfterPlanner = failedAgents.size();
                 sumAttemptedAgentsThatFailed += numFailedAgentsAfterPlanner;
-            }
 
-            latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
-                    failedAgents, cat, SAFailPolicy);
+                latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
+                        failedAgents, cat, SAFailPolicy);
+            }
+            if (DEBUG >= 1){
+                // just the next step because this also happens between planning iterations
+                verifyNextKStepsSafe(null, latestSolution, 1);
+            }
 
             sumFailedAgentsAfterPolicy += failedAgents.size();
 
-            if (DEBUG){
+            if (DEBUG >= 2){
                 printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexInPlanner);
+                if (DEBUG >= 3){
+                    System.out.println(latestSolution);
+                }
             }
 
             solutionsAtTimes.put(farthestCommittedTime, latestSolution);
@@ -280,7 +288,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.avgReachedIndexInPlanningFractionMetric = sumReachedIndexInPlanningFraction / (float) numPlanningIterations;
         this.reachedTimestepInPlanning = farthestCommittedTime;
 
-        if (DEBUG){
+        if (DEBUG >= 1){
             verifyAgentsActiveDestinationEndTimes(solutionsAtTimes, agentsActiveDestinationEndTimes);
         }
 
@@ -297,7 +305,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 plansSubset.add(plan);
             }
         }
-        if(DEBUG && plansSubset.size() < notSelectedAgents.size() ){
+        if(DEBUG >= 1 && plansSubset.size() < notSelectedAgents.size() ){
             throw new RuntimeException(String.format("Subset doesn't contain all agents: %d of %d", plansSubset.size(), notSelectedAgents.size()));
         }
         return plansSubset;
@@ -312,7 +320,9 @@ public class LifelongSimulationSolver extends A_Solver {
         System.out.printf("/%1$3s", numFailedAgents);
         System.out.printf(", destinations achieved (prev iter.) %d [avg_thr %.2f]",
                 this.numDestinationsAchieved, (farthestCommittedTime > 0 ? (float)(numDestinationsAchieved) / farthestCommittedTime : 0));
-        System.out.print('\r');
+        if (DEBUG >= 1 && DEBUG < 3){
+            System.out.print('\r');
+        }
         if (reachedIndexInPlanner != null && reachedIndexInPlanner + 1 > selectedTimelyOfflineAgentsSubset){
             throw new RuntimeException("ERROR: reached index in planner is larger than the number of agents in the subgroup");
         }
@@ -396,14 +406,14 @@ public class LifelongSimulationSolver extends A_Solver {
         this.sumFailPolicyIterations += iterations.intValue();
         this.countFailPolicyLoops++;
         this.maxFailPolicyIterations = Math.max(this.maxFailPolicyIterations, iterations.intValue());
-        if (DEBUG){
+        if (DEBUG >= 1){
             verifyNextKStepsSafe(solutionThatMayContainConflicts, solutionWithoutConflicts, detectConflictsHorizon);
         }
         return solutionWithoutConflicts;
     }
 
-    private static void verifyNextKStepsSafe(Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionWithoutConflicts, int kSafety) {
-        Solution kStepSolution = getKStepSolution(solutionWithoutConflicts, kSafety);
+    private static void verifyNextKStepsSafe(@Nullable Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionSupposedlyWithoutConflicts, int kSafety) {
+        Solution kStepSolution = getKStepSolution(solutionSupposedlyWithoutConflicts, kSafety);
         A_Conflict conflict = kStepSolution.arbitraryConflict(false, false);
         if ( conflict != null){
             throw new RuntimeException(String.format("""
@@ -412,7 +422,8 @@ public class LifelongSimulationSolver extends A_Solver {
                      solution after enforcement: %s
                      next step solution : %s
                      conflict : %s"""
-                    , solutionThatMayContainConflicts.toString(), solutionWithoutConflicts, kStepSolution, conflict));
+                    , solutionThatMayContainConflicts != null ? solutionThatMayContainConflicts.toString() : "",
+                    solutionSupposedlyWithoutConflicts, kStepSolution, conflict));
         }
     }
 

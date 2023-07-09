@@ -136,9 +136,8 @@ public class Solution implements Iterable<SingleAgentPlan>{
             if (plan.size() == 0){
                 continue;
             }
-            // check start and end at source and target
-            if (!plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source)) /*start at source*/
-                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target))) /*end at target*/
+            // check source and target
+            if (!isStartsAtSource(instance, plan) || !isAchievesTarget(instance, plan) )
             {
                 return false;
             }
