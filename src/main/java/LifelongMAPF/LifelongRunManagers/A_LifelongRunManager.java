@@ -1,14 +1,25 @@
 package LifelongMAPF.LifelongRunManagers;
 
+import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SSTCostFunction;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
 import Environment.Experiment;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
 import Environment.Visualization.I_VisualizeSolution;
+import LifelongMAPF.AgentSelectors.PeriodicSelector;
+import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.IAvoid1ASFP;
+import LifelongMAPF.FailPolicies.OneActionFailPolicy;
+import LifelongMAPF.LifelongSimulationSolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -114,15 +125,67 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead5()); // comparing macro FPs experiment
-//
-//        // shorter planning period!
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy -integratedFP +IA
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1IntegratedFP()); // greedy +IA
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1()); // greedy -integratedFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1IntegratedFP()); // greedy
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
+////
+////        // shorter planning period!
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy -integratedFP +IA
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1IntegratedFP()); // greedy +IA
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1()); // greedy -integratedFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1IntegratedFP()); // greedy
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
+
+
+        // optimizing for SOC
+
+        PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                true, null, true, null, null);
+        PrPT_SOC.name = "PrPT_SOC";
+
+        PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                true, null, false, null, null);
+        PrP_SOC.name = "PrP_SOC";
+
+        // optimizing for SST
+
+        PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                true, null, true, null, null);
+        PrPT_SST.name = "PrPT_SST";
+
+        PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                true, null, false, null, null);
+        PrP_SST.name = "PrP_SST";
+
+
+
+        LifelongSimulationSolver lifelong_PrPT_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                PrPT_SOC,
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+        lifelong_PrPT_SOC.name = "lifelong_PrPT_SOC";
+
+        LifelongSimulationSolver lifelong_PrP_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                PrP_SOC,
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+        lifelong_PrP_SOC.name = "lifelong_PrP_SOC";
+
+        LifelongSimulationSolver lifelong_PrPT_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                PrPT_SST,
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+        lifelong_PrPT_SST.name = "lifelong_PrPT_SST";
+
+        LifelongSimulationSolver lifelong_PrP_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                PrP_SST,
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+        lifelong_PrP_SST.name = "lifelong_PrP_SST";
+
+        solvers.add(lifelong_PrPT_SOC);
+        solvers.add(lifelong_PrP_SOC);
+        solvers.add(lifelong_PrPT_SST);
+        solvers.add(lifelong_PrP_SST);
 
         return solvers;
     }
