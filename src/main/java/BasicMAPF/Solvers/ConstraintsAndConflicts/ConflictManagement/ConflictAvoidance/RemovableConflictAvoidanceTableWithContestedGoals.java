@@ -88,7 +88,11 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     protected void addGoalOccupancy(I_Location location, Move finalMove) {
         List<AgentAtGoal> agentsAtGoal = goalOccupancies.computeIfAbsent(location, k -> new ArrayList<>());
         // add 1 to time so as not to overlap with the vertex conflict
-        agentsAtGoal.add(new AgentAtGoal(finalMove.agent, finalMove.timeNow + 1));
+        agentsAtGoal.add(new AgentAtGoal(finalMove.agent, getGoalOccupancyStartTimeFromMove(finalMove)));
+    }
+
+    private static int getGoalOccupancyStartTimeFromMove(Move finalMove) {
+        return finalMove.timeNow + 1;
     }
 
     @Override
@@ -139,7 +143,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
             removeOccupancy(from, move);
             removeOccupancy(to, move);
             if(move.timeNow == plan.getEndTime()){
-                removeGoalOccupancy(move.currLocation, move);
+                removeGoalOccupancy(move);
             }
         }
 
@@ -168,12 +172,12 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
         }
     }
 
-    private void removeGoalOccupancy(I_Location currLocation, Move move) {
-        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(currLocation);
+    private void removeGoalOccupancy(Move move) {
+        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         if(agentsAtGoal != null){
-            agentsAtGoal.remove(reusableAgentAtGoal.setTo(move.agent, move.timeNow));
+            agentsAtGoal.remove(reusableAgentAtGoal.setTo(move.agent, getGoalOccupancyStartTimeFromMove(move)));
             if(removeOccupancyListsWhenEmptied && agentsAtGoal.isEmpty()){
-                goalOccupancies.remove(currLocation);
+                goalOccupancies.remove(move.currLocation);
             }
         }
     }
