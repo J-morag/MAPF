@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 public class TimeLocation implements I_ConstraintGroupingKey {
     public final I_Location location;

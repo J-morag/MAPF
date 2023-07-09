@@ -8,8 +8,8 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructur
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocationTables;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.MinTimeConflictSelectionStrategy;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.RemovableConflictManager;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

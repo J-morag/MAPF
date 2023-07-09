@@ -2,11 +2,10 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvo
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.TimeLocation;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -30,7 +29,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     private final AgentAtGoal reusableAgentAtGoal = new AgentAtGoal(null, 0);
     Set<Agent> coveredAgents;
     /**
-     * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them..
+     * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them.
      */
     private Map<I_Location, List<AgentAtGoal>> goalOccupancies;
     private Map<I_Location, ArrayList<Move>> regularOccupanciesSorted;
@@ -45,6 +44,24 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
 
     public RemovableConflictAvoidanceTableWithContestedGoals() {
         super();
+    }
+
+    public RemovableConflictAvoidanceTableWithContestedGoals(RemovableConflictAvoidanceTableWithContestedGoals other){
+        if (other.goalOccupancies != null){
+            this.goalOccupancies = new HashMap<>();
+            for (Map.Entry<I_Location, List<AgentAtGoal>> entry : other.goalOccupancies.entrySet()){
+                this.goalOccupancies.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+        }
+        if (other.regularOccupanciesSorted != null){
+            this.regularOccupanciesSorted = new HashMap<>();
+            for (Map.Entry<I_Location, ArrayList<Move>> entry : other.regularOccupanciesSorted.entrySet()){
+                this.regularOccupanciesSorted.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+        }
+        if (other.coveredAgents != null){
+            this.coveredAgents = new HashSet<>(other.coveredAgents);
+        }
     }
 
     /**
@@ -89,17 +106,29 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     protected void addGoalOccupancy(I_Location location, Move finalMove) {
         List<AgentAtGoal> agentsAtGoal = goalOccupancies.computeIfAbsent(location, k -> new ArrayList<>());
         // add 1 to time so as not to overlap with the vertex conflict
-        agentsAtGoal.add(new AgentAtGoal(finalMove.agent, finalMove.timeNow + 1));
+        agentsAtGoal.add(new AgentAtGoal(finalMove.agent, getGoalOccupancyStartTimeFromMove(finalMove)));
+    }
+
+    private static int getGoalOccupancyStartTimeFromMove(Move finalMove) {
+        return finalMove.timeNow + 1;
     }
 
     @Override
     int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove) {
-        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         int numConflicts = 0;
-        if (agentsAtGoal != null) {
-            for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
-                if (agentAtGoal.time <= to.time) {
-                    numConflicts++;
+
+        if ( ! (sharedGoals && isALastMove)){
+            // look for conflicts where the other agent is a goal move
+            // TODO throw an exception if sharedGoals is false?
+            List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
+            if (agentsAtGoal != null) {
+                for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
+                    if (agentAtGoal.time <= to.time
+                            // Only relevant if agents may finish their plans at locations other than their targets (any two last moves to the same location conflict)
+                            || isALastMove
+                    ) {
+                        numConflicts++;
+                    }
                 }
             }
         }
@@ -133,7 +162,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
             removeOccupancy(from, move);
             removeOccupancy(to, move);
             if(move.timeNow == plan.getEndTime()){
-                removeGoalOccupancy(move.currLocation, move);
+                removeGoalOccupancy(move);
             }
         }
 
@@ -162,12 +191,12 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
         }
     }
 
-    private void removeGoalOccupancy(I_Location currLocation, Move move) {
-        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(currLocation);
+    private void removeGoalOccupancy(Move move) {
+        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         if(agentsAtGoal != null){
-            agentsAtGoal.remove(reusableAgentAtGoal.setTo(move.agent, move.timeNow));
+            agentsAtGoal.remove(reusableAgentAtGoal.setTo(move.agent, getGoalOccupancyStartTimeFromMove(move)));
             if(removeOccupancyListsWhenEmptied && agentsAtGoal.isEmpty()){
-                goalOccupancies.remove(currLocation);
+                goalOccupancies.remove(move.currLocation);
             }
         }
     }
@@ -191,10 +220,6 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
 
         if(checkGoals){ // TODO move this to the end to optimize?
             firstGoalConflictTime = getFirstGoalConflict(move, to, isALastMove);
-//            if (conflictingMove != null){
-////                return getConflict(move, conflictingMove);
-//                return conflictingMove.timeNow;
-//            }
         }
 
         // time locations of a move that would create a swapping conflict
@@ -244,13 +269,22 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     }
 
     private int getFirstGoalConflict(Move move, TimeLocation to, boolean isALastMove) {
-        List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
         int earliestGoalConflict = -1;
-        if (agentsAtGoal != null) {
-            for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
-                if (agentAtGoal.time <= to.time) {
-                    if (earliestGoalConflict == -1 || agentAtGoal.time < earliestGoalConflict) {
-                        earliestGoalConflict = agentAtGoal.time;
+
+        if ( ! (sharedGoals && isALastMove)){
+            // look for conflicts where the other agent is a goal move
+            List<AgentAtGoal> agentsAtGoal = goalOccupancies.get(move.currLocation);
+            if (agentsAtGoal != null) {
+                for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
+                    if (agentAtGoal.time <= to.time) {
+                        if (earliestGoalConflict == -1 || to.time < earliestGoalConflict) {
+                            earliestGoalConflict = to.time;
+                        }
+                    } else if (isALastMove) {
+                        // Only relevant if agents may finish their plans at locations other than their targets (any two last moves to the same location conflict)
+                        if (earliestGoalConflict == -1 || agentAtGoal.time < earliestGoalConflict) {
+                            earliestGoalConflict = agentAtGoal.time;
+                        }
                     }
                 }
             }

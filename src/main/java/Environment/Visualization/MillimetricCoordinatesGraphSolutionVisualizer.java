@@ -5,7 +5,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.MillimetricCoordinate_2D;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongSolution;
 
 import java.util.*;

@@ -1,6 +1,6 @@
 package BasicMAPF.CostFunctions;
 
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 public interface I_SolutionCostFunction {
 

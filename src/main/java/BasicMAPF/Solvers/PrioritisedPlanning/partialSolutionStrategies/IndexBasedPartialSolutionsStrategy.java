@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 public class IndexBasedPartialSolutionsStrategy implements PartialSolutionsStrategy {
 

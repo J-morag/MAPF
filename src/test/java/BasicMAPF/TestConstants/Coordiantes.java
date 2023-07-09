@@ -15,6 +15,7 @@ public class Coordiantes {
     public final static I_Coordinate coor35 = new Coordinate_2D(3,5);
 
     public final static I_Coordinate coor11 = new Coordinate_2D(1,1);
+    public final static I_Coordinate coor42 = new Coordinate_2D(4,2);
     public final static I_Coordinate coor43 = new Coordinate_2D(4,3);
     public final static I_Coordinate coor53 = new Coordinate_2D(5,3);
     public final static I_Coordinate coor54 = new Coordinate_2D(5,4);

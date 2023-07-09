@@ -3,7 +3,7 @@ package LifelongMAPF.AgentSelectors;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongAgent;
 import org.jetbrains.annotations.NotNull;
 

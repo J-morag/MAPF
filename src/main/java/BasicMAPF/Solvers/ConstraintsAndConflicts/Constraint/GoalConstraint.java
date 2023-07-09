@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 /**
  * Like a vertex constraint, only it constrains indefinitely (as if the agent is sitting at its goal)

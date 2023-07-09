@@ -1,18 +1,16 @@
-package LifelongMAPF.SingleAgentFailPolicies;
+package LifelongMAPF.FailPolicies;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import org.apache.commons.lang.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public class StayOnceFailPolicy implements I_SingleAgentFailPolicy {
-
+public class wasteTimeFailPolicy implements I_SingleAgentFailPolicy {
     @Override
     public @NotNull SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, @Nullable I_ConflictAvoidanceTable softConstraints) {
-        return new SingleAgentPlan(a, List.of(I_SingleAgentFailPolicy.getStayMove(farthestCommittedTime, a, agentLocation)));
+        throw new NotImplementedException();
     }
 }

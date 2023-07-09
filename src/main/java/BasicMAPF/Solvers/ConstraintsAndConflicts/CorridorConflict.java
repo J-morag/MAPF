@@ -9,9 +9,9 @@ import BasicMAPF.Solvers.NoStateTimeSearches;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.RangeConstraint;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.Metrics.InstanceReport;
 
 import java.util.HashSet;

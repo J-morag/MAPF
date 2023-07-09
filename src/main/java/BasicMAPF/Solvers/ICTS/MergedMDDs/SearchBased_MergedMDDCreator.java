@@ -4,7 +4,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.ICTS.MDDs.MDD;
 import BasicMAPF.Solvers.ICTS.MDDs.MDDNode;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 

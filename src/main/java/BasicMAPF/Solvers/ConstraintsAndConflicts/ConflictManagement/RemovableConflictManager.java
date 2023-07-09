@@ -4,8 +4,8 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.*;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 
 import java.util.*;
 

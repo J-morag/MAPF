@@ -3,8 +3,8 @@ package LifelongMAPF.AgentSelectors;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongAgent;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +71,6 @@ public interface I_LifelongAgentSelector {
             LifelongAgent lifelongAgentAsLifelongAgent = (LifelongAgent)lifelongAgentAsAgent;
             SingleAgentPlan plan = currentSolutionStartingFromCurrentTime.getPlanFor(lifelongAgentAsLifelongAgent);
 
-            // TODO extend to support fail policies other than "block"? Which means also changing the name and function of this method.
             if (plan.getFirstMove().currLocation.getCoordinate().equals(plan.getLastMove().currLocation.getCoordinate())) { // also covers blocked agents
                 res.add(lifelongAgentAsLifelongAgent);
             }

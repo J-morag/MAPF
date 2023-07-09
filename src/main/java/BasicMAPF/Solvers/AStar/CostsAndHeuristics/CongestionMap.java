@@ -2,8 +2,8 @@ package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -42,5 +42,9 @@ public class CongestionMap {
     public int congestionAt(I_Location loc){
         Set<Agent> agentsAtLoc = agentsAtLocations.get(loc);
         return agentsAtLoc != null ? agentsAtLoc.size() : 0;
+    }
+
+    public void clear(){
+        agentsAtLocations.clear();
     }
 }

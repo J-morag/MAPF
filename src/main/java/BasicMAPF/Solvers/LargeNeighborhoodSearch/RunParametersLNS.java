@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
-import BasicMAPF.Solvers.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
 
 public class RunParametersLNS extends RunParameters {
 

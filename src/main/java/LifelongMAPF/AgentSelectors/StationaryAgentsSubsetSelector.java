@@ -3,7 +3,7 @@ package LifelongMAPF.AgentSelectors;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongAgent;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +54,7 @@ public class StationaryAgentsSubsetSelector extends A_LifelongAgentSelector {
             }
             allAgentsThatWantAPath.add(agent);
         }
-        // blocked agents or agents at their previous destination or agents at their last destination
+        // blocked agents or agents at their previous target (could have been from fail policy) or agents at their last destination
         for (Agent agent :
                 I_LifelongAgentSelector.agentsAtPreviousTarget(lifelongInstance, currentSolutionStartingFromCurrentTime)) {
             if (allAgentsThatWantAPath.size() == maxAgents){

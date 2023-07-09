@@ -2,10 +2,9 @@ package LifelongMAPF;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.util.*;
 
@@ -230,9 +229,9 @@ public class LifelongSolution extends Solution{
     }
 
     @Override
-    protected boolean checkStartAndEnd(MAPF_Instance instance, SingleAgentPlan plan) {
-        // lifelong solution doesn't have to be complete (finish all destinations) to be valid - only check start, not end
-        return !plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source));
+    protected boolean isAchievesTarget(MAPF_Instance instance, SingleAgentPlan plan) {
+        // lifelong solution doesn't have to be complete (finish all destinations) to be valid
+        return true;
     }
 
 }

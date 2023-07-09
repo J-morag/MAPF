@@ -1,6 +1,6 @@
 package BasicMAPF.Instances.Maps;
 
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 import org.jetbrains.annotations.NotNull;
 
 /**

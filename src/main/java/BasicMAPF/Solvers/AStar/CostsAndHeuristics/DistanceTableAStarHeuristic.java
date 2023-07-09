@@ -10,7 +10,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import org.apache.commons.collections4.map.LRUMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 import java.util.HashMap;
 import java.util.LinkedList;

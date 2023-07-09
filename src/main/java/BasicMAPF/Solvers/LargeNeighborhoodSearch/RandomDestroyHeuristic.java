@@ -2,8 +2,8 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Map;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.util.ArrayList;
 import java.util.Collections;

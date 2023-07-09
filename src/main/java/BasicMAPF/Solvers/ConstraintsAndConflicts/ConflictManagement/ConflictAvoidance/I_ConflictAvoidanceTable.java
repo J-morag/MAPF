@@ -1,6 +1,6 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance;
 
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 /**
  * Allows solvers to avoid plans that create many conflicts.

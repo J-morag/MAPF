@@ -1,7 +1,7 @@
 package LifelongMAPF;
 
 import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Solvers.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
 import Environment.Experiment;
 import Environment.Metrics.InstanceReport;
 import org.jetbrains.annotations.NotNull;
