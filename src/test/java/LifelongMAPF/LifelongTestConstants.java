@@ -2,7 +2,6 @@ package LifelongMAPF;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
@@ -11,11 +10,6 @@ public class LifelongTestConstants {
 
     public static final long DEFAULT_TIMEOUT = 90L * 1000;
 
-
-    public static final I_Coordinate coor14 = new Coordinate_2D(1,4); // maze
-    public static final I_Coordinate coor04 = new Coordinate_2D(0,4); // maze
-    public static final I_Coordinate coor15 = new Coordinate_2D(1,5); // maze
-    public static final I_Coordinate coor13 = new Coordinate_2D(1,3); // maze
 
     public static final LifelongAgent agent33to12 = new LifelongAgent(new Agent(0, coor33, coor12), new I_Coordinate[]{coor33, coor14, coor12});
     public static final LifelongAgent agent12to33 = new LifelongAgent(new Agent(1, coor12, coor33), new I_Coordinate[]{coor12, coor22, coor33});

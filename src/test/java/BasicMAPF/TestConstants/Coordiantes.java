@@ -23,6 +23,7 @@ public class Coordiantes {
     public final static I_Coordinate coor05 = new Coordinate_2D(0,5);
 
     public final static I_Coordinate coor04 = new Coordinate_2D(0,4);
+    public final static I_Coordinate coor03 = new Coordinate_2D(0,3);
     public final static I_Coordinate coor00 = new Coordinate_2D(0,0);
     public final static I_Coordinate coor01 = new Coordinate_2D(0,1);
     public final static I_Coordinate coor31 = new Coordinate_2D(3,1);
