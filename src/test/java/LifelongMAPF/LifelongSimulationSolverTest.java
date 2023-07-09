@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import static BasicMAPF.TestConstants.Coordiantes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static LifelongMAPF.LifelongTestUtils.*;
 import static LifelongMAPF.LifelongTestConstants.*;
@@ -62,10 +63,10 @@ class LifelongSimulationSolverTest {
     I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP =
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP();
     
-    I_Solver lotsAndPrPT = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+    I_Solver lotsAndPrPT_h1 = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
                     new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, null,
                             new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                            true, false, false, 10, null),
+                            true, false, true, 10, null),
                     null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
 
     InstanceReport instanceReport;
@@ -1359,7 +1360,7 @@ class LifelongSimulationSolverTest {
 
     @Test
     void emptyMapValidityTest1_lotsAndPrPT() {
-        I_Solver solver = lotsAndPrPT;
+        I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1371,7 +1372,7 @@ class LifelongSimulationSolverTest {
 
     @Test
     void circleMapValidityTest1_lotsAndPrPT() {
-        I_Solver solver = lotsAndPrPT;
+        I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1384,7 +1385,7 @@ class LifelongSimulationSolverTest {
 
     @Test
     void circleMapValidityTest2_lotsAndPrPT() {
-        I_Solver solver = lotsAndPrPT;
+        I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1396,7 +1397,7 @@ class LifelongSimulationSolverTest {
 
     @Test
     void smallMazeDenseValidityTest_lotsAndPrPT() {
-        I_Solver solver = lotsAndPrPT;
+        I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1408,7 +1409,7 @@ class LifelongSimulationSolverTest {
 
     @Test
     void startAdjacentGoAroundValidityTest_lotsAndPrPT() {
-        I_Solver solver = lotsAndPrPT;
+        I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1417,5 +1418,46 @@ class LifelongSimulationSolverTest {
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
     }
+
+//    @Test
+//    void worksWithPrPT_andPlanningPeriod() {
+//        I_Solver PrPT = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+//                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, new SSTCostFunction(),
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+//                        false, false, true, null, null),
+//                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+//
+//
+//        I_Solver PrP = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+//                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, new SOCCostFunction(),
+//                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+//                        true, false, false, null, null),
+//                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+//
+//
+//        Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
+//        Enum_MapLocationType w = Enum_MapLocationType.WALL;
+//        Enum_MapLocationType[][] map_2D_empty_with_wall = {
+//                {e, e, e, e, e, e},
+//                {e, e, e, w, e, e},
+//                {e, e, e, w, e, e},
+//                {e, e, e, w, e, e},
+//                {e, e, e, e, e, e},
+//                {e, e, e, e, e, e},
+//        };
+//        I_ExplicitMap map_empty_with_wall = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty_with_wall);
+//        Agent agentXMoving = new LifelongAgent(new Agent(1, coor32, coor10, 1), new I_Coordinate[]{coor32, coor11, coor10});
+//        Agent agentYMoving = new LifelongAgent(new Agent(0, coor10, coor42, 1), new I_Coordinate[]{coor10, coor12, coor42});
+//        Agent agentXMoving2 = new LifelongAgent(new Agent(2, coor43, coor10, 1), new I_Coordinate[]{coor43, coor02, coor10});
+//        MAPF_Instance testInstance = new MAPF_Instance("testInstance", map_empty_with_wall, new Agent[]{agentYMoving, agentXMoving, agentXMoving2});
+//
+//        Solution solvedNormal = PrP.solve(testInstance, new RunParameters(10 * 1000L, null, instanceReport, null));
+//        assertTrue(solvedNormal.solves(testInstance));
+//
+//        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(10 * 1000L, null, instanceReport, null));
+//        assertTrue(solvedPrPT.solves(testInstance));
+//        System.out.println(solvedPrPT);
+//        assertTrue(((LifelongSolution)solvedNormal).throughputAtT(7) < ((LifelongSolution)solvedPrPT).throughputAtT(7));
+//    }
 
 }

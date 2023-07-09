@@ -259,6 +259,9 @@ public class LifelongSimulationSolver extends A_Solver {
                 numFailedAgentsAfterPlanner = failedAgents.size();
                 sumAttemptedAgentsThatFailed += numFailedAgentsAfterPlanner;
 
+                if (DEBUG >= 3){
+                    System.out.printf("timestep %d, solution after planner: %s%n",farthestCommittedTime, latestSolution);
+                }
                 latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
                         failedAgents, cat, SAFailPolicy);
             }
