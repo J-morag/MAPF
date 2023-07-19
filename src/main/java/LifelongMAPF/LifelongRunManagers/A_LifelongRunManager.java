@@ -184,9 +184,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         lifelong_PrP_SST.name = "lifelong_PrP_SST";
 
         solvers.add(lifelong_PrPT_SOC);
-//        solvers.add(lifelong_PrP_SOC);
-//        solvers.add(lifelong_PrPT_SST);
-//        solvers.add(lifelong_PrP_SST);
+        solvers.add(lifelong_PrP_SOC);
+        solvers.add(lifelong_PrPT_SST);
+        solvers.add(lifelong_PrP_SST);
 
         return solvers;
     }
