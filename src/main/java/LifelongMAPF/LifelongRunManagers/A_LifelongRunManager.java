@@ -6,6 +6,7 @@ import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -164,28 +165,28 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
         LifelongSimulationSolver lifelong_PrPT_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrPT_SOC,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrPT_SOC.name = "lifelong_PrPT_SOC";
 
         LifelongSimulationSolver lifelong_PrP_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrP_SOC,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrP_SOC.name = "lifelong_PrP_SOC";
 
         LifelongSimulationSolver lifelong_PrPT_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrPT_SST,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrPT_SST.name = "lifelong_PrPT_SST";
 
         LifelongSimulationSolver lifelong_PrP_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrP_SST,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 3);
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrP_SST.name = "lifelong_PrP_SST";
 
         solvers.add(lifelong_PrPT_SOC);
-        solvers.add(lifelong_PrP_SOC);
-        solvers.add(lifelong_PrPT_SST);
-        solvers.add(lifelong_PrP_SST);
+//        solvers.add(lifelong_PrP_SOC);
+//        solvers.add(lifelong_PrPT_SST);
+//        solvers.add(lifelong_PrP_SST);
 
         return solvers;
     }
