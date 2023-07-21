@@ -308,7 +308,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         SingleAgentPlan initialFailPlan = planForAgent != null ? planForAgent : // So we got a partial plan from A*
                                 failPolicy != null ? failPolicy.getFailPolicyPlan(problemStartTime, agent, instance.map.getMapLocation(agent.source), conflictAvoidanceTable):
                                 null; // if not using a fail policy
-                        if (failPolicy != null){
+                        if (initialFailPlan != null){
+                            if (failPolicy == null){
+                                throw new IllegalStateException("No fail policy, but got a partial plan from A*");
+                            }
                             savePlanToSolutionConstraintsAndCongestion(solution, currentConstraints, initialFailPlan);
                             conflictAvoidanceTable.addPlan(initialFailPlan);
                             solution = this.failPolicy.getKSafeSolution(solution, problemStartTime, failedAgents, conflictAvoidanceTable, failPolicyIterations);
