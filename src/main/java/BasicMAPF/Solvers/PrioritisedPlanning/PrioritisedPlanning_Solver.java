@@ -21,7 +21,6 @@ import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import LifelongMAPF.FailPolicies.FailPolicy;
-import LifelongMAPF.FailPolicies.StayOnceFailPolicy;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import org.apache.commons.lang.mutable.MutableInt;
 
@@ -150,7 +149,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.TransientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
         this.RHCR_Horizon = RHCR_Horizon;
-        this.failPolicy = Objects.requireNonNullElse(failPolicy, new FailPolicy(RHCR_Horizon, new StayOnceFailPolicy()));
+        this.failPolicy = failPolicy;
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
@@ -304,25 +303,29 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                     failedAgents.add(agent);
                     if (firstFailedAgent == null) firstFailedAgent = agent;
                     if (! this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null)) {
-                        SingleAgentPlan initialFailPlan = planForAgent != null ? planForAgent : // So we got a partial plan from A*
-                                failPolicy.getFailPolicyPlan(problemStartTime, agent, instance.map.getMapLocation(agent.source), conflictAvoidanceTable);
-                        solution.putPlan(initialFailPlan);
-                        conflictAvoidanceTable.addPlan(initialFailPlan);
                         int numFailedAgentsBeforeFailPolicy = failedAgents.size();
-                        solution = this.failPolicy.getKSafeSolution(solution, problemStartTime, failedAgents, conflictAvoidanceTable, failPolicyIterations);
 
-                        if (failedAgents.size() > numFailedAgentsBeforeFailPolicy){
+                        SingleAgentPlan initialFailPlan = planForAgent != null ? planForAgent : // So we got a partial plan from A*
+                                failPolicy != null ? failPolicy.getFailPolicyPlan(problemStartTime, agent, instance.map.getMapLocation(agent.source), conflictAvoidanceTable):
+                                null; // if not using a fail policy
+                        if (failPolicy != null){
+                            savePlanToSolutionConstraintsAndCongestion(solution, currentConstraints, initialFailPlan);
+                            conflictAvoidanceTable.addPlan(initialFailPlan);
+                            solution = this.failPolicy.getKSafeSolution(solution, problemStartTime, failedAgents, conflictAvoidanceTable, failPolicyIterations);
+                        }
+
+                        if (failedAgents.size() > numFailedAgentsBeforeFailPolicy){ // so the fail policy added more failed agents in failPolicy.getKSafeSolution
+                            // reset constraints since the solution changed
                             currentConstraints = new ConstraintSet(initialConstraints);
                             if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
                                     && distanceTable.congestionMap != null){
                                 distanceTable.congestionMap.clear();
                             }
-                        }
-
-                        for (SingleAgentPlan singleAgentPlan : solution) {
-                            addPlanToConstraints(currentConstraints, singleAgentPlan);
-                            addPlanToCongestionMap(singleAgentPlan);
-                            // and the conflict avoidance table is already updated
+                            for (SingleAgentPlan singleAgentPlan : solution) {
+                                addPlanToConstraints(currentConstraints, singleAgentPlan);
+                                addPlanToCongestionMap(singleAgentPlan);
+                                // and the conflict avoidance table is already updated when getting k-safe solution
+                            }
                         }
                     }
 
@@ -349,12 +352,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                     }
                 }
                 else {
-                    //save the plan for this agent
-                    solution.putPlan(planForAgent);
-                    //add constraints to prevent the next agents from conflicting with the new plan
-                    addPlanToConstraints(currentConstraints, planForAgent);
-
-                    addPlanToCongestionMap(planForAgent);
+                    savePlanToSolutionConstraintsAndCongestion(solution, currentConstraints, planForAgent);
                 }
             }
 
@@ -433,6 +431,14 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             this.partialSolutionsStrategy.updateAfterSolution(agents.size(), bestSolution != null ? bestSolution.size() : 0);
             return finalizeSolution(bestSolution);
         }
+    }
+
+    private void savePlanToSolutionConstraintsAndCongestion(Solution solution, ConstraintSet currentConstraints, SingleAgentPlan plan) {
+        //save the plan for this agent
+        solution.putPlan(plan);
+        //add constraints to prevent the next agents from conflicting with the new plan
+        addPlanToConstraints(currentConstraints, plan);
+        addPlanToCongestionMap(plan);
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
