@@ -130,16 +130,17 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * Constructor.
      *
-     * @param lowLevelSolver        A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
-     * @param agentComparator       How to sort the agents. This sort determines their priority. High priority first.
-     * @param solutionCostFunction  A cost function to evaluate solutions with. Only used when using random restarts.
-     * @param restartsStrategy      how to do restarts.
-     * @param sharedGoals           if agents share goals, they will not conflict at their goal.
-     * @param failPolicy
+     * @param lowLevelSolver             A {@link I_Solver solver}, to be used for solving sub-problems for only one agent.
+     * @param agentComparator            How to sort the agents. This sort determines their priority. High priority first.
+     * @param solutionCostFunction       A cost function to evaluate solutions with. Only used when using random restarts.
+     * @param restartsStrategy           how to do restarts.
+     * @param sharedGoals                if agents share goals, they will not conflict at their goal.
+     * @param transientMAPFGoalCondition if true will use {@link VisitedAGoalAtSomePointInPlanGoalCondition}
+     * @param failPolicy                 how to handle single agent failures while solving
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources, Boolean TransientMAPFGoalCondition,
+                                      Boolean sharedGoals, Boolean sharedSources, Boolean transientMAPFGoalCondition,
                                       Integer RHCR_Horizon, FailPolicy failPolicy) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
@@ -147,7 +148,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
+        this.TransientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
         this.RHCR_Horizon = RHCR_Horizon;
         this.failPolicy = Objects.requireNonNullElse(failPolicy, new FailPolicy(RHCR_Horizon, new StayOnceFailPolicy()));
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
