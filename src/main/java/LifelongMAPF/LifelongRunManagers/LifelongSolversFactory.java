@@ -944,7 +944,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, null, RHCRHorizon, null),
+                        true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 1);
         solver.name = new Object() {}
                 .getClass()
@@ -962,7 +962,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, null, RHCRHorizon, null),
+                        true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
         solver.name = new Object() {}
                 .getClass()
@@ -979,7 +979,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, null, RHCRHorizon, null),
+                        true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 1);
         solver.name = new Object() {}
                 .getClass()
@@ -996,7 +996,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                        true, false, null, RHCRHorizon, null),
+                        true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
         solver.name = new Object() {}
                 .getClass()
