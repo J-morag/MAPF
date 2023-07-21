@@ -11,8 +11,14 @@ import java.util.*;
  */
 public class InstanceReport {
 
-    //max location size of Excel, plus room for wrapping with "" plus some safety
-    private static final int MAX_STRING_SIZE = 32767 - 12;
+    /**
+     * max cell size of Excel, plus room for wrapping with "" plus some safety
+     */
+    private static final int EXCEL_MAX_STRING_SIZE = 32767 - 12;
+    /**
+     * A more reasonable max size for a string field than {@link #EXCEL_MAX_STRING_SIZE}
+     */
+    private static final int MAX_STRING_SIZE = 1000;
     public static final String EXTENSION_STRING = " - Extended ";
 
     private Map<String, String> stringFields = new HashMap<String, String>(8);

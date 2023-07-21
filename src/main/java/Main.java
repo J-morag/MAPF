@@ -57,7 +57,7 @@ public class Main {
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
-            int timeoutEach = 0;
+            int timeoutEach = 300000;
             Long minResponseTime;
             Integer maxTimeSteps;
 
@@ -97,7 +97,7 @@ public class Main {
             System.out.println("Instances Dir: " + optInstancesDir);
             instancesDir = optInstancesDir;
             if (! new File(instancesDir).exists()){
-                System.out.printf("Could not locate the provided instances dir (%s)!", instancesDir);
+                System.out.printf("Could not locate the provided instances dir (%s)\n", instancesDir);
                 System.exit(0);
             }
 
@@ -150,7 +150,7 @@ public class Main {
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
                     case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, lifelong, null, forceRandWaypoints, forceBiDiEdges);
                     default -> {
-                        System.out.printf("Unrecognized instance format: %s", optInstancesFormat);
+                        System.out.printf("Unrecognized instance format: %s\n", optInstancesFormat);
                         System.exit(0);
                     }
                 }
@@ -162,7 +162,7 @@ public class Main {
                 }
             }
             else {
-                System.out.printf("Using default instance format %s", STR_MOVING_AI);
+                System.out.printf("Using default instance format %s\n", STR_MOVING_AI);
             }
 
             if (cmd.hasOption("v")) {
@@ -172,7 +172,7 @@ public class Main {
                 else if (instanceBuilder instanceof InstanceBuilder_Warehouse)
                     visualiser = MillimetricCoordinatesGraphSolutionVisualizer::visualizeSolution;
                 else {
-                    System.out.printf("No visualiser available for instance format %s.%n", instanceBuilder.getClass().getName());
+                    System.out.printf("No visualiser available for instance format %s.%n\n", instanceBuilder.getClass().getName());
                     System.exit(0);
                 }
             }
@@ -188,7 +188,7 @@ public class Main {
                     timeoutEach = Integer.parseInt(optTimeoutEach);
                 }
                 catch (NumberFormatException e){
-                    System.out.printf("%s should be an integer, got %s", STR_TIMEOUT_EACH, optTimeoutEach);
+                    System.out.printf("%s should be an integer, got %s\n", STR_TIMEOUT_EACH, optTimeoutEach);
                     System.exit(0);
                 }
             }
@@ -200,7 +200,7 @@ public class Main {
                 agentNums = Arrays.stream(optAgents).mapToInt(Integer::parseInt).toArray();
             }
             catch (NumberFormatException e){
-                System.out.printf("%s should be an array of integers, got %s!", STR_AGENT_NUMS, Arrays.toString(optAgents));
+                System.out.printf("%s should be an array of integers, got %s\n", STR_AGENT_NUMS, Arrays.toString(optAgents));
                 System.exit(0);
             }
 
