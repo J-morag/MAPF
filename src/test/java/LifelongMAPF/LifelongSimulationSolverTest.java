@@ -21,6 +21,7 @@ import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.IAvoid1ASFP;
+import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.FailPolicies.OneActionFailPolicy;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
@@ -66,7 +67,7 @@ class LifelongSimulationSolverTest {
     I_Solver lotsAndPrPT_h1 = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
                     new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, null,
                             new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                            true, false, true, 10, null),
+                            true, false, true, 10, new FailPolicy(1, new OneActionFailPolicy(true))),
                     null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
 
     InstanceReport instanceReport;
