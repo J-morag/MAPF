@@ -46,6 +46,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
     /* static fields */
     private static final StayOnceFailPolicy STAY_ONCE_FAIL_POLICY = new StayOnceFailPolicy();
+    private static final int DEBUG = 2;
 
     /* fields related to instance */
     /**
@@ -54,11 +55,11 @@ public class LifelongSimulationSolver extends A_Solver {
     protected final I_Solver offlineSolver;
     private final I_LifelongPlanningTrigger planningTrigger;
     private final I_LifelongAgentSelector agentSelector;
-    private static final int DEBUG = 2;
     private final Double congestionMultiplier;
     private final PartialSolutionsStrategy partialSolutionsStrategy;
     private final I_SingleAgentFailPolicy SAFailPolicy;
     private final int failPolicyKSafety;
+    public final boolean enforceKSafetyBetweenPlanningIterations = false;
 
     /*  = fields related to run =  */
 
@@ -262,6 +263,12 @@ public class LifelongSimulationSolver extends A_Solver {
                 if (DEBUG >= 3){
                     System.out.printf("timestep %d, solution after planner: %s%n",farthestCommittedTime, latestSolution);
                 }
+                if (!enforceKSafetyBetweenPlanningIterations){
+                    latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
+                            failedAgents, cat, SAFailPolicy);
+                }
+            }
+            if (enforceKSafetyBetweenPlanningIterations){
                 latestSolution = enforceSafeExecution(failPolicyKSafety, latestSolution, farthestCommittedTime,
                         failedAgents, cat, SAFailPolicy);
             }
