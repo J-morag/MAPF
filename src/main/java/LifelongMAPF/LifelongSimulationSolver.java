@@ -59,7 +59,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private final PartialSolutionsStrategy partialSolutionsStrategy;
     private final I_SingleAgentFailPolicy SAFailPolicy;
     private final int failPolicyKSafety;
-    public final boolean enforceKSafetyBetweenPlanningIterations = false;
+    public boolean enforceKSafetyBetweenPlanningIterations = false;
 
     /*  = fields related to run =  */
 

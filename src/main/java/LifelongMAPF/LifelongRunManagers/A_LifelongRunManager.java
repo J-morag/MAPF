@@ -141,47 +141,60 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
         PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, true, null, null);
+                true, null, true, 10, null);
         PrPT_SOC.name = "PrPT_SOC";
 
         PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, false, null, null);
+                true, null, false, 10, null);
         PrP_SOC.name = "PrP_SOC";
 
         // optimizing for SST
 
         PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, true, null, null);
+                true, null, true, 10, null);
         PrPT_SST.name = "PrPT_SST";
 
         PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, false, null, null);
+                true, null, false, 10, null);
         PrP_SST.name = "PrP_SST";
 
 
 
-        LifelongSimulationSolver lifelong_PrPT_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+        LifelongSimulationSolver lifelong_PrPT_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrPT_SOC,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrPT_SOC.name = "lifelong_PrPT_SOC";
 
-        LifelongSimulationSolver lifelong_PrP_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+        LifelongSimulationSolver lifelong_PrP_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrP_SOC,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrP_SOC.name = "lifelong_PrP_SOC";
 
-        LifelongSimulationSolver lifelong_PrPT_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+        LifelongSimulationSolver lifelong_PrPT_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrPT_SST,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrPT_SST.name = "lifelong_PrPT_SST";
 
-        LifelongSimulationSolver lifelong_PrP_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
+        LifelongSimulationSolver lifelong_PrP_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrP_SST,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrP_SST.name = "lifelong_PrP_SST";
+
+        lifelong_PrPT_SOC.enforceKSafetyBetweenPlanningIterations = true;
+        lifelong_PrP_SOC.enforceKSafetyBetweenPlanningIterations = true;
+        lifelong_PrPT_SST.enforceKSafetyBetweenPlanningIterations = true;
+        lifelong_PrP_SST.enforceKSafetyBetweenPlanningIterations = true;
+
+        LifelongSimulationSolver lifelong_PrP_SOC_no_enforce = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
+                PrP_SOC,
+                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
+        lifelong_PrP_SOC.name = "lifelong_PrP_SOC_no_enforce";
+
+        lifelong_PrP_SOC_no_enforce.enforceKSafetyBetweenPlanningIterations = false;
+        solvers.add(lifelong_PrP_SOC_no_enforce);
 
         solvers.add(lifelong_PrPT_SOC);
         solvers.add(lifelong_PrP_SOC);
