@@ -161,7 +161,7 @@ class CorridorConflictManagerTest {
 
         //save results
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
             directory.mkdir();
