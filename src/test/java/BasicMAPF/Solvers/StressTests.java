@@ -42,7 +42,7 @@ public class StressTests {
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.none),
-                null, null, null);
+                null, null, null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 50;
         StressTest(solver, timeout, numAgents);
