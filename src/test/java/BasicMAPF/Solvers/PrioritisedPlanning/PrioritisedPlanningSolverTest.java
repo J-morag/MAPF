@@ -1,6 +1,5 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
-import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
@@ -8,7 +7,6 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.*;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
@@ -30,10 +28,6 @@ import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PrioritisedPlanningSolverTest {
-
-    InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
-            new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
 

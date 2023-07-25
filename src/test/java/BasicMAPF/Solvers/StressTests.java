@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class StressTests {
 
     @Test
-    @Execution(ExecutionMode.CONCURRENT)
     public void CBSStressTest() {
         I_Solver solver = new CBS_Solver();
         long timeout = 1000 * 60;
@@ -38,7 +37,6 @@ public class StressTests {
     }
 
     @Test
-    @Execution(ExecutionMode.CONCURRENT)
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.none),
@@ -49,7 +47,6 @@ public class StressTests {
     }
 
     @Test
-    @Execution(ExecutionMode.CONCURRENT)
     public void LNSStressTest() {
         I_Solver solver = new LargeNeighborhoodSearch_Solver();
         long timeout = 1000 * 30;
@@ -58,7 +55,6 @@ public class StressTests {
     }
 
     @Test
-    @Execution(ExecutionMode.CONCURRENT)
     public void AStarStressTest() {
         I_Solver solver = new SingleAgentAStar_Solver();
         long timeout = 1000 * 30;
