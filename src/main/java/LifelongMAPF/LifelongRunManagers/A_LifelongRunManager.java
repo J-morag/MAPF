@@ -116,13 +116,22 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 ////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead5()); // comparing macro FPs experiment
 //
 //        // shorter planning period!
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy -integratedFP +IA
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1IntegratedFP()); // greedy +IA
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1()); // greedy -integratedFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1IntegratedFP()); // greedy
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy -integratedFP +IA
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1IntegratedFP()); // greedy +IA
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1()); // greedy -integratedFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1IntegratedFP()); // greedy
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
+
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy (inc. inter.)
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1WaterfallPPRASFP_lockInf()); // greedy +IA (inc. inter.)
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IAvoidASFP()); // greedy +IA +IA-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_1ASFP()); // greedy +IA +IGo-1-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_2ASFP()); // greedy +IA +IGo-2-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_3ASFP()); // greedy +IA +IGo-3-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead3IGo_3ASFP()); // greedy +IA +IGo-3-ASFP + LH3
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_4ASFP()); // greedy +IA +IGo-4-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
 
         return solvers;
     }
