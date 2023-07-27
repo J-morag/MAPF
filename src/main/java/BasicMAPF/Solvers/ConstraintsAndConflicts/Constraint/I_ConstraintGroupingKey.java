@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
-import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.Move;
 
 /**
  * replaces the constraint with a key that is quick to find in a set.
@@ -20,4 +21,10 @@ public interface I_ConstraintGroupingKey {
      * @return the time of the key.
      */
     int getTime();
+
+    /**
+     * return the location of the key.
+     * @return the location of the key.
+     */
+    I_Location getLocation();
 }

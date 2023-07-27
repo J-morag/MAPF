@@ -1,6 +1,5 @@
 package BasicMAPF.Solvers.AStar;
 
-import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
@@ -11,7 +10,6 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -33,14 +31,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     public boolean agentsStayAtGoal;
 
-    private ConstraintSet constraints;
-    private AStarGAndH gAndH;
-    private final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
-    private final Set<AStarState> closed = new HashSet<>();
-    private Agent agent;
-    private I_Map map;
-    private SingleAgentPlan existingPlan;
-    private Solution existingSolution;
+    protected ConstraintSet constraints;
+    protected AStarGAndH gAndH;
+    protected final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
+    protected final Set<AStarState> closed = new HashSet<>();
+    protected Agent agent;
+
+    protected I_Map map;
+    protected SingleAgentPlan existingPlan;
+    protected Solution existingSolution;
     private I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
@@ -48,13 +47,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
     /**
      * Not real-world time. The problem's start time.
      */
-    private int problemStartTime;
-    private int expandedNodes;
+    protected int problemStartTime;
+    protected int expandedNodes;
     private int generatedNodes;
     /**
      * Maximum allowed f value ({@link SingleAgentPlan} cost). Will stop and return null if proved that it cannot be found.
      */
-    private float fBudget;
+    protected float fBudget;
 
     public SingleAgentAStar_Solver() {this(null);}
 
@@ -169,25 +168,17 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if (isGoalState(currentState)){
                 // check to see if a rejecting constraint on the goal's location exists at some point in the future,
                 // which would mean we can't finish the plan there and stay forever
-                // TODO move caching responsibility inside the data structure.
-                //  And then this should be checked preemptively in the expand function, where other constraints are checked.
-                //  Also, this doesn't support multiple possible goal locations. But I guess nothing really does.
-                int firstRejectionAtLocationTime = agentsStayAtGoal ?
-                        constraints.rejectsEventually(currentState.move,
-                                goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
-                        : -1;
+                int firstRejectionAtLocationTime = agentsStayAtGoal ? constraints.rejectsEventually(currentState.move) : -1;
 
                 if(firstRejectionAtLocationTime == -1){ // no rejections
                     // update this.existingPlan which is contained in this.existingSolution
                     currentState.backTracePlan(this.existingPlan);
                     return this.existingSolution; // the goal is good, and we can return the plan.
+                } else { // we are rejected from the goal location at some point in the future.
+                    expand(currentState);
                 }
-                else{ // we are rejected from the goal location at some point in the future.
-                    currentState.expand();
-                }
-            }
-            else{ //expand
-                currentState.expand(); //doesn't generate closed or duplicate states
+            } else { //expand
+                expand(currentState); //doesn't generate closed or duplicate states
             }
         }
         return null; //no goal state found (problem unsolvable)
@@ -207,7 +198,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // We assume that we cannot change the existing plan, so if it is rejected by constraints, we can't initialise OPEN.
             if(constraints.rejects(lastExistingMove)) {return false;}
 
-            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, 0, existingPlan.containsTarget()));
+            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, 0 ));
         }
         else { // the existing plan is empty (no existing plan)
 
@@ -224,23 +215,67 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     possibleMove.isStayAtSource = true;
                 }
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    AStarState rootState = new AStarState(possibleMove, null, this.gAndH.cost(possibleMove), 0, isMoveToTarget(possibleMove));
+                    AStarState rootState = new AStarState(possibleMove, null, this.gAndH.cost(possibleMove), 0);
                     openList.add(rootState);
                 }
             }
 
         }
-
         // if none of the root nodes was valid, OPEN will be empty, and thus uninitialised.
         return !openList.isEmpty();
     }
 
-    private boolean isMoveToTarget(Move possibleMove) {
-        return possibleMove.currLocation.getCoordinate().equals(targetCoor);
+    public void expand(@NotNull AStarState state) {
+        expandedNodes++;
+        // can move to neighboring locations or stay put
+        List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(state.move.currLocation.outgoingEdges());
+        // no point to do stay moves or search the time dimension after the time of last constraint.
+        // this makes A* complete even when there are goal constraints (infinite constraints)
+        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintTime();
+        if (!afterLastConstraint &&
+                !state.move.currLocation.getType().equals(Enum_MapLocationType.NO_STOP)) { // can't stay on NO_STOP
+            neighborLocationsIncludingCurrent.add(state.move.currLocation);
+        }
+
+        for (I_Location destination : neighborLocationsIncludingCurrent) {
+            // give all moves after last constraint time the same time so that they're equal. patch the plan later to correct times
+            Move possibleMove = new Move(state.move.agent, !afterLastConstraint ? state.move.timeNow + 1 : state.move.timeNow,
+                    state.move.currLocation, destination);
+            if (possibleMove.prevLocation.equals(possibleMove.currLocation) && state.move.isStayAtSource) {
+                possibleMove.isStayAtSource = true;
+            }
+
+            // move not prohibited by existing constraint
+            if (constraints.accepts(possibleMove)) {
+                AStarState child = new AStarState(possibleMove, state,
+                        state.g + gAndH.cost(possibleMove),
+                        state.conflicts + numConflicts(possibleMove));
+
+                AStarState existingState;
+                if (closed.contains(child)) { // state visited already
+                    // TODO for inconsistent heuristics - if the new one has a lower f, remove the old one from closed
+                    // and add the new one to open
+                } else if (null != (existingState = openList.get(child))) { //an equal state is waiting in open
+                    //keep the one with min G
+                    state.keepTheStateWithMinG(child, existingState); //O(LOGn)
+                } else { // it's a new state
+                    openList.add(child);
+                }
+            }
+        }
     }
 
-    private boolean isGoalState(AStarState state) {
+
+    protected boolean isGoalState(AStarState state) {
         return this.goalCondition.isAGoal(state);
+    }
+
+    public int getGeneratedNodes() {
+        return this.generatedNodes;
+    }
+
+    public int getExpandedNodes() {
+        return this.expandedNodes;
     }
 
     /*  = wind down =  */
@@ -271,9 +306,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.goalCondition = null;
     }
 
-    private int numConflicts(Move move){
-        // TODO to support tie breaking by num conflicts, may have to create duplicate nodes after reaching a goal,
-        //  one as a last move and one as an intermediate move, because they would have a different number of conflicts.
+    protected int numConflicts(Move move){
+        // TODO to support PIBT paths with tie breaking by num conflicts, may have to create duplicate nodes after
+        //  reaching a goal, one as a last move and one as an intermediate move, because they would have a different number of conflicts.
         return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move, false);
     }
 
@@ -288,23 +323,37 @@ public class SingleAgentAStar_Solver extends A_Solver {
         private final int serialID = SingleAgentAStar_Solver.this.generatedNodes++; // take and increment
         public final Move move;
         private final AStarState prev;
-        private final int g;
-        private final float h;
+        protected final int g;
+        protected final float h;
+//        /**
+//         * If true we search both the space and the time dimension.
+//         */
+//        private final boolean timeDimension;
         /**
          * counts the number of conflicts generated by this node and all its ancestors.
          */
-        private final int conflicts;
-        public final boolean hasVisitedTargetLocationAncestor;
+        protected int conflicts;
 
-        public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean isMoveToTargetLocation) {
+        public AStarState(Move move, AStarState prevState, int g, int conflicts
+//                , boolean timeDimension
+        ) {
             this.move = move;
             this.prev = prevState;
             this.g = g;
-            this.conflicts = conflicts;
-            this.hasVisitedTargetLocationAncestor = isMoveToTargetLocation || (prevState != null && prevState.hasVisitedTargetLocationAncestor);
 
-            // must call this last, since it needs some other fields to be initialized already.
+            this.conflicts = conflicts;
+//            this.timeDimension = timeDimension;
+
+            // must call these last, since they need the other fields to be initialized already.
             this.h = calcH();
+        }
+
+        public AStarState() {
+
+            move = null;
+            prev = null;
+            g = 0;
+            h = 0;
         }
 
 
@@ -333,49 +382,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return SingleAgentAStar_Solver.this.gAndH.getH(this);
         }
 
-        public void expand() {
-            expandedNodes++;
-            // can move to neighboring locations or stay put
-            List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(this.move.currLocation.outgoingEdges());
-            // no point to do stay moves or search the time dimension after the time of last constraint.
-            // this makes A* complete even when there are goal constraints (infinite constraints)
-            boolean afterLastConstraint = this.move.timeNow > constraints.getLastConstraintTime();
-            if (!afterLastConstraint &&
-                    !this.move.currLocation.getType().equals(Enum_MapLocationType.NO_STOP)){ // can't stay on NO_STOP
-                neighborLocationsIncludingCurrent.add(this.move.currLocation);
-            }
-
-            for (I_Location destination: neighborLocationsIncludingCurrent){
-                // give all moves after last constraint time the same time so that they're equal. patch the plan later to correct times
-                Move possibleMove = new Move(this.move.agent, !afterLastConstraint ? this.move.timeNow + 1 : this.move.timeNow,
-                        this.move.currLocation, destination);
-                if (possibleMove.prevLocation.equals(possibleMove.currLocation) && this.move.isStayAtSource){
-                    possibleMove.isStayAtSource = true;
-                }
-
-                // move not prohibited by existing constraint
-                if(constraints.accepts(possibleMove)){
-                    AStarState child = new AStarState(possibleMove, this,
-                            this.g + SingleAgentAStar_Solver.this.gAndH.cost(possibleMove),
-                            conflicts + numConflicts(possibleMove), isMoveToTarget(possibleMove));
-
-                    AStarState existingState;
-                    if(closed.contains(child)){ // state visited already
-                        // TODO for inconsistent heuristics - if the new one has a lower f, remove the old one from closed
-                        // and add the new one to open
-                    }
-                    else if(null != (existingState = openList.get(child)) ){ //an equal state is waiting in open
-                        //keep the one with min G
-                        keepTheStateWithMinG(child, existingState); //O(LOGn)
-                    }
-                    else{ // it's a new state
-                        openList.add(child);
-                    }
-                }
-            }
-        }
-
-        private void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
+        protected void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
             // decide which state to keep, seeing as how they are both equal and in open.
             openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
         }
@@ -413,7 +420,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         /**
          * equality is determined by location (current), and time.
-         * Also by if the state has an ancestor (inc. self) that has visited the target location or not.
          * @param o {@inheritDoc}
          * @return {@inheritDoc}
          */
@@ -421,16 +427,19 @@ public class SingleAgentAStar_Solver extends A_Solver {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof AStarState that)) return false;
-            if (move.timeNow != that.move.timeNow) return false;
-            if (hasVisitedTargetLocationAncestor != that.hasVisitedTargetLocationAncestor) return false;
+
+            if (
+//                    (timeDimension || that.timeDimension) &&
+                            (move.timeNow != that.move.timeNow)) return false;
             return move.currLocation.equals(that.move.currLocation);
         }
 
         @Override
         public int hashCode() {
             int result = move.currLocation.hashCode();
-            result = 31 * result + move.timeNow;
-            result = 31 * result + (hasVisitedTargetLocationAncestor ? 1 : 0);
+//            if (timeDimension){
+                result = 31 * result + move.timeNow;
+//            }
             return result;
         }
 
