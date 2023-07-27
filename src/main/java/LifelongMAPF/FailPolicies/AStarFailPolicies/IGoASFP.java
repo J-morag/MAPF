@@ -51,16 +51,16 @@ public class IGoASFP implements I_AStarFailPolicy{
                 for (I_Location neighbor : neighborLocationsIncludingCurrent) {
                     int newTime = curr.time + 1;
                     Move move = new Move(a, newTime, curr.location, neighbor);
-                    if (conflictAvoidanceTable.firstConflictTime(move, false) != -1){
+                    if (conflictAvoidanceTable.firstConflictTime(move, false) == -1){
                         // generate
                         double currDistanceFromSource = curr.location.getCoordinate().distance(agentLocation.getCoordinate());
                         double neighborDistanceFromSource = neighbor.getCoordinate().distance(agentLocation.getCoordinate());
-                        double edgeDistanceFromSourceDelta = Math.abs(currDistanceFromSource - neighborDistanceFromSource) > EPSILON ?
-                                currDistanceFromSource - neighborDistanceFromSource: 0;
+                        double edgeDistanceFromSourceDelta = Math.abs(neighborDistanceFromSource - currDistanceFromSource) > EPSILON ?
+                                neighborDistanceFromSource - currDistanceFromSource : 0;
                         int cost = curr.cost + (edgeDistanceFromSourceDelta < 0 ? (d+1)*(d+1) : (edgeDistanceFromSourceDelta == 0 ? d+1 : 1));
                         IGoState childState = new IGoState(curr.depth + 1, curr.cost + cost, neighbor, newTime, curr, move);
 
-                        if (closed.contains(childState)){
+                        if ( ! closed.contains(childState)){
                             IGoState existingState;
                             if(null != (existingState = iGoStateOpen.get(childState)) ){
                                 //keep the one with min G
