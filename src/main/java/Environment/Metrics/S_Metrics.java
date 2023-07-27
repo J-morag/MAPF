@@ -1,8 +1,8 @@
 package Environment.Metrics;
 
 
-import Environment.RunManagers.A_RunManager;
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -177,7 +177,6 @@ public class S_Metrics {
         addOutputStream(outputStream, S_Metrics::instanceReportToStringCSV, S_Metrics::headerArrayToStringCSV);
     }
 
-
     public static void removeOutputStream(OutputStream outputStream){
         int streamIndex = outputStreams.indexOf(outputStream);
         outputStreams.remove(streamIndex);
@@ -292,10 +291,6 @@ public class S_Metrics {
         return instanceReport.toString() + '\n';
     }
 
-    public static String instanceReportToSolutionString(InstanceReport instanceReport) {
-        return instanceReport.getSolution() != null ? instanceReport.getSolution().toString(): "";
-    }
-
     /**
      * Returns a string representation of the information in an instanceReport, in a format that is suitable for easy
      * reading. Useful for outputing to a console to monitor the experiment.
@@ -327,10 +322,6 @@ public class S_Metrics {
                 }
             }
         }
-    }
-
-    public static void addSolutionExportOutputStream(String pathName) throws IOException {
-        addOutputStream(new FileOutputStream(pathName), S_Metrics::instanceReportToSolutionString);
     }
 
     private static void outputInstanceReportToStream(OutputStream outputStream, InstanceReport instanceReport,

@@ -1,7 +1,5 @@
 package Environment.Metrics;
 
-import BasicMAPF.Solvers.Solution;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -20,8 +18,6 @@ public class InstanceReport {
     private Map<String, String> stringFields = new HashMap<String, String>(8);
     private Map<String, Integer> integerFields = new HashMap<String, Integer>(8);
     private Map<String, Float> floatFields = new HashMap<String, Float>(4);
-    private Solution solution = null;
-
     private boolean isCommited = false;
 
     /**
@@ -55,14 +51,6 @@ public class InstanceReport {
         public final static String solutionCostFunction = "Cost Function";
         public final static String solution = "Solution";
         public final static String skipped = "Skipped";
-    }
-
-    public Solution getSolution() {
-        return this.solution;
-    }
-
-    public void putSolution(Solution sol) {
-        this.solution = sol;
     }
 
     /**
