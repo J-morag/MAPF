@@ -18,7 +18,6 @@ import org.apache.commons.cli.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Arrays;
 
@@ -262,7 +261,7 @@ public class Main {
 
         //output results
         System.out.println(solution.readableToString());
-        outputResults(solution);
+        outputResults();
 
         GridSolutionVisualizer.visualizeSolution(instance, solution, solver.name() + " - " + instance.extendedName);
     }
@@ -292,7 +291,7 @@ public class Main {
      * Note that you can add more fields here, if you want metrics that are collected and not exported.
      * Note that you can easily add other metrics which are not currently collected. see {@link S_Metrics}.
      */
-    private static void outputResults(Solution solution) {
+    private static void outputResults() {
         try {
             Thread.sleep(30);
         } catch (InterruptedException e) {
@@ -300,7 +299,6 @@ public class Main {
         }
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
         String updatedPath =  IO_Manager.buildPath(new String[]{exampleResultsOutputDir, "results " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
-        String updatedPathForSolution =  IO_Manager.buildPath(new String[]{exampleResultsOutputDir, "results " + dateFormat.format(System.currentTimeMillis())}) + " .txt";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{   InstanceReport.StandardFields.experimentName,
@@ -314,14 +312,6 @@ public class Main {
                                     InstanceReport.StandardFields.elapsedTimeMS,
                                     InstanceReport.StandardFields.solutionCost,
                                     InstanceReport.StandardFields.solution});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            OutputStream solutionOutputStream = new FileOutputStream(updatedPathForSolution);
-            solutionOutputStream.write(solution.toString().getBytes());
-            solutionOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
