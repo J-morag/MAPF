@@ -1,10 +1,8 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
 
 import java.util.*;
 

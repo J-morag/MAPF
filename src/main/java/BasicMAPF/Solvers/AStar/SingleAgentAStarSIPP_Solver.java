@@ -1,5 +1,7 @@
 package BasicMAPF.Solvers.AStar;
 
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
@@ -8,8 +10,6 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintGroupingKey;
-import BasicMAPF.Solvers.Move;
-import BasicMAPF.Solvers.RunParameters;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -51,7 +51,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                     break;
                 }
             }
-            openList.add(new AStarSIPPState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval));
+            openList.add(new AStarSIPPState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, existingPlan.containsTarget()));
 
         } else { // the existing plan is empty (no existing plan)
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
@@ -63,7 +63,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
             for (I_Location destination : neighborLocations) {
                 Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
-                AStarSIPPState rootState = new AStarSIPPState(possibleMove, null, this.gAndH.cost(possibleMove), 0, null);
+                AStarSIPPState rootState = new AStarSIPPState(possibleMove, null, this.gAndH.cost(possibleMove), 0, null, isMoveToTarget(possibleMove));
                 generateChild(rootState, possibleMove, true);
             }
         }
@@ -105,9 +105,9 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             if (currInterval.end >= nextMoveStartTime) {
                 if ((currInterval.start <= nextMoveStartTime)) {
                     if (!init) {
-                        child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), 0, currInterval);
+                        child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), 0, currInterval, isMoveToTarget(possibleMove));
                     } else {
-                        child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, currInterval);
+                        child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, currInterval, isMoveToTarget(possibleMove));
                     }
                     addToOpenList(child);
                 } else {
@@ -115,17 +115,17 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                         int timeToWait = currInterval.start - nextMoveStartTime;
                         possibleMove = new Move(agent, nextMoveStartTime, prevLocation, prevLocation);
                         if (!init) {
-                            child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval);
+                            child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval, isMoveToTarget(possibleMove));
                         } else {
-                            child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, prevLocationRelevantInterval);
+                            child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, prevLocationRelevantInterval, isMoveToTarget(possibleMove));
                         }
 
                         for (int t = 1; t < timeToWait; t++) {
                             possibleMove = new Move(agent, nextMoveStartTime + t, prevLocation, prevLocation);
-                            child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval);
+                            child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval, isMoveToTarget(possibleMove));
                         }
                         possibleMove = new Move(agent, nextMoveStartTime + timeToWait, prevLocation, currLocation);
-                        child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), currInterval);
+                        child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), currInterval, isMoveToTarget(possibleMove));
                         addToOpenList(child);
                     }
                     else return;
@@ -211,8 +211,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     public class AStarSIPPState extends AStarState {
         private final Interval timeInterval;
 
-        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, Interval timeInterval) {
-            super(move, prev, g, conflicts);
+        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, Interval timeInterval, boolean isMoveToTargetLocation) {
+            super(move, prev, g, conflicts, isMoveToTargetLocation);
             this.timeInterval = timeInterval;
 
         }
