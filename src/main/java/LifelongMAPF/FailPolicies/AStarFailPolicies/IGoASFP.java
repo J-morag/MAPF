@@ -7,15 +7,17 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.I_OpenList;
+import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
 import LifelongMAPF.FailPolicies.StayOnceFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class IGoASFP implements I_AStarFailPolicy{
+public class IGoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
 
     private static final double EPSILON = 0.0001;
     private final int d;
@@ -31,6 +33,16 @@ public class IGoASFP implements I_AStarFailPolicy{
                                        @NotNull I_OpenList<SingleAgentAStar_Solver.AStarState> aStarOpenList,
                                        @NotNull Set<SingleAgentAStar_Solver.AStarState> ClosedList, @NotNull SingleAgentPlan existingPlan,
                                        @Nullable CongestionMap congestionMap, @NotNull RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable) {
+        return getIGoFailPlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+    }
+
+    @Override
+    public @NotNull SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, @Nullable I_ConflictAvoidanceTable softConstraints) {
+        return getIGoFailPlan(farthestCommittedTime, a, agentLocation, softConstraints);
+    }
+
+    @NotNull
+    private SingleAgentPlan getIGoFailPlan(int farthestCommittedTime, @NotNull Agent a, @NotNull I_Location agentLocation, @NotNull I_ConflictAvoidanceTable conflictAvoidanceTable) {
         // BFS: edge cost 1 if increases Manhattan distance, d+1 if stays the same, (d+1)^2 if decreases
         // goal: any leaf (depth d)
 
@@ -51,7 +63,7 @@ public class IGoASFP implements I_AStarFailPolicy{
                 for (I_Location neighbor : neighborLocationsIncludingCurrent) {
                     int newTime = curr.time + 1;
                     Move move = new Move(a, newTime, curr.location, neighbor);
-                    if (conflictAvoidanceTable.firstConflictTime(move, false) == -1){
+                    if (conflictAvoidanceTable.numConflicts(move, false) == 0){
                         // generate
                         double currDistanceFromSource = curr.location.getCoordinate().distance(agentLocation.getCoordinate());
                         double neighborDistanceFromSource = neighbor.getCoordinate().distance(agentLocation.getCoordinate());

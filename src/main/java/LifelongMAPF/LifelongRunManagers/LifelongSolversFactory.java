@@ -1323,6 +1323,23 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver stationaryAgentsPrPReplanSingleIGo_5FPLookahead1IGo_5ASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IGoASFP(5);
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IGoASFP(5);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null);
+        solver.name = new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName();
+        return solver;
+    }
+
     public static I_Solver stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_10ASFP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new OneActionFailPolicy();

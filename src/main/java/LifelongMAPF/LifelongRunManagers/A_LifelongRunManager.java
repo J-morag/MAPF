@@ -132,11 +132,10 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead3IGo_3ASFP()); // greedy +IA +IGo-3-ASFP + LH3
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_4ASFP()); // greedy +IA +IGo-4-ASFP
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_5ASFP()); // greedy +IGo-5 +IGo-5-ASFP
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_10ASFP()); // greedy +IA +IGo-10-ASFP
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_100ASFP()); // greedy +IA +IGo-100-ASFP
-
-        // TODO IGo as multi agent fail policy
 
         return solvers;
     }
