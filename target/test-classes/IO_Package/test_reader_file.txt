@@ -1,3 +1,0 @@
-This file has 3 lines
-This is the second line
-This is the last line
