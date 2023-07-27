@@ -36,7 +36,7 @@ public class IGoASFP implements I_AStarFailPolicy{
 
         runningIGoStatesID = 0;
         I_OpenList<IGoState> iGoStateOpen = new OpenListTree<>(IGoState::compareTo);
-        iGoStateOpen.add(new IGoState(0, 0, agentLocation, farthestCommittedTime, null, null));
+        iGoStateOpen.add(new IGoState(0, 0, agentLocation, farthestCommittedTime, null, null, getH(0)));
         Set<IGoState> closed = new HashSet<>();
         while (!iGoStateOpen.isEmpty()){
             IGoState curr = iGoStateOpen.poll();
@@ -58,7 +58,9 @@ public class IGoASFP implements I_AStarFailPolicy{
                         double edgeDistanceFromSourceDelta = Math.abs(neighborDistanceFromSource - currDistanceFromSource) > EPSILON ?
                                 neighborDistanceFromSource - currDistanceFromSource : 0;
                         int cost = curr.cost + (edgeDistanceFromSourceDelta < 0 ? (d+1)*(d+1) : (edgeDistanceFromSourceDelta == 0 ? d+1 : 1));
-                        IGoState childState = new IGoState(curr.depth + 1, curr.cost + cost, neighbor, newTime, curr, move);
+                        int newDepth = curr.depth + 1;
+                        int h = getH(newDepth);
+                        IGoState childState = new IGoState(newDepth, curr.cost + cost, neighbor, newTime, curr, move, h);
 
                         if ( ! closed.contains(childState)){
                             IGoState existingState;
@@ -75,6 +77,10 @@ public class IGoASFP implements I_AStarFailPolicy{
             }
         }
         return StayOnceFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+    }
+
+    private int getH(int depth) {
+        return d - depth;
     }
 
     private SingleAgentPlan planFromGoal(IGoState lastState, Agent a) {
@@ -98,14 +104,16 @@ public class IGoASFP implements I_AStarFailPolicy{
          * the move that got us to this state from the parent state
          */
         public final Move move;
+        public final int h;
 
-        public IGoState(int depth, int cost, I_Location location, int time, IGoState parent, Move move) {
+        public IGoState(int depth, int cost, I_Location location, int time, IGoState parent, Move move, int h) {
             this.depth = depth;
             this.cost = cost;
             this.location = location;
             this.time = time;
             this.parent = parent;
             this.move = move;
+            this.h = h;
         }
 
         public int getCost() {
@@ -114,7 +122,10 @@ public class IGoASFP implements I_AStarFailPolicy{
 
         @Override
         public int compareTo(@NotNull IGoASFP.IGoState o) {
-            int res = Integer.compare(cost, o.cost);
+            int res = Integer.compare(cost + h, o.cost + o.h);
+            if (res == 0)
+                // reversed to prefer higher cost under same f
+                res = Integer.compare(o.cost, cost);
             if (res == 0)
                 res = Integer.compare(id, o.id);
             return res;
