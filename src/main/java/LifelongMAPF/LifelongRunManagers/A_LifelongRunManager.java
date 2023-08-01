@@ -136,31 +136,39 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
 
+        RestartsStrategy restartsStrategy = new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 3, RestartsStrategy.RestartsKind.none);
 
+        addSolvers(solvers, restartsStrategy, 5);
+        addSolvers(solvers, restartsStrategy, 10);
+        addSolvers(solvers, restartsStrategy, null);
+
+        return solvers;
+    }
+
+    private static void addSolvers(List<I_Solver> solvers, RestartsStrategy restartsStrategy, Integer rhcrHorizon) {
         // optimizing for SOC
 
         PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, true, 10, null);
-        PrPT_SOC.name = "PrPT_SOC";
+                restartsStrategy,
+                true, null, true, rhcrHorizon, null);
+        PrPT_SOC.name = "PrPT_SOC" + "_h" + rhcrHorizon;
 
         PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, false, 10, null);
-        PrP_SOC.name = "PrP_SOC";
+                restartsStrategy,
+                true, null, false, rhcrHorizon, null);
+        PrP_SOC.name = "PrP_SOC" + "_h" + rhcrHorizon;
 
         // optimizing for SST
 
         PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, true, 10, null);
-        PrPT_SST.name = "PrPT_SST";
+                restartsStrategy,
+                true, null, true, rhcrHorizon, null);
+        PrPT_SST.name = "PrPT_SST" + "_h" + rhcrHorizon;
 
         PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                true, null, false, 10, null);
-        PrP_SST.name = "PrP_SST";
-
+                restartsStrategy,
+                true, null, false, rhcrHorizon, null);
+        PrP_SST.name = "PrP_SST" + "_h" + rhcrHorizon;
 
 
         LifelongSimulationSolver lifelong_PrPT_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
@@ -183,25 +191,10 @@ public abstract class A_LifelongRunManager extends A_RunManager {
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
         lifelong_PrP_SST.name = "lifelong_PrP_SST";
 
-        lifelong_PrPT_SOC.enforceKSafetyBetweenPlanningIterations = true;
-        lifelong_PrP_SOC.enforceKSafetyBetweenPlanningIterations = true;
-        lifelong_PrPT_SST.enforceKSafetyBetweenPlanningIterations = true;
-        lifelong_PrP_SST.enforceKSafetyBetweenPlanningIterations = true;
-
-        LifelongSimulationSolver lifelong_PrP_SOC_no_enforce = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
-                PrP_SOC,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrP_SOC.name = "lifelong_PrP_SOC_no_enforce";
-
-        lifelong_PrP_SOC_no_enforce.enforceKSafetyBetweenPlanningIterations = false;
-        solvers.add(lifelong_PrP_SOC_no_enforce);
-
         solvers.add(lifelong_PrPT_SOC);
         solvers.add(lifelong_PrP_SOC);
         solvers.add(lifelong_PrPT_SST);
         solvers.add(lifelong_PrP_SST);
-
-        return solvers;
     }
 
     protected void addAllMapsAndInstances(String instancesDir, int[] agentNums){
@@ -221,7 +214,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     }
 
     protected static int getTimeoutEach() {
-        return 4 * 5 * 60 * 1000;
+        return 10 * 5 * 60 * 1000;
     }
 
     @NotNull
