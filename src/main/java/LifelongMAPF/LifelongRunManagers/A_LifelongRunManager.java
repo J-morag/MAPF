@@ -174,22 +174,22 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         LifelongSimulationSolver lifelong_PrPT_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrPT_SOC,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrPT_SOC.name = "lifelong_PrPT_SOC";
+        lifelong_PrPT_SOC.name = "lifelong_PrPT_SOC" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
 
         LifelongSimulationSolver lifelong_PrP_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrP_SOC,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrP_SOC.name = "lifelong_PrP_SOC";
+        lifelong_PrP_SOC.name = "lifelong_PrP_SOC" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
 
         LifelongSimulationSolver lifelong_PrPT_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrPT_SST,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrPT_SST.name = "lifelong_PrPT_SST";
+        lifelong_PrPT_SST.name = "lifelong_PrPT_SST" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
 
         LifelongSimulationSolver lifelong_PrP_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
                 PrP_SST,
                 null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrP_SST.name = "lifelong_PrP_SST";
+        lifelong_PrP_SST.name = "lifelong_PrP_SST" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
 
         solvers.add(lifelong_PrPT_SOC);
         solvers.add(lifelong_PrP_SOC);
