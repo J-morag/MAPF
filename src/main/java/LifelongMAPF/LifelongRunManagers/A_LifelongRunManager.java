@@ -123,19 +123,28 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
 
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy (inc. inter.)
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1WaterfallPPRASFP_lockInf()); // greedy +IA (inc. inter.)
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IAvoidASFP()); // greedy +IA +IA-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_1ASFP()); // greedy +IA +IGo-1-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_2ASFP()); // greedy +IA +IGo-2-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_3ASFP()); // greedy +IA +IGo-3-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead3IGo_3ASFP()); // greedy +IA +IGo-3-ASFP + LH3
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_4ASFP()); // greedy +IA +IGo-4-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy (inc. inter.)
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1WaterfallPPRASFP_lockInf()); // greedy +IA (inc. inter.)
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IAvoidASFP()); // greedy +IA +IA-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_1ASFP()); // greedy +IA +IGo-1-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_2ASFP()); // greedy +IA +IGo-2-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_3ASFP()); // greedy +IA +IGo-3-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead3IGo_3ASFP()); // greedy +IA +IGo-3-ASFP + LH3
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_4ASFP()); // greedy +IA +IGo-4-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIGo_5FPLookahead1IGo_5ASFP()); // greedy +IGo-5 +IGo-5-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_10ASFP()); // greedy +IA +IGo-10-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_100ASFP()); // greedy +IA +IGo-100-ASFP
+
+
+
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIGo_5FPLookahead1IGo_5ASFP()); // greedy +IGo-5 +IGo-5-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1PPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_10ASFP()); // greedy +IA +IGo-10-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1PPRIGo_10ASFP()); // greedy +IA +PPRIGo-10-ASFP
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_100ASFP()); // greedy +IA +IGo-100-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP
 
         return solvers;
     }
