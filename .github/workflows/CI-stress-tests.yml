@@ -1,4 +1,4 @@
-name: CI-tests
+name: CI-stress-tests
 
 on:
   push:
