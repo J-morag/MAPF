@@ -2,20 +2,30 @@ package LifelongMAPF.FailPolicies;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
+import BasicMAPF.Solvers.I_OpenList;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.I_AStarFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
-public class OneActionFailPolicy implements I_SingleAgentFailPolicy {
+public class OneActionFailPolicy implements I_SingleAgentFailPolicy, I_AStarFailPolicy {
 
     private final boolean onlyMoveIfNoConflicts;
 
     public OneActionFailPolicy(boolean onlyMoveIfNoConflicts) {
         this.onlyMoveIfNoConflicts = onlyMoveIfNoConflicts;
+    }
+
+    public OneActionFailPolicy() {
+        this(true);
     }
 
     @Override
@@ -39,5 +49,10 @@ public class OneActionFailPolicy implements I_SingleAgentFailPolicy {
         }
 
         return new SingleAgentPlan(a, List.of(bestMove));
+    }
+
+    @Override
+    public SingleAgentPlan getFailPlan(int farthestCommittedTime, @NotNull Agent a, @NotNull I_Location agentLocation, @NotNull I_OpenList<SingleAgentAStar_Solver.AStarState> openList, @NotNull Set<SingleAgentAStar_Solver.AStarState> ClosedList, @NotNull SingleAgentPlan existingPlan, @Nullable CongestionMap congestionMap, @NotNull RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable) {
+        return getFailPolicyPlan(farthestCommittedTime,a, agentLocation, conflictAvoidanceTable);
     }
 }

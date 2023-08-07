@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public record WaterfallPPRASFPComparatorFactory(@Nullable ArrayList<Integer> lockableTimeBuckets, @Nullable ArrayList<Integer> congestionBuckets) {
+public record WaterfallPPRASFPComparatorFactory(@Nullable ArrayList<Integer> lockableTimeBuckets, @Nullable ArrayList<Integer> congestionBuckets) implements I_PPRASFPComparatorFactory{
     public WaterfallPPRASFPComparator create(@Nullable CongestionMap congestionMap,
                                              @NotNull RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable,
                                              @Nullable Integer horizon){

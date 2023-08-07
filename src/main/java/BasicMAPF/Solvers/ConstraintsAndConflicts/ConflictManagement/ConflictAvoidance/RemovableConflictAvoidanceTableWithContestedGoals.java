@@ -206,6 +206,12 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
         addPlan(newPlan);
     }
 
+    /**
+     * Returns the first time that the given move conflicts with another move.
+     * @param move a move to check
+     * @param isALastMove whether the move is the last move of the agent, meaning it will stay there forever
+     * @return the first time that the given move conflicts with another move, or -1 if there is no conflict
+     */
     public int firstConflictTime(Move move, boolean isALastMove) {
         TimeLocation from = reusableTimeLocation1.setTo(move.timeNow - 1, move.prevLocation);
 
