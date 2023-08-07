@@ -26,7 +26,7 @@ jobs:
         run: mvn --batch-mode -DskipTests package
 
       - name: Test
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dmaven.test.skip=true -Dtest=!test.java.BasicMAPF.Solvers.StressTest test -x
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dmaven.test.skip=true -Dtest=!test.java.BasicMAPF.Solvers.StressTest test -X
 
       - name: Report
         uses: dorny/test-reporter@v1
@@ -55,7 +55,7 @@ jobs:
         run: mvn --batch-mode -DskipTests package
 
       - name: Test
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dmaven.test.skip=false -Dtest=test.java.BasicMAPF.Solvers.StressTest test -x
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dmaven.test.skip=false -Dtest=test.java.BasicMAPF.Solvers.StressTest test -X
 
       - name: Report
         uses: dorny/test-reporter@v1
