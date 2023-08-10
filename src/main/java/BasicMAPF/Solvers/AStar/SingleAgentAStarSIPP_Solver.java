@@ -8,11 +8,13 @@ import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.GraphMapVertex;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintGroupingKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
@@ -24,7 +26,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
-        constraintsByLocation = constraintsToFreeTimeIntervals(this.constraints, this.map.getAllGraphLocations());
+        constraintsByLocation = vertexConstraintsToFreeTimeIntervals(this.constraints, this.map.getAllGraphLocations());
         if (goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) {
             throw new IllegalArgumentException();
         }
@@ -64,7 +66,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             for (I_Location destination : neighborLocations) {
                 Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
                 AStarSIPPState rootState = new AStarSIPPState(possibleMove, null, this.gAndH.cost(possibleMove), 0, null, isMoveToTarget(possibleMove));
-                generateChild(rootState, possibleMove, true);
+                moveToNeighbor(rootState, possibleMove, true);
             }
         }
         // if none of the root nodes was valid, OPEN will be empty, and thus uninitialised.
@@ -80,60 +82,116 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         expandedNodes++;
         // can move to neighboring locations
         List<I_Location> neighborLocations = new ArrayList<>(state.move.currLocation.outgoingEdges());
+        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintTime();
 
         for (I_Location destination : neighborLocations) {
-            Move possibleMove = new Move(state.move.agent, state.move.timeNow + 1,
+            Move possibleMove = new Move(state.move.agent, !afterLastConstraint ? state.move.timeNow + 1 : state.move.timeNow,
                     state.move.currLocation, destination);
-            generateChild((AStarSIPPState) state, possibleMove, false);
+            moveToNeighbor((AStarSIPPState) state, possibleMove, false);
         }
     }
-    private void generateChild(AStarSIPPState state, Move possibleMove, boolean init) {
+
+    /**
+     * Generates a child state based on the move, current state, interval, and initialization state.
+     *
+     * @param move     The move to be made.
+     * @param state    The current state.
+     * @param interval The interval in which the move is being made.
+     * @param init     Flag indicating if this is an initial state or not.
+     * @return A new child AStarSIPPState based on the provided parameters.
+     */
+    private AStarSIPPState generateChildState(Move move, AStarSIPPState state, Interval interval, boolean init) {
+        if (init) {
+            return new AStarSIPPState(move, null, gAndH.cost(move), 0, interval, isMoveToTarget(move));
+        }
+        return new AStarSIPPState(move, state, state.g + gAndH.cost(move), state.conflicts + numConflicts(move), interval, isMoveToTarget(move));
+    }
+
+    /**
+     * Moves to a neighboring location based on the current state and a possible move.
+     *
+     * @param state        The current state.
+     * @param possibleMove The move to be checked.
+     * @param init         Flag indicating if this is an initial state or not.
+     */
+    private void moveToNeighbor(AStarSIPPState state, Move possibleMove, boolean init) {
         I_Location prevLocation = possibleMove.prevLocation;
         I_Location currLocation = possibleMove.currLocation;
+
+        // Retrieve free intervals for the current location
         List<Interval> freeIntervalsCurrLocation = constraintsByLocation.get(currLocation);
         int nextMoveStartTime = possibleMove.timeNow;
-        AStarSIPPState child;
-        Interval prevLocationRelevantInterval;
-        if (!init){
-            prevLocationRelevantInterval = state.timeInterval;
-        }
-        else {
-            prevLocationRelevantInterval = constraintsByLocation.get(prevLocation).get(0);
-        }
 
+        Interval prevLocationRelevantInterval = init ? constraintsByLocation.get(prevLocation).get(0):state.timeInterval;
+
+        // Iterate through the intervals of the current location
         for (Interval currInterval : freeIntervalsCurrLocation) {
             if (currInterval.end >= nextMoveStartTime) {
                 if ((currInterval.start <= nextMoveStartTime)) {
-                    if (!init) {
-                        child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), 0, currInterval, isMoveToTarget(possibleMove));
-                    } else {
-                        child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, currInterval, isMoveToTarget(possibleMove));
-                    }
-                    addToOpenList(child);
-                } else {
-                    if (prevLocationRelevantInterval.end >= currInterval.start - 1) {
-                        int timeToWait = currInterval.start - nextMoveStartTime;
-                        possibleMove = new Move(agent, nextMoveStartTime, prevLocation, prevLocation);
-                        if (!init) {
-                            child = new AStarSIPPState(possibleMove, state, state.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval, isMoveToTarget(possibleMove));
-                        } else {
-                            child = new AStarSIPPState(possibleMove, null, gAndH.cost(possibleMove), 0, prevLocationRelevantInterval, isMoveToTarget(possibleMove));
-                        }
-
-                        for (int t = 1; t < timeToWait; t++) {
-                            possibleMove = new Move(agent, nextMoveStartTime + t, prevLocation, prevLocation);
-                            child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), prevLocationRelevantInterval, isMoveToTarget(possibleMove));
-                        }
-                        possibleMove = new Move(agent, nextMoveStartTime + timeToWait, prevLocation, currLocation);
-                        child = new AStarSIPPState(possibleMove, child, child.g + gAndH.cost(possibleMove), state.conflicts + numConflicts(possibleMove), currInterval, isMoveToTarget(possibleMove));
-                        addToOpenList(child);
-                    }
-                    else return;
+                    moveIntoFreeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
+                    continue;
+                }
+                if (prevLocationRelevantInterval.end >= currInterval.start - 1) {
+                    moveIntoFreeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
                 }
             }
         }
     }
 
+    /**
+     * Moves into a free interval, creating child states as necessary.
+     *
+     * @param state                      The current state.
+     * @param possibleMove               The move to be checked.
+     * @param init                       Flag indicating if this is an initial state or not.
+     * @param prevLocation               The previous location from where the move starts.
+     * @param currLocation               The current/target location of the move.
+     * @param prevLocationRelevantInterval The relevant interval of the previous location.
+     * @param currInterval               The current interval being considered.
+     */
+    private void moveIntoFreeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation, I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
+        AStarSIPPState child = state;
+        int possibleMoveTime;
+        boolean afterLastConstraint;
+        Move samePossibleMove = null;
+
+        // If the move is accepted and is within the current interval, create a child state and add to the open list
+        if ((constraints.accepts(possibleMove)) && (possibleMove.timeNow >= currInterval.start)) {
+            child = generateChildState(possibleMove, state, currInterval, init);
+            addToOpenList(child);
+            return;
+        }
+
+        // Reset the move to start from the previous location
+        possibleMove = new Move(child.move.agent, possibleMove.timeNow, prevLocation, prevLocation);
+        while (possibleMove.timeNow <= prevLocationRelevantInterval.end) {
+            if (!constraints.accepts(possibleMove)) return;
+
+            // Generate child state based on the possible move
+            if (init) {
+                child = generateChildState(possibleMove, child, prevLocationRelevantInterval, init);
+                init = false;
+            } else child = generateChildState(possibleMove, child, prevLocationRelevantInterval, false);
+
+            afterLastConstraint = child.move.timeNow > constraints.getLastConstraintTime();
+            possibleMoveTime = !afterLastConstraint ? possibleMove.timeNow + 1 : child.move.timeNow;
+
+            // If the move time is within or right before the current interval, create the move and check constraints
+            if (possibleMove.timeNow >= currInterval.start - 1) {
+                possibleMove = new Move(child.move.agent, possibleMoveTime, prevLocation, currLocation);
+                if (constraints.accepts(possibleMove)) {
+                    child = generateChildState(possibleMove, child, currInterval, false);
+                    addToOpenList(child);
+                    return;
+                }
+                if (possibleMove.equals(samePossibleMove)) return;
+                samePossibleMove = possibleMove;
+            }
+
+            // Update the move to increment the time for the same location
+            possibleMove = new Move(child.move.agent, possibleMoveTime, prevLocation, prevLocation);
+        }
+    }
 
     private void addToOpenList(AStarSIPPState state) {
         AStarSIPPState existingState;
@@ -148,14 +206,28 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private static HashMap<I_Location, ArrayList<Interval>> constraintsToFreeTimeIntervals(ConstraintSet constraints, HashMap<I_Coordinate, GraphMapVertex> allGraphLocations) {
+    private HashMap<I_Location, ArrayList<Interval>> vertexConstraintsToFreeTimeIntervals(ConstraintSet constraints, HashMap<I_Coordinate, GraphMapVertex> allGraphLocations) {
         /*
           Originally constraints are by location and time, for the SIPP algorithm
           we convert the production of the constraints into time intervals by location
          */
         HashMap<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
         List<Integer> timesList;
-        for (I_ConstraintGroupingKey timeLocation : constraints.getKeySet()) {
+
+        // filter out constraints that are not vertex constraints
+        Map<I_ConstraintGroupingKey, Set<Constraint>> vertexConstraints = constraints.getEntrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .filter(constraint -> (((constraint.getPrevLocation() == null) && (constraint.agent == null) || (constraint.getPrevLocation() == null) && (constraint.agent.equals(this.agent)))))
+                                .collect(Collectors.toSet())
+                ));
+
+        vertexConstraints.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+
+
+        for (I_ConstraintGroupingKey timeLocation : vertexConstraints.keySet()) {
             timesList = timeIntervals.computeIfAbsent(timeLocation.getLocation(), k -> new ArrayList<>());
             timesList.add(timeLocation.getTime());
         }
@@ -184,7 +256,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         return intervalMap;
     }
 
-    public static ArrayList<Interval> timestampsToFreeIntervals(ArrayList<Integer> timestamps) {
+    private static ArrayList<Interval> timestampsToFreeIntervals(ArrayList<Integer> timestamps) {
         // Sort timestamps in ascending order
         Collections.sort(timestamps);
 
@@ -235,6 +307,5 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             return result;
         }
     }
-
 }
 

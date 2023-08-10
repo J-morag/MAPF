@@ -48,6 +48,9 @@ public class ConstraintSet{
         return constraints.keySet();
     }
 
+    public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet(){
+        return constraints.entrySet();
+    }
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}
         this.sharedGoals = toCopy.sharedGoals;
