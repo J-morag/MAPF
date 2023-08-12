@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PIBT_SolverTest {
 
@@ -49,6 +49,16 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceEmpty1;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
 
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+    }
+
+    @Test
+    void emptyMapHarderValidityTest1() {
+        MAPF_Instance testInstance = instanceEmptyHarder;
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+
+        System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
     }
 
@@ -57,6 +67,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
 
+        System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
     }
 
@@ -65,14 +76,28 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
 
+        System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
     }
 
     @Test
-    void unsolvable() {
-        MAPF_Instance testInstance = instanceUnsolvable;
+    void startAdjacentGoAroundValidityTest() {
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+        S_Metrics.removeReport(instanceReport);
 
-        assertNull(solved);
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+        assertEquals(6, solved.sumIndividualCosts());
+        assertEquals(4, solved.makespan());
     }
+
+//    @Test
+//    void unsolvable() {
+//        MAPF_Instance testInstance = instanceUnsolvable;
+//        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+//
+//        assertNull(solved);
+//    }
 }

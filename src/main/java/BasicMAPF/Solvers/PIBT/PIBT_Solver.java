@@ -42,6 +42,12 @@ public class PIBT_Solver extends A_Solver {
     private HashMap<Agent, I_Location> locations;
 
     /**
+     * Map saving current location for each agent in the specific time stamp t
+     * in the end of the time stamp, update locations
+     */
+    private HashMap<Agent, I_Location> desiredLocationsInNextT;
+
+    /**
      * Map saving priority of each agent
      */
     private HashMap<Agent, Double> priorities;
@@ -161,6 +167,7 @@ public class PIBT_Solver extends A_Solver {
 
         // if other != null then there is priority inheritance in the current function run
         // hence we need to make sure that the agents inherits priority can't:
+        // (originally he interrupt the other agent)
         //  1. stay in current node in the next timestamp
         //  2. move to the node where the higher priority agent is
 
@@ -285,7 +292,7 @@ public class PIBT_Solver extends A_Solver {
         int i = 1;
         for (Agent agent : instance.agents) {
             // (uniqueFactor * i) is a unique representation for the priority of each agent
-            this.priorities.put(agent, uniqueFactor * i); // +1?
+            this.priorities.put(agent, uniqueFactor * i);
             i++;
         }
     }
@@ -328,5 +335,14 @@ public class PIBT_Solver extends A_Solver {
             sumPriorities += this.priorities.get(agent);
         }
         return sumPriorities == -1.0 * numOfAgent;
+    }
+
+    /**
+     * functions to Update the corresponding entry in the 'locations' HashMap based on changes in 'locationsInCurrentT'
+     */
+    private void updateLocations() {
+        for (Map.Entry<Agent, I_Location> entry : this.desiredLocationsInNextT.entrySet()) {
+            this.locations.put(entry.getKey(), entry.getValue());
+        }
     }
 }
