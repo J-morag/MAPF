@@ -139,12 +139,12 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
 
 
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1PPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_10ASFP()); // greedy +IA +IGo-10-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1PPRIGo_10ASFP()); // greedy +IA +PPRIGo-10-ASFP
-        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1InterruptsPPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP +Interrupts
         solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPLookahead1InterruptsPPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP +Interrupts
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPRHCR_w10_h03Lookahead5PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleIAvoidFPRHCR_w10_h03Lookahead5InterruptsPPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP +Interrupts
 
         return solvers;
     }

@@ -26,11 +26,12 @@ public interface I_LifelongAgentSelector {
      * @param agentsWaitingToStart
      * @param agentDestinationQueues
      * @param agentsActiveDestination
+     * @param failedAgents
      * @return a subset of agents for which to plan at some point in time. could be lifelong or offline agents (and new or old), depending on implementation.
      */
     Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime,
                                                 Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart,
-                                                Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination);
+                                                Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents);
 
     default boolean timeToPlan(int farthestCommittedTime){
         return true;
