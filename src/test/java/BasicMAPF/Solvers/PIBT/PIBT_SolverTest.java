@@ -12,6 +12,7 @@ import Environment.Metrics.S_Metrics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
@@ -51,6 +52,10 @@ public class PIBT_SolverTest {
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
+
+        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(7, solved.makespan());
+        assertEquals(22 , solved.sumServiceTimes());
     }
 
     @Test
@@ -69,6 +74,10 @@ public class PIBT_SolverTest {
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
+
+        assertEquals(14, solved.sumIndividualCosts());
+        assertEquals(7, solved.makespan());
+        assertEquals(10 , solved.sumServiceTimes());
     }
 
     @Test
@@ -78,6 +87,10 @@ public class PIBT_SolverTest {
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
+
+        assertEquals(14, solved.sumIndividualCosts());
+        assertEquals(7, solved.makespan());
+        assertEquals(10 , solved.sumServiceTimes());
     }
 
     @Test
@@ -89,15 +102,13 @@ public class PIBT_SolverTest {
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
-        assertEquals(6, solved.sumIndividualCosts());
-        assertEquals(4, solved.makespan());
     }
 
-//    @Test
-//    void unsolvable() {
-//        MAPF_Instance testInstance = instanceUnsolvable;
-//        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
-//
-//        assertNull(solved);
-//    }
+    @Test
+    void unsolvable() {
+        MAPF_Instance testInstance = instanceUnsolvable;
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+
+        assertNull(solved);
+    }
 }

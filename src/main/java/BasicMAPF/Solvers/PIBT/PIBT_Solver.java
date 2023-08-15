@@ -17,6 +17,7 @@ import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import TransientMAPF.TransientMAPFSolution;
 
 import java.util.*;
 import java.util.stream.*;
@@ -53,14 +54,9 @@ public class PIBT_Solver extends A_Solver {
     private HashMap<Agent, Double> priorities;
 
     /**
-     * Map saving for each agent - distance between each node in the grid to goal
-     * key- I_Location (node) which is target of agent
-     * value- Map : key- I_Location (node)
-     *              value- Integer representing distance between target of current agent's goal and current node
-     *
-     * Assumption - goals are unique TODO check
+     * heuristic to use in the low level search to find the closets nodes to an agent's goal
      */
-    private Map<I_Location, Map<I_Location, Integer>> distancesFromGoal;
+    private DistanceTableAStarHeuristic heuristic;
 
     private MAPF_Instance currentInstance;
 
@@ -83,8 +79,7 @@ public class PIBT_Solver extends A_Solver {
     public PIBT_Solver() {
         this.locations = new HashMap<>();
         this.priorities = new HashMap<>();
-        this.distancesFromGoal = new HashMap<>();
-        this.solution = new Solution();
+        this.solution = new TransientMAPFSolution();
         this.agentPlans = new HashMap<>();
         this.timeStamp = 0;
     }
@@ -109,8 +104,8 @@ public class PIBT_Solver extends A_Solver {
         // init agent's priority to unique number
         initPriority(instance);
 
-        // init distance between every node in the grid to each agent's goal
-        initDistances(instance);
+        // init object who can find distance between every node in the grid to each agent's goal
+        this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
     }
 
 
@@ -128,8 +123,15 @@ public class PIBT_Solver extends A_Solver {
                 Agent agent = entry.getKey();
                 Double priority = entry.getValue();
                 if (priority != -1.0) {
+                    // the agent did not reach his goal
                     this.unhandledAgents.add(agent);
                 }
+//                else {
+//                    // the agent reached his goal
+//                    // add new move to the agent's plan - stay in current node
+//                    Move move = new Move(agent, this.timeStamp, this.locations.get(agent), this.locations.get(agent));
+//                    this.agentPlans.get(agent).addMove(move);
+//                }
             }
 
             this.takenNodes = new ArrayList<>();
@@ -137,8 +139,21 @@ public class PIBT_Solver extends A_Solver {
 
             while (!this.unhandledAgents.isEmpty()) {
                 Map.Entry<Agent, Double> maxEntry = getMaxEntry(this.priorities); // <agent, priority> pair wth max priority
-                Agent cur = maxEntry.getKey(); // agent with highest priority
+                Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
+            }
+
+            if (!(finished())) {
+                for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
+                    Agent agent = entry.getKey();
+                    Double priority = entry.getValue();
+                    // the agent reached his goal
+                    // add new move to the agent's plan - stay in current node
+                    if (priority == -1.0 && this.timeStamp - this.agentPlans.get(agent).size() == 1) {
+                        Move move = new Move(agent, this.timeStamp, this.locations.get(agent), this.locations.get(agent));
+                        this.agentPlans.get(agent).addMove(move);
+                    }
+                }
             }
         }
 
@@ -167,7 +182,7 @@ public class PIBT_Solver extends A_Solver {
 
         // if other != null then there is priority inheritance in the current function run
         // hence we need to make sure that the agents inherits priority can't:
-        // (originally he interrupt the other agent)
+        // (originally he interrupts the other agent)
         //  1. stay in current node in the next timestamp
         //  2. move to the node where the higher priority agent is
 
@@ -238,9 +253,12 @@ public class PIBT_Solver extends A_Solver {
     private void updatePriorities(MAPF_Instance instance) {
         for (Agent agent : this.priorities.keySet()) {
             // agent reach his target
-            if (this.locations.get(agent).equals(instance.map.getMapLocation(agent.target))) {
+            if (this.agentPlans.get(agent).containsTarget()) {
                 this.priorities.put(agent, -1.0);
             }
+//            if (this.locations.get(agent).equals(instance.map.getMapLocation(agent.target))) {
+//
+//            }
             else {
                 double currentPriority = this.priorities.get(agent);
                 this.priorities.put(agent, currentPriority + 1);
@@ -260,22 +278,19 @@ public class PIBT_Solver extends A_Solver {
     /**
      * helper function to find best coordinate among candidates
      * best will be the node which is closest to current agent goal
+     * distances are calculated using this.heuristic
      * @param candidates list of candidates
      * @param current Agent currently making decision
      * @return I_Location - node who is closets to current goal among candidates
      */
     private I_Location findBest(List<I_Location> candidates, Agent current) {
-        // save the map containing the distances between current's goal and all nodes in the map instance
-        Map<I_Location, Integer> tmpMap = this.distancesFromGoal.get(this.currentInstance.map.getMapLocation(current.target));
         I_Location bestCandidate = null;
-        int minDistance = Integer.MAX_VALUE;
+        Float minDistance = Float.MAX_VALUE;
         for (I_Location location : candidates) {
-            if (tmpMap.containsKey(location)) {
-                int distance = tmpMap.get(location);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    bestCandidate = location;
-                }
+            Float distance = this.heuristic.getHToTargetFromLocation(current.target, location);
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestCandidate = location;
             }
         }
         return bestCandidate;
@@ -295,14 +310,6 @@ public class PIBT_Solver extends A_Solver {
             this.priorities.put(agent, uniqueFactor * i);
             i++;
         }
-    }
-
-    /**
-     * update this.distancesFromGoal
-     */
-    private void initDistances(MAPF_Instance instance) {
-        DistanceTableAStarHeuristic distanceTableObject = new DistanceTableAStarHeuristic(instance.agents, instance.map);
-        this.distancesFromGoal = distanceTableObject.getDistanceDictionaries();
     }
 
     /**
