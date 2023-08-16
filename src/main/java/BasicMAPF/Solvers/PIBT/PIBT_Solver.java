@@ -17,6 +17,7 @@ import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSolution;
 
 import java.util.*;
@@ -42,11 +43,11 @@ public class PIBT_Solver extends A_Solver {
      */
     private HashMap<Agent, I_Location> locations;
 
-    /**
-     * Map saving current location for each agent in the specific time stamp t
-     * in the end of the time stamp, update locations
-     */
-    private HashMap<Agent, I_Location> desiredLocationsInNextT;
+//    /**
+//     * Map saving current location for each agent in the specific time stamp t
+//     * in the end of the time stamp, update locations
+//     */
+//    private HashMap<Agent, I_Location> desiredLocationsInNextT;
 
     /**
      * Map saving priority of each agent
@@ -77,11 +78,7 @@ public class PIBT_Solver extends A_Solver {
      * constructor
      */
     public PIBT_Solver() {
-        this.locations = new HashMap<>();
-        this.priorities = new HashMap<>();
-        this.solution = new TransientMAPFSolution();
-        this.agentPlans = new HashMap<>();
-        this.timeStamp = 0;
+        super.name = "PIBT";
     }
 
     /**
@@ -93,6 +90,13 @@ public class PIBT_Solver extends A_Solver {
     protected void init(MAPF_Instance instance, RunParameters parameters) {
         super.init(instance, parameters);
         this.currentInstance = instance;
+
+        this.locations = new HashMap<>();
+        this.priorities = new HashMap<>();
+        this.solution = new TransientMAPFSolution();
+        this.agentPlans = new HashMap<>();
+        this.timeStamp = 0;
+
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
             this.locations.put(agent, instance.map.getMapLocation(agent.source));
@@ -126,12 +130,6 @@ public class PIBT_Solver extends A_Solver {
                     // the agent did not reach his goal
                     this.unhandledAgents.add(agent);
                 }
-//                else {
-//                    // the agent reached his goal
-//                    // add new move to the agent's plan - stay in current node
-//                    Move move = new Move(agent, this.timeStamp, this.locations.get(agent), this.locations.get(agent));
-//                    this.agentPlans.get(agent).addMove(move);
-//                }
             }
 
             this.takenNodes = new ArrayList<>();
@@ -206,6 +204,7 @@ public class PIBT_Solver extends A_Solver {
                 for (Agent agent: this.locations.keySet()) {
                     if (this.locations.get(agent) == best) {
                         optional = agent;
+                        break;
                     }
                 }
 
@@ -237,8 +236,6 @@ public class PIBT_Solver extends A_Solver {
                 this.locations.put(current, best);
                 return "valid";
             }
-
-
         }
         // add new move to the agent's plan - stay in current node
         Move move = new Move(current, this.timeStamp, this.locations.get(current), this.locations.get(current));
@@ -256,9 +253,6 @@ public class PIBT_Solver extends A_Solver {
             if (this.agentPlans.get(agent).containsTarget()) {
                 this.priorities.put(agent, -1.0);
             }
-//            if (this.locations.get(agent).equals(instance.map.getMapLocation(agent.target))) {
-//
-//            }
             else {
                 double currentPriority = this.priorities.get(agent);
                 this.priorities.put(agent, currentPriority + 1);
@@ -344,12 +338,35 @@ public class PIBT_Solver extends A_Solver {
         return sumPriorities == -1.0 * numOfAgent;
     }
 
+//    /**
+//     * functions to Update the corresponding entry in the 'locations' HashMap based on changes in 'locationsInCurrentT'
+//     */
+//    private void updateLocations() {
+//        for (Map.Entry<Agent, I_Location> entry : this.desiredLocationsInNextT.entrySet()) {
+//            this.locations.put(entry.getKey(), entry.getValue());
+//        }
+//    }
+
     /**
-     * functions to Update the corresponding entry in the 'locations' HashMap based on changes in 'locationsInCurrentT'
+     * Clears local fields, to allow the garbage collector to clear the memory that is no longer in use.
+     * All fields should be cleared by this method. Any data that might be relevant later should be passed as part
+     * of the {@link Solution} that is output by {@link #solve(MAPF_Instance, RunParameters)}, or written to an {@link Environment.Metrics.InstanceReport}.
      */
-    private void updateLocations() {
-        for (Map.Entry<Agent, I_Location> entry : this.desiredLocationsInNextT.entrySet()) {
-            this.locations.put(entry.getKey(), entry.getValue());
-        }
+    @Override
+    protected void releaseMemory() {
+        super.releaseMemory();
+        this.agentPlans = null;
+        this.heuristic = null;
+        this.locations = null;
+        this.currentInstance = null;
+        this.priorities = null;
+        this.solution = null;
+        this.takenNodes = null;
+        this.unhandledAgents = null;
+    }
+
+    @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
     }
 }
