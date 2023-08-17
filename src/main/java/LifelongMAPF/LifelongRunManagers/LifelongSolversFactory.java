@@ -1469,7 +1469,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, 5);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -1486,7 +1486,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, 5);
         solver.name = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
