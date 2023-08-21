@@ -103,21 +103,21 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     @NotNull
     public static Collection<? extends I_Solver> getSolvers() {
         List<I_Solver> solvers = new ArrayList<>();
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead5()); // baseline and friends experiment // comparing macro FPs experiment
-//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w10_h03()); // baseline and friends experiment
-//        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartialOneActionRHCR_w10_h03()); // baseline and friends experiment // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialIAvoidFPRHCR_w10_h03Lookahead5()); // baseline and friends experiment // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialIAvoidFPRHCR_w10_h03()); // baseline and friends experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartialIAvoidRHCR_w10_h03()); // baseline and friends experiment // lookaheads experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAllStayFPRHCR_w10_h03Lookahead5()); // micro experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPRHCR_w10_h03Lookahead5()); // micro experiment
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5()); // baseline and friends experiment // lookaheads experiment // comparing macro FPs experiment // micro experiment
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP());
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // lookaheads experiment
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead5()); // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5()); // baseline and friends experiment // lookaheads experiment // comparing macro FPs experiment // micro experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP());
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead3()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialIAvoidFPRHCR_w10_h03Lookahead5()); // comparing macro FPs experiment
 
 //        // shorter planning period!
-        solvers.add(LifelongSolversFactory.OneActionFPLookahead1()); // greedy -integratedFP +IA
-        solvers.add(LifelongSolversFactory.OneActionFPLookahead1IntegratedFP()); // greedy +IA
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1()); // greedy -integratedFP +IA
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IntegratedFP()); // greedy +IA
         solvers.add(LifelongSolversFactory.StayOnceFPLookahead1()); // greedy -integratedFP
         solvers.add(LifelongSolversFactory.StayOnceFPLookahead1IntegratedFP()); // greedy
         solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf

@@ -9,12 +9,12 @@ class PostprocessRankingAStarFPTest {
     I_Solver simpleWithIAvoid =
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPLookahead1IAvoidASFP();
     I_Solver complexWithIAvoid =
-            LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP();
+            LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP();
 
     I_Solver simpleWithWaterfall =
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPLookahead1WaterfallPPRASFP();
     I_Solver complexWithWaterfall =
-            LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5WaterfallPPRASFP();
+            LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5WaterfallPPRASFP();
 
     @Test
     void simpleWithIAvoid(){
