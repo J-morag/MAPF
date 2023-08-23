@@ -40,13 +40,15 @@ public class PIBT_SolverTest {
     private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
     private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
-    private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
+    private final MAPF_Instance instanceAgentsInterruptsEachOther = new MAPF_Instance("instanceAgentsInterruptsEachOther", mapWithPocket, new Agent[]{agent43to53, agent55to34});
     private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
     private final MAPF_Instance instanceEmpty2 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to35, agent34to32, agent31to14, agent40to02, agent30to33});
 
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
     I_Solver PIBT_Solver = new PIBT_Solver();
+
+    long timeout = 10*1000;
 
     InstanceReport instanceReport;
 
@@ -60,10 +62,14 @@ public class PIBT_SolverTest {
         S_Metrics.removeReport(instanceReport);
     }
 
+
+
+//    Solution solved = ppSolver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -76,7 +82,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapValidityTest2() {
         MAPF_Instance testInstance = instanceEmpty2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -89,7 +95,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapHarderValidityTest1() {
         MAPF_Instance testInstance = instanceEmptyHarder;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -98,7 +104,7 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -111,7 +117,7 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -125,11 +131,24 @@ public class PIBT_SolverTest {
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
+    }
+
+    @Test
+    void instanceAgentsInterruptsEachOtherTest() {
+        MAPF_Instance testInstance = instanceAgentsInterruptsEachOther;
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+
+        assertEquals(10, solved.sumIndividualCosts());
+        assertEquals(5, solved.makespan());
+        assertEquals(6 , solved.sumServiceTimes());
     }
 
 
@@ -378,23 +397,21 @@ public class PIBT_SolverTest {
     }
 
 
+    @Test
+    void unsolvableMultipleInheritanceTest() {
+        MAPF_Instance testInstance = instanceMultipleInheritance;
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
-    // both test are not solvable and gives desired outcome - need to implement timeout to finish them
-//    @Test
-//    void unsolvableMultipleInheritanceTest() {
-//        MAPF_Instance testInstance = instanceMultipleInheritance;
-//        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
-//
-//        assertNull(solved);
-//    }
+        assertNull(solved);
+    }
+
+    @Test
+    void unsolvable() {
+        MAPF_Instance testInstance = instanceUnsolvable;
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+
+        assertNull(solved);
+    }
 
 
-
-//    @Test
-//    void unsolvable() {
-//        MAPF_Instance testInstance = instanceUnsolvable;
-//        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(instanceReport));
-//
-//        assertNull(solved);
-//    }
 }
