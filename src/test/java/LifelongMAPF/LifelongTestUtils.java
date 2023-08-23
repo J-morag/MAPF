@@ -26,6 +26,7 @@ public class LifelongTestUtils {
         //  handle this somehow... currently using a  very crude alternative of seeing that some progress was made
 //        assertTrue(new Solution(solution).solves(instance, true, false)); // solves (is full solution)
         assertTrue(((LifelongSolution)solution).throughputAtT(100) >= instance.agents.size());
+        System.out.println("Throughput: " + ((LifelongSolution)solution).throughputAtT(100));
     }
 
     public static void isPartialSolution(MAPF_Instance instance, Solution solution) {

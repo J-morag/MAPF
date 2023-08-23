@@ -115,36 +115,46 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead5()); // comparing macro FPs experiment
 
-//        // shorter planning period!
-        solvers.add(LifelongSolversFactory.OneActionFPLookahead1()); // greedy -integratedFP +IA
-        solvers.add(LifelongSolversFactory.OneActionFPLookahead1IntegratedFP()); // greedy +IA
-        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1()); // greedy -integratedFP
-        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1IntegratedFP()); // greedy
-        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
-        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
+        // shorter planning period!
 
-        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy (inc. inter.)
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1WaterfallPPRASFP_lockInf()); // greedy +IA (inc. inter.)
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IAvoidASFP()); // greedy +IA +IA-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_1ASFP()); // greedy +IA +IGo-1-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_2ASFP()); // greedy +IA +IGo-2-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_3ASFP()); // greedy +IA +IGo-3-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead3IGo_3ASFP()); // greedy +IA +IGo-3-ASFP + LH3
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_4ASFP()); // greedy +IA +IGo-4-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
-        solvers.add(LifelongSolversFactory.IGo_5FPLookahead1IGo_5ASFP()); // greedy +IGo-5 +IGo-5-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_10ASFP()); // greedy +IA +IGo-10-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_100ASFP()); // greedy +IA +IGo-100-ASFP
+//        solvers.add(LifelongSolversFactory.OneActionFPLookahead1()); // greedy -integratedFP +IA
+//        solvers.add(LifelongSolversFactory.OneActionFPLookahead1IntegratedFP()); // greedy +IA
+//        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1()); // greedy -integratedFP
+//        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1IntegratedFP()); // greedy
+//        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
+//        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
+//
+//        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy (inc. inter.)
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1WaterfallPPRASFP_lockInf()); // greedy +IA (inc. inter.)
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IAvoidASFP()); // greedy +IA +IA-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_1ASFP()); // greedy +IA +IGo-1-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_2ASFP()); // greedy +IA +IGo-2-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_3ASFP()); // greedy +IA +IGo-3-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead3IGo_3ASFP()); // greedy +IA +IGo-3-ASFP + LH3
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_4ASFP()); // greedy +IA +IGo-4-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
+//        solvers.add(LifelongSolversFactory.IGo_5FPLookahead1IGo_5ASFP()); // greedy +IGo-5 +IGo-5-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_10ASFP()); // greedy +IA +IGo-10-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_100ASFP()); // greedy +IA +IGo-100-ASFP
+//
+//
+//
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1PPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1InterruptsPPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP +Interrupts
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1InterruptsPPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP +Interrupts
+//        solvers.add(LifelongSolversFactory.IAvoidFPRHCR_w10_h03Lookahead5PPRIGo_20ASFP()); // RHCR +IA +IGo-20-ASFP
+//        solvers.add(LifelongSolversFactory.IAvoidFPRHCR_w10_h03Lookahead5InterruptsPPRIGo_20ASFP()); // RHCR +IA +IGo-20-ASFP +Interrupts
 
 
-
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1PPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1InterruptsPPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP +Interrupts
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1InterruptsPPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP +Interrupts
-        solvers.add(LifelongSolversFactory.IAvoidFPRHCR_w10_h03Lookahead5PPRIGo_20ASFP()); // RHCR +IA +IGo-20-ASFP
-        solvers.add(LifelongSolversFactory.IAvoidFPRHCR_w10_h03Lookahead5InterruptsPPRIGo_20ASFP()); // RHCR +IA +IGo-20-ASFP +Interrupts
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_1()); // greedy +IA +IGo-20-ASFP + 1 capacity
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_3()); // greedy +IA +IGo-20-ASFP + 3 capacity
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_6()); // greedy +IA +IGo-20-ASFP + 6 capacity
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_9()); // greedy +IA +IGo-20-ASFP + 9 capacity
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_12()); // greedy +IA +IGo-20-ASFP + 12 capacity
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP + inf capacity
 
         return solvers;
     }
