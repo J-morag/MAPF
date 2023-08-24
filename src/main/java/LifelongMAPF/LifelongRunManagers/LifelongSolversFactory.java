@@ -20,10 +20,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), 
                         true, true, null, null, null), null, null, null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -32,10 +29,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -43,10 +37,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 5, null), null, new WidePartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -55,10 +46,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, null, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -66,10 +54,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 5, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -77,10 +62,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 5, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -88,10 +70,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 5, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -99,10 +78,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -110,10 +86,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -121,10 +94,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 15, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -132,10 +102,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 15, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -143,10 +110,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(3)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 20, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -154,10 +118,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 20, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -165,10 +126,7 @@ public class LifelongSolversFactory {
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(10)),
                 new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 20, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -177,10 +135,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, null, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -189,10 +144,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -201,10 +153,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), null, 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -213,10 +162,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -225,10 +171,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -237,10 +180,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, null, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -249,10 +189,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -261,10 +198,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), null, 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -273,10 +207,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -285,10 +216,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -297,10 +225,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -309,10 +234,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -321,10 +243,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
     
@@ -333,10 +252,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new WidePartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -345,10 +261,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new DeepPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -357,10 +270,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new DeepPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
     
@@ -369,10 +279,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -381,10 +288,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new OneDeepThenWidePartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -393,10 +297,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new OneDeepThenWidePartialSolutionsStrategy(), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -405,10 +306,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -417,10 +315,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -429,10 +324,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new AllStayOnceFailPolicy(), 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -441,10 +333,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new WidePartialSolutionsStrategy(), new IAvoidFailPolicy(true), 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -453,10 +342,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new OneDeepThenWidePartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -465,10 +351,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new DeepUntilFoundFullPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -477,10 +360,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new DeepUntilFoundFullPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -489,10 +369,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepUntilFoundFullPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -501,10 +378,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new StochasticIndexBasedPartialSolutionsStrategy(1.0, null), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -513,10 +387,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new StochasticIndexBasedPartialSolutionsStrategy(1.0, null), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -525,10 +396,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new StochasticIndexBasedPartialSolutionsStrategy(0.75, null), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -537,10 +405,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new StochasticIndexBasedPartialSolutionsStrategy(0.50, null), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -549,10 +414,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new StochasticIndexBasedPartialSolutionsStrategy(0.50, null), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -561,10 +423,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new AdaptiveIndexPartialSolutionsStrategy(0.25, 0.1, 42), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -573,10 +432,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new AdaptiveIndexPartialSolutionsStrategy(0.25, 0.1, 42), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -585,10 +441,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -597,10 +450,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.50), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -609,10 +459,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.75), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -621,10 +468,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -633,10 +477,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.50), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -645,10 +486,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.75), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -657,10 +495,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -669,10 +504,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 5, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -681,10 +513,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -693,10 +522,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), null, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -705,10 +531,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -717,10 +540,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -729,10 +549,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -741,10 +558,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -753,10 +567,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -765,10 +576,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -777,10 +585,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -789,10 +594,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -801,10 +603,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 5, null), null, new IndexBasedPartialSolutionsStrategy(0.25), null, 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -813,10 +612,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.25), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -825,10 +621,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -837,10 +630,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -849,10 +639,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -861,10 +648,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 1);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -873,10 +657,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.25), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -885,10 +666,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 4);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -897,26 +675,20 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver stationaryAgentsPrPDeepPartialStayOnceFPLookahead1IntegratedIAvoid(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 1);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -930,16 +702,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver stationaryAgentsPrPDeepPartialStayOnceFPLookahead1IAvoidASFP(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         I_AStarFailPolicy asfpf = new IAvoid1ASFP();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
@@ -947,10 +716,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 1);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -965,16 +731,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver stationaryAgentsPrPDeepPartialStayOnceFPLookahead1WaterfallPPRASFP(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), null, RHCRHorizon);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
@@ -982,10 +745,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 1);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -999,10 +759,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1011,10 +768,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 6);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1023,10 +777,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 7);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1035,10 +786,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 8);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1047,10 +795,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 9);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1059,10 +804,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 10);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1071,10 +813,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.50), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1083,10 +822,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new IndexBasedPartialSolutionsStrategy(0.75), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1095,10 +831,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new StochasticIndexBasedPartialSolutionsStrategy(1.0, null), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1107,10 +840,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new AdaptiveIndexPartialSolutionsStrategy(0.25, 0.1, 42), new IAvoidFailPolicy(true), 2);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1119,23 +849,17 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver StayOnceFPLookahead1(){
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, null), null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1147,31 +871,25 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver StayOnceFPLookahead1IntegratedFP(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver StayOnceFPLookahead1WaterfallPPRASFP_lockInf(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToInfinity = true;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
@@ -1180,16 +898,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
-    public static I_Solver IAvoidFPLookahead1WaterfallPPRASFP_lockInf(){
+    public static I_Solver IStayFPLookahead1WaterfallPPRASFP_lockInf(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToInfinity = true;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
@@ -1198,10 +913,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1215,10 +927,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1232,10 +941,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1249,10 +955,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1266,10 +969,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1283,10 +983,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1300,16 +997,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
-    public static I_Solver IAvoidFPLookahead1IGo_5ASFP(){
+    public static I_Solver IStayFPLookahead1IGo_5ASFP(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         I_AStarFailPolicy asfpf = new IGoDASFP(5);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
@@ -1317,16 +1011,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
-    public static I_Solver IAvoidFPLookahead1IAvoid_5ASFP(){
+    public static I_Solver IStayFPLookahead1IAvoid_5ASFP(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         I_AStarFailPolicy asfpf = new IAvoidDASFP(5);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
@@ -1334,10 +1025,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1351,10 +1039,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1368,10 +1053,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1385,10 +1067,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1402,10 +1081,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1419,16 +1095,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
-    public static I_Solver IAvoidFPLookahead1IGo_20ASFP(){
+    public static I_Solver IStayFPLookahead1IGo_20ASFP(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         I_AStarFailPolicy asfpf = new IGoDASFP(20);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
@@ -1436,10 +1109,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1453,16 +1123,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
-    public static I_Solver IAvoidFPLookahead1IAvoid_20ASFP(){
+    public static I_Solver IStayFPLookahead1IAvoid_20ASFP(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         I_AStarFailPolicy asfpf = new IAvoidDASFP(20);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
@@ -1470,10 +1137,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1487,10 +1151,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1504,10 +1165,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1521,10 +1179,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1538,10 +1193,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1555,10 +1207,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1572,16 +1221,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver StayOnceFPLookahead1WaterfallPPRASFP_lockInf_cong0p1(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToInfinity = true;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
@@ -1590,16 +1236,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 0.1, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver StayOnceFPLookahead1WaterfallPPRASFP_noLockInf(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToInfinity = false;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
@@ -1608,16 +1251,13 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
     public static I_Solver StayOnceFPLookahead1WaterfallPPRASFP_lockPeriod(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new StayOnceFailPolicy();
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
         boolean requireLockableToHorizon = true;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToHorizon, replanningPeriod);
@@ -1626,10 +1266,7 @@ public class LifelongSolversFactory {
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
                 null, new DeepPartialSolutionsStrategy(), fp, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1638,10 +1275,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1650,10 +1284,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, null, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1662,10 +1293,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, 10, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1674,10 +1302,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, 20, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1686,10 +1311,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, 30, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1698,10 +1320,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 3);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1710,10 +1329,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, null), null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 5);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 
@@ -1722,10 +1338,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, null), null, new DeepPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
 
     }
@@ -1735,10 +1348,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, null, null), 0.5, new DeepPartialSolutionsStrategy(), null, null);
-        solver.name = new Object() {}
-                .getClass()
-                .getEnclosingMethod()
-                .getName();
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
 

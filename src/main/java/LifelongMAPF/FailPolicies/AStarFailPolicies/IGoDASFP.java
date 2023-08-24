@@ -11,7 +11,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.I_OpenList;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
-import LifelongMAPF.FailPolicies.StayOnceFailPolicy;
+import LifelongMAPF.FailPolicies.IStayFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,7 +88,7 @@ public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
                 }
             }
         }
-        return StayOnceFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+        return IStayFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
     }
 
     protected int getCost(IGoState curr, double edgeDistanceFromSourceDelta) {
