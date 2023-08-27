@@ -902,7 +902,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver IStayFPLookahead1WaterfallPPRASFP_lockInf(){
+    public static I_Solver WaterfallPPRASFP_lockInf(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
@@ -1001,7 +1001,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver IStayFPLookahead1IGo_5ASFP(){
+    public static I_Solver IGo_5ASFP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
@@ -1015,7 +1015,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver IStayFPLookahead1IAvoid_5ASFP(){
+    public static I_Solver IAvoid_5ASFP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
@@ -1099,7 +1099,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver IStayFPLookahead1IGo_20ASFP(){
+    public static I_Solver IGo_20ASFP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
@@ -1127,7 +1127,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver IStayFPLookahead1IAvoid_20ASFP(){
+    public static I_Solver IAvoid_20ASFP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         Integer RHCRHorizon = null;
