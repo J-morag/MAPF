@@ -2,6 +2,7 @@ package BasicMAPF.Instances.Maps;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import org.apache.commons.collections4.list.UnmodifiableList;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,10 +39,16 @@ public class GraphMapVertex implements I_Location {
 
     public final I_Coordinate coordinate;
 
-    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate) {
+    public final List<String> coordinatesLocationSubtypes;
+
+    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate, @Nullable List<String> coordinatesLocationSubtypes) {
         this.locationType = locationType;
         this.coordinate = coordinate;
         this.outgoingEdges = null;
+        this.coordinatesLocationSubtypes = coordinatesLocationSubtypes == null ? null : List.copyOf(coordinatesLocationSubtypes);
+    }
+    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate) {
+        this(locationType, coordinate, null);
     }
 
     /**
@@ -138,6 +145,11 @@ public class GraphMapVertex implements I_Location {
     @Override
     public List<Integer> getIncomingEdgesWeights() {
         return null;
+    }
+
+    @Override
+    public @Nullable List<String> getSubtypes() {
+        return coordinatesLocationSubtypes;
     }
 
     /**
