@@ -40,7 +40,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
     private final boolean dropDisabledEdges;
     private final boolean forceEdgesBidirectional;
-    private final ScenarioBuilder_Warehouse scenarioReader = new ScenarioBuilder_Warehouse();
+    private final ScenarioBuilder_Warehouse scenarioReader = new ScenarioBuilder_WarehouseGenerative();
 
     public InstanceBuilder_Warehouse() {
         this(null, null);
