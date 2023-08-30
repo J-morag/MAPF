@@ -72,7 +72,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         int[] numOfAgentsFromProperties = (instanceProperties.numOfAgents == null || instanceProperties.numOfAgents.length == 0
                 ? new int[]{this.defaultNumOfAgents} : instanceProperties.numOfAgents);
 
-        populateAgents(instanceName, instanceProperties, moving_ai_path, graphMap, numOfAgentsFromProperties);
+        populateAgents(mapName, instanceProperties, moving_ai_path, graphMap, numOfAgentsFromProperties);
     }
 
     private void populateAgents(String instanceName, InstanceProperties instanceProperties, InstanceManager.Moving_AI_Path moving_ai_path, GraphMap graphMap, int[] numOfAgentsFromProperties) {

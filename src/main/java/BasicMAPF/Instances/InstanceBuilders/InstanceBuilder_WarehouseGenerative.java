@@ -9,9 +9,10 @@ public class InstanceBuilder_WarehouseGenerative extends InstanceBuilder_Warehou
     private final List<Integer> seeds;
     private final MDP mdp;
 
-    public InstanceBuilder_WarehouseGenerative(Boolean dropDisabledEdges, @NotNull List<Integer> seeds, @NotNull MDP mdp)
+    public InstanceBuilder_WarehouseGenerative(Boolean dropDisabledEdges, Boolean forceEdgesBidirectional,
+                                               @NotNull List<Integer> seeds, @NotNull MDP mdp)
     {
-        super(dropDisabledEdges);
+        super(dropDisabledEdges, forceEdgesBidirectional);
         this.seeds = seeds;
         this.mdp = mdp;
     }
