@@ -177,7 +177,8 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     private GraphMap getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
         Map<Coordinate_2D, List<Coordinate_2D>> coordinatesAdjacencyLists = new HashMap<>();
         Map<Coordinate_2D, List<Integer>> coordinatesEdgeWeights = new HashMap<>();
-        Map<Coordinate_2D, Enum_MapLocationType> locationTypes = new HashMap<>();
+        Map<Coordinate_2D, Enum_MapLocationType> coordinatesLocationType = new HashMap<>();
+        Map<Coordinate_2D, List<String>> coordinatesLocationSubtypes = new HashMap<>();
         Set<Coordinate_2D> canonicalCoordinates = new HashSet<>();
 
         JSONObject mapJobj = readJsonMapFile(instancePath);
@@ -192,7 +193,8 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             JSONArray vertexData = mapJobj.getJSONArray(currentStickerCoordinatesString);
             // first part of sticker data - a map with a key "tags" to array of tags
             JSONArray tagsJA = vertexData.getJSONObject(0).getJSONArray("tags");
-            List<String> tagStrings = (List<String>)(Object)(tagsJA.toList()); // not currently doing anything with tags
+            List<String> tagStrings = (List<String>)(Object)(tagsJA.toList());
+            coordinatesLocationSubtypes.put(currentStickerCoordinate, tagStrings);
             // second part of the sticker data - an array of edges
             JSONArray edgesJA = vertexData.getJSONArray(1);
             List<Coordinate_2D> neighbors = new ArrayList<>(edgesJA.length());
@@ -221,7 +223,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                     for (int j = 1; j < realDistance; j++) {
                         Coordinate_2D intermediateVertex = toCoor2D(currentStickerCoordinate.x_value + (delta_x/realDistance)*j,
                                 currentStickerCoordinate.y_value + (delta_y/realDistance)*j, canonicalCoordinates);
-                        locationTypes.put(intermediateVertex, Enum_MapLocationType.EMPTY);
+                        coordinatesLocationType.put(intermediateVertex, Enum_MapLocationType.EMPTY);
                         intermediateVertices.add(intermediateVertex);
                     }
                     intermediateVertices.add(neighborCoordinate);
@@ -244,34 +246,21 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             if (!neighbors.isEmpty()){
                 coordinatesAdjacencyLists.put(currentStickerCoordinate, neighbors);
                 coordinatesEdgeWeights.put(currentStickerCoordinate, edgeWeights);
-                locationTypes.put(currentStickerCoordinate, Enum_MapLocationType.EMPTY);
+                coordinatesLocationType.put(currentStickerCoordinate, Enum_MapLocationType.EMPTY);
             }
         }
 
         if (forceEdgesBidirectional){
-            for (Coordinate_2D coordinate : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
-                List<Coordinate_2D> neighbors = coordinatesAdjacencyLists.get(coordinate);
-                for (int neighborIndex = 0; neighborIndex < neighbors.size(); neighborIndex++) {
-                    Coordinate_2D neighborOutgoingEdge = neighbors.get(neighborIndex);
-                    int neighborOutgoingEdgeWeight = coordinatesEdgeWeights.get(coordinate).get(neighborIndex);
-
-                    // add reverse edge
-                    List<Coordinate_2D> neighborNeighbors = coordinatesAdjacencyLists.get(neighborOutgoingEdge);
-                    List<Integer> neighborNeighborsWeights = coordinatesEdgeWeights.get(neighborOutgoingEdge);
-                    if (neighborNeighbors != null && neighborNeighborsWeights != null){
-                        if (!neighborNeighbors.contains(coordinate)){
-                            neighborNeighbors.add(coordinate);
-                            neighborNeighborsWeights.add(neighborOutgoingEdgeWeight);
-                        }
-                    }
-                    else {
-                        throw new IllegalStateException("Missing neighbor: " + neighborOutgoingEdge);
-                    }
-                }
-            }
+            forceEdgesBidirectional(coordinatesAdjacencyLists, coordinatesEdgeWeights);
         }
 
-        // validate
+        validateMapConstruction(coordinatesAdjacencyLists);
+
+        return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights,
+                coordinatesLocationType, true, coordinatesLocationSubtypes);
+    }
+
+    private static void validateMapConstruction(Map<Coordinate_2D, List<Coordinate_2D>> coordinatesAdjacencyLists) {
         for (Coordinate_2D coordinate1 : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
             for (Coordinate_2D coordinate2 : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
                 if (coordinate1 != coordinate2 && isWithinThreshold(coordinate1, coordinate2)){
@@ -279,9 +268,29 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 }
             }
         }
+    }
 
-        return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights,
-                locationTypes, true);
+    private static void forceEdgesBidirectional(Map<Coordinate_2D, List<Coordinate_2D>> coordinatesAdjacencyLists, Map<Coordinate_2D, List<Integer>> coordinatesEdgeWeights) {
+        for (Coordinate_2D coordinate : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
+            List<Coordinate_2D> neighbors = coordinatesAdjacencyLists.get(coordinate);
+            for (int neighborIndex = 0; neighborIndex < neighbors.size(); neighborIndex++) {
+                Coordinate_2D neighborOutgoingEdge = neighbors.get(neighborIndex);
+                int neighborOutgoingEdgeWeight = coordinatesEdgeWeights.get(coordinate).get(neighborIndex);
+
+                // add reverse edge
+                List<Coordinate_2D> neighborNeighbors = coordinatesAdjacencyLists.get(neighborOutgoingEdge);
+                List<Integer> neighborNeighborsWeights = coordinatesEdgeWeights.get(neighborOutgoingEdge);
+                if (neighborNeighbors != null && neighborNeighborsWeights != null){
+                    if (!neighborNeighbors.contains(coordinate)){
+                        neighborNeighbors.add(coordinate);
+                        neighborNeighborsWeights.add(neighborOutgoingEdgeWeight);
+                    }
+                }
+                else {
+                    throw new IllegalStateException("Missing neighbor: " + neighborOutgoingEdge);
+                }
+            }
+        }
     }
 
     private static boolean isWithinThreshold(Coordinate_2D coordinate1, Coordinate_2D coordinate2) {
