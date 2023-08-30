@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 public class SingleAgentPlan implements Iterable<Move> {
     private List<Move> moves;
     public final Agent agent;
+    private int firstVisitToTargetTime = -1;
 
     /**
      * @param moves a sequence of moves for the agent. Can be empty. All {@link Move}s must be moves for the same {@link Agent},
@@ -24,10 +25,8 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public SingleAgentPlan(Agent agent, Iterable<Move> moves) {
         if(moves == null || agent == null) throw new IllegalArgumentException();
-        ArrayList<Move> localMovesCopy = Lists.newArrayList(moves);
-        if(!isValidMoveSequenceForAgent(localMovesCopy, agent)) throw new IllegalArgumentException();
         this.agent = agent;
-        this.moves = localMovesCopy;
+        setMoves(moves);
     }
 
     /**
@@ -37,6 +36,7 @@ public class SingleAgentPlan implements Iterable<Move> {
      */
     public SingleAgentPlan(SingleAgentPlan planToCopy){
         this(planToCopy.agent, planToCopy.moves);
+        this.firstVisitToTargetTime = planToCopy.firstVisitToTargetTime;
     }
 
     public SingleAgentPlan(Agent agent) {
@@ -76,24 +76,22 @@ public class SingleAgentPlan implements Iterable<Move> {
     public void addMove(Move newMove){
         if(isValidNextMoveForAgent(this.moves, newMove, this.agent)){
             this.moves.add(newMove);
+            if (newMove.currLocation.getCoordinate().equals(agent.target) && firstVisitToTargetTime == -1){
+                firstVisitToTargetTime = newMove.timeNow;
+            }
         }
         else {throw new IllegalArgumentException();}
     }
 
     /**
      * Appends a new sequence of moves to the current plan. The joint sequence must meet the same conditions as in
-     * {@link #setMoves(List)}.
+     * {@link #setMoves(Iterable)}.
      * @param newMoves a sequence of moves to append to the current plan.
      */
     public void addMoves(List<Move> newMoves){
         if(newMoves == null){throw new IllegalArgumentException();}
-        List<Move> tmpMoves = new ArrayList<>(this.moves);
-        tmpMoves.addAll(newMoves);
-        if(isValidMoveSequenceForAgent(tmpMoves, agent)){
-            this.moves = tmpMoves;
-        }
-        else{
-            throw new IllegalArgumentException();
+        for (Move move: newMoves) {
+            addMove(move);
         }
     }
 
@@ -101,7 +99,10 @@ public class SingleAgentPlan implements Iterable<Move> {
      * Clears the plan. Be careful when using this. The agent remains the same agent, and classes that use this plan
      * may behave unexpectedly if the plan they hold suddenly changes.
      */
-    public void clearMoves(){this.moves.clear();}
+    public void clearMoves(){
+        this.moves.clear();
+        this.firstVisitToTargetTime = -1;
+    }
 
     /**
      * Replaces the current plan with a copy of the given sequence of moves.
@@ -109,23 +110,18 @@ public class SingleAgentPlan implements Iterable<Move> {
      * {@link Move#timeNow} must form an ascending series with d=1. Must start at {@link #agent}s source.
      * @param newMoves a sequence of moves for the agent.
      */
-    public void setMoves(List<Move> newMoves){
+    public void setMoves(Iterable<Move> newMoves){
         if(newMoves == null) throw new IllegalArgumentException();
-        if(isValidMoveSequenceForAgent(newMoves, agent)){
-            this.moves = new ArrayList<>(newMoves);
-        }
-        else{
-            throw new IllegalArgumentException();
+        ArrayList<Move> localMovesCopy = Lists.newArrayList(newMoves);
+        if(!isValidMoveSequenceForAgent(localMovesCopy, agent)) throw new IllegalArgumentException("invalid move sequence for agent");
+        this.moves = localMovesCopy;
+        for (Move move: this.moves) {
+            if (move.currLocation.getCoordinate().equals(agent.target)){
+                this.firstVisitToTargetTime = move.timeNow;
+                break;
+            }
         }
     }
-
-//    /**
-//     * Returns a list of the moves in the plan. The returned list is a copy, and changes made in it will not effect the
-//     * plan.
-//     * @return a list of the moves in the plan. The returned list is a copy, and changes made in it will not effect the
-//     *      plan.
-//     */
-//    public List<Move> getMoves(){return new ArrayList<>(this.moves);}
 
     /**
      * Return the move in the plan where {@link Move#timeNow} equals the given time.
@@ -171,6 +167,14 @@ public class SingleAgentPlan implements Iterable<Move> {
      * @return the last {@link Move} in the plan, or null if the plan is empty.
      */
     public Move getLastMove(){return moves.isEmpty() ? null : moves.get(moves.size() - 1);}
+
+    public boolean containsTarget() {
+        return firstVisitToTargetTime != -1;
+    }
+
+    public int firstVisitToTargetTime(){
+        return firstVisitToTargetTime;
+    }
 
     /**
      * Returns the total time of the plan, which is the difference between end and start times. It is the same as the number of moves in the plan.

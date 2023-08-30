@@ -23,7 +23,7 @@ public class MapFactory {
      * @param isOneConnectedComponent if the grid is one connected component.
      * @return a new 4-connected {@link GraphMap}.
      */
-    public static GraphMap newSimple4Connected2D_GraphMap(Enum_MapLocationType[][] rectangle_2D_Map, boolean isOneConnectedComponent){
+    public static GraphBasedGridMap newSimple4Connected2D_GraphMap(Enum_MapLocationType[][] rectangle_2D_Map, boolean isOneConnectedComponent){
         int xAxis_length = rectangle_2D_Map.length;
         int yAxis_length = rectangle_2D_Map[0].length;
         GraphMapVertex[][] locations = new GraphMapVertex[xAxis_length][yAxis_length]; //rectangle map
@@ -58,7 +58,7 @@ public class MapFactory {
                 }
             }
         }
-        return new GraphMap(allLocations);
+        return new GraphBasedGridMap(locations, allLocations, isOneConnectedComponent);
     }
 
     /**
@@ -72,7 +72,7 @@ public class MapFactory {
      *                         original map's x dimension.
      * @return a new 4-connected {@link GraphMap}.
      */
-    public static GraphMap newSimple4Connected2D_GraphMap(Enum_MapLocationType[][] rectangle_2D_Map){
+    public static GraphBasedGridMap newSimple4Connected2D_GraphMap(Enum_MapLocationType[][] rectangle_2D_Map){
         return newSimple4Connected2D_GraphMap(rectangle_2D_Map, true);
     }
 

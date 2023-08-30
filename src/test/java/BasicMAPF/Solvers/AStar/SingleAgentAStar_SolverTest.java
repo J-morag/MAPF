@@ -1,9 +1,15 @@
 package BasicMAPF.Solvers.AStar;
 
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
+import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -277,26 +283,7 @@ class SingleAgentAStar_SolverTest {
     }
 
     @Test
-    void accountsForMultipleConstraintsAfterReachingGoal() {
-        MAPF_Instance testInstance = instanceEmpty1;
-        Agent agent = testInstance.agents.get(0);
-        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
-        Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,13, null, instanceEmpty1.map.getMapLocation(coor05));
-        Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,14, null, instanceEmpty1.map.getMapLocation(coor05));
-        ConstraintSet constraints = new ConstraintSet();
-        constraints.add(constraintAtTimeAfterReachingGoal1);
-        constraints.add(constraintAtTimeAfterReachingGoal2);
-        constraints.add(constraintAtTimeAfterReachingGoal3);
-        RunParameters runParameters = new RunParameters(constraints);
-
-        Solution solved1 = aStar.solve(testInstance, runParameters);
-
-        //was made longer because it has to come back to goal after avoiding the constraint
-        assertEquals(15, solved1.getPlanFor(agent).size());
-    }
-
-    @Test
-    void accountsForMultipleConstraintsAfterReachingGoal2() {
+    void accountsForConstraintAfterReachingGoal2() {
         // now with an expected plan
 
         MAPF_Instance testInstance = instanceCircle2;
@@ -334,6 +321,47 @@ class SingleAgentAStar_SolverTest {
     }
 
     @Test
+    void accountsForConstraintInFarFutureAfterReachingGoal() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+        Constraint constraintAtTimeAfterReachingGoal = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,90, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,200, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal);
+        constraints.add(constraintAtTimeAfterReachingGoal2);
+        constraints.add(constraintAtTimeAfterReachingGoal3);
+        for (int t = 0; t < 200 /*agents*/ * 200 /*timesteps* * 2 /*constraints*/; t++) {
+            constraints.add(new Constraint(agent,t, null, instanceEmpty1.map.getMapLocation(coor15)));
+        }
+        RunParameters runParameters = new RunParameters(constraints);
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+
+        //was made longer because it has to come back to goal after avoiding the constraint
+        assertEquals(201, solved1.getPlanFor(agent).size());
+    }
+
+    @Test
+    void accountsForMultipleConstraintsAfterReachingGoal() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,13, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,14, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+        constraints.add(constraintAtTimeAfterReachingGoal2);
+        constraints.add(constraintAtTimeAfterReachingGoal3);
+        RunParameters runParameters = new RunParameters(constraints);
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+
+        //was made longer because it has to come back to goal after avoiding the constraint
+        assertEquals(15, solved1.getPlanFor(agent).size());
+    }
+
+    @Test
     void continuingFromExistingPlan() {
         // modified from circleOptimality1()
 
@@ -360,6 +388,55 @@ class SingleAgentAStar_SolverTest {
 
         assertEquals(5, solved.getPlanFor(agent).size());
         assertEquals(expected, solved);
+    }
+
+    @Test
+    void findsTMAPFPlanUnderConstraintsUsingTMAPFGoalCondition() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,13, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,14, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+        constraints.add(constraintAtTimeAfterReachingGoal2);
+        constraints.add(constraintAtTimeAfterReachingGoal3);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
+        runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+    }
+
+    @Test
+    void findsTMAPFPlanUnderConstraintsAlsoAroundGoalUsingTMAPFGoalCondition() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoalAroundGoal1 = new Constraint(agent,14, null, instanceEmpty1.map.getMapLocation(coor15));
+        Constraint constraintAtTimeAfterReachingGoalAroundGoal2 = new Constraint(agent,14, null, instanceEmpty1.map.getMapLocation(coor04));
+        Constraint constraintAtTimeAfterReachingGoal2 = new Constraint(agent,13, null, instanceEmpty1.map.getMapLocation(coor05));
+        Constraint constraintAtTimeAfterReachingGoal3 = new Constraint(agent,14, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+        constraints.add(constraintAtTimeAfterReachingGoal2);
+        constraints.add(constraintAtTimeAfterReachingGoal3);
+        constraints.add(constraintAtTimeAfterReachingGoalAroundGoal1);
+        constraints.add(constraintAtTimeAfterReachingGoalAroundGoal2);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
+        runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+
+        // has to visit goal at some point, and then can finish the plan anywhere else,
+        // but the surrounding locations also have constraints in the future, so has to take 2 steps
+        assertEquals(9, solved1.getPlanFor(agent).size());
     }
 
     private class UnitCostAndNoHeuristic implements AStarGAndH {

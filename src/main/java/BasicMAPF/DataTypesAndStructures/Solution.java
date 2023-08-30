@@ -1,8 +1,10 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import Environment.Metrics.InstanceReport;
@@ -15,6 +17,7 @@ import java.util.function.Consumer;
  * If the collection contains more than one plan, it is a solution to a Multi Agent Path Finding problem.
  */
 public class Solution implements Iterable<SingleAgentPlan>{
+    private static final int looseMaxSolutionStringChars = 10000 /*lines*/ * 20 /*chars (roughly)*/;
     /**
      * A {@link Map}, mapping {@link Agent agents} to their {@link SingleAgentPlan plans}.
      */
@@ -127,9 +130,8 @@ public class Solution implements Iterable<SingleAgentPlan>{
             if (plan.size() == 0){
                 continue;
             }
-            // check start and end at source and target
-            if (!plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source)) /*start at source*/
-                || !plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target))) /*end at target*/
+            // check source and target
+            if (!isStartsAtSource(instance, plan) || !isAchievesTarget(instance, plan) )
             {
                 return false;
             }
@@ -153,6 +155,14 @@ public class Solution implements Iterable<SingleAgentPlan>{
             }
         }
         return true;
+    }
+
+    protected boolean isAchievesTarget(MAPF_Instance instance, SingleAgentPlan plan) {
+        return plan.moveAt(plan.getEndTime()).currLocation.equals(instance.map.getMapLocation(plan.agent.target));
+    }
+
+    private static boolean isStartsAtSource(MAPF_Instance instance, SingleAgentPlan plan) {
+        return plan.moveAt(plan.getFirstMoveTime()).prevLocation.equals(instance.map.getMapLocation(plan.agent.source));
     }
 
     /**
@@ -223,6 +233,14 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return SOC;
     }
 
+    public int sumServiceTimes() {
+        int sumServiceTimes = 0;
+        for (SingleAgentPlan plan : this) {
+            sumServiceTimes += plan.firstVisitToTargetTime();
+        }
+        return sumServiceTimes;
+    }
+
     public int makespan(){
         int maxCost = 0;
         for (SingleAgentPlan plan :
@@ -230,6 +248,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
             maxCost = Math.max(maxCost, plan.getCost());
         }
         return maxCost;
+    }
+
+    public int endTime(){
+        int maxTime = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            maxTime = Math.max(maxTime, plan.getEndTime());
+        }
+        return maxTime;
     }
 
     @Override
@@ -249,6 +276,10 @@ public class Solution implements Iterable<SingleAgentPlan>{
         Collections.sort(agents, Comparator.comparing(agent -> agent.iD));
         for(Agent agent : agents){
             sb.append(this.agentPlans.get(agent));
+            if (sb.length() > looseMaxSolutionStringChars){
+                sb.append("... (truncated)");
+                break;
+            }
         }
         sb.append('\n');
         return sb;
@@ -284,5 +315,16 @@ public class Solution implements Iterable<SingleAgentPlan>{
     @Override
     public Spliterator<SingleAgentPlan> spliterator() {
         return agentPlans.values().spliterator();
+    }
+
+    public I_Location getAgentLocation(Agent agent, int time) {
+        if (agentPlans.get(agent).getEndTime() < time)
+            return agentPlans.get(agent).moveAt(agentPlans.get(agent).getEndTime()).currLocation;
+        else if (agentPlans.get(agent).getFirstMoveTime() > time
+                || agentPlans.get(agent).getPlanStartTime() == time)
+            return agentPlans.get(agent).moveAt(agentPlans.get(agent).getFirstMoveTime()).prevLocation;
+        else
+            return agentPlans.get(agent).moveAt(time).currLocation;
+
     }
 }

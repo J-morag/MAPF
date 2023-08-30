@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructu
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 
 import java.util.*;
 

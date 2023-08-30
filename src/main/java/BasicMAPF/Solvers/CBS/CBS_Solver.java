@@ -2,16 +2,19 @@ package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.DataTypesAndStructures.OpenListHeap;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.SingleUseConflictAvoidanceTable;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.SingleUseConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
@@ -335,7 +338,7 @@ public class CBS_Solver extends A_Solver {
      * @return a solution to a single agent sub-problem. Typically the same object as currentSolution, after being modified.
      */
     private Solution solveSubproblem(Agent agent, Solution currentSolution, ConstraintSet constraints) {
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = new InstanceReport();
         RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport, agent);
         Solution subproblemSolution = this.lowLevelSolver.solve(this.instance.getSubproblemFor(agent), subproblemParameters);
         digestSubproblemReport(instanceReport);
@@ -356,17 +359,6 @@ public class CBS_Solver extends A_Solver {
             subproblemParametes = astarSbuproblemParameters;
         }
         return subproblemParametes;
-    }
-
-    private void digestSubproblemReport(InstanceReport subproblemReport) {
-        Integer statesGenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
-        super.totalLowLevelStatesGenerated += statesGenerated==null ? 0 : statesGenerated;
-        Integer statesExpanded = subproblemReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-        super.totalLowLevelStatesExpanded += statesExpanded==null ? 0 : statesExpanded;
-        Integer lowLevelRuntime = subproblemReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-        super.instanceReport.integerAddition(InstanceReport.StandardFields.totalLowLevelTimeMS, lowLevelRuntime);
-        //we consolidate the subproblem report into the main report, and remove the subproblem report.
-        S_Metrics.removeReport(subproblemReport);
     }
 
     /**
@@ -428,7 +420,7 @@ public class CBS_Solver extends A_Solver {
         /**
          * The solution in this node. For every non-root node, this solution is after rerouting (solving low level) an
          * agent to overcome a conflict.
-         * Holds references to the same {@link BasicMAPF.Solvers.SingleAgentPlan plans} as in {@link #parent}, apart from the plan
+         * Holds references to the same {@link SingleAgentPlan plans} as in {@link #parent}, apart from the plan
          * of the re-routed agent.
          */
         private Solution solution;

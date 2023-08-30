@@ -1,6 +1,6 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 /**
  * replaces the constraint with a key that is quick to find in a set.

@@ -7,33 +7,27 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.*;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
+import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PrioritisedPlanningSolverTest {
-
-    InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
-            new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
 
@@ -121,7 +115,7 @@ class PrioritisedPlanningSolverTest {
     void failsBeforeTimeoutWithRandomInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00, agent55to34, agent43to53});
         I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
@@ -139,7 +133,7 @@ class PrioritisedPlanningSolverTest {
     void failsBeforeTimeoutWithDeterministicInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent55to34, agent43to53, agent00to10, agent10to00});
         I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null);
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
@@ -158,20 +152,20 @@ class PrioritisedPlanningSolverTest {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
         long timeout = 10*1000;
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
         Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null);
         solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         // sanity check that it does indeed fail without the contingency
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(), null, null);
+                new RestartsStrategy(), null, null, null);
         solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
         // should fail without the contingency
         assertNull(solved);
@@ -185,7 +179,7 @@ class PrioritisedPlanningSolverTest {
         long hardTimeout = 5L * 1000;
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null, null);
         Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParameters(hardTimeout, null, instanceReport, null, softTimeout));
 
         System.out.println(solved.readableToString());
@@ -224,6 +218,45 @@ class PrioritisedPlanningSolverTest {
         assertEquals(agent1prioritisedSolution.getPlanFor(agent1).size(), 3);
     }
 
+    @Test
+    void worksWithTMAPFPaths() {
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, true);
+        Agent agentXMoving = new Agent(0, coor42, coor02, 1);
+        Agent agentYMoving = new Agent(1, coor10, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
+
+        Solution solvedNormal = ppSolver.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        assertTrue(solvedNormal.solves(testInstance));
+        assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
+
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        assertTrue(solvedPrPT.solves(testInstance));
+        assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+    }
+
+    @Test
+    void worksWithTMAPFPathsAndRandomRestarts() {
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
+                null, null, true);
+        Agent agentXMoving = new Agent(0, coor42, coor02, 1);
+        Agent agentYMoving = new Agent(1, coor10, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
+
+        I_Solver ppSolverWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
+                null, null, null);
+        Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        assertTrue(solvedNormal.solves(testInstance));
+        assertEquals(8, solvedNormal.sumIndividualCosts());
+
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        assertTrue(solvedPrPT.solves(testInstance));
+        assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+    }
+
 
     @Test
     void TestingBenchmark(){
@@ -240,7 +273,7 @@ class PrioritisedPlanningSolverTest {
         try {
             long timeout = 5 /*seconds*/
                     *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
             int numValid = 0;
@@ -311,13 +344,13 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -336,9 +369,11 @@ class PrioritisedPlanningSolverTest {
                                 InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
+                fail();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
         }
 
     }
@@ -349,7 +384,7 @@ class PrioritisedPlanningSolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null);
+                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -359,7 +394,7 @@ class PrioritisedPlanningSolverTest {
         try {
             long timeout = 5 /*seconds*/
                     *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
             int numValid = 0;
@@ -430,13 +465,13 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -455,9 +490,11 @@ class PrioritisedPlanningSolverTest {
                                 InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
+                fail();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
         }
 
     }
@@ -468,7 +505,7 @@ class PrioritisedPlanningSolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
@@ -478,7 +515,7 @@ class PrioritisedPlanningSolverTest {
         try {
             long timeout = 5 /*seconds*/
                     *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "\\Results.csv");
+            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
             int numValid = 0;
@@ -549,13 +586,13 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -574,9 +611,11 @@ class PrioritisedPlanningSolverTest {
                                 InstanceReport.StandardFields.expandedNodesLowLevel});
             } catch (IOException e) {
                 e.printStackTrace();
+                fail();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
         }
     }
 
@@ -589,11 +628,11 @@ class PrioritisedPlanningSolverTest {
         boolean useAsserts = true;
 
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(), null, null);
+                null, new RestartsStrategy(), null, null, null);
         String nameBaseline = baselineSolver.name();
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null);
+                null, new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
         String nameExperimental = competitorSolver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -679,13 +718,13 @@ class PrioritisedPlanningSolverTest {
         System.out.println(nameExperimental + " time: " + runtimeExperimental);
 
         //save results
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
@@ -705,12 +744,13 @@ class PrioritisedPlanningSolverTest {
                             InstanceReport.StandardFields.expandedNodesLowLevel});
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
     }
 
     @Test
     void sharedGoals(){
-        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, true, null);
+        PrioritisedPlanning_Solver ppSolverSharedGoals = new PrioritisedPlanning_Solver(null, null, null, null, true, null, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -761,36 +801,5 @@ class PrioritisedPlanningSolverTest {
             assertNull(solution);
         }
     }
-
-
-    private Map<String, Map<String, String>> readResultsCSV(String pathToCsv) throws IOException {
-        Map<String, Map<String, String>> result  = new HashMap<>();
-        BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
-
-        String headerRow = csvReader.readLine();
-        String[] header = headerRow.split(",");
-        int fileNameIndex = -1;
-        for (int i = 0; i < header.length; i++) {
-            if(header[i].equals("File")) {fileNameIndex = i;}
-        }
-
-        String row;
-        while ((row = csvReader.readLine()) != null) {
-            String[] tupleAsArray = row.split(",");
-            if(tupleAsArray.length < 1 ) continue;
-            Map<String, String> tupleAsMap = new HashMap<>(tupleAsArray.length);
-            for (int i = 0; i < tupleAsArray.length; i++) {
-                String value = tupleAsArray[i];
-                tupleAsMap.put(header[i], value);
-            }
-
-            String key = tupleAsArray[fileNameIndex];
-            result.put(key, tupleAsMap);
-        }
-        csvReader.close();
-
-        return result;
-    }
-
 
 }

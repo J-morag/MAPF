@@ -11,6 +11,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.*;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
@@ -20,6 +21,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
     public static final String FILE_TYPE_MAP = ".map";
     public static final String FILE_TYPE_SCENARIO = ".scen";
+    public static final boolean ASSUME_STRONGLY_CONNECTED = true;
 
     // Indicators
     private final String INDICATOR_MAP = "map";
@@ -77,7 +79,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     }
 
     @Override
-    public void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
+    public void prepareInstances(String mapName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
 
         if (!(instancePath instanceof InstanceManager.Moving_AI_Path)) { return; }
 
@@ -100,16 +102,18 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
             Agent[] agents = getAgents(agentLines,numOfAgentsFromProperties[i]);
 
-            if (instanceName == null || agents == null) { continue; /* Invalid parameters */ }
+            if (mapName == null || agents == null) { continue; /* Invalid parameters */ }
 
-            mapf_instance = makeInstance(instanceName, graphMap, agents, moving_ai_path);
-            mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
-            this.instanceList.add(mapf_instance);
+            mapf_instance = makeInstance(mapName, graphMap, agents, moving_ai_path);
+            if (instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches()){
+                mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
+                this.instanceList.add(mapf_instance);
+            }
         }
     }
 
     protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath){
-        String[] splitScenarioPath = instancePath.scenarioPath.split("\\\\");
+        String[] splitScenarioPath = instancePath.scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
         return new MAPF_Instance(instanceName, graphMap, agents, splitScenarioPath[splitScenarioPath.length-1]);
     }
 
@@ -246,7 +250,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                 String[] mapAsStrings = I_InstanceBuilder.buildMapAsStringArray(reader, dimensionsFromFile);
 
                 // build map
-                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles);
+                graphMap = I_InstanceBuilder.buildGraphMap(mapAsStrings, this.SEPARATOR_MAP, dimensionsFromFile, this.locationTypeHashMap, instanceProperties.obstacles, ASSUME_STRONGLY_CONNECTED);
                 break;
             }
             nextLine = reader.getNextLine();
@@ -282,7 +286,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         for (InstanceManager.InstancePath instancePath : pathArray ) {
             if ( instancePath.path.endsWith(this.FILE_TYPE_MAP) ){
 
-                String[] splitPath = instancePath.path.split("\\\\");
+                String[] splitPath = instancePath.path.split(Pattern.quote(IO_Manager.pathSeparator));
                 String mapPrefix = splitPath[splitPath.length-1].replace(this.FILE_TYPE_MAP, "");
                 for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
                     if(scenarioCandidate.path.split("-even")[0].split("-random")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(this.FILE_TYPE_SCENARIO)){

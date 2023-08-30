@@ -6,25 +6,16 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
-import Environment.IO_Package.IO_Manager;
-import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.stream.IntStream;
 
 public class RunManagerMovingAIBenchmark extends A_RunManager{
 
     private final String entireBenchmarkDir;
-    private final Integer maxNumAgents;
-    String resultsOutputDir = IO_Manager.buildPath(new String[]{System.getProperty("user.home"), "CBS_Results"});
+    private final int[] agentNums;
 
-    public RunManagerMovingAIBenchmark(String entireBenchmarkDir, Integer maxNumAgents) {
+    public RunManagerMovingAIBenchmark(String entireBenchmarkDir, int[] agentNums) {
+        super(null);
         this.entireBenchmarkDir = entireBenchmarkDir;
-        this.maxNumAgents = maxNumAgents;
+        this.agentNums = agentNums;
     }
 
 
@@ -36,74 +27,21 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
 
     @Override
     void setExperiments() {
-        addAllMapsAndInstances(this.maxNumAgents, this.entireBenchmarkDir);
+        addAllMapsAndInstances(this.entireBenchmarkDir, this.agentNums);
     }
 
     /* = Experiments =  */
 
-    private void addAllMapsAndInstances(Integer maxNumAgents, String entireBenchmarkDir){
-        maxNumAgents = maxNumAgents != null ? maxNumAgents : -1;
-
+    private void addAllMapsAndInstances(String entireBenchmarkDir, int[] agentNums){
         /*  =   Set Properties   =  */
-        InstanceProperties properties = new InstanceProperties(null, -1, IntStream.rangeClosed(1, maxNumAgents).toArray());
+        InstanceProperties properties = new InstanceProperties(null, -1, agentNums);
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(entireBenchmarkDir, new InstanceBuilder_MovingAI(),properties);
+        InstanceManager instanceManager = new InstanceManager(entireBenchmarkDir, new InstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
         Experiment EntireMovingAIBenchmark = new Experiment("EntireMovingAIBenchmark", instanceManager);
         this.experiments.add(EntireMovingAIBenchmark);
     }
 
-    @Override
-    public void runAllExperiments() {
-        try {
-            S_Metrics.setHeader(new String[]{
-                    InstanceReport.StandardFields.experimentName,
-                    InstanceReport.StandardFields.mapName,
-                    InstanceReport.StandardFields.instanceName,
-                    InstanceReport.StandardFields.numAgents,
-                    InstanceReport.StandardFields.solver,
-                    InstanceReport.StandardFields.solved,
-                    InstanceReport.StandardFields.valid,
-                    InstanceReport.StandardFields.elapsedTimeMS,
-                    InstanceReport.StandardFields.solutionCost,
-                    InstanceReport.StandardFields.solution});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        String pathWithStartTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
-        try {
-            S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        super.runAllExperiments();
-        String pathWithEndTime = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + " .csv";
-
-        try {
-            S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)
-//                    ,new String[]{   InstanceReport.StandardFields.experimentName,
-//                            InstanceReport.StandardFields.experimentName,
-//                            InstanceReport.StandardFields.numAgents,
-//                            InstanceReport.StandardFields.solver,
-//                            InstanceReport.StandardFields.solved,
-//                            InstanceReport.StandardFields.valid,
-//                            InstanceReport.StandardFields.elapsedTimeMS,
-//                            InstanceReport.StandardFields.solutionCost,
-//                            InstanceReport.StandardFields.solution}
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        S_Metrics.clearAll();
-    }
 }

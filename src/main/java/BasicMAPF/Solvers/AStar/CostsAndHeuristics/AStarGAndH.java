@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.Move;
+import BasicMAPF.DataTypesAndStructures.Move;
 
 public interface AStarGAndH {
     /**

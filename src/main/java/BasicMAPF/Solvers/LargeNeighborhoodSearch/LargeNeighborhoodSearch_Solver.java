@@ -2,6 +2,9 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
@@ -12,7 +15,6 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
 
 import java.util.*;
 
@@ -78,7 +80,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize) {
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, null);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -242,19 +244,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     }
 
     private static InstanceReport initSubproblemReport(MAPF_Instance instance) {
-        InstanceReport subproblemReport = S_Metrics.newInstanceReport();
+        InstanceReport subproblemReport = new InstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
         return subproblemReport;
-    }
-
-    private void digestSubproblemReport(InstanceReport subproblemReport) {
-        Integer statesGenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
-        this.totalLowLevelStatesGenerated += statesGenerated==null ? 0 : statesGenerated;
-        Integer statesExpanded = subproblemReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-        this.totalLowLevelStatesExpanded += statesExpanded==null ? 0 : statesExpanded;
-        //we consolidate the subproblem report into the main report, and remove the subproblem report.
-        S_Metrics.removeReport(subproblemReport);
     }
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport,

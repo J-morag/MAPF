@@ -6,8 +6,8 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictMa
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.NaiveConflictDetection;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.ICTS.MDDs.MDD;
-import BasicMAPF.Solvers.SingleAgentPlan;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import com.google.common.collect.Maps;
 
 import java.util.*;

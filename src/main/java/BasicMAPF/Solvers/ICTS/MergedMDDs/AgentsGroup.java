@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.util.HashSet;
 import java.util.Set;

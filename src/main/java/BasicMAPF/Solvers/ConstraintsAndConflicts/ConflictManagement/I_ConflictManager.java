@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement;
 
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
-import BasicMAPF.Solvers.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 
 public interface I_ConflictManager {
 

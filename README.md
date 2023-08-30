@@ -1,13 +1,33 @@
 # MAPF - Multi-Agent Path Finding
-## A Java implementation of several MAPF algorithms, including Conflict Based Search (CBS).
+## A Java implementation of several MAPF algorithms
 
-![](https://github.com/J-morag/MAPF/workflows/CI-tests/badge.svg)
+[![CI-tests](https://github.com/J-morag/MAPF/actions/workflows/CI-tests.yml/badge.svg)](https://github.com/J-morag/MAPF/actions/workflows/CI-tests.yml)
 
-### How to 
+## Getting Started
+### Running the project using the CLI
+
+Example arguments to solve all instances in a directory, with 10 agents:<br>
+`-a 10 -iDir <instances_path>`
+
+
+* If compiling the code yourself:
+  * Run the main function with the argument `-h` to see the available options.
+* If running the code from a jar file:
+  * Run the jar file with the argument `-h` to see the available options.
+  * Example: `java -jar MAPF.jar -h`
+
+
+The following algorithms are set to run by default: CBS and Prioritised Planning. 
+Currently, choosing different algorithms is only possible by changing the code and re-compiling.
+
+### Running the project by modifying the code
+
+Modify the `Main.java` file to run your experiment. Examples are provided in the `ExampleMain.java` file.
+  
+### Usage Notes
+
 * How to create a single instance
     
-        >> Note: An example is provided in Main.java, using the solveOneInstanceExample() method.
-        
         In order to create a single MAPF_Instance you will need:
         1. An InstanceManager
            public InstanceManager(I_InstanceBuilder instanceBuilder)
@@ -20,9 +40,7 @@
         public static MAPF_Instance getInstanceFromPath(InstanceManager manager, 
                                                         InstanceManager.InstancePath absolutePath)
                                                         
-* How to run single\multiple Experiments    
-        
-        >> Note: An example is provided in Main.java, using the runMultipleExperimentsExample() method.
+* How to run single\multiple Experiments
         
         In order to run experiments you will need:
         RunManager class that extends Environment.RunManagers.A_RunManager and implements the following
@@ -51,16 +69,19 @@
                 2.3 numOfInstances - You can choose how many instances you want for the experiment
                                      Note: default = Integer.MAX_VALUE
 
-### Acknowledgements 
+## Acknowledgements 
     Designed by Jonathan Morag and Yonatan Zax.
     Started at 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
-    Conflict Based Search is based on:
+    Conflict Based Search (CBS) is based on:
         Sharon, G., Stern, R., Felner, A., & Sturtevant, N. R. (2015). Conflict-based search for optimal multi-agent pathfinding. Artificial Intelligence, 219, 40-66.
         And:
         Li, Jiaoyang, et al. "New techniques for pairwise symmetry breaking in multi-agent path finding." Proceedings of the International Conference on Automated Planning and Scheduling. Vol. 30. 2020.
-    ICTS is based on:
+    Increasing Cost Tree Search (ICTS) is based on:
         Sharon, Guni, et al. "The increasing cost tree search for optimal multi-agent pathfinding." Artificial Intelligence 195 (2013): 470-495.
         And:
         Sharon, Guni, et al. "Pruning techniques for the increasing cost tree search for optimal multi-agent pathfinding." Fourth Annual Symposium on Combinatorial Search. 2011.
         ICTS implementation based on (with permission) github.com/idomarko98/CBS_ICTS
-
+    Prioritised Planning is based on: 
+        Silver, David. "Cooperative pathfinding." Proceedings of the aaai conference on artificial intelligence and interactive digital entertainment. Vol. 1. No. 1. 2005.
+    Large Neighborhood Search (LNS) is based on:
+        Li, Jiaoyang, et al. "Anytime multi-agent path finding via large neighborhood search." Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI). 2021.

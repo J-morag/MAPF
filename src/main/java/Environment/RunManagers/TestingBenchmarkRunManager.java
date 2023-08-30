@@ -14,6 +14,10 @@ public class TestingBenchmarkRunManager extends A_RunManager {
     private final String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                                                                 "TestingBenchmark"});
 
+    public TestingBenchmarkRunManager() {
+        super(null);
+    }
+
     @Override
     void setSolvers() {
         this.solvers.add( new CBS_Solver());

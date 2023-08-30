@@ -6,8 +6,8 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ICTS.MDDs.*;
 import BasicMAPF.Solvers.ICTS.MergedMDDs.*;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.Metrics.InstanceReport;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
@@ -36,8 +36,6 @@ public class ICTS_Solver extends A_Solver {
     private int expandedHighLevelNodes;
     private int generatedHighLevelNodes;
     // these count the number of nodes expanded/generated when building MDDs, merged MDDs, and searching merged MDD search space.
-    private int expandedLowLevelNodes;
-    private int generatedLowLevelNodes;
 
     public ICTS_Solver(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
                        PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator) {
@@ -63,8 +61,6 @@ public class ICTS_Solver extends A_Solver {
 //        closedList = createClosedList();
         expandedHighLevelNodes = 0;
         generatedHighLevelNodes = 0;
-        expandedLowLevelNodes = 0;
-        generatedLowLevelNodes = 0;
         getHeuristic(instance);
         this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
         this.instance = instance;
@@ -166,8 +162,8 @@ public class ICTS_Solver extends A_Solver {
 
     private Solution getMergedMddSolution(Map<Agent, MDD> agentMdds) {
         Solution solution = mergedMDDSolver.findJointSolution(agentMdds, this);
-        this.expandedLowLevelNodes = mergedMDDSolver.getExpandedLowLevelNodesNum();
-        this.generatedLowLevelNodes = mergedMDDSolver.getGeneratedLowLevelNodesNum();
+        super.totalLowLevelNodesExpanded = mergedMDDSolver.getExpandedLowLevelNodesNum();
+        super.totalLowLevelNodesGenerated = mergedMDDSolver.getGeneratedLowLevelNodesNum();
         return solution;
     }
 
@@ -188,8 +184,8 @@ public class ICTS_Solver extends A_Solver {
 
     private MergedMDD getMergedMDD(Map<Agent, MDD> filteredMap) {
         MergedMDD mergedMDD = mergedMDDCreator.createMergedMDD(filteredMap, this);
-        this.expandedLowLevelNodes += mergedMDDCreator.getExpandedLowLevelNodesNum();
-        this.generatedLowLevelNodes += mergedMDDCreator.getGeneratedLowLevelNodesNum();
+        super.totalLowLevelNodesExpanded += mergedMDDCreator.getExpandedLowLevelNodesNum();
+        super.totalLowLevelNodesGenerated += mergedMDDCreator.getGeneratedLowLevelNodesNum();
         return mergedMDD;
     }
 
@@ -203,19 +199,17 @@ public class ICTS_Solver extends A_Solver {
     }
 
     private void updateExpandedAndGeneratedNum() {
-        super.totalLowLevelStatesExpanded = mddManager.getExpandedNodesNum();
-        super.totalLowLevelStatesGenerated = mddManager.getGeneratedNodesNum();
+        super.totalLowLevelNodesExpanded = mddManager.getExpandedNodesNum();
+        super.totalLowLevelNodesGenerated = mddManager.getGeneratedNodesNum();
     }
 
     @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
-        this.expandedLowLevelNodes += mddManager.getExpandedNodesNum();
-        this.generatedLowLevelNodes += mddManager.getGeneratedNodesNum();
+        super.totalLowLevelNodesExpanded += mddManager.getExpandedNodesNum();
+        super.totalLowLevelNodesGenerated += mddManager.getGeneratedNodesNum();
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodes, this.generatedHighLevelNodes);
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodes, this.expandedHighLevelNodes);
-        super.instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.generatedLowLevelNodes);
-        super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.expandedLowLevelNodes);
         super.instanceReport.putStringValue(InstanceReport.StandardFields.solver, name());
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");

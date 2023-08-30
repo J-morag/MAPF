@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 
 
 public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
@@ -34,24 +35,29 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     public static final String SEPARATOR_SCENARIO = ",";
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;
+    public static final int MERGE_COORDINATES_THRESHOLD = 100;
 
     /*  =Default Values=    */
     private final int defaultNumOfAgents = 10;
 
     private final ArrayList<MAPF_Instance> instanceList = new ArrayList<>();
 
+    /* = Instance Fields = */
+
     private final boolean dropDisabledEdges;
+    private final boolean forceEdgesBidirectional;
 
     public InstanceBuilder_Warehouse() {
-        this(null);
+        this(null, null);
     }
 
-    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges) {
+    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean forceEdgesBidirectional) {
         this.dropDisabledEdges = Objects.requireNonNullElse(dropDisabledEdges, true);
+        this.forceEdgesBidirectional = Objects.requireNonNullElse(forceEdgesBidirectional, true);
     }
 
     @Override
-    public void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
+    public void prepareInstances(String mapName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
         if (!(instancePath instanceof InstanceManager.Moving_AI_Path)) { return; }
 
         InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path) instancePath;
@@ -73,28 +79,35 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         MAPF_Instance mapf_instance;
         ArrayList<ArrayList<String>> agentLines = getAgentLines(moving_ai_path, Arrays.stream(numOfAgentsFromProperties).max().getAsInt());
 
+        Set<Coordinate_2D> canonicalCoordinates = new HashSet<>();
+        for (I_Location location : graphMap.getAllLocations()) {
+            canonicalCoordinates.add((Coordinate_2D) location.getCoordinate());
+        }
+
         for (int numOfAgentsFromProperty : numOfAgentsFromProperties) {
 
-            Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty);
+            Agent[] agents = getAgents(agentLines, numOfAgentsFromProperty, canonicalCoordinates);
 
             if (instanceName == null || agents == null) {
                 continue; /* Invalid parameters */
             }
 
             mapf_instance = makeInstance(instanceName, graphMap, agents, moving_ai_path);
-            mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
-            this.instanceList.add(mapf_instance);
+            if (instanceProperties.regexPattern.matcher(mapf_instance.extendedName).matches()){
+                mapf_instance.setObstaclePercentage(instanceProperties.obstacles.getReportPercentage());
+                this.instanceList.add(mapf_instance);
+            }
         }
     }
 
     protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath){
-        String[] splitScenarioPath = instancePath.scenarioPath.split("\\\\");
+        String[] splitScenarioPath = instancePath.scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
         return new MAPF_Instance(instanceName, graphMap, agents, splitScenarioPath[splitScenarioPath.length-1]);
     }
 
 
     // Returns an array of agents using the line queue
-    protected Agent[] getAgents(ArrayList<ArrayList<String>> agentLinesList, int numOfAgents) {
+    protected Agent[] getAgents(ArrayList<ArrayList<String>> agentLinesList, int numOfAgents, Set<Coordinate_2D> canonicalCoordinates) {
         if( agentLinesList == null){ return null; }
         agentLinesList.removeIf(Objects::isNull);
         Agent[] arrayOfAgents = new Agent[Math.min(numOfAgents,agentLinesList.size())];
@@ -105,19 +118,19 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         for (int id = 0; id < numOfAgents; id++) {
 
             if( id < arrayOfAgents.length ){
-                Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id));
+                Agent agentToAdd = buildSingleAgent(id ,agentLinesList.get(id), canonicalCoordinates);
                 arrayOfAgents[id] =  agentToAdd; // Wanted agent to add
             }
         }
         return arrayOfAgents;
     }
 
-    private Agent buildSingleAgent(int id, ArrayList<String> agentLines) {
+    private Agent buildSingleAgent(int id, ArrayList<String> agentLines, Set<Coordinate_2D> canonicalCoordinates) {
         // take the last target as target, and the one before last as source. this approximates sampling from steady state
         String[] splitLineSource = agentLines.get(agentLines.size()-2).split(SEPARATOR_SCENARIO);
         String[] splitLineTarget = agentLines.get(agentLines.size()-1).split(SEPARATOR_SCENARIO);
-        return new Agent(id, toCoor2D(splitLineSource[INDEX_XVALUE].strip(), splitLineSource[INDEX_YVALUE].strip()),
-                toCoor2D(splitLineTarget[INDEX_XVALUE].strip(), splitLineTarget[INDEX_YVALUE].strip()));
+        return new Agent(id, toCoor2D(splitLineSource[INDEX_XVALUE].strip(), splitLineSource[INDEX_YVALUE].strip(), canonicalCoordinates),
+                toCoor2D(splitLineTarget[INDEX_XVALUE].strip(), splitLineTarget[INDEX_YVALUE].strip(), canonicalCoordinates));
     }
 
     // Returns agentLines from scenario file as a queue. each entry is a list of lines (targets) for one agent.
@@ -165,6 +178,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         Map<Coordinate_2D, List<Coordinate_2D>> coordinatesAdjacencyLists = new HashMap<>();
         Map<Coordinate_2D, List<Integer>> coordinatesEdgeWeights = new HashMap<>();
         Map<Coordinate_2D, Enum_MapLocationType> locationTypes = new HashMap<>();
+        Set<Coordinate_2D> canonicalCoordinates = new HashSet<>();
 
         JSONObject mapJobj = readJsonMapFile(instancePath);
         if (mapJobj == null) return null;
@@ -173,7 +187,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         while(keys.hasNext()) {
             // first level of JSON - keys are coordinates/stickers/vertices like "12345_12345"
             String currentStickerCoordinatesString = keys.next();
-            Coordinate_2D currentStickerCoordinate = toCoor2D(currentStickerCoordinatesString);
+            Coordinate_2D currentStickerCoordinate = toCoor2D(currentStickerCoordinatesString, canonicalCoordinates);
             // value - sticker data
             JSONArray vertexData = mapJobj.getJSONArray(currentStickerCoordinatesString);
             // first part of sticker data - a map with a key "tags" to array of tags
@@ -183,11 +197,16 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             JSONArray edgesJA = vertexData.getJSONArray(1);
             List<Coordinate_2D> neighbors = new ArrayList<>(edgesJA.length());
             List<Integer> edgeWeights = new ArrayList<>(edgesJA.length());
+            if (coordinatesAdjacencyLists.containsKey(currentStickerCoordinate)){
+//                throw new RuntimeException("Duplicate coordinate in map file: " + currentStickerCoordinate);
+                neighbors = coordinatesAdjacencyLists.get(currentStickerCoordinate);
+                edgeWeights = coordinatesEdgeWeights.get(currentStickerCoordinate);
+            }
             for (int i = 0; i < edgesJA.length(); i++) {
                 JSONArray currentEdge = edgesJA.getJSONArray(i);
                 // edge is composed of a neighbor (coordinate) and an edge weight
                 JSONArray neighborCoordinateJA = currentEdge.getJSONArray(0);
-                Coordinate_2D neighborCoordinate = toCoor2D(neighborCoordinateJA.getInt(0), neighborCoordinateJA.getInt(1));
+                Coordinate_2D neighborCoordinate = toCoor2D(neighborCoordinateJA.getInt(0), neighborCoordinateJA.getInt(1), canonicalCoordinates);
                 int edgeWeightCode = currentEdge.getInt(1);
                 // disabled edges marked with 99999 weight
                 if (!dropDisabledEdges || edgeWeightCode < 99999){
@@ -201,20 +220,24 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                     List<Coordinate_2D> intermediateVertices = new ArrayList<>(realDistance - 1);
                     for (int j = 1; j < realDistance; j++) {
                         Coordinate_2D intermediateVertex = toCoor2D(currentStickerCoordinate.x_value + (delta_x/realDistance)*j,
-                                currentStickerCoordinate.y_value + (delta_y/realDistance)*j);
-                        locationTypes.put(intermediateVertex, Enum_MapLocationType.NO_STOP);
+                                currentStickerCoordinate.y_value + (delta_y/realDistance)*j, canonicalCoordinates);
+                        locationTypes.put(intermediateVertex, Enum_MapLocationType.EMPTY);
                         intermediateVertices.add(intermediateVertex);
                     }
                     intermediateVertices.add(neighborCoordinate);
-                    neighbors.add(intermediateVertices.get(0));
-                    for (int j = 0; j < intermediateVertices.size() - 1; j++) {
-                        // avoid possibility of duplicates overriding each other because of going from both sides
-                        List<Coordinate_2D> jNeighbors = coordinatesAdjacencyLists.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
-                        jNeighbors.add(intermediateVertices.get(j+1));
-                        List<Integer> jNeighborsWeights = coordinatesEdgeWeights.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
-                        jNeighborsWeights.add(1);
+                    if (!intermediateVertices.get(0).equals(currentStickerCoordinate)){ // avoid self edges as a result of merged coordinates
+                        neighbors.add(intermediateVertices.get(0));
+                        edgeWeights.add(1);
                     }
-                    edgeWeights.add(1);
+                    for (int j = 0; j < intermediateVertices.size() - 1; j++) {
+                        if (! currentStickerCoordinate.equals(intermediateVertices.get(j))){ // avoid self edges as a result of merged coordinates
+                            // avoid possibility of duplicates overriding each other because of going from both sides
+                            List<Coordinate_2D> jNeighbors = coordinatesAdjacencyLists.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
+                            jNeighbors.add(intermediateVertices.get(j+1));
+                            List<Integer> jNeighborsWeights = coordinatesEdgeWeights.computeIfAbsent(intermediateVertices.get(j), coor -> new ArrayList<>());
+                            jNeighborsWeights.add(1);
+                        }
+                    }
                 }
             }
 
@@ -225,8 +248,45 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             }
         }
 
+        if (forceEdgesBidirectional){
+            for (Coordinate_2D coordinate : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
+                List<Coordinate_2D> neighbors = coordinatesAdjacencyLists.get(coordinate);
+                for (int neighborIndex = 0; neighborIndex < neighbors.size(); neighborIndex++) {
+                    Coordinate_2D neighborOutgoingEdge = neighbors.get(neighborIndex);
+                    int neighborOutgoingEdgeWeight = coordinatesEdgeWeights.get(coordinate).get(neighborIndex);
+
+                    // add reverse edge
+                    List<Coordinate_2D> neighborNeighbors = coordinatesAdjacencyLists.get(neighborOutgoingEdge);
+                    List<Integer> neighborNeighborsWeights = coordinatesEdgeWeights.get(neighborOutgoingEdge);
+                    if (neighborNeighbors != null && neighborNeighborsWeights != null){
+                        if (!neighborNeighbors.contains(coordinate)){
+                            neighborNeighbors.add(coordinate);
+                            neighborNeighborsWeights.add(neighborOutgoingEdgeWeight);
+                        }
+                    }
+                    else {
+                        throw new IllegalStateException("Missing neighbor: " + neighborOutgoingEdge);
+                    }
+                }
+            }
+        }
+
+        // validate
+        for (Coordinate_2D coordinate1 : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
+            for (Coordinate_2D coordinate2 : new ArrayList<>(coordinatesAdjacencyLists.keySet())) {
+                if (coordinate1 != coordinate2 && isWithinThreshold(coordinate1, coordinate2)){
+                    throw new IllegalStateException("Found duplicate coordinates: " + coordinate1 + " and " + coordinate2);
+                }
+            }
+        }
+
         return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights,
                 locationTypes, true);
+    }
+
+    private static boolean isWithinThreshold(Coordinate_2D coordinate1, Coordinate_2D coordinate2) {
+        return coordinate2.x_value > coordinate1.x_value - MERGE_COORDINATES_THRESHOLD && coordinate2.x_value < coordinate1.x_value + MERGE_COORDINATES_THRESHOLD
+                && coordinate2.y_value > coordinate1.y_value - MERGE_COORDINATES_THRESHOLD && coordinate2.y_value < coordinate1.y_value + MERGE_COORDINATES_THRESHOLD;
     }
 
     private JSONObject readJsonMapFile(InstanceManager.InstancePath instancePath) {
@@ -242,18 +302,25 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         return mapJobj;
     }
 
-    private Coordinate_2D toCoor2D(String coorString){
+    private Coordinate_2D toCoor2D(String coorString, Set<Coordinate_2D> canonicalCoordinates){
         String[] coorstrings = coorString.split("_");
-        return toCoor2D(coorstrings[0], coorstrings[1]);
+        return toCoor2D(coorstrings[0], coorstrings[1], canonicalCoordinates);
     }
 
-    private Coordinate_2D toCoor2D(String xString, String yString){
-        return toCoor2D(Integer.parseInt(xString), Integer.parseInt(yString));
+    private Coordinate_2D toCoor2D(String xString, String yString, Set<Coordinate_2D> canonicalCoordinates){
+        return toCoor2D(Integer.parseInt(xString), Integer.parseInt(yString), canonicalCoordinates);
     }
 
-    private Coordinate_2D toCoor2D(int xInt, int yInt){
-//        return new Coordinate_2D(xInt/STICKER_DISTANCE_UNIT_MM, yInt/STICKER_DISTANCE_UNIT_MM);
-        return new MillimetricCoordinate_2D(xInt, yInt);
+    private Coordinate_2D toCoor2D(int xInt, int yInt, Set<Coordinate_2D> canonicalCoordinates){
+        Coordinate_2D newCoordinate = new MillimetricCoordinate_2D(xInt, yInt);
+        for (Coordinate_2D canonicalCoordinate:
+             canonicalCoordinates) {
+            if (isWithinThreshold(newCoordinate, canonicalCoordinate)){
+                return canonicalCoordinate;
+            }
+        }
+        canonicalCoordinates.add(newCoordinate);
+        return newCoordinate;
     }
 
     @Override
@@ -279,7 +346,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
         for (InstanceManager.InstancePath instancePath : pathArray ) {
             if ( instancePath.path.endsWith(FILE_TYPE_MAP) ){
-                String[] splitPath = instancePath.path.split("\\\\");
+                String[] splitPath = instancePath.path.split(Pattern.quote(IO_Manager.pathSeparator));
                 String mapPrefix = splitPath[splitPath.length-1].replace(FILE_TYPE_MAP, "");
                 for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
                     if(scenarioCandidate.path.split("_start")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO)){

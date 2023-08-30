@@ -14,6 +14,10 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 
 public class RunManagerSimpleExample extends A_RunManager {
 
+    public RunManagerSimpleExample() {
+        super(null);
+    }
+
     /*  = Set BasicCBS.Solvers =  */
     @Override
     void setSolvers() {
@@ -34,7 +38,7 @@ public class RunManagerSimpleExample extends A_RunManager {
     private void addExperiment_16_7(){
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                                                            "Instances\\\\BGU_Instances"});
+                                                            "Instances", "BGU_Instances"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(new MapDimensions(16,16), 0, new int[]{7});
@@ -51,7 +55,7 @@ public class RunManagerSimpleExample extends A_RunManager {
     private void addExperimentMovingAI_8room(){
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
-                                                            "Instances\\\\MovingAI_Instances"});
+                                                            "Instances", "MovingAI_Instances"});
 
         /*  =   Set Properties   =  */
         InstanceProperties properties = new InstanceProperties(new MapDimensions(512,512), -1, new int[]{7,10,15});
@@ -64,7 +68,5 @@ public class RunManagerSimpleExample extends A_RunManager {
         Experiment gridExperiment = new Experiment("Experiment_8_Room", instanceManager);
         this.experiments.add(gridExperiment);
     }
-
-
 
 }

@@ -3,11 +3,15 @@ package Environment;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Enum_MapLocationType;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
+import BasicMAPF.Instances.Maps.I_Location;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
+import Environment.Visualization.I_VisualizeSolution;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -55,6 +59,7 @@ public class Experiment {
     public long timeoutEach;
     public boolean sharedGoals = false;
     public boolean sharedSources = false;
+    public I_VisualizeSolution visualizer = null;
 
     public Experiment(String experimentName, InstanceManager instanceManager, Integer numOfInstances, Integer timeoutEach) {
         this.experimentName = experimentName;
@@ -70,15 +75,34 @@ public class Experiment {
 
     public InstanceReport setReport(MAPF_Instance instance, I_Solver solver) {
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        /*  = Put values in report =  */
+
         instanceReport.putStringValue(InstanceReport.StandardFields.experimentName, this.experimentName);
         instanceReport.putStringValue(InstanceReport.StandardFields.instanceName, instance.extendedName);
         instanceReport.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
+        putMapStats(instanceReport, instance);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
         instanceReport.putIntegerValue(InstanceReport.StandardFields.obstacleRate, instance.getObstaclePercentage());
         instanceReport.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
         return instanceReport;
+    }
+
+    private void putMapStats(InstanceReport instanceReport, MAPF_Instance instance) {
+        if (instance.map instanceof I_ExplicitMap explicitMap) {
+            int traversableLocations = 0;
+            int sumInDegree = 0;
+            int sumOutDegree = 0;
+            for (I_Location loc : explicitMap.getAllLocations()) {
+                if (loc.getType().equals(Enum_MapLocationType.EMPTY) || loc.getType().equals(Enum_MapLocationType.NO_STOP)) {
+                    traversableLocations++;
+                    sumInDegree += loc.incomingEdges().size();
+                    sumOutDegree += loc.outgoingEdges().size();
+                }
+            }
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.numTraversableLocations , traversableLocations);
+            instanceReport.putFloatValue(InstanceReport.StandardFields.avgInDegree, sumInDegree / (float)traversableLocations);
+            instanceReport.putFloatValue(InstanceReport.StandardFields.avgOutDegree, sumOutDegree / (float)traversableLocations);
+        }
     }
 
 
@@ -189,6 +213,15 @@ public class Experiment {
             }
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
             System.out.println("Sum of Individual Costs: " + getSolutionCost(solution));
+
+            if (visualizer != null) {
+                try {
+                    visualizer.visualizeSolution(instance, solution, solver.name() + " - " + instanceName);
+                }
+                catch (IllegalArgumentException e){
+                    System.err.println(e.getMessage());
+                }
+            }
         } else { // failed to solve
             recordFailure(instance, minNumFailedAgentsForInstance, solver);
         }
@@ -196,10 +229,6 @@ public class Experiment {
         Integer elapsedTime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
         if (elapsedTime != null) {
             System.out.println("Elapsed time (ms): " + elapsedTime);
-        }
-
-        if (!keepSolutionInReport) {
-            instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
         }
 
         // Now that the report is complete, commit it
@@ -210,6 +239,10 @@ public class Experiment {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (!keepSolutionInReport) {
+            instanceReport.putStringValue(InstanceReport.StandardFields.solution, "");
         }
 
         return validSolution;

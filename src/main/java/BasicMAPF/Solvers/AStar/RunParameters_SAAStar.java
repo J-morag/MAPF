@@ -2,11 +2,12 @@ package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictAvoidanceTable;
+import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.RunParameters;
-import BasicMAPF.Solvers.Solution;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.Solution;
 
 public class RunParameters_SAAStar extends RunParameters {
     /**
@@ -18,6 +19,11 @@ public class RunParameters_SAAStar extends RunParameters {
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
     public float fBudget = Float.POSITIVE_INFINITY;
+    public I_AStarGoalCondition goalCondition;
+
+    public RunParameters_SAAStar(RunParameters parameters){
+        super(parameters);
+    }
 
     public RunParameters_SAAStar(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, AStarGAndH heuristicFunction) {
         super(timeout, constraints, instanceReport, existingSolution);
