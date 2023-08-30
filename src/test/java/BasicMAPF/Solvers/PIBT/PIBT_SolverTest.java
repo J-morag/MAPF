@@ -45,8 +45,10 @@ public class PIBT_SolverTest {
 
     private final MAPF_Instance instanceEmpty2 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to35, agent34to32, agent31to14, agent40to02, agent30to33});
 
+    private final MAPF_Instance instanceEmpty3 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent10to00, agent04to00});
+
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
-    I_Solver PIBT_Solver = new PIBT_Solver();
+    I_Solver PIBT_Solver = new PIBT_Solver(null);
 
     long timeout = 10*1000;
 
@@ -77,6 +79,19 @@ public class PIBT_SolverTest {
         assertEquals(35, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
+    }
+
+    @Test
+    void emptyMapAgentsWithTheSmeGoal() {
+        MAPF_Instance testInstance = instanceEmpty3;
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+
+        assertEquals(8, solved.sumIndividualCosts());
+        assertEquals(4, solved.makespan());
+        assertEquals(5 , solved.sumServiceTimes());
     }
 
     @Test
@@ -280,7 +295,7 @@ public class PIBT_SolverTest {
                 null, new RestartsStrategy(), null, null, null);
         String namePrP = PrPSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver();
+        I_Solver PIBT_Solver = new PIBT_Solver(null);
         String namePIBT = PIBT_Solver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -296,6 +311,8 @@ public class PIBT_SolverTest {
         int solvedByPIBT = 0;
         int runtimePrP = 0;
         int runtimePIBT = 0;
+        int sumCostPrP = 0;
+        int sumCostPIBT = 0;
         while ((instance = instanceManager.getNextInstance()) != null) {
             System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
 
@@ -318,7 +335,7 @@ public class PIBT_SolverTest {
             reportPIBT.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportPIBT.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportPIBT.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-            reportPIBT.putStringValue(InstanceReport.StandardFields.solver, namePrP);
+            reportPIBT.putStringValue(InstanceReport.StandardFields.solver, namePIBT);
 
             RunParameters runParametersPIBT = new RunParameters(timeout, null, reportPIBT, null);
 
@@ -338,12 +355,14 @@ public class PIBT_SolverTest {
                 boolean valid = solutionPrP.solves(instance);
                 System.out.print(namePrP + " Valid?: " + (valid ? "yes" : "no"));
                 if (useAsserts) assertTrue(valid);
+                sumCostPrP += reportPrP.getIntegerValue(InstanceReport.StandardFields.solutionCost);
             }
 
             if(solutionPIBT != null){
                 boolean valid = solutionPIBT.solves(instance);
                 System.out.println(" " + namePIBT + " Valid?: " + (valid ? "yes" : "no"));
                 if (useAsserts) assertTrue(valid);
+                sumCostPIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.solutionCost);
             }
             else System.out.println();
 
@@ -364,6 +383,8 @@ public class PIBT_SolverTest {
         System.out.println("runtime totals (instances where both solved) :");
         System.out.println(namePrP + " time: " + runtimePrP);
         System.out.println(namePIBT + " time: " + runtimePIBT);
+        System.out.println(namePrP + " avg. cost: " + sumCostPrP);
+        System.out.println(namePIBT + " avg. cost: " + sumCostPIBT);
 
         //save results
         DateFormat dateFormat = S_Metrics.defaultDateFormat;

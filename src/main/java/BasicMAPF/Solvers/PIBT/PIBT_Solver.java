@@ -8,21 +8,13 @@ import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Instances.Maps.GraphMapVertex;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSolution;
-
 import java.util.*;
-import java.util.stream.*;
-
 
 public class PIBT_Solver extends A_Solver {
 
@@ -61,7 +53,6 @@ public class PIBT_Solver extends A_Solver {
      */
     private DistanceTableAStarHeuristic heuristic;
 
-    private MAPF_Instance currentInstance;
 
     /**
      * object Solution represents the final solution that the algorithm returns
@@ -77,10 +68,17 @@ public class PIBT_Solver extends A_Solver {
     private int timeStamp;
 
     /**
+     * The cost function to evaluate solutions with.
+     */
+    private final I_SolutionCostFunction solutionCostFunction;
+    private ConstraintSet constraints;
+
+    /**
      * constructor
      */
-    public PIBT_Solver() {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction) {
         super.name = "PIBT";
+        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
     }
 
     /**
@@ -91,8 +89,7 @@ public class PIBT_Solver extends A_Solver {
     @Override
     protected void init(MAPF_Instance instance, RunParameters parameters) {
         super.init(instance, parameters);
-        this.currentInstance = instance;
-
+        this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.locations = new HashMap<>();
         this.priorities = new HashMap<>();
         this.solution = new TransientMAPFSolution();
@@ -224,14 +221,16 @@ public class PIBT_Solver extends A_Solver {
                 if (optional != null) {
                     if (optional.equals(current) && isValidMove(current)) {
                         // add new move to the agent's plan - the best is to stay in current node
-                        addNewMoveToAgent(current, this.locations.get(current));
-                        return "valid";
+                        if (addNewMoveToAgent(current, this.locations.get(current))){
+                            return "valid";
+                        };
                     }
 
                     else if (solvePIBT(optional, current).equals("valid") && isValidMove(current)) {
                         // add new move to the agent's plan - change location
-                        addNewMoveToAgent(current, best);
-                        return "valid";
+                        if (addNewMoveToAgent(current, best)) {
+                            return "valid";
+                        };
                     }
                     else {
                         // priority inheritance didn't work, remove best and try next candidate
@@ -244,8 +243,9 @@ public class PIBT_Solver extends A_Solver {
             // best is free
             else if (isValidMove(current)) {
                 // add new move to the agent's plan - change location
-                addNewMoveToAgent(current, best);
-                return "valid";
+                if (addNewMoveToAgent(current, best)) {
+                    return "valid";
+                };
             }
             candidates.remove(best);
         }
@@ -253,8 +253,9 @@ public class PIBT_Solver extends A_Solver {
         // finish try all candidates and didn't find new location
         // add new move to the agent's plan - stay in current node
         if (isValidMove(current)) {
-            addNewMoveToAgent(current, this.locations.get(current));
-            return "invalid";
+            if (addNewMoveToAgent(current, this.locations.get(current))) {
+                return "invalid";
+            };
         }
         return "invalid";
     }
@@ -342,17 +343,10 @@ public class PIBT_Solver extends A_Solver {
     /**
      * boolean function to check if all agents reach their goals
      * when an agent reaches his goal, his priority set to -1.0
-     * if sum of all priorities is #agents * -1 then every agent reached his goal
+     * if one of the agents have priority different then -1.0, then return false
      * @return boolean
      */
     private boolean finished() {
-//        int numOfAgent = this.priorities.keySet().size();
-//        double sumPriorities = 0;
-//        for (Agent agent : this.priorities.keySet()) {
-//            sumPriorities += this.priorities.get(agent);
-//        }
-//        return sumPriorities == -1.0 * numOfAgent;
-
         for (Agent agent : this.priorities.keySet()) {
             if (this.priorities.get(agent) != -1.0) {
                 return false;
@@ -375,11 +369,16 @@ public class PIBT_Solver extends A_Solver {
      * function that adds new move to an agent
      * @param current - the agent we need to add move to
      * @param newLocation - the location that the agent is moving to
+     * @return boolean : true if the move added successfully, false otherwise
      */
-    private void addNewMoveToAgent(Agent current, I_Location newLocation) {
+    private boolean addNewMoveToAgent(Agent current, I_Location newLocation) {
         Move move = new Move(current, this.timeStamp, this.locations.get(current), newLocation);
-        this.agentPlans.get(current).addMove(move);
-        this.locations.put(current, newLocation);
+        if (this.constraints.accepts(move)) {
+            this.agentPlans.get(current).addMove(move);
+            this.locations.put(current, newLocation);
+            return true;
+        }
+        return false;
     }
 
 //    /**
@@ -402,7 +401,6 @@ public class PIBT_Solver extends A_Solver {
         this.agentPlans = null;
         this.heuristic = null;
         this.locations = null;
-        this.currentInstance = null;
         this.priorities = null;
         this.solution = null;
         this.takenNodes = null;
@@ -412,5 +410,13 @@ public class PIBT_Solver extends A_Solver {
     @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
+        if(solution != null){
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, Math.round(solutionCostFunction.solutionCost(solution)));
+
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
+            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
+            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
+        }
     }
 }
