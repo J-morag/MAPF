@@ -156,7 +156,9 @@ public class PIBT_Solver extends A_Solver {
                     // add new move to the agent's plan - stay in current node
                     if (priority == -1.0 && this.timeStamp - this.agentPlans.get(agent).size() == 1) {
                         Move move = new Move(agent, this.timeStamp, this.locations.get(agent), this.locations.get(agent));
-                        this.agentPlans.get(agent).addMove(move);
+                        if (this.constraints.accepts(move)) {
+                            this.agentPlans.get(agent).addMove(move);
+                        }
                     }
                 }
             }
