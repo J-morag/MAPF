@@ -10,6 +10,7 @@ import LifelongMAPF.LifelongAgent;
 import com.google.common.collect.Collections2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -92,8 +93,9 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         I_Location destinationBeforeLast = null;
         List<I_Coordinate> destinations = new LinkedList<>();
         destinations.add(sourceLocation.getCoordinate());
+        int startingIndex = getStartingIndex(sourceLocation, random);
         while (destinations.size() < NUM_TARGETS_PER_AGENT + 1){
-            String desiredSubtype = destinationSubtypesCycle.get(destinations.size() % destinationSubtypesCycle.size());
+            String desiredSubtype = destinationSubtypesCycle.get((destinations.size() + startingIndex) % destinationSubtypesCycle.size());
             List<? extends I_Location> locationsWithDesiredSubtype = locationBySubtype.get(desiredSubtype);
             I_Location destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
             destinations.add(destination.getCoordinate());
@@ -105,6 +107,22 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         I_Location targetLocation = getTargetLocation(destinationBeforeLast, possibleTargetLocations);
 
         agents[agentID] = new LifelongAgent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate(), destinations.toArray(new I_Coordinate[0]));
+    }
+
+    private int getStartingIndex(I_Location sourceLocation, Random random) {
+        @Nullable List<String> sourceSubtypes = sourceLocation.getSubtypes();
+        if (sourceSubtypes == null || sourceSubtypes.isEmpty()){
+            return 0;
+        }
+        else{
+            List<Integer> matchingIndices = new ArrayList<>();
+            for (int i = 0; i < destinationSubtypesCycle.size(); i++) {
+                if (sourceSubtypes.contains(destinationSubtypesCycle.get(i))){
+                    matchingIndices.add(i);
+                }
+            }
+            return matchingIndices.get(random.nextInt(matchingIndices.size()));
+        }
     }
 
     private void getAgentOffline(List<I_Location> sourceLocations, int agentID, List<I_Location> possibleTargetLocations, Agent[] agents) {
