@@ -59,7 +59,4 @@ public interface I_Location {
      * @return true iff other is a neighbor of this.
      */
     boolean isNeighbor(I_Location other);
-
-    default @Nullable List<String> getSubtypes(){return null;};
-
 }
