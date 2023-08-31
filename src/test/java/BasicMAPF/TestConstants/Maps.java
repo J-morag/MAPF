@@ -138,7 +138,7 @@ public class Maps {
             }
         }
 
-        return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights, coordinatesLocationTypes, true);
+        return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights, coordinatesLocationTypes, true, null);
     }
 
     public static final Map<I_ExplicitMap, String> singleStronglyConnectedComponentMapsWithNames = Map.of(

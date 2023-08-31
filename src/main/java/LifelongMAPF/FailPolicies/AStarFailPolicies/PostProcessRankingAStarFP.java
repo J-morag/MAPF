@@ -20,13 +20,13 @@ public class PostProcessRankingAStarFP implements I_AStarFailPolicy {
     /**
      * Min value is the best
      */
-    private final WaterfallPPRASFPComparatorFactory waterfallComparatorFactory;
+    private final I_PPRASFPComparatorFactory pprasfpComparatorFactory;
     private final boolean requireLockableToHorizon;
     private final Integer horizon;
 
-    public PostProcessRankingAStarFP(@NotNull WaterfallPPRASFPComparatorFactory waterfallComparatorFactory,
+    public PostProcessRankingAStarFP(@NotNull I_PPRASFPComparatorFactory pprasfpComparatorFactory,
                                      @Nullable Boolean requireLockableToHorizon, @Nullable Integer horizon) {
-        this.waterfallComparatorFactory = waterfallComparatorFactory;
+        this.pprasfpComparatorFactory = pprasfpComparatorFactory;
         this.requireLockableToHorizon = Objects.requireNonNullElse(requireLockableToHorizon, true);
         this.horizon = Objects.requireNonNullElse(horizon, Integer.MAX_VALUE);
     }
@@ -37,7 +37,7 @@ public class PostProcessRankingAStarFP implements I_AStarFailPolicy {
                                        @NotNull Set<SingleAgentAStar_Solver.AStarState> ClosedList, @NotNull SingleAgentPlan existingPlan,
                                        @Nullable CongestionMap congestionMap,
                                        @NotNull RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable) {
-        Comparator<SingleAgentAStar_Solver.AStarState> comparator = waterfallComparatorFactory.create(congestionMap, conflictAvoidanceTable, horizon);
+        Comparator<SingleAgentAStar_Solver.AStarState> comparator = pprasfpComparatorFactory.create(congestionMap, conflictAvoidanceTable, horizon);
         SingleAgentAStar_Solver.AStarState best = null;
         for (SingleAgentAStar_Solver.AStarState state : openList) {
             best = getBetterOfTwoStates(best, state, comparator, conflictAvoidanceTable);

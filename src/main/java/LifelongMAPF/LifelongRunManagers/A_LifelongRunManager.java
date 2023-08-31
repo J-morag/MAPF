@@ -1,26 +1,14 @@
 package LifelongMAPF.LifelongRunManagers;
 
-import BasicMAPF.CostFunctions.SOCCostFunction;
-import BasicMAPF.CostFunctions.SSTCostFunction;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
 import Environment.Experiment;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
 import Environment.Visualization.I_VisualizeSolution;
-import LifelongMAPF.AgentSelectors.PeriodicSelector;
-import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
-import LifelongMAPF.FailPolicies.AStarFailPolicies.IAvoid1ASFP;
-import LifelongMAPF.FailPolicies.OneActionFailPolicy;
-import LifelongMAPF.LifelongSimulationSolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -115,86 +103,50 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     @NotNull
     public static Collection<? extends I_Solver> getSolvers() {
         List<I_Solver> solvers = new ArrayList<>();
-////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead5()); // baseline and friends experiment // comparing macro FPs experiment
-////        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w10_h03()); // baseline and friends experiment
-////        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartialOneActionRHCR_w10_h03()); // baseline and friends experiment // lookaheads experiment
-////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAllStayFPRHCR_w10_h03Lookahead5()); // micro experiment
-////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPRHCR_w10_h03Lookahead5()); // micro experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPNoPartialOneActionFPRHCR_w10_h03Lookahead5()); // baseline and friends experiment // comparing macro FPs experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPNoPartialOneActionFPRHCR_w10_h03()); // baseline and friends experiment
+//        solvers.add(LifelongSolversFactory.allAgentsPrPDeepPartialOneActionRHCR_w10_h03()); // baseline and friends experiment // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAllStayFPRHCR_w10_h03Lookahead5()); // micro experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPRHCR_w10_h03Lookahead5()); // micro experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5()); // baseline and friends experiment // lookaheads experiment // comparing macro FPs experiment // micro experiment
 //        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP());
-////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // lookaheads experiment
-////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
-////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
-////        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead5()); // comparing macro FPs experiment
-////
-////        // shorter planning period!
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1()); // greedy -integratedFP +IA
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleOneActionFPLookahead1IntegratedFP()); // greedy +IA
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1()); // greedy -integratedFP
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1IntegratedFP()); // greedy
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
-//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPReplanSingleStayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead3()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead7()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead10()); // lookaheads experiment
+//        solvers.add(LifelongSolversFactory.stationaryAgentsPrPWidePartialOneActionFPRHCR_w10_h03Lookahead5()); // comparing macro FPs experiment
 
-        RestartsStrategy restartsStrategy = new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 3, RestartsStrategy.RestartsKind.none);
+//        // shorter planning period!
+        solvers.add(LifelongSolversFactory.OneActionFPLookahead1()); // greedy -integratedFP +IA
+        solvers.add(LifelongSolversFactory.OneActionFPLookahead1IntegratedFP()); // greedy +IA
+        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1()); // greedy -integratedFP
+        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1IntegratedFP()); // greedy
+        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_noLockInf()); // greedy + noLockInf
+        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_lockPeriod()); // greedy + lockPeriod
 
-        addSolvers(solvers, restartsStrategy, 5);
-        addSolvers(solvers, restartsStrategy, 10);
-        addSolvers(solvers, restartsStrategy, null);
+        solvers.add(LifelongSolversFactory.StayOnceFPLookahead1WaterfallPPRASFP_lockInf()); // greedy (inc. inter.)
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1WaterfallPPRASFP_lockInf()); // greedy +IA (inc. inter.)
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IAvoidASFP()); // greedy +IA +IA-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_1ASFP()); // greedy +IA +IGo-1-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_2ASFP()); // greedy +IA +IGo-2-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_3ASFP()); // greedy +IA +IGo-3-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead3IGo_3ASFP()); // greedy +IA +IGo-3-ASFP + LH3
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_4ASFP()); // greedy +IA +IGo-4-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
+        solvers.add(LifelongSolversFactory.IGo_5FPLookahead1IGo_5ASFP()); // greedy +IGo-5 +IGo-5-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_10ASFP()); // greedy +IA +IGo-10-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1IGo_100ASFP()); // greedy +IA +IGo-100-ASFP
+
+
+
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1PPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1InterruptsPPRIGo_5ASFP()); // greedy +IA +IGo-5-ASFP +Interrupts
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPLookahead1InterruptsPPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP +Interrupts
+        solvers.add(LifelongSolversFactory.IAvoidFPRHCR_w10_h03Lookahead5PPRIGo_20ASFP()); // RHCR +IA +IGo-20-ASFP
+        solvers.add(LifelongSolversFactory.IAvoidFPRHCR_w10_h03Lookahead5InterruptsPPRIGo_20ASFP()); // RHCR +IA +IGo-20-ASFP +Interrupts
 
         return solvers;
-    }
-
-    private static void addSolvers(List<I_Solver> solvers, RestartsStrategy restartsStrategy, Integer rhcrHorizon) {
-        // optimizing for SOC
-
-        PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
-                restartsStrategy,
-                true, null, true, rhcrHorizon, null);
-        PrPT_SOC.name = "PrPT_SOC" + "_h" + rhcrHorizon;
-
-        PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
-                restartsStrategy,
-                true, null, false, rhcrHorizon, null);
-        PrP_SOC.name = "PrP_SOC" + "_h" + rhcrHorizon;
-
-        // optimizing for SST
-
-        PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
-                restartsStrategy,
-                true, null, true, rhcrHorizon, null);
-        PrPT_SST.name = "PrPT_SST" + "_h" + rhcrHorizon;
-
-        PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
-                restartsStrategy,
-                true, null, false, rhcrHorizon, null);
-        PrP_SST.name = "PrP_SST" + "_h" + rhcrHorizon;
-
-
-        LifelongSimulationSolver lifelong_PrPT_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
-                PrPT_SOC,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrPT_SOC.name = "lifelong_PrPT_SOC" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
-
-        LifelongSimulationSolver lifelong_PrP_SOC = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
-                PrP_SOC,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrP_SOC.name = "lifelong_PrP_SOC" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
-
-        LifelongSimulationSolver lifelong_PrPT_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
-                PrPT_SST,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrPT_SST.name = "lifelong_PrPT_SST" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
-
-        LifelongSimulationSolver lifelong_PrP_SST = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(3)),
-                PrP_SST,
-                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 5);
-        lifelong_PrP_SST.name = "lifelong_PrP_SST" + "_h" + (rhcrHorizon == null ? "inf" : rhcrHorizon);
-
-        solvers.add(lifelong_PrPT_SOC);
-        solvers.add(lifelong_PrP_SOC);
-        solvers.add(lifelong_PrPT_SST);
-        solvers.add(lifelong_PrP_SST);
     }
 
     protected void addAllMapsAndInstances(String instancesDir, int[] agentNums){
@@ -214,7 +166,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     }
 
     protected static int getTimeoutEach() {
-        return 10 * 5 * 60 * 1000;
+        return 4 * 5 * 60 * 1000;
     }
 
     @NotNull

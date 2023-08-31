@@ -8,7 +8,6 @@ import Environment.Visualization.GridSolutionVisualizer;
 import Environment.Visualization.MillimetricCoordinatesGraphSolutionVisualizer;
 import LifelongMAPF.LifelongRunManagers.LifelongGenericRunManager;
 import org.apache.commons.cli.*;
-import LifelongMAPF.LifelongRunManagers.LifelongRunManagerMovingAI;
 
 import java.io.File;
 import java.util.Arrays;
@@ -53,10 +52,9 @@ public class Main {
             boolean forceBiDiEdges = false;
             I_VisualizeSolution visualiser = null;
             boolean lifelong = false;
-            boolean forceRandWaypoints = false;
             String instancesRegex = null;
             String resultsOutputDir = null;
-            String optResultsFilePrefix = null;
+            String optResultsFilePrefix = "Unnamed";
             int timeoutEach = 300000;
             Long minResponseTime;
             Integer maxTimeSteps;
@@ -76,11 +74,6 @@ public class Main {
             }
 
             I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
-
-            if (cmd.hasOption("rand")) {
-                System.out.println("forceRandWaypoints set: Will force random waypoints for the agents.");
-                forceRandWaypoints = true;
-            }
 
             if(cmd.hasOption("bidi")) {
                 System.out.println("forceBiDiEdges set: Will force warehouse maps to have all bi-directional edges.");
@@ -141,14 +134,10 @@ public class Main {
             if (cmd.hasOption("iForm")) {
                 String optInstancesFormat = cmd.getOptionValue("instancesFormat");
                 System.out.println("Instances Format: " + optInstancesFormat);
-                if (forceRandWaypoints && ! optInstancesFormat.equals(STR_WAREHOUSE)){
-                    System.out.println("Force random waypoints only supported for warehouse instances!");
-                    System.exit(0);
-                }
                 switch (optInstancesFormat) {
                     case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
-                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, lifelong, null, forceRandWaypoints, forceBiDiEdges);
+                    case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, lifelong, forceBiDiEdges);
                     default -> {
                         System.out.printf("Unrecognized instance format: %s\n", optInstancesFormat);
                         System.exit(0);
@@ -236,10 +225,6 @@ public class Main {
         Option lifelongOption = new Option("l", "lifelong", false,
                 String.format("To run lifelong experiments. Doesn't work with %s format", STR_BGU));
         options.addOption(lifelongOption);
-
-        Option randWaypointsOption = new Option("rand", "forceRandWaypoints", false,
-                "To force random waypoints for the agents. Only works with Warehouse format.");
-        options.addOption(randWaypointsOption);
 
         Option forceBiDiEdgesOption = new Option("bidi", "forceBiDiEdges", false,
                 "To force warehouse maps to have all bi-directional edges.");

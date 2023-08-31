@@ -12,7 +12,6 @@ import LifelongMAPF.LifelongAgent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * Computes an individual optimal free-space path for each agent without a path, selects agents whose current path
@@ -32,12 +31,9 @@ public class FreespaceConflictingAgentsSelector extends A_LifelongAgentSelector{
         this(null, null);
     }
 
-
     @Override
-    public Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination) {
-        Set<Agent> selectedAgents = new HashSet<>(getStationaryAgentsAndTheirFreespaceConflictingAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart));
-
-        return new AgentSelectionPredicate(selectedAgents);
+    protected Set<Agent> selectAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
+        return new HashSet<>(getStationaryAgentsAndTheirFreespaceConflictingAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart));
     }
 
     @NotNull
