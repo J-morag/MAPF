@@ -107,27 +107,7 @@ public class Experiment {
 
 
     public void runExperiment(I_Solver solver) {
-        if (solver == null) {
-            return;
-        }
-
-        instanceManager.resetPathIndex();
-        /*
-         * Keeps a record of failed instances attempted by a solver, and the minimum number of agents attempted on that
-         *  instance that produced a failure.
-         */
-        Map<String, Integer> minNumFailedAgentsForInstance = new HashMap<>();
-
-        for (int i = 0; i < this.numOfInstances; i++) {
-
-            MAPF_Instance instance = instanceManager.getNextInstance();
-
-            if (instance == null) {
-                break;
-            }
-
-            runInstanceOnSolver(solver, minNumFailedAgentsForInstance, instance);
-        }
+        runExperiment(List.of(solver));
     }
 
     public void runExperiment(List<I_Solver> solvers) {
@@ -160,7 +140,6 @@ public class Experiment {
             }
         }
         System.out.println("Experiment concluded with " + numInvalidSolutions + " invalid solutions");
-
     }
 
     /**

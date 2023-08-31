@@ -15,7 +15,7 @@ public class InstanceManager {
     private I_InstanceBuilder instanceBuilder;
     private InstanceProperties instanceProperties;
 
-    private List<InstancePath> instancesPaths_list = new ArrayList<InstancePath>();
+    private List<InstancePath> instancesPaths_list = new ArrayList<>();
     int currentPathIndex = 0;
 
     public InstanceManager(String sourceDirectory,
