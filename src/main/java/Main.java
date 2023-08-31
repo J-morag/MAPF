@@ -56,7 +56,7 @@ public class Main {
             boolean forceRandWaypoints = false;
             String instancesRegex = null;
             String resultsOutputDir = null;
-            String optResultsFilePrefix = null;
+            String optResultsFilePrefix = "Unnamed";
             int timeoutEach = 300000;
             Long minResponseTime;
             Integer maxTimeSteps;

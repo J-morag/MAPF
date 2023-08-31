@@ -70,10 +70,6 @@ public class GenericRunManager extends A_RunManager {
         Experiment experiment = new Experiment(experimentName, instanceManager, null, timeoutEach);
         experiment.skipAfterFail = this.skipAfterFail;
         experiment.visualizer = this.visualizer;
-        if (instanceBuilder instanceof InstanceBuilder_Warehouse){ // TODO remove when scenarios are fixed to prevent shared sources and goals
-            experiment.sharedGoals = true;
-            experiment.sharedSources = true;
-        }
         this.experiments.add(experiment);
     }
 
