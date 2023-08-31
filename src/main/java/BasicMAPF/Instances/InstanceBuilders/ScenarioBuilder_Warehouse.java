@@ -14,12 +14,12 @@ import java.util.Set;
 public abstract class ScenarioBuilder_Warehouse {
 
     public static final int SKIP_LINES_SCENARIO = 1;
-    public static final int NUM_TARGETS_PER_AGENT = 100;
+    public static final int NUM_TARGETS_PER_AGENT = 1000;
     public static final String SEPARATOR_SCENARIO = ",";
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;
 
-    public Agent[] getAgents(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map) {
+    public Agent[] getAgents(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map, boolean lifelong) {
         ArrayList<ArrayList<String>> agentLinesList = getAgentLines(moving_ai_path, numOfNeededAgents);
         return getAgents(agentLinesList, numOfNeededAgents, canonicalCoordinates);
     }

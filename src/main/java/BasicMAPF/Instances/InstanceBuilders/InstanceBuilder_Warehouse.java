@@ -6,11 +6,9 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Coordinates.MillimetricCoordinate_2D;
 import Environment.IO_Package.IO_Manager;
 import org.jetbrains.annotations.NotNull;
-import LifelongMAPF.LifelongAgent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -42,20 +40,16 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
     private final boolean dropDisabledEdges;
     public final boolean lifelong;
-    private final boolean forceNoSharedSourceAndFinalDestinations;
-    private final boolean randomWaypoints;
     private final boolean forceEdgesBidirectional;
     private final ScenarioBuilder_Warehouse scenarioReader = new ScenarioBuilder_WarehouseGenerative();
 
     public InstanceBuilder_Warehouse() {
-        this(null, null, null, null, null);
+        this(null, null, null);
     }
 
-    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong, Boolean forceNoSharedSourceAndFinalDestinations, Boolean randomWaypoints, Boolean forceEdgesBidirectional) {
+    public InstanceBuilder_Warehouse(Boolean dropDisabledEdges, Boolean lifelong, Boolean forceEdgesBidirectional) {
         this.dropDisabledEdges = Objects.requireNonNullElse(dropDisabledEdges, true);
         this.lifelong = Objects.requireNonNullElse(lifelong, true);
-        this.forceNoSharedSourceAndFinalDestinations = Objects.requireNonNullElse(forceNoSharedSourceAndFinalDestinations, this.lifelong);
-        this.randomWaypoints = Objects.requireNonNullElse(randomWaypoints, false);
         this.forceEdgesBidirectional = Objects.requireNonNullElse(forceEdgesBidirectional, true);
     }
 
@@ -219,7 +213,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             canonicalCoordinates.add((Coordinate_2D) location.getCoordinate());
         }
 
-        Agent[] allAgents = scenarioReader.getAgents(moving_ai_path, Arrays.stream(numOfAgentsFromProperties).max().getAsInt(), canonicalCoordinates, graphMap);
+        Agent[] allAgents = scenarioReader.getAgents(moving_ai_path, Arrays.stream(numOfAgentsFromProperties).max().getAsInt(), canonicalCoordinates, graphMap, lifelong);
         if (allAgents == null) {
             return;
         }

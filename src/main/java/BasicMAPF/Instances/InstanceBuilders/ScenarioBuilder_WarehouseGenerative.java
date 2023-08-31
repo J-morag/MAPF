@@ -3,8 +3,10 @@ package BasicMAPF.Instances.InstanceBuilders;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.GraphMap;
 import BasicMAPF.Instances.Maps.I_Location;
+import LifelongMAPF.LifelongAgent;
 import com.google.common.collect.Collections2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -27,9 +29,9 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
     private List<String> destinationSubtypesCycle;
 
     @Override
-    public Agent[] getAgents(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map) {
+    public Agent[] getAgents(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map, boolean lifelong) {
         readScenarioJson(moving_ai_path.scenarioPath);
-        return getAgents(numOfNeededAgents, map.getAllLocations());
+        return getAgents(numOfNeededAgents, map.getAllLocations(), lifelong);
     }
 
     private void readScenarioJson(String scenarioPath) {
@@ -51,7 +53,7 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         }
     }
 
-    private Agent[] getAgents(int numAgents, Collection<? extends I_Location> allLocations) {
+    private Agent[] getAgents(int numAgents, Collection<? extends I_Location> allLocations, boolean lifelong) {
         if (numAgents > allLocations.size()){
             numAgents = allLocations.size();
         }
@@ -74,14 +76,42 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         Agent[] agents = new Agent[numAgents];
 
         for (int agentID = 0; agentID < numAgents; agentID++) {
-            I_Location sourceLocation = sourceLocations.get(agentID);
-            I_Location targetLocation = getTargetLocation(sourceLocation, possibleTargetLocations);
-
-            agents[agentID] = new Agent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate());
-
+            if (lifelong){
+                getAgentLifelong(sourceLocations, agentID, locationBySubtype, random, possibleTargetLocations, agents);
+            }
+            else {
+                getAgentOffline(sourceLocations, agentID, possibleTargetLocations, agents);
+            }
         }
 
         return agents;
+    }
+
+    private void getAgentLifelong(List<I_Location> sourceLocations, int agentID, Map<String, List<? extends I_Location>> locationBySubtype, Random random, List<I_Location> possibleTargetLocations, Agent[] agents) {
+        I_Location sourceLocation = sourceLocations.get(agentID);
+        I_Location destinationBeforeLast = null;
+        List<I_Coordinate> destinations = new LinkedList<>();
+        destinations.add(sourceLocation.getCoordinate());
+        while (destinations.size() < NUM_TARGETS_PER_AGENT + 1){
+            String desiredSubtype = destinationSubtypesCycle.get(destinations.size() % destinationSubtypesCycle.size());
+            List<? extends I_Location> locationsWithDesiredSubtype = locationBySubtype.get(desiredSubtype);
+            I_Location destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
+            destinations.add(destination.getCoordinate());
+            if (destinations.size() == NUM_TARGETS_PER_AGENT + 1){
+                destinationBeforeLast = destination;
+            }
+        }
+
+        I_Location targetLocation = getTargetLocation(destinationBeforeLast, possibleTargetLocations);
+
+        agents[agentID] = new LifelongAgent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate(), destinations.toArray(new I_Coordinate[0]));
+    }
+
+    private void getAgentOffline(List<I_Location> sourceLocations, int agentID, List<I_Location> possibleTargetLocations, Agent[] agents) {
+        I_Location sourceLocation = sourceLocations.get(agentID);
+        I_Location targetLocation = getTargetLocation(sourceLocation, possibleTargetLocations);
+
+        agents[agentID] = new Agent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate());
     }
 
     @NotNull
