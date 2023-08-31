@@ -39,13 +39,13 @@ public class GraphMapVertex implements I_Location {
 
     public final I_Coordinate coordinate;
 
-    public final List<String> coordinatesLocationSubtypes;
+    public final List<String> locationSubtypes;
 
-    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate, @Nullable List<String> coordinatesLocationSubtypes) {
+    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate, @Nullable List<String> locationSubtypes) {
         this.locationType = locationType;
         this.coordinate = coordinate;
         this.outgoingEdges = null;
-        this.coordinatesLocationSubtypes = coordinatesLocationSubtypes == null ? null : List.copyOf(coordinatesLocationSubtypes);
+        this.locationSubtypes = locationSubtypes == null ? null : List.copyOf(locationSubtypes);
     }
     GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate) {
         this(locationType, coordinate, null);
@@ -149,7 +149,7 @@ public class GraphMapVertex implements I_Location {
 
     @Override
     public @Nullable List<String> getSubtypes() {
-        return coordinatesLocationSubtypes;
+        return locationSubtypes;
     }
 
     /**

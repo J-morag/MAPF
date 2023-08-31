@@ -26,7 +26,7 @@ jobs:
         run: mvn --batch-mode -DskipTests package
 
       - name: Test
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dtest=!*StressTest* test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest=!*StressTest* test
 
       - name: Report
         uses: dorny/test-reporter@v1

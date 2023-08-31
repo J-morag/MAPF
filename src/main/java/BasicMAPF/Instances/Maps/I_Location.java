@@ -14,6 +14,12 @@ public interface I_Location {
     Enum_MapLocationType getType();
 
     /**
+     * Returns a list of subtypes of this location.
+     * @return a list of subtypes of this location.
+     */
+    default @Nullable List<String> getSubtypes(){return null;}
+
+    /**
      * Returns an array that contains references to locations directly reachable from this. Should not include this.
      * The amount of neighbors varies by map and connectivity.
      * @return an array that contains references to locations directly reachable from this. Should not include this.
