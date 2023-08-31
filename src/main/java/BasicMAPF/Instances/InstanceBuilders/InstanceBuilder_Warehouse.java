@@ -25,9 +25,9 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
     public static final MapDimensions.Enum_mapOrientation ENUMMAP_ORIENTATION = MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL;
     public static final int STICKER_DISTANCE_UNIT_MM = 490;
-    public static final String FILE_TYPE_MAP = ".json";
+    public static final String FILE_TYPE_MAP = ".map.json";
     public static final String FILE_TYPE_SCENARIO = ".scen.json";
-    public static final int MERGE_COORDINATES_THRESHOLD = 100;
+    public static final int MERGE_COORDINATES_THRESHOLD = 200;
 
     /*  =Default Values=    */
     private final int defaultNumOfAgents = 10;
@@ -106,13 +106,13 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 JSONArray neighborCoordinateJA = currentEdge.getJSONArray(0);
                 Coordinate_2D neighborCoordinate = toCoor2D(neighborCoordinateJA.getInt(0), neighborCoordinateJA.getInt(1), canonicalCoordinates);
                 int edgeWeightCode = currentEdge.getInt(1);
-                // disabled edges marked with 99999 weight
-                if (!dropDisabledEdges || edgeWeightCode < 99999){
+
+                if (!dropDisabledEdges || edgeWeightCode < 999){
                     int delta_x = neighborCoordinate.x_value - currentStickerCoordinate.x_value;
                     int delta_y = neighborCoordinate.y_value - currentStickerCoordinate.y_value;
                     // get actual weight from distances
-                    int realDistance = (int)Math.round(Math.sqrt(Math.pow(delta_x, 2)
-                            + Math.pow(delta_y, 2)) / STICKER_DISTANCE_UNIT_MM);
+                    int realDistance = Math.max(1,(int)Math.round(Math.sqrt(Math.pow(delta_x, 2)
+                            + Math.pow(delta_y, 2)) / STICKER_DISTANCE_UNIT_MM)); // TODO log a warning if distance is not a multiple of STICKER_DISTANCE_UNIT_MM?
                     // make a chain of NO_STOP vertices between vertices, with a length equal to the weight, instead of a weighted edge
                     // TODO in the future, add support for weighted edges and then replace the chain with proper weights
                     List<Coordinate_2D> intermediateVertices = new ArrayList<>(realDistance - 1);

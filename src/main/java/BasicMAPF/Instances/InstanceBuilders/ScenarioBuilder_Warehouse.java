@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Set;
 
-public class ScenarioBuilder_Warehouse {
+public abstract class ScenarioBuilder_Warehouse {
 
     public static final int SKIP_LINES_SCENARIO = 1;
     public static final int NUM_TARGETS_PER_AGENT = 100;
