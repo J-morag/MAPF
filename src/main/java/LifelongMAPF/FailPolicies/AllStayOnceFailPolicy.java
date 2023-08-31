@@ -3,7 +3,7 @@ package LifelongMAPF.FailPolicies;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 
-public class AllStayOnceFailPolicy extends StayOnceFailPolicy {
+public class AllStayOnceFailPolicy extends IStayFailPolicy {
 
     public Solution stopAll(Iterable<? extends SingleAgentPlan> currentPlans) {
         Solution solution = new Solution();

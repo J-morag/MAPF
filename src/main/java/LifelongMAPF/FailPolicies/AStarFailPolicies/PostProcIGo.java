@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Like {@link IGoASFP} but as a post-processing fail policy.
+ * Like {@link IGoDASFP} but as a post-processing fail policy.
  */
 public class PostProcIGo implements Comparator<SingleAgentAStar_Solver.AStarState> {
 

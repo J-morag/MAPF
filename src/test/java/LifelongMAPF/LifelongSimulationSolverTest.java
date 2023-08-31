@@ -22,7 +22,7 @@ import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.IAvoid1ASFP;
 import LifelongMAPF.FailPolicies.FailPolicy;
-import LifelongMAPF.FailPolicies.OneActionFailPolicy;
+import LifelongMAPF.FailPolicies.IAvoidFailPolicy;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import org.junit.jupiter.api.AfterEach;
@@ -61,14 +61,14 @@ class LifelongSimulationSolverTest {
     I_Solver mandatoryAgentsPrPrDeepPartial = new LifelongSimulationSolver(new ActiveButPlanEndedTrigger(), new StationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null);
 
-    I_Solver stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP =
-            LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP();
+    I_Solver stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP =
+            LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP();
     
     I_Solver lotsAndPrPT_h1 = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
                     new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, null,
                             new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                            true, false, true, 10, new FailPolicy(1, new OneActionFailPolicy(true))),
-                    null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+                            true, false, true, 10, new FailPolicy(1, new IAvoidFailPolicy(true))),
+                    null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 1);
 
     InstanceReport instanceReport;
 
@@ -1232,8 +1232,8 @@ class LifelongSimulationSolverTest {
     /* = Lots = */
 
     @Test
-    void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
+    void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1244,8 +1244,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
+    void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1257,8 +1257,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
+    void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1269,8 +1269,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
+    void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1281,8 +1281,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10() {
-        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialOneActionFPRHCR_w10();
+    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10() {
+        I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1295,8 +1295,8 @@ class LifelongSimulationSolverTest {
     /* = Other Lots = */
 
     @Test
-    void emptyMapValidityTest1_stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
-        I_Solver solver = stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
+    void emptyMapValidityTest1_stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
+        I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1307,8 +1307,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void circleMapValidityTest1_stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
-        I_Solver solver = stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
+    void circleMapValidityTest1_stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
+        I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1320,8 +1320,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void circleMapValidityTest2_stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
-        I_Solver solver = stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
+    void circleMapValidityTest2_stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
+        I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1332,8 +1332,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void smallMazeDenseValidityTest_stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
-        I_Solver solver = stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
+    void smallMazeDenseValidityTest_stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
+        I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1344,8 +1344,8 @@ class LifelongSimulationSolverTest {
     }
 
     @Test
-    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
-        I_Solver solver = stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
+    void startAdjacentGoAroundValidityTest_stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP() {
+        I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
@@ -1426,14 +1426,14 @@ class LifelongSimulationSolverTest {
 //                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, new SSTCostFunction(),
 //                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
 //                        false, false, true, null, null),
-//                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+//                null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 1);
 //
 //
 //        I_Solver PrP = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
 //                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new IAvoid1ASFP()), null, new SOCCostFunction(),
 //                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
 //                        true, false, false, null, null),
-//                null, new DeepPartialSolutionsStrategy(), new OneActionFailPolicy(true), 1);
+//                null, new DeepPartialSolutionsStrategy(), new IAvoidFailPolicy(true), 1);
 //
 //
 //        Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
