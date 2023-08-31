@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.GraphMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import com.google.common.collect.Collections2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -50,27 +51,29 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         }
     }
 
-    private Agent[] getAgents(int numOfNeededAgents, Collection<? extends I_Location> allLocations) {
-        if (numOfNeededAgents > allLocations.size()){
-            numOfNeededAgents = allLocations.size();
+    private Agent[] getAgents(int numAgents, Collection<? extends I_Location> allLocations) {
+        if (numAgents > allLocations.size()){
+            numAgents = allLocations.size();
         }
 
         Map<String, List<? extends I_Location>> locationBySubtype = getLocationsByType(allLocations);
 
         Random random = new Random(randomSeed);
 
-//        List<I_Location> sourceLocations = getRandomLocations(allLocations, numOfNeededAgents, random);
-        List<? extends I_Location> sourceLocations = locationBySubtype.get(destinationSubtypesCycle.get(0));
-        if (numOfNeededAgents > sourceLocations.size()){
-            numOfNeededAgents = sourceLocations.size();
+        List<? extends I_Location> locationsWithSubtypesInCycle = new ArrayList<>(Collections2.filter(allLocations, loc -> {
+            List<String> subtypes = loc.getSubtypes();
+            return subtypes != null && CollectionUtils.containsAny(subtypes, destinationSubtypesCycle);
+        }));
+        if (numAgents > locationsWithSubtypesInCycle.size()){
+            numAgents = locationsWithSubtypesInCycle.size();
         }
-        sourceLocations = getRandomLocations(locationBySubtype.get(destinationSubtypesCycle.get(0)), numOfNeededAgents, random);
 
-        List<I_Location> possibleTargetLocations = getRandomLocations(allLocations, allLocations.size(), random);
+        List<I_Location> sourceLocations  = getRandomLocations(locationsWithSubtypesInCycle, numAgents, random);
+        List<I_Location> possibleTargetLocations = getRandomLocations(locationsWithSubtypesInCycle, numAgents, random);
 
-        Agent[] agents = new Agent[numOfNeededAgents];
+        Agent[] agents = new Agent[numAgents];
 
-        for (int agentID = 0; agentID < numOfNeededAgents; agentID++) {
+        for (int agentID = 0; agentID < numAgents; agentID++) {
             I_Location sourceLocation = sourceLocations.get(agentID);
             I_Location targetLocation = getTargetLocation(sourceLocation, possibleTargetLocations);
 
