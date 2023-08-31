@@ -26,7 +26,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     public static final MapDimensions.Enum_mapOrientation ENUMMAP_ORIENTATION = MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL;
     public static final int STICKER_DISTANCE_UNIT_MM = 490;
     public static final String FILE_TYPE_MAP = ".json";
-    public static final String FILE_TYPE_SCENARIO = ".csv";
+    public static final String FILE_TYPE_SCENARIO = ".scen.json";
     public static final int MERGE_COORDINATES_THRESHOLD = 100;
 
     /*  =Default Values=    */
@@ -277,7 +277,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
                 String[] splitPath = instancePath.path.split(Pattern.quote(IO_Manager.pathSeparator));
                 String mapPrefix = splitPath[splitPath.length-1].replace(FILE_TYPE_MAP, "");
                 for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
-                    if(scenarioCandidate.path.split("_start")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO)){
+                    if(isRelevantScenarioFile(scenarioCandidate, mapPrefix)){
                         list.add( new InstanceManager.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
                     }
                 }
@@ -289,5 +289,9 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
             pathArray[i] = list.get(i);
         }
         return pathArray;
+    }
+
+    private static boolean isRelevantScenarioFile(InstanceManager.InstancePath scenarioCandidate, String mapPrefix) {
+        return scenarioCandidate.path.split("_scen")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO);
     }
 }
