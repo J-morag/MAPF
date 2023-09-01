@@ -98,6 +98,10 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
             String desiredSubtype = destinationSubtypesCycle.get((destinations.size() + startingIndex) % destinationSubtypesCycle.size());
             List<? extends I_Location> locationsWithDesiredSubtype = locationBySubtype.get(desiredSubtype);
             I_Location destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
+            while (destinations.get(destinations.size() -1 ).equals(destination.getCoordinate())){
+                destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
+            }
+
             destinations.add(destination.getCoordinate());
             if (destinations.size() == NUM_TARGETS_PER_AGENT + 1){
                 destinationBeforeLast = destination;
@@ -146,6 +150,10 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
                 throw new IllegalArgumentException("subtype " + subtypeInCycle + " appears too many times ("
                         + Collections.frequency(destinationSubtypesCycle, subtypeInCycle) +") in the cycle or too few times ("
                         + locationBySubtype.get(subtypeInCycle).size() + ") in the map.");
+            }
+            if (locationBySubtype.get(subtypeInCycle).size() < 2){
+                throw new IllegalArgumentException("Each location subtype in the cycle must correspond to at least 2 " +
+                        "locations in the map to avoid immediately repeated destinations");
             }
         }
         return locationBySubtype;
