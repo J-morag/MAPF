@@ -78,7 +78,7 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
 
         for (int agentID = 0; agentID < numAgents; agentID++) {
             if (lifelong){
-                getAgentLifelong(sourceLocations, agentID, locationBySubtype, random, possibleTargetLocations, agents);
+                getAgentLifelong(sourceLocations, agentID, locationBySubtype, random, agents);
             }
             else {
                 getAgentOffline(sourceLocations, agentID, possibleTargetLocations, agents);
