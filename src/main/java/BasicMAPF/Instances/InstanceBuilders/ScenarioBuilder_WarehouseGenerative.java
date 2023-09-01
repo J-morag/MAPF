@@ -88,9 +88,9 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         return agents;
     }
 
-    private void getAgentLifelong(List<I_Location> sourceLocations, int agentID, Map<String, List<? extends I_Location>> locationBySubtype, Random random, List<I_Location> possibleTargetLocations, Agent[] agents) {
+    private void getAgentLifelong(List<I_Location> sourceLocations, int agentID, Map<String, List<? extends I_Location>> locationBySubtype, Random random, Agent[] agents) {
         I_Location sourceLocation = sourceLocations.get(agentID);
-        I_Location destinationBeforeLast = null;
+        I_Location targetLocation = null;
         List<I_Coordinate> destinations = new LinkedList<>();
         destinations.add(sourceLocation.getCoordinate());
         int startingIndex = getStartingIndex(sourceLocation, random);
@@ -103,12 +103,10 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
             }
 
             destinations.add(destination.getCoordinate());
-            if (destinations.size() == NUM_TARGETS_PER_AGENT + 1){
-                destinationBeforeLast = destination;
+            if (destinations.size() == NUM_TARGETS_PER_AGENT){
+                targetLocation = destination;
             }
         }
-
-        I_Location targetLocation = getTargetLocation(destinationBeforeLast, possibleTargetLocations);
 
         agents[agentID] = new LifelongAgent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate(), destinations.toArray(new I_Coordinate[0]));
     }
