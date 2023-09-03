@@ -14,7 +14,7 @@ import java.util.Set;
 public abstract class ScenarioBuilder_Warehouse {
 
     public static final int SKIP_LINES_SCENARIO = 1;
-    public static final int NUM_TARGETS_PER_AGENT = 1000;
+    public static final int NUM_TARGETS_PER_AGENT = 2000;
     public static final String SEPARATOR_SCENARIO = ",";
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;

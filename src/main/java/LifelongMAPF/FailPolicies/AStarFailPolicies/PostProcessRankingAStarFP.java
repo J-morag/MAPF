@@ -7,7 +7,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.I_OpenList;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import LifelongMAPF.FailPolicies.StayOnceFailPolicy;
+import LifelongMAPF.FailPolicies.IStayFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +45,7 @@ public class PostProcessRankingAStarFP implements I_AStarFailPolicy {
         for (SingleAgentAStar_Solver.AStarState state : ClosedList) {
             best = getBetterOfTwoStates(best, state, comparator, conflictAvoidanceTable);
         }
-        SingleAgentPlan res = best != null ? best.backTracePlan(existingPlan) : StayOnceFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+        SingleAgentPlan res = best != null ? best.backTracePlan(existingPlan) : IStayFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
         if (DEBUG >= 2) {
             if (requireLockableToHorizon){
                 System.out.println("PostProcessRankingAStarFP.getFailPlan: found LockableToInf = " + (best != null));

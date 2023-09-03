@@ -78,7 +78,7 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
 
         for (int agentID = 0; agentID < numAgents; agentID++) {
             if (lifelong){
-                getAgentLifelong(sourceLocations, agentID, locationBySubtype, random, possibleTargetLocations, agents);
+                getAgentLifelong(sourceLocations, agentID, locationBySubtype, random, agents);
             }
             else {
                 getAgentOffline(sourceLocations, agentID, possibleTargetLocations, agents);
@@ -88,9 +88,9 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         return agents;
     }
 
-    private void getAgentLifelong(List<I_Location> sourceLocations, int agentID, Map<String, List<? extends I_Location>> locationBySubtype, Random random, List<I_Location> possibleTargetLocations, Agent[] agents) {
+    private void getAgentLifelong(List<I_Location> sourceLocations, int agentID, Map<String, List<? extends I_Location>> locationBySubtype, Random random, Agent[] agents) {
         I_Location sourceLocation = sourceLocations.get(agentID);
-        I_Location destinationBeforeLast = null;
+        I_Location targetLocation = null;
         List<I_Coordinate> destinations = new LinkedList<>();
         destinations.add(sourceLocation.getCoordinate());
         int startingIndex = getStartingIndex(sourceLocation, random);
@@ -98,13 +98,15 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
             String desiredSubtype = destinationSubtypesCycle.get((destinations.size() + startingIndex) % destinationSubtypesCycle.size());
             List<? extends I_Location> locationsWithDesiredSubtype = locationBySubtype.get(desiredSubtype);
             I_Location destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
+            while (destinations.get(destinations.size() -1 ).equals(destination.getCoordinate())){
+                destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
+            }
+
             destinations.add(destination.getCoordinate());
             if (destinations.size() == NUM_TARGETS_PER_AGENT + 1){
-                destinationBeforeLast = destination;
+                targetLocation = destination;
             }
         }
-
-        I_Location targetLocation = getTargetLocation(destinationBeforeLast, possibleTargetLocations);
 
         agents[agentID] = new LifelongAgent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate(), destinations.toArray(new I_Coordinate[0]));
     }
@@ -146,6 +148,10 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
                 throw new IllegalArgumentException("subtype " + subtypeInCycle + " appears too many times ("
                         + Collections.frequency(destinationSubtypesCycle, subtypeInCycle) +") in the cycle or too few times ("
                         + locationBySubtype.get(subtypeInCycle).size() + ") in the map.");
+            }
+            if (locationBySubtype.get(subtypeInCycle).size() < 2){
+                throw new IllegalArgumentException("Each location subtype in the cycle must correspond to at least 2 " +
+                        "locations in the map to avoid immediately repeated destinations");
             }
         }
         return locationBySubtype;

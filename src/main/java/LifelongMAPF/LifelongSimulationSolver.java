@@ -25,7 +25,7 @@ import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
-import LifelongMAPF.FailPolicies.StayOnceFailPolicy;
+import LifelongMAPF.FailPolicies.IStayFailPolicy;
 import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
 import org.apache.commons.lang.mutable.MutableInt;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 public class LifelongSimulationSolver extends A_Solver {
 
     /* static fields */
-    private static final StayOnceFailPolicy STAY_ONCE_FAIL_POLICY = new StayOnceFailPolicy();
+    private static final IStayFailPolicy STAY_ONCE_FAIL_POLICY = new IStayFailPolicy();
     private static final int DEBUG = 2;
 
     /* fields related to instance */
