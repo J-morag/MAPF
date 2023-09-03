@@ -2,6 +2,7 @@ package LifelongMAPF;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -23,8 +24,25 @@ public class LifelongAgent extends Agent {
         this(iD, source, target, 1, waypoints);
     }
 
-    public LifelongAgent(int iD, I_Coordinate source, I_Coordinate target, int priority, I_Coordinate[] waypoints) {
+    public LifelongAgent(int iD, I_Coordinate source, I_Coordinate target, int priority, @NotNull I_Coordinate[] waypoints) {
         super(iD, source, target, priority);
+        if (waypoints.length == 0){
+            throw new IllegalArgumentException("Waypoints must contain at least one coordinate");
+        }
+        I_Coordinate prevCoordinate = source;
+        if (!prevCoordinate.equals(waypoints[0])){
+            throw new IllegalArgumentException("First waypoint must be the agent's source");
+        }
+        for (int i = 1; i < waypoints.length; i++){
+            I_Coordinate currCoordinate = waypoints[i];
+            if (prevCoordinate.equals(currCoordinate)){
+                throw new IllegalArgumentException("Repeated waypoints must not be adjacent (waypoint " + i + " is repeated)");
+            }
+            prevCoordinate = currCoordinate;
+        }
+        if (!prevCoordinate.equals(target)){
+            throw new IllegalArgumentException("Last waypoint must be the agent's target. Expected: " + target + ", got: " + prevCoordinate);
+        }
         this.waypoints = List.of(waypoints);
     }
 

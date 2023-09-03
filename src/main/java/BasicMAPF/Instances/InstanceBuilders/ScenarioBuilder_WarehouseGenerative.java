@@ -103,7 +103,7 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
             }
 
             destinations.add(destination.getCoordinate());
-            if (destinations.size() == NUM_TARGETS_PER_AGENT){
+            if (destinations.size() == NUM_TARGETS_PER_AGENT + 1){
                 targetLocation = destination;
             }
         }
