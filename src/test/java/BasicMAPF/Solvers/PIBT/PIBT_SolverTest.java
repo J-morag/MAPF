@@ -65,9 +65,6 @@ public class PIBT_SolverTest {
     }
 
 
-
-//    Solution solved = ppSolver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
-
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
