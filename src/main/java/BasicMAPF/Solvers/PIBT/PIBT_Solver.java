@@ -383,15 +383,6 @@ public class PIBT_Solver extends A_Solver {
         return false;
     }
 
-//    /**
-//     * functions to Update the corresponding entry in the 'locations' HashMap based on changes in 'locationsInCurrentT'
-//     */
-//    private void updateLocations() {
-//        for (Map.Entry<Agent, I_Location> entry : this.desiredLocationsInNextT.entrySet()) {
-//            this.locations.put(entry.getKey(), entry.getValue());
-//        }
-//    }
-
     @Override
     protected void releaseMemory() {
         super.releaseMemory();
