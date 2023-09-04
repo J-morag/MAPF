@@ -43,7 +43,7 @@ public class PIBT_Solver extends A_Solver {
     private HashMap<Agent, Double> priorities;
 
     /**
-     * heuristic to use in the low level search to find the closets nodes to an agent's goal
+     * heuristic to use in the low level search to find the closest nodes to an agent's goal
      */
     private DistanceTableAStarHeuristic heuristic;
 
