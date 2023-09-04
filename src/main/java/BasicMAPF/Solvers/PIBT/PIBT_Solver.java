@@ -21,23 +21,23 @@ import java.util.*;
 public class PIBT_Solver extends A_Solver {
 
     /**
-     * list contains all not handled agents at timestamp t
+     * Set contains all not handled agents at timestamp t
      * initialize in each timestamp to A (all agents that not reached their goal yet)
-     * agent in list will be sorted in descending order by priority
+     * agent in set will be sorted in descending order by priority
      */
-    private List<Agent> unhandledAgents;
+    private HashSet<Agent> unhandledAgents;
 
     /**
-     * list contains all taken nodes - nodes required by an agent in the next timeStamp
+     * Set contains all taken nodes - nodes required by an agent in the next timeStamp
      * hence agent can't move to a node in this list
-     * when an agent chooses a node to move to in the next timestamp, the node is added to this list
+     * when an agent chooses a node to move to in the next timestamp, the node is added to this set
      */
-    private List<I_Location> takenNodes;
+    private HashSet<I_Location> takenNodes;
 
     /**
      * Map saving current location for each agent
      */
-    private HashMap<Agent, I_Location> locations;
+    private HashMap<Agent, I_Location> currentLocations;
 
     /**
      * Map saving priority of each agent
@@ -48,12 +48,6 @@ public class PIBT_Solver extends A_Solver {
      * heuristic to use in the low level search to find the closest nodes to an agent's goal
      */
     private DistanceTableAStarHeuristic heuristic;
-
-
-    /**
-     * object Solution represents the final solution that the algorithm returns
-     */
-    private Solution solution;
 
     /**
      * HashMap saves for each agent his plan
@@ -81,15 +75,14 @@ public class PIBT_Solver extends A_Solver {
     protected void init(MAPF_Instance instance, RunParameters parameters) {
         super.init(instance, parameters);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.locations = new HashMap<>();
+        this.currentLocations = new HashMap<>();
         this.priorities = new HashMap<>();
-        this.solution = new TransientMAPFSolution();
         this.agentPlans = new HashMap<>();
         this.timeStamp = 0;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
-            this.locations.put(agent, instance.map.getMapLocation(agent.source));
+            this.currentLocations.put(agent, instance.map.getMapLocation(agent.source));
 
             // init agents plans
             this.agentPlans.put(agent, new SingleAgentPlan(agent, new ArrayList<Move>()));
@@ -117,7 +110,7 @@ public class PIBT_Solver extends A_Solver {
 
             updatePriorities(instance);
             // init agents that have not reached their goal
-            this.unhandledAgents = new ArrayList<>();
+            this.unhandledAgents = new HashSet<>();
             for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
                 Agent agent = entry.getKey();
                 Double priority = entry.getValue();
@@ -128,7 +121,7 @@ public class PIBT_Solver extends A_Solver {
             }
 
             // nodes wanted in the next timestamp
-            this.takenNodes = new ArrayList<>();
+            this.takenNodes = new HashSet<>();
 
 
             while (!this.unhandledAgents.isEmpty()) {
@@ -146,7 +139,7 @@ public class PIBT_Solver extends A_Solver {
                     // the agent reached his goal
                     // add new move to the agent's plan - stay in current node
                     if (priority == -1.0 && this.timeStamp - this.agentPlans.get(agent).size() == 1) {
-                        Move move = new Move(agent, this.timeStamp, this.locations.get(agent), this.locations.get(agent));
+                        Move move = new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent));
                         if (this.constraints.accepts(move)) {
                             this.agentPlans.get(agent).addMove(move);
                         }
@@ -156,41 +149,42 @@ public class PIBT_Solver extends A_Solver {
         }
 
         // create the final solution
+        Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
-            this.solution.putPlan(this.agentPlans.get(agent));
+            solution.putPlan(this.agentPlans.get(agent));
         }
-        return this.solution;
+        return solution;
     }
 
     /**
      * recursive main function to solve PIBT
      * @param current agent making the decision
-     * @param other agent which current inherits priority from (other has higher priority)
-     * @return solution
+     * @param higherPriorityAgent agent which current inherits priority from (other has higher priority)
+     * @return boolean - is current agent made a valid / invalid move
      */
-    protected String solvePIBT(Agent current, @Nullable Agent other) {
+    protected boolean solvePIBT(Agent current, @Nullable Agent higherPriorityAgent) {
         if (current == null) {
-            return null;
+            return false;
         }
 
         this.unhandledAgents.remove(current);
 
         // add neighbors of current to candidates
-        List<I_Location> candidates = new ArrayList<>(findAllNeighbors(this.locations.get(current)));
+        List<I_Location> candidates = new ArrayList<>(findAllNeighbors(this.currentLocations.get(current)));
 
-        // if other != null then there is priority inheritance in the current function run
+        // if higherPriorityAgent != null then there is priority inheritance in the current function run
         // hence we need to make sure that the agents inherits priority can't:
         // (originally he interrupts the other agent)
         //  1. stay in current node in the next timestamp
         //  2. move to the node where the higher priority agent is
 
         // add current location of current agent - for the option to stay in current node in the next timestamp
-        if (other == null) {
-            candidates.add(this.locations.get(current)); // 1
+        if (higherPriorityAgent == null) {
+            candidates.add(this.currentLocations.get(current)); // 1
         }
         // prevent move to the node where the higher priority agent is
         else {
-            candidates.remove(this.locations.get(other)); // 2
+            candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
 
         // remove all taken nodes by higher priorities agents
@@ -201,42 +195,41 @@ public class PIBT_Solver extends A_Solver {
             this.takenNodes.add(best);
 
             // best is taken
-            if (this.locations.containsValue(best)) {
+            if (this.currentLocations.containsValue(best)) {
                 Agent optional = null;
-                for (Agent agent: this.locations.keySet()) {
-                    if (this.locations.get(agent) == best) {
+                for (Agent agent: this.currentLocations.keySet()) {
+                    if (this.currentLocations.get(agent) == best) {
                         optional = agent;
                         break;
                     }
                 }
 
                 if (optional != null) {
-                    if (optional.equals(current) && isValidMove(current)) {
+                    if (optional.equals(current) && canMove(current)) {
                         // add new move to the agent's plan - the best is to stay in current node
-                        if (addNewMoveToAgent(current, this.locations.get(current))){
-                            return "valid";
+                        if (addNewMoveToAgent(current, this.currentLocations.get(current))){
+                            return true;
                         };
                     }
 
-                    else if (solvePIBT(optional, current).equals("valid") && isValidMove(current)) {
+                    else if (solvePIBT(optional, current) && canMove(current)) {
                         // add new move to the agent's plan - change location
                         if (addNewMoveToAgent(current, best)) {
-                            return "valid";
+                            return true;
                         };
                     }
                     else {
                         // priority inheritance didn't work, remove best and try next candidate
-//                        candidates.removeAll(this.takenNodes); // ?
                         candidates.remove(best);
                     }
                 }
             }
 
             // best is free
-            else if (isValidMove(current)) {
+            else if (canMove(current)) {
                 // add new move to the agent's plan - change location
                 if (addNewMoveToAgent(current, best)) {
-                    return "valid";
+                    return true;
                 };
             }
             candidates.remove(best);
@@ -244,12 +237,12 @@ public class PIBT_Solver extends A_Solver {
 
         // finish try all candidates and didn't find new location
         // add new move to the agent's plan - stay in current node
-        if (isValidMove(current)) {
-            if (addNewMoveToAgent(current, this.locations.get(current))) {
-                return "invalid";
+        if (canMove(current)) {
+            if (addNewMoveToAgent(current, this.currentLocations.get(current))) {
+                return false;
             };
         }
-        return "invalid";
+        return false;
     }
 
     /**
@@ -352,7 +345,7 @@ public class PIBT_Solver extends A_Solver {
      * the function return True if the agent didn't make a move in the current timestamp and false if he did
      * @param agent - agent to verify next move
      */
-    private boolean isValidMove(Agent agent) {
+    private boolean canMove(Agent agent) {
         SingleAgentPlan agentPlan = this.agentPlans.get(agent);
         return agentPlan.size() == 0 || agentPlan.getEndTime() < this.timeStamp;
     }
@@ -364,10 +357,10 @@ public class PIBT_Solver extends A_Solver {
      * @return boolean : true if the move added successfully, false otherwise
      */
     private boolean addNewMoveToAgent(Agent current, I_Location newLocation) {
-        Move move = new Move(current, this.timeStamp, this.locations.get(current), newLocation);
+        Move move = new Move(current, this.timeStamp, this.currentLocations.get(current), newLocation);
         if (this.constraints.accepts(move)) {
             this.agentPlans.get(current).addMove(move);
-            this.locations.put(current, newLocation);
+            this.currentLocations.put(current, newLocation);
             return true;
         }
         return false;
@@ -378,9 +371,8 @@ public class PIBT_Solver extends A_Solver {
         super.releaseMemory();
         this.agentPlans = null;
         this.heuristic = null;
-        this.locations = null;
+        this.currentLocations = null;
         this.priorities = null;
-        this.solution = null;
         this.takenNodes = null;
         this.unhandledAgents = null;
     }
