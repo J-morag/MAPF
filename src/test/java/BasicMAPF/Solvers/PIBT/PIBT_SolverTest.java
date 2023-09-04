@@ -308,7 +308,7 @@ public class PIBT_SolverTest {
         int solvedByPIBT = 0;
         int runtimePrP = 0;
         int runtimePIBT = 0;
-        int sumCostPrP = 0;
+        float sumCostPrP = 0;
         int sumCostPIBT = 0;
         while ((instance = instanceManager.getNextInstance()) != null) {
             System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
