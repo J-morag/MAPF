@@ -96,7 +96,7 @@ public class PIBT_Solver extends A_Solver {
         // init agent's priority to unique number
         initPriority(instance);
 
-        // init object who can find distance between every node in the grid to each agent's goal
+        // distance between every vertex in the graph to each agent's goal
         this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
     }
 
