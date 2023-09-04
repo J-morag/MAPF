@@ -163,8 +163,7 @@ public class PIBT_Solver extends A_Solver {
     /**
      * recursive main function to solve PIBT
      * @param current agent making the decision
-     * @param other agent which current inherent priority from (other have higher priority)
-     *              other can be null
+     * @param other agent which current inherits priority from (other has higher priority)
      * @return solution
      */
     protected String solvePIBT(Agent current, Agent other) {
