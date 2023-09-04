@@ -37,12 +37,6 @@ public class PIBT_Solver extends A_Solver {
      */
     private HashMap<Agent, I_Location> locations;
 
-//    /**
-//     * Map saving current location for each agent in the specific time stamp t
-//     * in the end of the time stamp, update locations
-//     */
-//    private HashMap<Agent, I_Location> desiredLocationsInNextT;
-
     /**
      * Map saving priority of each agent
      */
