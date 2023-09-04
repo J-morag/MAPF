@@ -55,8 +55,8 @@ public class PIBT_Solver extends A_Solver {
 
     /**
      * HashMap saves for each agent his plan
-     * this hash built iteratively in every time stamp
-     * in the end of the algorithm this HashMap represent the final solution
+     * built iteratively at every time stamp
+     * at the end of the algorithm this HashMap represent the final solution
      */
     private HashMap<Agent, SingleAgentPlan> agentPlans;
     private int timeStamp;
