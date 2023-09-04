@@ -355,14 +355,12 @@ public class PIBT_SolverTest {
                 boolean valid = solutionPrP.solves(instance);
                 System.out.print(namePrP + " Valid?: " + (valid ? "yes" : "no"));
                 if (useAsserts) assertTrue(valid);
-                sumCostPrP += reportPrP.getIntegerValue(InstanceReport.StandardFields.solutionCost);
             }
 
             if(solutionPIBT != null){
                 boolean valid = solutionPIBT.solves(instance);
                 System.out.println(" " + namePIBT + " Valid?: " + (valid ? "yes" : "no"));
                 if (useAsserts) assertTrue(valid);
-                sumCostPIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.solutionCost);
             }
             else System.out.println();
 
@@ -373,6 +371,9 @@ public class PIBT_SolverTest {
                 reportPrP.putIntegerValue("Runtime Delta",
                         reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
                                 - reportPrP.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+                 // cost
+                 sumCostPrP += reportPrP.getFloatValue(InstanceReport.StandardFields.solutionCost);
+                 sumCostPIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.solutionCost);
             }
         }
 
