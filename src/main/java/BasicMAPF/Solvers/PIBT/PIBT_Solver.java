@@ -166,7 +166,7 @@ public class PIBT_Solver extends A_Solver {
      * @param other agent which current inherits priority from (other has higher priority)
      * @return solution
      */
-    protected String solvePIBT(Agent current, Agent other) {
+    protected String solvePIBT(Agent current, @Nullable Agent other) {
         if (current == null) {
             return null;
         }
