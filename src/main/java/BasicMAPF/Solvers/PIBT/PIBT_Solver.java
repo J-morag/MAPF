@@ -114,7 +114,7 @@ public class PIBT_Solver extends A_Solver {
             this.timeStamp++;
 
             updatePriorities(instance);
-            // init agents that has not reached their goal
+            // init agents that have not reached their goal
             this.unhandledAgents = new ArrayList<>();
             for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
                 Agent agent = entry.getKey();
