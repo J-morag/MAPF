@@ -28,7 +28,7 @@ public class PIBT_Solver extends A_Solver {
     /**
      * list contains all taken nodes - nodes required by an agent in the next timeStamp
      * hence agent can't move to a node in this list
-     * when an agent choose node to move to in next timestamp, the node is added to this list
+     * when an agent chooses a node to move to in the next timestamp, the node is added to this list
      */
     private List<I_Location> takenNodes;
 
