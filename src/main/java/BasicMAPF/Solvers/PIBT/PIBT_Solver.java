@@ -75,11 +75,6 @@ public class PIBT_Solver extends A_Solver {
         this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
     }
 
-    /**
-     * initialize variables relevant to solve MAPF problem using PIBT
-     * @param instance an instance that we are about to solve.
-     * @param parameters parameters for this coming run.
-     */
     @Override
     protected void init(MAPF_Instance instance, RunParameters parameters) {
         super.init(instance, parameters);
