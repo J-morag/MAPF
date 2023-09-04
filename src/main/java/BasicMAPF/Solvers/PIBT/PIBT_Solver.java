@@ -392,11 +392,6 @@ public class PIBT_Solver extends A_Solver {
 //        }
 //    }
 
-    /**
-     * Clears local fields, to allow the garbage collector to clear the memory that is no longer in use.
-     * All fields should be cleared by this method. Any data that might be relevant later should be passed as part
-     * of the {@link Solution} that is output by {@link #solve(MAPF_Instance, RunParameters)}, or written to an {@link Environment.Metrics.InstanceReport}.
-     */
     @Override
     protected void releaseMemory() {
         super.releaseMemory();
