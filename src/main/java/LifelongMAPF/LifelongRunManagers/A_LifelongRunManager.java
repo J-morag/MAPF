@@ -154,11 +154,11 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.IAvoid_20FPIAvoid_20ASFP()); // greedy +IAvoid-20-ASFP +IAvoid-20-ASFP
 //        solvers.add(LifelongSolversFactory.IAvoid_20FPIGo_20ASFP()); // greedy +IAvoid-20-ASFP +IGo-20-ASFP
 
-        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_1()); // greedy +IA +IGo-20-ASFP + 1 capacity
-        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_3()); // greedy +IA +IGo-20-ASFP + 3 capacity
-        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_6()); // greedy +IA +IGo-20-ASFP + 6 capacity
-        solvers.add(LifelongSolversFactory.IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
-        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_9()); // greedy +IA +IGo-20-ASFP + 9 capacity
+//        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_1()); // greedy +IA +IGo-20-ASFP + 1 capacity
+//        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_3()); // greedy +IA +IGo-20-ASFP + 3 capacity
+//        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_6()); // greedy +IA +IGo-20-ASFP + 6 capacity
+//        solvers.add(LifelongSolversFactory.IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
+//        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_9()); // greedy +IA +IGo-20-ASFP + 9 capacity
         solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_12()); // greedy +IA +IGo-20-ASFP + 12 capacity
         solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP + inf capacity
 

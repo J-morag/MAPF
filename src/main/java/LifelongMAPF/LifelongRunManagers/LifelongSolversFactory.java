@@ -996,7 +996,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1108,7 +1108,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1122,7 +1122,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1136,7 +1136,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1150,7 +1150,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1164,7 +1164,7 @@ public class LifelongSolversFactory {
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
                         true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
-                null, new DeepPartialSolutionsStrategy(), fp, null);
+                null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1199,7 +1199,7 @@ public class LifelongSolversFactory {
 
     public static I_Solver IAvoidFPLH_1PPRIGo_20ASFPCapacity_1(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new OneActionFailPolicy();
+        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 1;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
@@ -1214,7 +1214,7 @@ public class LifelongSolversFactory {
 
     public static I_Solver IAvoidFPLH_1PPRIGo_20ASFPCapacity_3(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new OneActionFailPolicy();
+        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 3;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
@@ -1229,7 +1229,7 @@ public class LifelongSolversFactory {
 
     public static I_Solver IAvoidFPLH_1PPRIGo_20ASFPCapacity_6(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new OneActionFailPolicy();
+        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 6;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
@@ -1245,7 +1245,7 @@ public class LifelongSolversFactory {
     public static I_Solver IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR(){
         Integer RHCRHorizon = 10;
         int replanningPeriod = 3;
-        I_SingleAgentFailPolicy fp = new OneActionFailPolicy();
+        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
         int targetsCapacity = 6;
         int selectionLookahead = 5;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
@@ -1260,7 +1260,7 @@ public class LifelongSolversFactory {
 
     public static I_Solver IAvoidFPLH_1PPRIGo_20ASFPCapacity_9(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new OneActionFailPolicy();
+        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 9;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
@@ -1275,7 +1275,7 @@ public class LifelongSolversFactory {
 
     public static I_Solver IAvoidFPLH_1PPRIGo_20ASFPCapacity_12(){
         int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new OneActionFailPolicy();
+        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 12;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);

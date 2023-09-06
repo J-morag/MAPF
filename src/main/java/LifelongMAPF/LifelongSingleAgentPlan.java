@@ -7,39 +7,40 @@ import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import com.google.common.collect.Iterables;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LifelongSingleAgentPlan extends SingleAgentPlan {
     private final Map<Integer, I_Coordinate> waypointTimes;
 
-    public LifelongSingleAgentPlan(Agent agent, Iterable<Move> moves, Integer[] waypointSegmentsEndTimes) {
+    public LifelongSingleAgentPlan(Agent agent, Iterable<Move> moves, Integer[] waypointSegmentsEndTimes, List<TimeCoordinate> skippedDestinations) {
         super(agent, moves);
         if (!(agent instanceof LifelongAgent)){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " must get Lifelong agent");
         }
-        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes);
+        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes, skippedDestinations);
     }
 
-    public LifelongSingleAgentPlan(SingleAgentPlan planToCopy, Integer[] waypointSegmentsEndTimes) {
+    public LifelongSingleAgentPlan(SingleAgentPlan planToCopy, Integer[] waypointSegmentsEndTimes, List<TimeCoordinate> skippedDestinations) {
         super(planToCopy);
         if (!(planToCopy.agent instanceof LifelongAgent)){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " must get Lifelong agent");
         }
-        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes);
+        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes, skippedDestinations);
     }
 
-    public LifelongSingleAgentPlan(Agent agent, Integer[] waypointSegmentsEndTimes) {
+    public LifelongSingleAgentPlan(Agent agent, Integer[] waypointSegmentsEndTimes, List<TimeCoordinate> skippedDestinations) {
         super(agent);
         if (!(agent instanceof LifelongAgent)){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " must get Lifelong agent");
         }
-        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes);
+        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes, skippedDestinations);
     }
 
     /**
      * @return a map with the times when the agent was at its goal (waypoint)
      */
-    private Map<Integer, I_Coordinate> extractWaypointTimes(Integer[] waypointSegmentsEndTimes){
+    private Map<Integer, I_Coordinate> extractWaypointTimes(Integer[] waypointSegmentsEndTimes, List<TimeCoordinate> skippedDestinations){
         Map<Integer, I_Coordinate> res = new HashMap<>();
         I_Coordinate startWaypointCoordinate = ((LifelongAgent)agent).waypoints.get(0);
         if (waypointSegmentsEndTimes[0] != 0){
@@ -56,7 +57,7 @@ public class LifelongSingleAgentPlan extends SingleAgentPlan {
              i < waypointSegmentsEndTimes.length; i++){
             int waypointSegmentEndTime = waypointSegmentsEndTimes[i];
             I_Coordinate currWaypoint = ((LifelongAgent)agent).waypoints.get(i);
-            if (!currWaypoint.equals(moveAt(waypointSegmentEndTime).currLocation.getCoordinate())){
+            if (!currWaypoint.equals(moveAt(waypointSegmentEndTime).currLocation.getCoordinate()) && !skippedDestinations.contains(new TimeCoordinate(waypointSegmentEndTime, currWaypoint))){
                 throw new IllegalArgumentException("invalid waypoint times or plan");
             }
 

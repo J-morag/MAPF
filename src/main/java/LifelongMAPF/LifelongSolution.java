@@ -20,9 +20,10 @@ public class LifelongSolution extends Solution{
     public final SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes;
     private final List<LifelongAgent> agents;
 
-    public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents, Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes) {
+    public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents, Map<LifelongAgent,
+            List<TimeCoordinate>> agentsActiveDestinationEndTimes, Map<LifelongAgent, ArrayList<TimeCoordinate>> agentsSkippedDestinations) {
         // make unified solution for super
-        super(mergeSolutions(solutionsAtTimes, agents, getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes)));
+        super(mergeSolutions(solutionsAtTimes, agents, getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes), agentsSkippedDestinations));
         this.agents = agents;
         this.agentsWaypointArrivalTimes = getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes);
         this.solutionsAtTimes = solutionsAtTimes;
@@ -37,8 +38,9 @@ public class LifelongSolution extends Solution{
      * @param agentsWaypointArrivalTimes
      * @return a merged solution
      */
-    private static Map<Agent, SingleAgentPlan> mergeSolutions(SortedMap<Integer, Solution> solutionsAtTimes,
-                                                              List<LifelongAgent> agents, SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes) {
+    private static Map<Agent, SingleAgentPlan> mergeSolutions(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents,
+                                                              SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes,
+                                                              Map<LifelongAgent, ArrayList<TimeCoordinate>> agentsSkippedDestinations) {
         Map<Agent, SingleAgentPlan> mergedAgentPlans = new HashMap<>();
         for (LifelongAgent agent : agents){
             SingleAgentPlan mergedPlanUpToTime = new SingleAgentPlan(agent);
@@ -51,7 +53,7 @@ public class LifelongSolution extends Solution{
 
             Integer[] waypointSegmentsEndTimes = agentsWaypointArrivalTimes.get(agent).toArray(Integer[]::new);
 
-            LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointSegmentsEndTimes);
+            LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointSegmentsEndTimes, agentsSkippedDestinations.get(agent));
             mergedAgentPlans.put(agent, mergedPlanIncludingTime);
         }
         return mergedAgentPlans;
