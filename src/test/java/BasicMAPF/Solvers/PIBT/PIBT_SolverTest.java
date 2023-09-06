@@ -84,7 +84,7 @@ public class PIBT_SolverTest {
     }
 
     @Test
-    void emptyMapAgentsWithTheSmeGoal() {
+    void emptyMapAgentsWithTheSameGoal() {
         MAPF_Instance testInstance = instanceEmpty3;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
@@ -464,10 +464,10 @@ public class PIBT_SolverTest {
 
         I_Coordinate coor33 = new Coordinate_2D(3,3);
         Constraint constraint1 = new Constraint(agent12to33, 5, mapEmpty.getMapLocation(coor33));
-        ConstraintSet constrains = new ConstraintSet();
-        constrains.add(constraint1);
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraint1);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, constrains, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, constraints, instanceReport, null));
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
