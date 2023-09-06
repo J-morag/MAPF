@@ -57,7 +57,7 @@ public class LifelongSingleAgentPlan extends SingleAgentPlan {
              i < waypointSegmentsEndTimes.length; i++){
             int waypointSegmentEndTime = waypointSegmentsEndTimes[i];
             I_Coordinate currWaypoint = ((LifelongAgent)agent).waypoints.get(i);
-            if (!currWaypoint.equals(moveAt(waypointSegmentEndTime).currLocation.getCoordinate()) && !skippedDestinations.contains(new TimeCoordinate(waypointSegmentEndTime, currWaypoint))){
+            if (!skippedDestinations.contains(new TimeCoordinate(waypointSegmentEndTime, currWaypoint)) && !currWaypoint.equals(moveAt(waypointSegmentEndTime).currLocation.getCoordinate())){
                 throw new IllegalArgumentException("invalid waypoint times or plan");
             }
 

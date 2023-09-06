@@ -602,12 +602,12 @@ public class LifelongSimulationSolver extends A_Solver {
             // until finding a destination of the same subtype that isn't over-capacity.
             I_Coordinate nextDestinationCoordinate = agentsActiveDestination.get(agent);
             List<LifelongAgent> agentsTryingToGetToDestination = destinationsActiveAgents.get(nextDestinationCoordinate);
-            if (agentsTryingToGetToDestination.size() > targetsReservationsCapacity * 1.5){ // destination exceeds capacity // TODO magic number
+            if (agentsTryingToGetToDestination.size() > targetsReservationsCapacity){ // destination exceeds capacity
                 int agentIndexInList = agentsTryingToGetToDestination.indexOf(agent); // TODO something faster?
                 if (agentIndexInList >= targetsReservationsCapacity){ // agent is one of the ones that exceeds capacity
                     // skip destinations until finding a destination with the same subtype that isn't over-capacity
                     String originalNextDestinationSubtype = getDestinationSubtype(nextDestinationCoordinate);
-                    String newNextDestinationSubtype = "";
+                    String newNextDestinationSubtype;
                     List<TimeCoordinate> skippedDestinations = agentsSkippedDestinations.computeIfAbsent(agent, (a) -> new ArrayList<>());
                     do {
                         skippedDestinations.add(new TimeCoordinate(farthestCommittedTime, nextDestinationCoordinate));
