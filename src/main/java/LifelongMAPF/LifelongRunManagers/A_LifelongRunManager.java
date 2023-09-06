@@ -67,8 +67,6 @@ public abstract class A_LifelongRunManager extends A_RunManager {
                 "waypointTimes",
                 "SOC",
                 "makespan",
-                "timeTo50%Completion",
-                "timeTo80%Completion",
                 "throughputAtT25",
                 "throughputAtT50",
                 "throughputAtT75",
@@ -158,9 +156,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_3()); // greedy +IA +IGo-20-ASFP + 3 capacity
 //        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_6()); // greedy +IA +IGo-20-ASFP + 6 capacity
 //        solvers.add(LifelongSolversFactory.IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
-//        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_9()); // greedy +IA +IGo-20-ASFP + 9 capacity
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_9()); // greedy +IA +IGo-20-ASFP + 9 capacity
 //        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_12()); // greedy +IA +IGo-20-ASFP + 12 capacity
-        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_18()); // greedy +IA +IGo-20-ASFP + 18 capacity
+//        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFPCapacity_18()); // greedy +IA +IGo-20-ASFP + 18 capacity
         solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP + inf capacity
 
         return solvers;

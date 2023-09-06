@@ -19,14 +19,16 @@ public class LifelongSolution extends Solution{
     public final SortedMap<Integer, Solution> solutionsAtTimes;
     public final SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes;
     private final List<LifelongAgent> agents;
+    private final Map<LifelongAgent, WaypointsGenerator> waypointsGenerators;
 
     public LifelongSolution(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents, Map<LifelongAgent,
-            List<TimeCoordinate>> agentsActiveDestinationEndTimes, Map<LifelongAgent, ArrayList<TimeCoordinate>> agentsSkippedDestinations) {
+            List<TimeCoordinate>> agentsActiveDestinationEndTimes, Map<LifelongAgent, WaypointsGenerator> waypointsGenerators) {
         // make unified solution for super
-        super(mergeSolutions(solutionsAtTimes, agents, getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes), agentsSkippedDestinations));
+        super(mergeSolutions(solutionsAtTimes, agents, getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes, waypointsGenerators), waypointsGenerators));
         this.agents = agents;
-        this.agentsWaypointArrivalTimes = getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes);
+        this.agentsWaypointArrivalTimes = getAgentsWaypointArrivalTimes(agentsActiveDestinationEndTimes, waypointsGenerators);
         this.solutionsAtTimes = solutionsAtTimes;
+        this.waypointsGenerators = waypointsGenerators;
     }
 
     /**
@@ -40,7 +42,7 @@ public class LifelongSolution extends Solution{
      */
     private static Map<Agent, SingleAgentPlan> mergeSolutions(SortedMap<Integer, Solution> solutionsAtTimes, List<LifelongAgent> agents,
                                                               SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes,
-                                                              Map<LifelongAgent, ArrayList<TimeCoordinate>> agentsSkippedDestinations) {
+                                                              Map<LifelongAgent, WaypointsGenerator> waypointsGenerators) {
         Map<Agent, SingleAgentPlan> mergedAgentPlans = new HashMap<>();
         for (LifelongAgent agent : agents){
             SingleAgentPlan mergedPlanUpToTime = new SingleAgentPlan(agent);
@@ -53,7 +55,7 @@ public class LifelongSolution extends Solution{
 
             Integer[] waypointSegmentsEndTimes = agentsWaypointArrivalTimes.get(agent).toArray(Integer[]::new);
 
-            LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointSegmentsEndTimes, agentsSkippedDestinations.get(agent));
+            LifelongSingleAgentPlan mergedPlanIncludingTime = new LifelongSingleAgentPlan(mergedPlanUpToTime, waypointSegmentsEndTimes, waypointsGenerators.get(agent));
             mergedAgentPlans.put(agent, mergedPlanIncludingTime);
         }
         return mergedAgentPlans;
@@ -107,7 +109,8 @@ public class LifelongSolution extends Solution{
         return mergedMoves;
     }
 
-    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes){
+    private static SortedMap<LifelongAgent, List<Integer>> getAgentsWaypointArrivalTimes(Map<LifelongAgent,
+            List<TimeCoordinate>> agentsActiveDestinationEndTimes, Map<LifelongAgent, WaypointsGenerator> waypointsGenerators){
         SortedMap<LifelongAgent, List<Integer>> agentsWaypointArrivalTimes = new TreeMap<>();
         for (LifelongAgent lifelongAgent :
                 agentsActiveDestinationEndTimes.keySet()) {
@@ -115,9 +118,9 @@ public class LifelongSolution extends Solution{
             List<TimeCoordinate> destinationEndTimes = agentsActiveDestinationEndTimes.get(lifelongAgent);
             for (int i = 0; i < destinationEndTimes.size(); i++) { // TODO skip the first one (source)?
                 TimeCoordinate tc = destinationEndTimes.get(i);
-                if (! tc.coordinate.equals(lifelongAgent.waypoints.get(i))){
+                if (! tc.coordinate.equals(waypointsGenerators.get(lifelongAgent).waypointAtIndex(i))){
                     throw new IllegalArgumentException("Destination end times list at index " + i + " has coordinate "
-                            + tc.coordinate + " instead of " + lifelongAgent.waypoints.get(i));
+                            + tc.coordinate + " instead of " + waypointsGenerators.get(lifelongAgent).waypointAtIndex(i));
                 }
                 asTimesList.add(tc.time);
             }
@@ -158,18 +161,6 @@ public class LifelongSolution extends Solution{
         return res;
     }
 
-    private int totalNumTaskInInstance() {
-        int res = 0;
-        for (LifelongAgent agent: this.agents){
-            res += numAgentTasksIncludingSource(agent);
-        }
-        return res;
-    }
-
-    private static int numAgentTasksIncludingSource(LifelongAgent agent) {
-        return agent.waypoints.size();
-    }
-
     private SortedMap<Integer, Integer> timeToNumTasksCompleted(){
         SortedMap<Integer, Integer> timesToNumCompletions = new TreeMap<>();
         for (List<Integer> arrivalTimes: this.agentsWaypointArrivalTimes.values()){
@@ -188,8 +179,13 @@ public class LifelongSolution extends Solution{
      * @param x - float between 0 and 1 of the percent of completed tasks for the metric.
      * @return the time when the required percent of all tasks or higher was completed.
      */
+    @Deprecated
     public int timeToXProportionCompletion(double x){
-        return timeToXCompletion((int)(((double) totalNumTaskInInstance()) * x));
+        int totalNumTaskInInstance = 0;
+        for (LifelongAgent agent: this.agents){
+            totalNumTaskInInstance += waypointsGenerators.get(agent).waypointsSequence().size();
+        }
+        return timeToXCompletion((int)(((double) totalNumTaskInInstance) * x));
     }
 
     /**

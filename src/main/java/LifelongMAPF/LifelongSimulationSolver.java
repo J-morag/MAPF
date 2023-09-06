@@ -26,7 +26,6 @@ import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
 import LifelongMAPF.FailPolicies.IStayFailPolicy;
-import LifelongMAPF.Triggers.ActiveButPlanEndedTrigger;
 import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +52,6 @@ public class LifelongSimulationSolver extends A_Solver {
      * An offline solver to use for solving online problems.
      */
     protected final I_Solver offlineSolver;
-    private final I_LifelongPlanningTrigger planningTrigger;
     private final I_LifelongAgentSelector agentSelector;
     private final Double congestionMultiplier;
     private final PartialSolutionsStrategy partialSolutionsStrategy;
@@ -63,7 +61,7 @@ public class LifelongSimulationSolver extends A_Solver {
     /**
      * How many agents may attempt to plan to get to a target at any point in time.
      */
-    public final int targetsReservationsCapacity;
+    public final int destinationsReservationsCapacity;
 
     /*  = fields related to run =  */
 
@@ -98,7 +96,10 @@ public class LifelongSimulationSolver extends A_Solver {
     Map<I_Coordinate, List<LifelongAgent>> destinationsActiveAgents;
     Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationStartTimes;
     Map<LifelongAgent, List<TimeCoordinate>> agentsActiveDestinationEndTimes;
-    Map<LifelongAgent, ArrayList<TimeCoordinate>> agentsSkippedDestinations;
+    /**
+     * Destinations that are currently at or over capacity
+     */
+    private Set<I_Coordinate> overcapacityDestinations;
     private int sumFailPolicyIterations;
     private int countFailPolicyLoops;
     private int maxFailPolicyIterations;
@@ -112,7 +113,7 @@ public class LifelongSimulationSolver extends A_Solver {
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
                                     I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
                                     @Nullable PartialSolutionsStrategy partialSolutionsStrategy,
-                                    @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy, @Nullable Integer selectionLookaheadLength, Integer targetsReservationsCapacity) {
+                                    @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy, @Nullable Integer selectionLookaheadLength, Integer destinationsReservationsCapacity) {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
@@ -123,7 +124,6 @@ public class LifelongSimulationSolver extends A_Solver {
         this.congestionMultiplier = congestionMultiplier;
         this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
 
-        this.planningTrigger = Objects.requireNonNullElse(planningTrigger, new ActiveButPlanEndedTrigger());
         this.agentSelector = Objects.requireNonNullElse(agentSelector, new StationaryAgentsSubsetSelector());
         this.failPolicyKSafety = agentSelector.getPlanningFrequency();
         this.name = "Lifelong_" + offlineSolver.name();
@@ -133,7 +133,7 @@ public class LifelongSimulationSolver extends A_Solver {
                     " Given value: " + selectionLookaheadLength);
         }
         this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, 1);
-        this.targetsReservationsCapacity = Objects.requireNonNullElse(targetsReservationsCapacity, Integer.MAX_VALUE);
+        this.destinationsReservationsCapacity = Objects.requireNonNullElse(destinationsReservationsCapacity, Integer.MAX_VALUE);
     }
 
     @Override
@@ -153,6 +153,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
         this.agentsActiveDestinationStartTimes = new HashMap<>();
         this.agentsActiveDestinationEndTimes = new HashMap<>();
+        this.overcapacityDestinations = new HashSet<>();
         for (LifelongAgent a :
                 this.lifelongAgents) {
             agentsActiveDestinationStartTimes.put(a, new ArrayList<>());
@@ -160,7 +161,6 @@ public class LifelongSimulationSolver extends A_Solver {
         }
         this.agentsActiveDestination = new HashMap<>();
         this.destinationsActiveAgents = new HashMap<>();
-        this.agentsSkippedDestinations = new HashMap<>();
 
         this.finishedAgents = new HashSet<>();
         if (this.initialConstraints != null){
@@ -206,7 +206,7 @@ public class LifelongSimulationSolver extends A_Solver {
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
         SortedMap<Integer, Solution> solutionsAtTimes = new TreeMap<>();
-        Map<Agent, Queue<I_Coordinate>> agentDestinationQueues = getDestinationQueues(instance);
+        Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators = getWaypointGenerators();
 
         int sumGroupSizes = 0;
         int sumFailedAgentsAfterPolicy = 0;
@@ -221,7 +221,7 @@ public class LifelongSimulationSolver extends A_Solver {
         List<LifelongAgent> agentsWaitingToStart = new ArrayList<>(this.lifelongAgents);
 
         Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents = updateAgentsDestinationsAndBookkeeping(farthestCommittedTime,
-                latestSolution, agentDestinationQueues, this.lifelongAgents);
+                latestSolution, agentsWaypointsGenerators, this.lifelongAgents);
 
         Set<Agent> failedAgents = new HashSet<>();
 
@@ -247,7 +247,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
             Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
             selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
-                    , lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentDestinationQueues, agentsActiveDestination, failedAgents)).collect(Collectors.toSet());
+                    , lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentsWaypointsGenerators, agentsActiveDestination, failedAgents)).collect(Collectors.toSet());
 
             failedAgents = new HashSet<>();
             Set<LifelongAgent> notSelectedAgents = getUnchangingAgents(selectedTimelyOfflineAgentsSubset);
@@ -310,7 +310,7 @@ public class LifelongSimulationSolver extends A_Solver {
             farthestCommittedTime++;
             // this is for the next iteration! must happen after advancing farthest committed time!
             lifelongAgentsToTimelyOfflineAgents = updateAgentsDestinationsAndBookkeeping(farthestCommittedTime,
-                    latestSolution, agentDestinationQueues, this.lifelongAgents);
+                    latestSolution, agentsWaypointsGenerators, this.lifelongAgents);
         }
         this.avgGroupSizeMetric = (float) sumGroupSizes / (float) numPlanningIterations;
         this.avgFailedAgentsAfterPlanningMetric = (float) sumAttemptedAgentsThatFailed / (float) numPlanningIterations;
@@ -323,7 +323,7 @@ public class LifelongSimulationSolver extends A_Solver {
         }
 
         // combine the stored solutions at times into a single lifelong solution
-        return new LifelongSolution(solutionsAtTimes, (List<LifelongAgent>)(List)(instance.agents), agentsActiveDestinationEndTimes, agentsSkippedDestinations);
+        return new LifelongSolution(solutionsAtTimes, lifelongAgents, agentsActiveDestinationEndTimes, agentsWaypointsGenerators);
     }
 
     @NotNull
@@ -376,7 +376,7 @@ public class LifelongSimulationSolver extends A_Solver {
                             throw new RuntimeException("destination end time " + arrivalTime + " out of range of plan: " + timelyPlan);
                         }
                         Move arrivalMove = timelyPlan.moveAt(arrivalTime);
-                        if (! arrivalMove.currLocation.getCoordinate().equals(arrivalCoordinate) && ! agentsSkippedDestinations.get(agent).contains(new TimeCoordinate(arrivalTime, arrivalCoordinate))){
+                        if (! arrivalMove.currLocation.getCoordinate().equals(arrivalCoordinate)){
                             throw new RuntimeException("destination end time " + arrivalTime + " points to wrong move: " + arrivalMove);
                         }
                         break;
@@ -502,10 +502,10 @@ public class LifelongSimulationSolver extends A_Solver {
         return advancedPlans;
     }
 
-    private Map<Agent, Queue<I_Coordinate>> getDestinationQueues(MAPF_Instance instance) {
-        Map<Agent, Queue<I_Coordinate>> result = new HashMap<>(instance.agents.size());
-        for (Agent agent : instance.agents){
-            result.put(agent, new ArrayDeque<>(((LifelongAgent)agent).waypoints));
+    private Map<LifelongAgent, WaypointsGenerator> getWaypointGenerators() {
+        Map<LifelongAgent, WaypointsGenerator> result = new HashMap<>(lifelongAgents.size());
+        for (LifelongAgent agent : lifelongAgents){
+            result.put(agent, agent.createWaypointsGenerator());
         }
         return result;
     }
@@ -518,7 +518,7 @@ public class LifelongSimulationSolver extends A_Solver {
      */
     @NotNull
     private Map<LifelongAgent, Agent> updateAgentsDestinationsAndBookkeeping(int farthestCommittedTime, @NotNull Solution previousSolution,
-                                                                             Map<Agent, Queue<I_Coordinate>> agentDestinationQueues,
+                                                                             Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators,
                                                                              List<LifelongAgent> agentsSubset) {
         // TODO can we brake this into smaller pieces that only do one thing?
         Map<LifelongAgent, Agent> lifelongAgentsToOfflineAgents = new HashMap<>();
@@ -532,7 +532,7 @@ public class LifelongSimulationSolver extends A_Solver {
             // for the first iteration take the first destination in the queue as the source
             I_Coordinate initialCoordinateAtTime;
             if (farthestCommittedTime == 0){
-                initialCoordinateAtTime = agentDestinationQueues.get(agent).poll();
+                initialCoordinateAtTime = getNextDestinationCoordinateWithCapacity(agentsWaypointsGenerators, agent, overcapacityDestinations);
                 if (initialCoordinateAtTime == null){
                     throw new IllegalArgumentException("agent with no destinations");
                 }
@@ -557,7 +557,7 @@ public class LifelongSimulationSolver extends A_Solver {
             // for the first iteration, or if finished previous destination, dequeue next one destination, else continue towards current destination
             I_Coordinate nextDestinationCoordinate;
             if (previousDestinationCoordinate == null){ // first instance
-                nextDestinationCoordinate = agentDestinationQueues.get(agent).poll();
+                nextDestinationCoordinate = getNextDestinationCoordinateWithCapacity(agentsWaypointsGenerators, agent, overcapacityDestinations);
                 if (nextDestinationCoordinate == null) { // no more destinations in the queue
                     throw new IllegalArgumentException("Agent only has a source, not even one destination beyond.");
                 }
@@ -570,7 +570,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 nextDestinationCoordinate = previousDestinationCoordinate; // preserve current destination
             }
             else { // achieved a destination
-                nextDestinationCoordinate = agentDestinationQueues.get(agent).poll();
+                nextDestinationCoordinate = getNextDestinationCoordinateWithCapacity(agentsWaypointsGenerators, agent, overcapacityDestinations);
                 if (nextDestinationCoordinate == null){ // achieved the last destination
                     nextDestinationCoordinate = previousDestinationCoordinate; // keep last destination as placeholder destination
                     if (! destinationEndTimes.get(destinationEndTimes.size()-1).coordinate.equals(previousDestinationCoordinate)){
@@ -587,49 +587,14 @@ public class LifelongSimulationSolver extends A_Solver {
             setOfflineAgentFromCurrentLocationToATarget(initialCoordinatesAtTime, lifelongAgentsToOfflineAgents, agent, nextDestinationCoordinate);
         }
 
-        skipOvercapacityDestinations(agentsSubset, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents, agentDestinationQueues, farthestCommittedTime);
-        assignTemporaryDestinationsAsNeeded(agentsSubset, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents);
+        assignTemporaryTargetsAsNeeded(agentsSubset, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents);
 
         return lifelongAgentsToOfflineAgents;
     }
 
-    private void skipOvercapacityDestinations(List<LifelongAgent> agentsSubset, Map<LifelongAgent, I_Coordinate> initialCoordinatesAtTime,
-                                              Map<LifelongAgent, Agent> lifelongAgentsToOfflineAgents, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues,
-                                              int farthestCommittedTime) {
-        int nextIterationTime = farthestCommittedTime + 1;
-        for (LifelongAgent agent : agentsSubset){
-            // Iterate over agents. If an agent is trying to get to a destination that exceeds capacity, skip destinations
-            // until finding a destination of the same subtype that isn't over-capacity.
-            I_Coordinate nextDestinationCoordinate = agentsActiveDestination.get(agent);
-            List<LifelongAgent> agentsTryingToGetToDestination = destinationsActiveAgents.get(nextDestinationCoordinate);
-            if (agentsTryingToGetToDestination.size() > targetsReservationsCapacity){ // destination exceeds capacity
-                int agentIndexInList = agentsTryingToGetToDestination.indexOf(agent); // TODO something faster?
-                if (agentIndexInList >= targetsReservationsCapacity){ // agent is one of the ones that exceeds capacity
-                    // skip destinations until finding a destination with the same subtype that isn't over-capacity
-                    String originalNextDestinationSubtype = getDestinationSubtype(nextDestinationCoordinate);
-                    String newNextDestinationSubtype;
-                    List<TimeCoordinate> skippedDestinations = agentsSkippedDestinations.computeIfAbsent(agent, (a) -> new ArrayList<>());
-                    do {
-                        skippedDestinations.add(new TimeCoordinate(farthestCommittedTime, nextDestinationCoordinate));
-                        bookkeepingFinishedDestination(agentsActiveDestinationEndTimes.get(agent), farthestCommittedTime,
-                                nextDestinationCoordinate, false, agent, true);
-
-                        nextDestinationCoordinate = agentDestinationQueues.get(agent).poll();
-                        if (nextDestinationCoordinate == null) {
-                            throw new RuntimeException("Ran out of destinations while skipping overcapacity destinations");
-                        }
-                        bookkeepingGotNewDestination(nextIterationTime, agent, nextDestinationCoordinate);
-
-//                        if (nextDestinationCoordinate == null) continue;
-                        newNextDestinationSubtype = getDestinationSubtype(nextDestinationCoordinate);
-                    }
-                    while (!newNextDestinationSubtype.equals(originalNextDestinationSubtype)
-                            || destinationsActiveAgents.get(nextDestinationCoordinate).size() > targetsReservationsCapacity);
-
-                    setOfflineAgentFromCurrentLocationToATarget(initialCoordinatesAtTime, lifelongAgentsToOfflineAgents, agent, nextDestinationCoordinate);
-                }
-            }
-        }
+    @Nullable
+    private I_Coordinate getNextDestinationCoordinateWithCapacity(Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators, LifelongAgent agent, Set<I_Coordinate> overcapacityDestinations) {
+        return agentsWaypointsGenerators.get(agent).nextWaypoint(overcapacityDestinations);
     }
 
     private static void setOfflineAgentFromCurrentLocationToATarget(Map<LifelongAgent, I_Coordinate> initialCoordinatesAtTime,
@@ -645,28 +610,28 @@ public class LifelongSimulationSolver extends A_Solver {
                 destinationCoordinateSubtypes.get(0) : "";
     }
 
-    private void assignTemporaryDestinationsAsNeeded(List<LifelongAgent> agentsSubset, Map<LifelongAgent, I_Coordinate> initialCoordinatesAtTime, Map<LifelongAgent, Agent> lifelongAgentsToOfflineAgents) {
+    private void assignTemporaryTargetsAsNeeded(List<LifelongAgent> agentsSubset, Map<LifelongAgent, I_Coordinate> initialCoordinatesAtTime, Map<LifelongAgent, Agent> lifelongAgentsToOfflineAgents) {
         for (LifelongAgent agent : agentsSubset){
-            // Iterate over agents. If agent is finished or trying to get to a destination that exceeds capacity, give it a temporary destination.
+            // Iterate over agents. If agent is finished or trying to get to a destination that exceeds capacity, give it a temporary target.
             if (finishedAgents.contains(agent)){
-                assignAgentWithTemporaryDestination(agent, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents);
+                assignAgentWithTemporaryTarget(agent, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents);
             }
             else {
                 I_Coordinate nextDestinationCoordinate = agentsActiveDestination.get(agent);
                 List<LifelongAgent> agentsTryingToGetToDestination = destinationsActiveAgents.get(nextDestinationCoordinate);
-                if (agentsTryingToGetToDestination.size() > targetsReservationsCapacity){ // destination exceeds capacity
+                if (agentsTryingToGetToDestination.size() > destinationsReservationsCapacity){ // destination exceeds capacity
                     int agentIndexInList = agentsTryingToGetToDestination.indexOf(agent); // TODO something faster?
-                    if (agentIndexInList >= targetsReservationsCapacity){ // agent is one of the ones that exceeds capacity
-                        assignAgentWithTemporaryDestination(agent, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents);
+                    if (agentIndexInList >= destinationsReservationsCapacity){ // agent is one of the ones that exceeds capacity
+                        assignAgentWithTemporaryTarget(agent, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents);
                     }
                 }
             }
         }
     }
 
-    private static void assignAgentWithTemporaryDestination(LifelongAgent agent, Map<LifelongAgent, I_Coordinate> initialCoordinatesAtTime, Map<LifelongAgent, Agent> lifelongAgentsToOfflineAgents) {
+    private static void assignAgentWithTemporaryTarget(LifelongAgent agent, Map<LifelongAgent, I_Coordinate> initialCoordinatesAtTime, Map<LifelongAgent, Agent> lifelongAgentsToOfflineAgents) {
         // this agent is trying to exceed capacity, give it a temporary destination to stay in place
-        // TODO use instead a destination that nobody else wants? or a fail policy? or a near location with low centrality? and low h? low distance from current location?
+        // TODO use instead a target that nobody else wants? or a fail policy? or a near location with low centrality? and low h? low distance from current location?
         setOfflineAgentFromCurrentLocationToATarget(initialCoordinatesAtTime, lifelongAgentsToOfflineAgents, agent, initialCoordinatesAtTime.get(agent));
     }
 
@@ -679,15 +644,14 @@ public class LifelongSimulationSolver extends A_Solver {
         return -1;
     }
 
-    private void bookkeepingGotNewDestination(int willStartWorkingOnItAtTime, LifelongAgent agent, I_Coordinate nextDestinationCoordinate) {
-        if (nextDestinationCoordinate == null){
-            agentsActiveDestination.remove(agent);
-        }
-        else {
-            List<TimeCoordinate> destinationStartTimes = agentsActiveDestinationStartTimes.get(agent);
-            destinationStartTimes.add(new TimeCoordinate(willStartWorkingOnItAtTime, nextDestinationCoordinate));
-            agentsActiveDestination.put(agent, nextDestinationCoordinate);
-            destinationsActiveAgents.computeIfAbsent(nextDestinationCoordinate, (a) -> new LinkedList<>()).add(agent);
+    private void bookkeepingGotNewDestination(int willStartWorkingOnItAtTime, LifelongAgent agent, @NotNull I_Coordinate nextDestinationCoordinate) {
+        List<TimeCoordinate> destinationStartTimes = agentsActiveDestinationStartTimes.get(agent);
+        destinationStartTimes.add(new TimeCoordinate(willStartWorkingOnItAtTime, nextDestinationCoordinate));
+        agentsActiveDestination.put(agent, nextDestinationCoordinate);
+        destinationsActiveAgents.computeIfAbsent(nextDestinationCoordinate, (a) -> new LinkedList<>()).add(agent);
+        List<LifelongAgent> activeAgentsOnThisDestination = destinationsActiveAgents.get(nextDestinationCoordinate);
+        if (activeAgentsOnThisDestination.size() >= destinationsReservationsCapacity){
+            overcapacityDestinations.add(nextDestinationCoordinate);
         }
     }
 
@@ -709,7 +673,11 @@ public class LifelongSimulationSolver extends A_Solver {
                 throw new IllegalArgumentException("Agent " + agent + " achieved destination " + achievedDestinationCoordinate + " but was heading to " + destinationStartTimes.get(destinationStartTimes.size() - 1).coordinate + ".");
             }
         }
-        destinationsActiveAgents.get(achievedDestinationCoordinate).remove(agent);
+        List<LifelongAgent> activeAgentsOnThisDestination = destinationsActiveAgents.get(achievedDestinationCoordinate);
+        activeAgentsOnThisDestination.remove(agent);
+        if (activeAgentsOnThisDestination.size() < destinationsReservationsCapacity){
+            overcapacityDestinations.remove(achievedDestinationCoordinate);
+        }
     }
 
     private MAPF_Instance getTimelyOfflineProblem(int farthestCommittedTime, Set<Agent> timelyOfflineAgentsSubset) {
@@ -863,8 +831,6 @@ public class LifelongSimulationSolver extends A_Solver {
 
         super.instanceReport.putIntegerValue("SOC", lifelongSolution.sumIndividualCosts());
         super.instanceReport.putIntegerValue("makespan", lifelongSolution.makespan());
-        super.instanceReport.putIntegerValue("timeTo50%Completion", lifelongSolution.timeToXProportionCompletion(0.5));
-        super.instanceReport.putIntegerValue("timeTo80%Completion", lifelongSolution.timeToXProportionCompletion(0.8));
         super.instanceReport.putIntegerValue("throughputAtT25", lifelongSolution.throughputAtT(25));
         super.instanceReport.putIntegerValue("throughputAtT50", lifelongSolution.throughputAtT(50));
         super.instanceReport.putIntegerValue("throughputAtT75", lifelongSolution.throughputAtT(75));
@@ -892,7 +858,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.destinationsActiveAgents = null;
         this.agentsActiveDestinationStartTimes = null;
         this.agentsActiveDestinationEndTimes = null;
-        this.agentsSkippedDestinations = null;
+        this.overcapacityDestinations = null;
         this.finishedAgents = null;
         this.numAgentsAndNumIterationsMetric = null;
         this.cachingDistanceTableHeuristic = null;
