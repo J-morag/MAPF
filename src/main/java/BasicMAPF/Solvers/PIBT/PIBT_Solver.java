@@ -138,10 +138,16 @@ public class PIBT_Solver extends A_Solver {
                     Double priority = entry.getValue();
                     // the agent reached his goal
                     // add new move to the agent's plan - stay in current node
-                    if (priority == -1.0 && this.timeStamp - this.agentPlans.get(agent).size() == 1) {
-                        Move move = new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent));
-                        if (this.constraints.accepts(move)) {
-                            this.agentPlans.get(agent).addMove(move);
+//                    if (priority == -1.0 && this.timeStamp - this.agentPlans.get(agent).size() == 1) {
+//                        Move move = new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent));
+//                        if (this.constraints.accepts(move)) {
+//                            this.agentPlans.get(agent).addMove(move);
+//                        }
+//                    }
+                    if (priority == -1.0 && canMove(agent)) {
+                        boolean flag = addNewMoveToAgent(agent, this.currentLocations.get(agent));
+                        if (!flag) {
+                            solvePIBT(agent, null);
                         }
                     }
                 }
@@ -159,7 +165,7 @@ public class PIBT_Solver extends A_Solver {
     /**
      * recursive main function to solve PIBT
      * @param current agent making the decision
-     * @param higherPriorityAgent agent which current inherits priority from (other has higher priority)
+     * @param higherPriorityAgent agent which current inherits priority from
      * @return boolean - is current agent made a valid / invalid move
      */
     protected boolean solvePIBT(Agent current, @Nullable Agent higherPriorityAgent) {
@@ -381,8 +387,6 @@ public class PIBT_Solver extends A_Solver {
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         if(solution != null){
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, Math.round(solutionCostFunction.solutionCost(solution)));
-
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
             instanceReport.putIntegerValue("SST", solution.sumServiceTimes());

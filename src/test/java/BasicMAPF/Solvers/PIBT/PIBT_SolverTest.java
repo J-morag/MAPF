@@ -8,7 +8,11 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -35,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PIBT_SolverTest {
 
     private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+    private final MAPF_Instance instanceEmptyEasy = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent04to00});
     private final MAPF_Instance instanceEmptyHarder = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
             {agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, agent00to10, agent55to34, agent34to32, agent31to14, agent40to02});
     private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
@@ -369,8 +374,10 @@ public class PIBT_SolverTest {
                         reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
                                 - reportPrP.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
                  // cost
-                 sumCostPrP += reportPrP.getFloatValue(InstanceReport.StandardFields.solutionCost);
-                 sumCostPIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.solutionCost);
+//                 sumCostPrP += reportPrP.getFloatValue(InstanceReport.StandardFields.solutionCost);
+//                 sumCostPIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.solutionCost);
+                sumCostPrP += solutionPrP.sumIndividualCosts();
+                sumCostPIBT += solutionPIBT.sumIndividualCosts();
             }
         }
 
@@ -430,6 +437,44 @@ public class PIBT_SolverTest {
         Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
 
         assertNull(solved);
+    }
+
+    @Test
+    void emptyMapValidityWithEasyConstraint() {
+        MAPF_Instance testInstance = instanceEmptyEasy;
+        I_Coordinate coor13 = new Coordinate_2D(1,3);
+        I_Coordinate coor02 = new Coordinate_2D(0,2);
+        Constraint constraint1 = new Constraint(agent33to12, 2, mapEmpty.getMapLocation(coor13));
+        Constraint constraint2 = new Constraint(agent04to00, 2, mapEmpty.getMapLocation(coor02));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraint1);
+        constraints.add(constraint2);
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, constraints, instanceReport, null));
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+
+        assertEquals(10, solved.sumIndividualCosts());
+        assertEquals(5, solved.makespan());
+        assertEquals(8 , solved.sumServiceTimes());
+    }
+
+    @Test
+    void emptyMapValidityStayInPlaceConstraint() {
+        MAPF_Instance testInstance = instanceEmpty1;
+
+        I_Coordinate coor33 = new Coordinate_2D(3,3);
+        Constraint constraint1 = new Constraint(agent12to33, 5, mapEmpty.getMapLocation(coor33));
+        ConstraintSet constrains = new ConstraintSet();
+        constrains.add(constraint1);
+
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, constrains, instanceReport, null));
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+
+        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(7, solved.makespan());
+        assertEquals(22 , solved.sumServiceTimes());
     }
 
 
