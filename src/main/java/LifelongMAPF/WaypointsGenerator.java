@@ -1,6 +1,7 @@
 package LifelongMAPF;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Instances.Maps.I_Location;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -23,6 +24,6 @@ public interface WaypointsGenerator {
      * Tries to avoid the given waypoints if about to assign a waypoint that is in the set, assigning instead a similar waypoint.
      * @return the next waypoint or null if there are no more waypoints
      */
-    @Nullable I_Coordinate nextWaypoint(@Nullable Set<I_Coordinate> waypointsToAvoid);
+    @Nullable I_Coordinate nextWaypoint(@Nullable Set<I_Location> waypointsToAvoid);
 
 }

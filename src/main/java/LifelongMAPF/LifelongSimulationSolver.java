@@ -99,7 +99,7 @@ public class LifelongSimulationSolver extends A_Solver {
     /**
      * Destinations that are currently at or over capacity
      */
-    private Set<I_Coordinate> overcapacityDestinations;
+    private Set<I_Location> overcapacityDestinations;
     private int sumFailPolicyIterations;
     private int countFailPolicyLoops;
     private int maxFailPolicyIterations;
@@ -593,7 +593,7 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     @Nullable
-    private I_Coordinate getNextDestinationCoordinateWithCapacity(Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators, LifelongAgent agent, Set<I_Coordinate> overcapacityDestinations) {
+    private I_Coordinate getNextDestinationCoordinateWithCapacity(Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators, LifelongAgent agent, Set<I_Location> overcapacityDestinations) {
         return agentsWaypointsGenerators.get(agent).nextWaypoint(overcapacityDestinations);
     }
 
@@ -651,7 +651,7 @@ public class LifelongSimulationSolver extends A_Solver {
         destinationsActiveAgents.computeIfAbsent(nextDestinationCoordinate, (a) -> new LinkedList<>()).add(agent);
         List<LifelongAgent> activeAgentsOnThisDestination = destinationsActiveAgents.get(nextDestinationCoordinate);
         if (activeAgentsOnThisDestination.size() >= destinationsReservationsCapacity){
-            overcapacityDestinations.add(nextDestinationCoordinate);
+            overcapacityDestinations.add(lifelongInstance.map.getMapLocation(nextDestinationCoordinate));
         }
     }
 
@@ -676,7 +676,7 @@ public class LifelongSimulationSolver extends A_Solver {
         List<LifelongAgent> activeAgentsOnThisDestination = destinationsActiveAgents.get(achievedDestinationCoordinate);
         activeAgentsOnThisDestination.remove(agent);
         if (activeAgentsOnThisDestination.size() < destinationsReservationsCapacity){
-            overcapacityDestinations.remove(achievedDestinationCoordinate);
+            overcapacityDestinations.remove(lifelongInstance.map.getMapLocation(achievedDestinationCoordinate));
         }
     }
 
