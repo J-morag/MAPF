@@ -1242,9 +1242,25 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR(){
+    public static I_Solver IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR_w10_h3(){
         Integer RHCRHorizon = 10;
         int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
+        int targetsCapacity = 6;
+        int selectionLookahead = 5;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, selectionLookahead, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver IAvoidFPLH_5PPRIGo_20ASFPCapacity_6RHCR_w10_h1(){
+        Integer RHCRHorizon = 10;
+        int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IAvoidFailPolicy();
         int targetsCapacity = 6;
         int selectionLookahead = 5;
