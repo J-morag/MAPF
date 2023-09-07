@@ -109,6 +109,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private int totalAStarNodesExpanded;
     private int totalAStarRuntimeMS;
     private int totalAStarCalls;
+    private int totalAgentsWaitedForDestinationCapacity;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
                                     I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
@@ -183,6 +184,7 @@ public class LifelongSimulationSolver extends A_Solver {
         totalAStarNodesExpanded = 0;
         totalAStarRuntimeMS = 0;
         totalAStarCalls = 0;
+        totalAgentsWaitedForDestinationCapacity = 0;
     }
 
     private static List<LifelongAgent> verifyAndCastAgents(List<Agent> agents) {
@@ -622,6 +624,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 if (agentsTryingToGetToDestination.size() > destinationsReservationsCapacity){ // destination exceeds capacity
                     int agentIndexInList = agentsTryingToGetToDestination.indexOf(agent); // TODO something faster?
                     if (agentIndexInList >= destinationsReservationsCapacity){ // agent is one of the ones that exceeds capacity
+                        totalAgentsWaitedForDestinationCapacity++;
                         assignAgentWithTemporaryTarget(agent, initialCoordinatesAtTime, lifelongAgentsToOfflineAgents);
                     }
                 }
@@ -789,6 +792,7 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putFloatValue("avgGroupSize", this.avgGroupSizeMetric);
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPlanning", this.avgFailedAgentsAfterPlanningMetric);
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPolicy", this.avgFailedAgentsAfterPolicyMetric);
+        super.instanceReport.putFloatValue("avgAgentsWaitedForDestinationCapacity", this.totalAgentsWaitedForDestinationCapacity / (float)this.numPlanningIterations);
 
         if (!numAgentsAndNumIterationsMetric.isEmpty()){ // only when using PrP as the offline solver
             this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[1]));
