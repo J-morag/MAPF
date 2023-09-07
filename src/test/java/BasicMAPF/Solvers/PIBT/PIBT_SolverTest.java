@@ -193,9 +193,6 @@ public class PIBT_SolverTest {
             int numInvalidOptimal = 0;
             // run all benchmark instances. this code is mostly copied from Environment.Experiment.
             while ((instance = instanceManager.getNextInstance()) != null) {
-//                if (!instance.name.equals("Instance-32-20-20-0")){
-//                    continue;
-//                }
 
                 //build report
                 InstanceReport report = S_Metrics.newInstanceReport();
@@ -374,8 +371,6 @@ public class PIBT_SolverTest {
                         reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
                                 - reportPrP.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
                  // cost
-//                 sumCostPrP += reportPrP.getFloatValue(InstanceReport.StandardFields.solutionCost);
-//                 sumCostPIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.solutionCost);
                 sumCostPrP += solutionPrP.sumIndividualCosts();
                 sumCostPIBT += solutionPIBT.sumIndividualCosts();
             }
@@ -458,6 +453,9 @@ public class PIBT_SolverTest {
         assertEquals(8 , solved.sumServiceTimes());
     }
 
+    // the following test important to check specific scenario where agent reached his goal,
+    // but can't stay in place since there is a constraint
+    // so, PIBT(agent, null) should find different node for this agent
     @Test
     void emptyMapValidityStayInPlaceConstraint() {
         MAPF_Instance testInstance = instanceEmpty1;
@@ -476,6 +474,4 @@ public class PIBT_SolverTest {
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
-
-
 }

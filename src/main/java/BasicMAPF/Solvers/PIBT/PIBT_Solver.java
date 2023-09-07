@@ -74,6 +74,9 @@ public class PIBT_Solver extends A_Solver {
     @Override
     protected void init(MAPF_Instance instance, RunParameters parameters) {
         super.init(instance, parameters);
+//        if (parameters.constraints != null) {
+//            throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+//        }
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.currentLocations = new HashMap<>();
         this.priorities = new HashMap<>();
@@ -138,12 +141,6 @@ public class PIBT_Solver extends A_Solver {
                     Double priority = entry.getValue();
                     // the agent reached his goal
                     // add new move to the agent's plan - stay in current node
-//                    if (priority == -1.0 && this.timeStamp - this.agentPlans.get(agent).size() == 1) {
-//                        Move move = new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent));
-//                        if (this.constraints.accepts(move)) {
-//                            this.agentPlans.get(agent).addMove(move);
-//                        }
-//                    }
                     if (priority == -1.0 && canMove(agent)) {
                         boolean flag = addNewMoveToAgent(agent, this.currentLocations.get(agent));
                         if (!flag) {
