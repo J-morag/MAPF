@@ -1,6 +1,7 @@
 package BasicMAPF.Instances.Maps;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -11,6 +12,12 @@ public interface I_Location {
      * @return the type of the location.
      */
     Enum_MapLocationType getType();
+
+    /**
+     * Returns a list of subtypes of this location.
+     * @return a list of subtypes of this location.
+     */
+    default @Nullable List<String> getSubtypes(){return null;}
 
     /**
      * Returns an array that contains references to locations directly reachable from this. Should not include this.
