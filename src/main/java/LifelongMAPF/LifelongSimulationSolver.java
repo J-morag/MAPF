@@ -134,7 +134,7 @@ public class LifelongSimulationSolver extends A_Solver {
             throw new IllegalArgumentException("Safety enforcement lookahead must be at least 1 (or null for default value of 1)." +
                     " Given value: " + selectionLookaheadLength);
         }
-        this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, 1);
+        this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, agentSelector.getPlanningFrequency());
         if (this.selectionLookaheadLength < agentSelector.getPlanningFrequency()){
             throw new IllegalArgumentException("Safety enforcement lookahead must be at least as large as the planning frequency." +
                     " Given value: " + selectionLookaheadLength + ", planning frequency: " + agentSelector.getPlanningFrequency());
