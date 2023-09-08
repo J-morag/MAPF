@@ -209,7 +209,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     }
 
     private Solution getFailPlan() {
-        if (this.failPolicy == null){
+        if (this.failPolicy == null || checkTimeout()){
             return null;
         }
         else {

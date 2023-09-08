@@ -11,7 +11,7 @@ class FailPolicyTest {
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPLookahead1IntegratedIAvoid();
 
     I_Solver complexWithIAvoid =
-            LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5IntegratedIAvoid();
+            LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IntegratedIAvoid();
 
     @Test
     void simpleWithIAvoid(){

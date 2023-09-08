@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class StayOnceFailPolicy implements I_SingleAgentFailPolicy {
+public class IStayFailPolicy implements I_SingleAgentFailPolicy {
 
     @Override
     public @NotNull SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, @Nullable I_ConflictAvoidanceTable softConstraints) {

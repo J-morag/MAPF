@@ -6,7 +6,6 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
@@ -27,7 +26,7 @@ public class LifelongStressTest {
     @Test
     public void StressTest() {
         I_Solver solver =
-                LifelongSolversFactory.stationaryAgentsPrPDeepPartialOneActionFPRHCR_w10_h03Lookahead5();
+                LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5();
         long timeout = 1000 * 300;
 
         S_Metrics.clearAll();

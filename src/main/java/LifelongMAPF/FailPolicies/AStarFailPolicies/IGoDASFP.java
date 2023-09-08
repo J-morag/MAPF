@@ -11,20 +11,20 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.I_OpenList;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
-import LifelongMAPF.FailPolicies.StayOnceFailPolicy;
+import LifelongMAPF.FailPolicies.IStayFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class IGoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
+public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
 
     private static final double EPSILON = 0.0001;
-    private final int d;
+    protected final int d;
     private int runningIGoStatesID;
     private static final Comparator<IGoState> statesCostComparator = Comparator.comparingInt(IGoState::getCost);
 
-    public IGoASFP(int d) {
+    public IGoDASFP(int d) {
         this.d = d;
     }
 
@@ -69,7 +69,7 @@ public class IGoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
                         double neighborDistanceFromSource = neighbor.getCoordinate().distance(agentLocation.getCoordinate());
                         double edgeDistanceFromSourceDelta = Math.abs(neighborDistanceFromSource - currDistanceFromSource) > EPSILON ?
                                 neighborDistanceFromSource - currDistanceFromSource : 0;
-                        int cost = curr.cost + (edgeDistanceFromSourceDelta < 0 ? (d+1)*(d+1) : (edgeDistanceFromSourceDelta == 0 ? d+1 : 1));
+                        int cost = getCost(curr, edgeDistanceFromSourceDelta);
                         int newDepth = curr.depth + 1;
                         int h = getH(newDepth);
                         IGoState childState = new IGoState(newDepth, curr.cost + cost, neighbor, newTime, curr, move, h);
@@ -88,7 +88,11 @@ public class IGoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
                 }
             }
         }
-        return StayOnceFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+        return IStayFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+    }
+
+    protected int getCost(IGoState curr, double edgeDistanceFromSourceDelta) {
+        return curr.cost + (edgeDistanceFromSourceDelta < 0 ? (d + 1) * (d + 1) : (edgeDistanceFromSourceDelta == 0 ? d + 1 : 1));
     }
 
     private int getH(int depth) {
@@ -104,7 +108,7 @@ public class IGoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
         return new SingleAgentPlan(a, moves);
     }
 
-    private class IGoState implements Comparable<IGoState>{
+    protected class IGoState implements Comparable<IGoState>{
 
         private final int id = runningIGoStatesID++;
         public final int depth;
@@ -133,7 +137,7 @@ public class IGoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
         }
 
         @Override
-        public int compareTo(@NotNull IGoASFP.IGoState o) {
+        public int compareTo(@NotNull IGoDASFP.IGoState o) {
             int res = Integer.compare(cost + h, o.cost + o.h);
             if (res == 0)
                 // reversed to prefer higher cost under same f

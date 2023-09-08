@@ -16,15 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-public class OneActionFailPolicy implements I_SingleAgentFailPolicy, I_AStarFailPolicy {
+public class IAvoidFailPolicy implements I_SingleAgentFailPolicy, I_AStarFailPolicy {
 
     private final boolean onlyMoveIfNoConflicts;
 
-    public OneActionFailPolicy(boolean onlyMoveIfNoConflicts) {
+    public IAvoidFailPolicy(boolean onlyMoveIfNoConflicts) {
         this.onlyMoveIfNoConflicts = onlyMoveIfNoConflicts;
     }
 
-    public OneActionFailPolicy() {
+    public IAvoidFailPolicy() {
         this(true);
     }
 
