@@ -5,6 +5,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import LifelongMAPF.LifelongAgent;
+import LifelongMAPF.WaypointsGenerator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -28,8 +29,8 @@ public class FailedOrStationaryAgentsSelector extends StationaryAgentsSubsetSele
     }
 
     @Override
-    protected Set<Agent> selectAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
-        Set<Agent> selectedAgents = super.selectAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentDestinationQueues, agentsActiveDestination, failedAgents);
+    protected Set<Agent> selectAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
+        Set<Agent> selectedAgents = super.selectAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentsWaypointsGenerators, agentsActiveDestination, failedAgents);
         selectedAgents.addAll(failedAgents);
         return selectedAgents;
     }

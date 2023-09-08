@@ -5,6 +5,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import LifelongMAPF.LifelongAgent;
+import LifelongMAPF.WaypointsGenerator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -34,17 +35,17 @@ public abstract class A_LifelongAgentSelector implements I_LifelongAgentSelector
     }
 
     @Override
-    public Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
-        return selectAgentsIfTimeToPlan(lifelongInstance, currentSolutionStartingFromCurrentTime,  lifelongAgentsToTimelyOfflineAgents,  agentsWaitingToStart,  agentDestinationQueues,  agentsActiveDestination, failedAgents);
+    public Predicate<Agent> getAgentSelectionPredicate(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
+        return selectAgentsIfTimeToPlan(lifelongInstance, currentSolutionStartingFromCurrentTime,  lifelongAgentsToTimelyOfflineAgents,  agentsWaitingToStart, agentsWaypointsGenerators,  agentsActiveDestination, failedAgents);
     }
 
     @NotNull
     private AgentSelectionPredicate selectAgentsIfTimeToPlan(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime,
                                                              Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart,
-                                                             Map<Agent, Queue<I_Coordinate>> agentDestinationQueues,
+                                                             Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators,
                                                              Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
         if (timeToPlan(currentSolutionStartingFromCurrentTime.getStartTime())) {
-            return new AgentSelectionPredicate(selectAgents(lifelongInstance, currentSolutionStartingFromCurrentTime,  lifelongAgentsToTimelyOfflineAgents,  agentsWaitingToStart,  agentDestinationQueues,  agentsActiveDestination, failedAgents));
+            return new AgentSelectionPredicate(selectAgents(lifelongInstance, currentSolutionStartingFromCurrentTime,  lifelongAgentsToTimelyOfflineAgents,  agentsWaitingToStart,  agentsWaypointsGenerators,  agentsActiveDestination, failedAgents));
         }
         else {
             return getNoAgentsPredicate();
@@ -53,7 +54,7 @@ public abstract class A_LifelongAgentSelector implements I_LifelongAgentSelector
 
     protected abstract Set<Agent> selectAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime,
                                                Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart,
-                                               Map<Agent, Queue<I_Coordinate>> agentDestinationQueues,
+                                               Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators,
                                                Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents);
 
     @NotNull

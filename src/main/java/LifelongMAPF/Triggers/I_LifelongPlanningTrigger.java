@@ -11,6 +11,7 @@ import java.util.Queue;
 /**
  * Dictates the time when next planning should occur according to some trigger.
  */
+@Deprecated
 public interface I_LifelongPlanningTrigger {
 
     /**

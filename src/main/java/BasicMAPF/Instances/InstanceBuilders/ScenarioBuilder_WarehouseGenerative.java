@@ -7,6 +7,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.GraphMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import LifelongMAPF.LifelongAgent;
+import LifelongMAPF.WaypointsGeneratorFactory;
 import com.google.common.collect.Collections2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,7 @@ import java.util.*;
 
 public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehouse {
 
+    private static final int DEBUG = 1;
     /**
      * The random seed to use whenever assigning destinations to agents in this scenario.
      */
@@ -32,6 +34,7 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
     @Override
     public Agent[] getAgents(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map, boolean lifelong) {
         readScenarioJson(moving_ai_path.scenarioPath);
+        // TODO verify/make allLocations unique and deterministically ordered
         return getAgents(numOfNeededAgents, map.getAllLocations(), lifelong);
     }
 
@@ -72,13 +75,16 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         }
 
         List<I_Location> sourceLocations  = getRandomLocations(locationsWithSubtypesInCycle, numAgents, random);
+        if (DEBUG >= 1){
+            verifyUniqueSourceLocations(sourceLocations);
+        }
         List<I_Location> possibleTargetLocations = getRandomLocations(locationsWithSubtypesInCycle, numAgents, random);
 
         Agent[] agents = new Agent[numAgents];
 
         for (int agentID = 0; agentID < numAgents; agentID++) {
             if (lifelong){
-                getAgentLifelong(sourceLocations, agentID, locationBySubtype, random, agents);
+                getAgentLifelongInfiniteDestinations(sourceLocations, possibleTargetLocations, agentID, locationBySubtype, randomSeed, agents);
             }
             else {
                 getAgentOffline(sourceLocations, agentID, possibleTargetLocations, agents);
@@ -88,43 +94,26 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
         return agents;
     }
 
-    private void getAgentLifelong(List<I_Location> sourceLocations, int agentID, Map<String, List<? extends I_Location>> locationBySubtype, Random random, Agent[] agents) {
-        I_Location sourceLocation = sourceLocations.get(agentID);
-        I_Location targetLocation = null;
-        List<I_Coordinate> destinations = new LinkedList<>();
-        destinations.add(sourceLocation.getCoordinate());
-        int startingIndex = getStartingIndex(sourceLocation, random);
-        while (destinations.size() < NUM_TARGETS_PER_AGENT + 1){
-            String desiredSubtype = destinationSubtypesCycle.get((destinations.size() + startingIndex) % destinationSubtypesCycle.size());
-            List<? extends I_Location> locationsWithDesiredSubtype = locationBySubtype.get(desiredSubtype);
-            I_Location destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
-            while (destinations.get(destinations.size() -1 ).equals(destination.getCoordinate())){
-                destination = locationsWithDesiredSubtype.get(random.nextInt(locationsWithDesiredSubtype.size()));
-            }
-
-            destinations.add(destination.getCoordinate());
-            if (destinations.size() == NUM_TARGETS_PER_AGENT + 1){
-                targetLocation = destination;
-            }
+    private void verifyUniqueSourceLocations(List<I_Location> sourceLocations) {
+        Set<I_Location> locationsSet = new HashSet<>(sourceLocations);
+        if (locationsSet.size() < sourceLocations.size()){
+            throw new RuntimeException("Source locations should be unique");
         }
-
-        agents[agentID] = new LifelongAgent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate(), destinations.toArray(new I_Coordinate[0]));
+        Set<I_Coordinate> coordinatesSet = new HashSet<>();
+        for (I_Location loc :
+                sourceLocations) {
+            if (coordinatesSet.contains(loc.getCoordinate())){
+                throw new RuntimeException("Coordinates should be unique");
+            }
+            coordinatesSet.add(loc.getCoordinate());
+        }
     }
 
-    private int getStartingIndex(I_Location sourceLocation, Random random) {
-        @Nullable List<String> sourceSubtypes = sourceLocation.getSubtypes();
-        if (sourceSubtypes == null || sourceSubtypes.isEmpty()){
-            return 0;
-        }
-        else{
-            List<Integer> matchingIndices = new ArrayList<>();
-            for (int i = 0; i < destinationSubtypesCycle.size(); i++) {
-                if (sourceSubtypes.contains(destinationSubtypesCycle.get(i))){
-                    matchingIndices.add(i);
-                }
-            }
-            return matchingIndices.get(random.nextInt(matchingIndices.size()));
-        }
+    private void getAgentLifelongInfiniteDestinations(List<I_Location> sourceLocations, List<I_Location> possibleTargetLocations, int agentID, Map<String, List<? extends I_Location>> locationBySubtype, int instanceSeed, Agent[] agents) {
+        I_Location sourceLocation = sourceLocations.get(agentID);
+        I_Location targetLocation = possibleTargetLocations.get(agentID);
+        int agentSeed = instanceSeed * 9973 + agentID;
+        agents[agentID] = new LifelongAgent(agentID, sourceLocation.getCoordinate(), targetLocation.getCoordinate(), new WaypointsGeneratorFactory(agentSeed, locationBySubtype, destinationSubtypesCycle, sourceLocation));
     }
 
     private void getAgentOffline(List<I_Location> sourceLocations, int agentID, List<I_Location> possibleTargetLocations, Agent[] agents) {

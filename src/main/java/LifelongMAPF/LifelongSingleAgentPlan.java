@@ -7,55 +7,54 @@ import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import com.google.common.collect.Iterables;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LifelongSingleAgentPlan extends SingleAgentPlan {
     private final Map<Integer, I_Coordinate> waypointTimes;
 
-    public LifelongSingleAgentPlan(Agent agent, Iterable<Move> moves, Integer[] waypointSegmentsEndTimes) {
+    public LifelongSingleAgentPlan(Agent agent, Iterable<Move> moves, Integer[] waypointSegmentsEndTimes, WaypointsGenerator waypointsGenerator) {
         super(agent, moves);
         if (!(agent instanceof LifelongAgent)){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " must get Lifelong agent");
         }
-        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes);
+        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes, waypointsGenerator);
     }
 
-    public LifelongSingleAgentPlan(SingleAgentPlan planToCopy, Integer[] waypointSegmentsEndTimes) {
+    public LifelongSingleAgentPlan(SingleAgentPlan planToCopy, Integer[] waypointSegmentsEndTimes, WaypointsGenerator waypointsGenerator) {
         super(planToCopy);
         if (!(planToCopy.agent instanceof LifelongAgent)){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " must get Lifelong agent");
         }
-        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes);
+        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes, waypointsGenerator);
     }
 
-    public LifelongSingleAgentPlan(Agent agent, Integer[] waypointSegmentsEndTimes) {
+    public LifelongSingleAgentPlan(Agent agent, Integer[] waypointSegmentsEndTimes, WaypointsGenerator waypointsGenerator) {
         super(agent);
         if (!(agent instanceof LifelongAgent)){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " must get Lifelong agent");
         }
-        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes);
+        this.waypointTimes = extractWaypointTimes(waypointSegmentsEndTimes, waypointsGenerator);
     }
 
     /**
      * @return a map with the times when the agent was at its goal (waypoint)
      */
-    private Map<Integer, I_Coordinate> extractWaypointTimes(Integer[] waypointSegmentsEndTimes){
+    private Map<Integer, I_Coordinate> extractWaypointTimes(Integer[] waypointSegmentsEndTimes,
+                                                            WaypointsGenerator waypointsGenerator){
         Map<Integer, I_Coordinate> res = new HashMap<>();
-        I_Coordinate startWaypointCoordinate = ((LifelongAgent)agent).waypoints.get(0);
+        I_Coordinate startWaypointCoordinate = agent.source;
         if (waypointSegmentsEndTimes[0] != 0){
             throw new IllegalArgumentException("invalid start waypoint time");
         }
         if (! moveAt(1).prevLocation.getCoordinate().equals(startWaypointCoordinate)){
             throw new IllegalArgumentException("invalid start waypoint location");
         }
-//        if (waypointSegmentsEndTimes[waypointSegmentsEndTimes.length - 1] != getEndTime()){
-//            throw new IllegalArgumentException("invalid last waypoint time");
-//        }
         res.put(0, startWaypointCoordinate);
         for (int i = 1; // first waypoint is start location
              i < waypointSegmentsEndTimes.length; i++){
             int waypointSegmentEndTime = waypointSegmentsEndTimes[i];
-            I_Coordinate currWaypoint = ((LifelongAgent)agent).waypoints.get(i);
+            I_Coordinate currWaypoint = waypointsGenerator.waypointsSequence().get(i);
             if (!currWaypoint.equals(moveAt(waypointSegmentEndTime).currLocation.getCoordinate())){
                 throw new IllegalArgumentException("invalid waypoint times or plan");
             }
@@ -70,7 +69,7 @@ public class LifelongSingleAgentPlan extends SingleAgentPlan {
             }
         }
         // Last waypoint may repeatedly be given as goal, so take all times at that goal in the last segment
-        I_Coordinate lastWaypoint = Iterables.getLast(((LifelongAgent) agent).waypoints);
+        I_Coordinate lastWaypoint = Iterables.getLast(waypointsGenerator.waypointsSequence());
         if (waypointSegmentsEndTimes.length > 1){
             for (int time = waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-1]; time > waypointSegmentsEndTimes[waypointSegmentsEndTimes.length-2]; time--) {
                 if (moveAt(time).currLocation.getCoordinate().equals(lastWaypoint)){

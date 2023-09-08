@@ -5,6 +5,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongAgent;
+import LifelongMAPF.WaypointsGenerator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -31,7 +32,7 @@ public class StationaryAgentsSubsetSelector extends A_LifelongAgentSelector {
     }
 
     @Override
-    protected Set<Agent> selectAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<Agent, Queue<I_Coordinate>> agentDestinationQueues, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
+    protected Set<Agent> selectAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
         return getAllStationaryAgents(lifelongInstance, currentSolutionStartingFromCurrentTime, agentsWaitingToStart, maxGroupSize);
     }
 
@@ -46,7 +47,7 @@ public class StationaryAgentsSubsetSelector extends A_LifelongAgentSelector {
             }
             allAgentsThatWantAPath.add(agent);
         }
-        // blocked agents or agents at their previous target (could have been from fail policy) or agents at their last destination
+        // blocked agents or agents still at their previous target (could have been from fail policy)
         for (Agent agent :
                 I_LifelongAgentSelector.agentsAtPreviousTarget(lifelongInstance, currentSolutionStartingFromCurrentTime)) {
             if (allAgentsThatWantAPath.size() == maxAgents){
