@@ -1326,12 +1326,12 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver LH_1PPRIGo_20ASFPCapacity_6RHCR_w10_h3(){
+    public static I_Solver LH_3PPRIGo_20ASFPCapacity_6RHCR_w10_h3(){
         Integer RHCRHorizon = 10;
         int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
         int targetsCapacity = 6;
-        int selectionLookahead = 1;
+        int selectionLookahead = 3;
         I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,

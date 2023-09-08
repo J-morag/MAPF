@@ -114,7 +114,8 @@ public class LifelongSimulationSolver extends A_Solver {
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
                                     I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
                                     @Nullable PartialSolutionsStrategy partialSolutionsStrategy,
-                                    @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy, @Nullable Integer selectionLookaheadLength, Integer destinationsReservationsCapacity) {
+                                    @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy, @Nullable Integer selectionLookaheadLength,
+                                    Integer destinationsReservationsCapacity) {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
@@ -134,6 +135,10 @@ public class LifelongSimulationSolver extends A_Solver {
                     " Given value: " + selectionLookaheadLength);
         }
         this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, 1);
+        if (this.selectionLookaheadLength < agentSelector.getPlanningFrequency()){
+            throw new IllegalArgumentException("Safety enforcement lookahead must be at least as large as the planning frequency." +
+                    " Given value: " + selectionLookaheadLength + ", planning frequency: " + agentSelector.getPlanningFrequency());
+        }
         this.destinationsReservationsCapacity = Objects.requireNonNullElse(destinationsReservationsCapacity, Integer.MAX_VALUE);
     }
 
