@@ -53,7 +53,7 @@ public class Main {
             I_VisualizeSolution visualiser = null;
             String instancesRegex = null;
             String resultsOutputDir = null;
-            String optResultsFilePrefix = null;
+            String optResultsFilePrefix = "Unnamed";
             int timeoutEach = 300000;
 
             // Parse arguments
