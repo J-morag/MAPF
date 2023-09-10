@@ -110,6 +110,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private int totalAStarRuntimeMS;
     private int totalAStarCalls;
     private int totalAgentsWaitedForDestinationCapacity;
+    private int totalFailPlansInterrupted;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
                                     I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
@@ -134,7 +135,7 @@ public class LifelongSimulationSolver extends A_Solver {
             throw new IllegalArgumentException("Safety enforcement lookahead must be at least 1 (or null for default value of 1)." +
                     " Given value: " + selectionLookaheadLength);
         }
-        this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, 1);
+        this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, agentSelector.getPlanningFrequency());
         if (this.selectionLookaheadLength < agentSelector.getPlanningFrequency()){
             throw new IllegalArgumentException("Safety enforcement lookahead must be at least as large as the planning frequency." +
                     " Given value: " + selectionLookaheadLength + ", planning frequency: " + agentSelector.getPlanningFrequency());
@@ -190,6 +191,7 @@ public class LifelongSimulationSolver extends A_Solver {
         totalAStarRuntimeMS = 0;
         totalAStarCalls = 0;
         totalAgentsWaitedForDestinationCapacity = 0;
+        totalFailPlansInterrupted = 0;
     }
 
     private static List<LifelongAgent> verifyAndCastAgents(List<Agent> agents) {
@@ -255,6 +257,7 @@ public class LifelongSimulationSolver extends A_Solver {
             Set<Agent> selectedTimelyOfflineAgentsSubset = new HashSet<>(lifelongAgentsToTimelyOfflineAgents.values());
             selectedTimelyOfflineAgentsSubset = selectedTimelyOfflineAgentsSubset.stream().filter(agentSelector.getAgentSelectionPredicate(instance, latestSolution
                     , lifelongAgentsToTimelyOfflineAgents, agentsWaitingToStart, agentsWaypointsGenerators, agentsActiveDestination, failedAgents)).collect(Collectors.toSet());
+            countInterruptedFailPlans(failedAgents, latestSolution, selectedTimelyOfflineAgentsSubset);
 
             failedAgents = new HashSet<>();
             Set<LifelongAgent> notSelectedAgents = getUnchangingAgents(selectedTimelyOfflineAgentsSubset);
@@ -331,6 +334,11 @@ public class LifelongSimulationSolver extends A_Solver {
 
         // combine the stored solutions at times into a single lifelong solution
         return new LifelongSolution(solutionsAtTimes, lifelongAgents, agentsActiveDestinationEndTimes, agentsWaypointsGenerators);
+    }
+
+    private void countInterruptedFailPlans(Set<Agent> failedAgents, Solution latestSolution, Set<Agent> selectedTimelyOfflineAgentsSubset) {
+        this.totalFailPlansInterrupted += (int) selectedTimelyOfflineAgentsSubset.stream().
+                filter(agent -> failedAgents.contains(agent) && latestSolution.getPlanFor(agent).size() > 1).count();
     }
 
     @NotNull
@@ -798,6 +806,7 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPlanning", this.avgFailedAgentsAfterPlanningMetric);
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPolicy", this.avgFailedAgentsAfterPolicyMetric);
         super.instanceReport.putFloatValue("avgAgentsWaitedForDestinationCapacity", this.totalAgentsWaitedForDestinationCapacity / (float)this.numPlanningIterations);
+        super.instanceReport.putFloatValue("avgFailPlansInterrupted", this.totalFailPlansInterrupted / (float)this.numPlanningIterations);
 
         if (!numAgentsAndNumIterationsMetric.isEmpty()){ // only when using PrP as the offline solver
             this.numAgentsAndNumIterationsMetric.sort(Comparator.comparingInt(agentsAndIterations -> agentsAndIterations[1]));
