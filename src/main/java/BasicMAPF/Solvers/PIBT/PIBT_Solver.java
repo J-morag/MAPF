@@ -332,11 +332,11 @@ public class PIBT_Solver extends A_Solver {
      * boolean function to check if all agents reach their goals
      * when an agent reaches his goal, his priority set to -1.0
      * if one of the agents have priority different then -1.0, then return false
-     * @return boolean
+     * @return boolean indicates if all agents reached their goal
      */
     private boolean finished() {
-        for (Agent agent : this.priorities.keySet()) {
-            if (this.priorities.get(agent) != -1.0) {
+        for (Double priority : this.priorities.values()) {
+            if (priority != -1.0) {
                 return false;
             }
         }
