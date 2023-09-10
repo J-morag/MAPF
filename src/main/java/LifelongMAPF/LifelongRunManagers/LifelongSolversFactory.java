@@ -1601,4 +1601,110 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver Cap18IGo_5ASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IGoDASFP(5);
+        int targetsCapacity = 18;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver Cap18IGo_20ASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IGoDASFP(20);
+        int targetsCapacity = 18;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver Cap18IGo_30ASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IGoDASFP(30);
+        int targetsCapacity = 18;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver Cap18IAvoid_5ASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IAvoidDASFP(5);
+        int targetsCapacity = 18;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver Cap18IAvoid_20ASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IAvoidDASFP(20);
+        int targetsCapacity = 18;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver Cap18IAvoid_30ASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new IAvoidDASFP(30);
+        int targetsCapacity = 18;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver Cap18Waterfall_lockInf(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        boolean requireLockableToInfinity = true;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), requireLockableToInfinity, RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                        true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp)),
+                null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {} .getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
 }
