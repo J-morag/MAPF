@@ -157,27 +157,27 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.WaterfallPPRASFP_lockInf()); // greedy +IA (inc. inter.)
 
 
-        solvers.add(LifelongSolversFactory.Cap18IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
-        solvers.add(LifelongSolversFactory.Cap18IAvoid_5ASFP()); // greedy +IA +IAvoid-5-ASFP
-        solvers.add(LifelongSolversFactory.Cap18IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
-        solvers.add(LifelongSolversFactory.Cap18IAvoid_20ASFP()); // greedy +IA +IAvoid-20-ASFP
-        solvers.add(LifelongSolversFactory.Cap18IGo_30ASFP()); // greedy +IA +IGo-30-ASFP
-        solvers.add(LifelongSolversFactory.Cap18IAvoid_30ASFP()); // greedy +IA +IAvoid-30-ASFP
-        solvers.add(LifelongSolversFactory.Cap18Waterfall_lockInf()); // greedy +IA (inc. inter.)
+//        solvers.add(LifelongSolversFactory.Cap18IGo_5ASFP()); // greedy +IA +IGo-5-ASFP
+//        solvers.add(LifelongSolversFactory.Cap18IAvoid_5ASFP()); // greedy +IA +IAvoid-5-ASFP
+//        solvers.add(LifelongSolversFactory.Cap18IGo_20ASFP()); // greedy +IA +IGo-20-ASFP
+//        solvers.add(LifelongSolversFactory.Cap18IAvoid_20ASFP()); // greedy +IA +IAvoid-20-ASFP
+//        solvers.add(LifelongSolversFactory.Cap18IGo_30ASFP()); // greedy +IA +IGo-30-ASFP
+//        solvers.add(LifelongSolversFactory.Cap18IAvoid_30ASFP()); // greedy +IA +IAvoid-30-ASFP
+//        solvers.add(LifelongSolversFactory.Cap18Waterfall_lockInf()); // greedy +IA (inc. inter.)
 
 //        solvers.add(LifelongSolversFactory.IGo_20FPIGo_20ASFP()); // greedy +IGo-20-ASFP +IGo-20-ASFP
 //        solvers.add(LifelongSolversFactory.IGo_20FPIAvoid_20ASFP()); // greedy +IGo-20-ASFP +IAvoid-20-ASFP
 //        solvers.add(LifelongSolversFactory.IAvoid_20FPIAvoid_20ASFP()); // greedy +IAvoid-20-ASFP +IAvoid-20-ASFP
 //        solvers.add(LifelongSolversFactory.IAvoid_20FPIGo_20ASFP()); // greedy +IAvoid-20-ASFP +IGo-20-ASFP
 
-//        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_6()); // greedy +IA +IGo-20-ASFP + 6 capacity
-//        solvers.add(LifelongSolversFactory.LH_3PPRIGo_20ASFPCapacity_6RHCR_w10_h3()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
-//        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_6RHCR_w10_h1()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
-//        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_9()); // greedy +IA +IGo-20-ASFP + 9 capacity
-//        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_12()); // greedy +IA +IGo-20-ASFP + 12 capacity
-//        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_15()); // greedy +IA +IGo-20-ASFP + 15 capacity
-//        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_18()); // greedy +IA +IGo-20-ASFP + 18 capacity
-//        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP + inf capacity
+        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_6()); // greedy +IA +IGo-20-ASFP + 6 capacity
+        solvers.add(LifelongSolversFactory.LH_3PPRIGo_20ASFPCapacity_6RHCR_w10_h3()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
+        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_6RHCR_w10_h1()); // greedy +IA +IGo-20-ASFP + 6 capacity +RHCR_w10_h3
+        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_9()); // greedy +IA +IGo-20-ASFP + 9 capacity
+        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_12()); // greedy +IA +IGo-20-ASFP + 12 capacity
+        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_15()); // greedy +IA +IGo-20-ASFP + 15 capacity
+        solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_18()); // greedy +IA +IGo-20-ASFP + 18 capacity
+        solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP + inf capacity
 
         return solvers;
     }
