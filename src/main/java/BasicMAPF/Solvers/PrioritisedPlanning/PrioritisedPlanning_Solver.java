@@ -34,6 +34,7 @@ import static com.google.common.math.IntMath.factorial;
  * return a sub-optimal {@link Solution}.
  */
 public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCompatibleSolver {
+    private static final long MINIMUM_TIME_PER_AGENT = 5;
 
     /*  = Fields =  */
 
@@ -104,6 +105,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     public final Integer RHCR_Horizon;
     public final FailPolicy failPolicy;
+    public boolean dynamicAStarTimeAllocation = false;
+    public float aStarTimeAllocationFactor = 1.0f;
 
 
     /*  = Constructors =  */
@@ -292,7 +295,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 maxReachedIndex = Math.max(maxReachedIndex, agentIndex);
 
                 //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
+                SingleAgentPlan planForAgent = solveSubproblem(agent, agentIndex, instance, currentConstraints,
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
                         bestSolution != null ? solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
                                 : Float.POSITIVE_INFINITY, solution);
@@ -469,11 +472,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         return Math.addExact(problemStartTime, horizon);
     }
 
-    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
+    protected SingleAgentPlan solveSubproblem(Agent currentAgent, int agentIndexInCurrentOrdering,
+                                              MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar, agentIndexInCurrentOrdering);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -493,9 +497,14 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         return subproblemReport;
     }
 
-    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
+    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints,
+                                                    float maxCost, Solution solutionSoFar, int agentIndexInCurrentOrdering) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParameters(timeLeftToTimeout, new ConstraintSet(constraints),
+        int numRemainingAgentsIncludingCurrent = this.agents.size() - agentIndexInCurrentOrdering;
+        long allocatedTime = dynamicAStarTimeAllocation ? (long) ((timeLeftToTimeout / numRemainingAgentsIncludingCurrent) * aStarTimeAllocationFactor)
+                : timeLeftToTimeout;
+        allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT), timeLeftToTimeout);
+        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParameters(allocatedTime, new ConstraintSet(constraints),
                 subproblemReport, new Solution(solutionSoFar) // should probably work without copying, but just to be safe
                 , this.problemStartTime), this.heuristic /*nullable*/, maxCost);
         if (TransientMAPFGoalCondition){
