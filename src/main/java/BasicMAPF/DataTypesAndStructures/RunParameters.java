@@ -7,7 +7,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -17,8 +16,6 @@ import java.util.Random;
  * as some fields may not be relevant to some solvers.
  */
 public class RunParameters {
-    /*  =Constants=  */
-    private static final long DEFAULT_TIMEOUT = 1000*60*5 /*5 minutes*/;
 
     /*  =Fields=  */
 

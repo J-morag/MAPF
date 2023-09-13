@@ -13,10 +13,6 @@ public class RunParametersBuilder {
     private InstanceReport instanceReport = null;
     private Solution existingSolution = null;
     private AStarGAndH aStarGAndH = null;
-    /**
-     * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
-     * Not real-time.
-     */
     public int problemStartTime = 0;
     public Random randomNumberGenerator;
 
