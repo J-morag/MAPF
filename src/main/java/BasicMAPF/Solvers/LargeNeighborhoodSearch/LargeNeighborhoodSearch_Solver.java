@@ -142,8 +142,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.subSolverHeuristic = Objects.requireNonNullElse(parameters.aStarGAndH,
                 new DistanceTableAStarHeuristic(this.agents, instance.map));
 
-        if (parameters instanceof RunParametersLNS runParametersLNS){
-            this.partialSolutionsStrategy = runParametersLNS.partialSolutionsStrategy;
+        if (parameters instanceof RunParameters_PP runParameters_pp){
+            this.partialSolutionsStrategy = runParameters_pp.partialSolutionsStrategy;
         }
 
         this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
@@ -286,6 +286,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         Collections.shuffle(randomizedAgentsOrder, random);
         RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).createRP(), randomizedAgentsOrder.toArray(new Agent[0]));
         runParameters_pp.problemStartTime = this.problemStartTime;
+        runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
         return runParameters_pp;
     }
 

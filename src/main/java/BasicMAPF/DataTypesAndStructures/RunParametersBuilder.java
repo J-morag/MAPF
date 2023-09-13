@@ -4,6 +4,8 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 
+import java.util.Random;
+
 public class RunParametersBuilder {
     private long timeout = 1000*60*5 /*5 minutes*/;
     private long softTimeout = timeout;
@@ -11,6 +13,12 @@ public class RunParametersBuilder {
     private InstanceReport instanceReport = null;
     private Solution existingSolution = null;
     private AStarGAndH aStarGAndH = null;
+    /**
+     * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
+     * Not real-time.
+     */
+    public int problemStartTime = 0;
+    public Random randomNumberGenerator;
 
     /**
      * @see RunParameters#timeout
@@ -61,7 +69,23 @@ public class RunParametersBuilder {
         return this;
     }
 
+    /**
+     * @see RunParameters#problemStartTime
+     */
+    public RunParametersBuilder setProblemStartTime(int problemStartTime) {
+        this.problemStartTime = problemStartTime;
+        return this;
+    }
+
+    /**
+     * @see RunParameters#randomNumberGenerator
+     */
+    public RunParametersBuilder setRNG(Random randomNumberGenerator) {
+        this.randomNumberGenerator= randomNumberGenerator;
+        return this;
+    }
+
     public RunParameters createRP() {
-        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, aStarGAndH);
+        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, aStarGAndH, problemStartTime, randomNumberGenerator);
     }
 }

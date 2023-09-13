@@ -10,7 +10,6 @@ import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 
 public class RunParameters_SAAStar extends RunParameters {
-    public int problemStartTime = 0;
     public I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;

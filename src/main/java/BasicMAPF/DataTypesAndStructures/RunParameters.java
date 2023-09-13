@@ -65,7 +65,11 @@ public class RunParameters {
      * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
      * Not real-time.
      */
-    public int problemStartTime = 0;
+    public int problemStartTime;
+    /**
+     * A random number generator to use in the solver.
+     * Can be null.
+     */
     public Random randomNumberGenerator;
 
     /*  =Constructors=  */
@@ -84,7 +88,7 @@ public class RunParameters {
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
         this.aStarGAndH = aStarGAndH;
-        this.problemStartTime = Objects.requireNonNullElse(problemStartTime, 0);
+        this.problemStartTime = problemStartTime;
         this.randomNumberGenerator = randomNumberGenerator;
     }
 

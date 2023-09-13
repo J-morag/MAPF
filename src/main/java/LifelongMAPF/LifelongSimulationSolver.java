@@ -15,7 +15,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
-import BasicMAPF.Solvers.LargeNeighborhoodSearch.RunParametersLNS;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
@@ -721,15 +720,9 @@ public class LifelongSimulationSolver extends A_Solver {
 
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));
 
-        RunParameters runParameters = new RunParameters(hardTimeout, constraints, new InstanceReport(), null, Math.min(minResponseTime, hardTimeout), farthestCommittedTime, this.random);
-        if (offlineSolver instanceof LargeNeighborhoodSearch_Solver){
-            RunParametersLNS runParametersLNS = new RunParametersLNS(runParameters, costAndHeuristic);
-            runParametersLNS.partialSolutionsStrategy = this.partialSolutionsStrategy;
-            // TODO failed agents, CAT ?
-            runParameters =runParametersLNS;
-        }
-        else if (offlineSolver instanceof PrioritisedPlanning_Solver){
-            RunParameters_PP runParameters_pp = new RunParameters_PP(runParameters, costAndHeuristic);
+        RunParameters runParameters = new RunParametersBuilder().setTimeout(hardTimeout).setConstraints(constraints).setInstanceReport(new InstanceReport()).setSoftTimeout(Math.min(minResponseTime, hardTimeout)).setProblemStartTime(farthestCommittedTime).setRNG(this.random).createRP();
+        if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
+            RunParameters_PP runParameters_pp = new RunParameters_PP(runParameters);
             runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
             runParameters_pp.failedAgents = failedAgents;
             runParameters_pp.conflictAvoidanceTable = cat;

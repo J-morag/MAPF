@@ -356,8 +356,8 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters subproblemParametes = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(constraints).setInstanceReport(instanceReport).setExistingSolution(
-                currentSolution, this.problemStartTime).setAStarGAndH(this.aStarGAndH).createRP();
-        if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
+                currentSolution).setProblemStartTime(this.problemStartTime).setAStarGAndH(this.aStarGAndH).createRP();
+        if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
             cat.sharedGoals = this.sharedGoals;

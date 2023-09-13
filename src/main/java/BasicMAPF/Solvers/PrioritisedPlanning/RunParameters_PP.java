@@ -28,6 +28,11 @@ public class RunParameters_PP extends RunParameters {
     public Set<Agent> failedAgents;
     public RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable;
 
+    public RunParameters_PP(RunParameters runParameters) {
+        super(runParameters);
+        this.preferredPriorityOrder = null;
+    }
+
     public RunParameters_PP(RunParameters runParameters, Agent[] preferredPriorityOrder) {
         super(runParameters);
         this.preferredPriorityOrder = preferredPriorityOrder;

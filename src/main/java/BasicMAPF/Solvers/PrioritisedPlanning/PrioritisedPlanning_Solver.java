@@ -319,7 +319,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         if (failedAgents.size() > numFailedAgentsBeforeFailPolicy){ // so the fail policy added more failed agents in failPolicy.getKSafeSolution
                             // reset constraints since the solution changed
                             currentConstraints = new ConstraintSet(initialConstraints);
-                            if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
+                            if (this.aStarGAndH instanceof DistanceTableAStarHeuristic distanceTable
                                     && distanceTable.congestionMap != null){
                                 distanceTable.congestionMap.clear();
                             }
@@ -449,7 +449,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     private void addPlanToCongestionMap(SingleAgentPlan planForAgent) {
         // if using congestion, add this plan to the congestion map
-        if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
+        if (this.aStarGAndH instanceof DistanceTableAStarHeuristic distanceTable
                 && distanceTable.congestionMap != null){
             distanceTable.congestionMap.registerPlan(planForAgent); // TODO horizon?
         }
