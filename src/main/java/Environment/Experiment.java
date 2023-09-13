@@ -1,5 +1,6 @@
 package Environment;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -234,7 +235,7 @@ public class Experiment {
 
     @NotNull
     protected RunParameters getRunParameters(InstanceReport instanceReport) {
-        return new RunParameters(timeoutEach, null, instanceReport, null);
+        return new RunParametersBuilder().setTimeout(timeoutEach).setInstanceReport(instanceReport).createRP();
     }
 
     private boolean isValidSolutionForInstance(MAPF_Instance instance, Solution solution) {

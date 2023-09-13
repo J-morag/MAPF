@@ -6,9 +6,9 @@ on:
   pull_request:
     branches: [ master, lifelong ]
 
-# cancel the previous run in the PR if it's still in progress
+# cancel the previous run in the PR (only PR) if it's still in progress
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:

@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.ICTS;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
@@ -61,7 +62,7 @@ class ICTS_SolverTest {
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = ictsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -72,7 +73,7 @@ class ICTS_SolverTest {
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = ictsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -84,7 +85,7 @@ class ICTS_SolverTest {
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = ictsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -95,7 +96,7 @@ class ICTS_SolverTest {
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = ictsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -106,7 +107,7 @@ class ICTS_SolverTest {
     void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = ictsSolver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(2L*1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -165,7 +166,7 @@ class ICTS_SolverTest {
 //        while ((instance = instanceManager.getNextInstance()) != null) {
 //            InstanceReport report = new InstanceReport();
 //
-//            RunParameters runParameters = new RunParameters(timeout, null, report, null);
+//            RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRunParameters();
 //
 //            //solve
 //            System.out.println("---------- solving "  + instance.name + " ----------");
@@ -218,7 +219,7 @@ class ICTS_SolverTest {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -276,7 +277,9 @@ class ICTS_SolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -342,7 +345,7 @@ class ICTS_SolverTest {
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
 
-            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
+            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportBaseline).createRP();
 
             //solve
             Solution solutionBaseline = cbs.solve(instance, runParametersBaseline);
@@ -355,7 +358,7 @@ class ICTS_SolverTest {
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
 
-            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+            RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportExperimental).createRP();
 
             //solve
             Solution solutionExperimental = icts.solve(instance, runParametersExperimental);
@@ -416,7 +419,9 @@ class ICTS_SolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{

@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers.PIBT;
 
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -22,7 +23,6 @@ import Environment.Metrics.S_Metrics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -73,7 +73,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -86,7 +86,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapAgentsWithTheSameGoal() {
         MAPF_Instance testInstance = instanceEmpty3;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -99,7 +99,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapValidityTest2() {
         MAPF_Instance testInstance = instanceEmpty2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -112,7 +112,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapHarderValidityTest1() {
         MAPF_Instance testInstance = instanceEmptyHarder;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -121,7 +121,7 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -134,7 +134,7 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -148,7 +148,7 @@ public class PIBT_SolverTest {
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -158,7 +158,7 @@ public class PIBT_SolverTest {
     @Test
     void instanceAgentsInterruptsEachOtherTest() {
         MAPF_Instance testInstance = instanceAgentsInterruptsEachOther;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -201,7 +201,7 @@ public class PIBT_SolverTest {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -258,7 +258,9 @@ public class PIBT_SolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -323,7 +325,7 @@ public class PIBT_SolverTest {
             reportPrP.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportPrP.putStringValue(InstanceReport.StandardFields.solver, namePrP);
 
-            RunParameters runParametersPrP = new RunParameters(timeout, null, reportPrP, null);
+            RunParameters runParametersPrP = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportPrP).createRP();
 
             //solve
             Solution solutionPrP = PrPSolver.solve(instance, runParametersPrP);
@@ -336,7 +338,7 @@ public class PIBT_SolverTest {
             reportPIBT.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportPIBT.putStringValue(InstanceReport.StandardFields.solver, namePIBT);
 
-            RunParameters runParametersPIBT = new RunParameters(timeout, null, reportPIBT, null);
+            RunParameters runParametersPIBT = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportPIBT).createRP();
 
             //solve
             Solution solutionPIBT = PIBT_Solver.solve(instance, runParametersPIBT);
@@ -393,7 +395,9 @@ public class PIBT_SolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
@@ -421,7 +425,7 @@ public class PIBT_SolverTest {
     @Test
     void unsolvableMultipleInheritanceTest() {
         MAPF_Instance testInstance = instanceMultipleInheritance;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         assertNull(solved);
     }
@@ -429,7 +433,7 @@ public class PIBT_SolverTest {
     @Test
     void unsolvable() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         assertNull(solved);
     }
@@ -444,7 +448,7 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
         constraints.add(constraint2);
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, constraints, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
@@ -465,7 +469,7 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParameters(timeout, constraints, instanceReport, null));
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -488,7 +492,7 @@ public class PIBT_SolverTest {
         constraints.add(constraint1);
 
         assertThrows(UnsupportedOperationException.class, () -> {
-            PIBT_Solver.solve(testInstance, new RunParameters(timeout, constraints, instanceReport, null));
+            PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         });
     }
 }

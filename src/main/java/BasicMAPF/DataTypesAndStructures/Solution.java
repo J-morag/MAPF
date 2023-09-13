@@ -235,7 +235,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int sum = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            int freeSpaceCost = aStar.solve(instance.getSubproblemFor(plan.agent), new RunParameters(new InstanceReport()))
+            int freeSpaceCost = aStar.solve(instance.getSubproblemFor(plan.agent), new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP())
                     .getPlanFor(plan.agent).getCost();
             sum += ( plan.getCost() - freeSpaceCost ) * plan.agent.priority;
         }

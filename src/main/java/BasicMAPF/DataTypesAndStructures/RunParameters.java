@@ -1,5 +1,6 @@
 package BasicMAPF.DataTypesAndStructures;
 
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -20,6 +21,7 @@ public class RunParameters {
     private static final long DEFAULT_TIMEOUT = 1000*60*5 /*5 minutes*/;
 
     /*  =Fields=  */
+
     /**
      * The maximum time (milliseconds) allotted to the search. If the search exceeds this time, it is aborted.
      * Can also be 0, or negative.
@@ -53,7 +55,12 @@ public class RunParameters {
      * A {@link Solution} that already exists, and which the solver should use as a base.
      * The solver should add to, or modify, this solution rather than create a new one.
      */
-    public Solution existingSolution;
+    public final Solution existingSolution;
+
+    /**
+     * optional heuristic function to use in the single agent solver.
+     */
+    public final AStarGAndH aStarGAndH;
     /**
      * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
      * Not real-time.
@@ -63,106 +70,26 @@ public class RunParameters {
 
     /*  =Constructors=  */
 
-    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout, Integer problemStartTime, @Nullable Random randomNumberGenerator) {
-        this.timeout = Objects.requireNonNullElse(timeout, DEFAULT_TIMEOUT);
-        this.softTimeout = Objects.requireNonNullElse(softTimeout, this.timeout);
+    /**
+     * Intentionally package-private constructor.
+     * Use {@link RunParametersBuilder} to create a {@link RunParameters} object.
+     */
+    RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, AStarGAndH aStarGAndH, int problemStartTime, @Nullable Random randomNumberGenerator) {
+        this.timeout = timeout;
+        this.softTimeout = softTimeout;
         if (this.softTimeout > this.timeout){
             throw new IllegalArgumentException("softTimeout parameter must be <= timeout parameter");
         }
         this.constraints = constraints;
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
+        this.aStarGAndH = aStarGAndH;
         this.problemStartTime = Objects.requireNonNullElse(problemStartTime, 0);
         this.randomNumberGenerator = randomNumberGenerator;
     }
 
-    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, Long softTimeout) {
-        this(timeout, constraints, instanceReport, existingSolution, softTimeout, null, null);
-    }
-
-    public RunParameters(Long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
-        this(timeout, constraints, instanceReport, existingSolution, null);
-    }
-
-    public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution) {
-        this(null, constraints, instanceReport, existingSolution, null);
-    }
-
-    public RunParameters(ConstraintSet constraints, InstanceReport instanceReport) {
-        this(constraints, instanceReport, null);
-    }
-
-    public RunParameters(InstanceReport instanceReport, Solution existingSolution) {
-        this(null, instanceReport, existingSolution);
-    }
-
-    public RunParameters(InstanceReport instanceReport) {
-        this(null, instanceReport, null);
-    }
-
-    public RunParameters(ConstraintSet constraints) {
-        this(constraints, null, null);
-    }
-
-    public RunParameters(Solution existingSolution) {
-        this(null, null, existingSolution);
-    }
-
-    public RunParameters(long timeout) {
-        this(timeout, null, null, null, null);
-    }
-
-    public RunParameters() {
-        this(null, null, null);
-    }
-
     public RunParameters(RunParameters runParameters) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.problemStartTime, runParameters.randomNumberGenerator);
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.aStarGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator);
     }
-
-    public RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
-        this.timeout = timeout;
-        this.softTimeout = timeout;
-        this.constraints = constraints;
-        this.instanceReport = instanceReport;
-        this.existingSolution = existingSolution;
-        this.problemStartTime = problemStartTime;
-    }
-
-    public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
-        this(DEFAULT_TIMEOUT, constraints, instanceReport, existingSolution, problemStartTime);
-    }
-
-    public RunParameters(ConstraintSet constraints, InstanceReport instanceReport, int problemStartTime) {
-        this(constraints, instanceReport, null, problemStartTime);
-    }
-
-
-    public RunParameters(InstanceReport instanceReport, Solution existingSolution, int problemStartTime) {
-        this(null, instanceReport, existingSolution, problemStartTime);
-    }
-
-
-    public RunParameters(InstanceReport instanceReport, int problemStartTime) {
-        this(null, instanceReport, null, problemStartTime);
-    }
-
-    public RunParameters(ConstraintSet constraints, int problemStartTime) {
-        this(constraints, null, null, problemStartTime);
-    }
-
-    public RunParameters(Solution existingSolution, int problemStartTime) {
-        this(null, null, existingSolution, problemStartTime);
-    }
-
-    public RunParameters(long timeout, int problemStartTime) {
-        this(timeout, null, null, null, problemStartTime);
-    }
-
-    public RunParameters(int problemStartTime) {
-        this(null, null, null, problemStartTime);
-    }
-
-
 
 }

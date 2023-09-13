@@ -2,10 +2,7 @@ package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
-import BasicMAPF.DataTypesAndStructures.OpenListHeap;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
@@ -358,15 +355,15 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         // if there was already a timeout while solving a node, we will get a negative time left, which would be
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters subproblemParametes = new RunParameters(timeLeftToTimeout, constraints, instanceReport,
-                currentSolution, this.problemStartTime);
+        RunParameters subproblemParametes = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(constraints).setInstanceReport(instanceReport).setExistingSolution(
+                currentSolution, this.problemStartTime).setAStarGAndH(this.aStarGAndH).createRP();
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
-            RunParameters_SAAStar astarSbuproblemParameters = new RunParameters_SAAStar(subproblemParametes, this.aStarGAndH);
+            RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
             cat.sharedGoals = this.sharedGoals;
             cat.sharedSources = this.sharedSources;
-            astarSbuproblemParameters.conflictAvoidanceTable = cat;
-            subproblemParametes = astarSbuproblemParameters;
+            astarSubproblemParameters.conflictAvoidanceTable = cat;
+            subproblemParametes = astarSubproblemParameters;
         }
         return subproblemParametes;
     }

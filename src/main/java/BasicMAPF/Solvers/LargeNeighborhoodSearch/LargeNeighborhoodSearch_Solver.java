@@ -3,6 +3,7 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
@@ -16,6 +17,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 
@@ -137,10 +139,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        if (parameters instanceof RunParametersLNS runParametersLNS){
-            this.subSolverHeuristic = Objects.requireNonNullElse(runParametersLNS.aStarGAndH,
-                    new DistanceTableAStarHeuristic(this.agents, instance.map));
-        }
+        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.aStarGAndH,
+                new DistanceTableAStarHeuristic(this.agents, instance.map));
 
         if (parameters instanceof RunParametersLNS runParametersLNS){
             this.partialSolutionsStrategy = runParametersLNS.partialSolutionsStrategy;
@@ -284,8 +284,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        RunParameters_PP runParameters_pp = new RunParameters_PP(timeLeftToTimeout, subproblemConstraints, subproblemReport,
-                null, randomizedAgentsOrder.toArray(new Agent[0]), this.subSolverHeuristic);
+        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).createRP(), randomizedAgentsOrder.toArray(new Agent[0]));
         runParameters_pp.problemStartTime = this.problemStartTime;
         return runParameters_pp;
     }
