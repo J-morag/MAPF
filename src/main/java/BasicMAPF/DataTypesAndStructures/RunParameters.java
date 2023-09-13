@@ -5,6 +5,9 @@ import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
 
 /**
  * A set of parameters for a {@link I_Solver solver} to use when solving an {@link BasicMAPF.Instances.MAPF_Instance instance}.
@@ -13,8 +16,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
  * as some fields may not be relevant to some solvers.
  */
 public class RunParameters {
-    /*  =Constants=  */
-    private static final long DEFAULT_TIMEOUT = 1000*60*5 /*5 minutes*/;
 
     /*  =Fields=  */
 
@@ -57,7 +58,16 @@ public class RunParameters {
      * optional heuristic function to use in the single agent solver.
      */
     public final AStarGAndH aStarGAndH;
-
+    /**
+     * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
+     * Not real-time.
+     */
+    public int problemStartTime;
+    /**
+     * A random number generator to use in the solver.
+     * Can be null.
+     */
+    public Random randomNumberGenerator;
 
     /*  =Constructors=  */
 
@@ -65,7 +75,7 @@ public class RunParameters {
      * Intentionally package-private constructor.
      * Use {@link RunParametersBuilder} to create a {@link RunParameters} object.
      */
-    RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, AStarGAndH aStarGAndH) {
+    RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, AStarGAndH aStarGAndH, int problemStartTime, @Nullable Random randomNumberGenerator) {
         this.timeout = timeout;
         this.softTimeout = softTimeout;
         if (this.softTimeout > this.timeout){
@@ -75,10 +85,12 @@ public class RunParameters {
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
         this.aStarGAndH = aStarGAndH;
+        this.problemStartTime = problemStartTime;
+        this.randomNumberGenerator = randomNumberGenerator;
     }
 
     public RunParameters(RunParameters runParameters) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.aStarGAndH);
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.aStarGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator);
     }
 
 }
