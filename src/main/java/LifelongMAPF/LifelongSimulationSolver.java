@@ -132,12 +132,12 @@ public class LifelongSimulationSolver extends A_Solver {
         this.name = "Lifelong_" + offlineSolver.name();
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
         if (selectionLookaheadLength != null && selectionLookaheadLength < 1) {
-            throw new IllegalArgumentException("Safety enforcement lookahead must be at least 1 (or null for default value of 1)." +
+            throw new IllegalArgumentException("selectionLookaheadLength must be at least 1 (or null for default value of 1)." +
                     " Given value: " + selectionLookaheadLength);
         }
         this.selectionLookaheadLength = Objects.requireNonNullElse(selectionLookaheadLength, agentSelector.getPlanningFrequency());
         if (this.selectionLookaheadLength < agentSelector.getPlanningFrequency()){
-            throw new IllegalArgumentException("Safety enforcement lookahead must be at least as large as the planning frequency." +
+            throw new IllegalArgumentException("selectionLookaheadLength must be at least as large as the planning frequency." +
                     " Given value: " + selectionLookaheadLength + ", planning frequency: " + agentSelector.getPlanningFrequency());
         }
         this.destinationsReservationsCapacity = Objects.requireNonNullElse(destinationsReservationsCapacity, Integer.MAX_VALUE);
