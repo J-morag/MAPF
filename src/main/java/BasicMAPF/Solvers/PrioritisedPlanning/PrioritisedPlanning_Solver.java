@@ -2,6 +2,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -64,7 +65,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     /**
      * optional heuristic function to use in the low level solver.
      */
-    private AStarGAndH heuristic;
+    private AStarGAndH aStarGAndH;
 
     /**
      * if agents share goals, they will not conflict at their goal.
@@ -146,6 +147,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
         }
+        // heuristic
+        this.aStarGAndH = Objects.requireNonNullElse(parameters.aStarGAndH, new DistanceTableAStarHeuristic(this.agents, instance.map));
+        if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
+        }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
         if(parameters instanceof RunParameters_PP parametersPP){
 
@@ -153,14 +159,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
                 reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
             }
-
-            if(parametersPP.heuristic != null) {
-                this.heuristic = parametersPP.heuristic;
-                if (this.heuristic instanceof CachingDistanceTableHeuristic){
-                    ((CachingDistanceTableHeuristic)this.heuristic).setCurrentMap(instance.map);
-                }
-            }
-            else {this.heuristic = new DistanceTableAStarHeuristic(this.agents, instance.map);} // TODO replace with distance table? should usually be worth it
         }
     }
 
@@ -327,8 +325,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters_SAAStar params = new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints),
-                subproblemReport, null, this.heuristic /*nullable*/, maxCost);
+        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
+                setConstraints(new ConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH).createRP());
+        params.fBudget = maxCost;
         if (TransientMAPFGoalCondition){
             params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
         }
@@ -361,6 +360,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
-        this.heuristic = null;
+        this.aStarGAndH = null;
     }
 }

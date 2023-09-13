@@ -1,5 +1,6 @@
 package Environment;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -172,7 +173,7 @@ public class Experiment {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 0);
         }
 
-        RunParameters runParameters = new RunParameters(timeoutEach, null, instanceReport, null);
+        RunParameters runParameters = new RunParametersBuilder().setTimeout(timeoutEach).setInstanceReport(instanceReport).createRP();
 
         String instanceName = instance.extendedName;
         int numAgents = instance.agents.size();

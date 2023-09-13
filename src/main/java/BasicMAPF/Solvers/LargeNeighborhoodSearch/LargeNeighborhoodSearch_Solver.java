@@ -3,6 +3,7 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
@@ -123,10 +124,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        if (parameters instanceof RunParametersLNS runParametersLNS){
-            this.subSolverHeuristic = Objects.requireNonNullElse(runParametersLNS.aStarGAndH,
-                    new DistanceTableAStarHeuristic(this.agents, instance.map));
-        }
+        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.aStarGAndH,
+                new DistanceTableAStarHeuristic(this.agents, instance.map));
     }
 
     /*  = algorithm =  */
@@ -258,8 +257,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParameters_PP(timeLeftToTimeout, subproblemConstraints, subproblemReport, null,
-                randomizedAgentsOrder.toArray(new Agent[0]), this.subSolverHeuristic);
+        return new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).createRP(), randomizedAgentsOrder.toArray(new Agent[0]));
     }
 
     /*  = wind down =  */
