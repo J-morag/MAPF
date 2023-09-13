@@ -277,7 +277,9 @@ class ICTS_SolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -417,7 +419,9 @@ class ICTS_SolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{

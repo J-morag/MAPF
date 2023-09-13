@@ -258,7 +258,9 @@ public class PIBT_SolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -393,7 +395,9 @@ public class PIBT_SolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
