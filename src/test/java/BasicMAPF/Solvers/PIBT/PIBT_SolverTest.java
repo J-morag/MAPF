@@ -291,7 +291,7 @@ public class PIBT_SolverTest {
         boolean useAsserts = true;
 
         I_Solver PrPSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(), null, null, null);
+                null, new RestartsStrategy(), null, null, null, null, null);
         String namePrP = PrPSolver.name();
 
         I_Solver PIBT_Solver = new PIBT_Solver(null);
