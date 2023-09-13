@@ -64,6 +64,16 @@ public class PIBT_Solver extends A_Solver {
     private ConstraintSet constraints;
 
     /**
+     * How far forward in time to consider conflicts. Further than this time conflicts will be ignored.
+     */
+    public final Integer RHCR_Horizon;
+
+    /**
+     * Agent's plans build only from this timestamp
+     */
+    public Integer problemStartTime;
+
+    /**
      * hash map saves for each timeStamp a HashMap, saves for each agent boolean.
      * each boolean indicates whether an agent reached his goal or not.
      */
@@ -72,9 +82,10 @@ public class PIBT_Solver extends A_Solver {
     /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction) {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.RHCR_Horizon = RHCR_Horizon;
     }
 
     @Override
@@ -86,6 +97,7 @@ public class PIBT_Solver extends A_Solver {
         this.agentPlans = new HashMap<>();
         this.timeStamp = 0;
         this.reachingGoalsConfigurations = new HashMap<>();
+        this.problemStartTime = parameters.problemStartTime;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -99,7 +111,12 @@ public class PIBT_Solver extends A_Solver {
         initPriority(instance);
 
         // distance between every vertex in the graph to each agent's goal
-        this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
+        if (parameters.aStarGAndH instanceof DistanceTableAStarHeuristic) {
+            this.heuristic = (DistanceTableAStarHeuristic) parameters.aStarGAndH;
+        }
+        else {
+            this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
+        }
     }
 
 
@@ -108,6 +125,12 @@ public class PIBT_Solver extends A_Solver {
         boolean loopDetected = false;
         // each iteration of the while represents timestamp
         while (!(finished())) {
+
+            // algorithm starts agent's plans only from problemTimeStamp
+            if (this.problemStartTime > this.timeStamp) {
+                this.timeStamp++;
+                continue;
+            }
 
             // loop?
             if (this.timeStamp > 0) {
@@ -251,7 +274,7 @@ public class PIBT_Solver extends A_Solver {
             this.takenNodes.add(best);
 
             // best is taken
-            if (this.currentLocations.containsValue(best)) {
+            if (this.currentLocations.containsValue(best) && needToCheckConflicts()) {
                 Agent optional = null;
                 for (Agent agent: this.currentLocations.keySet()) {
                     if (this.currentLocations.get(agent) == best) {
@@ -434,6 +457,16 @@ public class PIBT_Solver extends A_Solver {
             Boolean reachedGoal = (this.priorities.get(agent) == -1.0);
             this.reachingGoalsConfigurations.get(this.timeStamp).put(agent, reachedGoal);
         }
+    }
+
+    /**
+     * relevant function for lifelong version of MAPF
+     * planning horizon - after k timestamps, ignore all conflicts
+     * this function check whether k timestamps have passed
+     * @return boolean: true if conflicts needs to be checked, otherwise return false
+     */
+    private boolean needToCheckConflicts() {
+        return this.RHCR_Horizon > this.timeStamp;
     }
 
     @Override
