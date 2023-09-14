@@ -98,6 +98,10 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         super.solvers.addAll(getSolvers());
     }
 
+    public void overrideSolvers(@NotNull List<I_Solver> solvers){
+        this.solvers = solvers;
+    }
+
     @NotNull
     public static Collection<? extends I_Solver> getSolvers() {
         List<I_Solver> solvers = new ArrayList<>();
