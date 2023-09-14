@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
@@ -46,7 +47,7 @@ class CorridorConflictManagerTest {
     void HMapFromPaperUsesCorridorReasoning() {
         MAPF_Instance testInstance = instanceHFromPaper;
         InstanceReport instanceReport = new InstanceReport();
-        Solution solved = corridorSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = corridorSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved.readableToString());
         validate(solved, 2, 14, 9, testInstance);
@@ -93,7 +94,7 @@ class CorridorConflictManagerTest {
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, "regularCBS");
 
-            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
+            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportBaseline).createRP();
 
             //solve
             Solution solutionBaseline = regularCBS.solve(instance, runParametersBaseline);
@@ -106,7 +107,7 @@ class CorridorConflictManagerTest {
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, "corridorCBS");
 
-            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+            RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportExperimental).createRP();
 
             //solve
             Solution solutionExperimental = corridorCBS.solve(instance, runParametersExperimental);
@@ -166,7 +167,9 @@ class CorridorConflictManagerTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{

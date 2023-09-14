@@ -1,3 +1,4 @@
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
@@ -73,7 +74,7 @@ public class ExampleMain {
 
         // Solve
         CBS_Solver solver = new CBS_Solver();
-        RunParameters runParameters = new RunParameters();
+        RunParameters runParameters = new RunParametersBuilder().createRP();
         Solution solution = solver.solve(instance, runParameters);
 
         //output results

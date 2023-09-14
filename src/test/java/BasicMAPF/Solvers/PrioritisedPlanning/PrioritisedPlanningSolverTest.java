@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
@@ -58,7 +59,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         assertTrue(solved.solves(testInstance));
     }
@@ -66,7 +67,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         assertTrue(solved.solves(testInstance));
     }
@@ -74,7 +75,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         assertTrue(solved.solves(testInstance));
     }
@@ -83,7 +84,7 @@ class PrioritisedPlanningSolverTest {
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -96,7 +97,7 @@ class PrioritisedPlanningSolverTest {
     void failsBeforeTimeoutWhenFacedWithInfiniteConstraints() {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
         long timeout = 10*1000;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         // shouldn't time out
         assertFalse(instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) > timeout);
@@ -107,7 +108,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void unsolvable() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        Solution solved = ppSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         assertNull(solved);
     }
@@ -118,7 +119,7 @@ class PrioritisedPlanningSolverTest {
         I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null, null);
         long timeout = 10*1000;
-        Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(instanceReport);
         // shouldn't time out
@@ -136,7 +137,7 @@ class PrioritisedPlanningSolverTest {
         I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null, null, null);
         long timeout = 10*1000;
-        Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(instanceReport);
         // shouldn't time out
@@ -154,20 +155,20 @@ class PrioritisedPlanningSolverTest {
         long timeout = 10*1000;
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null, null);
-        Solution solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null, null, null);
-        solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         // sanity check that it does indeed fail without the contingency
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(), null, null, null, null, null);
-        solved = solver.solve(testInstance, new RunParameters(timeout, null, instanceReport, null));
+        solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         // should fail without the contingency
         assertNull(solved);
     }
@@ -181,7 +182,7 @@ class PrioritisedPlanningSolverTest {
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null, null, null, null);
-        Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParameters(hardTimeout, null, instanceReport, null, softTimeout));
+        Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -201,13 +202,13 @@ class PrioritisedPlanningSolverTest {
         Agent agent1 = new Agent(1, coor12, coor33, 1);
 
         MAPF_Instance agent0prioritisedInstance = new MAPF_Instance("agent0prioritised", mapCircle, new Agent[]{agent0, agent1});
-        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParameters(instanceReport));
+        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         agent0 = new Agent(0, coor33, coor12, 1);
         agent1 = new Agent(1, coor12, coor33, 10);
 
         MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
-        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
+        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         assertTrue(agent0prioritisedSolution.solves(testInstance));
         assertTrue(agent1prioritisedSolution.solves(testInstance));
@@ -226,11 +227,11 @@ class PrioritisedPlanningSolverTest {
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
 
-        Solution solvedNormal = ppSolver.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
 
-        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
@@ -248,11 +249,11 @@ class PrioritisedPlanningSolverTest {
         I_Solver ppSolverWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
                 null, null, null, null, null);
-        Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(8, solvedNormal.sumIndividualCosts());
 
-        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(1000L, null, instanceReport, null));
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
@@ -294,7 +295,7 @@ class PrioritisedPlanningSolverTest {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -351,7 +352,9 @@ class PrioritisedPlanningSolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -415,7 +418,7 @@ class PrioritisedPlanningSolverTest {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -472,7 +475,9 @@ class PrioritisedPlanningSolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -536,7 +541,7 @@ class PrioritisedPlanningSolverTest {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -593,7 +598,9 @@ class PrioritisedPlanningSolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -660,7 +667,7 @@ class PrioritisedPlanningSolverTest {
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
 
-            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
+            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportBaseline).createRP();
 
             //solve
             Solution solutionBaseline = baselineSolver.solve(instance, runParametersBaseline);
@@ -673,7 +680,7 @@ class PrioritisedPlanningSolverTest {
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
 
-            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+            RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportExperimental).createRP();
 
             //solve
             Solution solutionExperimental = competitorSolver.solve(instance, runParametersExperimental);
@@ -725,7 +732,9 @@ class PrioritisedPlanningSolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
@@ -788,7 +797,7 @@ class PrioritisedPlanningSolverTest {
                 instanceEmptyPlusSharedGoalAndSomeStart1, instanceEmptyPlusSharedGoalAndSomeStart2, instanceEmptyPlusSharedGoalAndSomeStart3, instanceEmptyPlusSharedGoalAndSomeStart4,
                 instanceEmptyPlusSharedGoalAndStart1, instanceCircle1SharedGoal, instanceCircle1SharedGoalAndStart, instanceCircle2SharedGoal, instanceCircle2SharedGoalAndStart}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
             assertNotNull(solution);
             assertTrue(solution.solves(testInstance, true, true));
         }
@@ -798,7 +807,7 @@ class PrioritisedPlanningSolverTest {
         System.out.println("should not find a solution:");
         for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable, this.instanceUnsolvableBecauseOrderWithInfiniteWait}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
             assertNull(solution);
         }
     }

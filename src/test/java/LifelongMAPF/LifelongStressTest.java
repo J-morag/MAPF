@@ -1,6 +1,7 @@
 package LifelongMAPF;
 
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
@@ -57,7 +58,7 @@ public class LifelongStressTest {
             report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             report.putStringValue(InstanceReport.StandardFields.solver, nameSolver);
 
-            RunParameters runParametersBaseline = new LifelongRunParameters(new RunParameters(timeout, null, report, null),
+            RunParameters runParametersBaseline = new LifelongRunParameters(new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP(),
                     null, 201);
 
             // solve

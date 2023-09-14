@@ -33,7 +33,7 @@ public class Move {
 
     public Move(Agent agent, int timeNow, I_Location prevLocation, I_Location currLocation) {
         if(agent == null || timeNow<1 || prevLocation == null || currLocation == null){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Illegal argument in Move constructor: agent="+agent+", timeNow="+timeNow+", prevLocation="+prevLocation+", currLocation="+currLocation);
         }
         this.agent = agent;
         this.timeNow = timeNow;

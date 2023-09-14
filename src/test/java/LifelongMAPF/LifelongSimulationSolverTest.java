@@ -1,5 +1,6 @@
 package LifelongMAPF;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
@@ -90,7 +91,7 @@ class LifelongSimulationSolverTest {
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -104,7 +105,7 @@ class LifelongSimulationSolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -119,7 +120,7 @@ class LifelongSimulationSolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -134,7 +135,7 @@ class LifelongSimulationSolverTest {
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(150L * 1000, null, instanceReport, null), 150L * 1000);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(150L * 1000).setInstanceReport(instanceReport).createRP(), 150L * 1000);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -148,7 +149,7 @@ class LifelongSimulationSolverTest {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -162,7 +163,7 @@ class LifelongSimulationSolverTest {
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -178,7 +179,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -197,7 +198,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         // cheating: response time = max time left. to get snapshot optimal results.
-        LifelongRunParameters parameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), DEFAULT_TIMEOUT);
+        LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -212,7 +213,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -224,7 +225,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
@@ -236,7 +237,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
@@ -248,7 +249,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -260,7 +261,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -272,7 +273,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -286,7 +287,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -303,7 +304,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -317,7 +318,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -329,7 +330,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -342,7 +343,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -354,7 +355,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -366,7 +367,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -378,7 +379,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -392,7 +393,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -409,7 +410,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -423,7 +424,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -435,7 +436,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -447,7 +448,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -459,7 +460,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -471,7 +472,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -483,7 +484,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -497,7 +498,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -514,7 +515,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -528,7 +529,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -540,7 +541,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -553,7 +554,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -565,7 +566,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -577,7 +578,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -589,7 +590,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -603,7 +604,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -620,7 +621,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -634,7 +635,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -646,7 +647,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -659,7 +660,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -671,7 +672,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -683,7 +684,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -695,7 +696,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -709,7 +710,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -726,7 +727,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -740,7 +741,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -752,7 +753,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -765,7 +766,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -777,7 +778,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -789,7 +790,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -801,7 +802,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -815,7 +816,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -832,7 +833,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -847,7 +848,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -859,7 +860,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -871,7 +872,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -883,7 +884,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -895,7 +896,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), 500L);
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
@@ -908,7 +909,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -922,7 +923,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null), 500L);
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -941,7 +942,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -956,7 +957,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -968,7 +969,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -980,7 +981,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -992,7 +993,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1004,7 +1005,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null), 500L);
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
@@ -1017,7 +1018,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -1031,7 +1032,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null), 500L);
+        LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
         S_Metrics.removeReport(instanceReport);
 
@@ -1050,7 +1051,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -1065,7 +1066,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1077,7 +1078,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1090,7 +1091,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1102,7 +1103,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1114,7 +1115,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1129,7 +1130,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1141,7 +1142,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1154,7 +1155,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1166,7 +1167,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1178,7 +1179,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1190,7 +1191,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
@@ -1204,7 +1205,7 @@ class LifelongSimulationSolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -1221,7 +1222,7 @@ class LifelongSimulationSolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, constraintSet, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
@@ -1235,7 +1236,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1247,7 +1248,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1260,7 +1261,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1272,7 +1273,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1284,7 +1285,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialIAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1298,7 +1299,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1310,7 +1311,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1323,7 +1324,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1335,7 +1336,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1347,7 +1348,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1363,7 +1364,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1375,7 +1376,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1388,7 +1389,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -1400,7 +1401,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceSmallMazeDense;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
@@ -1412,7 +1413,7 @@ class LifelongSimulationSolverTest {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = solver.solve(testInstance, new RunParameters(DEFAULT_TIMEOUT, null, instanceReport, null));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());

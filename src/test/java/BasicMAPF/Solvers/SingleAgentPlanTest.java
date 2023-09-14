@@ -1,9 +1,6 @@
 package BasicMAPF.Solvers;
 
-import BasicMAPF.DataTypesAndStructures.Move;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
@@ -311,7 +308,7 @@ class SingleAgentPlanTest {
     @Test
     void marksTargetVisitedWhenGeneratedBySolve() {
         SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
-        Solution solution = solver.solve(instanceEmpty1, new RunParameters(new InstanceReport()));
+        Solution solution = solver.solve(instanceEmpty1, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
         System.out.println(solution);
         SingleAgentPlan plan = solution.getPlanFor(agent33to12);
         assertTrue(plan.containsTarget());
