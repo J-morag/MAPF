@@ -1,9 +1,6 @@
 package BasicMAPF.Solvers.AStar;
 
-import BasicMAPF.DataTypesAndStructures.Move;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
@@ -85,7 +82,7 @@ class SingleAgentAStar_SolverTest {
     @Test
     void oneMoveSolution() {
         MAPF_Instance testInstance = instance1stepSolution;
-        Solution s = aStar.solve(testInstance, new RunParameters());
+        Solution s = aStar.solve(testInstance, new RunParametersBuilder().createRP());
 
         Map<Agent, SingleAgentPlan> plans = new HashMap<>();
         SingleAgentPlan plan = new SingleAgentPlan(testInstance.agents.get(0));
@@ -102,7 +99,7 @@ class SingleAgentAStar_SolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         Agent agent = testInstance.agents.get(0);
 
-        Solution solved = aStar.solve(testInstance, new RunParameters());
+        Solution solved = aStar.solve(testInstance, new RunParametersBuilder().createRP());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location32Circle));
@@ -125,7 +122,7 @@ class SingleAgentAStar_SolverTest {
         Constraint vertexConstraint = new Constraint(null, 1, null, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(vertexConstraint);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = aStar.solve(testInstance, parameters);
 
@@ -151,7 +148,7 @@ class SingleAgentAStar_SolverTest {
         Constraint vertexConstraint = new Constraint(agent, 1, null, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(vertexConstraint);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = aStar.solve(testInstance, parameters);
 
@@ -176,7 +173,7 @@ class SingleAgentAStar_SolverTest {
         Constraint swappingConstraint = new Constraint(agent, 1, location33Circle, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(swappingConstraint);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = aStar.solve(testInstance, parameters);
 
@@ -205,7 +202,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(swappingConstraint1);
         constraints.add(swappingConstraint2);
         constraints.add(swappingConstraint3);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = aStar.solve(testInstance, parameters);
 
@@ -228,7 +225,7 @@ class SingleAgentAStar_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Agent agent = testInstance.agents.get(0);
 
-        Solution solved = aStar.solve(testInstance, new RunParameters());
+        Solution solved = aStar.solve(testInstance, new RunParametersBuilder().createRP());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location12Circle, location22Circle));
@@ -249,8 +246,8 @@ class SingleAgentAStar_SolverTest {
         MAPF_Instance testInstance2 = instanceEmpty2;
         Agent agent2 = testInstance2.agents.get(0);
 
-        Solution solved1 = aStar.solve(testInstance1, new RunParameters());
-        Solution solved2 = aStar.solve(testInstance2, new RunParameters());
+        Solution solved1 = aStar.solve(testInstance1, new RunParametersBuilder().createRP());
+        Solution solved2 = aStar.solve(testInstance2, new RunParametersBuilder().createRP());
 
         assertEquals(7, solved1.getPlanFor(agent1).size());
         assertEquals(5, solved2.getPlanFor(agent2).size());
@@ -261,7 +258,7 @@ class SingleAgentAStar_SolverTest {
         MAPF_Instance testInstance = instanceUnsolvable;
 
         // three second timeout
-        RunParameters runParameters = new RunParameters(1000*3);
+        RunParameters runParameters = new RunParametersBuilder().setTimeout(1000 * 3).createRP();
         Solution solved = aStar.solve(testInstance, runParameters);
 
         assertNull(solved);
@@ -274,7 +271,7 @@ class SingleAgentAStar_SolverTest {
         Constraint constraintAtTimeAfterReachingGoal = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal);
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
 
@@ -292,7 +289,7 @@ class SingleAgentAStar_SolverTest {
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,5, null, location33Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal1);
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = aStar.solve(testInstance, runParameters);
 
@@ -334,7 +331,7 @@ class SingleAgentAStar_SolverTest {
         for (int t = 0; t < 200 /*agents*/ * 200 /*timesteps* * 2 /*constraints*/; t++) {
             constraints.add(new Constraint(agent,t, null, instanceEmpty1.map.getMapLocation(coor15)));
         }
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
 
@@ -353,7 +350,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal1);
         constraints.add(constraintAtTimeAfterReachingGoal2);
         constraints.add(constraintAtTimeAfterReachingGoal3);
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
 
@@ -375,7 +372,7 @@ class SingleAgentAStar_SolverTest {
         existingSolution.putPlan(existingPlan);
 
         // give the solver a plan to continue from
-        Solution solved = aStar.solve(testInstance, new RunParameters(existingSolution));
+        Solution solved = aStar.solve(testInstance, new RunParametersBuilder().setExistingSolution(existingSolution).createRP());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
@@ -402,7 +399,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal2);
         constraints.add(constraintAtTimeAfterReachingGoal3);
 
-        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
         runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
@@ -428,7 +425,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoalAroundGoal1);
         constraints.add(constraintAtTimeAfterReachingGoalAroundGoal2);
 
-        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
         runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
@@ -652,12 +649,12 @@ class SingleAgentAStar_SolverTest {
     }
 
     private void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
-        RunParameters aStarRunParameters = new RunParameters_SAAStar(instanceReport, costFunction);
+        RunParameters runParameters = new RunParametersBuilder().setInstanceReport(instanceReport).setAStarGAndH(costFunction).createRP();
 
         String identifier = testInstance.name + " " + agent.source + " to " + agent.target;
         System.out.println("\n" + identifier);
 
-        Solution aStarSolution = aStar.solve(testInstance, aStarRunParameters);
+        Solution aStarSolution = aStar.solve(testInstance, runParameters);
         List<Integer> aSTsarPlanCosts = null;
         if (aStarSolution != null){
             List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));

@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -106,7 +107,7 @@ public class CorridorConflict extends A_Conflict {
         }
         else{
             // get time to farther side with bypass with state-time A Star
-            RunParameters_SAAStar runParameters = new RunParameters_SAAStar(constraints, new InstanceReport(),null, null);
+            RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
             runParameters.targetCoor = fartherSide.getCoordinate();
             Solution solution = aStar.solve(trimmedInstance.getSubproblemFor(agent), runParameters);
             return getTimeOfMoveTo(fartherSide, solution.getPlanFor(agent));

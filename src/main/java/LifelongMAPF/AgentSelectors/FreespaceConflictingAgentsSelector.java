@@ -1,5 +1,6 @@
 package LifelongMAPF.AgentSelectors;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
@@ -84,7 +85,7 @@ public class FreespaceConflictingAgentsSelector extends A_LifelongAgentSelector{
         // compute an individual optimal free-space path for each agent without a path
         for (LifelongAgent agent: agentsNeedingPlan){
             InstanceReport disposableIR = new InstanceReport();
-            RunParameters rp = new RunParameters(null, disposableIR,null, startTime); // TODO timeout?
+            RunParameters rp = new RunParametersBuilder().setInstanceReport(disposableIR).setProblemStartTime(startTime).createRP(); // TODO timeout?
             MAPF_Instance singleAgentInstance = new MAPF_Instance("individual optimal for " + agent.iD, lifelongInstance.map, new Agent[]{lifelongAgentsToTimelyOfflineAgents.get(agent)});
             SingleAgentPlan planForAgent = singleAgentSolver.solve(singleAgentInstance, rp).getPlanFor(agent);
             freespaceIndividualPlans.add(planForAgent);

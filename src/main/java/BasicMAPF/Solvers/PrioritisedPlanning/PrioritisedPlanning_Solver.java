@@ -2,6 +2,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -85,7 +86,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * optional heuristic function to use in the low level solver.
      */
-    private AStarGAndH heuristic;
+    private AStarGAndH aStarGAndH;
 
     /**
      * if agents share goals, they will not conflict at their goal.
@@ -207,20 +208,18 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
         this.maxReachedIndex = -1;
 
+        // heuristic
+        this.aStarGAndH = Objects.requireNonNullElse(parameters.aStarGAndH, new DistanceTableAStarHeuristic(this.agents, instance.map));
+        if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
+        }
+
         if(parameters instanceof RunParameters_PP parametersPP){
 
             //reorder according to requested priority
             if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
                 reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
             }
-
-            if(parametersPP.heuristic != null) {
-                this.heuristic = parametersPP.heuristic;
-                if (this.heuristic instanceof CachingDistanceTableHeuristic){
-                    ((CachingDistanceTableHeuristic)this.heuristic).setCurrentMap(instance.map);
-                }
-            }
-            else {this.heuristic = new DistanceTableAStarHeuristic(this.agents, instance.map);} // TODO replace with distance table? should usually be worth it
 
             this.partialSolutionsStrategy = parametersPP.partialSolutionsStrategy;
 
@@ -323,7 +322,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         if (failedAgents.size() > numFailedAgentsBeforeFailPolicy){ // so the fail policy added more failed agents in failPolicy.getKSafeSolution
                             // reset constraints since the solution changed
                             currentConstraints = new ConstraintSet(initialConstraints);
-                            if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
+                            if (this.aStarGAndH instanceof DistanceTableAStarHeuristic distanceTable
                                     && distanceTable.congestionMap != null){
                                 distanceTable.congestionMap.clear();
                             }
@@ -453,7 +452,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     private void addPlanToCongestionMap(SingleAgentPlan planForAgent) {
         // if using congestion, add this plan to the congestion map
-        if (this.heuristic instanceof DistanceTableAStarHeuristic distanceTable
+        if (this.aStarGAndH instanceof DistanceTableAStarHeuristic distanceTable
                 && distanceTable.congestionMap != null){
             distanceTable.congestionMap.registerPlan(planForAgent); // TODO horizon?
         }
@@ -504,9 +503,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         long allocatedTime = dynamicAStarTimeAllocation ? (long) ((timeLeftToTimeout / numRemainingAgentsIncludingCurrent) * aStarTimeAllocationFactor)
                 : timeLeftToTimeout;
         allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT_MS), timeLeftToTimeout);
-        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParameters(allocatedTime, new ConstraintSet(constraints),
-                subproblemReport, new Solution(solutionSoFar) // should probably work without copying, but just to be safe
-                , this.problemStartTime), this.heuristic /*nullable*/, maxCost);
+        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(allocatedTime).
+                setConstraints(new ConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH)
+                .setExistingSolution(new Solution(solutionSoFar))  // should probably work without copying, but just to be safe
+                .createRP());
+        params.fBudget = maxCost;
+        params.problemStartTime = this.problemStartTime;
         if (TransientMAPFGoalCondition){
             params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
         }
@@ -548,7 +550,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
-        this.heuristic = null;
+        this.aStarGAndH = null;
     }
 
     /*  = interfaces =  */
