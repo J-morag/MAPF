@@ -57,15 +57,21 @@ public abstract class A_RunManager {
     abstract void setSolvers();
     abstract void setExperiments();
 
-    public void runAllExperiments(){
+    /**
+     * Runs all experiments.
+     * @return true if all solutions are valid, false otherwise.
+     */
+    public boolean runAllExperiments(){
         setOutputStreamsBeforeRunning();
 
         setSolvers();
         setExperiments();
 
+        boolean allSolutionsValid = true;
+
         for ( Experiment experiment : experiments ) {
 
-            experiment.runExperiment(solvers);
+            allSolutionsValid &= experiment.runExperiment(solvers);
 
             System.out.println(experiment.experimentName + " - Done!");
         }
@@ -75,6 +81,7 @@ public abstract class A_RunManager {
         exportAllResults();
 
         clearMetrics();
+        return allSolutionsValid;
     }
 
     public static MAPF_Instance getInstanceFromPath(InstanceManager manager, InstanceManager.InstancePath absolutePath){
