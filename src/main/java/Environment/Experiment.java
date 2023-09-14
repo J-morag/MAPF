@@ -113,9 +113,12 @@ public class Experiment {
         runExperiment(List.of(solver));
     }
 
-    public void runExperiment(List<I_Solver> solvers) {
+    /**
+     * @return true if all solutions were valid; false otherwise.
+     */
+    public boolean runExperiment(List<I_Solver> solvers) {
         if (solvers == null) {
-            return;
+            return true;
         }
 
         instanceManager.resetPathIndex();
@@ -143,6 +146,7 @@ public class Experiment {
             }
         }
         System.out.println("Experiment concluded with " + numInvalidSolutions + " invalid solutions");
+        return numInvalidSolutions == 0;
     }
 
     /**
