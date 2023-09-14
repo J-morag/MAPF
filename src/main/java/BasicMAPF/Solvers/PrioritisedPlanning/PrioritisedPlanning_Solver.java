@@ -34,7 +34,7 @@ import static com.google.common.math.IntMath.factorial;
  * return a sub-optimal {@link Solution}.
  */
 public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCompatibleSolver {
-    private static final long MINIMUM_TIME_PER_AGENT = 5;
+    private static final long MINIMUM_TIME_PER_AGENT_MS = 10;
 
     /*  = Fields =  */
 
@@ -503,7 +503,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         int numRemainingAgentsIncludingCurrent = this.agents.size() - agentIndexInCurrentOrdering;
         long allocatedTime = dynamicAStarTimeAllocation ? (long) ((timeLeftToTimeout / numRemainingAgentsIncludingCurrent) * aStarTimeAllocationFactor)
                 : timeLeftToTimeout;
-        allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT), timeLeftToTimeout);
+        allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT_MS), timeLeftToTimeout);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParameters(allocatedTime, new ConstraintSet(constraints),
                 subproblemReport, new Solution(solutionSoFar) // should probably work without copying, but just to be safe
                 , this.problemStartTime), this.heuristic /*nullable*/, maxCost);
