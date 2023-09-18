@@ -720,9 +720,11 @@ public class LifelongSimulationSolver extends A_Solver {
         }
 
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));
+        InstanceReport instanceReport = new InstanceReport();
+        instanceReport.keepSolutionString = false;
 
         RunParameters runParameters = new RunParametersBuilder().setTimeout(hardTimeout).setConstraints(constraints)
-                .setInstanceReport(new InstanceReport()).setSoftTimeout(Math.min(minResponseTime, hardTimeout))
+                .setInstanceReport(instanceReport).setSoftTimeout(Math.min(minResponseTime, hardTimeout))
                 .setProblemStartTime(farthestCommittedTime).setRNG(this.random).setAStarGAndH(costAndHeuristic).createRP();
 
         if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
