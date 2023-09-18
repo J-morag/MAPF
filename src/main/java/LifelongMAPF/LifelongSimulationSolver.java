@@ -721,7 +721,10 @@ public class LifelongSimulationSolver extends A_Solver {
 
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));
 
-        RunParameters runParameters = new RunParametersBuilder().setTimeout(hardTimeout).setConstraints(constraints).setInstanceReport(new InstanceReport()).setSoftTimeout(Math.min(minResponseTime, hardTimeout)).setProblemStartTime(farthestCommittedTime).setRNG(this.random).createRP();
+        RunParameters runParameters = new RunParametersBuilder().setTimeout(hardTimeout).setConstraints(constraints)
+                .setInstanceReport(new InstanceReport()).setSoftTimeout(Math.min(minResponseTime, hardTimeout))
+                .setProblemStartTime(farthestCommittedTime).setRNG(this.random).setAStarGAndH(costAndHeuristic).createRP();
+
         if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
             RunParameters_PP runParameters_pp = new RunParameters_PP(runParameters);
             runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
