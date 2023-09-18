@@ -3,12 +3,24 @@ package LifelongMAPF.LifelongRunManagers;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.PIBT.PIBT_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
 import Environment.Experiment;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import Environment.RunManagers.A_RunManager;
 import Environment.Visualization.I_VisualizeSolution;
+import LifelongMAPF.AgentSelectors.AllAgentsSelector;
+import LifelongMAPF.AgentSelectors.PeriodicSelector;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.I_AStarFailPolicy;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.PostProcIGoFactory;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.PostProcessRankingAStarFP;
+import LifelongMAPF.FailPolicies.IStayFailPolicy;
+import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
+import LifelongMAPF.I_LifelongCompatibleSolver;
+import LifelongMAPF.LifelongSimulationSolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -169,6 +181,20 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_15()); // greedy +IA +IGo-20-ASFP + 15 capacity
         solvers.add(LifelongSolversFactory.LH_1PPRIGo_20ASFPCapacity_18()); // greedy +IA +IGo-20-ASFP + 18 capacity
         solvers.add(LifelongSolversFactory.IAvoidFPLH_1PPRIGo_20ASFP()); // greedy +IA +IGo-20-ASFP + inf capacity
+
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 15;
+        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
+
+        I_LifelongCompatibleSolver offlineSolver = new PIBT_Solver(null, Integer.MAX_VALUE);
+
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
+                offlineSolver, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+
+        solver.name = "testPIBT";
+        solvers.add(solver);
 
         return solvers;
     }
