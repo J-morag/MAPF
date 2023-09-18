@@ -115,8 +115,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
         this.random = new Random(42);
         this.numIterations = 0;
 

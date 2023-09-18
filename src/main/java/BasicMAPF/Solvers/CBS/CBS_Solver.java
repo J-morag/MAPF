@@ -11,6 +11,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictMa
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.SingleUseConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
@@ -346,7 +347,8 @@ public class CBS_Solver extends A_Solver {
         // if there was already a timeout while solving a node, we will get a negative time left, which would be
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters subproblemParametes = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(constraints).setInstanceReport(instanceReport).setExistingSolution(currentSolution).setAStarGAndH(this.aStarGAndH).createRP();
+        RunParameters subproblemParametes = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(new ImmutableConstraintSet(constraints)).
+                setInstanceReport(instanceReport).setExistingSolution(currentSolution).setAStarGAndH(this.aStarGAndH).createRP();
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);

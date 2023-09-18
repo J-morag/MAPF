@@ -3,6 +3,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -140,8 +141,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
         this.random = new Random(42);
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
@@ -326,7 +327,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-                setConstraints(new ConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH).createRP());
+                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH).createRP());
         params.fBudget = maxCost;
         if (TransientMAPFGoalCondition){
             params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
