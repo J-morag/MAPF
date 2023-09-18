@@ -199,7 +199,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
         this.constraints.sharedGoals = this.sharedGoals;
         this.constraints.sharedSources = this.sharedSources;
-        this.random = Objects.requireNonNullElse(parameters.randomNumberGenerator, new Random(42));
+        this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
@@ -235,7 +235,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             }
         }
 
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+        this.partialSolutionsStrategy = Objects.requireNonNullElseGet(this.partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
     }
 
     private void reorderAgentsByPriority(Agent[] requestedOrder) {

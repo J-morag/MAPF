@@ -132,7 +132,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.constraints.sharedGoals = this.sharedGoals;
         this.constraints.sharedSources = this.sharedSources;
-        this.random = Objects.requireNonNullElse(parameters.randomNumberGenerator, new Random(42));
+        this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         this.numIterations = 0;
 
         this.destroyHeuristicsWeights = new double[destroyHeuristics.size()];
@@ -146,7 +146,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
             this.partialSolutionsStrategy = runParameters_pp.partialSolutionsStrategy;
         }
 
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+        this.partialSolutionsStrategy = Objects.requireNonNullElseGet(this.partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
     }
 
     /*  = algorithm =  */

@@ -76,7 +76,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     private final boolean lifelong;
 
     public InstanceBuilder_MovingAI(Priorities priorities, Boolean lifelong){
-        this.priorities = Objects.requireNonNullElse(priorities, new Priorities());
+        this.priorities = Objects.requireNonNullElseGet(priorities, Priorities::new);
         this.lifelong = Objects.requireNonNullElse(lifelong, false);
     }
 

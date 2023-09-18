@@ -125,9 +125,9 @@ public class LifelongSimulationSolver extends A_Solver {
         }
         this.offlineSolver = offlineSolver;
         this.congestionMultiplier = congestionMultiplier;
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+        this.partialSolutionsStrategy = Objects.requireNonNullElseGet(partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
 
-        this.agentSelector = Objects.requireNonNullElse(agentSelector, new StationaryAgentsSubsetSelector());
+        this.agentSelector = Objects.requireNonNullElseGet(agentSelector, StationaryAgentsSubsetSelector::new);
         this.failPolicyKSafety = agentSelector.getPlanningFrequency();
         this.name = "Lifelong_" + offlineSolver.name();
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
