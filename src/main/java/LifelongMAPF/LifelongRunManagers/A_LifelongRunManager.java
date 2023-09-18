@@ -150,15 +150,15 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.IAvoid_3ASFP()); // greedy +IS +IAvoid-3-ASFP
 //        solvers.add(LifelongSolversFactory.IGo_4ASFP()); // greedy +IS +IGo-4-ASFP
 //        solvers.add(LifelongSolversFactory.IAvoid_4ASFP()); // greedy +IS +IAvoid-4-ASFP
-//        solvers.add(LifelongSolversFactory.IGo_5ASFP()); // greedy +IS +IGo-5-ASFP
-//        solvers.add(LifelongSolversFactory.IAvoid_5ASFP()); // greedy +IS +IAvoid-5-ASFP
-//        solvers.add(LifelongSolversFactory.IGo_10ASFP()); // greedy +IS +IGo-10-ASFP
-//        solvers.add(LifelongSolversFactory.IAvoid_10ASFP()); // greedy +IS +IAvoid-10-ASFP
-//        solvers.add(LifelongSolversFactory.IGo_20ASFP()); // greedy +IS +IGo-20-ASFP
-//        solvers.add(LifelongSolversFactory.IAvoid_20ASFP()); // greedy +IS +IAvoid-20-ASFP
-//        solvers.add(LifelongSolversFactory.IGo_30ASFP()); // greedy +IS +IGo-30-ASFP
-//        solvers.add(LifelongSolversFactory.IAvoid_30ASFP()); // greedy +IS +IAvoid-30-ASFP
-//        solvers.add(LifelongSolversFactory.WaterfallPPRASFP_lockInf()); // greedy +IS (inc. inter.)
+        solvers.add(LifelongSolversFactory.IGo_5ASFP()); // greedy +IS +IGo-5-ASFP
+        solvers.add(LifelongSolversFactory.IAvoid_5ASFP()); // greedy +IS +IAvoid-5-ASFP
+        solvers.add(LifelongSolversFactory.IGo_10ASFP()); // greedy +IS +IGo-10-ASFP
+        solvers.add(LifelongSolversFactory.IAvoid_10ASFP()); // greedy +IS +IAvoid-10-ASFP
+        solvers.add(LifelongSolversFactory.IGo_20ASFP()); // greedy +IS +IGo-20-ASFP
+        solvers.add(LifelongSolversFactory.IAvoid_20ASFP()); // greedy +IS +IAvoid-20-ASFP
+        solvers.add(LifelongSolversFactory.IGo_30ASFP()); // greedy +IS +IGo-30-ASFP
+        solvers.add(LifelongSolversFactory.IAvoid_30ASFP()); // greedy +IS +IAvoid-30-ASFP
+        solvers.add(LifelongSolversFactory.WaterfallPPRASFP_lockInf()); // greedy +IS (inc. inter.)
 
 //        solvers.add(LifelongSolversFactory.IGo_20FPIGo_20ASFP()); // greedy +IGo-20-ASFP +IGo-20-ASFP
 //        solvers.add(LifelongSolversFactory.IGo_20FPIAvoid_20ASFP()); // greedy +IGo-20-ASFP +IAvoid-20-ASFP
@@ -192,12 +192,12 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH_1IAvoid_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-20-ASFP + 18 capacity + dynamic timeout 1.5
 //        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
 
-        solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
-         solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
-        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
-        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5 + interrupts
+//        solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
+//         solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
+//        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
+//        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5 + interrupts
 
         return solvers;
     }
