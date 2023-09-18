@@ -121,7 +121,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.corridorReasoning = Objects.requireNonNullElse(useCorridorReasoning, false);
         clearOPEN();
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
-        this.costFunction = Objects.requireNonNullElse(costFunction, new SOCCostFunction());
+        this.costFunction = Objects.requireNonNullElseGet(costFunction, SOCCostFunction::new);
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
@@ -401,7 +401,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodes, this.expandedNodes);
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, costFunction.name());
-            super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }
 

@@ -149,8 +149,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                                       Integer RHCR_Horizon, FailPolicy failPolicy) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
-        this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.TransientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
@@ -212,7 +212,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.singleAgentFPsTriggered = 0;
 
         // heuristic
-        this.aStarGAndH = Objects.requireNonNullElse(parameters.aStarGAndH, new DistanceTableAStarHeuristic(this.agents, instance.map));
+        this.aStarGAndH = Objects.requireNonNullElseGet(parameters.aStarGAndH, () -> new DistanceTableAStarHeuristic(this.agents, instance.map));
         if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
             ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
         }
