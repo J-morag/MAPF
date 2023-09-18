@@ -3,6 +3,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -197,8 +198,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             this.constraints = new ConstraintSet();
         }
 
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
         this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
@@ -506,7 +507,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 : timeLeftToTimeout;
         allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT_MS), timeLeftToTimeout);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(allocatedTime).
-                setConstraints(new ConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH)
+                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH)
                 .setExistingSolution(new Solution(solutionSoFar))  // should probably work without copying, but just to be safe
                 .createRP());
         params.fBudget = maxCost;

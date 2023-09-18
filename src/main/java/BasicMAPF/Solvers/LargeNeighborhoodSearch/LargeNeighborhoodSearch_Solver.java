@@ -130,8 +130,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.agents = new ArrayList<>(instance.agents);
         this.problemStartTime = parameters.problemStartTime;
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
         this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         this.numIterations = 0;
 
