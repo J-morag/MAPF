@@ -213,7 +213,7 @@ public class ICTS_Solver extends A_Solver {
         super.instanceReport.putStringValue(InstanceReport.StandardFields.solver, name());
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
-            super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }
 

@@ -123,9 +123,9 @@ public class StressTests {
                 }
 
                 // cost
-                if (report.getIntegerValue(InstanceReport.StandardFields.solutionCost) != null){
-                    sumCost += report.getIntegerValue(InstanceReport.StandardFields.solutionCost);
-                    System.out.println(nameSolver + " Cost: " + report.getIntegerValue(InstanceReport.StandardFields.solutionCost));
+                if (report.getFloatValue(InstanceReport.StandardFields.solutionCost) != null){
+                    sumCost += report.getFloatValue(InstanceReport.StandardFields.solutionCost);
+                    System.out.println(nameSolver + " Cost: " + report.getFloatValue(InstanceReport.StandardFields.solutionCost));
                 }
             }
             System.out.println();

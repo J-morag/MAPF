@@ -272,7 +272,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         }
         instanceReport.putIntegerValue("Num Iterations", numIterations);
         if(solution != null){
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, Math.round(solutionCostFunction.solutionCost(solution)));
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
         }
     }
