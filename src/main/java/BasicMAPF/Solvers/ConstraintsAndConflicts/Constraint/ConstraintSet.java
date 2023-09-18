@@ -32,11 +32,11 @@ public class ConstraintSet{
     /**
      * If set to true, agents who share the same goal may occupy their goal vertex at the same time.
      */
-    private boolean sharedGoals;
+    public boolean sharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not constrain agents with the same source
      */
-    private boolean sharedSources;
+    public boolean sharedSources;
 
     public ConstraintSet() {
         this(null, null);
@@ -51,14 +51,14 @@ public class ConstraintSet{
         if(toCopy == null) {throw new IllegalArgumentException();}
         this.sharedGoals = toCopy.sharedGoals;
         this.sharedSources = toCopy.sharedSources;
-        this.addAllInternal(toCopy);
+        this.addAll(toCopy);
         this.lastConstraintTime = toCopy.lastConstraintTime;
     }
 
     public ConstraintSet(Collection<? extends Constraint> seedConstraints) {
         this();
         if(seedConstraints == null) {throw new IllegalArgumentException();}
-        this.addAllInternal(seedConstraints);
+        this.addAll(seedConstraints);
     }
 
     /*  = Set Interface =  */
@@ -67,6 +67,7 @@ public class ConstraintSet{
 //    public int size() {
 //        return constraints.size();
 //    }
+
 
     public boolean isSharedGoals() {
         return sharedGoals;
@@ -123,28 +124,16 @@ public class ConstraintSet{
     }
 
     protected void add(Set<Constraint> constraintSet, Constraint constraint){
-        addInternal(constraintSet, constraint);
-    }
-
-    private static void addInternal(Set<Constraint> constraintSet, Constraint constraint) {
         constraintSet.add(constraint);
     }
 
     public void addAll(Collection<? extends Constraint> constraints) {
-        addAllInternal(constraints);
-    }
-
-    private void addAllInternal(Collection<? extends Constraint> constraints) {
         for (Constraint cons : constraints) {
             this.add(cons);
         }
     }
 
     public void addAll(ConstraintSet other) {
-        addAllInternal(other);
-    }
-
-    private void addAllInternal(ConstraintSet other) {
         for (I_ConstraintGroupingKey cw : other.constraints.keySet()) {
             for (Constraint cons : other.constraints.get(cw)) {
                 this.add(cons);
