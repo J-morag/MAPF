@@ -184,20 +184,20 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH_1IGo_10ASFPCapacity_18DynamicTimeout2p0()); // greedy +IA +IGo-10-ASFP + 18 capacity + dynamic timeout 2.0
 
 
-        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1IGo_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-10-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1IGo_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-20-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1IAvoid_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-10-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1IAvoid_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-20-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
-
-//        solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5
 //        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1IGo_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-10-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1IGo_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-20-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1IAvoid_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-10-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1IAvoid_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-20-ASFP + 18 capacity + dynamic timeout 1.5
 //        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
-//         solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
-//        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
-//        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5 + interrupts
+
+        solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
+         solvers.add(LifelongSolversFactory.LH_1IAvoid_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IAvoid-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
+        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
+        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5 + interrupts
 
         return solvers;
     }
