@@ -11,13 +11,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * An immutable view of a {@link ConstraintSet}.
+ */
 public class ImmutableConstraintSet extends ConstraintSet {
     // TODO put ConstraintSet behind an interface, and make this implement it
 
     private final ConstraintSet constraintSet;
 
     public ImmutableConstraintSet(@NotNull ConstraintSet toCopy) {
-        this.constraintSet = new ConstraintSet(toCopy);
+        this.constraintSet = toCopy;
     }
 
     @Override
