@@ -334,8 +334,8 @@ class LargeNeighborhoodSearch_SolverTest {
                                 - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
 
                 // cost
-                sumCostBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.solutionCost);
-                sumCostExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.solutionCost);
+                sumCostBaseline += reportBaseline.getFloatValue(InstanceReport.StandardFields.solutionCost);
+                sumCostExperimental += reportExperimental.getFloatValue(InstanceReport.StandardFields.solutionCost);
             }
         }
 

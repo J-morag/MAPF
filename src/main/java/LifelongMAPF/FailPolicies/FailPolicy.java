@@ -25,7 +25,7 @@ public class FailPolicy {
     }
 
     public FailPolicy(Integer detectConflictsHorizon, I_SingleAgentFailPolicy saFailPolicy) {
-        this.SAFailPolicy = Objects.requireNonNullElse(saFailPolicy, new IStayFailPolicy());
+        this.SAFailPolicy = Objects.requireNonNullElseGet(saFailPolicy, IStayFailPolicy::new);
         this.detectConflictsHorizon  = Objects.requireNonNullElse(detectConflictsHorizon, 1);
     }
 

@@ -25,6 +25,7 @@ public class InstanceReport {
     private Map<String, Integer> integerFields = new HashMap<String, Integer>(8);
     private Map<String, Float> floatFields = new HashMap<String, Float>(4);
     private boolean isCommited = false;
+    public boolean keepSolutionString = true;
 
     /**
      * Contains constants representing standard names for fields. It is optional to use these names, and any other field
@@ -69,6 +70,7 @@ public class InstanceReport {
      * it the fieldName contains {@link #EXTENSION_STRING}.
      */
     public String putStringValue(String fieldName, String fieldValue){
+        if(fieldName.equals(StandardFields.solution) && !keepSolutionString){return null;}
         if(!canPutToMap(fieldName, stringFields)) {return null;}
         if(fieldName.contains(EXTENSION_STRING)) {return null;}
         removeExtensions(fieldName);

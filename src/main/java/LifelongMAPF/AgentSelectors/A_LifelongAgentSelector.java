@@ -17,7 +17,7 @@ public abstract class A_LifelongAgentSelector implements I_LifelongAgentSelector
 
 
     protected A_LifelongAgentSelector(PeriodicSelector periodicSelector) {
-        this.periodicSelector = Objects.requireNonNullElse(periodicSelector, new PeriodicSelector(1));
+        this.periodicSelector = Objects.requireNonNullElseGet(periodicSelector, () -> new PeriodicSelector(1));
     }
 
     protected A_LifelongAgentSelector() {

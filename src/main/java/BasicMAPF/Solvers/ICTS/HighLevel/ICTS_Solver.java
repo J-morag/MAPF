@@ -39,9 +39,9 @@ public class ICTS_Solver extends A_Solver {
 
     public ICTS_Solver(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
                        PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator) {
-        this.comparator = Objects.requireNonNullElse(comparator, new ICT_NodeSumOfCostsComparator());
-        this.searcherFactory = Objects.requireNonNullElse(searcherFactory, new AStarFactory());
-        this.mergedMDDSolver = Objects.requireNonNullElse(mergedMDDSolver, new IndependenceDetection_MergedMDDSolver(new DFS_MergedMDDSpaceSolver()));
+        this.comparator = Objects.requireNonNullElseGet(comparator, ICT_NodeSumOfCostsComparator::new);
+        this.searcherFactory = Objects.requireNonNullElseGet(searcherFactory, AStarFactory::new);
+        this.mergedMDDSolver = Objects.requireNonNullElseGet(mergedMDDSolver, () -> new IndependenceDetection_MergedMDDSolver(new DFS_MergedMDDSpaceSolver()));
         this.pruningStrategy = Objects.requireNonNullElse(pruningStrategy, PruningStrategy.S2P);
         this.mergedMDDCreator = Objects.requireNonNullElseGet(mergedMDDCreator, BreadthFirstSearch_MergedMDDCreator::new);
         super.name = "ICTS_Solver_" + this.pruningStrategy;
@@ -213,7 +213,7 @@ public class ICTS_Solver extends A_Solver {
         super.instanceReport.putStringValue(InstanceReport.StandardFields.solver, name());
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
-            super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }
 
