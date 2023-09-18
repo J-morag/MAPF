@@ -43,6 +43,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     public final static String countInitialAttemptsMetricString = "count initial attempts";
     public final static String countContingencyAttemptsMetricString = "count contingency attempts";
     public final static String maxReachedIndexBeforeTimeoutString = "max reached index";
+    public final static String countSingleAgentFPsTriggeredString = "single agent FPs triggered";
     private static final int DEBUG = 1;
 
     /*  =  = Fields related to the MAPF instance =  */
@@ -63,6 +64,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     private Set<Agent> failedAgents;
     private RemovableConflictAvoidanceTableWithContestedGoals initialConflictAvoidanceTable;
     int maxReachedIndex;
+    int singleAgentFPsTriggered;
 
     /*  =  = Fields related to the class instance =  */
 
@@ -207,6 +209,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.initialConflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
 
         this.maxReachedIndex = -1;
+        this.singleAgentFPsTriggered = 0;
 
         // heuristic
         this.aStarGAndH = Objects.requireNonNullElse(parameters.aStarGAndH, new DistanceTableAStarHeuristic(this.agents, instance.map));
@@ -271,7 +274,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         Solution bestSolution = null;
         Solution bestPartialSolution = new Solution();
         int bestPartialSolutionSingleAgentSuccesses = 0;
-        int singleAgentFPsTriggered = 0;
         Set<Agent> bestPartialSolutionFailedAgents = new HashSet<>();
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
@@ -522,6 +524,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         instanceReport.putIntegerValue(maxReachedIndexBeforeTimeoutString, maxReachedIndex);
+        instanceReport.putIntegerValue(countSingleAgentFPsTriggeredString, singleAgentFPsTriggered);
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());

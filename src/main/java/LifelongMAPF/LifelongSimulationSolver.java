@@ -100,6 +100,7 @@ public class LifelongSimulationSolver extends A_Solver {
      */
     private Set<I_Location> overcapacityDestinations;
     private int sumFailPolicyIterations;
+    private int sumSingleAgentFPsTriggered;
     private int countFailPolicyLoops;
     private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
@@ -786,6 +787,8 @@ public class LifelongSimulationSolver extends A_Solver {
             this.numAgentsAndNumIterationsMetric.add(new int[]{numAgents, numAttempts});
             this.sumFailPolicyIterations += subproblemInstanceReport.getIntegerValue("fail policy iterations") != null ?
                     subproblemInstanceReport.getIntegerValue("fail policy iterations") : 0;
+            this.sumSingleAgentFPsTriggered += subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countSingleAgentFPsTriggeredString) != null ?
+                    subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countSingleAgentFPsTriggeredString) : 0;
         }
     }
 
@@ -857,6 +860,7 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
         super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
         super.instanceReport.putFloatValue("avgFailPolicyIterations", this.sumFailPolicyIterations / (float)this.countFailPolicyLoops);
+        super.instanceReport.putFloatValue("avgSingleAgentFPsTriggered", this.sumSingleAgentFPsTriggered / (float)this.countFailPolicyLoops);
     }
 
     @Override
