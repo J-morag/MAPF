@@ -496,6 +496,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         InstanceReport subproblemReport = new InstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
+        subproblemReport.keepSolutionString = false;
         return subproblemReport;
     }
 

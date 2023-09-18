@@ -346,6 +346,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      */
     private Solution solveSubproblem(Agent agent, Solution currentSolution, ConstraintSet constraints) {
         InstanceReport instanceReport = new InstanceReport();
+        instanceReport.keepSolutionString = false;
         RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport, agent);
         Solution subproblemSolution = this.lowLevelSolver.solve(this.instance.getSubproblemFor(agent), subproblemParameters);
         digestSubproblemReport(instanceReport);
