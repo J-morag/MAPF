@@ -114,7 +114,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.goalCondition = new SingleTargetCoordinateGoalCondition(this.targetCoor);
         }
 
-        this.gAndH = Objects.requireNonNullElse(runParameters.aStarGAndH, new UnitCostsAndManhattanDistance(this.targetCoor));
+        this.gAndH = Objects.requireNonNullElseGet(runParameters.aStarGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
         if (! this.gAndH.isConsistent()){
             throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
         }
