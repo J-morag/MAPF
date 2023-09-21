@@ -1565,6 +1565,40 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver LH_1IAvoid_30ASFPCapacity_infDynamicTimeout1p5(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        Integer targetsCapacity = null;
+        I_AStarFailPolicy asfpf = new IAvoidDASFP(30);
+        PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp));
+        prp.dynamicAStarTimeAllocation = true;
+        prp.aStarTimeAllocationFactor = 1.5f;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                prp, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver LH_1IAvoid_30ASFPCapacity_infDynamicTimeout1p5RHCR_w10_h1(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = 10;
+        Integer targetsCapacity = null;
+        I_AStarFailPolicy asfpf = new IAvoidDASFP(30);
+        PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp));
+        prp.dynamicAStarTimeAllocation = true;
+        prp.aStarTimeAllocationFactor = 1.5f;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                prp, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
     public static I_Solver LH_1IAvoid_10ASFPCapacity_18DynamicTimeout1p5(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
