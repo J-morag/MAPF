@@ -21,38 +21,38 @@ import java.util.*;
 public class PIBT_Solver extends A_Solver {
 
     /**
-     * Set contains all not handled agents at timestamp t
-     * initialize in each timestamp to A (all agents that not reached their goal yet)
-     * agent in set will be sorted in descending order by priority
+     * Set contains all not handled agents at timestamp t.
+     * initialize in each timestamp to A (all agents that not reached their goal yet).
+     * agent in set will be sorted in descending order by priority.
      */
     private HashSet<Agent> unhandledAgents;
 
     /**
-     * Set contains all taken nodes - nodes required by an agent in the next timeStamp
-     * hence agent can't move to a node in this list
-     * when an agent chooses a node to move to in the next timestamp, the node is added to this set
+     * Set contains all taken nodes - nodes required by an agent in the next timeStamp.
+     * hence agent can't move to a node in this list.
+     * when an agent chooses a node to move to in the next timestamp, the node is added to this set.
      */
     private HashSet<I_Location> takenNodes;
 
     /**
-     * Map saving current location for each agent
+     * Map saving current location for each agent.
      */
     private HashMap<Agent, I_Location> currentLocations;
 
     /**
-     * Map saving priority of each agent
+     * Map saving priority of each agent.
      */
     private HashMap<Agent, Double> priorities;
 
     /**
-     * heuristic to use in the low level search to find the closest nodes to an agent's goal
+     * heuristic to use in the low level search to find the closest nodes to an agent's goal.
      */
     private DistanceTableAStarHeuristic heuristic;
 
     /**
-     * HashMap saves for each agent his plan
-     * built iteratively at every time stamp
-     * at the end of the algorithm this HashMap represent the final solution
+     * HashMap saves for each agent his plan.
+     * built iteratively at every time stamp.
+     * at the end of the algorithm this HashMap represent the final solution.
      */
     private HashMap<Agent, SingleAgentPlan> agentPlans;
     private int timeStamp;
@@ -64,7 +64,7 @@ public class PIBT_Solver extends A_Solver {
     private ConstraintSet constraints;
 
     /**
-     * constructor
+     * constructor.
      */
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction) {
         super.name = "PIBT";
@@ -179,7 +179,7 @@ public class PIBT_Solver extends A_Solver {
                 }
             }
         }
-        System.out.println("LOOP DETECTED?" + loopDetected);
+        System.out.println("LOOP DETECTED? " + loopDetected);
         // create the final solution
         if (loopDetected) {
             return null;
