@@ -99,13 +99,45 @@ public class PIBT_Solver extends A_Solver {
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
 
+        boolean loopDetected = false;
         // each iteration of the while represents timestamp
-        while (!(finished())) {
+        while (!(finished()) && !loopDetected) {
+
+            // loop?
+            if (this.timeStamp > 1) {
+                for (int i = 2; i <= this.timeStamp - 1; i++) {
+                    int agentsInSameLocation = 0;
+                    for (Agent agent : this.agentPlans.keySet()) {
+                        SingleAgentPlan currentPlan = this.agentPlans.get(agent);
+                        if (currentPlan.moveAt(i).currLocation.equals(currentPlan.getLastMove().currLocation)) {
+                            if (currentPlan.moveAt(i-1).currLocation.equals(currentPlan.moveAt(currentPlan.size()-2).currLocation)) {
+                                agentsInSameLocation++;
+                            }
+                        }
+                    }
+//                    System.out.println("Agents in same location: " + agentsInSameLocation);
+                    if (agentsInSameLocation == this.agentPlans.keySet().size()) {
+//                        System.out.println("Loop detected in timestamp: " + i);
+                        loopDetected = true;
+                        break;
+//                        for (Agent agent : this.agentPlans.keySet()) {
+//                            System.out.println("-----------");
+//                            System.out.println(agent);
+//                            System.out.println(this.agentPlans.get(agent).getLastMove().prevLocation);
+//                            System.out.println(this.agentPlans.get(agent).getLastMove().currLocation);
+//                            System.out.println("-----------");
+//                        }
+                    }
+                }
+            }
 
             if (checkTimeout()) {
                 return null;
             }
 
+//            if (this.timeStamp % 1000 == 0) {
+//                System.out.println(this.timeStamp);
+//            }
             this.timeStamp++;
 
             updatePriorities(instance);
@@ -147,8 +179,11 @@ public class PIBT_Solver extends A_Solver {
                 }
             }
         }
-
+        System.out.println("LOOP DETECTED?" + loopDetected);
         // create the final solution
+        if (loopDetected) {
+            return null;
+        }
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
