@@ -6,19 +6,19 @@ import LifelongMAPF.LifelongTestInstances;
 import org.junit.jupiter.api.Test;
 class PostprocessRankingAStarFPTest {
 
-    I_Solver simpleWithIAvoid =
-            LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPLookahead1IAvoidASFP();
-    I_Solver complexWithIAvoid =
-            LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5IAvoid1ASFP();
+    I_Solver simpleWithAvoid =
+            LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPLookahead1AvoidASFP();
+    I_Solver complexWithAvoid =
+            LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP();
 
     I_Solver simpleWithWaterfall =
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialStayOnceFPLookahead1WaterfallPPRASFP();
     I_Solver complexWithWaterfall =
-            LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5WaterfallPPRASFP();
+            LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5WaterfallPPRASFP();
 
     @Test
-    void simpleWithIAvoid(){
-        I_Solver solver = simpleWithIAvoid;
+    void simpleWithAvoid(){
+        I_Solver solver = simpleWithAvoid;
         LifelongTestInstances.emptyMapValidityTest1(solver);
         LifelongTestInstances.circleMapValidityTest1(solver);
         LifelongTestInstances.circleMapValidityTest2(solver);
@@ -27,8 +27,8 @@ class PostprocessRankingAStarFPTest {
     }
 
     @Test
-    void complexWithIAvoid(){
-        I_Solver solver = complexWithIAvoid;
+    void complexWithAvoid(){
+        I_Solver solver = complexWithAvoid;
         LifelongTestInstances.emptyMapValidityTest1(solver);
         LifelongTestInstances.circleMapValidityTest1(solver);
         LifelongTestInstances.circleMapValidityTest2(solver);

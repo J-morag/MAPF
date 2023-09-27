@@ -7,17 +7,17 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.I_OpenList;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import LifelongMAPF.FailPolicies.IAvoidFailPolicy;
+import LifelongMAPF.FailPolicies.AvoidFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public class IAvoid1ASFP implements I_AStarFailPolicy {
+public class Avoid1ASFP implements I_AStarFailPolicy {
 
-    IAvoidFailPolicy IAvoidFailPolicy = new IAvoidFailPolicy(true);
+    AvoidFailPolicy AvoidFailPolicy = new AvoidFailPolicy(true);
 
-    public IAvoid1ASFP() {
+    public Avoid1ASFP() {
     }
 
     @Override
@@ -26,6 +26,6 @@ public class IAvoid1ASFP implements I_AStarFailPolicy {
                                        @NotNull Set<SingleAgentAStar_Solver.AStarState> ClosedList, @NotNull SingleAgentPlan existingPlan,
                                        @Nullable CongestionMap congestionMap,
                                        @NotNull RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable) {
-        return IAvoidFailPolicy.getFailPolicyPlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+        return AvoidFailPolicy.getFailPolicyPlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
     }
 }

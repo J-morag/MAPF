@@ -8,15 +8,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 
-public class PostProcIGoFactory implements I_PPRASFPComparatorFactory{
+public class PostProcGoASFPFactory implements I_PPRASFPComparatorFactory{
     private final int depth;
 
-    public PostProcIGoFactory(int depth) {
+    public PostProcGoASFPFactory(int depth) {
         this.depth = depth;
     }
 
     @Override
     public Comparator<SingleAgentAStar_Solver.AStarState> create(@Nullable CongestionMap congestionMap, @NotNull RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable, @Nullable Integer horizon) {
-        return new PostProcIGo(depth);
+        return new PostProcGoASFP(depth);
     }
 }
