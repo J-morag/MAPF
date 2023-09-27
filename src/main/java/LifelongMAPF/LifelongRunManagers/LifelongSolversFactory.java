@@ -1590,7 +1590,19 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;
         PIBT_Solver pibt = new PIBT_Solver(new SOCCostFunction(), RHCRHorizon);
-        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
+                pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver PIBT_RHCRw10_Cap18(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        PIBT_Solver pibt = new PIBT_Solver(new SOCCostFunction(), RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
