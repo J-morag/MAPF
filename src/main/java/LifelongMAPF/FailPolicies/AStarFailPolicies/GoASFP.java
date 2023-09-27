@@ -4,6 +4,7 @@ import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.OpenListTree;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
@@ -65,11 +66,10 @@ public class GoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
                     Move move = new Move(a, newTime, curr.location, neighbor);
                     if (conflictAvoidanceTable.numConflicts(move, false) == 0){
                         // generate
-                        double currDistanceFromSource = curr.location.getCoordinate().distance(agentLocation.getCoordinate());
-                        double neighborDistanceFromSource = neighbor.getCoordinate().distance(agentLocation.getCoordinate());
-                        double edgeDistanceFromSourceDelta = Math.abs(neighborDistanceFromSource - currDistanceFromSource) > EPSILON ?
-                                neighborDistanceFromSource - currDistanceFromSource : 0;
-                        int cost = getCost(curr, edgeDistanceFromSourceDelta);
+                        double edgeDistanceFromSourceDelta = getEdgeDistanceFromCoordinateDelta(curr, agentLocation.getCoordinate(), neighbor, agentLocation.getCoordinate());
+                        double edgeDistanceFromTargetDelta = getEdgeDistanceFromCoordinateDelta(curr, a.target, neighbor, a.target);
+                        int cost = getCost(curr, edgeDistanceFromSourceDelta, edgeDistanceFromTargetDelta);
+
                         int newDepth = curr.depth + 1;
                         int h = getH(newDepth);
                         GoState childState = new GoState(newDepth, curr.cost + cost, neighbor, newTime, curr, move, h);
@@ -91,7 +91,15 @@ public class GoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
         return StayFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
     }
 
-    protected int getCost(GoState curr, double edgeDistanceFromSourceDelta) {
+    private static double getEdgeDistanceFromCoordinateDelta(GoState curr, I_Coordinate agentLocation, I_Location neighbor, I_Coordinate agentLocation1) {
+        double currDistanceFromSource = curr.location.getCoordinate().distance(agentLocation);
+        double neighborDistanceFromSource = neighbor.getCoordinate().distance(agentLocation1);
+        double edgeDistanceFromSourceDelta = Math.abs(neighborDistanceFromSource - currDistanceFromSource) > EPSILON ?
+                neighborDistanceFromSource - currDistanceFromSource : 0;
+        return edgeDistanceFromSourceDelta;
+    }
+
+    protected int getCost(GoState curr, double edgeDistanceFromSourceDelta, double edgeDistanceFromTargetDelta) {
         return curr.cost + (edgeDistanceFromSourceDelta < 0 ? (d + 1) * (d + 1) : (edgeDistanceFromSourceDelta == 0 ? d + 1 : 1));
     }
 

@@ -179,19 +179,25 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCapacity_18DynamicTimeout0p75()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 0.75
 //        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCapacity_18DynamicTimeout1p0()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.0
 //        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCapacity_18DynamicTimeout1p25()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.25
-//        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCap18Timeout1p5()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.5
 //        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCapacity_18DynamicTimeout1p75()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.75
 //        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCapacity_18DynamicTimeout2p0()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 2.0
 
 
-        solvers.add(LifelongSolversFactory.LH_1Go_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Go_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Go_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-20-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Avoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Avoid_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-10-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Avoid_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Go_5ASFPCap18Timeout1p5()); // greedy +IS +Go-5-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Go_10ASFPCap18Timeout1p5()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Go_20ASFPCap18Timeout1p5()); // greedy +IS +Go-20-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Go_30ASFPCap18Timeout1p5()); // greedy +IS +Go-20-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Avoid_5ASFPCap18Timeout1p5()); // greedy +IS +Avoid-5-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Avoid_10ASFPCap18Timeout1p5()); // greedy +IS +Avoid-10-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Avoid_20ASFPCap18Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Avoid_30ASFPCap18Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCap18Timeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
         solvers.add(LifelongSolversFactory.RandSelectASFP()); // greedy +IS +randomly select ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Approach_5ASFPCap18Timeout1p5()); // greedy +IS +Avoid-5-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Approach_10ASFPCap18Timeout1p5()); // greedy +IS +Avoid-10-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Approach_20ASFPCap18Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH_1Approach_30ASFPCap18Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
 
         return solvers;
     }
