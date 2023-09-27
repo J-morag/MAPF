@@ -1,8 +1,10 @@
 package LifelongMAPF.LifelongRunManagers;
 
+import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.*;
@@ -1561,6 +1563,35 @@ public class LifelongSolversFactory {
         prp.aStarTimeAllocationFactor = 1.5f;
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 prp, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver PrP_Avoid20ASFP_Cap18_Timeout1p5(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new AvoidASFP(20);
+        PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp));
+        prp.dynamicAStarTimeAllocation = true;
+        prp.aStarTimeAllocationFactor = 1.5f;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                prp, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver PIBT_Cap18(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        PIBT_Solver pibt = new PIBT_Solver(new SOCCostFunction(), RHCRHorizon);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }

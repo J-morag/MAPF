@@ -15,9 +15,9 @@ import Environment.Visualization.I_VisualizeSolution;
 import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.I_AStarFailPolicy;
-import LifelongMAPF.FailPolicies.AStarFailPolicies.PostProcIGoFactory;
+import LifelongMAPF.FailPolicies.AStarFailPolicies.PostProcGoASFPFactory;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.PostProcessRankingAStarFP;
-import LifelongMAPF.FailPolicies.IStayFailPolicy;
+import LifelongMAPF.FailPolicies.StayFailPolicy;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import LifelongMAPF.LifelongSimulationSolver;
@@ -196,28 +196,17 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH_1PPRGo_10ASFPCapacity_18DynamicTimeout2p0()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 2.0
 
 
-        solvers.add(LifelongSolversFactory.LH_1Go_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Go_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Go_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-20-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Avoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-5-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Avoid_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-10-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1Avoid_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.RandSelectASFP()); // greedy +IS +randomly select ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1Go_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-5-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1Go_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-10-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1Go_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Go-20-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1Avoid_5ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-5-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1Avoid_10ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-10-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1Avoid_20ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.RandSelectASFP()); // greedy +IS +randomly select ASFP + 18 capacity + dynamic timeout 1.5
 
-        int replanningPeriod = 1;
-        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
-        Integer RHCRHorizon = null;
-        int targetsCapacity = 15;
-        I_AStarFailPolicy asfpf = new PostProcessRankingAStarFP(new PostProcIGoFactory(20), false, null);
-
-        I_LifelongCompatibleSolver offlineSolver = new PIBT_Solver(null, Integer.MAX_VALUE);
-
-        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
-                offlineSolver, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
-
-        solver.name = "testPIBT";
-        solvers.add(solver);
+        solvers.add(LifelongSolversFactory.PIBT_Cap18());
+        solvers.add(LifelongSolversFactory.PrP_Avoid20ASFP_Cap18_Timeout1p5());
 
         return solvers;
     }
