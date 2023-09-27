@@ -1582,6 +1582,32 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver RandSelectASFP(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new IStayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new RandomASFPSelector(new I_AStarFailPolicy[]{
+                new PostProcessRankingAStarFP(new WaterfallPPRASFPComparatorFactory(null, null), false, null),
+                new IGoDASFP(5),
+                new IGoDASFP(10),
+                new IGoDASFP(20),
+                new IAvoidDASFP(5),
+                new IAvoidDASFP(10),
+                new IAvoidDASFP(20),
+        }, null);
+
+        PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0),
+                true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp));
+        prp.dynamicAStarTimeAllocation = true;
+        prp.aStarTimeAllocationFactor = 1.5f;
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                prp, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
     public static I_Solver LH_1IGo_10ASFPCapacity_18DynamicTimeout1p75(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new IStayFailPolicy();
