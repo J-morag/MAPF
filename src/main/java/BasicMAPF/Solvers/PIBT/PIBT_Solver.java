@@ -81,7 +81,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
-        this.RHCR_Horizon = RHCR_Horizon;
+        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
     }
 
     @Override
@@ -402,7 +402,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean: true if conflicts needs to be checked, otherwise return false
      */
     private boolean needToCheckConflicts() {
-        return this.RHCR_Horizon > this.timeStamp;
+        return this.RHCR_Horizon >= this.timeStamp;
     }
 
     @Override
