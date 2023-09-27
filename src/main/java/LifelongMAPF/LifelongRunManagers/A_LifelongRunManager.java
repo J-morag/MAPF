@@ -205,6 +205,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5
 //        solvers.add(LifelongSolversFactory.RandSelectASFP()); // greedy +IS +randomly select ASFP + 18 capacity + dynamic timeout 1.5
 
+        solvers.add(LifelongSolversFactory.PIBT_RHCRw10_Cap18());
         solvers.add(LifelongSolversFactory.PIBT_Cap18());
         solvers.add(LifelongSolversFactory.PrP_Avoid20ASFP_Cap18_Timeout1p5());
 
