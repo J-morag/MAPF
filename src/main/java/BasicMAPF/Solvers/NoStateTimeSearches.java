@@ -94,7 +94,7 @@ public class NoStateTimeSearches {
     }
 
     public static List<I_Location> uniformCostSearch(I_Location goal, I_Location source, AStarGAndH edgeCosts, Agent dummyAgent) {
-        dummyAgent = Objects.requireNonNullElse(dummyAgent, new Agent(0, source.getCoordinate(), goal.getCoordinate()));
+        dummyAgent = Objects.requireNonNullElseGet(dummyAgent, () -> new Agent(0, source.getCoordinate(), goal.getCoordinate()));
         Map<I_Location, I_Location> parent = new HashMap<>();
         Map<I_Location, Integer> cummulativeCost = new HashMap<>();
         Comparator<I_Location> costComparator = Comparator.comparingInt(cummulativeCost::get);

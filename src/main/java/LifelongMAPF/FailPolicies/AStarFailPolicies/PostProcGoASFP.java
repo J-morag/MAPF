@@ -8,19 +8,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Like {@link IGoDASFP} but as a post-processing fail policy.
+ * Like {@link GoASFP} but as a post-processing fail policy.
  */
-public class PostProcIGo implements Comparator<SingleAgentAStar_Solver.AStarState> {
+public class PostProcGoASFP implements Comparator<SingleAgentAStar_Solver.AStarState> {
 
     private final int depth;
 
-    public PostProcIGo(int depth) {
+    public PostProcGoASFP(int depth) {
         this(depth, null, null, null, null, null);
     }
 
-    public PostProcIGo(int depth, @Nullable ArrayList<Integer> lockableTimeBuckets, @Nullable ArrayList<Integer> congestionBuckets,
-                       @Nullable RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable,
-                       @Nullable CongestionMap congestionMap, @Nullable Integer horizon) {
+    public PostProcGoASFP(int depth, @Nullable ArrayList<Integer> lockableTimeBuckets, @Nullable ArrayList<Integer> congestionBuckets,
+                          @Nullable RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable,
+                          @Nullable CongestionMap congestionMap, @Nullable Integer horizon) {
         this.depth = depth;
     }
 

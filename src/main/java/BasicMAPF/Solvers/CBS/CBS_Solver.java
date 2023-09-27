@@ -11,6 +11,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictMa
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.SingleUseConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
@@ -121,7 +122,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.corridorReasoning = Objects.requireNonNullElse(useCorridorReasoning, false);
         clearOPEN();
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
-        this.costFunction = Objects.requireNonNullElse(costFunction, new SOCCostFunction());
+        this.costFunction = Objects.requireNonNullElseGet(costFunction, SOCCostFunction::new);
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
@@ -345,6 +346,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      */
     private Solution solveSubproblem(Agent agent, Solution currentSolution, ConstraintSet constraints) {
         InstanceReport instanceReport = new InstanceReport();
+        instanceReport.keepSolutionString = false;
         RunParameters subproblemParameters = getSubproblemParameters(currentSolution, constraints, instanceReport, agent);
         Solution subproblemSolution = this.lowLevelSolver.solve(this.instance.getSubproblemFor(agent), subproblemParameters);
         digestSubproblemReport(instanceReport);
@@ -355,8 +357,9 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         // if there was already a timeout while solving a node, we will get a negative time left, which would be
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters subproblemParametes = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(constraints).setInstanceReport(instanceReport).setExistingSolution(
-                currentSolution).setProblemStartTime(this.problemStartTime).setAStarGAndH(this.aStarGAndH).createRP();
+        RunParameters subproblemParametes = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(new ImmutableConstraintSet(constraints)).
+                setInstanceReport(instanceReport).setExistingSolution(currentSolution).setProblemStartTime(this.problemStartTime)
+                .setAStarGAndH(this.aStarGAndH).createRP();
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
@@ -401,7 +404,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodes, this.expandedNodes);
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, costFunction.name());
-            super.instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }
 

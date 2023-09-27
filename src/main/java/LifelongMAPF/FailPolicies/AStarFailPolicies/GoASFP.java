@@ -11,20 +11,20 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.I_OpenList;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
-import LifelongMAPF.FailPolicies.IStayFailPolicy;
+import LifelongMAPF.FailPolicies.StayFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
+public class GoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
 
     private static final double EPSILON = 0.0001;
     protected final int d;
-    private int runningIGoStatesID;
-    private static final Comparator<IGoState> statesCostComparator = Comparator.comparingInt(IGoState::getCost);
+    private int runningGoStatesID;
+    private static final Comparator<GoState> statesCostComparator = Comparator.comparingInt(GoState::getCost);
 
-    public IGoDASFP(int d) {
+    public GoASFP(int d) {
         this.d = d;
     }
 
@@ -33,25 +33,25 @@ public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
                                        @NotNull I_OpenList<SingleAgentAStar_Solver.AStarState> aStarOpenList,
                                        @NotNull Set<SingleAgentAStar_Solver.AStarState> ClosedList, @NotNull SingleAgentPlan existingPlan,
                                        @Nullable CongestionMap congestionMap, @NotNull RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable) {
-        return getIGoFailPlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+        return getGoFailPlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
     }
 
     @Override
     public @NotNull SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, @Nullable I_ConflictAvoidanceTable softConstraints) {
-        return getIGoFailPlan(farthestCommittedTime, a, agentLocation, softConstraints);
+        return getGoFailPlan(farthestCommittedTime, a, agentLocation, softConstraints);
     }
 
     @NotNull
-    private SingleAgentPlan getIGoFailPlan(int farthestCommittedTime, @NotNull Agent a, @NotNull I_Location agentLocation, @NotNull I_ConflictAvoidanceTable conflictAvoidanceTable) {
+    private SingleAgentPlan getGoFailPlan(int farthestCommittedTime, @NotNull Agent a, @NotNull I_Location agentLocation, @NotNull I_ConflictAvoidanceTable conflictAvoidanceTable) {
         // BFS: edge cost 1 if increases Manhattan distance, d+1 if stays the same, (d+1)^2 if decreases
         // goal: any leaf (depth d)
 
-        runningIGoStatesID = 0;
-        I_OpenList<IGoState> iGoStateOpen = new OpenListTree<>(IGoState::compareTo);
-        iGoStateOpen.add(new IGoState(0, 0, agentLocation, farthestCommittedTime, null, null, getH(0)));
-        Set<IGoState> closed = new HashSet<>();
-        while (!iGoStateOpen.isEmpty()){
-            IGoState curr = iGoStateOpen.poll();
+        runningGoStatesID = 0;
+        I_OpenList<GoState> GoStateOpen = new OpenListTree<>(GoState::compareTo);
+        GoStateOpen.add(new GoState(0, 0, agentLocation, farthestCommittedTime, null, null, getH(0)));
+        Set<GoState> closed = new HashSet<>();
+        while (!GoStateOpen.isEmpty()){
+            GoState curr = GoStateOpen.poll();
             closed.add(curr);
             if (curr.depth == d){
                 return planFromGoal(curr, a);
@@ -72,26 +72,26 @@ public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
                         int cost = getCost(curr, edgeDistanceFromSourceDelta);
                         int newDepth = curr.depth + 1;
                         int h = getH(newDepth);
-                        IGoState childState = new IGoState(newDepth, curr.cost + cost, neighbor, newTime, curr, move, h);
+                        GoState childState = new GoState(newDepth, curr.cost + cost, neighbor, newTime, curr, move, h);
 
                         if ( ! closed.contains(childState)){
-                            IGoState existingState;
-                            if(null != (existingState = iGoStateOpen.get(childState)) ){
+                            GoState existingState;
+                            if(null != (existingState = GoStateOpen.get(childState)) ){
                                 //keep the one with min G
-                                iGoStateOpen.keepOne(childState, existingState, statesCostComparator);
+                                GoStateOpen.keepOne(childState, existingState, statesCostComparator);
                             }
                             else{ // it's a new state
-                                iGoStateOpen.add(childState);
+                                GoStateOpen.add(childState);
                             }
                         }
                     }
                 }
             }
         }
-        return IStayFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
+        return StayFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
     }
 
-    protected int getCost(IGoState curr, double edgeDistanceFromSourceDelta) {
+    protected int getCost(GoState curr, double edgeDistanceFromSourceDelta) {
         return curr.cost + (edgeDistanceFromSourceDelta < 0 ? (d + 1) * (d + 1) : (edgeDistanceFromSourceDelta == 0 ? d + 1 : 1));
     }
 
@@ -99,30 +99,30 @@ public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
         return d - depth;
     }
 
-    private SingleAgentPlan planFromGoal(IGoState lastState, Agent a) {
+    private SingleAgentPlan planFromGoal(GoState lastState, Agent a) {
         List<Move> moves = new ArrayList<>();
-        for (IGoState state = lastState; state.parent != null; state = state.parent) {
+        for (GoState state = lastState; state.parent != null; state = state.parent) {
             moves.add(state.move);
         }
         Collections.reverse(moves);
         return new SingleAgentPlan(a, moves);
     }
 
-    protected class IGoState implements Comparable<IGoState>{
+    protected class GoState implements Comparable<GoState>{
 
-        private final int id = runningIGoStatesID++;
+        private final int id = runningGoStatesID++;
         public final int depth;
         public final int cost;
         public final I_Location location;
         public final int time;
-        public final IGoState parent;
+        public final GoState parent;
         /**
          * the move that got us to this state from the parent state
          */
         public final Move move;
         public final int h;
 
-        public IGoState(int depth, int cost, I_Location location, int time, IGoState parent, Move move, int h) {
+        public GoState(int depth, int cost, I_Location location, int time, GoState parent, Move move, int h) {
             this.depth = depth;
             this.cost = cost;
             this.location = location;
@@ -137,7 +137,7 @@ public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
         }
 
         @Override
-        public int compareTo(@NotNull IGoDASFP.IGoState o) {
+        public int compareTo(@NotNull GoASFP.GoState o) {
             int res = Integer.compare(cost + h, o.cost + o.h);
             if (res == 0)
                 // reversed to prefer higher cost under same f
@@ -150,7 +150,7 @@ public class IGoDASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof IGoState state)) return false;
+            if (!(o instanceof GoState state)) return false;
 
             if (depth != state.depth) return false;
             if (time != state.time) return false;

@@ -3,6 +3,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -35,6 +36,7 @@ import static com.google.common.math.IntMath.factorial;
  * return a sub-optimal {@link Solution}.
  */
 public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCompatibleSolver {
+    private static final long MINIMUM_TIME_PER_AGENT_MS = 10;
 
     /*  = Fields =  */
 
@@ -42,6 +44,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     public final static String countInitialAttemptsMetricString = "count initial attempts";
     public final static String countContingencyAttemptsMetricString = "count contingency attempts";
     public final static String maxReachedIndexBeforeTimeoutString = "max reached index";
+    public final static String countSingleAgentFPsTriggeredString = "single agent FPs triggered";
     private static final int DEBUG = 1;
 
     /*  =  = Fields related to the MAPF instance =  */
@@ -62,6 +65,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     private Set<Agent> failedAgents;
     private RemovableConflictAvoidanceTableWithContestedGoals initialConflictAvoidanceTable;
     int maxReachedIndex;
+    int singleAgentFPsTriggered;
 
     /*  =  = Fields related to the class instance =  */
 
@@ -105,6 +109,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     public final Integer RHCR_Horizon;
     public final FailPolicy failPolicy;
+    public boolean dynamicAStarTimeAllocation = false;
+    public float aStarTimeAllocationFactor = 1.0f;
 
 
     /*  = Constructors =  */
@@ -144,8 +150,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                                       Integer RHCR_Horizon, FailPolicy failPolicy) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
-        this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.TransientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
@@ -192,9 +198,9 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             this.constraints = new ConstraintSet();
         }
 
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
-        this.random = Objects.requireNonNullElse(parameters.randomNumberGenerator, new Random(42));
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
+        this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
@@ -204,9 +210,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.initialConflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
 
         this.maxReachedIndex = -1;
+        this.singleAgentFPsTriggered = 0;
 
         // heuristic
-        this.aStarGAndH = Objects.requireNonNullElse(parameters.aStarGAndH, new DistanceTableAStarHeuristic(this.agents, instance.map));
+        this.aStarGAndH = Objects.requireNonNullElseGet(parameters.aStarGAndH, () -> new DistanceTableAStarHeuristic(this.agents, instance.map));
         if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
             ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
         }
@@ -229,7 +236,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             }
         }
 
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+        this.partialSolutionsStrategy = Objects.requireNonNullElseGet(this.partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
     }
 
     private void reorderAgentsByPriority(Agent[] requestedOrder) {
@@ -268,7 +275,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         Solution bestSolution = null;
         Solution bestPartialSolution = new Solution();
         int bestPartialSolutionSingleAgentSuccesses = 0;
-        int singleAgentFPsTriggered = 0;
         Set<Agent> bestPartialSolutionFailedAgents = new HashSet<>();
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
@@ -291,7 +297,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 maxReachedIndex = Math.max(maxReachedIndex, agentIndex);
 
                 //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
+                SingleAgentPlan planForAgent = solveSubproblem(agent, agentIndex, instance, currentConstraints,
                         // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
                         bestSolution != null ? solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
                                 : Float.POSITIVE_INFINITY, solution);
@@ -468,11 +474,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         return Math.addExact(problemStartTime, horizon);
     }
 
-    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
+    protected SingleAgentPlan solveSubproblem(Agent currentAgent, int agentIndexInCurrentOrdering,
+                                              MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar, agentIndexInCurrentOrdering);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -489,13 +496,19 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         InstanceReport subproblemReport = new InstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
+        subproblemReport.keepSolutionString = false;
         return subproblemReport;
     }
 
-    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
+    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints,
+                                                    float maxCost, Solution solutionSoFar, int agentIndexInCurrentOrdering) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-                setConstraints(new ConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH)
+        int numRemainingAgentsIncludingCurrent = this.agents.size() - agentIndexInCurrentOrdering;
+        long allocatedTime = dynamicAStarTimeAllocation ? (long) ((timeLeftToTimeout / numRemainingAgentsIncludingCurrent) * aStarTimeAllocationFactor)
+                : timeLeftToTimeout;
+        allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT_MS), timeLeftToTimeout);
+        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(allocatedTime).
+                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH)
                 .setExistingSolution(new Solution(solutionSoFar))  // should probably work without copying, but just to be safe
                 .createRP());
         params.fBudget = maxCost;
@@ -513,6 +526,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         instanceReport.putIntegerValue(maxReachedIndexBeforeTimeoutString, maxReachedIndex);
+        instanceReport.putIntegerValue(countSingleAgentFPsTriggeredString, singleAgentFPsTriggered);
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());

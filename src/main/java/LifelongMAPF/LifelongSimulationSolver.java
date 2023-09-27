@@ -24,7 +24,7 @@ import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
-import LifelongMAPF.FailPolicies.IStayFailPolicy;
+import LifelongMAPF.FailPolicies.StayFailPolicy;
 import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 public class LifelongSimulationSolver extends A_Solver {
 
     /* static fields */
-    private static final IStayFailPolicy STAY_ONCE_FAIL_POLICY = new IStayFailPolicy();
+    private static final StayFailPolicy STAY_ONCE_FAIL_POLICY = new StayFailPolicy();
     private static final int DEBUG = 2;
 
     /* fields related to instance */
@@ -100,6 +100,7 @@ public class LifelongSimulationSolver extends A_Solver {
      */
     private Set<I_Location> overcapacityDestinations;
     private int sumFailPolicyIterations;
+    private int sumSingleAgentFPsTriggered;
     private int countFailPolicyLoops;
     private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
@@ -124,9 +125,9 @@ public class LifelongSimulationSolver extends A_Solver {
         }
         this.offlineSolver = offlineSolver;
         this.congestionMultiplier = congestionMultiplier;
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+        this.partialSolutionsStrategy = Objects.requireNonNullElseGet(partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
 
-        this.agentSelector = Objects.requireNonNullElse(agentSelector, new StationaryAgentsSubsetSelector());
+        this.agentSelector = Objects.requireNonNullElseGet(agentSelector, StationaryAgentsSubsetSelector::new);
         this.failPolicyKSafety = agentSelector.getPlanningFrequency();
         this.name = "Lifelong_" + offlineSolver.name();
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
@@ -719,8 +720,13 @@ public class LifelongSimulationSolver extends A_Solver {
         }
 
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));
+        InstanceReport instanceReport = new InstanceReport();
+        instanceReport.keepSolutionString = false;
 
-        RunParameters runParameters = new RunParametersBuilder().setTimeout(hardTimeout).setConstraints(constraints).setInstanceReport(new InstanceReport()).setSoftTimeout(Math.min(minResponseTime, hardTimeout)).setProblemStartTime(farthestCommittedTime).setRNG(this.random).createRP();
+        RunParameters runParameters = new RunParametersBuilder().setTimeout(hardTimeout).setConstraints(constraints)
+                .setInstanceReport(instanceReport).setSoftTimeout(Math.min(minResponseTime, hardTimeout))
+                .setProblemStartTime(farthestCommittedTime).setRNG(this.random).setAStarGAndH(costAndHeuristic).createRP();
+
         if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
             RunParameters_PP runParameters_pp = new RunParameters_PP(runParameters);
             runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
@@ -786,6 +792,8 @@ public class LifelongSimulationSolver extends A_Solver {
             this.numAgentsAndNumIterationsMetric.add(new int[]{numAgents, numAttempts});
             this.sumFailPolicyIterations += subproblemInstanceReport.getIntegerValue("fail policy iterations") != null ?
                     subproblemInstanceReport.getIntegerValue("fail policy iterations") : 0;
+            this.sumSingleAgentFPsTriggered += subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countSingleAgentFPsTriggeredString) != null ?
+                    subproblemInstanceReport.getIntegerValue(PrioritisedPlanning_Solver.countSingleAgentFPsTriggeredString) : 0;
         }
     }
 
@@ -857,6 +865,7 @@ public class LifelongSimulationSolver extends A_Solver {
         super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
         super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
         super.instanceReport.putFloatValue("avgFailPolicyIterations", this.sumFailPolicyIterations / (float)this.countFailPolicyLoops);
+        super.instanceReport.putFloatValue("avgSingleAgentFPsTriggered", this.sumSingleAgentFPsTriggered / (float)this.countFailPolicyLoops);
     }
 
     @Override

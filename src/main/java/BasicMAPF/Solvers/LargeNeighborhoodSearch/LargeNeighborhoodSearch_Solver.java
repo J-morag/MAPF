@@ -92,7 +92,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor,
                                           Integer neighborhoodSize) {
-        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                 sharedGoals, sharedSources, null, null, null);
@@ -130,9 +130,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.agents = new ArrayList<>(instance.agents);
         this.problemStartTime = parameters.problemStartTime;
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
-        this.random = Objects.requireNonNullElse(parameters.randomNumberGenerator, new Random(42));
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
+        this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         this.numIterations = 0;
 
         this.destroyHeuristicsWeights = new double[destroyHeuristics.size()];
@@ -146,7 +146,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
             this.partialSolutionsStrategy = runParameters_pp.partialSolutionsStrategy;
         }
 
-        this.partialSolutionsStrategy = Objects.requireNonNullElse(this.partialSolutionsStrategy, new DisallowedPartialSolutionsStrategy());
+        this.partialSolutionsStrategy = Objects.requireNonNullElseGet(this.partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
     }
 
     /*  = algorithm =  */
@@ -273,6 +273,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         InstanceReport subproblemReport = new InstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
+        subproblemReport.keepSolutionString = false;
         return subproblemReport;
     }
 
@@ -302,7 +303,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         }
         instanceReport.putIntegerValue("Num Iterations", numIterations);
         if(solution != null){
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, Math.round(solutionCostFunction.solutionCost(solution)));
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
         }
     }

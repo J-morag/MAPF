@@ -25,7 +25,7 @@ public class FreespaceConflictingAgentsSelector extends A_LifelongAgentSelector{
     int maxGroupSize;
 
     public FreespaceConflictingAgentsSelector(SingleAgentAStar_Solver singleAgentSolver, Integer maxGroupSize) {
-        this.singleAgentSolver = Objects.requireNonNullElse(singleAgentSolver, new SingleAgentAStar_Solver());
+        this.singleAgentSolver = Objects.requireNonNullElseGet(singleAgentSolver, SingleAgentAStar_Solver::new);
         this.maxGroupSize = Objects.requireNonNullElse(maxGroupSize, Integer.MAX_VALUE);
     }
 
