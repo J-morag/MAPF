@@ -66,8 +66,8 @@ public class GoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
                     Move move = new Move(a, newTime, curr.location, neighbor);
                     if (conflictAvoidanceTable.numConflicts(move, false) == 0){
                         // generate
-                        double edgeDistanceFromSourceDelta = getEdgeDistanceFromCoordinateDelta(curr, agentLocation.getCoordinate(), neighbor, agentLocation.getCoordinate());
-                        double edgeDistanceFromTargetDelta = getEdgeDistanceFromCoordinateDelta(curr, a.target, neighbor, a.target);
+                        double edgeDistanceFromSourceDelta = getEdgeDistanceFromCoordinateDelta(curr, agentLocation.getCoordinate(), neighbor);
+                        double edgeDistanceFromTargetDelta = getEdgeDistanceFromCoordinateDelta(curr, a.target, neighbor);
                         int cost = getCost(curr, edgeDistanceFromSourceDelta, edgeDistanceFromTargetDelta);
 
                         int newDepth = curr.depth + 1;
@@ -91,12 +91,11 @@ public class GoASFP implements I_AStarFailPolicy, I_SingleAgentFailPolicy {
         return StayFailPolicy.getStayOncePlan(farthestCommittedTime, a, agentLocation, conflictAvoidanceTable);
     }
 
-    private static double getEdgeDistanceFromCoordinateDelta(GoState curr, I_Coordinate agentLocation, I_Location neighbor, I_Coordinate agentLocation1) {
-        double currDistanceFromSource = curr.location.getCoordinate().distance(agentLocation);
-        double neighborDistanceFromSource = neighbor.getCoordinate().distance(agentLocation1);
-        double edgeDistanceFromSourceDelta = Math.abs(neighborDistanceFromSource - currDistanceFromSource) > EPSILON ?
-                neighborDistanceFromSource - currDistanceFromSource : 0;
-        return edgeDistanceFromSourceDelta;
+    private static double getEdgeDistanceFromCoordinateDelta(GoState curr, I_Coordinate coordinate, I_Location neighbor) {
+        double currDistanceFromCoordinate = curr.location.getCoordinate().distance(coordinate);
+        double neighborDistanceFromCoordinate = neighbor.getCoordinate().distance(coordinate);
+        return Math.abs(neighborDistanceFromCoordinate - currDistanceFromCoordinate) > EPSILON ?
+                neighborDistanceFromCoordinate - currDistanceFromCoordinate : 0;
     }
 
     protected int getCost(GoState curr, double edgeDistanceFromSourceDelta, double edgeDistanceFromTargetDelta) {
