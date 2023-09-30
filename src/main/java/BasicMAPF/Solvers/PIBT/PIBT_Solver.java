@@ -64,6 +64,13 @@ public class PIBT_Solver extends A_Solver {
     private ConstraintSet constraints;
 
     /**
+     * hash map saves for each timeStamp a list contains booleans,
+     * each boolean indicates whether an agent reached his goal or not.
+     */
+//    private ArrayList<ArrayList<Boolean>> reachingGoalsConfigurations;
+    private HashMap<Integer, HashMap<Agent, Boolean>> reachingGoalsConfigurations;
+
+    /**
      * constructor.
      */
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction) {
@@ -79,6 +86,7 @@ public class PIBT_Solver extends A_Solver {
         this.priorities = new HashMap<>();
         this.agentPlans = new HashMap<>();
         this.timeStamp = 0;
+        this.reachingGoalsConfigurations = new HashMap<>();
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -98,19 +106,23 @@ public class PIBT_Solver extends A_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-
         boolean loopDetected = false;
         // each iteration of the while represents timestamp
         while (!(finished()) && !loopDetected) {
+            updatePriorities(instance);
+            updateStatus();
 
             // loop?
-            if (this.timeStamp > 1) {
-                for (int i = 2; i <= this.timeStamp - 1; i++) {
+            if (this.timeStamp > 0) {
+                for (int i = 1; i < this.timeStamp; i++) {
                     int agentsInSameLocation = 0;
                     for (Agent agent : this.agentPlans.keySet()) {
                         SingleAgentPlan currentPlan = this.agentPlans.get(agent);
+                        // check whether locations repeat themselves
                         if (currentPlan.moveAt(i).currLocation.equals(currentPlan.getLastMove().currLocation)) {
-                            if (currentPlan.moveAt(i-1).currLocation.equals(currentPlan.moveAt(currentPlan.size()-2).currLocation)) {
+                            // if locations repeats themselves, check if statuses also repeats themselves
+                            if (this.reachingGoalsConfigurations.get(i).get(agent).equals(this.reachingGoalsConfigurations.get(this.timeStamp-1).get(agent))) {
+                                // agent could be in a loop
                                 agentsInSameLocation++;
                             }
                         }
@@ -134,13 +146,8 @@ public class PIBT_Solver extends A_Solver {
             if (checkTimeout()) {
                 return null;
             }
-
-//            if (this.timeStamp % 1000 == 0) {
-//                System.out.println(this.timeStamp);
-//            }
             this.timeStamp++;
 
-            updatePriorities(instance);
             // init agents that have not reached their goal
             this.unhandledAgents = new HashSet<>();
             for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
@@ -154,7 +161,6 @@ public class PIBT_Solver extends A_Solver {
 
             // nodes wanted in the next timestamp
             this.takenNodes = new HashSet<>();
-
 
             while (!this.unhandledAgents.isEmpty()) {
                 Map.Entry<Agent, Double> maxEntry = getMaxEntry(this.priorities); // <agent, priority> pair with max priority
@@ -402,6 +408,19 @@ public class PIBT_Solver extends A_Solver {
             return true;
         }
         return false;
+    }
+
+    /**
+     * function that updates a HashMap indicates whether an agent reached his goal or not
+     * if an agent has priority -1.0 than he reached his goal and the function adds true to the list
+     * otherwise, false
+     */
+    private void updateStatus() {
+        this.reachingGoalsConfigurations.put(this.timeStamp, new HashMap<>());
+        for (Agent agent : this.priorities.keySet()) {
+            Boolean reachedGoal = (this.priorities.get(agent) == -1.0);
+            this.reachingGoalsConfigurations.get(this.timeStamp).put(agent, reachedGoal);
+        }
     }
 
     @Override
