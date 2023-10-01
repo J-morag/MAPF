@@ -1,12 +1,12 @@
 package LifelongMAPF.FailPolicies.AStarFailPolicies;
 
-public class AvoidASFP extends GoASFP {
-    public AvoidASFP(int d) {
+public class ApproachASFP extends GoASFP {
+    public ApproachASFP(int d) {
         super(d);
     }
 
     @Override
     protected int getCost(GoState curr, double edgeDistanceFromSourceDelta, double edgeDistanceFromTargetDelta) {
-        return curr.cost + (edgeDistanceFromSourceDelta < 0 ? 1 : (edgeDistanceFromSourceDelta == 0 ? d + 1 : (d + 1) * (d + 1)));
+        return curr.cost + (edgeDistanceFromTargetDelta < 0 ? 1 : (edgeDistanceFromTargetDelta == 0 ? d + 1 : (d + 1) * (d + 1)));
     }
 }
