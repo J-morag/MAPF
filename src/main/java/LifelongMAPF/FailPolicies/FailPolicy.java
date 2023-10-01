@@ -25,7 +25,7 @@ public class FailPolicy {
     }
 
     public FailPolicy(Integer detectConflictsHorizon, I_SingleAgentFailPolicy saFailPolicy) {
-        this.SAFailPolicy = Objects.requireNonNullElseGet(saFailPolicy, IStayFailPolicy::new);
+        this.SAFailPolicy = Objects.requireNonNullElseGet(saFailPolicy, StayFailPolicy::new);
         this.detectConflictsHorizon  = Objects.requireNonNullElse(detectConflictsHorizon, 1);
     }
 
@@ -55,8 +55,8 @@ public class FailPolicy {
         }
         Solution solutionWithoutConflicts = new Solution(solutionThatMayContainConflicts);
 
-        if ( ! failedAgents.isEmpty() && SAFailPolicy instanceof AllStayOnceFailPolicy allStayOnceFailPolicy){ // TODO change this so it's not a special case?
-            solutionWithoutConflicts = allStayOnceFailPolicy.stopAll(solutionThatMayContainConflicts);
+        if ( ! failedAgents.isEmpty() && SAFailPolicy instanceof AllStayFailPolicy allStayFailPolicy){ // TODO change this so it's not a special case?
+            solutionWithoutConflicts = allStayFailPolicy.stopAll(solutionThatMayContainConflicts);
             for (SingleAgentPlan oldPlan : solutionThatMayContainConflicts) {
                 failedAgents.add(oldPlan.agent);
                 cat.replacePlan(oldPlan, solutionWithoutConflicts.getPlanFor(oldPlan.agent));

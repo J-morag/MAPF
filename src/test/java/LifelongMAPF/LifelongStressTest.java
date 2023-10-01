@@ -27,7 +27,7 @@ public class LifelongStressTest {
     @Test
     public void StressTest() {
         I_Solver solver =
-                LifelongSolversFactory.stationaryAgentsPrPDeepPartialIAvoidFPRHCR_w10_h03Lookahead5();
+                LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5();
         long timeout = 1000 * 300;
 
         S_Metrics.clearAll();
