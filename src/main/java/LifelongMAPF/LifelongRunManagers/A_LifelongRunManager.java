@@ -199,8 +199,8 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH_1IGo_5ASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +IGo-5-ASFP + 18 capacity + dynamic timeout 1.5 + interrupts
 //        solvers.add(LifelongSolversFactory.LH_1WaterfallPPRASFPCapacity_18DynamicTimeout1p5_Interrupts()); // greedy +IS +waterfall + 18 capacity + dynamic timeout 1.5 + interrupts
 
-        solvers.add(LifelongSolversFactory.LH_1IAvoid_30ASFPCapacity_infDynamicTimeout1p5()); // greedy +IS +IAvoid-30-ASFP + inf capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH_1IAvoid_30ASFPCapacity_infDynamicTimeout1p5RHCR_w10_h1()); // greedy +IS +IAvoid-30-ASFP + inf capacity + dynamic timeout 1.5 + RHCR_w10_h1
+//        solvers.add(LifelongSolversFactory.LH_1IAvoid_30ASFPCapacity_infDynamicTimeout1p5()); // greedy +IS +IAvoid-30-ASFP + inf capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH_1IAvoid_30ASFPCapacity_infDynamicTimeout1p5RHCR_w10_h1()); // greedy +IS +IAvoid-30-ASFP + inf capacity + dynamic timeout 1.5 + RHCR_w10_h1
         solvers.add(LifelongSolversFactory.LH_1IAvoid_30ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +IAvoid-30-ASFP + 18 capacity + dynamic timeout 1.5
         solvers.add(LifelongSolversFactory.LH_1IAvoid_30ASFPCapacity_18DynamicTimeout1p5RHCR_w10_h1()); // greedy +IS +IAvoid-30-ASFP + 18 capacity + dynamic timeout 1.5 + RHCR_w10_h1
 
