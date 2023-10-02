@@ -86,9 +86,6 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (xy[0] + i >= 0 && xy[0] + i < flattenedMap.width() && xy[1] + j >= 0 && xy[1] + j < flattenedMap.height()) {
-//                            if (grid[xy[0] + i][xy[1] + j] == Color.PINK || grid[xy[0] + i][xy[1] + j] == Color.GREEN){ // TODO uncomment when scenarios are fixed to avoid shared source and goal and verify that coordinates spacing is sufficient
-//                                throw new IllegalArgumentException("Agent " + agent + " is overlapping with another agent at time " + time + " at location " + solution.getAgentLocation(agent, time) + " (x=" + xy[0] + ", y=" + xy[1] + ")" + "solution: " + solution);
-//                            }
                     if (PAINT_OVER_VERTICES || grid[xy[0] + i][xy[1] + j] == Color.WHITE) {
                         grid[xy[0] + i][xy[1] + j] = color;
                     }
