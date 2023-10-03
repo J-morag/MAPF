@@ -75,7 +75,7 @@ public class CentralityMeasures {
                 System.out.println("Map Format: " + optMapFormat);
                 switch (optMapFormat) {
                     case Main.STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI();
-                    case Main.STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, null);
+                    case Main.STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, null, null);
                     default -> {
                         System.out.printf("Unrecognized map format: %s\n", optMapFormat);
                         System.exit(0);

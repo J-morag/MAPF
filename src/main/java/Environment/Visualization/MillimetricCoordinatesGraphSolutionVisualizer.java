@@ -31,12 +31,13 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
         List<Color[][]> grids = new ArrayList<>();
         List<Integer> finishedGoals = new ArrayList<>();
         Set<Agent> sumFinishedAgents = new HashSet<>();
+        int sumFinishedWaypoints = 0;
         for (int time = 0; time < solution.endTime(); time++) {
             Color[][] grid = new Color[flattenedGraph.width()][flattenedGraph.height()];
             paintVertices(flattenedGraph, grid);
-            paintAgents(instance, solution, time, sumFinishedAgents, flattenedGraph, grid);
+            sumFinishedWaypoints += paintAgents(instance, solution, time, sumFinishedAgents, flattenedGraph, grid);
             grids.add(grid);
-            finishedGoals.add(sumFinishedAgents.size());
+            finishedGoals.add(solution instanceof LifelongSolution ? sumFinishedWaypoints: sumFinishedAgents.size());
         }
         GridVisualizer.visualize(grids, finishedGoals, 250, title);
     }
@@ -72,7 +73,8 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
         }
     }
 
-    private static void paintAgents(MAPF_Instance instance, Solution solution, int time, Set<Agent> sumFinishedAgents, FlattenedMap flattenedMap, Color[][] grid) {
+    private static int paintAgents(MAPF_Instance instance, Solution solution, int time, Set<Agent> sumFinishedAgents, FlattenedMap flattenedMap, Color[][] grid) {
+        int sumFinishedWaypoints = 0;
         for (Agent agent : instance.agents) {
             MillimetricCoordinate_2D mmCoord = (MillimetricCoordinate_2D) solution.getAgentLocation(agent, time).getCoordinate();
             int[] xy = new int[]{mmCoord.x_value / MM_RESOLUTION, mmCoord.y_value / MM_RESOLUTION};
@@ -94,6 +96,7 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
             // paint the agent with some volume
             paintAroundCoordinate(flattenedMap, grid, xy, agentPaintColor);
         }
+        return sumFinishedWaypoints;
     }
 
     static void paintAroundCoordinate(FlattenedMap flattenedMap, Color[][] grid, int[] xy, Color color) {
