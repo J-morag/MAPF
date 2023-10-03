@@ -486,7 +486,7 @@ public class PIBT_SolverTest {
     void emptyMapValidityInfiniteConstraintThrowsError() {
         MAPF_Instance testInstance = instanceEmpty1;
 
-        I_Coordinate coor02 = new Coordinate_2D(0,2);
+        I_Coordinate coor02 = new Coordinate_2D(1,2);
         Constraint constraint1 = new Constraint(agent33to12, 10, mapEmpty.getMapLocation(coor02));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);

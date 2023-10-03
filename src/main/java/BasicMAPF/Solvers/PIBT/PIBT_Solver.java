@@ -64,10 +64,9 @@ public class PIBT_Solver extends A_Solver {
     private ConstraintSet constraints;
 
     /**
-     * hash map saves for each timeStamp a list contains booleans,
+     * hash map saves for each timeStamp a HashMap, saves for each agent boolean.
      * each boolean indicates whether an agent reached his goal or not.
      */
-//    private ArrayList<ArrayList<Boolean>> reachingGoalsConfigurations;
     private HashMap<Integer, HashMap<Agent, Boolean>> reachingGoalsConfigurations;
 
     /**
@@ -108,20 +107,18 @@ public class PIBT_Solver extends A_Solver {
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
         boolean loopDetected = false;
         // each iteration of the while represents timestamp
-        while (!(finished()) && !loopDetected) {
-            updatePriorities(instance);
-            updateStatus();
+        while (!(finished())) {
 
             // loop?
             if (this.timeStamp > 0) {
-                for (int i = 1; i < this.timeStamp; i++) {
+                for (int i = 2; i < this.timeStamp; i++) {
                     int agentsInSameLocation = 0;
                     for (Agent agent : this.agentPlans.keySet()) {
                         SingleAgentPlan currentPlan = this.agentPlans.get(agent);
                         // check whether locations repeat themselves
                         if (currentPlan.moveAt(i).currLocation.equals(currentPlan.getLastMove().currLocation)) {
                             // if locations repeats themselves, check if statuses also repeats themselves
-                            if (this.reachingGoalsConfigurations.get(i).get(agent).equals(this.reachingGoalsConfigurations.get(this.timeStamp-1).get(agent))) {
+                            if (this.reachingGoalsConfigurations.get(i).get(agent).equals(this.reachingGoalsConfigurations.get(this.timeStamp).get(agent))) {
                                 // agent could be in a loop
                                 agentsInSameLocation++;
                             }
@@ -129,20 +126,53 @@ public class PIBT_Solver extends A_Solver {
                     }
 //                    System.out.println("Agents in same location: " + agentsInSameLocation);
                     if (agentsInSameLocation == this.agentPlans.keySet().size()) {
-//                        System.out.println("Loop detected in timestamp: " + i);
+                        System.out.println("Loop detected in timestamp: " + i);
+                        System.out.println("current timestamp: " + this.timeStamp);
                         loopDetected = true;
-                        break;
 //                        for (Agent agent : this.agentPlans.keySet()) {
-//                            System.out.println("-----------");
+//                            System.out.println("***************");
 //                            System.out.println(agent);
-//                            System.out.println(this.agentPlans.get(agent).getLastMove().prevLocation);
-//                            System.out.println(this.agentPlans.get(agent).getLastMove().currLocation);
+//                            System.out.println("***************");
+//                            System.out.println("Agent's current priority: " + this.priorities.get(agent));
+////                            System.out.println(this.agentPlans.get(agent).getLastMove().prevLocation);
+////                            System.out.println(this.agentPlans.get(agent).getLastMove().currLocation);
+//                            System.out.println("timeStamp: " + (this.timeStamp-1));
+//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp-1).prevLocation);
+//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp-1).currLocation);
+//
+//                            System.out.println("Agent's status in prev identical timestamp: " + this.reachingGoalsConfigurations.get(i).get(agent));
+//                            System.out.println("timeStamp: " + (i-1));
+//                            System.out.println(this.agentPlans.get(agent).moveAt(i-1).prevLocation);
+//                            System.out.println(this.agentPlans.get(agent).moveAt(i-1).currLocation);
+//
 //                            System.out.println("-----------");
+//
+////                            System.out.println(this.agentPlans.get(agent).getLastMove().prevLocation);
+////                            System.out.println(this.agentPlans.get(agent).getLastMove().currLocation);
+//                            System.out.println("timeStamp: " + (this.timeStamp));
+//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp).prevLocation);
+//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp).currLocation);
+//
+//                            System.out.println("Agent's status in prev identical timestamp: " + this.reachingGoalsConfigurations.get(i).get(agent));
+//                            System.out.println("timeStamp: " + (i));
+//                            System.out.println(this.agentPlans.get(agent).moveAt(i).prevLocation);
+//                            System.out.println(this.agentPlans.get(agent).moveAt(i).currLocation);
+//
+//                            System.out.println("-----------");
+
+//                            if (agent.iD == 3 || agent.iD == 20) {
+//                                System.out.println(this.agentPlans.get(agent));
+//                            }
 //                        }
+
+                        break;
                     }
                 }
             }
-
+            if (loopDetected) {
+                System.out.println("LOOP DETECTED!!");
+                return null;
+            }
             if (checkTimeout()) {
                 return null;
             }
@@ -152,11 +182,7 @@ public class PIBT_Solver extends A_Solver {
             this.unhandledAgents = new HashSet<>();
             for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
                 Agent agent = entry.getKey();
-                Double priority = entry.getValue();
-                if (priority != -1.0) {
-                    // the agent did not reach his goal
-                    this.unhandledAgents.add(agent);
-                }
+                this.unhandledAgents.add(agent);
             }
 
             // nodes wanted in the next timestamp
@@ -168,28 +194,10 @@ public class PIBT_Solver extends A_Solver {
                 solvePIBT(cur, null);
             }
 
-            // if agent reached his goal, we don't add him to this.unhandledAgents
-            // so, iterate on all agents and add Move of stay in place if "solvePIBT" call didn't move the agent
-            if (!(finished())) {
-                for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
-                    Agent agent = entry.getKey();
-                    Double priority = entry.getValue();
-                    // the agent reached his goal
-                    // add new move to the agent's plan - stay in current node
-                    if (priority == -1.0 && canMove(agent)) {
-                        boolean flag = addNewMoveToAgent(agent, this.currentLocations.get(agent));
-                        if (!flag) {
-                            solvePIBT(agent, null);
-                        }
-                    }
-                }
-            }
+            updatePriorities(instance);
+            updateStatus();
         }
-        System.out.println("LOOP DETECTED? " + loopDetected);
-        // create the final solution
-        if (loopDetected) {
-            return null;
-        }
+
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
@@ -223,11 +231,15 @@ public class PIBT_Solver extends A_Solver {
         //  2. move to the node where the higher priority agent is
 
         // add current location of current agent - for the option to stay in current node in the next timestamp
-        if (higherPriorityAgent == null) {
-            candidates.add(this.currentLocations.get(current)); // 1
-        }
+//        if (higherPriorityAgent == null) {
+//            candidates.add(this.currentLocations.get(current)); // 1
+//        }
         // prevent move to the node where the higher priority agent is
-        else {
+//        else {
+//            candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
+//        }
+        candidates.add(this.currentLocations.get(current)); // 1
+        if (higherPriorityAgent != null) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
 
@@ -283,6 +295,7 @@ public class PIBT_Solver extends A_Solver {
         // add new move to the agent's plan - stay in current node
         if (canMove(current)) {
             if (addNewMoveToAgent(current, this.currentLocations.get(current))) {
+                this.takenNodes.add(this.currentLocations.get(current));
                 return false;
             };
         }
