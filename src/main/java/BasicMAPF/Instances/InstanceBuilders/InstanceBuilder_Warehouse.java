@@ -72,7 +72,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         populateAgents(mapName, instanceProperties, moving_ai_path, graphMap, numOfAgentsFromProperties);
     }
 
-    private GraphMap getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
+    public GraphMap getMap(InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties){
         Map<Coordinate_2D, List<Coordinate_2D>> coordinatesAdjacencyLists = new HashMap<>();
         Map<Coordinate_2D, List<Integer>> coordinatesEdgeWeights = new HashMap<>();
         Map<Coordinate_2D, Enum_MapLocationType> coordinatesLocationType = new HashMap<>();
