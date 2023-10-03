@@ -60,9 +60,10 @@ public class MillimetricCoordinatesGraphSolutionVisualizer {
     }
 
     static void paintVertices(FlattenedMap flattenedMap, Color[][] grid) {
+        Set<List<Integer>> verticesCoordinatesOnViz = new HashSet<>(flattenedMap.mmCoordinatesToVisCoordinates().values());
         for (int y = 0; y < flattenedMap.height(); y++) {
             for (int x = 0; x < flattenedMap.width(); x++) {
-                if (flattenedMap.mmCoordinatesToVisCoordinates().containsValue(Arrays.asList(x, y))) {
+                if (verticesCoordinatesOnViz.contains(Arrays.asList(x, y))) {
                     grid[x][y] = Color.BLACK;
                 } else {
                     grid[x][y] = Color.WHITE;
