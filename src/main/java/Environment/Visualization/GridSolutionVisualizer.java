@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Maps.I_GridMap;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongSolution;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,21 +19,13 @@ public class GridSolutionVisualizer {
             throw new IllegalArgumentException("SolutionVisualizer can only visualize grid maps");
         }
 
-        List<char[][]> grids = new ArrayList<>();
+        List<Color[][]> grids = new ArrayList<>();
         List<Integer> finishedGoals = new ArrayList<>();
         Set<Agent> sumFinishedGoals = new HashSet<>();
         int sumFinishedWaypoints = 0;
         for (int time = 0; time < solution.endTime(); time++) {
-            char[][] grid = new char[map.getWidth()][map.getHeight()];
-            for (int y = 0; y < map.getHeight(); y++) {
-                for (int x = 0; x < map.getWidth(); x++) {
-                    if (map.isObstacle(x, y)) {
-                        grid[x][y] = 'o';
-                    } else if (map.isFree(x, y)) {
-                        grid[x][y] = 'f';
-                    }
-                }
-            }
+            Color[][] grid = new Color[map.getWidth()][map.getHeight()];
+            paintObstaclesAndFreeCells(map, grid);
             for (Agent agent : instance.agents) {
                 int[] xy = map.getXY(solution.getAgentLocation(agent, time));
                 if (map.isObstacle(xy)) {
@@ -42,21 +35,21 @@ public class GridSolutionVisualizer {
                 if (solution instanceof LifelongSolution lifelongSolution){
                     boolean achievedWaypoint = isAchievedWaypoint(time, agent, lifelongSolution);
                     if (achievedWaypoint){
-                        grid[xy[0]][xy[1]] = 'g';
+                        grid[xy[0]][xy[1]] = Color.GREEN;
                         sumFinishedWaypoints++;
                     } else if (atLastLocationInPlan) {
-                        grid[xy[0]][xy[1]] = 'l';
+                        grid[xy[0]][xy[1]] = Color.RED;
                     }
                     else {
-                        grid[xy[0]][xy[1]] = 'a';
+                        grid[xy[0]][xy[1]] = Color.PINK;
                     }
                 }
                 else {
                     if (atLastLocationInPlan) {
-                        grid[xy[0]][xy[1]] = 'g';
+                        grid[xy[0]][xy[1]] = Color.GREEN;
                         sumFinishedGoals.add(agent);
                     } else {
-                        grid[xy[0]][xy[1]] = 'a';
+                        grid[xy[0]][xy[1]] = Color.PINK;
                     }
                 }
             }
@@ -72,5 +65,17 @@ public class GridSolutionVisualizer {
 
     public static boolean isAtLastLocationInPlan(Solution solution, int time, Agent agent) {
         return solution.getPlanFor(agent).getEndTime() <= time;
+    }
+
+    static void paintObstaclesAndFreeCells(I_GridMap map, Color[][] grid) {
+        for (int y = 0; y < map.getHeight(); y++) {
+            for (int x = 0; x < map.getWidth(); x++) {
+                if (map.isObstacle(x, y)) {
+                    grid[x][y] = Color.BLACK;
+                } else if (map.isFree(x, y)) {
+                    grid[x][y] = Color.WHITE;
+                }
+            }
+        }
     }
 }

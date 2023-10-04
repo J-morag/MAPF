@@ -28,7 +28,7 @@ class LifelongSolverFactoryTest {
         LifelongGenericRunManager lifelongRunManager = new LifelongGenericRunManager(instancesDir, new int[]{100},
                 new InstanceBuilder_MovingAI(true), "LifelongSolverFactoryTest", false,
                 "warehouse-10-20-10-2-1-even-1.scen", resultsOutputDir, null,
-                null, 200L, 33);
+                null, null, 200L, 33);
 
         Class<?> lfsClass = LifelongSolversFactory.class;
         Method[] solverBuilders = lfsClass.getDeclaredMethods();

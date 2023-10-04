@@ -1,5 +1,7 @@
 package Environment.Visualization;
 
+import org.jetbrains.annotations.Nullable;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -12,7 +14,7 @@ public class GridVisualizer extends JPanel {
     public static final int GRID_MAX_WIDTH_PIXELS = 1000;
     public static final int GRID_MAX_HEIGHT_PIXELS = 1000;
     private int cellSize;
-    private final List<char[][]> grids;
+    private final List<Color[][]> grids;
     private int iterationTime;
     private int currentIndex;
     private Timer timer;
@@ -20,12 +22,12 @@ public class GridVisualizer extends JPanel {
     public JButton pausePlayButton;
     private final List<Integer> finishedGoals;
 
-    public GridVisualizer(List<char[][]> grids, List<Integer> finishedGoals, int iterationTime, JButton pausePlayButton) {
-        if (grids == null || grids.size() == 0) {
+    private GridVisualizer(List<Color[][]> grids, @Nullable List<Integer> finishedGoals, int iterationTime, JButton pausePlayButton) {
+        if (grids == null || grids.isEmpty()) {
             throw new IllegalArgumentException("grids cannot be null or empty");
         }
-        if (finishedGoals == null || finishedGoals.size() != grids.size()) {
-            throw new IllegalArgumentException("finishedGoals cannot be null and has to be co-indexed with grids");
+        if (finishedGoals != null && finishedGoals.size() != grids.size()) {
+            throw new IllegalArgumentException("finishedGoals must be null or be co-indexed with grids");
         }
         this.grids = grids;
         this.finishedGoals = finishedGoals;
@@ -99,42 +101,31 @@ public class GridVisualizer extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        char[][] grid = grids.get(currentIndex);
+        Color[][] grid = grids.get(currentIndex);
         int rows = grid.length;
         int cols = grid[0].length;
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                Color color = getColor(grid[row][col]);
+                Color color = grid[row][col];
                 g.setColor(color);
                 g.fillRect(col * this.cellSize, row * this.cellSize, this.cellSize, this.cellSize);
             }
         }
     }
 
-    private Color getColor(char c) {
-        return switch (c) {
-            case 'o' -> Color.BLACK;
-            case 'f' -> Color.WHITE;
-            case 'a' -> Color.PINK;
-            case 'g' -> Color.GREEN;
-            case 'l' -> Color.RED;
-            default -> throw new IllegalArgumentException("Invalid char: " + c);
-        };
-    }
-
     private int numFinishedGoals() {
-        return this.finishedGoals.get(currentIndex);
+        return this.finishedGoals != null ? this.finishedGoals.get(currentIndex) : 0;
     }
 
     private int maxFinishedGoals() {
-        return finishedGoals.get(finishedGoals.size() - 1);
+        return this.finishedGoals != null ? finishedGoals.get(finishedGoals.size() - 1) : 0;
     }
 
     public boolean isPaused() {
         return paused;
     }
 
-    public static void visualize(List<char[][]> grids, List<Integer> finishedGoals, int initialIterationTime, String title) {
+    public static void visualize(List<Color[][]> grids, @Nullable List<Integer> finishedGoals, int initialIterationTime, String title) {
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
