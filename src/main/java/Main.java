@@ -177,10 +177,6 @@ public class Main {
             }
 
             if (cmd.hasOption(STR_TIMEOUT_EACH)) {
-                if (lifelong){
-                    System.out.printf("%s currently not supported for lifelong", STR_TIMEOUT_EACH);
-                    System.exit(0);
-                }
                 String optTimeoutEach = cmd.getOptionValue(STR_TIMEOUT_EACH);
                 System.out.println("Timeout Each: " + optTimeoutEach);
                 try {
@@ -205,7 +201,7 @@ public class Main {
 
             // Run!
             if (lifelong){
-                new LifelongGenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser, minResponseTime, maxTimeSteps)
+                new LifelongGenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser, timeoutEach, minResponseTime, maxTimeSteps)
                         .runAllExperiments();
             }
             else {
