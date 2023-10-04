@@ -2,10 +2,14 @@ package BasicMAPF.Solvers.LaCAM;
 
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Instances.Maps.I_Map;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 
-import java.util.Stack;
+import java.util.*;
 
 public class LaCAM_Solver extends A_Solver {
 
@@ -16,18 +20,166 @@ public class LaCAM_Solver extends A_Solver {
     private Stack<HighLevelNode> open;
 
     /**
-     *
+     * HashMap to manage configurations that the algorithm already saw.
      */
-    private Stack<HighLevelNode> explored;
+    private HashMap<HashMap<Agent, I_Location>, HighLevelNode> explored;
+
+    /**
+     * heuristic to use in the low level search to find the closest nodes to an agent's goal
+     */
+    private DistanceTableAStarHeuristic heuristic;
+
+    /**
+     * Map saving priority of each agent
+     */
+    private HashMap<Agent, Double> priorities;
+
+    /**
+     * Map saving for each agent his goal location, representing the goal configuration.
+     */
+    private HashMap<Agent, I_Location> goalConfiguration;
+
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
         this.open = new Stack<>();
-        this.explored = new Stack<>();
+        this.explored = new HashMap<>();
+        this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
+        this.priorities = new HashMap<>();
+
+        // init agent's priority to unique number
+        initPriority(instance);
     }
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
+        HashMap<Agent, I_Location> initialConfiguration = new HashMap<>();
+        for (Agent agent : instance.agents) {
+            initialConfiguration.put(agent, instance.map.getMapLocation(agent.source));
+            this.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
+        }
+        LowLevelNode C_init = new LowLevelNode(null, null, null);
+        HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, get_init_order(instance.agents, instance.map), null);
+        this.open.push(N_init);
+        this.explored.put(initialConfiguration, N_init);
+
+
+        while (!this.open.empty()) {
+            HighLevelNode N = this.open.peek();
+            if (N.configuration.equals(this.goalConfiguration)) {
+                return backTrack(N);
+            }
+
+            if (N.tree == null) {
+                this.open.pop();
+                continue;
+            }
+
+            // WHAT
+            LowLevelNode C = N.tree.poll();
+            if (C.treeDepth <= instance.agents.size()) {
+                Agent chosenAgent = N.order.get(C.treeDepth);
+                I_Location chosenLocation = N.configuration.get(chosenAgent);
+                List<I_Location> locations = new ArrayList<>(findAllNeighbors(chosenLocation));
+                for (I_Location location : locations) {
+                    LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
+                    N.tree.add(C_new);
+                }
+            }
+            // WHAT
+
+            HashMap<Agent, I_Location> newConfiguration = getNewConfig(N,C);
+            if (newConfiguration == null) {
+                return null;
+            }
+
+            if (this.explored.get(newConfiguration) != null) {
+                continue;
+            }
+
+            HighLevelNode N_new = new HighLevelNode(newConfiguration, null, getOrder(newConfiguration, N), N);
+            this.open.push(N_new);
+            this.explored.put(newConfiguration, N_new);
+        }
         return null;
     }
+
+
+    /**
+     *
+     */
+    private HashMap<Agent, I_Location> getNewConfig(HighLevelNode n, LowLevelNode c) {
+//        TODO
+        return null;
+    }
+
+    /**
+     * @param agents list of agents to sort.
+     * @param map of current problem instance.
+     * helper function to create initialized order of agents.
+     * in this function, we determine the order of chosen agents by the distance between their source and target.
+     * @return ArrayList of agents in descending order by distance to target.
+     */
+    private ArrayList<Agent> get_init_order(List<Agent> agents, I_Map map) {
+        ArrayList<Agent> sortedAgents = new ArrayList<>(agents);
+        HashMap<Agent, Float> agentsDistances = new HashMap<>();
+        for (Agent agent : agents) {
+            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+            agentsDistances.put(agent, distance);
+        }
+        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent2), agentsDistances.get(agent1)));
+        return sortedAgents;
+    }
+
+
+    /**
+     * @param configuration - current configuration of agent's locations.
+     * @param N - current High Level Node.
+     * helper function to create order of agents.
+     * order of agents determined by priority of the agents, giving higher priority to agents that didn't reach their goal.
+     * @return ArrayList of agents.
+     */
+    private ArrayList<Agent> getOrder(HashMap<Agent, I_Location> configuration, HighLevelNode N) {
+        ArrayList<Agent> sortedAgents = new ArrayList<>(configuration.keySet());
+        sortedAgents.sort((agent1, agent2) -> Double.compare(this.priorities.get(agent2), this.priorities.get(agent1)));
+        return sortedAgents;
+    }
+
+    /**
+     *
+     * @param N - current High Level Node.
+     * this function called when the algorithm reach the Goal configuration,
+     * this function performs backtracking to find the path from the start configuration to the goal.
+     * @return Solution for the MAPF problem.
+     */
+    private Solution backTrack(HighLevelNode N) {
+//        TODO
+        return null;
+    }
+
+    /**
+     * init priority of each agent in the beginning of the algorithm.
+     * each agent have a unique double representing his priority.
+     * update this.priorities.
+     */
+    private void initPriority(MAPF_Instance instance) {
+        int numberOfAgents = instance.agents.size();
+        double uniqueFactor = 1.0 / numberOfAgents;
+        int i = 1;
+        for (Agent agent : instance.agents) {
+            // (uniqueFactor * i) is a unique representation for the priority of each agent
+            this.priorities.put(agent, uniqueFactor * i);
+            i++;
+        }
+    }
+
+    /**
+     * helper function to find all neighbors of single agent
+     * @param location to find his neighbors
+     * @return List contains all neighbors of current I_Location
+     */
+    private List<I_Location> findAllNeighbors(I_Location location) {
+        return location.outgoingEdges();
+    }
+
 
     @Override
     protected void releaseMemory() {
