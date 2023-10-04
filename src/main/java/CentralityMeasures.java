@@ -70,7 +70,7 @@ public class CentralityMeasures {
             System.out.println("Map name: " + optMapName);
             mapFileName = optMapName;
 
-            if (cmd.hasOption("iForm")) {
+            if (cmd.hasOption(STR_MAP_FORMAT)) {
                 String optMapFormat = cmd.getOptionValue(STR_MAP_FORMAT);
                 System.out.println("Map Format: " + optMapFormat);
                 switch (optMapFormat) {
