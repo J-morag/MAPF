@@ -82,6 +82,8 @@ public class GridCentralityVisualizer {
         centralities.add(new KatzCentrality<>(map.getJGraphTRepresentation()));
         centralities.add(new BetweennessCentrality<>(map.getJGraphTRepresentation(), true));
         centralities.add(new ClosenessCentrality<>(map.getJGraphTRepresentation()));
+        centralities.add(new HarmonicCentrality<>(map.getJGraphTRepresentation()));
+        centralities.add(new ClusteringCoefficient<>(map.getJGraphTRepresentation()));
         for (VertexScoringAlgorithm<I_Location, Double> centrality : centralities) {
             String title = "%s %s".formatted(mapName, centrality.getClass().getSimpleName());
             System.out.println("calculating " + title +  ". Time now is: "
