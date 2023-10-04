@@ -74,15 +74,15 @@ public class GridCentralityVisualizer {
         GridVisualizer.visualize(grids, null, 250, title);
     }
 
-    public static void computeEigenvectorCentralityAndVisualize(I_ExplicitMap map, @Nullable String mapName){
+    public static void computeCentralitiesAndVisualize(I_ExplicitMap map, @Nullable String mapName){
         if (mapName == null) mapName = "";
-        List<VertexScoringAlgorithm<I_Location, Double>> centralieites = new ArrayList<>();
-        centralieites.add(new PageRank<>(map.getJGraphTRepresentation()));
-        centralieites.add(new EigenvectorCentrality<>(map.getJGraphTRepresentation()));
-        centralieites.add(new KatzCentrality<>(map.getJGraphTRepresentation()));
-        centralieites.add(new BetweennessCentrality<>(map.getJGraphTRepresentation(), true));
-        centralieites.add(new ClosenessCentrality<>(map.getJGraphTRepresentation()));
-        for (VertexScoringAlgorithm<I_Location, Double> centrality : centralieites) {
+        List<VertexScoringAlgorithm<I_Location, Double>> centralities = new ArrayList<>();
+        centralities.add(new PageRank<>(map.getJGraphTRepresentation()));
+        centralities.add(new EigenvectorCentrality<>(map.getJGraphTRepresentation()));
+        centralities.add(new KatzCentrality<>(map.getJGraphTRepresentation()));
+        centralities.add(new BetweennessCentrality<>(map.getJGraphTRepresentation(), true));
+        centralities.add(new ClosenessCentrality<>(map.getJGraphTRepresentation()));
+        for (VertexScoringAlgorithm<I_Location, Double> centrality : centralities) {
             String title = "%s %s".formatted(mapName, centrality.getClass().getSimpleName());
             System.out.println("calculating " + title +  ". Time now is: "
                     + new Date());
