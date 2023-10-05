@@ -24,20 +24,21 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class LifelongStressTest {
 
+    public static final boolean USE_ASSERTS = true;
+    public static final long TIMEOUT = 1000 * 300;
+    public static final String PATH = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory,
+            "WarehouseMaps"});
+
     @Test
     public void StressTest() {
-        I_Solver solver =
-                LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5();
-        long timeout = 1000 * 300;
+        runStressTestWithSolver(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5());
+        runStressTestWithSolver(LifelongSolversFactory.LH_1Avoid_20ASFPCap18Timeout1p5());
+    }
 
+    private static void runStressTestWithSolver(I_Solver solver) {
         S_Metrics.clearAll();
-        boolean useAsserts = true;
-
         String nameSolver = solver.name();
-
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "WarehouseMaps"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(null, true),
+        InstanceManager instanceManager = new InstanceManager(PATH, new InstanceBuilder_MovingAI(null, true),
                 new InstanceProperties(null, -1d, new int[]{400, 600}));
 
         int countSolved = 0;
@@ -58,7 +59,7 @@ public class LifelongStressTest {
             report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             report.putStringValue(InstanceReport.StandardFields.solver, nameSolver);
 
-            RunParameters runParametersBaseline = new LifelongRunParameters(new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP(),
+            RunParameters runParametersBaseline = new LifelongRunParameters(new RunParametersBuilder().setTimeout(TIMEOUT).setInstanceReport(report).createRP(),
                     null, 201);
 
             // solve
@@ -73,7 +74,7 @@ public class LifelongStressTest {
             if(solution != null){
                 boolean valid = solution.solves(instance);
                 System.out.println(nameSolver + " Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
+                if (USE_ASSERTS) assertTrue(valid);
 
                 // runtimes
                 runtime += report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
@@ -101,7 +102,7 @@ public class LifelongStressTest {
         }
 
         System.out.println("--- TOTALS: ---");
-        System.out.println("timeout for each (seconds): " + (timeout/1000));
+        System.out.println("timeout for each (seconds): " + (TIMEOUT /1000));
         System.out.println(nameSolver + " solved: " + countSolved);
         System.out.println("totals (solved instances) :");
         System.out.println(nameSolver + " avg. throughputAtT200: " + sumThroughput/(float)countSolved);
