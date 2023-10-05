@@ -203,10 +203,10 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
 //        solvers.add(LifelongSolversFactory.LH_1Avoid_30ASFPCapacity_infDynamicTimeout1p5()); // greedy +IS +Avoid-30-ASFP + inf capacity + dynamic timeout 1.5
 //        solvers.add(LifelongSolversFactory.LH_1Avoid_30ASFPCapacity_infDynamicTimeout1p5RHCR_w10_h1()); // greedy +IS +Avoid-30-ASFP + inf capacity + dynamic timeout 1.5 + RHCR_w10_h1
-//        solvers.add(LifelongSolversFactory.LH_1Avoid_30ASFPCapacity_18DynamicTimeout1p5()); // greedy +IS +Avoid-30-ASFP + 18 capacity + dynamic timeout 1.5
-//        solvers.add(LifelongSolversFactory.LH_1Avoid_30ASFPCapacity_18DynamicTimeout1p5RHCR_w10_h1()); // greedy +IS +Avoid-30-ASFP + 18 capacity + dynamic timeout 1.5 + RHCR_w10_h1
-        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5()); // greedy +IS +Approach-30-ASFP + 18 capacity + dynamic timeout 1.5
-        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5_RHCRw10h1()); // greedy +IS +Approach-30-ASFP + 18 capacity + dynamic timeout 1.5 + RHCR_w10_h1
+        solvers.add(LifelongSolversFactory.LH1_Avoid20ASFP_Cap18_Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
+        solvers.add(LifelongSolversFactory.LH1_Avoid20ASFP_Cap18_Timeout1p5_RHCRw10h1()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5 + RHCR_w10_h1
+//        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5()); // greedy +IS +Approach-30-ASFP + 18 capacity + dynamic timeout 1.5
+//        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5_RHCRw10h1()); // greedy +IS +Approach-30-ASFP + 18 capacity + dynamic timeout 1.5 + RHCR_w10_h1
 
         return solvers;
     }
