@@ -516,6 +516,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if (TransientMAPFGoalCondition){
             params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
         }
+        params.useFailPolicy = allocatedTime < timeLeftToTimeout;
         return params;
     }
 
