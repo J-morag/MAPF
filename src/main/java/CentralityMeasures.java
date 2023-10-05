@@ -70,7 +70,7 @@ public class CentralityMeasures {
             System.out.println("Map name: " + optMapName);
             mapFileName = optMapName;
 
-            if (cmd.hasOption("iForm")) {
+            if (cmd.hasOption(STR_MAP_FORMAT)) {
                 String optMapFormat = cmd.getOptionValue(STR_MAP_FORMAT);
                 System.out.println("Map Format: " + optMapFormat);
                 switch (optMapFormat) {
@@ -100,10 +100,10 @@ public class CentralityMeasures {
         GraphMap graphMap;
         if (instanceBuilder instanceof InstanceBuilder_MovingAI instanceBuilderMovingAI){
             graphMap = instanceBuilderMovingAI.getMap(new InstanceManager.Moving_AI_Path(mapPath, null), new InstanceProperties());
-            GridCentralityVisualizer.computeEigenvectorCentralityAndVisualize(graphMap, mapFileName);
+            GridCentralityVisualizer.computeCentralitiesAndVisualize(graphMap, mapFileName);
         } else if (instanceBuilder instanceof InstanceBuilder_Warehouse instanceBuilderWarehouse){
             graphMap = instanceBuilderWarehouse.getMap(new InstanceManager.Moving_AI_Path(mapPath, null), new InstanceProperties());
-            GridCentralityVisualizer.computeEigenvectorCentralityAndVisualize(graphMap, mapFileName);
+            GridCentralityVisualizer.computeCentralitiesAndVisualize(graphMap, mapFileName);
         }
         else {
             System.out.println("Unrecognized instance builder");
