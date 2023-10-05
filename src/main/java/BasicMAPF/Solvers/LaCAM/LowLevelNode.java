@@ -7,12 +7,12 @@ public class LowLevelNode {
     public LowLevelNode parent;
     public Agent who;
     public I_Location where;
-    public int treeDepth;
+    public int depth;
 
     public LowLevelNode(LowLevelNode parent, Agent who, I_Location where) {
         this.parent = parent;
         this.who = who;
         this.where = where;
-        this.treeDepth = 0;
+        this.depth = parent.depth + 1;
     }
 }

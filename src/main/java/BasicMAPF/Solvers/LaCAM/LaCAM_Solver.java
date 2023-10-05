@@ -75,8 +75,8 @@ public class LaCAM_Solver extends A_Solver {
 
             // WHAT
             LowLevelNode C = N.tree.poll();
-            if (C.treeDepth <= instance.agents.size()) {
-                Agent chosenAgent = N.order.get(C.treeDepth);
+            if (C.depth <= instance.agents.size()) {
+                Agent chosenAgent = N.order.get(C.depth - 1); // -1?
                 I_Location chosenLocation = N.configuration.get(chosenAgent);
                 List<I_Location> locations = new ArrayList<>(findAllNeighbors(chosenLocation));
                 for (I_Location location : locations) {
@@ -88,14 +88,14 @@ public class LaCAM_Solver extends A_Solver {
 
             HashMap<Agent, I_Location> newConfiguration = getNewConfig(N,C);
             if (newConfiguration == null) {
-                return null;
+                continue;
             }
 
             if (this.explored.get(newConfiguration) != null) {
                 continue;
             }
 
-            HighLevelNode N_new = new HighLevelNode(newConfiguration, null, getOrder(newConfiguration, N), N);
+            HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, getOrder(newConfiguration, N, instance.map), N);
             this.open.push(N_new);
             this.explored.put(newConfiguration, N_new);
         }
@@ -104,9 +104,13 @@ public class LaCAM_Solver extends A_Solver {
 
 
     /**
-     *
+     * main function of LaCAM algorithm.
+     * @param N - current high level node.
+     * @param C - current low level node.
+     * generates new configuration from current configuration according to N, following constraints defined in C.
+     * @return new configuration.
      */
-    private HashMap<Agent, I_Location> getNewConfig(HighLevelNode n, LowLevelNode c) {
+    private HashMap<Agent, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C) {
 //        TODO
         return null;
     }
@@ -134,12 +138,18 @@ public class LaCAM_Solver extends A_Solver {
      * @param configuration - current configuration of agent's locations.
      * @param N - current High Level Node.
      * helper function to create order of agents.
-     * order of agents determined by priority of the agents, giving higher priority to agents that didn't reach their goal.
+     * order of agents can be determined by several heuristics, for simplicity we first try the heuristic we used for the init order,
+     * and change in the future when we will test and try to improve the algorithm.
      * @return ArrayList of agents.
      */
-    private ArrayList<Agent> getOrder(HashMap<Agent, I_Location> configuration, HighLevelNode N) {
+    private ArrayList<Agent> getOrder(HashMap<Agent, I_Location> configuration, HighLevelNode N, I_Map map) {
         ArrayList<Agent> sortedAgents = new ArrayList<>(configuration.keySet());
-        sortedAgents.sort((agent1, agent2) -> Double.compare(this.priorities.get(agent2), this.priorities.get(agent1)));
+        HashMap<Agent, Float> agentsDistances = new HashMap<>();
+        for (Agent agent : configuration.keySet()) {
+            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+            agentsDistances.put(agent, distance);
+        }
+        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent2), agentsDistances.get(agent1)));
         return sortedAgents;
     }
 
