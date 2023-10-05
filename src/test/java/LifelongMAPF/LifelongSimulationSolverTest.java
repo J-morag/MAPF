@@ -69,7 +69,7 @@ class LifelongSimulationSolverTest {
                             true, false, true, 10, new FailPolicy(1, new AvoidFailPolicy(true))),
                     null, new DeepPartialSolutionsStrategy(), new AvoidFailPolicy(true), 1, null);
 
-    I_Solver modern1 = LifelongSolversFactory.LH_1Approach_10ASFPCap18Timeout1p5();
+    I_Solver modern1 = LifelongSolversFactory.LH1_Approach10ASFP_Cap18_Timeout1p5();
 
     InstanceReport instanceReport;
 
