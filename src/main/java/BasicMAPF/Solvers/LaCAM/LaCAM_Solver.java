@@ -64,10 +64,13 @@ public class LaCAM_Solver extends A_Solver {
 
         while (!this.open.empty()) {
             HighLevelNode N = this.open.peek();
+
+            // reached goal configuration, stop and backtrack to return the solution
             if (N.configuration.equals(this.goalConfiguration)) {
                 return backTrack(N);
             }
 
+            // low level search end
             if (N.tree == null) {
                 this.open.pop();
                 continue;
@@ -87,6 +90,8 @@ public class LaCAM_Solver extends A_Solver {
             // WHAT
 
             HashMap<Agent, I_Location> newConfiguration = getNewConfig(N,C);
+
+            // algorithm couldn't find configuration
             if (newConfiguration == null) {
                 continue;
             }
