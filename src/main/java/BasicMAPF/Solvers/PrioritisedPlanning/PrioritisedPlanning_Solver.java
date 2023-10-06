@@ -43,7 +43,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /* = Constants = */
     public final static String countInitialAttemptsMetricString = "count initial attempts";
     public final static String countContingencyAttemptsMetricString = "count contingency attempts";
-    public final static String maxReachedIndexBeforeTimeoutString = "max reached index";
+    public final static String maxReachedIndexOneBasedBeforeTimeoutString = "max reached index";
     public final static String countSingleAgentFPsTriggeredString = "single agent FPs triggered";
     private static final int DEBUG = 1;
 
@@ -64,7 +64,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     private Random random;
     private Set<Agent> failedAgents;
     private RemovableConflictAvoidanceTableWithContestedGoals initialConflictAvoidanceTable;
-    int maxReachedIndex;
+    int maxReachedIndexOneBased;
     int singleAgentFPsTriggered;
 
     /*  =  = Fields related to the class instance =  */
@@ -209,7 +209,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.failedAgents = new HashSet<>();
         this.initialConflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
 
-        this.maxReachedIndex = -1;
+        this.maxReachedIndexOneBased = -1;
         this.singleAgentFPsTriggered = 0;
 
         // heuristic
@@ -294,7 +294,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             for (int agentIndex = 0; agentIndex < agents.size(); agentIndex++){
                 Agent agent = agents.get(agentIndex);
                 if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
-                maxReachedIndex = Math.max(maxReachedIndex, agentIndex);
+                maxReachedIndexOneBased = Math.max(maxReachedIndexOneBased, agentIndex + 1);
 
                 //solve the subproblem for one agent
                 SingleAgentPlan planForAgent = solveSubproblem(agent, agentIndex, instance, currentConstraints,
@@ -527,7 +527,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
-        instanceReport.putIntegerValue(maxReachedIndexBeforeTimeoutString, maxReachedIndex);
+        instanceReport.putIntegerValue(maxReachedIndexOneBasedBeforeTimeoutString, maxReachedIndexOneBased);
         instanceReport.putIntegerValue(countSingleAgentFPsTriggeredString, singleAgentFPsTriggered);
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
@@ -541,8 +541,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if (!instanceReport.hasField(countContingencyAttemptsMetricString)){
             this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, 0);
         }
-        if (!instanceReport.hasField(maxReachedIndexBeforeTimeoutString)){
-            this.instanceReport.putIntegerValue(maxReachedIndexBeforeTimeoutString, 0);
+        if (!instanceReport.hasField(maxReachedIndexOneBasedBeforeTimeoutString)){
+            this.instanceReport.putIntegerValue(maxReachedIndexOneBasedBeforeTimeoutString, 0);
         }
     }
 
