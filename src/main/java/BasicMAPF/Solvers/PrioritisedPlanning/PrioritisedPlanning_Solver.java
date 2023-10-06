@@ -339,21 +339,22 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
                     int successfulAgents = agentIndex + 1 - failedAgents.size();
 
-                    if (this.partialSolutionsStrategy.allowed() && solution != bestPartialSolution &&
+                    if (this.partialSolutionsStrategy.allowed() &&
                             (successfulAgents > bestPartialSolutionSingleAgentSuccesses ||
                                     (successfulAgents == bestPartialSolutionSingleAgentSuccesses &&
-                                            this.solutionCostFunction.solutionCost(solution) < this.solutionCostFunction.solutionCost(bestPartialSolution)))){
+                                            (this.solutionCostFunction.solutionCost(solution) < this.solutionCostFunction.solutionCost(bestPartialSolution) ||
+                                                    solution.size() > bestPartialSolution.size()) // if has same successful but more failed
+                                    ))){
                         bestPartialSolution = solution;
                         bestPartialSolutionSingleAgentSuccesses = successfulAgents;
                         bestPartialSolutionFailedAgents = failedAgents;
-                    } else if (this.partialSolutionsStrategy.allowed() && solution != bestPartialSolution &&
-                            (failedAgents.size() > bestPartialSolutionFailedAgents.size() ||
-                                    (failedAgents.size() == bestPartialSolutionFailedAgents.size() &&
-                                            this.solutionCostFunction.solutionCost(solution) < this.solutionCostFunction.solutionCost(bestPartialSolution)))) {
+                    } else if (this.partialSolutionsStrategy.allowed() &&
+                            // may never even equal the number of successful agents in the current best partial solution
+                            successfulAgents + (agents.size() - failedAgents.size()) < bestPartialSolutionSingleAgentSuccesses) {
                         break;
                     }
 
-                    if (// TODO smarter failedToPlanForCurrentAgent and alreadyFoundFullSolution when we get partial plans
+                    if (// TODO alreadyFoundFullSolution that takes into account that some plans may be fail plans?
                         this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null))
                     {
                         break;
