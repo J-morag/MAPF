@@ -2,6 +2,7 @@ package BasicMAPF.Instances.Maps;
 
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -90,20 +91,25 @@ public class MapFactory {
 
     /**
      * Create a {@link GraphMap} with any arbitrary shape or dimensionality.
+     *
      * @param coordinatesAdjacencyLists maps from every vertex to a list of (directed) edges coming out of it.
-     * @param coordinatesEdgeWeights maps from every vertex to a list of edges weights of its edges.
-     * @param coordinatesLocationTypes maps from every vertex to its location type.
+     * @param coordinatesEdgeWeights    maps from every vertex to a list of edges weights of its edges.
+     * @param coordinatesLocationType  maps from every vertex to its location type.
+     * @param coordinatesLocationSubtypes maps from every vertex to its location subtypes.
      * @return a {@link GraphMap}.
      */
     public static GraphMap newArbitraryGraphMap(Map<? extends I_Coordinate, ? extends List<? extends I_Coordinate>> coordinatesAdjacencyLists,
                                                 Map<? extends I_Coordinate, List<Integer>> coordinatesEdgeWeights,
-                                                Map<? extends I_Coordinate, Enum_MapLocationType> coordinatesLocationTypes,
-                                                boolean isStronglyConnected){
+                                                Map<? extends I_Coordinate, Enum_MapLocationType> coordinatesLocationType,
+                                                boolean isStronglyConnected,
+                                                @Nullable Map<? extends I_Coordinate, List<String>> coordinatesLocationSubtypes){
         HashMap<I_Coordinate, GraphMapVertex> allLocations = new HashMap<>(coordinatesAdjacencyLists.size());
 
         for (I_Coordinate coordinateCurrentVertex: coordinatesAdjacencyLists.keySet()){
             allLocations.putIfAbsent(coordinateCurrentVertex,
-                    new GraphMapVertex(coordinatesLocationTypes != null ? coordinatesLocationTypes.get(coordinateCurrentVertex) : Enum_MapLocationType.EMPTY, coordinateCurrentVertex));
+                    new GraphMapVertex(coordinatesLocationType != null ? coordinatesLocationType.get(coordinateCurrentVertex) : Enum_MapLocationType.EMPTY,
+                            coordinateCurrentVertex,
+                            coordinatesLocationSubtypes != null ? coordinatesLocationSubtypes.get(coordinateCurrentVertex) : null));
             GraphMapVertex currentVertex = allLocations.get(coordinateCurrentVertex);
 
             List<? extends I_Coordinate> coordinateNeighbors = coordinatesAdjacencyLists.get(coordinateCurrentVertex);
@@ -113,7 +119,9 @@ public class MapFactory {
             for (int i = 0; i < neighbors.length; i++) {
                 I_Coordinate neighborCoordinate = coordinateNeighbors.get(i);
                 allLocations.putIfAbsent(neighborCoordinate,
-                        new GraphMapVertex(coordinatesLocationTypes != null ? coordinatesLocationTypes.get(neighborCoordinate) : Enum_MapLocationType.EMPTY, neighborCoordinate));
+                        new GraphMapVertex(coordinatesLocationType != null ? coordinatesLocationType.get(neighborCoordinate) : Enum_MapLocationType.EMPTY,
+                                neighborCoordinate,
+                                coordinatesLocationSubtypes != null ? coordinatesLocationSubtypes.get(coordinateCurrentVertex) : null));
                 neighbors[i] = allLocations.get(neighborCoordinate);
             }
 

@@ -2,6 +2,8 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -64,7 +66,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     /**
      * optional heuristic function to use in the low level solver.
      */
-    private AStarGAndH heuristic;
+    private AStarGAndH aStarGAndH;
 
     /**
      * if agents share goals, they will not conflict at their goal.
@@ -110,8 +112,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                                       Boolean sharedGoals, Boolean sharedSources, Boolean TransientMAPFGoalCondition) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
-        this.restartsStrategy = Objects.requireNonNullElse(restartsStrategy, new RestartsStrategy());
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
@@ -139,12 +141,17 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
         this.random = new Random(42);
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
+        }
+        // heuristic
+        this.aStarGAndH = Objects.requireNonNullElseGet(parameters.aStarGAndH, () -> new DistanceTableAStarHeuristic(this.agents, instance.map));
+        if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
         }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
         if(parameters instanceof RunParameters_PP parametersPP){
@@ -153,14 +160,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
                 reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
             }
-
-            if(parametersPP.heuristic != null) {
-                this.heuristic = parametersPP.heuristic;
-                if (this.heuristic instanceof CachingDistanceTableHeuristic){
-                    ((CachingDistanceTableHeuristic)this.heuristic).setCurrentMap(instance.map);
-                }
-            }
-            else {this.heuristic = new DistanceTableAStarHeuristic(this.agents, instance.map);} // TODO replace with distance table? should usually be worth it
         }
     }
 
@@ -322,13 +321,15 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         InstanceReport subproblemReport = new InstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
+        subproblemReport.keepSolutionString = false;
         return subproblemReport;
     }
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters_SAAStar params = new RunParameters_SAAStar(timeLeftToTimeout, new ConstraintSet(constraints),
-                subproblemReport, null, this.heuristic /*nullable*/, maxCost);
+        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
+                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH).createRP());
+        params.fBudget = maxCost;
         if (TransientMAPFGoalCondition){
             params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
         }
@@ -361,6 +362,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
-        this.heuristic = null;
+        this.aStarGAndH = null;
     }
 }

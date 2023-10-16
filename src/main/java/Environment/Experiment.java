@@ -1,5 +1,6 @@
 package Environment;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -107,32 +108,15 @@ public class Experiment {
 
 
     public void runExperiment(I_Solver solver) {
-        if (solver == null) {
-            return;
-        }
-
-        instanceManager.resetPathIndex();
-        /*
-         * Keeps a record of failed instances attempted by a solver, and the minimum number of agents attempted on that
-         *  instance that produced a failure.
-         */
-        Map<String, Integer> minNumFailedAgentsForInstance = new HashMap<>();
-
-        for (int i = 0; i < this.numOfInstances; i++) {
-
-            MAPF_Instance instance = instanceManager.getNextInstance();
-
-            if (instance == null) {
-                break;
-            }
-
-            runInstanceOnSolver(solver, minNumFailedAgentsForInstance, instance);
-        }
+        runExperiment(List.of(solver));
     }
 
-    public void runExperiment(List<I_Solver> solvers) {
+    /**
+     * @return true if all solutions were valid; false otherwise.
+     */
+    public boolean runExperiment(List<I_Solver> solvers) {
         if (solvers == null) {
-            return;
+            return true;
         }
 
         instanceManager.resetPathIndex();
@@ -160,7 +144,7 @@ public class Experiment {
             }
         }
         System.out.println("Experiment concluded with " + numInvalidSolutions + " invalid solutions");
-
+        return numInvalidSolutions == 0;
     }
 
     /**
@@ -193,7 +177,7 @@ public class Experiment {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.skipped, 0);
         }
 
-        RunParameters runParameters = new RunParameters(timeoutEach, null, instanceReport, null);
+        RunParameters runParameters = new RunParametersBuilder().setTimeout(timeoutEach).setInstanceReport(instanceReport).createRP();
 
         String instanceName = instance.extendedName;
         int numAgents = instance.agents.size();

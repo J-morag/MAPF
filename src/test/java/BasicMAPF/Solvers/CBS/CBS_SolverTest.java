@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.SOCPCostFunction;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -72,7 +73,7 @@ class CBS_SolverTest {
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -83,7 +84,7 @@ class CBS_SolverTest {
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -95,7 +96,7 @@ class CBS_SolverTest {
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -106,7 +107,7 @@ class CBS_SolverTest {
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(instanceReport));
+        Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
@@ -117,7 +118,7 @@ class CBS_SolverTest {
     void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(2L*1000,null, instanceReport, null));
+        Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(2L*1000).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -130,7 +131,7 @@ class CBS_SolverTest {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -145,7 +146,7 @@ class CBS_SolverTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
-        Solution solved = cbsSolver.solve(testInstance, new RunParameters(constraintSet, instanceReport, null));
+        Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
         S_Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -161,13 +162,13 @@ class CBS_SolverTest {
         Agent agent1 = new Agent(1, coor12, coor33, 1);
 
         MAPF_Instance agent0prioritisedInstance = new MAPF_Instance("agent0prioritised", mapCircle, new Agent[]{agent0, agent1});
-        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParameters(instanceReport));
+        Solution agent0prioritisedSolution = solver.solve(agent0prioritisedInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         agent0 = new Agent(0, coor33, coor12, 1);
         agent1 = new Agent(1, coor12, coor33, 10);
 
         MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
-        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParameters(instanceReport));
+        Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
         System.out.println(agent0prioritisedSolution.readableToString());
         validate(agent0prioritisedSolution, 2, 8, 5, agent0prioritisedInstance);
@@ -203,7 +204,7 @@ class CBS_SolverTest {
         while ((instance = instanceManager.getNextInstance()) != null) {
             InstanceReport report = new InstanceReport();
 
-            RunParameters runParameters = new RunParameters(timeout, null, report, null);
+            RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
             //solve
             System.out.println("---------- solving "  + instance.name + " ----------");
@@ -253,7 +254,7 @@ class CBS_SolverTest {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -311,7 +312,9 @@ class CBS_SolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -386,7 +389,7 @@ class CBS_SolverTest {
                 instanceEmptyPlusSharedGoalAndStart1, instanceCircle1SharedGoal, instanceCircle1SharedGoalAndStart, instanceCircle2SharedGoal, instanceCircle2SharedGoalAndStart,
                 instanceDifferentGoalAndInterfering1, instanceDifferentGoalAndInterfering2, instanceCircleSameEarliestGoalArrivalTimeSameGoal}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(instanceReport));
+            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
             assertNotNull(solution);
             assertTrue(solution.solves(testInstance, true, true));
             if (testInstance.name.equals(instanceCircle1SharedGoal.name)){
@@ -410,7 +413,7 @@ class CBS_SolverTest {
         System.out.println("should not find a solution:");
         for (MAPF_Instance testInstance : new MAPF_Instance[]{instanceUnsolvable}){
             System.out.println("testing " + testInstance.name);
-            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParameters(5L*1000, null, instanceReport, null));
+            Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParametersBuilder().setTimeout(5L*1000).setInstanceReport(instanceReport).createRP());
             assertNull(solution);
         }
     }

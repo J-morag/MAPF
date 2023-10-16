@@ -32,4 +32,7 @@ public class Coordiantes {
     public final static I_Coordinate coor10 = new Coordinate_2D(1,0);
 
     public final static I_Coordinate coor15 = new Coordinate_2D(1,5);
+
+    public final static I_Coordinate coor20 = new Coordinate_2D(2,0);
+    public final static I_Coordinate coor21 = new Coordinate_2D(2,1);
 }

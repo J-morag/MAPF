@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
@@ -66,7 +67,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @NotNull
     private RunParameters getDefaultRunParameters() {
-        return new RunParameters(5L * 1000, null, instanceReport, null);
+        return new RunParametersBuilder().setTimeout(5L * 1000).setInstanceReport(instanceReport).createRP();
     }
 
     @Test
@@ -110,7 +111,7 @@ class LargeNeighborhoodSearch_SolverTest {
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         long softTimeout = 1000L;
         long hardTimeout = 5L * 1000;
-        Solution solved = solver.solve(testInstance, new RunParameters(hardTimeout, null, instanceReport, null, softTimeout));
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -156,7 +157,7 @@ class LargeNeighborhoodSearch_SolverTest {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParameters(timeout, null, report, null);
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -213,7 +214,9 @@ class LargeNeighborhoodSearch_SolverTest {
             if (! directory.exists()){
                 directory.mkdir();
             }
-            String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
@@ -282,7 +285,7 @@ class LargeNeighborhoodSearch_SolverTest {
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
 
-            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
+            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportBaseline).createRP();
 
             //solve
             Solution solutionBaseline = baselineSolver.solve(instance, runParametersBaseline);
@@ -295,7 +298,7 @@ class LargeNeighborhoodSearch_SolverTest {
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
 
-            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+            RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportExperimental).createRP();
 
             //solve
             Solution solutionExperimental = competitorSolver.solve(instance, runParametersExperimental);
@@ -331,8 +334,8 @@ class LargeNeighborhoodSearch_SolverTest {
                                 - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
 
                 // cost
-                sumCostBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.solutionCost);
-                sumCostExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.solutionCost);
+                sumCostBaseline += reportBaseline.getFloatValue(InstanceReport.StandardFields.solutionCost);
+                sumCostExperimental += reportExperimental.getFloatValue(InstanceReport.StandardFields.solutionCost);
             }
         }
 
@@ -353,7 +356,9 @@ class LargeNeighborhoodSearch_SolverTest {
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/Results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
             S_Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{

@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers;
 
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
@@ -15,8 +16,6 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -91,7 +90,7 @@ public class StressTests {
             report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             report.putStringValue(InstanceReport.StandardFields.solver, nameSolver);
 
-            RunParameters runParametersBaseline = new RunParameters(timeout, null, report, null);
+            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
 
             // solve
             Solution solution = solver.solve(instance, runParametersBaseline);
@@ -124,9 +123,9 @@ public class StressTests {
                 }
 
                 // cost
-                if (report.getIntegerValue(InstanceReport.StandardFields.solutionCost) != null){
-                    sumCost += report.getIntegerValue(InstanceReport.StandardFields.solutionCost);
-                    System.out.println(nameSolver + " Cost: " + report.getIntegerValue(InstanceReport.StandardFields.solutionCost));
+                if (report.getFloatValue(InstanceReport.StandardFields.solutionCost) != null){
+                    sumCost += report.getFloatValue(InstanceReport.StandardFields.solutionCost);
+                    System.out.println(nameSolver + " Cost: " + report.getFloatValue(InstanceReport.StandardFields.solutionCost));
                 }
             }
             System.out.println();

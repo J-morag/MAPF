@@ -13,9 +13,6 @@ import java.util.HashMap;
  *  An Interface for parsing instance files
  */
 public interface I_InstanceBuilder {
-
-
-
     /*  Builds instances and saves it in a data structure, ready for future use */
     void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties);
 
@@ -27,9 +24,6 @@ public interface I_InstanceBuilder {
 
     /* Determent the map's orientation, which axis is horizontal or vertical */
     MapDimensions.Enum_mapOrientation getMapOrientation();
-
-
-
 
     /*  =Static methods=    */
 

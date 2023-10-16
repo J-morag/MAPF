@@ -3,6 +3,7 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
@@ -78,7 +79,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize) {
-        this.solutionCostFunction = Objects.requireNonNullElse(solutionCostFunction, new SOCCostFunction());
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, null);
 
@@ -114,8 +115,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
         this.agents = new ArrayList<>(instance.agents);
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
-        this.constraints.sharedGoals = this.sharedGoals;
-        this.constraints.sharedSources = this.sharedSources;
+        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedSources(this.sharedSources);
         this.random = new Random(42);
         this.numIterations = 0;
 
@@ -123,10 +124,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        if (parameters instanceof RunParametersLNS runParametersLNS){
-            this.subSolverHeuristic = Objects.requireNonNullElse(runParametersLNS.aStarGAndH,
-                    new DistanceTableAStarHeuristic(this.agents, instance.map));
-        }
+        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.aStarGAndH,
+                new DistanceTableAStarHeuristic(this.agents, instance.map));
     }
 
     /*  = algorithm =  */
@@ -247,6 +246,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         InstanceReport subproblemReport = new InstanceReport();
         subproblemReport.putStringValue("Parent Instance", instance.name);
         subproblemReport.putStringValue("Parent Solver", PrioritisedPlanning_Solver.class.getSimpleName());
+        subproblemReport.keepSolutionString = false;
         return subproblemReport;
     }
 
@@ -258,8 +258,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParameters_PP(timeLeftToTimeout, subproblemConstraints, subproblemReport, null,
-                randomizedAgentsOrder.toArray(new Agent[0]), this.subSolverHeuristic);
+        return new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).createRP(), randomizedAgentsOrder.toArray(new Agent[0]));
     }
 
     /*  = wind down =  */
@@ -274,7 +273,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         }
         instanceReport.putIntegerValue("Num Iterations", numIterations);
         if(solution != null){
-            instanceReport.putIntegerValue(InstanceReport.StandardFields.solutionCost, Math.round(solutionCostFunction.solutionCost(solution)));
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
         }
     }

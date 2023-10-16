@@ -72,6 +72,23 @@ public class ConstraintSet{
 //        return constraints.size();
 //    }
 
+
+    public boolean isSharedGoals() {
+        return sharedGoals;
+    }
+
+    public void setSharedGoals(boolean sharedGoals) {
+        this.sharedGoals = sharedGoals;
+    }
+
+    public boolean isSharedSources() {
+        return sharedSources;
+    }
+
+    public void setSharedSources(boolean sharedSources) {
+        this.sharedSources = sharedSources;
+    }
+
     public boolean isEmpty() {
         return constraints.isEmpty();
     }

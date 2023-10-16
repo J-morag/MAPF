@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.AStar;
 
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
@@ -122,7 +123,7 @@ public class DistanceTableAStarHeuristicTest {
 
         DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
         SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
-        assertThrows(IllegalArgumentException.class, () -> solver.solve(testInstance, new RunParameters_SAAStar(new InstanceReport(), distanceTableAStarHeuristic)));
+        assertThrows(IllegalArgumentException.class, () -> solver.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setAStarGAndH(distanceTableAStarHeuristic).createRP()));
     }
 
 }

@@ -110,8 +110,9 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putStringValue(InstanceReport.StandardFields.processorInfo, processorInfo);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));
         if(solution != null){
-            instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
+            if (instanceReport.keepSolutionString)
+                instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
         }
         else{
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);

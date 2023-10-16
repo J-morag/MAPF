@@ -16,11 +16,11 @@ import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 
 public class Main {
     public static final String STR_AGENT_NUMS = "agentNums";
-    private static final String STR_MOVING_AI = "MovingAI";
-    private static final String STR_BGU = "BGU";
+    public static final String STR_MOVING_AI = "MovingAI";
+    protected static final String STR_BGU = "BGU";
+    public static final String STR_WAREHOUSE = "Warehouse";
     public static final String STR_INSTANCES_DIR = "instancesDir";
     public static final String STR_INSTANCES_REGEX = "instancesRegex";
-    private static final String STR_WAREHOUSE = "Warehouse";
     private static final String STR_RESULTS_DIR_OPTION = "resultsOutputDir";
     private static final String STR_RESULTS_FILE_PREFIX = "resultsFilePrefix";
     private static final String STR_TIMEOUT_EACH = "timeoutEach";
@@ -53,7 +53,7 @@ public class Main {
             I_VisualizeSolution visualiser = null;
             String instancesRegex = null;
             String resultsOutputDir = null;
-            String optResultsFilePrefix = null;
+            String optResultsFilePrefix = "Unnamed";
             int timeoutEach = 300000;
 
             // Parse arguments

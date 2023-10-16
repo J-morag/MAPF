@@ -27,7 +27,6 @@ import java.util.*;
  */
 public class SingleAgentAStar_Solver extends A_Solver {
 
-    protected static final int DEFAULT_PROBLEM_START_TIME = 0;
     private final Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
 
@@ -72,16 +71,18 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.agent = instance.agents.get(0);
         this.map = instance.map;
 
+        this.problemStartTime = runParameters.problemStartTime;
         if(runParameters.existingSolution != null){
             this.existingSolution = runParameters.existingSolution;
             if(runParameters.existingSolution.getPlanFor(this.agent) != null){
                 this.existingPlan = runParameters.existingSolution.getPlanFor(this.agent);
-                this.problemStartTime = this.existingPlan.getEndTime();
+                if (existingPlan.size() > 0){
+                    this.problemStartTime = this.existingPlan.getEndTime();
+                }
             }
             else {
                 this.existingPlan = new SingleAgentPlan(this.agent);
                 this.existingSolution.putPlan(this.existingPlan);
-                this.problemStartTime = DEFAULT_PROBLEM_START_TIME;
             }
         }
         else{
@@ -89,11 +90,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.existingSolution = new Solution();
             this.existingPlan = new SingleAgentPlan(this.agent);
             this.existingSolution.putPlan(this.existingPlan);
-        }
-
-        if(runParameters instanceof RunParameters_SAAStar parameters
-                && ((RunParameters_SAAStar) runParameters).problemStartTime >= 0){
-            this.problemStartTime = parameters.problemStartTime;
         }
 
         if(runParameters instanceof RunParameters_SAAStar parameters
@@ -119,15 +115,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.goalCondition = new SingleTargetCoordinateGoalCondition(this.targetCoor);
         }
 
-        if(runParameters instanceof RunParameters_SAAStar parameters
-                && ((RunParameters_SAAStar) runParameters).heuristicFunction != null){
-            this.gAndH = parameters.heuristicFunction;
-        }
-        else{
-            this.gAndH = new UnitCostsAndManhattanDistance(this.targetCoor);
-        }
+        this.gAndH = Objects.requireNonNullElseGet(runParameters.aStarGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
         if (! this.gAndH.isConsistent()){
-            throw new IllegalArgumentException("Support for inconsistent heuristic is not implemented.");
+            throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
         }
 
         if(runParameters instanceof RunParameters_SAAStar parameters){
