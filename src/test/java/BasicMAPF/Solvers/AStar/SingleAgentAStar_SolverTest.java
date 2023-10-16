@@ -427,7 +427,7 @@ class SingleAgentAStar_SolverTest {
     }
 
     @Test
-    void findsPIBTStylePlanUnderConstraintsUsingPIBTStyleGoalCondition() {
+    void findsTMAPFPlanUnderConstraintsUsingTMAPFGoalCondition() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
@@ -449,7 +449,7 @@ class SingleAgentAStar_SolverTest {
     }
 
     @Test
-    void findsPIBTStylePlanUnderConstraintsAlsoAroundGoalUsingPIBTStyleGoalCondition() {
+    void findsTMAPFPlanUnderConstraintsAlsoAroundGoalUsingTMAPFGoalCondition() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));

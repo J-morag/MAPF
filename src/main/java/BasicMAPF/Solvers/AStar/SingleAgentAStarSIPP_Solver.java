@@ -5,7 +5,7 @@ import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
-import BasicMAPF.Instances.Maps.GraphMapVertex;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -26,9 +26,13 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
-        constraintsByLocation = vertexConstraintsToFreeTimeIntervals(this.constraints, this.map.getAllGraphLocations());
+        if (this.map instanceof I_ExplicitMap explicitMap){
+            constraintsByLocation = vertexConstraintsToFreeTimeIntervals(this.constraints, explicitMap.getAllLocations());
+
+        }
+        else throw new IllegalArgumentException("SIPP only supports explicit maps");
         if (goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("SIPP does not support " + VisitedAGoalAtSomePointInPlanGoalCondition.class.getSimpleName() + " as a goal condition");
         }
     }
 
@@ -206,7 +210,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private HashMap<I_Location, ArrayList<Interval>> vertexConstraintsToFreeTimeIntervals(ConstraintSet constraints, HashMap<I_Coordinate, GraphMapVertex> allGraphLocations) {
+    private HashMap<I_Location, ArrayList<Interval>> vertexConstraintsToFreeTimeIntervals(ConstraintSet constraints, Collection<? extends I_Location> allLocations) {
         /*
           Originally constraints are by location and time, for the SIPP algorithm
           we convert the production of the constraints into time intervals by location
@@ -244,8 +248,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
 
         // Add [0, inf] interval for locations in allGraphLocations that are not in intervalMap
-        for (I_Coordinate coordinate : allGraphLocations.keySet()) {
-            I_Location location = allGraphLocations.get(coordinate);
+        for (I_Location location : allLocations) {
             if (!intervalMap.containsKey(location)) {
                 ArrayList<Interval> infInterval = new ArrayList<>();
                 infInterval.add(new Interval(0, Integer.MAX_VALUE));

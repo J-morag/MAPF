@@ -45,11 +45,11 @@ public class ConstraintSet{
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
     public Set<I_ConstraintGroupingKey> getKeySet(){
-        return constraints.keySet();
+        return Collections.unmodifiableSet(constraints.keySet());
     }
 
     public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet(){
-        return constraints.entrySet();
+        return Collections.unmodifiableSet(constraints.entrySet());
     }
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}
@@ -214,7 +214,7 @@ public class ConstraintSet{
      * @param finalMove a move to occupy a location indefinitely.
      * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
      */
-    public int rejectsEventually(Move finalMove){
+    public int rejectsEventually(Move finalMove, boolean checkOtherAgentsLastMoves){
         int firstRejectionTime = Integer.MAX_VALUE;
         // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
         // traverses the entire data structure. expensive.
@@ -232,19 +232,28 @@ public class ConstraintSet{
                 }
             }
         }
-        // #goalConstraints is irrelevant, since if there are no shared goals, there won't be two agents trying to get
-        // to the same goal, and if there are shared goals then it's not a conflict
+        // Unless explicitly requested, #goalConstraints is irrelevant, since if there are no shared goals,
+        // there won't be two agents trying to get to the same goal, and if there are shared goals then it's not a conflict
+        if (checkOtherAgentsLastMoves && !sharedGoals){
+            // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
+            for (I_Location loc : goalConstraints.keySet()){
+                if (loc.equals(finalMove.currLocation)){ // any two constraints that are infinite in time will eventually conflict
+                    GoalConstraint constraint = this.goalConstraints.get(loc);
+                    firstRejectionTime = constraint.time;
+                }
+            }
+        }
 
         return firstRejectionTime == Integer.MAX_VALUE ? -1 : firstRejectionTime;
     }
 
     /**
-     * The opposite of {@link #rejectsEventually(Move)}.
+     * The opposite of {@link #rejectsEventually(Move, boolean)}.
      * @param finalMove a move to occupy a location indefinitely.
      * @return true if no constraint would eventually reject a "stay" move at the given move's location.
      */
-    public boolean acceptsForever(Move finalMove){
-        return rejectsEventually(finalMove) == -1;
+    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves) {
+        return rejectsEventually(finalMove, checkOtherAgentsLastMoves) == -1;
     }
 
     /**
@@ -252,7 +261,7 @@ public class ConstraintSet{
      * the given {@link Move}.
      *
      * Doesn't assume that the last move means stay at goal forever.
-     * @see #acceptsForever(Move)
+     * @see #acceptsForever(Move, boolean)
      * @param moves a {@link Collection} of {@link Move}s to check if the are ejected or not.
      * @return true iff all of the given {@link Move}s conflict with any of the {@link Constraint}s that were
      *          {@link #add(Constraint) added} to this set.
@@ -270,7 +279,7 @@ public class ConstraintSet{
      * the given {@link Move}.
      *
      * Doesn't assume that the last move means stay at goal forever.
-     * @see #acceptsForever(Move)
+     * @see #acceptsForever(Move, boolean)
      * @param moves
      * @return the opposite of {@link #rejectsAll(Collection)}.
      */

@@ -29,7 +29,5 @@ public interface I_Map {
      */
     I_Map getSubmapWithout(Collection<? extends I_Location> mapLocations);
 
-    HashMap<I_Coordinate, GraphMapVertex> getAllGraphLocations();
-
     boolean isStronglyConnected();
 }

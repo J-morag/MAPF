@@ -487,6 +487,8 @@ class SingleAgentAStarSIPP_SolverTest {
         assertEquals(5, solved.getPlanFor(agent).size());
         assertEquals(expected, solved);
     }
+
+    // Not supported yet
     @Disabled
     @Test
     void findsPIBTStylePlanUnderConstraintsUsingPIBTStyleGoalCondition() {
@@ -509,6 +511,8 @@ class SingleAgentAStarSIPP_SolverTest {
         // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
         assertEquals(8, solved1.getPlanFor(agent).size());
     }
+
+    // Not supported yet
     @Disabled
     @Test
     void findsPIBTStylePlanUnderConstraintsAlsoAroundGoalUsingPIBTStyleGoalCondition() {
