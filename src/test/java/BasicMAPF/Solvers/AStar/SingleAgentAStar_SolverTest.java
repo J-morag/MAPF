@@ -250,7 +250,7 @@ class SingleAgentAStar_SolverTest {
             }
             checkDuplicates = new HashSet<I_Location>();
         }
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = aStar.solve(testInstance, parameters);
         assertNotNull(solved);

@@ -1,9 +1,6 @@
 package BasicMAPF.Solvers.AStar;
 
-import BasicMAPF.DataTypesAndStructures.Move;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
@@ -93,7 +90,7 @@ class SingleAgentAStarSIPP_SolverTest {
     @Test
     void oneMoveSolution() {
         MAPF_Instance testInstance = instance1stepSolution;
-        Solution s = sipp.solve(testInstance, new RunParameters());
+        Solution s = sipp.solve(testInstance, new RunParametersBuilder().createRP());
 
         Map<Agent, SingleAgentPlan> plans = new HashMap<>();
         SingleAgentPlan plan = new SingleAgentPlan(testInstance.agents.get(0));
@@ -110,7 +107,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         Agent agent = testInstance.agents.get(0);
 
-        Solution solved = sipp.solve(testInstance, new RunParameters());
+        Solution solved = sipp.solve(testInstance, new RunParametersBuilder().createRP());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location32Circle));
@@ -133,7 +130,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Constraint vertexConstraint = new Constraint(null, 1, null, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(vertexConstraint);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = sipp.solve(testInstance, parameters);
 
@@ -159,7 +156,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Constraint vertexConstraint = new Constraint(agent, 1, null, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(vertexConstraint);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = sipp.solve(testInstance, parameters);
 
@@ -184,7 +181,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Constraint swappingConstraint = new Constraint(agent, 1, location33Circle, location32Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(swappingConstraint);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = sipp.solve(testInstance, parameters);
 
@@ -213,7 +210,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(swappingConstraint1);
         constraints.add(swappingConstraint2);
         constraints.add(swappingConstraint3);
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = sipp.solve(testInstance, parameters);
 
@@ -261,7 +258,7 @@ class SingleAgentAStarSIPP_SolverTest {
             checkDuplicates = new HashSet<>();
         }
         SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
-        RunParameters parameters = new RunParameters(constraints);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
         long startTime = System.currentTimeMillis();
         Solution sippSolution = sipp.solve(testInstance, parameters);
         long endTime = System.currentTimeMillis();
@@ -336,7 +333,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Agent agent = testInstance.agents.get(0);
 
-        Solution solved = sipp.solve(testInstance, new RunParameters());
+        Solution solved = sipp.solve(testInstance, new RunParametersBuilder().createRP());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location12Circle, location22Circle));
@@ -357,8 +354,8 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance2 = instanceEmpty2;
         Agent agent2 = testInstance2.agents.get(0);
 
-        Solution solved1 = sipp.solve(testInstance1, new RunParameters());
-        Solution solved2 = sipp.solve(testInstance2, new RunParameters());
+        Solution solved1 = sipp.solve(testInstance1, new RunParametersBuilder().createRP());
+        Solution solved2 = sipp.solve(testInstance2, new RunParametersBuilder().createRP());
 
         assertEquals(7, solved1.getPlanFor(agent1).size());
         assertEquals(5, solved2.getPlanFor(agent2).size());
@@ -369,7 +366,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance testInstance = instanceUnsolvable;
 
         // three second timeout
-        RunParameters runParameters = new RunParameters(1000*3);
+        RunParameters runParameters = new RunParametersBuilder().setTimeout(1000*3).createRP();
         Solution solved = sipp.solve(testInstance, runParameters);
 
         assertNull(solved);
@@ -382,7 +379,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Constraint constraintAtTimeAfterReachingGoal = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal);
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved1 = sipp.solve(testInstance, runParameters);
 
@@ -400,7 +397,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,5, null, location33Circle);
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraintAtTimeAfterReachingGoal1);
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = sipp.solve(testInstance, runParameters);
 
@@ -432,7 +429,7 @@ class SingleAgentAStarSIPP_SolverTest {
         for (int t = 0; t < 200 /*agents*/ * 200 /*timesteps* * 2 /*constraints*/; t++) {
             constraints.add(new Constraint(agent,t, null, instanceEmpty1.map.getMapLocation(coor15)));
         }
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved1 = sipp.solve(testInstance, runParameters);
 
@@ -451,7 +448,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal1);
         constraints.add(constraintAtTimeAfterReachingGoal2);
         constraints.add(constraintAtTimeAfterReachingGoal3);
-        RunParameters runParameters = new RunParameters(constraints);
+        RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved1 = sipp.solve(testInstance, runParameters);
 
@@ -473,7 +470,7 @@ class SingleAgentAStarSIPP_SolverTest {
         existingSolution.putPlan(existingPlan);
 
         // give the solver a plan to continue from
-        Solution solved = sipp.solve(testInstance, new RunParameters(existingSolution));
+        Solution solved = sipp.solve(testInstance, new RunParametersBuilder().setExistingSolution(existingSolution).createRP());
 
         SingleAgentPlan plan = new SingleAgentPlan(agent);
         plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
@@ -502,7 +499,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal2);
         constraints.add(constraintAtTimeAfterReachingGoal3);
 
-        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
         runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
 
         Solution solved1 = sipp.solve(testInstance, runParameters);
@@ -530,7 +527,7 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoalAroundGoal1);
         constraints.add(constraintAtTimeAfterReachingGoalAroundGoal2);
 
-        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParameters(constraints, new InstanceReport()));
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
         runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
 
         Solution solved1 = sipp.solve(testInstance, runParameters);
@@ -685,7 +682,7 @@ class SingleAgentAStarSIPP_SolverTest {
     }
 
     private void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
-        RunParameters aStarRunParameters = new RunParameters_SAAStar(instanceReport, costFunction);
+        RunParameters aStarRunParameters = new RunParametersBuilder().setInstanceReport(instanceReport).setAStarGAndH(costFunction).createRP();
 
         String identifier = testInstance.name + " " + agent.source + " to " + agent.target;
         System.out.println("\n" + identifier);
@@ -771,7 +768,7 @@ class SingleAgentAStarSIPP_SolverTest {
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, "regularCBS");
 
-            RunParameters runParametersBaseline = new RunParameters(timeout, null, reportBaseline, null);
+            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportBaseline).createRP();
 
             //solve
             Solution solutionBaseline = regularCBS.solve(instance, runParametersBaseline);
@@ -784,7 +781,7 @@ class SingleAgentAStarSIPP_SolverTest {
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, "singleAgentSippCBS");
 
-            RunParameters runParametersExperimental = new RunParameters(timeout, null, reportExperimental, null);
+            RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportExperimental).createRP();
 
             //solve
             Solution solutionExperimental = singleAgentSippCBS.solve(instance, runParametersExperimental);
