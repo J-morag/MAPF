@@ -28,7 +28,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         super.init(instance, runParameters);
         constraintsByLocation = vertexConstraintsToFreeTimeIntervals(this.constraints, this.map.getAllGraphLocations());
         if (goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
         }
     }
 
