@@ -341,7 +341,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
         protected final int conflicts;
         public final boolean hasVisitedTargetLocationAncestor;
 
-
         public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean isMoveToTargetLocation) {
             this.move = move;
             this.prev = prevState;

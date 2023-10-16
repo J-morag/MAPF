@@ -491,7 +491,7 @@ class SingleAgentAStarSIPP_SolverTest {
     // Not supported yet
     @Disabled
     @Test
-    void findsPIBTStylePlanUnderConstraintsUsingPIBTStyleGoalCondition() {
+    void findsTMAPFPlanUnderConstraintsUsingTMAPFGoalCondition() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
@@ -515,7 +515,7 @@ class SingleAgentAStarSIPP_SolverTest {
     // Not supported yet
     @Disabled
     @Test
-    void findsPIBTStylePlanUnderConstraintsAlsoAroundGoalUsingPIBTStyleGoalCondition() {
+    void findsTMAPFPlanUnderConstraintsAlsoAroundGoalUsingTMAPFGoalCondition() {
         MAPF_Instance testInstance = instanceEmpty1;
         Agent agent = testInstance.agents.get(0);
         Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,9, null, instanceEmpty1.map.getMapLocation(coor05));
@@ -755,8 +755,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-//        long timeout = 60 /*seconds*/   *1000L;
-        long timeout = 1000000000 /*seconds*/   *1000L;
+        long timeout = 20 /*seconds*/   *1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
@@ -840,7 +839,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
         //save results
         DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "CBS_Tests"});
+        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
             directory.mkdir();
