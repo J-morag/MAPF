@@ -122,7 +122,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         List<Interval> freeIntervalsCurrLocation = constraintsByLocation.get(currLocation);
         int nextMoveStartTime = possibleMove.timeNow;
 
-        Interval prevLocationRelevantInterval = init ? constraintsByLocation.get(prevLocation).get(0):state.timeInterval;
+        Interval prevLocationRelevantInterval = init ? constraintsByLocation.get(prevLocation).get(0) : state.timeInterval;
 
         // Iterate through the intervals of the current location
         for (Interval currInterval : freeIntervalsCurrLocation) {
