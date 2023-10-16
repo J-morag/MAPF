@@ -296,6 +296,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             assert that.move != null;
             return move.currLocation.equals(that.move.currLocation);
         }
+        
         @Override
         public int hashCode() {
             assert move != null;
