@@ -69,7 +69,7 @@ public class PIBT_Solver extends A_Solver {
     public final Integer RHCR_Horizon;
 
     /**
-     * Agent's plans build only from this timestamp
+     * Agent's plans build only from this timestamp.
      */
     public Integer problemStartTime;
 
@@ -95,8 +95,8 @@ public class PIBT_Solver extends A_Solver {
         this.currentLocations = new HashMap<>();
         this.priorities = new HashMap<>();
         this.agentPlans = new HashMap<>();
-        this.timeStamp = 0;
         this.reachingGoalsConfigurations = new HashMap<>();
+        this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
 
         for (Agent agent : instance.agents) {
@@ -127,10 +127,10 @@ public class PIBT_Solver extends A_Solver {
         while (!(finished())) {
 
             // algorithm starts agent's plans only from problemTimeStamp
-            if (this.problemStartTime > this.timeStamp) {
-                this.timeStamp++;
-                continue;
-            }
+//            if (this.problemStartTime > this.timeStamp) {
+//                this.timeStamp++;
+//                continue;
+//            }
 
             // loop?
             if (this.timeStamp > 0) {
@@ -224,18 +224,18 @@ public class PIBT_Solver extends A_Solver {
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
-            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-            }
+//            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+//                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+//            }
         }
         return solution;
     }
 
     /**
-     * recursive main function to solve PIBT
-     * @param current agent making the decision
-     * @param higherPriorityAgent agent which current inherits priority from
-     * @return boolean - is current agent made a valid / invalid move
+     * recursive main function to solve PIBT.
+     * @param current agent making the decision.
+     * @param higherPriorityAgent agent which current inherits priority from.
+     * @return boolean - is current agent made a valid / invalid move.
      */
     protected boolean solvePIBT(Agent current, @Nullable Agent higherPriorityAgent) {
         if (current == null) {
@@ -326,8 +326,8 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * helper function
-     * update priority of each agent in current timestamp using instance
+     * helper function.
+     * update priority of each agent in current timestamp using instance.
      */
     private void updatePriorities(MAPF_Instance instance) {
         for (Agent agent : this.priorities.keySet()) {
@@ -343,21 +343,21 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * helper function to find all neighbors of single agent
-     * @param location to find his neighbors
-     * @return List contains all neighbors of current I_Location
+     * helper function to find all neighbors of single agent.
+     * @param location to find his neighbors.
+     * @return List contains all neighbors of current I_Location.
      */
     private List<I_Location> findAllNeighbors(I_Location location) {
         return location.outgoingEdges();
     }
 
     /**
-     * helper function to find best coordinate among candidates
-     * best will be the node which is closest to current agent goal
-     * distances are calculated using this.heuristic
-     * @param candidates list of candidates
-     * @param current Agent currently making decision
-     * @return I_Location - node who is closets to current goal among candidates
+     * helper function to find best coordinate among candidates.
+     * best will be the node which is closest to current agent goal.
+     * distances are calculated using this.heuristic.
+     * @param candidates list of candidates.
+     * @param current Agent currently making decision.
+     * @return I_Location - node who is closets to current goal among candidates.
      */
     private I_Location findBest(List<I_Location> candidates, Agent current) {
         I_Location bestCandidate = null;
@@ -373,9 +373,9 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * init priority of each agent in the beginning of the algorithm
-     * each agent have a unique double representing his priority
-     * update this.priorities
+     * init priority of each agent in the beginning of the algorithm.
+     * each agent have a unique double representing his priority.
+     * update this.priorities.
      */
     private void initPriority(MAPF_Instance instance) {
         int numberOfAgents = instance.agents.size();
@@ -389,9 +389,9 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * function to get map entry with maximum value
-     * extract agent with max priority
-     * @param prioritiesMap representing agents and their priority
+     * function to get map entry with maximum value.
+     * extract agent with max priority.
+     * @param prioritiesMap representing agents and their priority.
      * @return map entry <agent, priority>
      */
     public Map.Entry<Agent, Double> getMaxEntry(Map<Agent, Double> prioritiesMap) {
@@ -406,10 +406,10 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * boolean function to check if all agents reach their goals
-     * when an agent reaches his goal, his priority set to -1.0
-     * if one of the agents have priority different then -1.0, then return false
-     * @return boolean indicates if all agents reached their goal
+     * boolean function to check if all agents reach their goals.
+     * when an agent reaches his goal, his priority set to -1.0.
+     * if one of the agents have priority different then -1.0, then return false.
+     * @return boolean indicates if all agents reached their goal.
      */
     private boolean finished() {
         for (Double priority : this.priorities.values()) {
@@ -421,9 +421,9 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * function to verify that agent can move in the current timestamp
-     * the function return True if the agent didn't make a move in the current timestamp and false if he did
-     * @param agent - agent to verify next move
+     * function to verify that agent can move in the current timestamp.
+     * the function return True if the agent didn't make a move in the current timestamp and false if he did.
+     * @param agent - agent to verify next move.
      */
     private boolean canMove(Agent agent) {
         SingleAgentPlan agentPlan = this.agentPlans.get(agent);
@@ -431,10 +431,10 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * function that adds new move to an agent
-     * @param current - the agent we need to add move to
-     * @param newLocation - the location that the agent is moving to
-     * @return boolean : true if the move added successfully, false otherwise
+     * function that adds new move to an agent.
+     * @param current - the agent we need to add move to.
+     * @param newLocation - the location that the agent is moving to.
+     * @return boolean : true if the move added successfully, false otherwise.
      */
     private boolean addNewMoveToAgent(Agent current, I_Location newLocation) {
         Move move = new Move(current, this.timeStamp, this.currentLocations.get(current), newLocation);
@@ -460,13 +460,16 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * relevant function for lifelong version of MAPF
-     * planning horizon - after k timestamps, ignore all conflicts
-     * this function check whether k timestamps have passed
-     * @return boolean: true if conflicts needs to be checked, otherwise return false
+     * relevant function for lifelong version of MAPF.
+     * planning horizon - after k timestamps, ignore all conflicts.
+     * this function check whether k timestamps have passed.
+     * @return boolean: true if conflicts needs to be checked, otherwise return false.
      */
     private boolean needToCheckConflicts() {
-        return this.RHCR_Horizon > this.timeStamp;
+        if (this.timeStamp != 0) {
+            return this.RHCR_Horizon > this.timeStamp;
+        }
+        return true;
     }
 
     @Override
