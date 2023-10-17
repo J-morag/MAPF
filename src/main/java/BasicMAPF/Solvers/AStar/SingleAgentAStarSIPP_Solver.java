@@ -172,7 +172,10 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             if (!constraints.accepts(possibleMove)) return;
 
             // Generate child state based on the possible move
-            child = generateChildState(possibleMove, child, prevLocationRelevantInterval, init);
+            if (init) {
+                child = generateChildState(possibleMove, child, prevLocationRelevantInterval, init);
+                init = false;
+            } else child = generateChildState(possibleMove, child, prevLocationRelevantInterval, false);
 
             afterLastConstraint = child.move.timeNow > constraints.getLastConstraintTime();
             possibleMoveTime = !afterLastConstraint ? possibleMove.timeNow + 1 : child.move.timeNow;
