@@ -54,6 +54,13 @@ public class Maps {
             { e, e, e, e},
             { e, w, w, e},
     };
+
+    public static final Enum_MapLocationType[][] map_2D_small = {
+            { e, e, e},
+            { w, e, w}
+    };
+    public static final I_ExplicitMap mapTwoWallsSmall = MapFactory.newSimple4Connected2D_GraphMap(map_2D_small);
+
     public static final I_ExplicitMap mapH = MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
 
     public static final Enum_MapLocationType[][] twoLocationMap = new Enum_MapLocationType[][]{{e,e}};

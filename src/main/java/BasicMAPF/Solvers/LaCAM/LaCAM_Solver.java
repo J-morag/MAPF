@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers.LaCAM;
 
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -8,6 +9,9 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.A_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.PIBT.PIBT_Solver;
+import Environment.Metrics.InstanceReport;
 
 import java.util.*;
 
@@ -39,12 +43,18 @@ public class LaCAM_Solver extends A_Solver {
      */
     private HashMap<Agent, I_Location> goalConfiguration;
 
+    private PIBT_Solver subInstanceSolver;
+
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
         this.open = new Stack<>();
         this.explored = new HashMap<>();
         this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
         this.priorities = new HashMap<>();
+        this.goalConfiguration = new HashMap<>();
+
+        // TODO - add parameter for 1 RHCR window for lifelong PIBT
+        this.subInstanceSolver = new PIBT_Solver(null);
 
         // init agent's priority to unique number
         initPriority(instance);
@@ -76,20 +86,21 @@ public class LaCAM_Solver extends A_Solver {
                 continue;
             }
 
-            // WHAT
             LowLevelNode C = N.tree.poll();
             if (C.depth <= instance.agents.size()) {
-                Agent chosenAgent = N.order.get(C.depth - 1); // -1?
+                Agent chosenAgent = N.order.get(C.depth); // -1?
                 I_Location chosenLocation = N.configuration.get(chosenAgent);
                 List<I_Location> locations = new ArrayList<>(findAllNeighbors(chosenLocation));
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
                     N.tree.add(C_new);
                 }
+                // add current location
+                LowLevelNode C_new = new LowLevelNode(C, chosenAgent, chosenLocation);
+                N.tree.add(C_new);
             }
-            // WHAT
 
-            HashMap<Agent, I_Location> newConfiguration = getNewConfig(N,C);
+            HashMap<Agent, I_Location> newConfiguration = getNewConfig(N,C, instance);
 
             // algorithm couldn't find configuration
             if (newConfiguration == null) {
@@ -115,8 +126,26 @@ public class LaCAM_Solver extends A_Solver {
      * generates new configuration from current configuration according to N, following constraints defined in C.
      * @return new configuration.
      */
-    private HashMap<Agent, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C) {
-//        TODO
+    private HashMap<Agent, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C, MAPF_Instance instance) {
+        Set<Agent> agentsSubset = new HashSet<>();
+        MAPF_Instance subInstance = instance.getSubproblemFor(agentsSubset);
+//        TODO - how to set locations of agents in agentSubset?
+        ConstraintSet constraints = new ConstraintSet();
+
+        RunParameters subProblemParameters;
+        // depth is zero hence target low level node is the root
+        if (C.depth == 0) {
+            subProblemParameters = new RunParametersBuilder().createRP();
+        }
+        // depth is not 0, hence there are some constraints
+        else {
+            //        TODO - create constraints according to low level search
+            subProblemParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
+        }
+
+
+        Solution subInstanceSolution = this.subInstanceSolver.solve(subInstance, subProblemParameters);
+//        TODO - create new configuration from subInstanceSolution
         return null;
     }
 

@@ -13,6 +13,11 @@ public class LowLevelNode {
         this.parent = parent;
         this.who = who;
         this.where = where;
-        this.depth = parent.depth + 1;
+        if (parent == null) {
+            this.depth = 0;
+        }
+        else {
+            this.depth = parent.depth + 1;
+        }
     }
 }
