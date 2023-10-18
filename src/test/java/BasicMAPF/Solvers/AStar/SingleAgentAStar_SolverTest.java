@@ -684,7 +684,7 @@ class SingleAgentAStar_SolverTest {
         }
     }
 
-    public void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
+    public static void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
         RunParameters runParameters = new RunParametersBuilder().setInstanceReport(instanceReport).setAStarGAndH(costFunction).createRP();
 
         String identifier = testInstance.name + " " + agent.source + " to " + agent.target;

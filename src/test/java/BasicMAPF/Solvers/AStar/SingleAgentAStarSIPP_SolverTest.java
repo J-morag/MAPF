@@ -681,58 +681,6 @@ class SingleAgentAStarSIPP_SolverTest {
         }
     }
 
-    private void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
-        RunParameters aStarRunParameters = new RunParametersBuilder().setInstanceReport(instanceReport).setAStarGAndH(costFunction).createRP();
-
-        String identifier = testInstance.name + " " + agent.source + " to " + agent.target;
-        System.out.println("\n" + identifier);
-
-        Solution aStarSolution = aStar.solve(testInstance, aStarRunParameters);
-        List<Integer> aSTsarPlanCosts = null;
-        if (aStarSolution != null){
-            List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));
-            aSTsarPlanCosts = getCosts(agent, costFunction, aStarPlanLocations);
-            System.out.println("AStar:");
-            System.out.println(aStarPlanLocations);
-            System.out.println(aSTsarPlanCosts);
-        }
-        else{
-            System.out.println("AStar Didn't Solve!!!");
-        }
-
-        List<I_Location> UCSPlanLocations = NoStateTimeSearches.uniformCostSearch(testInstance.map.getMapLocation(agent.target),
-                testInstance.map.getMapLocation(agent.source), costFunction, agent);
-        List<Integer> UCSPlanCosts = null;
-        if (UCSPlanLocations != null){
-            UCSPlanCosts = getCosts(agent, costFunction, UCSPlanLocations);
-            System.out.println("UCS:");
-            System.out.println(UCSPlanLocations);
-            System.out.println(UCSPlanCosts);
-        }
-        else{
-            System.out.println("UCS Didn't Solve!!!");
-        }
-
-
-        System.out.println("Costs were:");
-        System.out.println(costFunction);
-
-        assertNotNull(aStarSolution);
-        assertNotNull(UCSPlanLocations);
-
-        int costAStar = 0;
-        int costUCS = 0;
-        for (int i = 0; i < Math.max(aSTsarPlanCosts.size(), UCSPlanCosts.size()); i++) {
-            if (i < aSTsarPlanCosts.size()){
-                costAStar += aSTsarPlanCosts.get(i);
-            }
-            if (i < UCSPlanCosts.size()){
-                costUCS += UCSPlanCosts.get(i);
-            }
-        }
-        assertEquals(costAStar, costUCS);
-    }
-
     @Test
     void comparativeDiverseTest(){
         S_Metrics.clearAll();
