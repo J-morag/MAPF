@@ -3,7 +3,6 @@ package BasicMAPF.Solvers.AStar;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -18,16 +17,17 @@ import java.util.stream.Collectors;
 
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
-    private HashMap<I_Location, ArrayList<Interval>> constraintsByLocation;
+    private HashMap<I_Location, List<Interval>> safeIntervalsByLocation;
 
     private record Interval(int start, int end) {
+        public static final Interval infInterval = new Interval(0, Integer.MAX_VALUE);
     }
 
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
         if (this.map instanceof I_ExplicitMap explicitMap){
-            constraintsByLocation = vertexConstraintsToFreeTimeIntervals(this.constraints, explicitMap.getAllLocations());
+            safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints, explicitMap.getAllLocations());
 
         }
         else throw new IllegalArgumentException("SIPP only supports explicit maps");
@@ -49,7 +49,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             int existingPlanTotalCost = existingPlan.getCost();
 
             // Find the time interval for the last move
-            List<Interval> intervals = constraintsByLocation.get(lastExistingMove.currLocation);
+            List<Interval> intervals = getIntervalsForLocation(lastExistingMove.currLocation);
             Interval lastMoveInterval = null;
             for (Interval interval : intervals) {
                 if (interval.start <= lastExistingMove.timeNow && interval.end >= lastExistingMove.timeNow) {
@@ -75,6 +75,10 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
         // if none of the root nodes was valid, OPEN will be empty, and thus uninitialised.
         return !openList.isEmpty();
+    }
+
+    private List<Interval> getIntervalsForLocation(I_Location location) {
+        return safeIntervalsByLocation.computeIfAbsent(location, k -> Collections.singletonList(Interval.infInterval));
     }
 
     @Override
@@ -123,10 +127,10 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         I_Location currLocation = possibleMove.currLocation;
 
         // Retrieve free intervals for the current location
-        List<Interval> freeIntervalsCurrLocation = constraintsByLocation.get(currLocation);
+        List<Interval> freeIntervalsCurrLocation = getIntervalsForLocation(currLocation);
         int nextMoveStartTime = possibleMove.timeNow;
 
-        Interval prevLocationRelevantInterval = init ? constraintsByLocation.get(prevLocation).get(0) : state.timeInterval;
+        Interval prevLocationRelevantInterval = init ? getIntervalsForLocation(prevLocation).get(0) : state.timeInterval;
 
         // Iterate through the intervals of the current location
         for (Interval currInterval : freeIntervalsCurrLocation) {
@@ -197,7 +201,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private HashMap<I_Location, ArrayList<Interval>> vertexConstraintsToFreeTimeIntervals(ConstraintSet constraints, Collection<? extends I_Location> allLocations) {
+    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(ConstraintSet constraints, Collection<? extends I_Location> allLocations) {
         /*
           Originally constraints are by location and time, for the SIPP algorithm
           we convert the production of the constraints into time intervals by location
@@ -223,9 +227,9 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             timesList.add(timeLocation.getTime());
         }
 
-        HashMap<I_Location, ArrayList<Interval>> intervalMap = new HashMap<>();
+        HashMap<I_Location, List<Interval>> intervalMap = new HashMap<>();
         for (I_Location location : timeIntervals.keySet()) {
-            ArrayList<Integer> timestamps = timeIntervals.get(location);
+            List<Integer> timestamps = timeIntervals.get(location);
 
             // Convert the timestamps to intervals using timestampsToIntervals function
             ArrayList<Interval> intervals = timestampsToFreeIntervals(timestamps);
@@ -234,19 +238,10 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             intervalMap.put(location, intervals);
         }
 
-        // Add [0, inf] interval for locations in allGraphLocations that are not in intervalMap
-        for (I_Location location : allLocations) {
-            if (!intervalMap.containsKey(location)) {
-                ArrayList<Interval> infInterval = new ArrayList<>();
-                infInterval.add(new Interval(0, Integer.MAX_VALUE));
-                intervalMap.put(location, infInterval);
-            }
-        }
-
         return intervalMap;
     }
 
-    private static ArrayList<Interval> timestampsToFreeIntervals(ArrayList<Integer> timestamps) {
+    private static ArrayList<Interval> timestampsToFreeIntervals(List<Integer> timestamps) {
         // Sort timestamps in ascending order
         Collections.sort(timestamps);
 
