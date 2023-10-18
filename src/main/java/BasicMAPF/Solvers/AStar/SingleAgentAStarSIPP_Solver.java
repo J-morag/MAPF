@@ -197,19 +197,6 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private void addToOpenList(AStarSIPPState state) {
-        AStarSIPPState existingState;
-        if (closed.contains(state)) { // state visited already
-            // TODO for inconsistent heuristics - if the new one has a lower f, remove the old one from closed
-            // and add the new one to open
-        } else if (null != (existingState = (AStarSIPPState) openList.get(state))) { //an equal state is waiting in open
-            //keep the one with min G
-            state.keepTheStateWithMinG(state, existingState); //O(LOGn)
-        } else { // it's a new state
-            openList.add(state);
-        }
-    }
-
     private HashMap<I_Location, ArrayList<Interval>> vertexConstraintsToFreeTimeIntervals(ConstraintSet constraints, Collection<? extends I_Location> allLocations) {
         /*
           Originally constraints are by location and time, for the SIPP algorithm

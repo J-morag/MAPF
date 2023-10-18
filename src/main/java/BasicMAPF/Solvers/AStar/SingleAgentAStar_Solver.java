@@ -249,17 +249,21 @@ public class SingleAgentAStar_Solver extends A_Solver {
                         state.g + gAndH.cost(possibleMove),
                         state.conflicts + numConflicts(possibleMove), isMoveToTarget(possibleMove));
 
-                AStarState existingState;
-                if (closed.contains(child)) { // state visited already
-                    // TODO for inconsistent heuristics - if the new one has a lower f, remove the old one from closed
-                    // and add the new one to open
-                } else if (null != (existingState = openList.get(child))) { //an equal state is waiting in open
-                    //keep the one with min G
-                    state.keepTheStateWithMinG(child, existingState); //O(LOGn)
-                } else { // it's a new state
-                    openList.add(child);
-                }
+                addToOpenList(child);
             }
+        }
+    }
+
+    protected void addToOpenList(@NotNull AStarState state) {
+        AStarState existingState;
+        if (closed.contains(state)) { // state visited already
+            // TODO for inconsistent heuristics -
+            //  if the new one has a lower f, remove the old one from closed and add the new one to open
+        } else if (null != (existingState = openList.get(state))) { //an equal state is waiting in open
+            //keep the one with min G
+            state.keepTheStateWithMinG(state, existingState); //O(LOGn)
+        } else { // it's a new state
+            openList.add(state);
         }
     }
 
