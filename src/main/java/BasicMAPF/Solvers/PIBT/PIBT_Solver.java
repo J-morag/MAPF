@@ -73,11 +73,13 @@ public class PIBT_Solver extends A_Solver {
      */
     public Integer problemStartTime;
 
+    private static final int DEBUG = 0;
+
     /**
-     * hash map saves for each timeStamp a HashMap, saves for each agent boolean.
-     * each boolean indicates whether an agent reached his goal or not.
+     * Set who saves lists of agent's locations - configurations, as lists.
+     * The use of this set is to detect loops.
      */
-    private HashMap<Integer, HashMap<Agent, Boolean>> reachingGoalsConfigurations;
+    private Set<List<I_Location>> configurations;
 
     /**
      * constructor.
@@ -95,9 +97,9 @@ public class PIBT_Solver extends A_Solver {
         this.currentLocations = new HashMap<>();
         this.priorities = new HashMap<>();
         this.agentPlans = new HashMap<>();
-        this.reachingGoalsConfigurations = new HashMap<>();
         this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
+        this.configurations = new HashSet<>();
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -132,68 +134,20 @@ public class PIBT_Solver extends A_Solver {
 //                continue;
 //            }
 
-            // loop?
-            if (this.timeStamp > 0) {
-                for (int i = 2; i < this.timeStamp; i++) {
-                    int agentsInSameLocation = 0;
-                    for (Agent agent : this.agentPlans.keySet()) {
-                        SingleAgentPlan currentPlan = this.agentPlans.get(agent);
-                        // check whether locations repeat themselves
-                        if (currentPlan.moveAt(i).currLocation.equals(currentPlan.getLastMove().currLocation)) {
-                            // if locations repeats themselves, check if statuses also repeats themselves
-                            if (this.reachingGoalsConfigurations.get(i).get(agent).equals(this.reachingGoalsConfigurations.get(this.timeStamp).get(agent))) {
-                                // agent could be in a loop
-                                agentsInSameLocation++;
-                            }
-                        }
-                    }
-//                    System.out.println("Agents in same location: " + agentsInSameLocation);
-                    if (agentsInSameLocation == this.agentPlans.keySet().size()) {
-                        System.out.println("Loop detected in timestamp: " + i);
-                        System.out.println("current timestamp: " + this.timeStamp);
-                        loopDetected = true;
-//                        for (Agent agent : this.agentPlans.keySet()) {
-//                            System.out.println("***************");
-//                            System.out.println(agent);
-//                            System.out.println("***************");
-//                            System.out.println("Agent's current priority: " + this.priorities.get(agent));
-////                            System.out.println(this.agentPlans.get(agent).getLastMove().prevLocation);
-////                            System.out.println(this.agentPlans.get(agent).getLastMove().currLocation);
-//                            System.out.println("timeStamp: " + (this.timeStamp-1));
-//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp-1).prevLocation);
-//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp-1).currLocation);
-//
-//                            System.out.println("Agent's status in prev identical timestamp: " + this.reachingGoalsConfigurations.get(i).get(agent));
-//                            System.out.println("timeStamp: " + (i-1));
-//                            System.out.println(this.agentPlans.get(agent).moveAt(i-1).prevLocation);
-//                            System.out.println(this.agentPlans.get(agent).moveAt(i-1).currLocation);
-//
-//                            System.out.println("-----------");
-//
-////                            System.out.println(this.agentPlans.get(agent).getLastMove().prevLocation);
-////                            System.out.println(this.agentPlans.get(agent).getLastMove().currLocation);
-//                            System.out.println("timeStamp: " + (this.timeStamp));
-//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp).prevLocation);
-//                            System.out.println(this.agentPlans.get(agent).moveAt(this.timeStamp).currLocation);
-//
-//                            System.out.println("Agent's status in prev identical timestamp: " + this.reachingGoalsConfigurations.get(i).get(agent));
-//                            System.out.println("timeStamp: " + (i));
-//                            System.out.println(this.agentPlans.get(agent).moveAt(i).prevLocation);
-//                            System.out.println(this.agentPlans.get(agent).moveAt(i).currLocation);
-//
-//                            System.out.println("-----------");
-
-//                            if (agent.iD == 3 || agent.iD == 20) {
-//                                System.out.println(this.agentPlans.get(agent));
-//                            }
-//                        }
-
-                        break;
-                    }
-                }
+            // loop detection
+            ArrayList<I_Location> currentConfigurations = new ArrayList<>();
+            for (Agent agent : this.currentLocations.keySet()) {
+                currentConfigurations.add(this.currentLocations.get(agent));
             }
-            if (loopDetected) {
-                System.out.println("LOOP DETECTED!!");
+            if (this.configurations.contains(currentConfigurations)) {
+                loopDetected = true;
+            }
+            else {
+                this.configurations.add(currentConfigurations);
+            }
+
+            if (loopDetected && DEBUG >= 2) {
+                System.out.println("LOOP DETECTED");
                 return null;
             }
             if (checkTimeout()) {
@@ -216,9 +170,7 @@ public class PIBT_Solver extends A_Solver {
                 Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
             }
-
             updatePriorities(instance);
-            updateStatus();
         }
 
         Solution solution = new TransientMAPFSolution();
@@ -253,14 +205,6 @@ public class PIBT_Solver extends A_Solver {
         //  1. stay in current node in the next timestamp
         //  2. move to the node where the higher priority agent is
 
-        // add current location of current agent - for the option to stay in current node in the next timestamp
-//        if (higherPriorityAgent == null) {
-//            candidates.add(this.currentLocations.get(current)); // 1
-//        }
-        // prevent move to the node where the higher priority agent is
-//        else {
-//            candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
-//        }
         candidates.add(this.currentLocations.get(current)); // 1
         if (higherPriorityAgent != null) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
@@ -333,6 +277,9 @@ public class PIBT_Solver extends A_Solver {
         for (Agent agent : this.priorities.keySet()) {
             // agent reach his target
             if (this.agentPlans.get(agent).containsTarget()) {
+                if (this.priorities.get(agent) != -1.0) {
+                    this.configurations = new HashSet<>();
+                }
                 this.priorities.put(agent, -1.0);
             }
             else {
@@ -447,27 +394,13 @@ public class PIBT_Solver extends A_Solver {
     }
 
     /**
-     * function that updates a HashMap indicates whether an agent reached his goal or not
-     * if an agent has priority -1.0 than he reached his goal and the function adds true to the list
-     * otherwise, false
-     */
-    private void updateStatus() {
-        this.reachingGoalsConfigurations.put(this.timeStamp, new HashMap<>());
-        for (Agent agent : this.priorities.keySet()) {
-            Boolean reachedGoal = (this.priorities.get(agent) == -1.0);
-            this.reachingGoalsConfigurations.get(this.timeStamp).put(agent, reachedGoal);
-        }
-    }
-
-    /**
-     * relevant function for lifelong version of MAPF.
      * planning horizon - after k timestamps, ignore all conflicts.
      * this function check whether k timestamps have passed.
      * @return boolean: true if conflicts needs to be checked, otherwise return false.
      */
     private boolean needToCheckConflicts() {
         if (this.timeStamp != 0) {
-            return this.RHCR_Horizon > this.timeStamp;
+            return this.RHCR_Horizon >= this.timeStamp;
         }
         return true;
     }
