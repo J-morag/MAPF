@@ -124,27 +124,24 @@ public class PIBT_Solver extends A_Solver {
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        boolean loopDetected = false;
         // each iteration of the while represents timestamp
         while (!(finished())) {
 
-
             // loop detection
-            ArrayList<I_Location> currentConfigurations = new ArrayList<>();
-            for (Agent agent : this.currentLocations.keySet()) {
-                currentConfigurations.add(this.currentLocations.get(agent));
+            ArrayList<I_Location> currentConfiguration = new ArrayList<>(instance.agents.size());
+            for (Agent agent : instance.agents) {
+                currentConfiguration.add(this.currentLocations.get(agent));
             }
-            if (this.configurations.contains(currentConfigurations)) {
-                loopDetected = true;
-            }
-            else {
-                this.configurations.add(currentConfigurations);
-            }
-
-            if (loopDetected && DEBUG >= 2) {
-                System.out.println("LOOP DETECTED");
+            if (this.configurations.contains(currentConfiguration)) {
+                if (DEBUG >= 2){
+                    System.out.println("LOOP DETECTED");
+                }
                 return null;
             }
+            else {
+                this.configurations.add(currentConfiguration);
+            }
+
             if (checkTimeout()) {
                 return null;
             }
