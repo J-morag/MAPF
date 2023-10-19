@@ -128,11 +128,6 @@ public class PIBT_Solver extends A_Solver {
         // each iteration of the while represents timestamp
         while (!(finished())) {
 
-            // algorithm starts agent's plans only from problemTimeStamp
-//            if (this.problemStartTime > this.timeStamp) {
-//                this.timeStamp++;
-//                continue;
-//            }
 
             // loop detection
             ArrayList<I_Location> currentConfigurations = new ArrayList<>();
