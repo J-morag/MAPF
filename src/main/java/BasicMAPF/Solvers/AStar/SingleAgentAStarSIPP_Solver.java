@@ -126,28 +126,28 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         I_Location prevLocation = possibleMove.prevLocation;
         I_Location currLocation = possibleMove.currLocation;
 
-        // Retrieve free intervals for the current location
-        List<Interval> freeIntervalsCurrLocation = getIntervalsForLocation(currLocation);
+        // Retrieve safe intervals for the current location
+        List<Interval> safeIntervalsCurrLocation = getIntervalsForLocation(currLocation);
         int nextMoveStartTime = possibleMove.timeNow;
 
         Interval prevLocationRelevantInterval = init ? getIntervalsForLocation(prevLocation).get(0) : state.timeInterval;
 
         // Iterate through the intervals of the current location
-        for (Interval currInterval : freeIntervalsCurrLocation) {
+        for (Interval currInterval : safeIntervalsCurrLocation) {
             if (currInterval.end >= nextMoveStartTime) {
                 if ((currInterval.start <= nextMoveStartTime)) {
-                    moveIntoFreeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
+                    moveIntoSafeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
                     continue;
                 }
                 if (prevLocationRelevantInterval.end >= currInterval.start - 1) {
-                    moveIntoFreeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
+                    moveIntoSafeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
                 }
             }
         }
     }
 
     /**
-     * Moves into a free interval, creating child states as necessary.
+     * Moves into a safe interval, creating child states as necessary.
      *
      * @param state                      The current state.
      * @param possibleMove               The move to be checked.
@@ -157,7 +157,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @param prevLocationRelevantInterval The relevant interval of the previous location.
      * @param currInterval               The current interval being considered.
      */
-    private void moveIntoFreeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation, I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
+    private void moveIntoSafeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation, I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
         AStarSIPPState child = state;
         int possibleMoveTime;
         boolean afterLastConstraint;
@@ -232,7 +232,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             List<Integer> timestamps = timeIntervals.get(location);
 
             // Convert the timestamps to intervals using timestampsToIntervals function
-            ArrayList<Interval> intervals = timestampsToFreeIntervals(timestamps);
+            ArrayList<Interval> intervals = timestampsToSafeIntervals(timestamps);
 
             // Update the output map with the intervals for the current location
             intervalMap.put(location, intervals);
@@ -241,28 +241,28 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         return intervalMap;
     }
 
-    private static ArrayList<Interval> timestampsToFreeIntervals(List<Integer> timestamps) {
+    private static ArrayList<Interval> timestampsToSafeIntervals(List<Integer> timestamps) {
         // Sort timestamps in ascending order
         Collections.sort(timestamps);
 
-        ArrayList<Interval> freeIntervals = new ArrayList<>();
+        ArrayList<Interval> safeIntervals = new ArrayList<>();
 
         // Add the first interval if it starts from more than 0
         if (timestamps.get(0) > 0) {
-            freeIntervals.add(new Interval(0, timestamps.get(0) - 1));
+            safeIntervals.add(new Interval(0, timestamps.get(0) - 1));
         }
 
-        // Iterate through timestamps to find free intervals
+        // Iterate through timestamps to find safe intervals
         for (int i = 1; i < timestamps.size(); i++) {
             if (timestamps.get(i) > timestamps.get(i - 1) + 1) {
-                freeIntervals.add(new Interval(timestamps.get(i - 1) + 1, timestamps.get(i) - 1));
+                safeIntervals.add(new Interval(timestamps.get(i - 1) + 1, timestamps.get(i) - 1));
             }
         }
 
         // Add the last interval extending to positive infinity
-        freeIntervals.add(new Interval(timestamps.get(timestamps.size() - 1) + 1, Integer.MAX_VALUE));
+        safeIntervals.add(new Interval(timestamps.get(timestamps.size() - 1) + 1, Integer.MAX_VALUE));
 
-        return freeIntervals;
+        return safeIntervals;
     }
 
     public class AStarSIPPState extends AStarState {
