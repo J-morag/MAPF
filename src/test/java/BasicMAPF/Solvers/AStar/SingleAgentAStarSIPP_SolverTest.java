@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -225,7 +226,79 @@ class SingleAgentAStarSIPP_SolverTest {
 
         assertEquals(5, solved.getPlanFor(agent).size());
         assertEquals(expected, solved);
+    }
 
+    @Test
+    void circleOptimalityOtherDirectionBecauseOfGoalConstraint1(){
+        MAPF_Instance testInstance = instanceCircle1;
+        Agent agent = testInstance.agents.get(0);
+
+        //constraint
+        Constraint goalConstraint = new GoalConstraint(null, 1, location22Circle);
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(goalConstraint);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
+
+        Solution solved = sipp.solve(testInstance, parameters);
+
+        SingleAgentPlan plan = new SingleAgentPlan(agent);
+        plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
+        plan.addMove(new Move(agent, 2, location34Circle, location24Circle));
+        plan.addMove(new Move(agent, 3, location24Circle, location14Circle));
+        plan.addMove(new Move(agent, 4, location14Circle, location13Circle));
+        plan.addMove(new Move(agent, 5, location13Circle, location12Circle));
+        Solution expected = new Solution();
+        expected.putPlan(plan);
+
+        assertEquals(expected, solved);
+    }
+
+    @Test
+    void circleOptimalityOtherDirectionBecauseOfGoalConstraint2(){
+        MAPF_Instance testInstance = instanceCircle1;
+        Agent agent = testInstance.agents.get(0);
+
+        //constraint
+        Constraint goalConstraint = new GoalConstraint(null, 2, location22Circle);
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(goalConstraint);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
+
+        Solution solved = sipp.solve(testInstance, parameters);
+
+        SingleAgentPlan plan = new SingleAgentPlan(agent);
+        plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
+        plan.addMove(new Move(agent, 2, location34Circle, location24Circle));
+        plan.addMove(new Move(agent, 3, location24Circle, location14Circle));
+        plan.addMove(new Move(agent, 4, location14Circle, location13Circle));
+        plan.addMove(new Move(agent, 5, location13Circle, location12Circle));
+        Solution expected = new Solution();
+        expected.putPlan(plan);
+
+        assertEquals(expected, solved);
+    }
+
+    @Test
+    void circleOptimalitySameDirectionDespiteLateGoalConstraint(){
+        MAPF_Instance testInstance = instanceCircle1;
+        Agent agent = testInstance.agents.get(0);
+
+        //constraint
+        Constraint goalConstraint = new GoalConstraint(null, 3, location22Circle);
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(goalConstraint);
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
+
+        Solution solved = sipp.solve(testInstance, parameters);
+
+        SingleAgentPlan plan = new SingleAgentPlan(agent);
+        plan.addMove(new Move(agent, 1, location33Circle, location32Circle));
+        plan.addMove(new Move(agent, 2, location32Circle, location22Circle));
+        plan.addMove(new Move(agent, 3, location22Circle, location12Circle));
+        Solution expected = new Solution();
+        expected.putPlan(plan);
+
+        assertEquals(expected, solved);
     }
 
     @Test
