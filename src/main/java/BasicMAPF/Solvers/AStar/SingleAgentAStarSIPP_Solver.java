@@ -203,8 +203,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
           we convert the production of the constraints into time intervals by location
          */
         HashMap<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
-        List<Integer> timesList;
 
+        // TODO handle goal constraints by discarding the safe interval [goalTime+1, inf]
         // filter out constraints that are not vertex constraints
         Map<I_ConstraintGroupingKey, Set<Constraint>> vertexConstraints = constraints.getEntrySet()
                 .stream()
@@ -219,7 +219,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
 
         for (I_ConstraintGroupingKey timeLocation : vertexConstraints.keySet()) {
-            timesList = timeIntervals.computeIfAbsent(timeLocation.getLocation(), k -> new ArrayList<>());
+            List<Integer> timesList = timeIntervals.computeIfAbsent(timeLocation.getLocation(), k -> new ArrayList<>());
             timesList.add(timeLocation.getTime());
         }
 
