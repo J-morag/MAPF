@@ -4,7 +4,6 @@ import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
-import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -26,11 +25,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
-        if (this.map instanceof I_ExplicitMap explicitMap){
-            safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints, explicitMap.getAllLocations());
+        safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints);
 
-        }
-        else throw new IllegalArgumentException("SIPP only supports explicit maps");
         if (goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) {
             throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
         }
@@ -201,7 +197,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(ConstraintSet constraints, Collection<? extends I_Location> allLocations) {
+    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(ConstraintSet constraints) {
         /*
           Originally constraints are by location and time, for the SIPP algorithm
           we convert the production of the constraints into time intervals by location
