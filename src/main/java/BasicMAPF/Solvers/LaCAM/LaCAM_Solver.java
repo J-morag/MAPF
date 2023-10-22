@@ -2,13 +2,16 @@ package BasicMAPF.Solvers.LaCAM;
 
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.A_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import Environment.Metrics.InstanceReport;
@@ -53,8 +56,7 @@ public class LaCAM_Solver extends A_Solver {
         this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
 
-        // TODO - add parameter for 1 RHCR window for lifelong PIBT
-        this.subInstanceSolver = new PIBT_Solver(null);
+        this.subInstanceSolver = new PIBT_Solver(null, 1);
 
         // init agent's priority to unique number
         initPriority(instance);
@@ -127,25 +129,48 @@ public class LaCAM_Solver extends A_Solver {
      * @return new configuration.
      */
     private HashMap<Agent, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C, MAPF_Instance instance) {
-        Set<Agent> agentsSubset = new HashSet<>();
-        MAPF_Instance subInstance = instance.getSubproblemFor(agentsSubset);
-//        TODO - how to set locations of agents in agentSubset?
+        HashMap<Agent, I_Location> newConfiguration = new HashMap<>();
         ConstraintSet constraints = new ConstraintSet();
-
+        int numberOfConstraints = C.depth;
+        ArrayList<Agent> agentsWithConstraint = new ArrayList<>();
         RunParameters subProblemParameters;
+
         // depth is zero hence target low level node is the root
         if (C.depth == 0) {
             subProblemParameters = new RunParametersBuilder().createRP();
         }
-        // depth is not 0, hence there are some constraints
+        // create constraint according to the low-level node
         else {
-            //        TODO - create constraints according to low level search
+            while (C.parent != null) {
+                Constraint constraint = new Constraint(1, C.where);
+                constraints.add(constraint);
+                agentsWithConstraint.add(C.who);
+                newConfiguration.put(C.who, C.where);
+                C = C.parent;
+            }
             subProblemParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
         }
 
+        Agent[] agentsSubset = new Agent[instance.agents.size() - numberOfConstraints];
+        for (int i = 0; i < instance.agents.size(); i++) {
+            Agent agent = instance.agents.get(i);
+            if (agentsWithConstraint.contains(agent)) {
+                continue;
+            }
+            Agent newAgent = new Agent(agent.iD, N.configuration.get(agent).getCoordinate(), agent.target);
+            agentsSubset[i] = newAgent;
+        }
 
+        MAPF_Instance subInstance = new MAPF_Instance("subInstance", instance.map, agentsSubset);
         Solution subInstanceSolution = this.subInstanceSolver.solve(subInstance, subProblemParameters);
-//        TODO - create new configuration from subInstanceSolution
+
+        if (subInstanceSolution != null) {
+            for (Agent agent : agentsSubset) {
+                I_Location location = subInstanceSolution.getAgentLocation(agent, 1);
+                newConfiguration.put(agent, location);
+            }
+            return newConfiguration;
+        }
         return null;
     }
 
@@ -195,6 +220,19 @@ public class LaCAM_Solver extends A_Solver {
      * @return Solution for the MAPF problem.
      */
     private Solution backTrack(HighLevelNode N) {
+//        Solution solution = new Solution();
+//        HashMap<Agent, SingleAgentPlan> agentPlans = new HashMap<>();
+//
+//        for (Agent agent : this.goalConfiguration.keySet()) {
+//            agentPlans.put(agent, new SingleAgentPlan(agent));
+//        }
+//        while (N.parent != null) {
+//            for (Agent agent : N.configuration.keySet()) {
+//                agentPlans.get(agent).
+//            }
+//
+//            N = N.parent;
+//        }
 //        TODO
         return null;
     }
