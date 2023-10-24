@@ -82,12 +82,19 @@ public class PIBT_Solver extends A_Solver {
     private Set<List<I_Location>> configurations;
 
     /**
+     * booleans indicate if it needs to return plans in case PIBT can't find solution.
+     * if true, instead of return null, the solution will return.
+     */
+    private final boolean returnPlans;
+
+    /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPlans) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.RHCR_Horizon = RHCR_Horizon;
+        this.returnPlans = returnPlans;
     }
 
     @Override
@@ -136,6 +143,16 @@ public class PIBT_Solver extends A_Solver {
                 if (DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
+                if (this.returnPlans) {
+                    Solution solution = new TransientMAPFSolution();
+                    for (Agent agent : agentPlans.keySet()) {
+                        solution.putPlan(this.agentPlans.get(agent));
+                        if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                            throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+                        }
+                    }
+                    return solution;
+                }
                 return null;
             }
             else {
@@ -143,6 +160,16 @@ public class PIBT_Solver extends A_Solver {
             }
 
             if (checkTimeout()) {
+                if (this.returnPlans) {
+                    Solution solution = new TransientMAPFSolution();
+                    for (Agent agent : agentPlans.keySet()) {
+                        solution.putPlan(this.agentPlans.get(agent));
+                        if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                            throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+                        }
+                    }
+                    return solution;
+                }
                 return null;
             }
             this.timeStamp++;

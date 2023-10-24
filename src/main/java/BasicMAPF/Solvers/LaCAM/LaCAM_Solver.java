@@ -1,9 +1,6 @@
 package BasicMAPF.Solvers.LaCAM;
 
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
@@ -15,6 +12,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import Environment.Metrics.InstanceReport;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 
@@ -29,7 +27,7 @@ public class LaCAM_Solver extends A_Solver {
     /**
      * HashMap to manage configurations that the algorithm already saw.
      */
-    private HashMap<HashMap<Agent, I_Location>, HighLevelNode> explored;
+    private HashMap<HashMap<Integer, I_Location>, HighLevelNode> explored;
 
     /**
      * heuristic to use in the low level search to find the closest nodes to an agent's goal
@@ -44,7 +42,12 @@ public class LaCAM_Solver extends A_Solver {
     /**
      * Map saving for each agent his goal location, representing the goal configuration.
      */
-    private HashMap<Agent, I_Location> goalConfiguration;
+    private HashMap<Integer, I_Location> goalConfiguration;
+
+    /**
+     * Map saving for each agent's ID his Agent as object.
+     */
+    private HashMap<Integer, Agent> agents;
 
     private PIBT_Solver subInstanceSolver;
 
@@ -55,18 +58,19 @@ public class LaCAM_Solver extends A_Solver {
         this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
         this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
-
-        this.subInstanceSolver = new PIBT_Solver(null, 1);
+        this.agents = new HashMap<>();
+        this.subInstanceSolver = new PIBT_Solver(null, 1, true);
 
         // init agent's priority to unique number
         initPriority(instance);
     }
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        HashMap<Agent, I_Location> initialConfiguration = new HashMap<>();
+        HashMap<Integer, I_Location> initialConfiguration = new HashMap<>();
         for (Agent agent : instance.agents) {
-            initialConfiguration.put(agent, instance.map.getMapLocation(agent.source));
-            this.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
+            initialConfiguration.put(agent.iD, instance.map.getMapLocation(agent.source));
+            this.goalConfiguration.put(agent.iD, instance.map.getMapLocation(agent.target));
+            this.agents.put(agent.iD, agent);
         }
         LowLevelNode C_init = new LowLevelNode(null, null, null);
         HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, get_init_order(instance.agents, instance.map), null);
@@ -78,8 +82,9 @@ public class LaCAM_Solver extends A_Solver {
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
-            if (N.configuration.equals(this.goalConfiguration)) {
-                return backTrack(N);
+
+            if (reachedGoalConfiguration(N.configuration)) {
+                return backTrack(N, instance);
             }
 
             // low level search end
@@ -91,7 +96,7 @@ public class LaCAM_Solver extends A_Solver {
             LowLevelNode C = N.tree.poll();
             if (C.depth <= instance.agents.size()) {
                 Agent chosenAgent = N.order.get(C.depth); // -1?
-                I_Location chosenLocation = N.configuration.get(chosenAgent);
+                I_Location chosenLocation = N.configuration.get(chosenAgent.iD);
                 List<I_Location> locations = new ArrayList<>(findAllNeighbors(chosenLocation));
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
@@ -102,7 +107,7 @@ public class LaCAM_Solver extends A_Solver {
                 N.tree.add(C_new);
             }
 
-            HashMap<Agent, I_Location> newConfiguration = getNewConfig(N,C, instance);
+            HashMap<Integer, I_Location> newConfiguration = getNewConfig(N,C, instance);
 
             // algorithm couldn't find configuration
             if (newConfiguration == null) {
@@ -120,6 +125,22 @@ public class LaCAM_Solver extends A_Solver {
         return null;
     }
 
+    /**
+     * this function determine whether the current configuration is the goal configuration.
+     * @param configuration to check whether it's the goal.
+     * @return boolean. true if configurations is the goal configuration, false otherwise.
+     */
+    private boolean reachedGoalConfiguration(HashMap<Integer, I_Location> configuration) {
+        for (Map.Entry<Integer, I_Location> entry : configuration.entrySet()) {
+            I_Location currentLocation = entry.getValue();
+            I_Location goalLocation = this.goalConfiguration.get(entry.getKey());
+            if (!(currentLocation.equals(goalLocation))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * main function of LaCAM algorithm.
@@ -128,11 +149,11 @@ public class LaCAM_Solver extends A_Solver {
      * generates new configuration from current configuration according to N, following constraints defined in C.
      * @return new configuration.
      */
-    private HashMap<Agent, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C, MAPF_Instance instance) {
-        HashMap<Agent, I_Location> newConfiguration = new HashMap<>();
+    private HashMap<Integer, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C, MAPF_Instance instance) {
+        HashMap<Integer, I_Location> newConfiguration = new HashMap<>();
         ConstraintSet constraints = new ConstraintSet();
         int numberOfConstraints = C.depth;
-        ArrayList<Agent> agentsWithConstraint = new ArrayList<>();
+        ArrayList<Integer> agentsWithConstraint = new ArrayList<>();
         RunParameters subProblemParameters;
 
         // depth is zero hence target low level node is the root
@@ -142,23 +163,28 @@ public class LaCAM_Solver extends A_Solver {
         // create constraint according to the low-level node
         else {
             while (C.parent != null) {
-                Constraint constraint = new Constraint(1, C.where);
-                constraints.add(constraint);
-                agentsWithConstraint.add(C.who);
-                newConfiguration.put(C.who, C.where);
+                Constraint swapConstraint = new Constraint(1, C.where, N.configuration.get(C.who.iD));
+                constraints.add(swapConstraint);
+                Constraint locationConstraint = new Constraint(1, C.where);
+                constraints.add(locationConstraint);
+                agentsWithConstraint.add(C.who.iD);
+                newConfiguration.put(C.who.iD, C.where);
                 C = C.parent;
             }
             subProblemParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
         }
 
         Agent[] agentsSubset = new Agent[instance.agents.size() - numberOfConstraints];
-        for (int i = 0; i < instance.agents.size(); i++) {
-            Agent agent = instance.agents.get(i);
-            if (agentsWithConstraint.contains(agent)) {
+        Object[] AllAgents = N.configuration.keySet().toArray();
+        int index = 0;
+        for (Object allAgent : AllAgents) {
+            Integer agentID = (Integer) allAgent;
+            if (agentsWithConstraint.contains(agentID)) {
                 continue;
             }
-            Agent newAgent = new Agent(agent.iD, N.configuration.get(agent).getCoordinate(), agent.target);
-            agentsSubset[i] = newAgent;
+            Agent newAgent = new Agent(agentID, N.configuration.get(agentID).getCoordinate(), this.agents.get(agentID).target);
+            agentsSubset[index] = newAgent;
+            index++;
         }
 
         MAPF_Instance subInstance = new MAPF_Instance("subInstance", instance.map, agentsSubset);
@@ -167,7 +193,7 @@ public class LaCAM_Solver extends A_Solver {
         if (subInstanceSolution != null) {
             for (Agent agent : agentsSubset) {
                 I_Location location = subInstanceSolution.getAgentLocation(agent, 1);
-                newConfiguration.put(agent, location);
+                newConfiguration.put(agent.iD, location);
             }
             return newConfiguration;
         }
@@ -201,10 +227,11 @@ public class LaCAM_Solver extends A_Solver {
      * and change in the future when we will test and try to improve the algorithm.
      * @return ArrayList of agents.
      */
-    private ArrayList<Agent> getOrder(HashMap<Agent, I_Location> configuration, HighLevelNode N, I_Map map) {
-        ArrayList<Agent> sortedAgents = new ArrayList<>(configuration.keySet());
+    private ArrayList<Agent> getOrder(HashMap<Integer, I_Location> configuration, HighLevelNode N, I_Map map) {
+        ArrayList<Agent> sortedAgents = new ArrayList<>(this.agents.values());
         HashMap<Agent, Float> agentsDistances = new HashMap<>();
-        for (Agent agent : configuration.keySet()) {
+        for (Integer agentID : configuration.keySet()) {
+            Agent agent = this.agents.get(agentID);
             Float distance = this.heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
             agentsDistances.put(agent, distance);
         }
@@ -219,22 +246,40 @@ public class LaCAM_Solver extends A_Solver {
      * this function performs backtracking to find the path from the start configuration to the goal.
      * @return Solution for the MAPF problem.
      */
-    private Solution backTrack(HighLevelNode N) {
-//        Solution solution = new Solution();
-//        HashMap<Agent, SingleAgentPlan> agentPlans = new HashMap<>();
-//
-//        for (Agent agent : this.goalConfiguration.keySet()) {
-//            agentPlans.put(agent, new SingleAgentPlan(agent));
-//        }
-//        while (N.parent != null) {
-//            for (Agent agent : N.configuration.keySet()) {
-//                agentPlans.get(agent).
-//            }
-//
-//            N = N.parent;
-//        }
-//        TODO
-        return null;
+    private Solution backTrack(HighLevelNode N, MAPF_Instance instance) {
+        Solution solution = new Solution();
+        HashMap<Agent, SingleAgentPlan> agentPlans = new HashMap<>();
+
+        for (Agent agent : instance.agents) {
+            agentPlans.put(agent, new SingleAgentPlan(agent));
+        }
+
+        Stack<HashMap<Integer, I_Location>> configurationsInReverse = new Stack<>();
+        configurationsInReverse.push(N.configuration);
+        while (N.parent != null) {
+            configurationsInReverse.push(N.parent.configuration);
+            N = N.parent;
+        }
+
+        int timeStamp = 0;
+        while (configurationsInReverse.size() != 1) {
+            timeStamp++;
+            HashMap<Integer, I_Location> currentConfig = configurationsInReverse.pop();
+            HashMap<Integer, I_Location> nextConfig = configurationsInReverse.peek();
+            for (Map.Entry<Integer, Agent> entry : this.agents.entrySet()) {
+                Integer agentID = entry.getKey();
+                Agent agent = entry.getValue();
+                I_Location currentLocation = currentConfig.get(agentID);
+                I_Location nextLocation = nextConfig.get(agentID);
+                Move newMove = new Move(agent, timeStamp, currentLocation, nextLocation);
+                agentPlans.get(agent).addMove(newMove);
+            }
+        }
+
+        for (Agent agent : instance.agents) {
+            solution.putPlan(agentPlans.get(agent));
+        }
+        return solution;
     }
 
     /**
