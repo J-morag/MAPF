@@ -254,6 +254,32 @@ class SingleAgentAStarSIPP_SolverTest {
     }
 
     @Test
+    void circleOptimalityOtherDirectionBecauseOfGoalConstraint1UsingPlan(){
+        MAPF_Instance testInstance = instanceCircle1;
+        Agent agent = testInstance.agents.get(0);
+
+        //constraint
+        Agent constrainingAgent = new Agent(agent.iD+1, coor12, coor22);
+        SingleAgentPlan constrainingPlan = new SingleAgentPlan(constrainingAgent, List.of(new Move(constrainingAgent, 1, location12Circle, location22Circle)));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.addAll(constraints.allConstraintsForPlan(constrainingPlan));
+        RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
+
+        Solution solved = sipp.solve(testInstance, parameters);
+
+        SingleAgentPlan plan = new SingleAgentPlan(agent);
+        plan.addMove(new Move(agent, 1, location33Circle, location34Circle));
+        plan.addMove(new Move(agent, 2, location34Circle, location24Circle));
+        plan.addMove(new Move(agent, 3, location24Circle, location14Circle));
+        plan.addMove(new Move(agent, 4, location14Circle, location13Circle));
+        plan.addMove(new Move(agent, 5, location13Circle, location12Circle));
+        Solution expected = new Solution();
+        expected.putPlan(plan);
+
+        assertEquals(expected, solved);
+    }
+
+    @Test
     void circleOptimalityOtherDirectionBecauseOfGoalConstraint2(){
         MAPF_Instance testInstance = instanceCircle1;
         Agent agent = testInstance.agents.get(0);

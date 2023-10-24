@@ -44,9 +44,6 @@ public class ConstraintSet{
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
-    public Set<I_ConstraintGroupingKey> getKeySet(){
-        return Collections.unmodifiableSet(constraints.keySet());
-    }
 
     public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet(){
         return Collections.unmodifiableSet(constraints.entrySet());

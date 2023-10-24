@@ -8,6 +8,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintGroupingKey;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +20,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     private HashMap<I_Location, List<Interval>> safeIntervalsByLocation;
 
     private record Interval(int start, int end) {
-        public static final Interval infInterval = new Interval(0, Integer.MAX_VALUE);
+        public static final Interval DEFAULT_INTERVAL = new Interval(0, Integer.MAX_VALUE);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     }
 
     private List<Interval> getIntervalsForLocation(I_Location location) {
-        return safeIntervalsByLocation.computeIfAbsent(location, k -> Collections.singletonList(Interval.infInterval));
+        return safeIntervalsByLocation.computeIfAbsent(location, k -> Collections.singletonList(Interval.DEFAULT_INTERVAL));
     }
 
     @Override
@@ -204,7 +205,6 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
          */
         HashMap<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
 
-        // TODO handle goal constraints by discarding the safe interval [goalTime+1, inf]
         // filter out constraints that are not vertex constraints
         Map<I_ConstraintGroupingKey, Set<Constraint>> vertexConstraints = constraints.getEntrySet()
                 .stream()
@@ -234,6 +234,20 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             intervalMap.put(location, intervals);
         }
 
+        // handle goal constraints by discarding the safe interval [goalTime+1, inf]
+        for (Map.Entry<I_ConstraintGroupingKey, Set<Constraint>> entry : constraints.getEntrySet()) {
+            for (Constraint constraint : entry.getValue()) {
+                if (constraint instanceof GoalConstraint goalConstraint){
+                    List<Interval> locationIntervals = intervalMap.get(goalConstraint.location);
+                    if (locationIntervals == null || locationIntervals.isEmpty() ||
+                            locationIntervals.get(locationIntervals.size() - 1).end != Integer.MAX_VALUE){
+                        throw new IllegalArgumentException("Goal constraints are an extension of vertex constraints, " +
+                                "so #location should be in the map and have an interval extending to infinity");
+                    }
+                    locationIntervals.remove(locationIntervals.size() - 1);
+                }
+            }
+        }
         return intervalMap;
     }
 
