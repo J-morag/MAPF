@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.DataTypesAndStructures.Move;
 
 public class TimeLocation implements I_ConstraintGroupingKey {
     public final I_Location location;
@@ -49,5 +49,10 @@ public class TimeLocation implements I_ConstraintGroupingKey {
     @Override
     public int getTime() {
         return this.time;
+    }
+
+    @Override
+    public I_Location getLocation() {
+        return this.location;
     }
 }

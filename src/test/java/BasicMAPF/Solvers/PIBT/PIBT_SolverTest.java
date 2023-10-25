@@ -53,7 +53,7 @@ public class PIBT_SolverTest {
     private final MAPF_Instance instanceEmpty3 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent10to00, agent04to00});
 
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
-    I_Solver PIBT_Solver = new PIBT_Solver(null);
+    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
 
     long timeout = 10*1000;
 
@@ -296,7 +296,7 @@ public class PIBT_SolverTest {
                 null, new RestartsStrategy(), null, null, null, null, null);
         String namePrP = PrPSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
         String namePIBT = PIBT_Solver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -431,7 +431,7 @@ public class PIBT_SolverTest {
     }
 
     @Test
-    void unsolvable() {
+    void unsolvableLoopDetection() {
         MAPF_Instance testInstance = instanceUnsolvable;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
@@ -486,7 +486,7 @@ public class PIBT_SolverTest {
     void emptyMapValidityInfiniteConstraintThrowsError() {
         MAPF_Instance testInstance = instanceEmpty1;
 
-        I_Coordinate coor02 = new Coordinate_2D(0,2);
+        I_Coordinate coor02 = new Coordinate_2D(1,2);
         Constraint constraint1 = new Constraint(agent33to12, 10, mapEmpty.getMapLocation(coor02));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);

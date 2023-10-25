@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.DataTypesAndStructures.Move;
@@ -48,6 +49,9 @@ public class ConstraintSet{
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
 
+    public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet(){
+        return Collections.unmodifiableSet(constraints.entrySet());
+    }
     public ConstraintSet(ConstraintSet toCopy){
         this(toCopy, toCopy.lastConstraintTime);
     }
@@ -239,8 +243,6 @@ public class ConstraintSet{
      *
      * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
      * @param finalMove a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the other agents' last moves would reject this move.
-     *                                  Only relevant if agents may finish their plans at locations other than their targets.
      * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
      */
     public int rejectsEventually(Move finalMove, boolean checkOtherAgentsLastMoves){
@@ -279,11 +281,9 @@ public class ConstraintSet{
     /**
      * The opposite of {@link #rejectsEventually(Move, boolean)}.
      * @param finalMove a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the other agents' last moves would reject this move.
-     *                                  Only relevant if agents may finish their plans at locations other than their targets.
      * @return true if no constraint would eventually reject a "stay" move at the given move's location.
      */
-    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves){
+    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves) {
         return rejectsEventually(finalMove, checkOtherAgentsLastMoves) == -1;
     }
 
@@ -292,7 +292,7 @@ public class ConstraintSet{
      * the given {@link Move}.
      *
      * Doesn't assume that the last move means stay at goal forever.
-     * @see #acceptsForever(Move,boolean)
+     * @see #acceptsForever(Move, boolean)
      * @param moves a {@link Collection} of {@link Move}s to check if the are ejected or not.
      * @return true iff all of the given {@link Move}s conflict with any of the {@link Constraint}s that were
      *          {@link #add(Constraint) added} to this set.
@@ -310,7 +310,7 @@ public class ConstraintSet{
      * the given {@link Move}.
      *
      * Doesn't assume that the last move means stay at goal forever.
-     * @see #acceptsForever(Move,boolean)
+     * @see #acceptsForever(Move, boolean)
      * @param moves
      * @return the opposite of {@link #rejectsAll(Collection)}.
      */
