@@ -13,12 +13,13 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
+import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class PIBT_Solver extends A_Solver {
+public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /**
      * Set contains all not handled agents at timestamp t
@@ -389,5 +390,15 @@ public class PIBT_Solver extends A_Solver {
             instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
             instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
         }
+    }
+
+    @Override
+    public boolean sharedSources() {
+        return false;
+    }
+
+    @Override
+    public boolean sharedGoals() {
+        return true;
     }
 }
