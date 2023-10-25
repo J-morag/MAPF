@@ -23,6 +23,8 @@ public class LaCAM_SolverTest {
     private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
 
     private final MAPF_Instance exampleInstance = new MAPF_Instance("exampleInstance", mapTwoWallsSmall, new Agent[]{agent00to02, agent02to00});
+    private final MAPF_Instance instanceEmptyEasy = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent04to00});
+
 
     I_Solver LaCAM_Solver = new LaCAM_Solver();
 
@@ -44,8 +46,23 @@ public class LaCAM_SolverTest {
     void exampleTest() {
         MAPF_Instance testInstance = exampleInstance;
         Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+    }
 
-//        System.out.println(solved.readableToString());
+    @Test
+    void emptyMapEasyNoConflictsTest() {
+        MAPF_Instance testInstance = instanceEmptyEasy;
+        Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+    }
+
+    @Test
+    void emptyMapValidityTest1() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
     }
 
