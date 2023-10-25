@@ -129,6 +129,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
         Interval prevLocationRelevantInterval = init ? getIntervalsForLocation(prevLocation).get(0) : state.timeInterval;
 
+        // todo replace iteration with binary search
         // Iterate through the intervals of the current location
         for (Interval currInterval : safeIntervalsCurrLocation) {
             if (currInterval.end >= nextMoveStartTime) {
