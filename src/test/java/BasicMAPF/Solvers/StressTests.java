@@ -7,6 +7,7 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
@@ -34,6 +35,14 @@ public class StressTests {
         int numAgents = 30;
         StressTest(solver, timeout, numAgents);
     }
+
+//    @Test
+//    public void CBSSIPPStressTest() {
+//        I_Solver solver = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null ,null, null, null, null, null, null);
+//        long timeout = 1000 * 60;
+//        int numAgents = 30;
+//        StressTest(solver, timeout, numAgents);
+//    }
 
     @Test
     public void PrioritisedPlanningStressTest() {
