@@ -69,6 +69,8 @@ class LifelongSimulationSolverTest {
                             true, false, true, 10, new FailPolicy(1, new AvoidFailPolicy(true))),
                     null, new DeepPartialSolutionsStrategy(), new AvoidFailPolicy(true), 1, null);
 
+    I_Solver modern1 = LifelongSolversFactory.LH1_Approach10ASFP_Cap18_Timeout1p5();
+
     InstanceReport instanceReport;
 
     @BeforeEach
@@ -1345,6 +1347,70 @@ class LifelongSimulationSolverTest {
     @Test
     void startAdjacentGoAroundValidityTest_stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP() {
         I_Solver solver = stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP;
+        MAPF_Instance testInstance = instanceStartAdjacentGoAround;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+
+    /* = Modern 1 = */
+
+    @Test
+    void emptyMapValidityTest1_modern1() {
+        I_Solver solver = modern1;
+        MAPF_Instance testInstance = instanceEmpty1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void circleMapValidityTest1_modern1() {
+        I_Solver solver = modern1;
+        MAPF_Instance testInstance = instanceCircle1;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+
+    }
+
+    @Test
+    void circleMapValidityTest2_modern1() {
+        I_Solver solver = modern1;
+        MAPF_Instance testInstance = instanceCircle2;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
+        S_Metrics.removeReport(instanceReport);
+
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void smallMazeDenseValidityTest_modern1() {
+        I_Solver solver = modern1;
+        MAPF_Instance testInstance = instanceSmallMazeDense;
+        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
+        S_Metrics.removeReport(instanceReport);
+        assertNotNull(solved);
+        System.out.println(solved.readableToString());
+        isFullSolution(solved, testInstance);
+    }
+
+    @Test
+    void startAdjacentGoAroundValidityTest_modern1() {
+        I_Solver solver = modern1;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = S_Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());

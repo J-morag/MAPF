@@ -1,6 +1,8 @@
 package BasicMAPF.Instances.Maps;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
 
 import java.util.*;
 
@@ -92,6 +94,20 @@ public class GraphMap implements I_ExplicitMap {
     @Override
     public Collection<? extends I_Location> getAllLocations() {
         return new ArrayList<>(this.allGraphLocations.values());
+    }
+
+    @Override
+    public Graph<I_Location, Edge> getJGraphTRepresentation() {
+        Graph<I_Location, Edge> graph = new DefaultDirectedGraph<>(null, null, false);
+        for (I_Location location : this.allGraphLocations.values()) {
+            graph.addVertex(location);
+        }
+        for (I_Location location : this.allGraphLocations.values()) {
+            for (I_Location neighbor : location.outgoingEdges()) {
+                graph.addEdge(location, neighbor, new Edge(location, neighbor));
+            }
+        }
+        return graph;
     }
 
     @Override

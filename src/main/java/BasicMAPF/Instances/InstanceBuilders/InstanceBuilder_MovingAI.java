@@ -238,9 +238,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         return agentsLines;
     }
 
-
-    private GraphMap getMap( InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties ){
-
+    public GraphMap getMap(InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties){
         Reader reader = new Reader();
         Enum_IO enum_io = reader.openFile(instancePath.path);
         if( !enum_io.equals(Enum_IO.OPENED) ){ return null; /* couldn't open the file */ }

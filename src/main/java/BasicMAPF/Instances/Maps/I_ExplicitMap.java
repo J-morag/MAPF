@@ -1,5 +1,7 @@
 package BasicMAPF.Instances.Maps;
 
+import org.jgrapht.Graph;
+
 import java.util.Collection;
 
 /**
@@ -12,4 +14,5 @@ import java.util.Collection;
  */
 public interface I_ExplicitMap extends I_Map{
     Collection<? extends I_Location> getAllLocations();
+    Graph<I_Location, Edge> getJGraphTRepresentation();
 }

@@ -36,6 +36,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     public boolean agentsStayAtGoal;
     public final I_AStarFailPolicy failPolicy;
+    private boolean useFailPolicy;
     private ConstraintSet constraints;
     private AStarGAndH gAndH;
     private final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
@@ -128,6 +129,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.goalCondition = new SingleTargetCoordinateGoalCondition(this.targetCoor);
         }
 
+        if(runParameters instanceof RunParameters_SAAStar parameters){
+            this.useFailPolicy = parameters.useFailPolicy;
+        }
+        else {
+            this.useFailPolicy = true;
+        }
+
         this.gAndH = Objects.requireNonNullElseGet(runParameters.aStarGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
         if (! this.gAndH.isConsistent()){
             throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
@@ -198,7 +206,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     }
 
     private Solution getFailPlan() {
-        if (this.failPolicy == null || checkTimeout()){
+        if (!this.useFailPolicy || this.failPolicy == null){
             return null;
         }
         else {

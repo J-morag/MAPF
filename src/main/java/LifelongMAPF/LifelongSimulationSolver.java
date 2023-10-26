@@ -264,7 +264,7 @@ public class LifelongSimulationSolver extends A_Solver {
             List<SingleAgentPlan> nextPlansForNotSelectedAgents = subsetPlansCollection(latestSolution, notSelectedAgents);
             RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals(nextPlansForNotSelectedAgents, null);
             int numFailedAgentsAfterPlanner = 0;
-            Integer reachedIndexInPlanner = null;
+            Integer reachedIndexOneBasedInPlanner = null;
 
             if ( ! selectedTimelyOfflineAgentsSubset.isEmpty()){ // solve an offline MAPF problem of the current conditions
 
@@ -283,8 +283,8 @@ public class LifelongSimulationSolver extends A_Solver {
                 digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
 
                 if (offlineSolver instanceof PrioritisedPlanning_Solver){
-                    reachedIndexInPlanner = timelyOfflineProblemRunParameters.instanceReport.getIntegerValue(PrioritisedPlanning_Solver.maxReachedIndexBeforeTimeoutString);
-                    sumReachedIndexInPlanningFraction += (float) reachedIndexInPlanner / (float) selectedTimelyOfflineAgentsSubset.size();
+                    reachedIndexOneBasedInPlanner = timelyOfflineProblemRunParameters.instanceReport.getIntegerValue(PrioritisedPlanning_Solver.maxReachedIndexOneBasedBeforeTimeoutString);
+                    sumReachedIndexInPlanningFraction += (float) reachedIndexOneBasedInPlanner / (float) selectedTimelyOfflineAgentsSubset.size();
                 }
                 latestSolution = addMissingAgents(farthestCommittedTime, selectedTimelyOfflineAgentsSubset, nextPlansForNotSelectedAgents, subgroupSolution, failedAgents, this.lifelongInstance, cat);
                 numFailedAgentsAfterPlanner = failedAgents.size();
@@ -310,7 +310,7 @@ public class LifelongSimulationSolver extends A_Solver {
             sumFailedAgentsAfterPolicy += failedAgents.size();
 
             if (DEBUG >= 2){
-                printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexInPlanner);
+                printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexOneBasedInPlanner);
                 if (DEBUG >= 3){
                     System.out.println(latestSolution);
                 }
@@ -356,11 +356,11 @@ public class LifelongSimulationSolver extends A_Solver {
         return plansSubset;
     }
 
-    private void printProgressAndStats(int farthestCommittedTime, int selectedTimelyOfflineAgentsSubset, int numAgentsWithPlansInSolutionBeforeEnforcingSafety, int numFailedAgents, Integer reachedIndexInPlanner) {
+    private void printProgressAndStats(int farthestCommittedTime, int selectedTimelyOfflineAgentsSubset, int numAgentsWithPlansInSolutionBeforeEnforcingSafety, int numFailedAgents, Integer reachedIndexOneBasedInPlanner) {
         System.out.print("\rLifelongSim: ");
         System.out.printf("iteration %1$3s, @ timestep %2$3s, #chosen/#reachedIndex/#failed(planner)/#failed(FP) %3$3s",
                 numPlanningIterations, farthestCommittedTime, selectedTimelyOfflineAgentsSubset);
-        System.out.printf("/%1$3s", reachedIndexInPlanner != null ? reachedIndexInPlanner : "N/A");
+        System.out.printf("/%1$3s", reachedIndexOneBasedInPlanner != null ? reachedIndexOneBasedInPlanner : "N/A");
         System.out.printf("/%1$3s", numAgentsWithPlansInSolutionBeforeEnforcingSafety);
         System.out.printf("/%1$3s", numFailedAgents);
         System.out.printf(", destinations achieved (prev iter.) %d [avg_thr %.2f]",
@@ -368,7 +368,7 @@ public class LifelongSimulationSolver extends A_Solver {
         if (DEBUG >= 1 && DEBUG < 3){
             System.out.print('\r');
         }
-        if (reachedIndexInPlanner != null && reachedIndexInPlanner + 1 > selectedTimelyOfflineAgentsSubset){
+        if (reachedIndexOneBasedInPlanner != null && reachedIndexOneBasedInPlanner > selectedTimelyOfflineAgentsSubset){
             throw new RuntimeException("ERROR: reached index in planner is larger than the number of agents in the subgroup");
         }
     }
