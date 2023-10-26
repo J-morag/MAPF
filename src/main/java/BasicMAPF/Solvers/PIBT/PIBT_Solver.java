@@ -391,7 +391,7 @@ public class PIBT_Solver extends A_Solver {
      * @return boolean: true if conflicts needs to be checked, otherwise return false.
      */
     private boolean needToCheckConflicts() {
-        if (this.timeStamp != 0) {
+        if (this.RHCR_Horizon != null && this.timeStamp != 0) {
             return this.RHCR_Horizon >= this.timeStamp;
         }
         return true;
