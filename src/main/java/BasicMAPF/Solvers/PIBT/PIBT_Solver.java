@@ -75,6 +75,14 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     public Integer problemStartTime;
 
+    private static final int DEBUG = 0;
+
+    /**
+     * Set who saves lists of agent's locations - configurations, as lists.
+     * The use of this set is to detect loops.
+     */
+    private Set<List<I_Location>> configurations;
+
     /**
      * constructor.
      */
@@ -94,6 +102,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 //        this.timeStamp = 0;
         this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
+        this.configurations = new HashSet<>();
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -122,57 +131,48 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         // each iteration of the while represents timestamp
         while (!(finished())) {
 
-            // condition relevant for lifelong version of MAPF
             // algorithm starts agent's plans only from problemTimeStamp
-//            if (this.problemStartTime > this.timeStamp) {
-//                this.timeStamp++;
-//                continue;
-//            }
+            if (this.problemStartTime > this.timeStamp) {
+                this.timeStamp++;
+                continue;
+            }
+
+            // loop detection
+            ArrayList<I_Location> currentConfiguration = new ArrayList<>(instance.agents.size());
+            for (Agent agent : instance.agents) {
+                currentConfiguration.add(this.currentLocations.get(agent));
+            }
+            if (this.configurations.contains(currentConfiguration)) {
+                if (DEBUG >= 2){
+                    System.out.println("LOOP DETECTED");
+                }
+                return null;
+            }
+            else {
+                this.configurations.add(currentConfiguration);
+            }
 
             if (checkTimeout()) {
                 return null;
             }
 
             this.timeStamp++;
-
-            updatePriorities(instance);
             // init agents that have not reached their goal
             this.unhandledAgents = new HashSet<>();
             for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
                 Agent agent = entry.getKey();
-                Double priority = entry.getValue();
-                if (priority != -1.0) {
-                    // the agent did not reach his goal
-                    this.unhandledAgents.add(agent);
-                }
+                this.unhandledAgents.add(agent);
             }
 
             // nodes wanted in the next timestamp
             this.takenNodes = new HashSet<>();
-
 
             while (!this.unhandledAgents.isEmpty()) {
                 Map.Entry<Agent, Double> maxEntry = getMaxEntry(this.priorities); // <agent, priority> pair with max priority
                 Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
             }
-
-            // if agent reached his goal, we don't add him to this.unhandledAgents
-            // so, iterate on all agents and add Move of stay in place if "solvePIBT" call didn't move the agent
-            if (!(finished())) {
-                for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
-                    Agent agent = entry.getKey();
-                    Double priority = entry.getValue();
-                    // the agent reached his goal
-                    // add new move to the agent's plan - stay in current node
-                    if (priority == -1.0 && canMove(agent)) {
-                        boolean flag = addNewMoveToAgent(agent, this.currentLocations.get(agent));
-                        if (!flag) {
-                            solvePIBT(agent, null);
-                        }
-                    }
-                }
-            }
+            updatePriorities(instance);
         }
 
         // create the final solution
@@ -208,12 +208,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         //  1. stay in current node in the next timestamp
         //  2. move to the node where the higher priority agent is
 
-        // add current location of current agent - for the option to stay in current node in the next timestamp
-        if (higherPriorityAgent == null) {
-            candidates.add(this.currentLocations.get(current)); // 1
-        }
-        // prevent move to the node where the higher priority agent is
-        else {
+        candidates.add(this.currentLocations.get(current)); // 1
+        if (higherPriorityAgent != null) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
 
@@ -283,6 +279,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         for (Agent agent : this.priorities.keySet()) {
             // agent reach his target
             if (this.agentPlans.get(agent).containsTarget()) {
+                if (this.priorities.get(agent) != -1.0) {
+                    this.configurations = new HashSet<>();
+                }
                 this.priorities.put(agent, -1.0);
             }
             else {
