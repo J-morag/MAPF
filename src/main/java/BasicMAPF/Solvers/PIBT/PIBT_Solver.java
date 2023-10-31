@@ -13,12 +13,13 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
+import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class PIBT_Solver extends A_Solver {
+public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /**
      * Set contains all not handled agents at timestamp t.
@@ -87,7 +88,7 @@ public class PIBT_Solver extends A_Solver {
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
-        this.RHCR_Horizon = RHCR_Horizon;
+        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
     }
 
     @Override
@@ -126,6 +127,12 @@ public class PIBT_Solver extends A_Solver {
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
         // each iteration of the while represents timestamp
         while (!(finished())) {
+
+            // algorithm starts agent's plans only from problemTimeStamp
+            if (this.problemStartTime > this.timeStamp) {
+                this.timeStamp++;
+                continue;
+            }
 
             // loop detection
             ArrayList<I_Location> currentConfiguration = new ArrayList<>(instance.agents.size());
@@ -406,6 +413,8 @@ public class PIBT_Solver extends A_Solver {
         this.priorities = null;
         this.takenNodes = null;
         this.unhandledAgents = null;
+        this.constraints = null;
+        this.configurations = null;
     }
 
     @Override
@@ -417,5 +426,15 @@ public class PIBT_Solver extends A_Solver {
             instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
             instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
         }
+    }
+
+    @Override
+    public boolean sharedSources() {
+        return false;
+    }
+
+    @Override
+    public boolean sharedGoals() {
+        return true;
     }
 }
