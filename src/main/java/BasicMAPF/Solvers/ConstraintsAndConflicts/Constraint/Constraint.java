@@ -123,6 +123,18 @@ public class Constraint {
         return !this.accepts(plan);
     }
 
+    public I_Location getPrevLocation() {
+        return this.prevLocation;
+    }
+
+    public I_Location getLocation() {
+        return this.location;
+    }
+
+    public int getTime() {
+        return this.time;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

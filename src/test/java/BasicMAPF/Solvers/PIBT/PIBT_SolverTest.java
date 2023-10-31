@@ -431,7 +431,7 @@ public class PIBT_SolverTest {
     }
 
     @Test
-    void unsolvable() {
+    void unsolvableLoopDetection() {
         MAPF_Instance testInstance = instanceUnsolvable;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 

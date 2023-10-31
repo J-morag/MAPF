@@ -9,18 +9,16 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
-import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver {
+public class PIBT_Solver extends A_Solver {
 
     /**
      * Set contains all not handled agents at timestamp t.
@@ -89,7 +87,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
-        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
+        this.RHCR_Horizon = RHCR_Horizon;
     }
 
     @Override
@@ -99,7 +97,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.currentLocations = new HashMap<>();
         this.priorities = new HashMap<>();
         this.agentPlans = new HashMap<>();
-//        this.timeStamp = 0;
         this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
@@ -127,15 +124,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-
         // each iteration of the while represents timestamp
         while (!(finished())) {
-
-            // algorithm starts agent's plans only from problemTimeStamp
-            if (this.problemStartTime > this.timeStamp) {
-                this.timeStamp++;
-                continue;
-            }
 
             // loop detection
             ArrayList<I_Location> currentConfiguration = new ArrayList<>(instance.agents.size());
@@ -155,8 +145,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             if (checkTimeout()) {
                 return null;
             }
-
             this.timeStamp++;
+
             // init agents that have not reached their goal
             this.unhandledAgents = new HashSet<>();
             for (Map.Entry<Agent, Double> entry : this.priorities.entrySet()) {
@@ -175,7 +165,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             updatePriorities(instance);
         }
 
-        // create the final solution
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
@@ -265,6 +254,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         // add new move to the agent's plan - stay in current node
         if (canMove(current)) {
             if (addNewMoveToAgent(current, this.currentLocations.get(current))) {
+                this.takenNodes.add(this.currentLocations.get(current));
                 return false;
             };
         }
@@ -396,7 +386,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     }
 
     /**
-     * relevant function for lifelong version of MAPF.
      * planning horizon - after k timestamps, ignore all conflicts.
      * this function check whether k timestamps have passed.
      * @return boolean: true if conflicts needs to be checked, otherwise return false.
@@ -428,15 +417,5 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
             instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
         }
-    }
-
-    @Override
-    public boolean sharedSources() {
-        return false;
-    }
-
-    @Override
-    public boolean sharedGoals() {
-        return true;
     }
 }

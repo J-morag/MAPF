@@ -835,8 +835,10 @@ public class LifelongSimulationSolver extends A_Solver {
                 }
             }
             super.instanceReport.putFloatValue("averageNumAttempts", (float) (sumIterations / numAgentsAndNumIterationsMetric.size()));
-            super.instanceReport.putFloatValue("averageNumAttemptsOver100Agents", (float) (sumIterationsOver100Agents / numSamplesOver100Agents));
-            super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
+            super.instanceReport.putFloatValue("averageNumAttemptsOver100Agents", numSamplesOver100Agents == 0 ? 0 :
+                    (float) (sumIterationsOver100Agents / numSamplesOver100Agents));
+            super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", numSamplesOver200Agents == 0 ? 0 :
+                    (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
         }
         if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof CBS_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
             super.instanceReport.putIntegerValue("totalAStarNodesGenerated", this.totalAStarNodesGenerated);
