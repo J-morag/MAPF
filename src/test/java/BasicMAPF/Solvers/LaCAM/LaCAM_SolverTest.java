@@ -42,6 +42,7 @@ public class LaCAM_SolverTest {
     private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
     private final MAPF_Instance instanceAgentsInterruptsEachOther = new MAPF_Instance("instanceAgentsInterruptsEachOther", mapWithPocket, new Agent[]{agent43to53, agent55to34});
     private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
+    private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
 
     I_Solver LaCAM_Solver = new LaCAM_Solver();
 
@@ -135,5 +136,15 @@ public class LaCAM_SolverTest {
         assertTrue(solved.solves(testInstance));
         assertEquals(8, solved.sumIndividualCosts());
         assertEquals(4, solved.makespan());
+    }
+
+    @Test
+    void agentsNeedToSwapTest() {
+        MAPF_Instance testInstance = instanceAgentsNeedsToSwapLocations;
+        Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+//        assertEquals(8, solved.sumIndividualCosts());
+//        assertEquals(4, solved.makespan());
     }
 }

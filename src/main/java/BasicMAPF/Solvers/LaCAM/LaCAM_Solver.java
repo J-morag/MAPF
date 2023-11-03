@@ -79,10 +79,12 @@ public class LaCAM_Solver extends A_Solver {
 
 
         while (!this.open.empty()) {
+//            if (checkTimeout()) {
+//                return null;
+//            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
-
             if (reachedGoalConfiguration(N.configuration)) {
                 return backTrack(N, instance);
             }
@@ -307,9 +309,15 @@ public class LaCAM_Solver extends A_Solver {
         return location.outgoingEdges();
     }
 
-
     @Override
     protected void releaseMemory() {
         super.releaseMemory();
+        this.open = null;
+        this.explored = null;
+        this.heuristic = null;
+        this.priorities = null;
+        this.goalConfiguration = null;
+        this.agents = null;
+        this.subInstanceSolver = null;
     }
 }
