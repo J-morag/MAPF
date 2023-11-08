@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.ICTS.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
@@ -13,14 +14,14 @@ public class MDDManager {
     public Map<SourceTargetAgent, A_MDDSearcher> searchers = new HashMap<>();
     final private I_MDDSearcherFactory searcherFactory;
     final public SourceTargetAgent keyDummy = new SourceTargetAgent(null, null, null);
-    private ICTS_Solver highLevelSolver;
+    private Timeout timeout;
     private DistanceTableAStarHeuristicICTS heuristic; //todo replace?
     private int expandedLowLevelNodes;
     private int generatedLowLevelNodes;
 
-    public MDDManager(I_MDDSearcherFactory searcherFactory, ICTS_Solver highLevelSolver, DistanceTableAStarHeuristicICTS heuristic) {
+    public MDDManager(I_MDDSearcherFactory searcherFactory, Timeout timeout, DistanceTableAStarHeuristicICTS heuristic) {
         this.searcherFactory = searcherFactory;
-        this.highLevelSolver = highLevelSolver;
+        this.timeout = timeout;
         this.heuristic = heuristic;
     }
 
@@ -32,7 +33,7 @@ public class MDDManager {
         }
         if(!searchers.containsKey(keyDummy)) {
             SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
-            searchers.put(sourceTargetAgent, searcherFactory.createSearcher(this.highLevelSolver, source, target, agent, heuristic));
+            searchers.put(sourceTargetAgent, searcherFactory.createSearcher(timeout, source, target, agent, heuristic));
         }
 
         if(mdds.get(keyDummy).containsKey(depth)) {
@@ -48,7 +49,7 @@ public class MDDManager {
     }
 
     public MDD getMDDNoReuse(I_Location source, I_Location target, Agent agent, int depth){
-        A_MDDSearcher searcher = this.searcherFactory.createSearcher(highLevelSolver, source, target, agent, heuristic);
+        A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
         MDD result = searcher.continueSearching(depth);
         this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
         this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();

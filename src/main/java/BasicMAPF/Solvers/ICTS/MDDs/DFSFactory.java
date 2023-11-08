@@ -1,8 +1,8 @@
 package BasicMAPF.Solvers.ICTS.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 public class DFSFactory implements I_MDDSearcherFactory {
 
@@ -14,8 +14,8 @@ public class DFSFactory implements I_MDDSearcherFactory {
     }
 
     @Override
-    public A_MDDSearcher createSearcher(ICTS_Solver highLevelSolver, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
-        return new DFSMDDBuilder(highLevelSolver, source, target, agent, heuristic, disappearAtGoal);
+    public A_MDDSearcher createSearcher(Timeout timeout, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
+        return new DFSMDDBuilder(timeout, source, target, agent, heuristic, disappearAtGoal);
     }
 
 }

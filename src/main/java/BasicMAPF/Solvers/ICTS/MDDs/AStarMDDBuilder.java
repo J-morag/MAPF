@@ -1,8 +1,8 @@
 package BasicMAPF.Solvers.ICTS.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -26,8 +26,8 @@ public class AStarMDDBuilder extends A_MDDSearcher {
      *
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
-        super(highLevelSearcher, source, target, agent);
+    public AStarMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
+        super(timeout, source, target, agent);
         this.heuristic = heuristic;
         this.disappearAtGoalFilter.target = target;
     }
@@ -37,9 +37,9 @@ public class AStarMDDBuilder extends A_MDDSearcher {
      *
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic,
+    public AStarMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic,
                            boolean disappearAtGoal) {
-        this(highLevelSearcher, source, target, agent, heuristic);
+        this(timeout, source, target, agent, heuristic);
         this.disappearAtGoal = disappearAtGoal;
     }
 
@@ -89,7 +89,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
 
         MDDSearchNode goal = null;
         while(!isOpenEmpty()){
-            if(highLevelSearcher.reachedTimeout())
+            if(timeout.isTimeoutExceeded())
                 return null;
             MDDSearchNode current = pollFromOpen();
             expandedNodesNum++;
