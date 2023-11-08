@@ -39,7 +39,7 @@ public class StressTests {
     @Test
     public void ICTSStressTest() {
         I_Solver solver = new ICTS_Solver();
-        long timeout = 1000 * 60;
+        long timeout = 1000 * 30;
         int numAgents = 30;
         StressTest(solver, timeout, numAgents);
     }
