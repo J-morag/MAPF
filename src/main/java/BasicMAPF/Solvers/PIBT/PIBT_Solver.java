@@ -85,16 +85,16 @@ public class PIBT_Solver extends A_Solver {
      * booleans indicate if it needs to return plans in case PIBT can't find solution.
      * if true, instead of return null, the solution will return.
      */
-    private final boolean returnPlans;
+    private final boolean returnPartialSolutions;
 
     /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPlans) {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.RHCR_Horizon = RHCR_Horizon;
-        this.returnPlans = returnPlans;
+        this.returnPartialSolutions = returnPartialSolutions;
     }
 
     @Override
@@ -143,7 +143,7 @@ public class PIBT_Solver extends A_Solver {
                 if (DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
-                if (this.returnPlans) {
+                if (this.returnPartialSolutions) {
                     Solution solution = new TransientMAPFSolution();
                     for (Agent agent : agentPlans.keySet()) {
                         solution.putPlan(this.agentPlans.get(agent));
@@ -160,7 +160,7 @@ public class PIBT_Solver extends A_Solver {
             }
 
             if (checkTimeout()) {
-                if (this.returnPlans) {
+                if (this.returnPartialSolutions) {
                     Solution solution = new TransientMAPFSolution();
                     for (Agent agent : agentPlans.keySet()) {
                         solution.putPlan(this.agentPlans.get(agent));
