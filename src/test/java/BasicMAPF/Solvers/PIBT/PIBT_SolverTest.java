@@ -53,7 +53,7 @@ public class PIBT_SolverTest {
     private final MAPF_Instance instanceEmpty3 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent10to00, agent04to00});
 
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
-    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
 
     long timeout = 10*1000;
 
@@ -296,7 +296,7 @@ public class PIBT_SolverTest {
                 null, new RestartsStrategy(), null, null, null, null, null);
         String namePrP = PrPSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
         String namePIBT = PIBT_Solver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,

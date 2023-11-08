@@ -203,6 +203,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
         solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_infiniteHorizon_PIBT());
         solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_Horizon1_PIBT());
+        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_infiniteHorizon_partialSolution_PIBT());
         solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_SubsetSelector_PrP());
         solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_AllAgentSelector_PrP());
         solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_DisallowedPartialSolution_PrP());

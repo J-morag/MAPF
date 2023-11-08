@@ -83,12 +83,19 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     private Set<List<I_Location>> configurations;
 
     /**
+     * booleans indicate if it needs to return partial plans in case PIBT can't find solution.
+     * if true, instead of return null, the current solution will return.
+     */
+    private final boolean returnPartialSolutions;
+
+    /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
+        this.returnPartialSolutions = returnPartialSolutions;
     }
 
     @Override
@@ -143,14 +150,14 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 if (DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
-                return null;
+                return createSolution();
             }
             else {
                 this.configurations.add(currentConfiguration);
             }
 
             if (checkTimeout()) {
-                return null;
+                return createSolution();
             }
             this.timeStamp++;
 
@@ -180,6 +187,21 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             }
         }
         return solution;
+    }
+
+    @Nullable
+    private Solution createSolution() {
+        if (this.returnPartialSolutions) {
+            Solution solution = new TransientMAPFSolution();
+            for (Agent agent : agentPlans.keySet()) {
+                solution.putPlan(this.agentPlans.get(agent));
+                if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                    throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+                }
+            }
+            return solution;
+        }
+        return null;
     }
 
     /**

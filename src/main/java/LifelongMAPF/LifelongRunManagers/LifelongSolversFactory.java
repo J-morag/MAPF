@@ -1934,13 +1934,27 @@ public class LifelongSolversFactory {
         return solver;
     }
 
+    public static I_Solver LH1_Go5ASFP_Cap18_infiniteHorizon_partialSolution_PIBT(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new GoASFP(5);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, true);
+
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
+                pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
     public static I_Solver LH1_Go5ASFP_Cap18_infiniteHorizon_PIBT(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, false);
 
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
@@ -1954,7 +1968,7 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 1;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, false);
 
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
