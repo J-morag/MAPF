@@ -1,21 +1,21 @@
 package BasicMAPF.Solvers.ICTS.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 
 public abstract class A_MDDSearcher {
     protected int expandedNodesNum;
     protected int generatedNodesNum;
-    protected ICTS_Solver highLevelSearcher;
+    protected Timeout timeout;
     protected I_Location source;
     protected I_Location target;
     protected Agent agent;
 
-    public A_MDDSearcher(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent) {
+    public A_MDDSearcher(Timeout timeout, I_Location source, I_Location target, Agent agent) {
         expandedNodesNum = 0;
         generatedNodesNum = 0;
-        this.highLevelSearcher = highLevelSearcher;
+        this.timeout = timeout;
         this.source = source;
         this.target = target;
         this.agent = agent;

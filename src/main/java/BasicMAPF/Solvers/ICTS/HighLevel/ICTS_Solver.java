@@ -62,7 +62,7 @@ public class ICTS_Solver extends A_Solver {
         expandedHighLevelNodes = 0;
         generatedHighLevelNodes = 0;
         getHeuristic(instance);
-        this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
+        this.mddManager = new MDDManager(searcherFactory, super.getTimeout(), heuristicICTS);
         this.instance = instance;
     }
 
@@ -84,7 +84,10 @@ public class ICTS_Solver extends A_Solver {
             expandedHighLevelNodes++;
             // we want copies of agent MDDs if we use enhanced pruning, because we would like to trim them as part of the pruning
             Map<Agent, MDD> agentMdds = getMDDs(instance, current);
-            if (agentMdds == null) return null; // if there is some agent that can't be solved at this cost (shouldn't happen)
+            if (agentMdds == null) {
+                checkTimeout();
+                return null; // if there is some agent that can't be solved at this cost (shouldn't happen) or there was a timeout
+            }
             boolean pruningFailed = true;
             if ((this.pruningStrategy == PruningStrategy.S2P || this.pruningStrategy == PruningStrategy.E2P) && instance.agents.size() > 2) {
                 // false := no joint solution for some pair agents at these costs (which is good, because we can prune!)
@@ -161,7 +164,7 @@ public class ICTS_Solver extends A_Solver {
     }
 
     private Solution getMergedMddSolution(Map<Agent, MDD> agentMdds) {
-        Solution solution = mergedMDDSolver.findJointSolution(agentMdds, this);
+        Solution solution = mergedMDDSolver.findJointSolution(agentMdds, getTimeout());
         super.totalLowLevelNodesExpanded = mergedMDDSolver.getExpandedLowLevelNodesNum();
         super.totalLowLevelNodesGenerated = mergedMDDSolver.getGeneratedLowLevelNodesNum();
         return solution;
@@ -183,7 +186,7 @@ public class ICTS_Solver extends A_Solver {
     }
 
     private MergedMDD getMergedMDD(Map<Agent, MDD> filteredMap) {
-        MergedMDD mergedMDD = mergedMDDCreator.createMergedMDD(filteredMap, this);
+        MergedMDD mergedMDD = mergedMDDCreator.createMergedMDD(filteredMap, getTimeout());
         super.totalLowLevelNodesExpanded += mergedMDDCreator.getExpandedLowLevelNodesNum();
         super.totalLowLevelNodesGenerated += mergedMDDCreator.getGeneratedLowLevelNodesNum();
         return mergedMDD;
