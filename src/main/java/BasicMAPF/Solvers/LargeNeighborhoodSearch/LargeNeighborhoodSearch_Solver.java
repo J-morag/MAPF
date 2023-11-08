@@ -14,7 +14,6 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import Environment.Metrics.InstanceReport;
 
 import java.util.*;
@@ -258,7 +257,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).createRP(), randomizedAgentsOrder.toArray(new Agent[0]));
+        return new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
     }
 
     /*  = wind down =  */

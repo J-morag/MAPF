@@ -187,15 +187,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
     }
 
     /**
-     * Calculates the sum of individual costs with the priorities ({{@link Agent#priority}} modifier.
+     * Calculates the sum of individual costs with the priorities ({{@link Agent#priorityClass}} modifier.
      * If the priority of all agents is set to 1, this method behaves the same as {{@link #sumIndividualCosts()}}.
-     * @return sum of individual costs with the priorities ({{@link Agent#priority}} modifier
+     * @return sum of individual costs with the priorities ({{@link Agent#priorityClass}} modifier
      */
     public int sumIndividualCostsWithPriorities(){
         int SOC = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            SOC += plan.getCost() * plan.agent.priority;
+            SOC += plan.getCost() * plan.agent.priorityClass;
         }
         return SOC;
     }
@@ -213,7 +213,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
                 agentPlans.values()) {
             int freeSpaceCost = aStar.solve(instance.getSubproblemFor(plan.agent), new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP())
                     .getPlanFor(plan.agent).getCost();
-            sum += ( plan.getCost() - freeSpaceCost ) * plan.agent.priority;
+            sum += ( plan.getCost() - freeSpaceCost ) * plan.agent.priorityClass;
         }
         return sum;
     }
@@ -226,7 +226,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int SOC = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            if (plan.agent.priority == priorityLevel){
+            if (plan.agent.priorityClass == priorityLevel){
                 SOC += plan.getCost();
             }
         }

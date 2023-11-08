@@ -74,8 +74,8 @@ public abstract class A_Solver implements I_Solver{
         this.softTimeout = Math.min(parameters.softTimeout, this.maximumRuntime);
         this.instanceReport = parameters.instanceReport == null ? S_Metrics.newInstanceReport()
                 : parameters.instanceReport;
-        // if we were given a report, we should leave it be. If we created our report locally, then it is unreachable
-        // outside the class, and should therefore be committed.
+        // If we were given a report, we should leave it be.
+        // If we created our report locally, it is unreachable outside the class, and should therefore be committed.
         this.commitReport = parameters.instanceReport == null;
     }
 
