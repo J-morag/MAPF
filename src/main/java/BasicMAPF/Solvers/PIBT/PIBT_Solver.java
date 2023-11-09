@@ -165,12 +165,13 @@ public class PIBT_Solver extends A_Solver {
             updatePriorities(instance);
         }
 
+        this.timeStamp++;
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
-            solution.putPlan(this.agentPlans.get(agent));
-            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                solvePIBT(agent, null);
             }
+            solution.putPlan(this.agentPlans.get(agent));
         }
         return solution;
     }
