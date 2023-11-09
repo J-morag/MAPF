@@ -340,7 +340,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.prev = prevState;
             this.g = g;
             this.conflicts = conflicts;
-            this.hasVisitedTargetLocationAncestor = isMoveToTargetLocation || (prevState != null && prevState.hasVisitedTargetLocationAncestor);
+            this.hasVisitedTargetLocationAncestor = goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition &&
+                    (isMoveToTargetLocation || (prevState != null && prevState.hasVisitedTargetLocationAncestor));
 
             // must call this last, since it needs some other fields to be initialized already.
             this.h = calcH();
