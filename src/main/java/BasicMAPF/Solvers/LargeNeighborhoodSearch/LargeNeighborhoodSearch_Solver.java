@@ -2,10 +2,7 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SOCCostFunction;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
@@ -14,7 +11,6 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import Environment.Metrics.InstanceReport;
 
 import java.util.*;
@@ -253,12 +249,12 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport,
                                                     ConstraintSet outsideConstraints, Solution destroyedSolution, Set<Agent> agentsSubset) {
         // TODO shorter timeout?
-        long timeLeftToTimeout = Math.max(super.maximumRuntime - (A_Solver.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
+        long timeLeftToTimeout = Math.max(super.maximumRuntime - (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
         ConstraintSet subproblemConstraints = new ConstraintSet(outsideConstraints);
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).createRP(), randomizedAgentsOrder.toArray(new Agent[0]));
+        return new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
     }
 
     /*  = wind down =  */

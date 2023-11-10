@@ -154,12 +154,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
         }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
-        if(parameters instanceof RunParameters_PP parametersPP){
-
-            //reorder according to requested priority
-            if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
-                reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
-            }
+        if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
+            reorderAgentsByPriority(parameters.priorityOrder);
         }
     }
 

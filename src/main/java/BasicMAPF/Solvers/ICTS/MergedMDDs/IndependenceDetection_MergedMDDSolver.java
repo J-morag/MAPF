@@ -1,10 +1,10 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.NaiveConflictDetection;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.ICTS.MDDs.MDD;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -26,7 +26,7 @@ public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver 
     }
 
     @Override
-    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
+    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, Timeout timout) {
         this.expandedLowLevelNodes = 0;
         this.generatedLowLevelNodes = 0;
 
@@ -56,7 +56,7 @@ public class IndependenceDetection_MergedMDDSolver implements I_MergedMDDSolver 
                 AgentsGroup group2 = agentToAgentsGroup.get(arbitraryConflict.agent2);
                 // get a joint solution
                 Map<Agent, MDD> filteredMDDMap = Maps.filterKeys(agentMDDs, a -> group1.getAgents().contains(a) || group2.getAgents().contains(a));
-                Solution mergedGroupSolution = getSolution(delegatedMergedMDDFactory.findJointSolution(filteredMDDMap, highLevelSolver));
+                Solution mergedGroupSolution = getSolution(delegatedMergedMDDFactory.findJointSolution(filteredMDDMap, timout));
                 // if a sub-group can't be solved at these costs, there is no solution at these costs
                 if (mergedGroupSolution == null){
                     return null;

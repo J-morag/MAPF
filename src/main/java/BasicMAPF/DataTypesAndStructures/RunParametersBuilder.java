@@ -1,5 +1,6 @@
 package BasicMAPF.DataTypesAndStructures;
 
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
@@ -15,6 +16,7 @@ public class RunParametersBuilder {
     private AStarGAndH aStarGAndH = null;
     public int problemStartTime = 0;
     public Random randomNumberGenerator;
+    public Agent[] priorityOrder;
 
     /**
      * @see RunParameters#timeout
@@ -81,7 +83,15 @@ public class RunParametersBuilder {
         return this;
     }
 
+    /**
+     * @see RunParameters#priorityOrder
+     */
+    public RunParametersBuilder setPriorityOrder(Agent[] priorityOrder) {
+        this.priorityOrder = priorityOrder;
+        return this;
+    }
+
     public RunParameters createRP() {
-        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, aStarGAndH, problemStartTime, randomNumberGenerator);
+        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, aStarGAndH, problemStartTime, randomNumberGenerator, priorityOrder);
     }
 }
