@@ -1,5 +1,7 @@
 package BasicMAPF.Solvers.LaCAM;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
+import BasicMAPF.CostFunctions.SOCCostFunction;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -51,6 +53,16 @@ public class LaCAM_Solver extends A_Solver {
 
     private PIBT_Solver subInstanceSolver;
 
+    /**
+     * The cost function to evaluate solutions with.
+     */
+    private final I_SolutionCostFunction solutionCostFunction;
+
+    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction) {
+        super.name = "LaCAM";
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+    }
+
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
         this.open = new Stack<>();
@@ -79,9 +91,9 @@ public class LaCAM_Solver extends A_Solver {
 
 
         while (!this.open.empty()) {
-//            if (checkTimeout()) {
-//                return null;
-//            }
+            if (checkTimeout()) {
+                return null;
+            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
@@ -319,5 +331,16 @@ public class LaCAM_Solver extends A_Solver {
         this.goalConfiguration = null;
         this.agents = null;
         this.subInstanceSolver = null;
+    }
+
+    @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        if(solution != null){
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
+            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
+            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
+        }
     }
 }
