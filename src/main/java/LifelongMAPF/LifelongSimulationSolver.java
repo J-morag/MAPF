@@ -749,7 +749,7 @@ public class LifelongSimulationSolver extends A_Solver {
         for (SingleAgentPlan plan :
                 subgroupSolution) {
             if (plan.getPlanStartTime() != expectedPlansStartTime){
-                throw new RuntimeException("start time " + plan.getPlanStartTime() + " != " + expectedPlansStartTime);
+                throw new RuntimeException("start time " + plan.getPlanStartTime() + " != " + expectedPlansStartTime + "\nOffending plan:\n" + plan);
             }
         }
     }
