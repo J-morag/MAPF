@@ -89,7 +89,7 @@ public class PIBT_Solver extends A_Solver {
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
-        this.RHCR_Horizon = RHCR_Horizon;
+        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
     }
 
     @Override
