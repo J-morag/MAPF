@@ -3,6 +3,7 @@ package BasicMAPF.MDDs;
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +15,11 @@ public class MDDManager {
     final private I_MDDSearcherFactory searcherFactory;
     final public SourceTargetAgent keyDummy = new SourceTargetAgent(null, null, null);
     private Timeout timeout;
-    private DistanceTableSingleAgentHeuristicMDD heuristic; //todo replace?
+    private SingleAgentGAndH heuristic;
     private int expandedLowLevelNodes;
     private int generatedLowLevelNodes;
 
-    public MDDManager(I_MDDSearcherFactory searcherFactory, Timeout timeout, DistanceTableSingleAgentHeuristicMDD heuristic) {
+    public MDDManager(I_MDDSearcherFactory searcherFactory, Timeout timeout, SingleAgentGAndH heuristic) {
         this.searcherFactory = searcherFactory;
         this.timeout = timeout;
         this.heuristic = heuristic;
