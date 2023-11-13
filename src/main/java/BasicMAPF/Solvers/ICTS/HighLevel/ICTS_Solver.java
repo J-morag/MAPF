@@ -3,8 +3,8 @@ package BasicMAPF.Solvers.ICTS.HighLevel;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.MDDs.*;
 import BasicMAPF.Solvers.A_Solver;
-import BasicMAPF.Solvers.ICTS.MDDs.*;
 import BasicMAPF.Solvers.ICTS.MergedMDDs.*;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -23,7 +23,7 @@ public class ICTS_Solver extends A_Solver {
     private I_MergedMDDSolver mergedMDDSolver;
     private PruningStrategy pruningStrategy;
     protected MDDManager mddManager;
-    protected DistanceTableAStarHeuristicICTS heuristicICTS;
+    protected DistanceTableSingleAgentHeuristicMDD heuristicICTS;
     protected MAPF_Instance instance;
     private final I_MergedMDDCreator mergedMDDCreator;
     /**
@@ -249,7 +249,7 @@ public class ICTS_Solver extends A_Solver {
     }
 
     protected void getHeuristic(MAPF_Instance instance) {
-        heuristicICTS = new DistanceTableAStarHeuristicICTS(instance.agents, instance.map);
+        heuristicICTS = new DistanceTableSingleAgentHeuristicMDD(instance.agents, instance.map);
     }
 
     protected I_Location getSource(Agent agent){

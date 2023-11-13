@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.MDDs;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -14,7 +14,7 @@ public class MDDSearchNode implements Comparable<MDDSearchNode>{
     private float h;
     private Agent agent;
 
-    public MDDSearchNode(Agent agent, I_Location location, int g, DistanceTableAStarHeuristicICTS heuristic) {
+    public MDDSearchNode(Agent agent, I_Location location, int g, DistanceTableSingleAgentHeuristicMDD heuristic) {
         this.agent = agent;
         this.location = location;
         this.g = g;

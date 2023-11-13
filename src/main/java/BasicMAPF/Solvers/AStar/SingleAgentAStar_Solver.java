@@ -7,7 +7,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
@@ -33,7 +33,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     public boolean agentsStayAtGoal;
 
     protected ConstraintSet constraints;
-    protected AStarGAndH gAndH;
+    protected SingleAgentGAndH gAndH;
     protected final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
     protected final Set<AStarState> closed = new HashSet<>();
     protected Agent agent;
@@ -115,7 +115,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.goalCondition = new SingleTargetCoordinateGoalCondition(this.targetCoor);
         }
 
-        this.gAndH = Objects.requireNonNullElseGet(runParameters.aStarGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
+        this.gAndH = Objects.requireNonNullElseGet(runParameters.singleAgentGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
         if (! this.gAndH.isConsistent()){
             throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
         }
