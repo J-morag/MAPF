@@ -9,7 +9,8 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
@@ -48,7 +49,7 @@ public class PIBT_Solver extends A_Solver {
     /**
      * heuristic to use in the low level search to find the closest nodes to an agent's goal.
      */
-    private DistanceTableAStarHeuristic heuristic;
+    private SingleAgentGAndH heuristic;
 
     /**
      * HashMap saves for each agent his plan.
@@ -114,12 +115,7 @@ public class PIBT_Solver extends A_Solver {
         initPriority(instance);
 
         // distance between every vertex in the graph to each agent's goal
-        if (parameters.aStarGAndH instanceof DistanceTableAStarHeuristic) {
-            this.heuristic = (DistanceTableAStarHeuristic) parameters.aStarGAndH;
-        }
-        else {
-            this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
-        }
+        this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
     }
 
 

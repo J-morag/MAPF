@@ -4,7 +4,7 @@ import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -93,7 +93,7 @@ public class NoStateTimeSearches {
         return returnVal;
     }
 
-    public static List<I_Location> uniformCostSearch(I_Location goal, I_Location source, AStarGAndH edgeCosts, Agent dummyAgent) {
+    public static List<I_Location> uniformCostSearch(I_Location goal, I_Location source, SingleAgentGAndH edgeCosts, Agent dummyAgent) {
         dummyAgent = Objects.requireNonNullElseGet(dummyAgent, () -> new Agent(0, source.getCoordinate(), goal.getCoordinate()));
         Map<I_Location, I_Location> parent = new HashMap<>();
         Map<I_Location, Integer> cummulativeCost = new HashMap<>();
