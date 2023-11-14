@@ -30,7 +30,7 @@ jobs:
 
       # run the benchmark using tests
       - name: Benchmark
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dtest=PerformanceBenchmark test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dtest=PerformanceBenchmarkTest test
 
       - name: Store benchmark result - CBS
         uses: benchmark-action/github-action-benchmark@v1
