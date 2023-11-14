@@ -6,7 +6,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import Environment.Metrics.InstanceReport;
 import org.junit.jupiter.api.Test;
 
@@ -111,7 +111,7 @@ public class DistanceTableAStarHeuristicTest {
         expected.put(map.getMapLocation(agent_2.target), insideMap2);
 
         /*  = Test actual values =  */
-        DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(list, map);
+        DistanceTableSingleAgentHeuristic distanceTableAStarHeuristic = new DistanceTableSingleAgentHeuristic(list, map);
 
         assertTrue(equalsAllAgentMap(expected, distanceTableAStarHeuristic.getDistanceDictionaries()));
     }
@@ -121,7 +121,7 @@ public class DistanceTableAStarHeuristicTest {
         I_ExplicitMap mapWithPocketLyingAboutBeingStronglyConnected = MapFactory.newSimple4Connected2D_GraphMap(map_2D_withPocket, true);
         MAPF_Instance testInstance = new MAPF_Instance("pocket", mapWithPocketLyingAboutBeingStronglyConnected, new Agent[]{agent04to00});
 
-        DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
+        DistanceTableSingleAgentHeuristic distanceTableAStarHeuristic = new DistanceTableSingleAgentHeuristic(testInstance.agents, testInstance.map);
         SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
         assertThrows(IllegalArgumentException.class, () -> solver.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setAStarGAndH(distanceTableAStarHeuristic).createRP()));
     }

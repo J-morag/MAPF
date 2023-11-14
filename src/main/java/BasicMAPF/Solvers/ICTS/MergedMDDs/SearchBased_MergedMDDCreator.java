@@ -1,9 +1,9 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
-import BasicMAPF.Solvers.ICTS.MDDs.MDD;
-import BasicMAPF.Solvers.ICTS.MDDs.MDDNode;
+import BasicMAPF.MDDs.MDD;
+import BasicMAPF.MDDs.MDDNode;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
@@ -12,7 +12,7 @@ import java.util.*;
 
 public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver, I_MergedMDDCreator {
     private int goalDepth;
-    private boolean disappearAtGoal = false;
+    private final boolean DISAPPEAR_AT_GOAL = false;
     private int expandedLowLevelNodes;
     private int generatedLowLevelNodes;
     protected Map<MergedMDDNode, MergedMDDNode> contentOfOpen;
@@ -30,8 +30,8 @@ public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver,
     protected abstract void addToClosed(MergedMDDNode node);
 
     @Override
-    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
-        MergedMDD mergedMDD = this.createMergedMDD(agentMDDs, highLevelSolver);
+    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, Timeout timout) {
+        MergedMDD mergedMDD = this.createMergedMDD(agentMDDs, timout);
         return mergedMDD != null ? mergedMDD.getSolution() : null;
     }
 
@@ -46,7 +46,7 @@ public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver,
     }
 
     @Override
-    public MergedMDD createMergedMDD(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
+    public MergedMDD createMergedMDD(Map<Agent, MDD> agentMDDs, Timeout timout) {
         initializeSearch();
 
         MergedMDD mergedMDD = new MergedMDD();
@@ -68,7 +68,7 @@ public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver,
         }
 
         // create the joint MDD
-        while (!isOpenEmpty() && !highLevelSolver.reachedTimeout()) {
+        while (!isOpenEmpty() && !timout.isTimeoutExceeded()) {
             MergedMDDNode current = pollFromOpen();
 //            if (expandedLowLevelNodes % 100000 == 0 ) System.out.println(expandedLowLevelNodes);
             if (isGoal(current)) {
@@ -99,7 +99,7 @@ public abstract class SearchBased_MergedMDDCreator implements I_MergedMDDSolver,
                         e.printStackTrace();
                     }
                 }
-                if (currentCombination.get(i).colliding(currentCombination.get(j), this.disappearAtGoal)) {
+                if (currentCombination.get(i).colliding(currentCombination.get(j), DISAPPEAR_AT_GOAL)) {
                     return false;
                 }
             }

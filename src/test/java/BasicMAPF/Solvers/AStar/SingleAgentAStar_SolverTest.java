@@ -3,8 +3,8 @@ package BasicMAPF.Solvers.AStar;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
@@ -572,15 +572,20 @@ class SingleAgentAStar_SolverTest {
         assertEquals(9, solved1.getPlanFor(agent).size());
     }
 
-    public static class UnitCostAndNoHeuristic implements AStarGAndH {
+    public static class UnitCostAndNoHeuristic implements SingleAgentGAndH {
         @Override
         public float getH(SingleAgentAStar_Solver.AStarState state) {
             return 0;
         }
 
         @Override
+        public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+            return 0;
+        }
+
+        @Override
         public int cost(Move move) {
-            return AStarGAndH.super.cost(move);
+            return SingleAgentGAndH.super.cost(move);
         }
 
         @Override
@@ -594,7 +599,7 @@ class SingleAgentAStar_SolverTest {
         }
     }
 
-    public final AStarGAndH unitCostAndNoHeuristic = new UnitCostAndNoHeuristic();
+    public final SingleAgentGAndH unitCostAndNoHeuristic = new UnitCostAndNoHeuristic();
 
     public static List<I_Location> planLocations(SingleAgentPlan planFromAStar) {
         List<I_Location> aStarPlanLocations = new ArrayList<>();
@@ -670,7 +675,7 @@ class SingleAgentAStar_SolverTest {
                         Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
                         MAPF_Instance testInstance = new MAPF_Instance(
                                 maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
-                        DistanceTableAStarHeuristic distanceTableAStarHeuristic = new DistanceTableAStarHeuristic(testInstance.agents, testInstance.map);
+                        DistanceTableSingleAgentHeuristic distanceTableAStarHeuristic = new DistanceTableSingleAgentHeuristic(testInstance.agents, testInstance.map);
                         compareAStarAndUCS(aStar, new InstanceReport(),
                                 agent, testInstance, distanceTableAStarHeuristic);
                     }
@@ -698,7 +703,7 @@ class SingleAgentAStar_SolverTest {
         }
     }
 
-    public static class RandomButStableCostsFrom1To10AndNoHeuristic implements AStarGAndH{
+    public static class RandomButStableCostsFrom1To10AndNoHeuristic implements SingleAgentGAndH {
         Map<Edge, Integer> randomButStableCosts = new HashMap<>();
         Random rand;
 
@@ -709,6 +714,11 @@ class SingleAgentAStar_SolverTest {
 
         @Override
         public float getH(SingleAgentAStar_Solver.AStarState state) {
+            return 0;
+        }
+
+        @Override
+        public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
             return 0;
         }
 
@@ -735,7 +745,7 @@ class SingleAgentAStar_SolverTest {
     void optimalVsUCSWeightedEdges1(){
         MAPF_Instance testInstance = instanceMaze1;
         Agent agent = testInstance.agents.get(0);
-        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+        SingleAgentGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
         compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
     }
@@ -743,7 +753,7 @@ class SingleAgentAStar_SolverTest {
     void optimalVsUCSWeightedEdges2(){
         MAPF_Instance testInstance = instanceMaze2;
         Agent agent = testInstance.agents.get(0);
-        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+        SingleAgentGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
         compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
     }
@@ -751,7 +761,7 @@ class SingleAgentAStar_SolverTest {
     void optimalVsUCSWeightedEdges3(){
         MAPF_Instance testInstance = instanceMaze3;
         Agent agent = testInstance.agents.get(0);
-        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+        SingleAgentGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
         compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
     }
@@ -759,7 +769,7 @@ class SingleAgentAStar_SolverTest {
     void optimalVsUCSWeightedEdges4(){
         MAPF_Instance testInstance = instanceMaze4;
         Agent agent = testInstance.agents.get(0);
-        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+        SingleAgentGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
 
         compareAStarAndUCS(aStar, instanceReport, agent, testInstance, randomStableCosts);
     }
@@ -776,7 +786,7 @@ class SingleAgentAStar_SolverTest {
                         Agent agent = new Agent(0, source.getCoordinate(), target.getCoordinate());
                         MAPF_Instance testInstance = new MAPF_Instance(
                                 maps.get(testMap) + " " + agent, testMap, new Agent[]{agent});
-                        AStarGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
+                        SingleAgentGAndH randomStableCosts = new RandomButStableCostsFrom1To10AndNoHeuristic((long) (agent.hashCode()));
                         compareAStarAndUCS(aStar, new InstanceReport(), agent, testInstance, randomStableCosts);
                     }
                 }
@@ -784,7 +794,7 @@ class SingleAgentAStar_SolverTest {
         }
     }
 
-    public static void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, AStarGAndH costFunction) {
+    public static void compareAStarAndUCS(I_Solver aStar, InstanceReport instanceReport, Agent agent, MAPF_Instance testInstance, SingleAgentGAndH costFunction) {
         RunParameters runParameters = new RunParametersBuilder().setInstanceReport(instanceReport).setAStarGAndH(costFunction).createRP();
 
         String identifier = testInstance.name + " " + agent.source + " to " + agent.target;
@@ -837,7 +847,7 @@ class SingleAgentAStar_SolverTest {
     }
 
     @NotNull
-    public static List<Integer> getCosts(Agent agent, AStarGAndH costFunction, List<I_Location> UCSPlanLocations) {
+    public static List<Integer> getCosts(Agent agent, SingleAgentGAndH costFunction, List<I_Location> UCSPlanLocations) {
         List<Integer> UCSPlanCosts = new ArrayList<>();
         UCSPlanCosts.add(0);
         I_Location prev = null;

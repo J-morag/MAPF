@@ -1,6 +1,7 @@
 package BasicMAPF.DataTypesAndStructures;
 
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Instances.Agent;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -57,7 +58,7 @@ public class RunParameters {
     /**
      * optional heuristic function to use in the single agent solver.
      */
-    public final AStarGAndH aStarGAndH;
+    public final SingleAgentGAndH singleAgentGAndH;
     /**
      * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
      * Not real-time.
@@ -68,6 +69,15 @@ public class RunParameters {
      * Can be null.
      */
     public Random randomNumberGenerator;
+    /**
+     * A total priority ordering of the {@link Agent agents}, with lower index {@link Agent}s being treated as having
+     * higher priority.
+     * Different {@link I_Solver solver} may treat this information differently, including ignoring it.
+     * It is the best practice for this array to cover exactly the same set of agents that exist in the
+     * {@link BasicMAPF.Instances.MAPF_Instance instance}, or be null.
+     * Otherwise, behavior is undefined.
+     */
+    public final Agent[] priorityOrder;
 
     /*  =Constructors=  */
 
@@ -75,7 +85,7 @@ public class RunParameters {
      * Intentionally package-private constructor.
      * Use {@link RunParametersBuilder} to create a {@link RunParameters} object.
      */
-    RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, AStarGAndH aStarGAndH, int problemStartTime, @Nullable Random randomNumberGenerator) {
+    RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, SingleAgentGAndH singleAgentGAndH, int problemStartTime, @Nullable Random randomNumberGenerator, Agent[] priorityOrder) {
         this.timeout = timeout;
         this.softTimeout = softTimeout;
         if (this.softTimeout > this.timeout){
@@ -84,13 +94,14 @@ public class RunParameters {
         this.constraints = constraints;
         this.instanceReport = instanceReport;
         this.existingSolution = existingSolution;
-        this.aStarGAndH = aStarGAndH;
+        this.singleAgentGAndH = singleAgentGAndH;
         this.problemStartTime = problemStartTime;
         this.randomNumberGenerator = randomNumberGenerator;
+        this.priorityOrder = priorityOrder;
     }
 
     public RunParameters(RunParameters runParameters) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.aStarGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator);
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.singleAgentGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator, runParameters.priorityOrder);
     }
 
 }

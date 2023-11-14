@@ -8,20 +8,20 @@ public class Agent implements Comparable<Agent>{
     public final int iD;
     public final I_Coordinate source;
     public final I_Coordinate target;
-    public final int priority;
+    public final int priorityClass;
 
     public Agent(int iD, I_Coordinate source, I_Coordinate target) {
         this.iD = iD;
         this.source = source;
         this.target = target;
-        this.priority = 1;
+        this.priorityClass = 1;
     }
 
-    public Agent(int iD, I_Coordinate source, I_Coordinate target, int priority) {
+    public Agent(int iD, I_Coordinate source, I_Coordinate target, int priorityClass) {
         this.iD = iD;
         this.source = source;
         this.target = target;
-        this.priority = priority;
+        this.priorityClass = priorityClass;
     }
 
     @Override

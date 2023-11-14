@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.MDDs;
 
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;

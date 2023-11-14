@@ -9,7 +9,9 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
+import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.IO_Package.IO_Manager;
@@ -36,6 +38,14 @@ public class StressTests {
     }
 
     @Test
+    public void ICTSStressTest() {
+        I_Solver solver = new ICTS_Solver();
+        long timeout = 1000 * 30;
+        int numAgents = 30;
+        StressTest(solver, timeout, numAgents);
+    }
+
+    @Test
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.none),
@@ -48,6 +58,14 @@ public class StressTests {
     @Test
     public void LNSStressTest() {
         I_Solver solver = new LargeNeighborhoodSearch_Solver();
+        long timeout = 1000 * 30;
+        int numAgents = 50;
+        StressTest(solver, timeout, numAgents);
+    }
+
+    @Test
+    public void PIBTStressTest() {
+        I_Solver solver = new PIBT_Solver(null, null);
         long timeout = 1000 * 30;
         int numAgents = 50;
         StressTest(solver, timeout, numAgents);

@@ -196,7 +196,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void sortAgents() {
         MAPF_Instance testInstance = instanceCircle1;
-        I_Solver solver = new PrioritisedPlanning_Solver((Agent a1, Agent a2) -> a2.priority - a1.priority);
+        I_Solver solver = new PrioritisedPlanning_Solver((Agent a1, Agent a2) -> a2.priorityClass - a1.priorityClass);
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
         Agent agent1 = new Agent(1, coor12, coor33, 1);

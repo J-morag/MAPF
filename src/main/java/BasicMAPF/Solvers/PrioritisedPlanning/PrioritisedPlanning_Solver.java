@@ -14,9 +14,9 @@ import BasicMAPF.Solvers.AStar.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import Environment.Metrics.InstanceReport;
@@ -89,7 +89,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * optional heuristic function to use in the low level solver.
      */
-    private AStarGAndH aStarGAndH;
+    private SingleAgentGAndH singleAgentGAndH;
 
     /**
      * if agents share goals, they will not conflict at their goal.
@@ -213,18 +213,16 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.singleAgentFPsTriggered = 0;
 
         // heuristic
-        this.aStarGAndH = Objects.requireNonNullElseGet(parameters.aStarGAndH, () -> new DistanceTableAStarHeuristic(this.agents, instance.map));
-        if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
-            ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
+        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
+        }
+
+        if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
+            reorderAgentsByPriority(parameters.priorityOrder);
         }
 
         if(parameters instanceof RunParameters_PP parametersPP){
-
-            //reorder according to requested priority
-            if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
-                reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
-            }
-
             this.partialSolutionsStrategy = parametersPP.partialSolutionsStrategy;
 
             if (parametersPP.failedAgents != null){
@@ -509,7 +507,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 : timeLeftToTimeout;
         allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT_MS), timeLeftToTimeout);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(allocatedTime).
-                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH)
+                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH)
                 .setExistingSolution(new Solution(solutionSoFar))  // should probably work without copying, but just to be safe
                 .createRP());
         params.fBudget = maxCost;
@@ -557,7 +555,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
-        this.aStarGAndH = null;
+        this.singleAgentGAndH = null;
     }
 
     /*  = interfaces =  */

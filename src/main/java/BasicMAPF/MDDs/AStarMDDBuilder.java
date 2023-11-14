@@ -1,8 +1,9 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -16,7 +17,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
      */
     protected Map<MDDSearchNode, MDDSearchNode> contentOfOpen;
     protected Map<MDDSearchNode, MDDSearchNode> closeList;
-    private DistanceTableAStarHeuristicICTS heuristic;
+    private SingleAgentGAndH heuristic;
     protected int maxDepthOfSolution;
     private boolean disappearAtGoal = false;
     protected DisappearAtGoalFilter disappearAtGoalFilter = new DisappearAtGoalFilter();
@@ -26,8 +27,8 @@ public class AStarMDDBuilder extends A_MDDSearcher {
      *
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
-        super(highLevelSearcher, source, target, agent);
+    public AStarMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent, SingleAgentGAndH heuristic) {
+        super(timeout, source, target, agent);
         this.heuristic = heuristic;
         this.disappearAtGoalFilter.target = target;
     }
@@ -37,9 +38,9 @@ public class AStarMDDBuilder extends A_MDDSearcher {
      *
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public AStarMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic,
+    public AStarMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent, SingleAgentGAndH heuristic,
                            boolean disappearAtGoal) {
-        this(highLevelSearcher, source, target, agent, heuristic);
+        this(timeout, source, target, agent, heuristic);
         this.disappearAtGoal = disappearAtGoal;
     }
 
@@ -48,7 +49,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     }
 
     private void initializeSearch() {
-        MDDSearchNode start = new MDDSearchNode(agent, super.getSource(), 0, heuristic);
+        MDDSearchNode start = new MDDSearchNode(agent, super.getSource(), 0, heuristic.getHToTargetFromLocation(agent.target, super.getSource()));
         addToOpen(start);
     }
 
@@ -89,7 +90,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
 
         MDDSearchNode goal = null;
         while(!isOpenEmpty()){
-            if(highLevelSearcher.reachedTimeout())
+            if(timeout.isTimeoutExceeded())
                 return null;
             MDDSearchNode current = pollFromOpen();
             expandedNodesNum++;
@@ -148,7 +149,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
             neighborLocations.removeIf(disappearAtGoalFilter);
         }
         for (I_Location location : neighborLocations) {
-            MDDSearchNode neighbor = new MDDSearchNode(agent, location, node.getG() + 1, heuristic);
+            MDDSearchNode neighbor = new MDDSearchNode(agent, location, node.getG() + 1, heuristic.getHToTargetFromLocation(agent.target, location));
             neighbor.addParent(node);
             addToOpen(neighbor);
         }
