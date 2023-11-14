@@ -188,6 +188,7 @@ public class PerformanceBenchmark {
         addMetric(jsonArray, nameSolver, "Average Expansions Low Level", "Expansions", avgExpansionsLowLevel);
 
         // Writing the JSON array to a file
+        System.out.println("Writing results to JSON file: " + outPath);
         try (FileWriter file = new FileWriter(outPath)) {
             file.write(jsonArray.toString(4));
         } catch (IOException e) {
