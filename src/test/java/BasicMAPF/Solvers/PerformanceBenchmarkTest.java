@@ -27,49 +27,49 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PerformanceBenchmark {
+public class PerformanceBenchmarkTest {
 
-//    @Test
-//    public void CBSStressTest() {
-//        I_Solver solver = new CBS_Solver();
-//        long timeout = 1000 * 60;
-//        int numAgents = 30;
-//        StressTest(solver, timeout, numAgents);
-//    }
-//
-//    @Test
-//    public void ICTSStressTest() {
-//        I_Solver solver = new ICTS_Solver();
-//        long timeout = 1000 * 30;
-//        int numAgents = 30;
-//        StressTest(solver, timeout, numAgents);
-//    }
-//
-//    @Test
-//    public void PrioritisedPlanningStressTest() {
-//        I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-//                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.none),
-//                null, null, null);
-//        long timeout = 1000 * 30;
-//        int numAgents = 50;
-//        StressTest(solver, timeout, numAgents);
-//    }
-//
-//    @Test
-//    public void LNSStressTest() {
-//        I_Solver solver = new LargeNeighborhoodSearch_Solver();
-//        long timeout = 1000 * 30;
-//        int numAgents = 50;
-//        StressTest(solver, timeout, numAgents);
-//    }
-//
-//    @Test
-//    public void PIBTStressTest() {
-//        I_Solver solver = new PIBT_Solver(null, null);
-//        long timeout = 1000 * 30;
-//        int numAgents = 50;
-//        StressTest(solver, timeout, numAgents);
-//    }
+    @Test
+    public void CBSStressTest() {
+        I_Solver solver = new CBS_Solver();
+        long timeout = 1000 * 60;
+        int numAgents = 30;
+        StressTest(solver, timeout, numAgents);
+    }
+
+    @Test
+    public void ICTSStressTest() {
+        I_Solver solver = new ICTS_Solver();
+        long timeout = 1000 * 30;
+        int numAgents = 30;
+        StressTest(solver, timeout, numAgents);
+    }
+
+    @Test
+    public void PrioritisedPlanningStressTest() {
+        I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.none),
+                null, null, null);
+        long timeout = 1000 * 30;
+        int numAgents = 50;
+        StressTest(solver, timeout, numAgents);
+    }
+
+    @Test
+    public void LNSStressTest() {
+        I_Solver solver = new LargeNeighborhoodSearch_Solver();
+        long timeout = 1000 * 30;
+        int numAgents = 50;
+        StressTest(solver, timeout, numAgents);
+    }
+
+    @Test
+    public void PIBTStressTest() {
+        I_Solver solver = new PIBT_Solver(null, null);
+        long timeout = 1000 * 30;
+        int numAgents = 50;
+        StressTest(solver, timeout, numAgents);
+    }
 
     @Test
     public void AStarStressTest() {
@@ -142,10 +142,8 @@ public class PerformanceBenchmark {
                 }
 
                 // cost
-                if (report.getFloatValue(InstanceReport.StandardFields.solutionCost) != null){
-                    sumCost += report.getFloatValue(InstanceReport.StandardFields.solutionCost);
-                    System.out.println(nameSolver + " Cost: " + report.getFloatValue(InstanceReport.StandardFields.solutionCost));
-                }
+                sumCost += solution.sumIndividualCosts();
+                System.out.println(nameSolver + " Cost: " + solution.sumIndividualCosts());
             }
             System.out.println();
         }
@@ -180,7 +178,7 @@ public class PerformanceBenchmark {
         JSONArray jsonArray = new JSONArray();
 
         // Create JSON objects for each benchmark metric
-        addMetric(jsonArray, nameSolver, "Failed", "Instances", countFailed);
+        addMetric(jsonArray, nameSolver, "Fails", "Instances", countFailed);
         addMetric(jsonArray, nameSolver, "Average Cost", "SOC", avgCost);
         addMetric(jsonArray, nameSolver, "Average Runtime", "Milliseconds", avgRuntime);
         addMetric(jsonArray, nameSolver, "Average Runtime Low Level", "Milliseconds", avgRuntimeLowLevel);

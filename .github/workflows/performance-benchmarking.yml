@@ -32,75 +32,70 @@ jobs:
       - name: Benchmark
         run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dtest=PerformanceBenchmark test
 
-#      - name: Store benchmark result - CBS
-#        uses: benchmark-action/github-action-benchmark@v1
-#        with:
-#          name: CBS Benchmark
-#          tool: 'customSmallerIsBetter'
-#          output-file-path: src/test/out/bench-result-CBS.json
-#          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          auto-push: true
-#          # Show alert with commit comment on detecting possible performance regression
-#          alert-threshold: '150%'
-#          comment-on-alert: true
-#          fail-on-alert: true
-#
-#      - name: Store benchmark result - ICTS_Solver_S2P
-#        uses: benchmark-action/github-action-benchmark@v1
-#        with:
-#          name: ICTS_Solver_S2P Benchmark
-#          tool: 'customSmallerIsBetter'
-#          output-file-path: src/test/out/bench-result-ICTS_Solver_S2P.json
-#          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          auto-push: true
-#          # Show alert with commit comment on detecting possible performance regression
-#          alert-threshold: '150%'
-#          comment-on-alert: true
-#          fail-on-alert: true
-#
-#      - name: Store benchmark result - PrP + randomRestarts x10
-#        uses: benchmark-action/github-action-benchmark@v1
-#        with:
-#          name: PrP + randomRestarts x10 Benchmark
-#          tool: 'customSmallerIsBetter'
-#          output-file-path: src/test/out/bench-result-PrP + randomRestarts x10.json
-#          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          auto-push: true
-#          # Show alert with commit comment on detecting possible performance regression
-#          alert-threshold: '150%'
-#          comment-on-alert: true
-#          fail-on-alert: true
-#
-#      - name: Store benchmark result - ALNS
-#        uses: benchmark-action/github-action-benchmark@v1
-#        with:
-#          name: ALNS Benchmark
-#          tool: 'customSmallerIsBetter'
-#          output-file-path: src/test/out/bench-result-ALNS.json
-#          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          auto-push: true
-#          # Show alert with commit comment on detecting possible performance regression
-#          alert-threshold: '150%'
-#          comment-on-alert: true
-#          fail-on-alert: true
-#
-#      - name: Store benchmark result - PIBT
-#        uses: benchmark-action/github-action-benchmark@v1
-#        with:
-#          name: PIBT Benchmark
-#          tool: 'customSmallerIsBetter'
-#          output-file-path: src/test/out/bench-result-PIBT.json
-#          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          auto-push: true
-#          # Show alert with commit comment on detecting possible performance regression
-#          alert-threshold: '150%'
-#          comment-on-alert: true
-#          fail-on-alert: true
+      - name: Store benchmark result - CBS
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: CBS Benchmark
+          tool: 'customSmallerIsBetter'
+          output-file-path: src/test/out/bench-result-CBS.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
+
+      - name: Store benchmark result - ICTS_Solver_S2P
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ICTS_Solver_S2P Benchmark
+          tool: 'customSmallerIsBetter'
+          output-file-path: src/test/out/bench-result-ICTS_Solver_S2P.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
+
+      - name: Store benchmark result - PrP + randomRestarts x10
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: PrP + randomRestarts x10 Benchmark
+          tool: 'customSmallerIsBetter'
+          output-file-path: src/test/out/bench-result-PrP + randomRestarts x10.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
+
+      - name: Store benchmark result - ALNS
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ALNS Benchmark
+          tool: 'customSmallerIsBetter'
+          output-file-path: src/test/out/bench-result-ALNS.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
+
+      - name: Store benchmark result - PIBT
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: PIBT Benchmark
+          tool: 'customSmallerIsBetter'
+          output-file-path: src/test/out/bench-result-PIBT.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
 
       - name: Store benchmark result - AStar
         uses: benchmark-action/github-action-benchmark@v1
@@ -108,7 +103,6 @@ jobs:
           name: AStar Benchmark
           tool: 'customSmallerIsBetter'
           output-file-path: src/test/out/bench-result-AStar.json
-          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
