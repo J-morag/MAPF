@@ -118,6 +118,7 @@ public class PerformanceBenchmarkTest {
 
             boolean solved = solution != null;
             countSolved += solved ? 1 : 0;
+            countFailed += solved ? 0 : 1;
             System.out.println(nameSolver + " Solved?: " + (solved ? "yes" : "no") );
 
             if(solution != null){

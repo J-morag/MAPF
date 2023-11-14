@@ -2,6 +2,9 @@ name: Performance Benchmark
 on:
   push:
     branches: [ master ]
+  # todo only on push
+  pull_request:
+    branches: [ master ]
 
 permissions:
   contents: write
