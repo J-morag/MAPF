@@ -2,9 +2,6 @@ name: Performance Benchmark
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
-# todo only push
 
 permissions:
   contents: write
@@ -51,7 +48,7 @@ jobs:
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '150%'
           comment-on-alert: true
-          fail-on-alert: ${{ FAIL_ON_ALERT }}
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
 
       - env:
           SOLVER:
@@ -68,7 +65,7 @@ jobs:
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '150%'
           comment-on-alert: true
-          fail-on-alert: ${{ FAIL_ON_ALERT }}
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
 
       - env:
           SOLVER:
@@ -85,7 +82,7 @@ jobs:
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '150%'
           comment-on-alert: true
-          fail-on-alert: ${{ FAIL_ON_ALERT }}
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
 
       - env:
           SOLVER:
@@ -102,7 +99,7 @@ jobs:
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '150%'
           comment-on-alert: true
-          fail-on-alert: ${{ FAIL_ON_ALERT }}
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
 
       - env:
           SOLVER:
@@ -119,7 +116,7 @@ jobs:
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '150%'
           comment-on-alert: true
-          fail-on-alert: ${{ FAIL_ON_ALERT }}
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
 
       - env:
           SOLVER:
@@ -136,4 +133,4 @@ jobs:
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '150%'
           comment-on-alert: true
-          fail-on-alert: ${{ FAIL_ON_ALERT }}
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
