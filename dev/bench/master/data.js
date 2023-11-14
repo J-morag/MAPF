@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1699946366387,
+  "lastUpdate": 1699946368539,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "AStar Benchmark": [
@@ -353,6 +353,56 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 63440.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "id": "eb3755d3e11132bcce35fdc1373c699d14434228",
+          "message": "performance benchmarking instead of stress test",
+          "timestamp": "2023-10-06T06:21:24Z",
+          "url": "https://github.com/J-morag/MAPF/pull/70/commits/eb3755d3e11132bcce35fdc1373c699d14434228"
+        },
+        "date": 1699946367685,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 3544,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 3038,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 1,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 64192.25,
             "unit": "Expansions"
           }
         ]
