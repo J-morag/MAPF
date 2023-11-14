@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1699947516675,
+  "lastUpdate": 1699947518706,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "AStar Benchmark": [
@@ -655,6 +655,56 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP + randomRestarts x10 - Average Expansions Low Level",
             "value": 3080867.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "id": "97aeb2509d177dc9fca376dc42ac8ae781fdbeaa",
+          "message": "performance benchmarking instead of stress test",
+          "timestamp": "2023-10-06T06:21:24Z",
+          "url": "https://github.com/J-morag/MAPF/pull/70/commits/97aeb2509d177dc9fca376dc42ac8ae781fdbeaa"
+        },
+        "date": 1699947518163,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP + randomRestarts x10 - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Cost",
+            "value": 4965.467,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime",
+            "value": 10942.066,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime Low Level",
+            "value": 9380.8,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions Low Level",
+            "value": 3075694.5,
             "unit": "Expansions"
           }
         ]
