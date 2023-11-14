@@ -37,7 +37,7 @@ jobs:
 #        with:
 #          name: CBS Benchmark
 #          tool: 'customSmallerIsBetter'
-#          output-file-path: src/main/test/out/bench-result-CBS.json
+#          output-file-path: src/test/out/bench-result-CBS.json
 #          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
 #          auto-push: true
@@ -51,7 +51,7 @@ jobs:
 #        with:
 #          name: ICTS_Solver_S2P Benchmark
 #          tool: 'customSmallerIsBetter'
-#          output-file-path: src/main/test/out/bench-result-ICTS_Solver_S2P.json
+#          output-file-path: src/test/out/bench-result-ICTS_Solver_S2P.json
 #          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
 #          auto-push: true
@@ -65,7 +65,7 @@ jobs:
 #        with:
 #          name: PrP + randomRestarts x10 Benchmark
 #          tool: 'customSmallerIsBetter'
-#          output-file-path: src/main/test/out/bench-result-PrP + randomRestarts x10.json
+#          output-file-path: src/test/out/bench-result-PrP + randomRestarts x10.json
 #          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
 #          auto-push: true
@@ -79,7 +79,7 @@ jobs:
 #        with:
 #          name: ALNS Benchmark
 #          tool: 'customSmallerIsBetter'
-#          output-file-path: src/main/test/out/bench-result-ALNS.json
+#          output-file-path: src/test/out/bench-result-ALNS.json
 #          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
 #          auto-push: true
@@ -93,7 +93,7 @@ jobs:
 #        with:
 #          name: PIBT Benchmark
 #          tool: 'customSmallerIsBetter'
-#          output-file-path: src/main/test/out/bench-result-PIBT.json
+#          output-file-path: src/test/out/bench-result-PIBT.json
 #          # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
 #          auto-push: true
@@ -107,7 +107,7 @@ jobs:
         with:
           name: AStar Benchmark
           tool: 'customSmallerIsBetter'
-          output-file-path: src/main/test/out/bench-result-AStar.json
+          output-file-path: src/test/out/bench-result-AStar.json
           # TODO address? - Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
