@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1699946374442,
+  "lastUpdate": 1699946376466,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "AStar Benchmark": [
@@ -84,6 +84,56 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 4.882353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 1115.8235,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "id": "eb3755d3e11132bcce35fdc1373c699d14434228",
+          "message": "performance benchmarking instead of stress test",
+          "timestamp": "2023-10-06T06:21:24Z",
+          "url": "https://github.com/J-morag/MAPF/pull/70/commits/eb3755d3e11132bcce35fdc1373c699d14434228"
+        },
+        "date": 1699946375614,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 89.117645,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 5.0588236,
             "unit": "Milliseconds"
           },
           {
