@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1699947518706,
+  "lastUpdate": 1699947520771,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "AStar Benchmark": [
@@ -807,6 +807,56 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 6680070,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "id": "97aeb2509d177dc9fca376dc42ac8ae781fdbeaa",
+          "message": "performance benchmarking instead of stress test",
+          "timestamp": "2023-10-06T06:21:24Z",
+          "url": "https://github.com/J-morag/MAPF/pull/70/commits/97aeb2509d177dc9fca376dc42ac8ae781fdbeaa"
+        },
+        "date": 1699947520214,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 4531.5293,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30004.47,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28110.705,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 6504619,
             "unit": "Expansions"
           }
         ]
