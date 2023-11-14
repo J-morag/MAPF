@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1699944390143,
+  "lastUpdate": 1699944391170,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "AStar Benchmark": [
@@ -153,6 +153,58 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 64192.25,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "PrP + randomRestarts x10 Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "id": "72785d4cd9182996756046f0bdee584f45fd4458",
+          "message": "performance benchmarking instead of stress test",
+          "timestamp": "2023-10-06T06:21:24Z",
+          "url": "https://github.com/J-morag/MAPF/pull/70/commits/72785d4cd9182996756046f0bdee584f45fd4458"
+        },
+        "date": 1699944390873,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP + randomRestarts x10 - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Cost",
+            "value": 4965.467,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime",
+            "value": 10756.733,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime Low Level",
+            "value": 9434.333,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions Low Level",
+            "value": 3113578.8,
             "unit": "Expansions"
           }
         ]
