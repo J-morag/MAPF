@@ -116,7 +116,10 @@ jobs:
 #        env:
 #          SOLVER: PIBT
 
-      - name: Store benchmark result - $SOLVER
+      - env:
+          SOLVER:
+            AStar
+        name: Store benchmark result - $SOLVER
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: $SOLVER Benchmark
@@ -129,5 +132,4 @@ jobs:
           alert-threshold: '150%'
           comment-on-alert: true
           fail-on-alert: true
-        env:
-          SOLVER: AStar
+
