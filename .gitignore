@@ -8,6 +8,7 @@
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/*
+.run/*
 
 # AWS User-specific
 .idea/**/aws.xml
@@ -76,3 +77,6 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+
+# Temporary files
+src/main/test/out/*
