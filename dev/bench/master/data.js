@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700007392137,
+  "lastUpdate": 1700007393304,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "AStar Benchmark": [
@@ -657,6 +657,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 64192.25,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "beb7ebbf517f968fba908aa2e606e8f44513c56d",
+          "message": "performance benchmarking instead of stress test (#70)\n\n* Introduce performance benchmarking instead of stress test\r\n\r\n* See results at https://j-morag.github.io/MAPF/dev/bench/master/",
+          "timestamp": "2023-11-15T10:47:34+11:00",
+          "tree_id": "8734e93b12be4ba012f7c101921d1fbc8785c3ce",
+          "url": "https://github.com/J-morag/MAPF/commit/beb7ebbf517f968fba908aa2e606e8f44513c56d"
+        },
+        "date": 1700007392969,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 12,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4351.4,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 7950.4,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 1,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 63440.8,
             "unit": "Expansions"
           }
         ]
