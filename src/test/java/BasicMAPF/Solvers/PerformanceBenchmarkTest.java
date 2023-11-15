@@ -195,14 +195,14 @@ public class PerformanceBenchmarkTest {
         }
     }
 
-    private static void addMetric(JSONArray jsonArray, String nameSolver, String metricName, String unit, int value) {
+    public static void addMetric(JSONArray jsonArray, String nameSolver, String metricName, String unit, int value) {
         JSONObject jsonCountSolved = new JSONObject();
         jsonCountSolved.put("name", nameSolver + " - " + metricName);
         jsonCountSolved.put("unit", unit);
         jsonCountSolved.put("value", value);
         jsonArray.put(jsonCountSolved);
     }
-    private static void addMetric(JSONArray jsonArray, String nameSolver, String metricName, String unit, float value) {
+    public static void addMetric(JSONArray jsonArray, String nameSolver, String metricName, String unit, float value) {
         JSONObject jsonCountSolved = new JSONObject();
         jsonCountSolved.put("name", nameSolver + " - " + metricName);
         jsonCountSolved.put("unit", unit);

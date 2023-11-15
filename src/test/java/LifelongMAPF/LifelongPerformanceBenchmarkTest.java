@@ -12,17 +12,17 @@ import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
+import org.json.JSONArray;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
 
+import static BasicMAPF.Solvers.PerformanceBenchmarkTest.addMetric;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class LifelongStressTest {
+public class LifelongPerformanceBenchmarkTest {
 
     public static final boolean USE_ASSERTS = true;
     public static final long TIMEOUT = 1000 * 300;
@@ -42,10 +42,11 @@ public class LifelongStressTest {
                 new InstanceProperties(null, -1d, new int[]{400, 600}));
 
         int countSolved = 0;
+        int countFailed = 0;
         int runtime = 0;
         int runtimeLowLevel = 0;
-        int ExpantionsHighLevel = 0;
-        int ExpantionsLowLevel = 0;
+        int expansionsHighLevel = 0;
+        int expansionsLowLevel = 0;
         int sumThroughput = 0;
 
         MAPF_Instance instance;
@@ -69,6 +70,7 @@ public class LifelongStressTest {
 
             boolean solved = solution != null;
             countSolved += solved ? 1 : 0;
+            countFailed += solved ? 0 : 1;
             System.out.println(nameSolver + " Solved?: " + (solved ? "yes" : "no") );
 
             if(solution != null){
@@ -84,11 +86,11 @@ public class LifelongStressTest {
 
                 // expansions
                 if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodes) != null){
-                    ExpantionsHighLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                    expansionsHighLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
                     System.out.println(nameSolver + " Expansions High Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
                 }
                 if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) != null) {
-                    ExpantionsLowLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+                    expansionsLowLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
                     System.out.println(nameSolver + " Expansions Low Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
                 }
 
@@ -101,42 +103,49 @@ public class LifelongStressTest {
             System.out.println();
         }
 
-        System.out.println("--- TOTALS: ---");
-        System.out.println("timeout for each (seconds): " + (TIMEOUT /1000));
-        System.out.println(nameSolver + " solved: " + countSolved);
-        System.out.println("totals (solved instances) :");
-        System.out.println(nameSolver + " avg. throughputAtT200: " + sumThroughput/(float)countSolved);
-        System.out.println(nameSolver + " avg. time (ms): " + runtime/(float)countSolved);
-        System.out.println(nameSolver + " avg. time low level  (ms): " + runtimeLowLevel/(float)countSolved);
-        System.out.println(nameSolver + " avg. expansions high level: " + ExpantionsHighLevel/(float)countSolved);
-        System.out.println(nameSolver + " avg. expansions low level: " + ExpantionsLowLevel/(float)countSolved);
+        long timeoutS = TIMEOUT/1000;
+        float avgThroughput = sumThroughput/(float)countSolved;
+        float avgRuntime = runtime/(float)countSolved;
+        float avgRuntimeLowLevel = runtimeLowLevel/(float)countSolved;
+        float avgExpansionsHighLevel = expansionsHighLevel/(float)countSolved;
+        float avgExpansionsLowLevel = expansionsLowLevel/(float)countSolved;
 
-        //save results
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
-        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-        File directory = new File(resultsOutputDir);
+        System.out.println("--- TOTALS: ---");
+        System.out.println("timeout for each (seconds): " + timeoutS);
+        System.out.println(nameSolver + " solved: " + countSolved + " (failed: " + countFailed + ")");
+        System.out.println("totals (solved instances) :");
+        System.out.println(nameSolver + " avg. throughputAtT200: " + avgThroughput);
+        System.out.println(nameSolver + " avg. time (ms): " + avgRuntime);
+        System.out.println(nameSolver + " avg. time low level  (ms): " + avgRuntimeLowLevel);
+        System.out.println(nameSolver + " avg. expansions high level: " + avgExpansionsHighLevel);
+        System.out.println(nameSolver + " avg. expansions low level: " + avgExpansionsLowLevel);
+
+        // save results (JSON)
+
+        String jsonOutputDir = IO_Manager.testOut_Directory;
+        File directory = new File(jsonOutputDir);
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "/" + nameSolver + " Stress Test " + dateFormat.format(System.currentTimeMillis()) + ".csv";
-        try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
-                    new String[]{
-                            InstanceReport.StandardFields.instanceName,
-                            InstanceReport.StandardFields.solver,
-                            InstanceReport.StandardFields.numAgents,
-                            InstanceReport.StandardFields.timeoutThresholdMS,
-                            InstanceReport.StandardFields.solved,
-                            InstanceReport.StandardFields.elapsedTimeMS,
-                            InstanceReport.StandardFields.solutionCost,
-                            InstanceReport.StandardFields.totalLowLevelTimeMS,
-                            InstanceReport.StandardFields.generatedNodes,
-                            InstanceReport.StandardFields.expandedNodes,
-                            InstanceReport.StandardFields.generatedNodesLowLevel,
-                            InstanceReport.StandardFields.expandedNodesLowLevel});
+        String outPath = IO_Manager.buildPath(new String[]{jsonOutputDir, "bench-result-" + nameSolver + ".json"});
+
+        // Convert data to JSON
+        JSONArray jsonArray = new JSONArray();
+
+        // Create JSON objects for each benchmark metric
+        addMetric(jsonArray, nameSolver, "Fails", "Instances", countFailed);
+        addMetric(jsonArray, nameSolver, "Average Throughput", "Throughput @ T=200", avgThroughput);
+        addMetric(jsonArray, nameSolver, "Average Runtime", "Milliseconds", avgRuntime);
+        addMetric(jsonArray, nameSolver, "Average Runtime Low Level", "Milliseconds", avgRuntimeLowLevel);
+        addMetric(jsonArray, nameSolver, "Average Expansions High Level", "Expansions", avgExpansionsHighLevel);
+        addMetric(jsonArray, nameSolver, "Average Expansions Low Level", "Expansions", avgExpansionsLowLevel);
+
+        // Writing the JSON array to a file
+        System.out.println("Writing results to JSON file: " + outPath);
+        try (FileWriter file = new FileWriter(outPath)) {
+            file.write(jsonArray.toString(4));
         } catch (IOException e) {
             e.printStackTrace();
-            fail();
         }
     }
 

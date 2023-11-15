@@ -1,0 +1,68 @@
+name: Performance Benchmark
+on:
+  push:
+    branches: [ lifelong ]
+
+permissions:
+  contents: write
+  deployments: write
+
+env:
+  BENCHMARK_DATA_DIR_PATH: dev/bench/lifelong/lifelong
+  FAIL_ON_ALERT: false
+
+jobs:
+  benchmark:
+    name: Run performance benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+
+      # run the lifelong benchmark using tests
+      - name: Benchmark
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dtest=LifelongPerformanceBenchmarkTest test
+
+      - env:
+          SOLVER: stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
+
+      - env:
+          SOLVER:
+            LH1_Avoid20ASFP_Cap18_Timeout1p5
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}

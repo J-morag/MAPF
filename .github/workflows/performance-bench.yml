@@ -1,14 +1,14 @@
 name: Performance Benchmark
 on:
   push:
-    branches: [ master ]
+    branches: [ lifelong ]
 
 permissions:
   contents: write
   deployments: write
 
 env:
-  BENCHMARK_DATA_DIR_PATH: dev/bench/master
+  BENCHMARK_DATA_DIR_PATH: dev/bench/lifelong/offline
   FAIL_ON_ALERT: false
 
 jobs:
