@@ -282,7 +282,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        RunParameters_PP runParameters_pp = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
+        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP());
         runParameters_pp.problemStartTime = this.problemStartTime;
         runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
         return runParameters_pp;

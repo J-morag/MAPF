@@ -12,7 +12,7 @@ public class LifelongAgent extends Agent {
     public final WaypointsGeneratorFactory waypointsGeneratorFactory;
 
     public LifelongAgent(Agent agent, @NotNull I_Coordinate[] waypoints){
-        this(agent.iD, agent.source, agent.target, agent.priority, waypoints);
+        this(agent.iD, agent.source, agent.target, agent.priorityClass, waypoints);
     }
 
     public LifelongAgent(int iD, I_Coordinate source, I_Coordinate target, I_Coordinate[] waypoints) {
@@ -45,7 +45,7 @@ public class LifelongAgent extends Agent {
     }
 
     public LifelongAgent(Agent agent, @NotNull WaypointsGeneratorFactory waypointsGeneratorFactory){
-        this(agent.iD, agent.source, agent.target, agent.priority, waypointsGeneratorFactory);
+        this(agent.iD, agent.source, agent.target, agent.priorityClass, waypointsGeneratorFactory);
     }
 
     public LifelongAgent(int iD, I_Coordinate source, I_Coordinate target, int priority,  @NotNull WaypointsGeneratorFactory waypointsGeneratorFactory) {

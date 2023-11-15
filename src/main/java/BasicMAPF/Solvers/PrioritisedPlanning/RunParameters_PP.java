@@ -20,11 +20,5 @@ public class RunParameters_PP extends RunParameters {
 
     public RunParameters_PP(RunParameters runParameters) {
         super(runParameters);
-        this.preferredPriorityOrder = null;
-    }
-
-    public RunParameters_PP(RunParameters runParameters, Agent[] preferredPriorityOrder) {
-        super(runParameters);
-        this.preferredPriorityOrder = preferredPriorityOrder;
     }
 }

@@ -6,10 +6,10 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
@@ -32,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static BasicMAPF.DataTypesAndStructures.Timeout.getCurrentTimeMS_NSAccuracy;
 
 /**
  * Simulates a lifelong environment for a lifelong compatible solver to run in.
@@ -713,10 +715,10 @@ public class LifelongSimulationSolver extends A_Solver {
         constraints.sharedGoals = true;
         nextPlansForNotSelectedAgents.forEach(plan -> constraints.addAll(constraints.allConstraintsForPlan(plan)));
 
-        AStarGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;
+        SingleAgentGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;
         if (congestionMultiplier != null && congestionMultiplier > 0){
             List<Agent> agents = new ArrayList<>(selectedTimelyOfflineAgentsSubset);
-            costAndHeuristic = new DistanceTableAStarHeuristic(agents, this.lifelongInstance.map, null, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
+            costAndHeuristic = new DistanceTableSingleAgentHeuristic(agents, this.lifelongInstance.map, null, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
         }
 
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));

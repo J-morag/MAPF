@@ -34,7 +34,7 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
         return distanceDictionaries;
     }
 
-    private DistanceTableAStarHeuristic(I_Map map, @Nullable CongestionMap congestionMap) {
+    private DistanceTableSingleAgentHeuristic(I_Map map, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.distanceDictionaries = new HashMap<>();
         this.congestionMap = congestionMap;
