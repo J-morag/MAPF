@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700011961573,
+  "lastUpdate": 1700012066606,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -43,6 +43,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Runtime Low Level",
             "value": 2014.7142,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 45.142857,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 749826.56,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "57e314dd90fc699ddee53826719366bc76305662",
+          "message": "fix workflow names",
+          "timestamp": "2023-11-15T12:06:22+11:00",
+          "tree_id": "1c842f8beed568d44ae6ea9cf783b5107f8feb88",
+          "url": "https://github.com/J-morag/MAPF/commit/57e314dd90fc699ddee53826719366bc76305662"
+        },
+        "date": 1700012065421,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 10,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3893.2856,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 2752.5715,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 2266.2856,
             "unit": "Milliseconds"
           },
           {
