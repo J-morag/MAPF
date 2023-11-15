@@ -1,4 +1,4 @@
-name: Performance Benchmark
+name: Lifelong Performance Benchmark
 on:
   push:
     branches: [ lifelong ]
@@ -13,7 +13,7 @@ env:
 
 jobs:
   benchmark:
-    name: Run performance benchmark
+    name: Run lifelong performance benchmark
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -31,7 +31,7 @@ jobs:
         run: mvn --batch-mode -DskipTests package
 
       # run the lifelong benchmark using tests
-      - name: Benchmark
+      - name: Lifelong Benchmark
         run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dtest=LifelongPerformanceBenchmarkTest test
 
       - env:
