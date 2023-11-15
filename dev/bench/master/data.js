@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700010169252,
+  "lastUpdate": 1700010170278,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -277,6 +277,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Expansions Low Level",
             "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "AStar Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "beb7ebbf517f968fba908aa2e606e8f44513c56d",
+          "message": "performance benchmarking instead of stress test (#70)\n\n* Introduce performance benchmarking instead of stress test\r\n\r\n* See results at https://j-morag.github.io/MAPF/dev/bench/master/",
+          "timestamp": "2023-11-15T10:47:34+11:00",
+          "tree_id": "8734e93b12be4ba012f7c101921d1fbc8785c3ce",
+          "url": "https://github.com/J-morag/MAPF/commit/beb7ebbf517f968fba908aa2e606e8f44513c56d"
+        },
+        "date": 1700010169963,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 89.117645,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 4.2352943,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 1115.8235,
             "unit": "Expansions"
           }
         ]
