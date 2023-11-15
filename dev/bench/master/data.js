@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1699947523874,
+  "lastUpdate": 1700007392137,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "AStar Benchmark": [
@@ -391,6 +391,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Runtime Low Level",
             "value": 3034.1428,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 45.57143,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 749600.44,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "beb7ebbf517f968fba908aa2e606e8f44513c56d",
+          "message": "performance benchmarking instead of stress test (#70)\n\n* Introduce performance benchmarking instead of stress test\r\n\r\n* See results at https://j-morag.github.io/MAPF/dev/bench/master/",
+          "timestamp": "2023-11-15T10:47:34+11:00",
+          "tree_id": "8734e93b12be4ba012f7c101921d1fbc8785c3ce",
+          "url": "https://github.com/J-morag/MAPF/commit/beb7ebbf517f968fba908aa2e606e8f44513c56d"
+        },
+        "date": 1700007391450,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 10,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3893.2856,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 3657.4285,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 2931.5715,
             "unit": "Milliseconds"
           },
           {
