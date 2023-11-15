@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700012068221,
+  "lastUpdate": 1700012069935,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -273,6 +273,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP + randomRestarts x10 - Average Expansions Low Level",
             "value": 3772919.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "57e314dd90fc699ddee53826719366bc76305662",
+          "message": "fix workflow names",
+          "timestamp": "2023-11-15T12:06:22+11:00",
+          "tree_id": "1c842f8beed568d44ae6ea9cf783b5107f8feb88",
+          "url": "https://github.com/J-morag/MAPF/commit/57e314dd90fc699ddee53826719366bc76305662"
+        },
+        "date": 1700012069229,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP + randomRestarts x10 - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Cost",
+            "value": 4965.467,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime",
+            "value": 9525.533,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime Low Level",
+            "value": 8565.8,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions Low Level",
+            "value": 3401150.5,
             "unit": "Expansions"
           }
         ]
