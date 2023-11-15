@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700010936433,
+  "lastUpdate": 1700010938623,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -163,6 +163,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 63440.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "87292567554f17b53c60ee83f0848dff9e2d154e",
+          "message": "Bump org.json:json from 20230227 to 20231013 (#71)\n\nBumps [org.json:json](https://github.com/douglascrockford/JSON-java) from 20230227 to 20231013.\r\n- [Release notes](https://github.com/douglascrockford/JSON-java/releases)\r\n- [Changelog](https://github.com/stleary/JSON-java/blob/master/docs/RELEASES.md)\r\n- [Commits](https://github.com/douglascrockford/JSON-java/commits)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: org.json:json\r\n  dependency-type: direct:production\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2023-11-15T11:46:05+11:00",
+          "tree_id": "0e4d4a3f828a53d62c918a02ea4b52a1e87f3fdb",
+          "url": "https://github.com/J-morag/MAPF/commit/87292567554f17b53c60ee83f0848dff9e2d154e"
+        },
+        "date": 1700010938019,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 3544,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 3780.75,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 1,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 64192.25,
             "unit": "Expansions"
           }
         ]
