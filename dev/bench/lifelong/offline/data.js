@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700011960502,
+  "lastUpdate": 1700011961573,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -277,6 +277,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Expansions Low Level",
             "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "AStar Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "dcfa38d81f56de2cdd6d013ce801e78b9945ea0b",
+          "message": "continuous performance benchmarking for lifelong",
+          "timestamp": "2023-11-15T12:04:51+11:00",
+          "tree_id": "02e81e9dca42190614d77067c0327e1428db638a",
+          "url": "https://github.com/J-morag/MAPF/commit/dcfa38d81f56de2cdd6d013ce801e78b9945ea0b"
+        },
+        "date": 1700011961278,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 89.117645,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 3.7058823,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 1115.8235,
             "unit": "Expansions"
           }
         ]
