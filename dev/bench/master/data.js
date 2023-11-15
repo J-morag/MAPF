@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700010938623,
+  "lastUpdate": 1700010940204,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -273,6 +273,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP + randomRestarts x10 - Average Expansions Low Level",
             "value": 3785959.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "87292567554f17b53c60ee83f0848dff9e2d154e",
+          "message": "Bump org.json:json from 20230227 to 20231013 (#71)\n\nBumps [org.json:json](https://github.com/douglascrockford/JSON-java) from 20230227 to 20231013.\r\n- [Release notes](https://github.com/douglascrockford/JSON-java/releases)\r\n- [Changelog](https://github.com/stleary/JSON-java/blob/master/docs/RELEASES.md)\r\n- [Commits](https://github.com/douglascrockford/JSON-java/commits)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: org.json:json\r\n  dependency-type: direct:production\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2023-11-15T11:46:05+11:00",
+          "tree_id": "0e4d4a3f828a53d62c918a02ea4b52a1e87f3fdb",
+          "url": "https://github.com/J-morag/MAPF/commit/87292567554f17b53c60ee83f0848dff9e2d154e"
+        },
+        "date": 1700010939633,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP + randomRestarts x10 - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Cost",
+            "value": 4969.6,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime",
+            "value": 11566.333,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Runtime Low Level",
+            "value": 10058.934,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP + randomRestarts x10 - Average Expansions Low Level",
+            "value": 2895271.5,
             "unit": "Expansions"
           }
         ]
