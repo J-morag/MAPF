@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700012161874,
+  "lastUpdate": 1700012256900,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -43,6 +43,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level",
             "value": 64623.332,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "57e314dd90fc699ddee53826719366bc76305662",
+          "message": "fix workflow names",
+          "timestamp": "2023-11-15T12:06:22+11:00",
+          "tree_id": "1c842f8beed568d44ae6ea9cf783b5107f8feb88",
+          "url": "https://github.com/J-morag/MAPF/commit/57e314dd90fc699ddee53826719366bc76305662"
+        },
+        "date": 1700012256053,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Throughput",
+            "value": 467.5,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime",
+            "value": 78926.336,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level",
+            "value": 64726,
             "unit": "Milliseconds"
           },
           {
