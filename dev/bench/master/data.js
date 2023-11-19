@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700401553410,
+  "lastUpdate": 1700401554816,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -748,6 +748,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 228.82353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "588361ebe6de92d988921e1aa26849a37fed33a2",
+          "message": "infinite constraints support for PIBT, with tests (#69)\n\n* infinite constraints support for PIBT, with tests\r\n\r\n* infinite constraints addition, conflicts resolved",
+          "timestamp": "2023-11-19T15:17:48+02:00",
+          "tree_id": "53e3640b8928063d4e2ae43e57a17d2c94157b72",
+          "url": "https://github.com/J-morag/MAPF/commit/588361ebe6de92d988921e1aa26849a37fed33a2"
+        },
+        "date": 1700401554566,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 5032.706,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 105.35294,
             "unit": "Milliseconds"
           },
           {
