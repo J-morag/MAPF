@@ -3,8 +3,10 @@ package BasicMAPF.Solvers.ICTS.HighLevel;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.MDDs.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.A_Solver;
-import BasicMAPF.Solvers.ICTS.MDDs.*;
 import BasicMAPF.Solvers.ICTS.MergedMDDs.*;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -23,7 +25,7 @@ public class ICTS_Solver extends A_Solver {
     private I_MergedMDDSolver mergedMDDSolver;
     private PruningStrategy pruningStrategy;
     protected MDDManager mddManager;
-    protected DistanceTableAStarHeuristicICTS heuristicICTS;
+    protected SingleAgentGAndH heuristic;
     protected MAPF_Instance instance;
     private final I_MergedMDDCreator mergedMDDCreator;
     /**
@@ -61,8 +63,8 @@ public class ICTS_Solver extends A_Solver {
 //        closedList = createClosedList();
         expandedHighLevelNodes = 0;
         generatedHighLevelNodes = 0;
-        getHeuristic(instance);
-        this.mddManager = new MDDManager(searcherFactory, super.getTimeout(), heuristicICTS);
+        heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
+        this.mddManager = new MDDManager(searcherFactory, super.getTimeout(), heuristic);
         this.instance = instance;
     }
 
@@ -231,25 +233,12 @@ public class ICTS_Solver extends A_Solver {
         Map<Agent, Integer> startCosts = new HashMap<>();
         for (Agent agent : instance.agents) {
 
-            Integer depth = Math.round(heuristicICTS.getHToTargetFromLocation(agent.target, getSource(agent)));
-            if (depth == null) { // TODO clean?
-                //The single agent path does not exist
-                try {
-                    throw new Exception("The single agent plan for agent " + agent.iD + " does not exist!");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return false;
-            }
+            Integer depth = Math.round(heuristic.getHToTargetFromLocation(agent.target, getSource(agent)));
             startCosts.put(agent, depth);
         }
         ICT_Node startNode = new ICT_Node(startCosts);
         addToOpen(startNode);
         return true;
-    }
-
-    protected void getHeuristic(MAPF_Instance instance) {
-        heuristicICTS = new DistanceTableAStarHeuristicICTS(instance.agents, instance.map);
     }
 
     protected I_Location getSource(Agent agent){

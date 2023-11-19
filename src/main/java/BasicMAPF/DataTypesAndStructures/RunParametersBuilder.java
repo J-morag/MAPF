@@ -1,7 +1,7 @@
 package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 
@@ -13,7 +13,7 @@ public class RunParametersBuilder {
     private ConstraintSet constraints = null;
     private InstanceReport instanceReport = null;
     private Solution existingSolution = null;
-    private AStarGAndH aStarGAndH = null;
+    private SingleAgentGAndH singleAgentGAndH = null;
     public int problemStartTime = 0;
     public Random randomNumberGenerator;
     public Agent[] priorityOrder;
@@ -60,10 +60,10 @@ public class RunParametersBuilder {
     }
 
     /**
-     * @see RunParameters#aStarGAndH
+     * @see RunParameters#singleAgentGAndH
      */
-    public RunParametersBuilder setAStarGAndH(AStarGAndH aStarGAndH) {
-        this.aStarGAndH = aStarGAndH;
+    public RunParametersBuilder setAStarGAndH(SingleAgentGAndH singleAgentGAndH) {
+        this.singleAgentGAndH = singleAgentGAndH;
         return this;
     }
 
@@ -92,6 +92,6 @@ public class RunParametersBuilder {
     }
 
     public RunParameters createRP() {
-        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, aStarGAndH, problemStartTime, randomNumberGenerator, priorityOrder);
+        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, singleAgentGAndH, problemStartTime, randomNumberGenerator, priorityOrder);
     }
 }

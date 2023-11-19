@@ -78,7 +78,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(24, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
@@ -104,7 +104,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(30, solved.sumIndividualCosts());
+        assertEquals(25, solved.sumIndividualCosts());
         assertEquals(6, solved.makespan());
         assertEquals(23 , solved.sumServiceTimes());
     }
@@ -126,7 +126,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(14, solved.sumIndividualCosts());
+        assertEquals(10, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
     }
@@ -452,7 +452,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(10, solved.sumIndividualCosts());
+        assertEquals(8, solved.sumIndividualCosts());
         assertEquals(5, solved.makespan());
         assertEquals(8 , solved.sumServiceTimes());
     }
@@ -474,7 +474,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(27, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }

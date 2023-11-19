@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Solvers.ICTS.MDDs.MDD;
+import BasicMAPF.MDDs.MDD;
 import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.util.Map;

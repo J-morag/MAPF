@@ -6,8 +6,8 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -31,7 +31,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
     /*  =  = Fields related to the run =  */
 
-    private AStarGAndH subSolverHeuristic;
+    private SingleAgentGAndH subSolverHeuristic;
     private ConstraintSet constraints;
     private Random random;
     private int numIterations;
@@ -120,8 +120,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.aStarGAndH,
-                new DistanceTableAStarHeuristic(this.agents, instance.map));
+        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.singleAgentGAndH,
+                new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
     }
 
     /*  = algorithm =  */

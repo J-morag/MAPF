@@ -1,8 +1,9 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.MDDs;
 
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 
 import java.util.Stack;
 
@@ -13,7 +14,7 @@ public class DFSMDDBuilder extends AStarMDDBuilder {
      *
      * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public DFSMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
+    public DFSMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent, SingleAgentGAndH heuristic) {
         super(timeout, source, target, agent, heuristic);
     }
     /**
@@ -21,8 +22,7 @@ public class DFSMDDBuilder extends AStarMDDBuilder {
      *
      * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public DFSMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent,
-                         DistanceTableAStarHeuristicICTS heuristic, boolean disappearAtGoal) {
+    public DFSMDDBuilder(Timeout timeout, I_Location source, I_Location target, Agent agent,SingleAgentGAndH heuristic, boolean disappearAtGoal) {
         super(timeout, source, target, agent, heuristic, disappearAtGoal);
     }
 

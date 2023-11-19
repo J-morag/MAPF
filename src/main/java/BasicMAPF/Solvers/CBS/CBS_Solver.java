@@ -14,8 +14,8 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.RunParameters_SAAStar;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
@@ -31,16 +31,16 @@ public class CBS_Solver extends A_Solver {
 
     /*  = Fields =  */
 
-    /*  =  = Fields related to the MAPF instance  =  */
+    /*  = Fields related to the MAPF instance =  */
 
     private MAPF_Instance instance;
 
-    /*  =  = Fields related to the run =  */
+    /*  = Fields related to the run =  */
 
     /**
-     * A {@link AStarGAndH heuristic} for the low level solver.
+     * A {@link SingleAgentGAndH heuristic} for the low level solver.
      */
-    private AStarGAndH aStarGAndH;
+    private SingleAgentGAndH singleAgentGAndH;
     /**
      * Initial constraints given to the solver to work with.
      */
@@ -58,7 +58,7 @@ public class CBS_Solver extends A_Solver {
      */
     private int expandedNodes;
 
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A queue of open {@link CBS_Node nodes/states}. Also referred to as OPEN.
@@ -140,8 +140,9 @@ public class CBS_Solver extends A_Solver {
         this.generatedNodes = 0;
         this.expandedNodes = 0;
         this.instance = instance;
-        this.aStarGAndH = this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
-                new DistanceTableAStarHeuristic(new ArrayList<>(this.instance.agents), this.instance.map) :
+        this.singleAgentGAndH = runParameters.singleAgentGAndH != null ? runParameters.singleAgentGAndH :
+                this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
+                new DistanceTableSingleAgentHeuristic(new ArrayList<>(this.instance.agents), this.instance.map) :
                 null;
     }
 
@@ -349,7 +350,7 @@ public class CBS_Solver extends A_Solver {
         // interpreted as "use default timeout". In such a case we should instead give the solver 0 time to solve.
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters subproblemParametes = new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(new ImmutableConstraintSet(constraints)).
-                setInstanceReport(instanceReport).setExistingSolution(currentSolution).setAStarGAndH(this.aStarGAndH).createRP();
+                setInstanceReport(instanceReport).setExistingSolution(currentSolution).setAStarGAndH(this.singleAgentGAndH).createRP();
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){ // upgrades to a better heuristic
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
@@ -404,7 +405,7 @@ public class CBS_Solver extends A_Solver {
         this.initialConstraints = null;
         this.currentConstraints = null;
         this.instance = null;
-        this.aStarGAndH = null;
+        this.singleAgentGAndH = null;
     }
 
     /*  = internal classes and interfaces =  */
