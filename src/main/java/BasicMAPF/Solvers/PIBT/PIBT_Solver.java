@@ -389,7 +389,16 @@ public class PIBT_Solver extends A_Solver {
 
     @NotNull
     private Solution makeSolution() {
+        this.timeStamp++;
         Solution solution = new TransientMAPFSolution();
+
+        for (Agent agent : agentPlans.keySet()) {
+            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                solvePIBT(agent, null);
+            }
+            solution.putPlan(this.agentPlans.get(agent));
+        }
+
         for (Agent agent : agentPlans.keySet()) {
             SingleAgentPlan plan = this.agentPlans.get(agent);
             // trim the plan to remove excess "stay" moves at the end
@@ -408,10 +417,6 @@ public class PIBT_Solver extends A_Solver {
                 solution.putPlan(trimmedPlan);
             }
             else solution.putPlan(this.agentPlans.get(agent));
-
-            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-            }
         }
         return solution;
     }

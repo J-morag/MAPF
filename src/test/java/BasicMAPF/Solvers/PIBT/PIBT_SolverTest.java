@@ -492,7 +492,7 @@ public class PIBT_SolverTest {
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
-        assertEquals(36, solved.sumIndividualCosts());
+        assertEquals(27, solved.sumIndividualCosts());
         assertEquals(8, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
