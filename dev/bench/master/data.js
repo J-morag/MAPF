@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700401552332,
+  "lastUpdate": 1700401553410,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -599,6 +599,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 5680884,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "588361ebe6de92d988921e1aa26849a37fed33a2",
+          "message": "infinite constraints support for PIBT, with tests (#69)\n\n* infinite constraints support for PIBT, with tests\r\n\r\n* infinite constraints addition, conflicts resolved",
+          "timestamp": "2023-11-19T15:17:48+02:00",
+          "tree_id": "53e3640b8928063d4e2ae43e57a17d2c94157b72",
+          "url": "https://github.com/J-morag/MAPF/commit/588361ebe6de92d988921e1aa26849a37fed33a2"
+        },
+        "date": 1700401553161,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 4526.1177,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30002.646,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28341.176,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 10088927,
             "unit": "Expansions"
           }
         ]
