@@ -1948,7 +1948,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver LH1_Go5ASFP_Cap18_infiniteHorizon_PIBT(){
+    public static I_Solver allAgentsSelector_PIBT(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
@@ -1957,6 +1957,20 @@ public class LifelongSolversFactory {
         PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, false);
 
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
+                pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver subSetSelector_PIBT(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new GoASFP(5);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, false);
+
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
@@ -1976,7 +1990,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver LH1_Go5ASFP_Cap18_SubsetSelector_PrP(){
+    public static I_Solver subSetSelector_PrP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
@@ -1992,7 +2006,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver LH1_Go5ASFP_Cap18_AllAgentSelector_PrP(){
+    public static I_Solver allAgentsSelector_PrP(){
         int replanningPeriod = 1;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
