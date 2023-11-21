@@ -17,7 +17,7 @@ import java.util.List;
 
 public abstract class A_LifelongRunManager extends A_RunManager {
 
-    public static final int DEFAULT_TIMEOUT_EACH = 4 * 5 * 60 * 1000;
+    public static final int DEFAULT_TIMEOUT_EACH = Integer.MAX_VALUE / 2;
 
     public A_LifelongRunManager(String resultsOutputDir) {
         this(resultsOutputDir, null);
