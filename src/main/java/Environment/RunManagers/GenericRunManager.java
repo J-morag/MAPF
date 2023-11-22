@@ -5,6 +5,7 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
@@ -47,10 +48,12 @@ public class GenericRunManager extends A_RunManager {
             super.solvers = solversOverride;
             return;
         }
-        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                null, null, null));
-        super.solvers.add(new CBS_Solver());
+//        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
+//                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+//                null, null, null));
+//        super.solvers.add(new CBS_Solver());
+        super.solvers.add(new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, null));
+//        super.solvers.add(new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, true));
     }
 
     public void overrideSolvers(@NotNull List<I_Solver> solvers){
