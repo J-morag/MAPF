@@ -5,10 +5,15 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
@@ -43,6 +48,9 @@ public class LaCAM_SolverTest {
     private final MAPF_Instance instanceAgentsInterruptsEachOther = new MAPF_Instance("instanceAgentsInterruptsEachOther", mapWithPocket, new Agent[]{agent43to53, agent55to34});
     private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
     private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
+
+    private final MAPF_Instance instanceTreeShapedMap = new MAPF_Instance("instanceTreeShapedMap", mapTree, new Agent[]{agent31to01, agent11to31, agent01to11});
+
 
     I_Solver LaCAM_Solver = new LaCAM_Solver(null);
 
@@ -147,6 +155,17 @@ public class LaCAM_SolverTest {
 //        assertEquals(8, solved.sumIndividualCosts());
 //        assertEquals(4, solved.makespan());
     }
+
+    @Test
+    void treeShapedMapTest() {
+        MAPF_Instance testInstance = instanceTreeShapedMap;
+        I_Solver pibt = new PIBT_Solver(null, null, null);
+//        Solution solved = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertTrue(solved.solves(testInstance));
+    }
+
+
 
     @Test
     void TestingBenchmark(){
@@ -262,6 +281,143 @@ public class LaCAM_SolverTest {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
+    void compareBetweenPIBTAndLaCAMTest(){
+        S_Metrics.clearAll();
+        boolean useAsserts = true;
+
+//        I_Solver PrPSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
+//                null, new RestartsStrategy(), null, null, null);
+//        String namePrP = PrPSolver.name();
+
+        I_Solver LaCAMSolver = new LaCAM_Solver(null);
+        String nameLaCAM = LaCAMSolver.name();
+
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
+        String namePIBT = PIBT_Solver.name();
+
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "ComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+                new InstanceProperties(null, -1d, new int[]{100}));
+
+        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
+        MAPF_Instance instance = null;
+//        long timeout = 60 /*seconds*/   *1000L;
+        long timeout = 10 /*seconds*/   *1000L;
+        int solvedByPrP = 0;
+        int solvedByPIBT = 0;
+        int runtimePrP = 0;
+        int runtimePIBT = 0;
+        float sumCostPrP = 0;
+        int sumCostPIBT = 0;
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
+
+            // run LaCAM
+            //build report
+            InstanceReport reportLaCAM = S_Metrics.newInstanceReport();
+            reportLaCAM.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportLaCAM.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportLaCAM.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportLaCAM.putStringValue(InstanceReport.StandardFields.solver, nameLaCAM);
+
+            RunParameters runParametersLaCAM = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportLaCAM).createRP();
+
+            //solve
+            Solution solutionLaCAM = LaCAMSolver.solve(instance, runParametersLaCAM);
+
+            // run PIBT
+            //build report
+            InstanceReport reportPIBT = S_Metrics.newInstanceReport();
+            reportPIBT.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportPIBT.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+            reportPIBT.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+            reportPIBT.putStringValue(InstanceReport.StandardFields.solver, namePIBT);
+
+            RunParameters runParametersPIBT = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportPIBT).createRP();
+
+            //solve
+            Solution solutionPIBT = PIBT_Solver.solve(instance, runParametersPIBT);
+
+            // compare
+
+            boolean PrPSolved = solutionLaCAM != null;
+            solvedByPrP += PrPSolved ? 1 : 0;
+            boolean PIBTSolved = solutionPIBT != null;
+            solvedByPIBT += PIBTSolved ? 1 : 0;
+            System.out.println(nameLaCAM + " Solved?: " + (PrPSolved ? "yes" : "no") +
+                    " ; " + namePIBT + " solved?: " + (PIBTSolved ? "yes" : "no"));
+
+            if(solutionLaCAM != null){
+                boolean valid = solutionLaCAM.solves(instance);
+                System.out.print(nameLaCAM + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+
+            if(solutionPIBT != null){
+                boolean valid = solutionPIBT.solves(instance);
+                System.out.println(" " + namePIBT + " Valid?: " + (valid ? "yes" : "no"));
+                if (useAsserts) assertTrue(valid);
+            }
+            else System.out.println();
+
+            if(solutionLaCAM != null && solutionPIBT != null){
+                // runtimes
+                runtimePrP += reportLaCAM.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                runtimePIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                reportLaCAM.putIntegerValue("Runtime Delta",
+                        reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
+                                - reportLaCAM.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+                // cost
+                sumCostPrP += solutionLaCAM.sumIndividualCosts();
+                sumCostPIBT += solutionPIBT.sumIndividualCosts();
+            }
+        }
+
+        System.out.println("--- TOTALS: ---");
+        System.out.println("timeout for each (seconds): " + (timeout/1000));
+        System.out.println(nameLaCAM + " solved: " + solvedByPrP);
+        System.out.println(namePIBT + " solved: " + solvedByPIBT);
+        System.out.println("runtime totals (instances where both solved) :");
+        System.out.println(nameLaCAM + " time: " + runtimePrP);
+        System.out.println(namePIBT + " time: " + runtimePIBT);
+        System.out.println(nameLaCAM + " avg. cost: " + sumCostPrP);
+        System.out.println(namePIBT + " avg. cost: " + sumCostPIBT);
+
+        //save results
+        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
+        File directory = new File(resultsOutputDir);
+        if (! directory.exists()){
+            directory.mkdir();
+        }
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
+        try {
+            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                    new String[]{
+                            InstanceReport.StandardFields.instanceName,
+                            InstanceReport.StandardFields.solver,
+                            InstanceReport.StandardFields.numAgents,
+                            InstanceReport.StandardFields.timeoutThresholdMS,
+                            InstanceReport.StandardFields.solved,
+                            InstanceReport.StandardFields.elapsedTimeMS,
+                            "Runtime Delta",
+                            InstanceReport.StandardFields.solutionCost,
+                            "Cost Delta",
+                            InstanceReport.StandardFields.totalLowLevelTimeMS,
+                            InstanceReport.StandardFields.generatedNodes,
+                            InstanceReport.StandardFields.expandedNodes,
+                            InstanceReport.StandardFields.generatedNodesLowLevel,
+                            InstanceReport.StandardFields.expandedNodesLowLevel});
+        } catch (IOException e) {
+            e.printStackTrace();
             fail();
         }
     }
