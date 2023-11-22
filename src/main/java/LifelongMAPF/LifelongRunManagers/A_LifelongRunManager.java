@@ -202,10 +202,11 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
 
 
-        solvers.add(LifelongSolversFactory.subSetSelector_PrP());
+//        solvers.add(LifelongSolversFactory.subSetSelector_PrP());
         solvers.add(LifelongSolversFactory.allAgentsSelector_PrP());
         solvers.add(LifelongSolversFactory.allAgentsSelector_PIBT());
-        solvers.add(LifelongSolversFactory.subSetSelector_PIBT());
+        solvers.add((LifelongSolversFactory.allAgentsSelector_PrPt()));
+//        solvers.add(LifelongSolversFactory.subSetSelector_PIBT());
 
 //        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_infiniteHorizon_PIBT());
 //        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_Horizon1_PIBT());
