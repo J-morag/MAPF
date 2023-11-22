@@ -88,6 +88,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private final boolean returnPartialSolutions;
 
+    private boolean agentDidntMakeAMove;
+    private boolean needToCheckInfiniteConstraints;
+
     /**
      * constructor.
      */
@@ -108,6 +111,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
+        this.agentDidntMakeAMove = false;
+        this.needToCheckInfiniteConstraints = false;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -156,9 +161,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 this.configurations.add(currentConfiguration);
             }
 
-            if (checkTimeout()) {
-                return createSolution();
-            }
+//            if (checkTimeout()) {
+//                return createSolution();
+//            }
             this.timeStamp++;
 
             // init agents that have not reached their goal
@@ -175,6 +180,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 Map.Entry<Agent, Double> maxEntry = getMaxEntry(this.priorities); // <agent, priority> pair with max priority
                 Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
+                if (this.agentDidntMakeAMove) {
+                    return createSolution();
+                }
             }
             updatePriorities(instance);
         }
@@ -182,9 +190,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
-            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-            }
+//            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+//                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+//            }
         }
         return solution;
     }
@@ -199,9 +207,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                     numberOfNotMovingAgents++;
                 }
                 solution.putPlan(this.agentPlans.get(agent));
-                if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                    throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-                }
+//                if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+//                    throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+//                }
             }
             if (numberOfNotMovingAgents == this.agentPlans.keySet().size()) {
                 return null;
@@ -234,6 +242,11 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         //  2. move to the node where the higher priority agent is
 
         candidates.add(this.currentLocations.get(current)); // 1
+
+        if (this.needToCheckInfiniteConstraints && this.constraints.rejectsEventually(this.agentPlans.get(current).getLastMove(),true) != -1) {
+            candidates.remove(this.currentLocations.get(current));
+        }
+
         if (higherPriorityAgent != null) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
@@ -294,6 +307,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 return false;
             };
         }
+
+        this.agentDidntMakeAMove = true; // didnt make a move!
         return false;
     }
 
@@ -387,8 +402,19 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean indicates if all agents reached their goal.
      */
     private boolean finished() {
+
         for (Double priority : this.priorities.values()) {
+            // check if agent reached his goal
             if (priority != -1.0) {
+                return false;
+            }
+        }
+        // if reached here, all agents reached their goals.
+        // need to make sure that all constraints are satisfied before return the solution.
+        this.needToCheckInfiniteConstraints = true;
+        for (Agent agent : agentPlans.keySet()) {
+            // check that is agent reach his goal, there is no constraint that prevents him from staying in place
+            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 return false;
             }
         }
@@ -413,8 +439,20 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private boolean addNewMoveToAgent(Agent current, I_Location newLocation) {
         Move move = new Move(current, this.timeStamp, this.currentLocations.get(current), newLocation);
+
         if (this.constraints.accepts(move)) {
-            this.agentPlans.get(current).addMove(move);
+            try {
+                this.agentPlans.get(current).addMove(move);
+            }
+            catch (Exception e) {
+                System.out.println("TimeStamp: " + this.timeStamp);
+                System.out.println("Move: " + move);
+                System.out.println("agent plan: " + this.agentPlans.get(current));
+                System.out.println("constraints " + this.constraints.toString());
+
+                throw new IllegalArgumentException();
+            }
+
             this.currentLocations.put(current, newLocation);
             return true;
         }
