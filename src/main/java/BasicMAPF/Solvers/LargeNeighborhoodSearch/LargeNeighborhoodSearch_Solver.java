@@ -81,7 +81,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize, Boolean TransientMAPFGoalCondition) {
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, true);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, this.TransientMAPFGoalCondition);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())

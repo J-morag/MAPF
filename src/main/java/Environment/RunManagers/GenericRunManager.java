@@ -52,8 +52,8 @@ public class GenericRunManager extends A_RunManager {
 //                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
 //                null, null, null));
 //        super.solvers.add(new CBS_Solver());
-        super.solvers.add(new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, null));
-//        super.solvers.add(new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, true));
+        super.solvers.add(new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, false));
+        super.solvers.add(new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, true));
     }
 
     public void overrideSolvers(@NotNull List<I_Solver> solvers){
