@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700775940358,
+  "lastUpdate": 1700775941389,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -2262,6 +2262,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 3.4117646,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 1115.8235,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "854d264afe00a7a85627771f6cba5627288bae64",
+          "message": "Merge remote-tracking branch 'origin/master'",
+          "timestamp": "2023-11-24T08:17:03+11:00",
+          "tree_id": "3cb0e54f2a7be561909a1337e685d66a86761bf3",
+          "url": "https://github.com/J-morag/MAPF/commit/854d264afe00a7a85627771f6cba5627288bae64"
+        },
+        "date": 1700775941113,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 89.117645,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 4.7058825,
             "unit": "Milliseconds"
           },
           {
