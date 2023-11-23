@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700721344866,
+  "lastUpdate": 1700721345865,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -1992,6 +1992,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 4.7058825,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 1115.8235,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1c37526cff08cc27bc15b8c55fb32a8280d7b164",
+          "message": "make NoStateTimeSearches thread-safe (#73)",
+          "timestamp": "2023-11-23T17:07:10+11:00",
+          "tree_id": "2f7d27bdc08f00a0716a9bd293e76914a3437bd4",
+          "url": "https://github.com/J-morag/MAPF/commit/1c37526cff08cc27bc15b8c55fb32a8280d7b164"
+        },
+        "date": 1700721345578,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 89.117645,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 3.4117646,
             "unit": "Milliseconds"
           },
           {
