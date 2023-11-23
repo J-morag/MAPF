@@ -87,14 +87,17 @@ public class PIBT_Solver extends A_Solver {
      */
     private final boolean returnPartialSolutions;
 
+    private final Integer finalTimeStamp;
+
     /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions) {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions, Integer finalTimeStamp) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
+        this.finalTimeStamp = Objects.requireNonNullElse(finalTimeStamp, Integer.MAX_VALUE);
     }
 
     @Override
@@ -195,7 +198,7 @@ public class PIBT_Solver extends A_Solver {
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
-            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+            if (this.agentPlans.get(agent).size() != 0 && this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
             }
         }
@@ -378,6 +381,11 @@ public class PIBT_Solver extends A_Solver {
      * @return boolean indicates if all agents reached their goal.
      */
     private boolean finished() {
+
+        if (this.timeStamp >= this.finalTimeStamp) {
+            return true;
+        }
+
         for (Double priority : this.priorities.values()) {
             if (priority != -1.0) {
                 return false;

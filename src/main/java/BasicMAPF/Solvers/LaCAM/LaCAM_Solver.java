@@ -71,7 +71,7 @@ public class LaCAM_Solver extends A_Solver {
         this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
         this.agents = new HashMap<>();
-        this.subInstanceSolver = new PIBT_Solver(null, 1, true);
+        this.subInstanceSolver = new PIBT_Solver(null, 1, true, 1);
 
         // init agent's priority to unique number
         initPriority(instance);
@@ -91,9 +91,9 @@ public class LaCAM_Solver extends A_Solver {
 
 
         while (!this.open.empty()) {
-            if (checkTimeout()) {
-                return null;
-            }
+//            if (checkTimeout()) {
+//                return null;
+//            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
@@ -108,17 +108,27 @@ public class LaCAM_Solver extends A_Solver {
             }
 
             LowLevelNode C = N.tree.poll();
-            if (C.depth <= instance.agents.size()) {
-                Agent chosenAgent = N.order.get(C.depth); // -1?
+            if (C.depth < instance.agents.size()) {
+                Agent chosenAgent = N.order.get(C.depth);
+
+//                if (C.parent == null) {
+//                    chosenAgent = N.order.get(C.depth);
+//                }
+//                else {
+//                    chosenAgent = C.who;
+//                }
+
                 I_Location chosenLocation = N.configuration.get(chosenAgent.iD);
                 List<I_Location> locations = new ArrayList<>(findAllNeighbors(chosenLocation));
+
+                // add current location
+                locations.add(chosenLocation);
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
                     N.tree.add(C_new);
                 }
-                // add current location
-                LowLevelNode C_new = new LowLevelNode(C, chosenAgent, chosenLocation);
-                N.tree.add(C_new);
+//                LowLevelNode C_new = new LowLevelNode(C, chosenAgent, chosenLocation);
+//                N.tree.add(C_new);
             }
 
             HashMap<Integer, I_Location> newConfiguration = getNewConfig(N,C, instance);
@@ -206,6 +216,9 @@ public class LaCAM_Solver extends A_Solver {
 
         if (subInstanceSolution != null) {
             for (Agent agent : agentsSubset) {
+                if (subInstanceSolution.getPlanFor(agent).size() == 0) {
+                    return null;
+                }
                 I_Location location = subInstanceSolution.getAgentLocation(agent, 1);
                 newConfiguration.put(agent.iD, location);
             }

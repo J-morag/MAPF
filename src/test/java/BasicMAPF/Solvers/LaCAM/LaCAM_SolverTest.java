@@ -159,9 +159,10 @@ public class LaCAM_SolverTest {
     @Test
     void treeShapedMapTest() {
         MAPF_Instance testInstance = instanceTreeShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null, null);
 //        Solution solved = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
     }
 
@@ -297,7 +298,7 @@ public class LaCAM_SolverTest {
         I_Solver LaCAMSolver = new LaCAM_Solver(null);
         String nameLaCAM = LaCAMSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false, null);
         String namePIBT = PIBT_Solver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
