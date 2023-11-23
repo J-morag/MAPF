@@ -249,7 +249,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         //solve sub-problem
         Solution newSubsetSolution = this.subSolver.solve(subproblem, subproblemParameters);
         digestSubproblemReport(subproblemReport);
-        return finalizeSolution(newSubsetSolution);
+        return newSubsetSolution;
     }
 
     private static InstanceReport initSubproblemReport(MAPF_Instance instance) {
