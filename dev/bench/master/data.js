@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700715499723,
+  "lastUpdate": 1700715839033,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -269,6 +269,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 8183912.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "71bea419f7644482e48e00c5bd1ccad959ac70a7",
+          "message": "fix performance benchmark averages calculation",
+          "timestamp": "2023-11-23T15:35:28+11:00",
+          "tree_id": "2dc010d65e5d2878c753185d44542638e6f2094a",
+          "url": "https://github.com/J-morag/MAPF/commit/71bea419f7644482e48e00c5bd1ccad959ac70a7"
+        },
+        "date": 1700715838465,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3448.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 33480.117,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 5209.8237,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 8744.883,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 3973471.5,
             "unit": "Expansions"
           }
         ]
