@@ -149,11 +149,12 @@ public class PerformanceBenchmarkTest {
         }
 
         long timeoutS = timeout/1000;
+        float avgRuntime = runtime/(float)(countSolved+countFailed);
+        float avgRuntimeLowLevel = runtimeLowLevel/(float)(countSolved+countFailed);
+        float avgExpansionsHighLevel = expansionsHighLevel/(float)(countSolved+countFailed);
+        float avgExpansionsLowLevel = expansionsLowLevel/(float)(countSolved+countFailed);
+
         float avgCost = sumCost/(float)countSolved;
-        float avgRuntime = runtime/(float)countSolved;
-        float avgRuntimeLowLevel = runtimeLowLevel/(float)countSolved;
-        float avgExpansionsHighLevel = expansionsHighLevel/(float)countSolved;
-        float avgExpansionsLowLevel = expansionsLowLevel/(float)countSolved;
 
         System.out.println("--- TOTALS: ---");
         System.out.println("timeout for each (seconds): " + timeoutS);
