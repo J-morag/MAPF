@@ -27,7 +27,8 @@ public class GenericRunManager extends A_RunManager {
 
     public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder,
                              @NotNull String experimentName, boolean skipAfterFail, String instancesRegex,
-                             String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer, Integer timeoutEach) {
+                             String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer,
+                             Integer timeoutEach) {
         super(resultsOutputDir, solutionVisualizer);
         if (agentNums == null){
             throw new IllegalArgumentException("AgentNums can't be null");

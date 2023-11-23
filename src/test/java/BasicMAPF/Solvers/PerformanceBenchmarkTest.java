@@ -48,10 +48,10 @@ public class PerformanceBenchmarkTest {
     @Test
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 9, RestartsStrategy.RestartsKind.none),
                 null, null, null);
         long timeout = 1000 * 30;
-        int numAgents = 50;
+        int numAgents = 100;
         StressTest(solver, timeout, numAgents);
     }
 
@@ -59,7 +59,7 @@ public class PerformanceBenchmarkTest {
     public void LNSStressTest() {
         I_Solver solver = new LargeNeighborhoodSearch_Solver();
         long timeout = 1000 * 30;
-        int numAgents = 50;
+        int numAgents = 100;
         StressTest(solver, timeout, numAgents);
     }
 
@@ -67,14 +67,14 @@ public class PerformanceBenchmarkTest {
     public void PIBTStressTest() {
         I_Solver solver = new PIBT_Solver(null, null);
         long timeout = 1000 * 30;
-        int numAgents = 50;
+        int numAgents = 200;
         StressTest(solver, timeout, numAgents);
     }
 
     @Test
     public void AStarStressTest() {
         I_Solver solver = new SingleAgentAStar_Solver();
-        long timeout = 1000 * 30;
+        long timeout = 1000 * 10;
         int numAgents = 1;
         StressTest(solver, timeout, numAgents);
     }
@@ -121,26 +121,25 @@ public class PerformanceBenchmarkTest {
             countFailed += solved ? 0 : 1;
             System.out.println(nameSolver + " Solved?: " + (solved ? "yes" : "no") );
 
+            // runtimes
+            runtime += report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+            System.out.println(nameSolver + " runtime: " + report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+            runtimeLowLevel += report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+            System.out.println(nameSolver + " runtime low level: " + report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS));
+            // expansions
+            if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodes) != null){
+                expansionsHighLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                System.out.println(nameSolver + " Expansions High Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+            }
+            if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) != null) {
+                expansionsLowLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+                System.out.println(nameSolver + " Expansions Low Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
+            }
+
             if(solution != null){
                 boolean valid = solution.solves(instance);
                 System.out.println(nameSolver + " Valid?: " + (valid ? "yes" : "no"));
                 if (useAsserts) assertTrue(valid);
-                
-                // runtimes
-                runtime += report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-                System.out.println(nameSolver + " runtime: " + report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
-                runtimeLowLevel += report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
-                System.out.println(nameSolver + " runtime low level: " + report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS));
-                
-                // expansions
-                if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodes) != null){
-                    expansionsHighLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
-                    System.out.println(nameSolver + " Expansions High Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
-                }
-                if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) != null) {
-                    expansionsLowLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-                    System.out.println(nameSolver + " Expansions Low Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
-                }
 
                 // cost
                 sumCost += solution.sumIndividualCosts();
@@ -150,21 +149,23 @@ public class PerformanceBenchmarkTest {
         }
 
         long timeoutS = timeout/1000;
+        float avgRuntime = runtime/(float)(countSolved+countFailed);
+        float avgRuntimeLowLevel = runtimeLowLevel/(float)(countSolved+countFailed);
+        float avgExpansionsHighLevel = expansionsHighLevel/(float)(countSolved+countFailed);
+        float avgExpansionsLowLevel = expansionsLowLevel/(float)(countSolved+countFailed);
+
         float avgCost = sumCost/(float)countSolved;
-        float avgRuntime = runtime/(float)countSolved;
-        float avgRuntimeLowLevel = runtimeLowLevel/(float)countSolved;
-        float avgExpansionsHighLevel = expansionsHighLevel/(float)countSolved;
-        float avgExpansionsLowLevel = expansionsLowLevel/(float)countSolved;
 
         System.out.println("--- TOTALS: ---");
         System.out.println("timeout for each (seconds): " + timeoutS);
         System.out.println(nameSolver + " solved: " + countSolved + " (failed: " + countFailed + ")");
-        System.out.println("totals (solved instances) :");
-        System.out.println(nameSolver + " avg. cost: " + avgCost);
+        System.out.println("totals (all) :");
         System.out.println(nameSolver + " avg. time (ms): " + avgRuntime);
         System.out.println(nameSolver + " avg. time low level  (ms): " + avgRuntimeLowLevel);
         System.out.println(nameSolver + " avg. expansions high level: " + avgExpansionsHighLevel);
         System.out.println(nameSolver + " avg. expansions low level: " + avgExpansionsLowLevel);
+        System.out.println("totals (solved instances) :");
+        System.out.println(nameSolver + " avg. cost: " + avgCost);
 
         // save results (JSON)
 
