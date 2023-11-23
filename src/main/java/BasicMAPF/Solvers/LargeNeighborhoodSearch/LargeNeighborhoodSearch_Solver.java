@@ -81,7 +81,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize, Boolean TransientMAPFGoalCondition) {
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, this.TransientMAPFGoalCondition);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, TransientMAPFGoalCondition);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -249,7 +249,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         //solve sub-problem
         Solution newSubsetSolution = this.subSolver.solve(subproblem, subproblemParameters);
         digestSubproblemReport(subproblemReport);
-        return newSubsetSolution;
+        return finalizeSolution(newSubsetSolution);
     }
 
     private static InstanceReport initSubproblemReport(MAPF_Instance instance) {
