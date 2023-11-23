@@ -69,7 +69,7 @@ jobs:
 
       - env:
           SOLVER:
-            PrP + randomRestarts x10
+            PrP + randomRestarts x9
         name: Store benchmark result - ${{ env.SOLVER }}
         uses: benchmark-action/github-action-benchmark@v1
         with:
