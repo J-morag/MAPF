@@ -54,7 +54,7 @@ public class Main {
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = "Unnamed";
-            int timeoutEach = 300000;
+            Integer timeoutEach = null;
 
             // Parse arguments
 
