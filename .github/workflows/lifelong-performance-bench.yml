@@ -40,13 +40,13 @@ jobs:
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: ${{ env.SOLVER }} Benchmark
-          tool: 'customSmallerIsBetter'
+          tool: 'customBiggerIsBetter'
           benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
           output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
-          alert-threshold: '150%'
+          alert-threshold: '80%'
           comment-on-alert: true
           fail-on-alert: ${{ env.FAIL_ON_ALERT }}
 
@@ -57,12 +57,12 @@ jobs:
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: ${{ env.SOLVER }} Benchmark
-          tool: 'customSmallerIsBetter'
+          tool: 'customBiggerIsBetter'
           benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
           output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
-          alert-threshold: '150%'
+          alert-threshold: '80%'
           comment-on-alert: true
           fail-on-alert: ${{ env.FAIL_ON_ALERT }}

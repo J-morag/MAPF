@@ -137,8 +137,8 @@ public class LifelongPerformanceBenchmarkTest {
 
         // Create JSON objects for each benchmark metric
         addMetric(jsonArray, nameSolver, "Average Throughput", "Throughput @ T=200", avgThroughput);
-        addMetric(jsonArray, nameSolver, "Average Runtime", "Milliseconds", avgRuntime);
-        addMetric(jsonArray, nameSolver, "Average Runtime Low Level", "Milliseconds", avgRuntimeLowLevel);
+        addMetric(jsonArray, nameSolver, "Average Runtime (Reciprocal)", "1 / Milliseconds", 1.0f / avgRuntime);
+        addMetric(jsonArray, nameSolver, "Average Runtime Low Level  (Reciprocal)", "1 / Milliseconds", 1.0f / avgRuntimeLowLevel);
 
         // Writing the JSON array to a file
         System.out.println("Writing results to JSON file: " + outPath);
