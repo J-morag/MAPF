@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import static BasicMAPF.Solvers.PerformanceBenchmarkTest.addMetric;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LifelongPerformanceBenchmarkTest {
@@ -104,11 +105,11 @@ public class LifelongPerformanceBenchmarkTest {
         }
 
         long timeoutS = TIMEOUT/1000;
-        float avgThroughput = sumThroughput/(float)countSolved;
         float avgRuntime = runtime/(float)countSolved;
         float avgRuntimeLowLevel = runtimeLowLevel/(float)countSolved;
         float avgExpansionsHighLevel = expansionsHighLevel/(float)countSolved;
         float avgExpansionsLowLevel = expansionsLowLevel/(float)countSolved;
+        float avgThroughput = sumThroughput/(float)countSolved;
 
         System.out.println("--- TOTALS: ---");
         System.out.println("timeout for each (seconds): " + timeoutS);
@@ -119,6 +120,8 @@ public class LifelongPerformanceBenchmarkTest {
         System.out.println(nameSolver + " avg. time low level  (ms): " + avgRuntimeLowLevel);
         System.out.println(nameSolver + " avg. expansions high level: " + avgExpansionsHighLevel);
         System.out.println(nameSolver + " avg. expansions low level: " + avgExpansionsLowLevel);
+
+        assertEquals(0, countFailed);
 
         // save results (JSON)
 
