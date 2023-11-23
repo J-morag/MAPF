@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700716273564,
+  "lastUpdate": 1700716274660,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -196,6 +196,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Runtime Low Level",
             "value": 201808,
+            "unit": "Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "e9774eeadce42f4acfb7e2e6ddca88adf3080c27",
+          "message": "asset no fails in lifelong benchmark",
+          "timestamp": "2023-11-23T15:40:25+11:00",
+          "tree_id": "e3a7d48b9c81e5a77e5e1b7fa2abe2dd34f79275",
+          "url": "https://github.com/J-morag/MAPF/commit/e9774eeadce42f4acfb7e2e6ddca88adf3080c27"
+        },
+        "date": 1700716274342,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Throughput",
+            "value": 343.33334,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Runtime",
+            "value": 226499.83,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Runtime Low Level",
+            "value": 201993.5,
             "unit": "Milliseconds"
           }
         ]
