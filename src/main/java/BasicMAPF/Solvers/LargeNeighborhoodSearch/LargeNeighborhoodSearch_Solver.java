@@ -68,11 +68,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * Start time of the problem. Not real-time.
      */
     private int problemStartTime;
-
     /**
-     * How to approach partial solutions from the multi-agent perspective
+     * Run parameters for the current run
      */
-    private PartialSolutionsStrategy partialSolutionsStrategy;
+    private RunParameters runParameters;
 
 
     /*  = Constructors =  */
@@ -138,11 +137,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        if (parameters instanceof RunParameters_PP runParameters_pp){
-            this.partialSolutionsStrategy = runParameters_pp.partialSolutionsStrategy;
-        }
+        this.runParameters = parameters;
 
-        this.partialSolutionsStrategy = Objects.requireNonNullElseGet(this.partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
         // single agent heuristic for the sub solver
         this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
         if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
@@ -169,9 +165,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     protected Solution solveLNS(MAPF_Instance instance, ConstraintSet initialConstraints) {
         Solution bestSolution = getInitialSolution(instance, initialConstraints);
 
-        if (partialSolutionsStrategy.allowed()
-                && bestSolution != null && bestSolution.size() < agents.size()){ // TODO will have to modify this when we support partial plans
-            return bestSolution; // partial solution
+        if (runParameters instanceof RunParameters_PP && ((RunParameters_PP)runParameters).partialSolutionsStrategy.allowed()
+                && bestSolution != null && checkTimeout()){
+            // ran out of time while generating the initial solution - return partial solution if one exists and allowed
+            return bestSolution;
         }
 
         while (bestSolution != null && !checkTimeout() && !checkSoftTimeout()){ // anytime behaviour
@@ -286,9 +283,14 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP());
-        runParameters_pp.problemStartTime = this.problemStartTime;
-        runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
+        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0]))
+                .setProblemStartTime(this.problemStartTime)
+                .createRP());
+        if (this.runParameters instanceof RunParameters_PP runParameters_pp_parent){
+            runParameters_pp.partialSolutionsStrategy = runParameters_pp_parent.partialSolutionsStrategy;
+            runParameters_pp.failedAgents = runParameters_pp_parent.failedAgents;
+            runParameters_pp.conflictAvoidanceTable = runParameters_pp_parent.conflictAvoidanceTable;
+        }
         return runParameters_pp;
     }
 
@@ -325,6 +327,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
                 this.destroyHeuristics) {
             ds.clear();
         }
+        this.runParameters = null;
     }
 
     @Override
