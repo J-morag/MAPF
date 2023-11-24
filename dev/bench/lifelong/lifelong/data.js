@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700794433903,
+  "lastUpdate": 1700815826244,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -233,6 +233,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
             "value": 0.000015510088,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "7a31b8458db6ab80c11fe8e24966675d6253c8f6",
+          "message": "Merge branch 'master' into lifelong\n\n# Conflicts:\n#\tsrc/main/java/BasicMAPF/Solvers/LargeNeighborhoodSearch/LargeNeighborhoodSearch_Solver.java\n#\tsrc/main/java/Main.java",
+          "timestamp": "2023-11-24T17:11:18+11:00",
+          "tree_id": "6d44fbbab8e7dd48fed30310613caff3d3f9f6c4",
+          "url": "https://github.com/J-morag/MAPF/commit/7a31b8458db6ab80c11fe8e24966675d6253c8f6"
+        },
+        "date": 1700815824981,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Throughput",
+            "value": 484,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime (Reciprocal)",
+            "value": 0.000013684882,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.000016410795,
             "unit": "1 / Milliseconds"
           }
         ]
