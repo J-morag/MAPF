@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700815748684,
+  "lastUpdate": 1700815749794,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -1342,6 +1342,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 631.58826,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "7a31b8458db6ab80c11fe8e24966675d6253c8f6",
+          "message": "Merge branch 'master' into lifelong\n\n# Conflicts:\n#\tsrc/main/java/BasicMAPF/Solvers/LargeNeighborhoodSearch/LargeNeighborhoodSearch_Solver.java\n#\tsrc/main/java/Main.java",
+          "timestamp": "2023-11-24T17:11:18+11:00",
+          "tree_id": "6d44fbbab8e7dd48fed30310613caff3d3f9f6c4",
+          "url": "https://github.com/J-morag/MAPF/commit/7a31b8458db6ab80c11fe8e24966675d6253c8f6"
+        },
+        "date": 1700815749510,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 30143.7,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 575.64703,
             "unit": "Milliseconds"
           },
           {
