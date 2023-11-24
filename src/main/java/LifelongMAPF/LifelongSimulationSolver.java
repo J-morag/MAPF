@@ -726,8 +726,8 @@ public class LifelongSimulationSolver extends A_Solver {
         instanceReport.keepSolutionString = false;
 
         RunParameters runParameters = new RunParametersBuilder().setTimeout(hardTimeout).setConstraints(constraints)
-                .setInstanceReport(instanceReport).setSoftTimeout(Math.min(minResponseTime, hardTimeout))
-                .setProblemStartTime(farthestCommittedTime).setRNG(this.random).setAStarGAndH(costAndHeuristic).createRP();
+                .setInstanceReport(instanceReport).setProblemStartTime(farthestCommittedTime).setRNG(this.random)
+                .setAStarGAndH(costAndHeuristic).createRP();
 
         if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
             RunParameters_PP runParameters_pp = new RunParameters_PP(runParameters);
