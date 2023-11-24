@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700868577934,
+  "lastUpdate": 1700868579260,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -1774,6 +1774,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 584.05884,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2d1fd495001a2d9d938a0dc48eb247d4640eca0e",
+          "message": "update LNS to work in modern lifelong (#74)",
+          "timestamp": "2023-11-25T10:00:27+11:00",
+          "tree_id": "a78298ee01bb435710c3aa05202016617efa91a1",
+          "url": "https://github.com/J-morag/MAPF/commit/2d1fd495001a2d9d938a0dc48eb247d4640eca0e"
+        },
+        "date": 1700868578868,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 30143.7,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 594.05884,
             "unit": "Milliseconds"
           },
           {
