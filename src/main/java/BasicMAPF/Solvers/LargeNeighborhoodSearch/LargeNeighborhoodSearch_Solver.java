@@ -6,6 +6,7 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -15,6 +16,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 
@@ -27,27 +29,13 @@ import java.util.*;
  */
 public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
-    /*  = Fields =  */
-    /*  =  = Fields related to the MAPF instance =  */
+    /*  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
     private List<Agent> agents;
 
-    /*  =  = Fields related to the run =  */
-
-    private SingleAgentGAndH subSolverHeuristic;
-    private ConstraintSet constraints;
-    private Random random;
-    private int numIterations;
-    private double[] destroyHeuristicsWeights;
-    private double sumWeights;
-    /**
-     * Start time of the problem. Not real-time.
-     */
-    private int problemStartTime;
-
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems for a subset of agents while avoiding other agents,
@@ -68,10 +56,24 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     private final boolean sharedSources;
 
+    /*  = Fields related to the run =  */
+
+    private SingleAgentGAndH singleAgentGAndH;
+    private ConstraintSet constraints;
+    private Random random;
+    private int numIterations;
+    private double[] destroyHeuristicsWeights;
+    private double sumWeights;
+    /**
+     * Start time of the problem. Not real-time.
+     */
+    private int problemStartTime;
+
     /**
      * How to approach partial solutions from the multi-agent perspective
      */
     private PartialSolutionsStrategy partialSolutionsStrategy;
+
 
     /*  = Constructors =  */
 
@@ -136,14 +138,16 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.singleAgentGAndH,
-                new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
-
         if (parameters instanceof RunParameters_PP runParameters_pp){
             this.partialSolutionsStrategy = runParameters_pp.partialSolutionsStrategy;
         }
 
         this.partialSolutionsStrategy = Objects.requireNonNullElseGet(this.partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
+        // single agent heuristic for the sub solver
+        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
+        }
     }
 
     /*  = algorithm =  */
@@ -282,7 +286,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP());
+        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP());
         runParameters_pp.problemStartTime = this.problemStartTime;
         runParameters_pp.partialSolutionsStrategy = this.partialSolutionsStrategy;
         return runParameters_pp;
