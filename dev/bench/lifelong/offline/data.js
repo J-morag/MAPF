@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700815745245,
+  "lastUpdate": 1700815747592,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -1631,6 +1631,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP + randomRestarts x9 - Average Expansions Low Level",
             "value": 5159654.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "7a31b8458db6ab80c11fe8e24966675d6253c8f6",
+          "message": "Merge branch 'master' into lifelong\n\n# Conflicts:\n#\tsrc/main/java/BasicMAPF/Solvers/LargeNeighborhoodSearch/LargeNeighborhoodSearch_Solver.java\n#\tsrc/main/java/Main.java",
+          "timestamp": "2023-11-24T17:11:18+11:00",
+          "tree_id": "6d44fbbab8e7dd48fed30310613caff3d3f9f6c4",
+          "url": "https://github.com/J-morag/MAPF/commit/7a31b8458db6ab80c11fe8e24966675d6253c8f6"
+        },
+        "date": 1700815747292,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP + randomRestarts x9 - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP + randomRestarts x9 - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP + randomRestarts x9 - Average Runtime",
+            "value": 12862.529,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x9 - Average Runtime Low Level",
+            "value": 11940.117,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP + randomRestarts x9 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP + randomRestarts x9 - Average Expansions Low Level",
+            "value": 5887059.5,
             "unit": "Expansions"
           }
         ]
