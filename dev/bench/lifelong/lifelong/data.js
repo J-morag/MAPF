@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700822299304,
+  "lastUpdate": 1700869519355,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -311,6 +311,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
             "value": 0.000016418699,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2d1fd495001a2d9d938a0dc48eb247d4640eca0e",
+          "message": "update LNS to work in modern lifelong (#74)",
+          "timestamp": "2023-11-25T10:00:27+11:00",
+          "tree_id": "a78298ee01bb435710c3aa05202016617efa91a1",
+          "url": "https://github.com/J-morag/MAPF/commit/2d1fd495001a2d9d938a0dc48eb247d4640eca0e"
+        },
+        "date": 1700869517984,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Throughput",
+            "value": 469.16666,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime (Reciprocal)",
+            "value": 0.0000134537895,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.00001621499,
             "unit": "1 / Milliseconds"
           }
         ]
