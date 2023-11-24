@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700822297513,
+  "lastUpdate": 1700822299304,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -586,6 +586,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Runtime Low Level  (Reciprocal)",
             "value": 0.0000049545624,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "63b0ef58aef18d1a3c19645cc697e42288899a65",
+          "message": "Merge branch 'master' into lifelong",
+          "timestamp": "2023-11-24T21:07:24+11:00",
+          "tree_id": "a61d249d61dde8389dbe72a6dbc167c6975b242f",
+          "url": "https://github.com/J-morag/MAPF/commit/63b0ef58aef18d1a3c19645cc697e42288899a65"
+        },
+        "date": 1700822298603,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Throughput",
+            "value": 341.83334,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Runtime (Reciprocal)",
+            "value": 0.0000044167564,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "LH1_Avoid20ASFP_Cap18_Timeout1p5 - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.0000049487476,
             "unit": "1 / Milliseconds"
           }
         ]
