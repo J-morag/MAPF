@@ -118,7 +118,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
 
-        super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        if (this.TransientMAPFGoalCondition) {
+            super.name = "PrPt" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        }
+        else {
+            super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        }
     }
 
     /**
@@ -240,14 +245,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 bestSolution = solution;
             }
 
-            // report the completed attempt
-            if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
-            }
-            else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue("count contingency attempts", attemptNumber - restartsStrategy.numInitialRestarts);
-            }
+//            // report the completed attempt
+//            if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
+//                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+//                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+//            }
+//            else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
+//                this.instanceReport.putIntegerValue("count contingency attempts", attemptNumber - restartsStrategy.numInitialRestarts);
+//            }
 
 
             if (attemptNumber + 1 == numPossibleOrderings){
