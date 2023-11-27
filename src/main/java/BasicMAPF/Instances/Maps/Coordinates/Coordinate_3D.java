@@ -1,5 +1,7 @@
 package BasicMAPF.Instances.Maps.Coordinates;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Coordinate_3D extends Coordinate_2D {
 
     private int x_value;
@@ -93,5 +95,12 @@ public class Coordinate_3D extends Coordinate_2D {
     @Override
     public float distance(I_Coordinate other) {
         return manhattanDistance(other);
+    }
+
+    @Override
+    public int compareTo(@NotNull I_Coordinate o) {
+        int superCompare = super.compareTo(o);
+        if (superCompare != 0) return superCompare;
+        return Integer.compare(this.z_value, ((Coordinate_3D)o).z_value);
     }
 }
