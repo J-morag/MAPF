@@ -17,10 +17,13 @@ public class Coordiantes {
     public final static I_Coordinate coor11 = new Coordinate_2D(1,1);
     public final static I_Coordinate coor42 = new Coordinate_2D(4,2);
     public final static I_Coordinate coor43 = new Coordinate_2D(4,3);
+    public final static I_Coordinate coor44 = new Coordinate_2D(4,4);
+
     public final static I_Coordinate coor53 = new Coordinate_2D(5,3);
     public final static I_Coordinate coor54 = new Coordinate_2D(5,4);
     public final static I_Coordinate coor55 = new Coordinate_2D(5,5);
     public final static I_Coordinate coor05 = new Coordinate_2D(0,5);
+    public final static I_Coordinate coor50 = new Coordinate_2D(5,0);
 
     public final static I_Coordinate coor04 = new Coordinate_2D(0,4);
     public final static I_Coordinate coor00 = new Coordinate_2D(0,0);
@@ -35,4 +38,7 @@ public class Coordiantes {
 
     public final static I_Coordinate coor20 = new Coordinate_2D(2,0);
     public final static I_Coordinate coor21 = new Coordinate_2D(2,1);
+
+    public final static I_Coordinate coor64 = new Coordinate_2D(6,4);
+    public final static I_Coordinate coor65 = new Coordinate_2D(6,5);
 }

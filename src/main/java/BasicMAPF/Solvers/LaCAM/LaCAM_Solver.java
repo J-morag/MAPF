@@ -91,9 +91,9 @@ public class LaCAM_Solver extends A_Solver {
 
 
         while (!this.open.empty()) {
-//            if (checkTimeout()) {
-//                return null;
-//            }
+            if (checkTimeout()) {
+                return null;
+            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
@@ -102,7 +102,7 @@ public class LaCAM_Solver extends A_Solver {
             }
 
             // low level search end
-            if (N.tree == null) {
+            if (N.tree.isEmpty()) {
                 this.open.pop();
                 continue;
             }
@@ -110,25 +110,23 @@ public class LaCAM_Solver extends A_Solver {
             LowLevelNode C = N.tree.poll();
             if (C.depth < instance.agents.size()) {
                 Agent chosenAgent = N.order.get(C.depth);
-
-//                if (C.parent == null) {
-//                    chosenAgent = N.order.get(C.depth);
-//                }
-//                else {
-//                    chosenAgent = C.who;
-//                }
-
                 I_Location chosenLocation = N.configuration.get(chosenAgent.iD);
                 List<I_Location> locations = new ArrayList<>(findAllNeighbors(chosenLocation));
 
                 // add current location
                 locations.add(chosenLocation);
+
+                LowLevelNode tmpC = C;
+                while (tmpC.who != null) {
+                    locations.remove(N.configuration.get(tmpC.who.iD)); // ??
+                    locations.remove(tmpC.where); // ??
+                    tmpC = tmpC.parent;
+                }
+
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
                     N.tree.add(C_new);
                 }
-//                LowLevelNode C_new = new LowLevelNode(C, chosenAgent, chosenLocation);
-//                N.tree.add(C_new);
             }
 
             HashMap<Integer, I_Location> newConfiguration = getNewConfig(N,C, instance);

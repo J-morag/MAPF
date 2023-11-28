@@ -41,4 +41,31 @@ public class Agents {
     public final static Agent agent11to31 = new Agent(serialID++, coor11, coor31);
     public final static Agent agent01to11 = new Agent(serialID++, coor01, coor11);
 
-    }
+    public final static Agent agent00to44 = new Agent(serialID++, coor00, coor44);
+    public final static Agent agent10to34 = new Agent(serialID++, coor10, coor34);
+    public final static Agent agent34to10 = new Agent(serialID++, coor34, coor10);
+    public final static Agent agent44to00 = new Agent(serialID++, coor44, coor00);
+
+    public final static Agent agent50to20 = new Agent(serialID++, coor50, coor20);
+    public final static Agent agent40to30 = new Agent(serialID++, coor40, coor30);
+    public final static Agent agent30to40 = new Agent(serialID++, coor30, coor40);
+    public final static Agent agent10to50 = new Agent(serialID++, coor10, coor50);
+
+    public final static Agent agent50to42 = new Agent(serialID++, coor50, coor42);
+    public final static Agent agent42to30 = new Agent(serialID++, coor42, coor30);
+    public final static Agent agent30to22 = new Agent(serialID++, coor30, coor22);
+    public final static Agent agent22to10 = new Agent(serialID++, coor22, coor10);
+
+    public final static Agent agent22to20 = new Agent(serialID++, coor22, coor20);
+    public final static Agent agent12to10 = new Agent(serialID++, coor12, coor10);
+    public final static Agent agent01to01 = new Agent(serialID++, coor01, coor01);
+    public final static Agent agent10to12 = new Agent(serialID++, coor10, coor12);
+    public final static Agent agent20to22 = new Agent(serialID++, coor20, coor22);
+
+    public final static Agent agent00to65 = new Agent(serialID++, coor00, coor65);
+    public final static Agent agent65to00 = new Agent(serialID++, coor65, coor00);
+    public final static Agent agent55to32 = new Agent(serialID++, coor55, coor32);
+    public final static Agent agent01to44 = new Agent(serialID++, coor01, coor44);
+    public final static Agent agent64to22 = new Agent(serialID++, coor64, coor22);
+
+}
