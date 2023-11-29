@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701232403912,
+  "lastUpdate": 1701232442047,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -701,6 +701,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 3713172.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "e1d022a961a5d6788356f89586f8623f8e4432ed",
+          "message": "fix counting iterations and reporting destroy heuristic names in LNS",
+          "timestamp": "2023-11-29T15:05:23+11:00",
+          "tree_id": "96155cf770247a449b767f065696f5feeef66952",
+          "url": "https://github.com/J-morag/MAPF/commit/e1d022a961a5d6788356f89586f8623f8e4432ed"
+        },
+        "date": 1701232441461,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3448.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 33493.707,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 5196.0586,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 8617.471,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 3920343,
             "unit": "Expansions"
           }
         ]
