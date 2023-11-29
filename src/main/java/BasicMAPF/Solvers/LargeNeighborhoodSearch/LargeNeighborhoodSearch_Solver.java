@@ -55,7 +55,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     private SingleAgentGAndH singleAgentGAndH;
     private ConstraintSet constraints;
     private Random random;
-    private int numIterations;
+    private int completedDestroyAndRepairIterations;
     private double[] destroyHeuristicsWeights;
     private double sumWeights;
 
@@ -114,7 +114,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.constraints.setSharedGoals(this.sharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
         this.random = new Random(42);
-        this.numIterations = 0;
+        this.completedDestroyAndRepairIterations = 0;
 
         this.destroyHeuristicsWeights = new double[destroyHeuristics.size()];
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
@@ -182,6 +182,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                 }
                 bestSolution = destroyedSolution;
             }
+            completedDestroyAndRepairIterations++;
         }
         return bestSolution;
     }
@@ -268,9 +269,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         instanceReport.putIntegerValue("Neighborhood Size", neighborhoodSize);
         instanceReport.putStringValue("Destroy Heuristics", destroyHeuristics.toString());
         for (int i = 0; i < destroyHeuristics.size(); i++) {
-            instanceReport.putFloatValue(destroyHeuristics.get(i).toString(), (float)destroyHeuristicsWeights[i]);
+            instanceReport.putFloatValue(destroyHeuristics.get(i).getClass().getSimpleName(), (float)destroyHeuristicsWeights[i]);
         }
-        instanceReport.putIntegerValue("Num Iterations", numIterations);
+        instanceReport.putIntegerValue("Num Iterations", completedDestroyAndRepairIterations);
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
