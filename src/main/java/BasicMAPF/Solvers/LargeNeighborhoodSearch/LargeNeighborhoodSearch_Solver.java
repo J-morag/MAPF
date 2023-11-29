@@ -97,7 +97,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             super.name = "LNSt";
         }
         else {
-            super.name = this.destroyHeuristics.size() > 1 ? "ALNS" : ("LNS-" + this.destroyHeuristics.get(0).getClass().getSimpleName());
+            super.name = this.destroyHeuristics.size() > 1 ? "LNS" : ("LNS-" + this.destroyHeuristics.get(0).getClass().getSimpleName());
         }
     }
 
