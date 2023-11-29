@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701232401777,
+  "lastUpdate": 1701232402776,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -2528,6 +2528,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 647.05884,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "15d1662251bd7dd7ef5eab913543add1e2571692",
+          "message": "add and delegate to `firstConflict` in Solution for easier debugging",
+          "timestamp": "2023-11-29T15:03:53+11:00",
+          "tree_id": "f04aa14852f94acacd2f170b7775ba35bed5f8b6",
+          "url": "https://github.com/J-morag/MAPF/commit/15d1662251bd7dd7ef5eab913543add1e2571692"
+        },
+        "date": 1701232402509,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 6,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 27649.727,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 645.4706,
             "unit": "Milliseconds"
           },
           {
