@@ -6,6 +6,7 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -23,25 +24,13 @@ import java.util.*;
  */
 public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
-    /*  = Fields =  */
-    /*  =  = Fields related to the MAPF instance =  */
+    /*  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
     private List<Agent> agents;
 
-    /*  =  = Fields related to the run =  */
-
-    private SingleAgentGAndH subSolverHeuristic;
-    private ConstraintSet constraints;
-    private Random random;
-    private int numIterations;
-    private double[] destroyHeuristicsWeights;
-    private double sumWeights;
-
-    private Boolean TransientMAPFGoalCondition;
-
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems for a subset of agents while avoiding other agents,
@@ -62,6 +51,15 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      */
     private final boolean sharedSources;
 
+    /*  = Fields related to the run =  */
+
+    private SingleAgentGAndH singleAgentGAndH;
+    private ConstraintSet constraints;
+    private Random random;
+    private int completedDestroyAndRepairIterations;
+    private double[] destroyHeuristicsWeights;
+    private double sumWeights;
+    private Boolean TransientMAPFGoalCondition;
 
     /*  = Constructors =  */
 
@@ -124,14 +122,17 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.constraints.setSharedGoals(this.sharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
         this.random = new Random(42);
-        this.numIterations = 0;
+        this.completedDestroyAndRepairIterations = 0;
 
         this.destroyHeuristicsWeights = new double[destroyHeuristics.size()];
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.singleAgentGAndH,
-                new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        // single agent heuristic for the sub solver
+        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
+        }
     }
 
     /*  = algorithm =  */
@@ -156,7 +157,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             // select neighborhood (destroy heuristic)
             int destroyHeuristicIndex = selectDestroyHeuristicIndex();
             I_DestroyHeuristic destroyHeuristic = this.destroyHeuristics.get(destroyHeuristicIndex);
-            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()), random, instance.map));
+            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()-1), random, instance.map));
 
             // get solution without selected agents
             Solution destroyedSolution = new Solution();
@@ -189,6 +190,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                 }
                 bestSolution = destroyedSolution;
             }
+            completedDestroyAndRepairIterations++;
         }
         return finalizeSolution(bestSolution);
     }
@@ -268,7 +270,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
+        return new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
     }
 
     /*  = wind down =  */
@@ -279,9 +281,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         instanceReport.putIntegerValue("Neighborhood Size", neighborhoodSize);
         instanceReport.putStringValue("Destroy Heuristics", destroyHeuristics.toString());
         for (int i = 0; i < destroyHeuristics.size(); i++) {
-            instanceReport.putFloatValue(destroyHeuristics.get(i).toString(), (float)destroyHeuristicsWeights[i]);
+            instanceReport.putFloatValue(destroyHeuristics.get(i).getClass().getSimpleName(), (float)destroyHeuristicsWeights[i]);
         }
-        instanceReport.putIntegerValue("Num Iterations", numIterations);
+        instanceReport.putIntegerValue("Num Iterations", completedDestroyAndRepairIterations);
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
