@@ -123,7 +123,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
 
-        super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        super.name = "PrP" + (this.TransientMAPFGoalCondition ? "t" : "") + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
     /**

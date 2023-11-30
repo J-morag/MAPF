@@ -13,6 +13,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Metrics.InstanceReport;
+import TransientMAPF.TransientMAPFSolution;
 
 import java.util.*;
 
@@ -58,7 +59,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     private int completedDestroyAndRepairIterations;
     private double[] destroyHeuristicsWeights;
     private double sumWeights;
-
+    private boolean transientMAPFGoalCondition;
 
     /*  = Constructors =  */
 
@@ -72,12 +73,15 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      * @param sharedSources        if agents share goals, they will not conflict at their source until they move.
      * @param reactionFactor       how quickly ALNS adapts to which heuristic is more successful. default = 0.01 .
      * @param neighborhoodSize     What size neighborhoods to select.
+     * @param transientMAPFGoalCondition indicates whether to solve transient-MAPF.
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize) {
+                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize, Boolean transientMAPFGoalCondition) {
+
+        this.transientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, this.transientMAPFGoalCondition);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -88,14 +92,14 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
-        super.name = this.destroyHeuristics.size() > 1 ? "ALNS" : ("LNS-" + this.destroyHeuristics.get(0).getClass().getSimpleName());
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFGoalCondition ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
     }
 
     /**
      * Default constructor.
      */
     public LargeNeighborhoodSearch_Solver(){
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -184,7 +188,11 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             }
             completedDestroyAndRepairIterations++;
         }
-        return bestSolution;
+        return finalizeSolution(bestSolution);
+    }
+
+    private Solution finalizeSolution(Solution bestSolution) {
+        return (transientMAPFGoalCondition && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
     private void updateDestroyHeuristicWeight(Solution newSubsetSolution, Solution oldSubsetSolution, int destroyHeuristicIndex) {
@@ -275,6 +283,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
+            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
         }
     }
 
