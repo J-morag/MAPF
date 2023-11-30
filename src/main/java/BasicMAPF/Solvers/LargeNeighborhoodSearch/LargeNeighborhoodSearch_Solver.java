@@ -59,7 +59,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     private int completedDestroyAndRepairIterations;
     private double[] destroyHeuristicsWeights;
     private double sumWeights;
-    private Boolean TransientMAPFGoalCondition;
+    private boolean transientMAPFGoalCondition;
 
     /*  = Constructors =  */
 
@@ -73,13 +73,15 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      * @param sharedSources        if agents share goals, they will not conflict at their source until they move.
      * @param reactionFactor       how quickly ALNS adapts to which heuristic is more successful. default = 0.01 .
      * @param neighborhoodSize     What size neighborhoods to select.
-     * @param TransientMAPFGoalCondition indicates whether to solve transient-MAPF.
+     * @param transientMAPFGoalCondition indicates whether to solve transient-MAPF.
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize, Boolean TransientMAPFGoalCondition) {
+                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize, Boolean transientMAPFGoalCondition) {
+
+        this.transientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, TransientMAPFGoalCondition);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, this.transientMAPFGoalCondition);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -89,14 +91,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
-        this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
 
-        if (this.TransientMAPFGoalCondition) {
-            super.name = "LNSt";
-        }
-        else {
-            super.name = this.destroyHeuristics.size() > 1 ? "LNS" : ("LNS-" + this.destroyHeuristics.get(0).getClass().getSimpleName());
-        }
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFGoalCondition ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
     }
 
     /**
@@ -196,7 +192,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
-        return (TransientMAPFGoalCondition && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
+        return (transientMAPFGoalCondition && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
     private void updateDestroyHeuristicWeight(Solution newSubsetSolution, Solution oldSubsetSolution, int destroyHeuristicIndex) {
