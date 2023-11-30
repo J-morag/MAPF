@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701341526417,
+  "lastUpdate": 1701341527509,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3664,6 +3664,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 4.9411764,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 1115.8235,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8e15c22ed4edf41560fea183b032344220bdf3d1",
+          "message": "Transient lns pp (#75)\n\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* add sst to LNSt and remove completed attempt from PrP report\r\n\r\n* finish add transient version to LNS\r\n\r\n* before merge changes\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2023-11-30T12:23:28+02:00",
+          "tree_id": "dbbdc94c5686cc9307920b9d3a5c2a44f879272c",
+          "url": "https://github.com/J-morag/MAPF/commit/8e15c22ed4edf41560fea183b032344220bdf3d1"
+        },
+        "date": 1701341527197,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 89.117645,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 4.529412,
             "unit": "Milliseconds"
           },
           {
