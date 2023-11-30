@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701341521755,
+  "lastUpdate": 1701341522893,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -1567,6 +1567,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 67895.3,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8e15c22ed4edf41560fea183b032344220bdf3d1",
+          "message": "Transient lns pp (#75)\n\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* add sst to LNSt and remove completed attempt from PrP report\r\n\r\n* finish add transient version to LNS\r\n\r\n* before merge changes\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2023-11-30T12:23:28+02:00",
+          "tree_id": "dbbdc94c5686cc9307920b9d3a5c2a44f879272c",
+          "url": "https://github.com/J-morag/MAPF/commit/8e15c22ed4edf41560fea183b032344220bdf3d1"
+        },
+        "date": 1701341522599,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 12,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4537.2,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 22281.47,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 12609.883,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 67983.18,
             "unit": "Expansions"
           }
         ]
