@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701232447214,
+  "lastUpdate": 1701341521755,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -755,6 +755,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 3920343,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8e15c22ed4edf41560fea183b032344220bdf3d1",
+          "message": "Transient lns pp (#75)\n\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* adapt LNS to solve transient MAPF\r\n\r\n* add sst to LNSt and remove completed attempt from PrP report\r\n\r\n* finish add transient version to LNS\r\n\r\n* before merge changes\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2023-11-30T12:23:28+02:00",
+          "tree_id": "dbbdc94c5686cc9307920b9d3a5c2a44f879272c",
+          "url": "https://github.com/J-morag/MAPF/commit/8e15c22ed4edf41560fea183b032344220bdf3d1"
+        },
+        "date": 1701341520861,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3448.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 33552.65,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 5461.0586,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 8633.235,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 3853973.5,
             "unit": "Expansions"
           }
         ]
