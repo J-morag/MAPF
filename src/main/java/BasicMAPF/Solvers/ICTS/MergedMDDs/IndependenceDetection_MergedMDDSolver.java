@@ -5,7 +5,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.NaiveConflictDetection;
-import BasicMAPF.MDDs.MDD;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import com.google.common.collect.Maps;

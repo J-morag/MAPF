@@ -2,8 +2,8 @@ package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.MDDs.MDD;
-import BasicMAPF.MDDs.MDDNode;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDDNode;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;

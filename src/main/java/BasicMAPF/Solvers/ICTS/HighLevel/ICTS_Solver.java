@@ -1,9 +1,9 @@
 package BasicMAPF.Solvers.ICTS.HighLevel;
 
-import BasicMAPF.MDDs.AStarFactory;
-import BasicMAPF.MDDs.I_MDDSearcherFactory;
-import BasicMAPF.MDDs.MDD;
-import BasicMAPF.MDDs.MDDManager;
+import BasicMAPF.DataTypesAndStructures.MDDs.AStarFactory;
+import BasicMAPF.DataTypesAndStructures.MDDs.I_MDDSearcherFactory;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDDManager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;

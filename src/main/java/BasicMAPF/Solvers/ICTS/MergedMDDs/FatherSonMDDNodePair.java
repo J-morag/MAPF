@@ -1,6 +1,6 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
-import BasicMAPF.MDDs.MDDNode;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDDNode;
 
 public class FatherSonMDDNodePair{
     private MDDNode father;
