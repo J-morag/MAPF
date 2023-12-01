@@ -1,4 +1,4 @@
-package BasicMAPF.MDDs;
+package BasicMAPF.DataTypesAndStructures.MDDs;
 
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
