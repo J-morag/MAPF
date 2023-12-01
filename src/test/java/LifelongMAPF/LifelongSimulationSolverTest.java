@@ -52,7 +52,7 @@ class LifelongSimulationSolverTest {
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(null, new AllAgentsSelector(),
-            new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, 20, null), null, new WidePartialSolutionsStrategy(), null, null, null);

@@ -1947,7 +1947,7 @@ public class LifelongSolversFactory {
 //        prp.dynamicAStarTimeAllocation = true;
 //        prp.aStarTimeAllocationFactor = 1.5f;
         // todo prp as an LNS argument... need for RHCR
-        LargeNeighborhoodSearch_Solver lns = new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null);
+        LargeNeighborhoodSearch_Solver lns = new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null, null);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 lns, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();

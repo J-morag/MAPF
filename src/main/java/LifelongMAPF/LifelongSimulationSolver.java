@@ -461,7 +461,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
     private static void verifyNextKStepsSafe(@Nullable Iterable<? extends SingleAgentPlan> solutionThatMayContainConflicts, Solution solutionSupposedlyWithoutConflicts, int kSafety) {
         Solution kStepSolution = getKStepSolution(solutionSupposedlyWithoutConflicts, kSafety);
-        A_Conflict conflict = kStepSolution.arbitraryConflict(false, false);
+        A_Conflict conflict = kStepSolution.firstConflict(false, false);
         if ( conflict != null){
             throw new RuntimeException(String.format("""
                     Got conflicts in next step after supposedly enforcing safe next time step execution.\s
