@@ -47,7 +47,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     public final static String countSingleAgentFPsTriggeredString = "single agent FPs triggered";
     private static final int DEBUG = 1;
 
-    /*  =  = Fields related to the MAPF instance =  */
+    /*  = Constants =  */
+    public static final String COMPLETED_INITIAL_ATTEMPTS_STR = "completed initial attempts";
+    public static final String COMPLETED_CONTINGENCY_ATTEMPTS_STR = "completed contingency attempts";
+
+    /*  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
@@ -57,7 +61,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     private int problemStartTime;
 
-    /*  =  = Fields related to the run =  */
+    /*  = Fields related to the run =  */
 
     private ConstraintSet constraints;
 
@@ -67,7 +71,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     int maxReachedIndexOneBased;
     int singleAgentFPsTriggered;
 
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to be planned for, and the
@@ -96,10 +100,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     public boolean sharedGoals;
     /**
-     * If true, agents staying at their source (since the start) will not conflict 
+     * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    private Boolean TransientMAPFGoalCondition;
+    private final Boolean TransientMAPFGoalCondition;
+    public boolean reportIndvAttempts = false;
     /**
      * How to approach partial solutions from the multi-agent perspective
      */
@@ -161,7 +166,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
 
-        super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        super.name = "PrP" + (this.TransientMAPFGoalCondition ? "t" : "") + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
     /**
@@ -376,13 +381,15 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             // report the completed attempt
             this.instanceReport.putIntegerValue("fail policy iterations", failPolicyIterations.intValue());
             if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
-                this.instanceReport.putIntegerValue(countInitialAttemptsMetricString, attemptNumber + 1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", failedAgents.size());
+                if (reportIndvAttempts){
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", failedAgents.size());
+                }
+                this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, attemptNumber + 1);
             }
             else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, attemptNumber - restartsStrategy.numInitialRestarts);
+                this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, attemptNumber - restartsStrategy.numInitialRestarts);
             }
 
 
