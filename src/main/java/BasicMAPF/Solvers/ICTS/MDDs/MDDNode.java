@@ -1,4 +1,4 @@
-package BasicMAPF.MDDs;
+package BasicMAPF.Solvers.ICTS.MDDs;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
