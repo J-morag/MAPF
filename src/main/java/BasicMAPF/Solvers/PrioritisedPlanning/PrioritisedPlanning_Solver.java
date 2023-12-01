@@ -32,19 +32,23 @@ import static com.google.common.math.IntMath.factorial;
 public class PrioritisedPlanning_Solver extends A_Solver {
 
     /*  = Fields =  */
-    /*  =  = Fields related to the MAPF instance =  */
+    /*  = Constants =  */
+    public static final String COMPLETED_INITIAL_ATTEMPTS_STR = "completed initial attempts";
+    public static final String COMPLETED_CONTINGENCY_ATTEMPTS_STR = "completed contingency attempts";
+
+    /*  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
     private List<Agent> agents;
 
-    /*  =  = Fields related to the run =  */
+    /*  = Fields related to the run =  */
 
     private ConstraintSet constraints;
 
     private Random random;
 
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to be planned for, and the
@@ -73,10 +77,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     public boolean sharedGoals;
     /**
-     * If true, agents staying at their source (since the start) will not conflict 
+     * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    private Boolean TransientMAPFGoalCondition;
+    private final Boolean TransientMAPFGoalCondition;
+    public boolean reportIndvAttempts = false;
 
 
     /*  = Constructors =  */
@@ -118,7 +123,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
 
-        super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        super.name = "PrP" + (this.TransientMAPFGoalCondition ? "t" : "") + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
     /**
@@ -242,11 +247,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
             // report the completed attempt
             if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+                if (reportIndvAttempts){
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+                }
+                this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, attemptNumber + 1);
             }
             else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue("count contingency attempts", attemptNumber - restartsStrategy.numInitialRestarts);
+                this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, attemptNumber - restartsStrategy.numInitialRestarts);
             }
 
 

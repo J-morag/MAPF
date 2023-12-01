@@ -22,6 +22,8 @@ import java.io.*;
 import java.text.DateFormat;
 import java.util.Map;
 
+import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.COMPLETED_CONTINGENCY_ATTEMPTS_STR;
+import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.COMPLETED_INITIAL_ATTEMPTS_STR;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
@@ -108,8 +110,9 @@ class PrioritisedPlanningSolverTest {
     @Test
     void failsBeforeTimeoutWithRandomInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00, agent55to34, agent43to53});
-        I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
+        PrioritisedPlanning_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
+        solver.reportIndvAttempts = true;
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
@@ -120,14 +123,16 @@ class PrioritisedPlanningSolverTest {
         assertNull(solved);
         // should perform 3 + 21 attempts
         assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
-        assertEquals(21, instanceReport.getIntegerValue("count contingency attempts"));
+        assertEquals(3, instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
+        assertEquals(21, instanceReport.getIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR));
     }
 
     @Test
     void failsBeforeTimeoutWithDeterministicInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent55to34, agent43to53, agent00to10, agent10to00});
-        I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
+        PrioritisedPlanning_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null);
+        solver.reportIndvAttempts = true;
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
@@ -138,7 +143,8 @@ class PrioritisedPlanningSolverTest {
         assertNull(solved);
         // should perform 3 + 1 attempts
         assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
-        assertEquals(1, instanceReport.getIntegerValue("count contingency attempts"));
+        assertEquals(3, instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
+        assertEquals(1, instanceReport.getIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR));
     }
 
     @Test

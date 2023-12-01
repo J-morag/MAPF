@@ -68,7 +68,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(24, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
@@ -94,7 +94,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(30, solved.sumIndividualCosts());
+        assertEquals(25, solved.sumIndividualCosts());
         assertEquals(6, solved.makespan());
         assertEquals(23 , solved.sumServiceTimes());
     }
@@ -116,7 +116,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(14, solved.sumIndividualCosts());
+        assertEquals(10, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
     }
@@ -442,7 +442,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(10, solved.sumIndividualCosts());
+        assertEquals(8, solved.sumIndividualCosts());
         assertEquals(5, solved.makespan());
         assertEquals(8 , solved.sumServiceTimes());
     }
@@ -464,16 +464,14 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(27, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
 
-    // the following test important to check specific scenario where agent reached his goal,
-    // but can't stay in place since there is a infinite constraint, a constraint about his final location in future timestamp
-    // this scenario throws an UnsupportedOperationException
+
     @Test
-    void emptyMapValidityInfiniteConstraintThrowsError() {
+    void emptyMapValidityInfiniteConstraintTest() {
         MAPF_Instance testInstance = instanceEmpty;
 
         I_Coordinate coor02 = new Coordinate_2D(1,2);
@@ -481,8 +479,33 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
 
-        assertThrows(UnsupportedOperationException.class, () -> {
-            PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-        });
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+        assertEquals(27, solved.sumIndividualCosts());
+        assertEquals(8, solved.makespan());
+        assertEquals(22 , solved.sumServiceTimes());
+    }
+
+    @Test
+    void emptyMapValidityInfiniteConstraintTestBothAgents() {
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Coordinate coor33 = new Coordinate_2D(3,3);
+        I_Coordinate coor12 = new Coordinate_2D(1,2);
+        Constraint constraint1 = new Constraint(agent12to33, 10, mapCircle.getMapLocation(coor33));
+        Constraint constraint2 = new Constraint(agent33to12, 10, mapCircle.getMapLocation(coor12));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraint1);
+        constraints.add(constraint2);
+
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+
+        assertEquals(16, solved.sumIndividualCosts());
+        assertEquals(8, solved.makespan());
+        assertEquals(10 , solved.sumServiceTimes());
     }
 }

@@ -30,6 +30,7 @@ import java.util.Objects;
  */
 public class Experiment {
 
+    public static final int DEFAULT_TIMEOUT_EACH = 60 * 1000; // 1 minute
     public final String experimentName;
     public final int numOfInstances;
     protected InstanceManager instanceManager;
@@ -66,7 +67,7 @@ public class Experiment {
         this.experimentName = experimentName;
         this.instanceManager = instanceManager;
         this.numOfInstances = Objects.requireNonNullElse(numOfInstances, Integer.MAX_VALUE);
-        this.timeoutEach = Objects.requireNonNullElse(timeoutEach, 5 * 60 * 1000);
+        this.timeoutEach = Objects.requireNonNullElse(timeoutEach, DEFAULT_TIMEOUT_EACH);
     }
 
     public Experiment(String experimentName, InstanceManager instanceManager) {
@@ -183,7 +184,7 @@ public class Experiment {
         int numAgents = instance.agents.size();
 
         System.out.println("---------- solving " + instanceName + " with " + numAgents + " agents ---------- with solver " + solver.name());
-        System.out.println("Start time: " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
+        System.out.println("Start time: " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(System.currentTimeMillis()));
 
         Solution solution = solver.solve(instance, runParameters);
 

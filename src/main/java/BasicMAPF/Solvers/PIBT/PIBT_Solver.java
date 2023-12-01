@@ -15,6 +15,7 @@ import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSolution;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -88,7 +89,7 @@ public class PIBT_Solver extends A_Solver {
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
-        this.RHCR_Horizon = RHCR_Horizon;
+        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
     }
 
     @Override
@@ -161,14 +162,7 @@ public class PIBT_Solver extends A_Solver {
             updatePriorities(instance);
         }
 
-        Solution solution = new TransientMAPFSolution();
-        for (Agent agent : agentPlans.keySet()) {
-            solution.putPlan(this.agentPlans.get(agent));
-            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-            }
-        }
-        return solution;
+        return makeSolution();
     }
 
     /**
@@ -391,6 +385,40 @@ public class PIBT_Solver extends A_Solver {
             return this.RHCR_Horizon >= this.timeStamp;
         }
         return true;
+    }
+
+    @NotNull
+    private Solution makeSolution() {
+        this.timeStamp++;
+        Solution solution = new TransientMAPFSolution();
+
+        for (Agent agent : agentPlans.keySet()) {
+            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                solvePIBT(agent, null);
+            }
+            solution.putPlan(this.agentPlans.get(agent));
+        }
+
+        for (Agent agent : agentPlans.keySet()) {
+            SingleAgentPlan plan = this.agentPlans.get(agent);
+            // trim the plan to remove excess "stay" moves at the end
+
+            int lastChangedLocationTime = plan.getEndTime();
+            for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
+                if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
+                    break;
+                }
+            }
+            if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
+                SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
+                for (int t = 1; t <= lastChangedLocationTime; t++) {
+                    trimmedPlan.addMove(plan.moveAt(t));
+                }
+                solution.putPlan(trimmedPlan);
+            }
+            else solution.putPlan(this.agentPlans.get(agent));
+        }
+        return solution;
     }
 
     @Override

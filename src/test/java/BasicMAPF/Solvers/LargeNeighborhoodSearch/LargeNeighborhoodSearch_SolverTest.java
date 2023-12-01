@@ -11,6 +11,7 @@ import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
@@ -244,7 +245,7 @@ class LargeNeighborhoodSearch_SolverTest {
         S_Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
+        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null, null);
         String nameBaseline = baselineSolver.name();
 
         I_Solver competitorSolver = new LargeNeighborhoodSearch_Solver();
@@ -375,7 +376,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void sharedGoals(){
-        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null);
+        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -425,5 +426,25 @@ class LargeNeighborhoodSearch_SolverTest {
             Solution solution = solverWithSharedGoals.solve(testInstance, getDefaultRunParameters());
             assertNull(solution);
         }
+    }
+
+    @Test
+    void worksWithTMAPFPaths() {
+        I_Solver LNSt = new LargeNeighborhoodSearch_Solver(null, null, null, null, null, null, true);
+        Agent agent1 = new Agent(0, coor42, coor02, 1);
+        Agent agent2 = new Agent(1, coor10, coor12, 1);
+        Agent agent3 = new Agent(2, coor30, coor32, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agent1, agent2, agent3});
+
+        Solution solvedNormal = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedNormal.solves(testInstance));
+        System.out.println(solvedNormal.readableToString());
+        assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
+
+        Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedPrPT.solves(testInstance));
+        System.out.println(solvedPrPT.readableToString());
+        assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
     }
 }

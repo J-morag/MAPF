@@ -1,0 +1,136 @@
+name: Performance Benchmark
+on:
+  push:
+    branches: [ master ]
+
+permissions:
+  contents: write
+  deployments: write
+
+env:
+  BENCHMARK_DATA_DIR_PATH: dev/bench/master
+  FAIL_ON_ALERT: false
+
+jobs:
+  benchmark:
+    name: Run performance benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+
+      # run the benchmark using tests
+      - name: Benchmark
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Dtest=PerformanceBenchmarkTest test
+
+      - env:
+          SOLVER: CBS
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
+
+      - env:
+          SOLVER:
+            ICTS_Solver_S2P
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
+
+      - env:
+          SOLVER:
+            PrP + randomRestarts x9
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
+
+      - env:
+          SOLVER:
+            ALNS
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
+
+      - env:
+          SOLVER:
+            PIBT
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
+
+      - env:
+          SOLVER:
+            AStar
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}

@@ -5,6 +5,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import Environment.Metrics.InstanceReport;
@@ -74,17 +75,40 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @return true if the solution is valid (contains no vertex or swapping conflicts).
      */
     public boolean isValidSolution(boolean sharedGoals, boolean sharedSources){
+        return this.firstConflict(sharedGoals, sharedSources) == null;
+    }
+
+    /**
+     * Looks for vertex conflicts ({@link VertexConflict}) or swapping conflicts ({@link SwappingConflict}). Runtime is
+     * O( (n-1)*mTotal ) , where n = the number of {@link SingleAgentPlan plans}/{@link Agent agents} in this solution,
+     * and mTotal = the total number of moves in all plans together.
+     * @return the first conflict found, or null if there are no conflicts.
+     */
+    public A_Conflict firstConflict(){
+        return this.firstConflict(false, false);
+    }
+
+    /**
+     * Looks for vertex conflicts ({@link VertexConflict}) or swapping conflicts ({@link SwappingConflict}). Runtime is
+     * O( (n-1)*mTotal ) , where n = the number of {@link SingleAgentPlan plans}/{@link Agent agents} in this solution,
+     * and mTotal = the total number of moves in all plans together.
+     * @param sharedGoals if agents can share goals
+     * @param sharedSources if agents share the same source and so don't conflict if one of them has been staying there since the start
+     * @return the first conflict found, or null if there are no conflicts.
+     */
+    public A_Conflict firstConflict(boolean sharedGoals, boolean sharedSources){
         List<SingleAgentPlan> allPlans = new ArrayList<>(agentPlans.values());
         for (int i = 0; i < allPlans.size(); i++) {
             SingleAgentPlan plan1 = allPlans.get(i);
             for (int j = i+1; j < allPlans.size(); j++) {
                 SingleAgentPlan plan2 = allPlans.get(j);
-                if(plan1.conflictsWith(plan2, sharedGoals, sharedSources)) {
-                    return false;
+                A_Conflict conflict = plan1.firstConflict(plan2, sharedGoals, sharedSources);
+                if(conflict != null) {
+                    return conflict;
                 }
             }
         }
-        return true;
+        return null;
     }
 
     /**
