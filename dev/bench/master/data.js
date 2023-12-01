@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701412886388,
+  "lastUpdate": 1701412887626,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -2433,6 +2433,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 11029215,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "20d7bcebf65042bf4ead398941605d659cbcabb7",
+          "message": "Prioritised Planning with Guarantees (#67)\n\n* Refactor priority order from RunParameters_PP into RunParameters\r\n\r\n* Added ICTS stress test\r\n\r\n* Created Timeout class and refactored MDD classes to use it instead of ICTS_Solver\r\n\r\n* Reduce ICTS stress test timeout\r\n\r\n* refactor/rename Heuristics, MDDs\r\n\r\n* remove DistanceTableSingleAgentHeuristicMDD and just use SingleAgentGAndH\r\n\r\n* Fix a concurrency problem with maps by delegating equality of map vertices to their coordinates, rather than using a static counter. It's possible the current implementation was needed for corridor reasoning, but I can't find where.\r\n\r\n* refactor MDDs and extend their functionality",
+          "timestamp": "2023-12-01T17:11:31+11:00",
+          "tree_id": "feedd6eda92cc27930804016f015fa8ced665306",
+          "url": "https://github.com/J-morag/MAPF/commit/20d7bcebf65042bf4ead398941605d659cbcabb7"
+        },
+        "date": 1701412887229,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 9011.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30003.295,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28414.941,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 9711391,
             "unit": "Expansions"
           }
         ]
