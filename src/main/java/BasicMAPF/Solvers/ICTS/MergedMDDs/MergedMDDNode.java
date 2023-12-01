@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.DataTypesAndStructures.MDDs.MDDNode;
+import BasicMAPF.MDDs.MDDNode;
 
 import java.util.*;
 

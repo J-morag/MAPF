@@ -1,6 +1,6 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
-import BasicMAPF.DataTypesAndStructures.MDDs.MDDNode;
+import BasicMAPF.MDDs.MDDNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
