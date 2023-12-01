@@ -1,11 +1,12 @@
 package BasicMAPF.Instances.Maps;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface I_Location {
+public interface I_Location extends Comparable<I_Location> {
 
     /**
      * Returns the type of the location.
@@ -60,4 +61,8 @@ public interface I_Location {
      */
     boolean isNeighbor(I_Location other);
 
+    @Override
+    default int compareTo(@NotNull I_Location o) {
+        return this.getCoordinate().compareTo(o.getCoordinate());
+    }
 }
