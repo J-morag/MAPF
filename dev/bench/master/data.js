@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701414159631,
+  "lastUpdate": 1701414161000,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3392,6 +3392,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 895.94116,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "d22f66cc519719f6fa3b660450d3e81ea7278f10",
+          "message": "Move `MDDs` into `DataTypesAndStructures`",
+          "timestamp": "2023-12-01T17:32:45+11:00",
+          "tree_id": "3307b923380b6ad3f0c10d4d37a8fb1ec70ac816",
+          "url": "https://github.com/J-morag/MAPF/commit/d22f66cc519719f6fa3b660450d3e81ea7278f10"
+        },
+        "date": 1701414160554,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 6,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 27649.727,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 871.4706,
             "unit": "Milliseconds"
           },
           {
