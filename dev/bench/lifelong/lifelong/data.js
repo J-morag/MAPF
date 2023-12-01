@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700869524535,
+  "lastUpdate": 1701413765693,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -350,6 +350,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
             "value": 0.00001621499,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "9d41b37baacb73ce2b991e9f41ec76878e9fa02e",
+          "message": "merge from master",
+          "timestamp": "2023-12-01T17:10:08+11:00",
+          "tree_id": "511dce826a1367a7abc90a976911a1781302d9d9",
+          "url": "https://github.com/J-morag/MAPF/commit/9d41b37baacb73ce2b991e9f41ec76878e9fa02e"
+        },
+        "date": 1701413764497,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Throughput",
+            "value": 466.33334,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime (Reciprocal)",
+            "value": 0.0000129289165,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.000015680986,
             "unit": "1 / Milliseconds"
           }
         ]
