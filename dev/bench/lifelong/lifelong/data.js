@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701414737375,
+  "lastUpdate": 1701414739164,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -941,6 +941,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "simplePrP_infHorizon - Average Runtime Low Level  (Reciprocal)",
             "value": 0.000014903129,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "e229dc82baa537a84a170313d5c010b712bbcef4",
+          "message": "merge from master",
+          "timestamp": "2023-12-01T17:19:37+11:00",
+          "tree_id": "168f6efd4979f473042bee211a01ac3f0f440cf2",
+          "url": "https://github.com/J-morag/MAPF/commit/e229dc82baa537a84a170313d5c010b712bbcef4"
+        },
+        "date": 1701414738389,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "simplePrP_infHorizon - Average Throughput",
+            "value": 87,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "simplePrP_infHorizon - Average Runtime (Reciprocal)",
+            "value": 0.00001295306,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "simplePrP_infHorizon - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.000014899613,
             "unit": "1 / Milliseconds"
           }
         ]
