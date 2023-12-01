@@ -3,7 +3,7 @@ package BasicMAPF.Instances.Maps.Coordinates;
 /**
  * Represents a unique location in Euclidean space.
  */
-public interface I_Coordinate {
+public interface I_Coordinate extends Comparable<I_Coordinate>{
 
     /**
      * A distance measure from one coordinate to another.

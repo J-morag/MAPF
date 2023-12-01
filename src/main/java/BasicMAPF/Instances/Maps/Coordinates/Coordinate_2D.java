@@ -1,5 +1,8 @@
 package BasicMAPF.Instances.Maps.Coordinates;
 
+import com.google.common.collect.Comparators;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A data type which represents a coordinate in two-dimensional space.
  */
@@ -17,9 +20,7 @@ public class Coordinate_2D implements I_Coordinate {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Coordinate_2D)) return false;
-
-        Coordinate_2D that = (Coordinate_2D) o;
+        if (!(o instanceof Coordinate_2D that)) return false;
 
         if (x_value != that.x_value) return false;
         return y_value == that.y_value;
@@ -67,5 +68,12 @@ public class Coordinate_2D implements I_Coordinate {
     @Override
     public float distance(I_Coordinate other) {
         return manhattanDistance(other);
+    }
+
+    @Override
+    public int compareTo(@NotNull I_Coordinate o) {
+        int x = Integer.compare(this.x_value, ((Coordinate_2D)o).x_value);
+        if (x != 0) return x;
+        return Integer.compare(this.y_value, ((Coordinate_2D)o).y_value);
     }
 }

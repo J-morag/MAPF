@@ -14,12 +14,6 @@ import java.util.List;
  */
 public class GraphMapVertex implements I_Location {
 
-    private static int IDCounter = 0;
-    /**
-     * Unique ID. This exists for creating good and deterministic hash codes.
-     */
-    private final int UniqueID = IDCounter++;
-
     /**
      * The type of the location. The type could determine whether or not an agent can traverse or occupy a location.
      */
@@ -177,16 +171,13 @@ public class GraphMapVertex implements I_Location {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GraphMapVertex)) return false;
+        if (!(o instanceof GraphMapVertex that)) return false;
 
-        GraphMapVertex that = (GraphMapVertex) o;
-
-        return UniqueID == that.UniqueID;
-
+        return coordinate.equals(that.coordinate);
     }
 
     @Override
     public int hashCode() {
-        return UniqueID;
+        return coordinate.hashCode();
     }
 }

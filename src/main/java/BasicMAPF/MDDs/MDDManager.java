@@ -4,6 +4,8 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +56,28 @@ public class MDDManager {
         this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
         this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();
         return result;
+    }
+
+    public MDD getMinMDDNoReuse(I_Location source, I_Location target, Agent agent, int depth){
+        A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
+        // todo implement
+        // todo test
+        throw new NotImplementedException("todo");
+//        MDD result = searcher.continueSearching(depth);
+//        this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
+//        this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();
+//        return result;
+    }
+
+    public MDD getMinMDDUnderConstraints(I_Location source, I_Location target, Agent agent, ConstraintSet constraints){
+        A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
+        // todo implement
+        // todo test
+        throw new NotImplementedException("todo");
+//        MDD result = searcher.continueSearching(depth);
+//        this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
+//        this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();
+//        return result;
     }
 
     public int getExpandedNodesNum(){

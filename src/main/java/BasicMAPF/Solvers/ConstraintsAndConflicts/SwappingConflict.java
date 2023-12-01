@@ -107,4 +107,15 @@ public class SwappingConflict extends A_Conflict{
         result = 31 * result + time;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "SwappingConflict{" +
+                "agent1=" + agent1 +
+                ", agent2=" + agent2 +
+                ", time=" + time +
+                ", agent1_destination=" + location.getCoordinate() +
+                ", agent2_destination=" + agent2_destination.getCoordinate() +
+                '}';
+    }
 }

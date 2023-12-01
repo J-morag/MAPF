@@ -31,4 +31,15 @@ public class Agents {
     public final static Agent agent10to33 = new Agent(serialID++, coor10, coor33);
     public final static Agent agent20to00 = new Agent(serialID++, coor20, coor00);
     public final static Agent agent21to00 = new Agent(serialID++, coor21, coor00);
+
+    public final static Agent agent43to12 = new Agent(serialID++, coor43, coor12);
+    public final static Agent agent12to35 = new Agent(serialID++, coor12, coor35);
+    public final static Agent agent35to12 = new Agent(serialID++, coor35, coor12);
+    public final static Agent agent12to34 = new Agent(serialID++, coor12, coor34);
+    public final static Agent agent34to12 = new Agent(serialID++, coor34, coor12);
+    public final static Agent agent02to43 = new Agent(serialID++, coor02, coor43);
+    public final static Agent agent35to30 = new Agent(serialID++, coor35, coor30);
+    public final static Agent agent02to30 = new Agent(serialID++, coor02, coor30);
+    public final static Agent agent04to30 = new Agent(serialID++, coor04, coor30);
+    public final static Agent agent43to32 = new Agent(serialID++, coor43, coor32);
 }

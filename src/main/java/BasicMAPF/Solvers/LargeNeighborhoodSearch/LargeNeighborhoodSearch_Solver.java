@@ -6,6 +6,8 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
@@ -59,7 +61,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
 
     /*  = Fields related to the run =  */
 
-    private SingleAgentGAndH singleAgentGAndH;
+    private SingleAgentGAndH subSolverHeuristic;
     private ConstraintSet constraints;
     private Random random;
     private int completedDestroyAndRepairIterations;
@@ -145,9 +147,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.runParameters = parameters;
 
         // single agent heuristic for the sub solver
-        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
-        if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
-            ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
+        this.subSolverHeuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        if (this.subSolverHeuristic instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.subSolverHeuristic).setCurrentMap(instance.map);
         }
     }
 
@@ -293,7 +295,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0]))
+        RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0]))
                 .setProblemStartTime(this.problemStartTime)
                 .createRP());
         if (this.runParameters instanceof RunParameters_PP runParameters_pp_parent){
