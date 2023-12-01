@@ -14,9 +14,9 @@ import BasicMAPF.Solvers.AStar.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
 import Environment.Metrics.InstanceReport;
@@ -47,7 +47,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     public final static String countSingleAgentFPsTriggeredString = "single agent FPs triggered";
     private static final int DEBUG = 1;
 
-    /*  =  = Fields related to the MAPF instance =  */
+    /*  = Constants =  */
+    public static final String COMPLETED_INITIAL_ATTEMPTS_STR = "completed initial attempts";
+    public static final String COMPLETED_CONTINGENCY_ATTEMPTS_STR = "completed contingency attempts";
+
+    /*  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
@@ -57,7 +61,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      */
     private int problemStartTime;
 
-    /*  =  = Fields related to the run =  */
+    /*  = Fields related to the run =  */
 
     private ConstraintSet constraints;
 
@@ -67,7 +71,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     int maxReachedIndexOneBased;
     int singleAgentFPsTriggered;
 
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to be planned for, and the
@@ -89,17 +93,18 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * optional heuristic function to use in the low level solver.
      */
-    private AStarGAndH aStarGAndH;
+    private SingleAgentGAndH singleAgentGAndH;
 
     /**
      * if agents share goals, they will not conflict at their goal.
      */
     public boolean sharedGoals;
     /**
-     * If true, agents staying at their source (since the start) will not conflict 
+     * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    private Boolean TransientMAPFGoalCondition;
+    private final Boolean TransientMAPFGoalCondition;
+    public boolean reportIndvAttempts = false;
     /**
      * How to approach partial solutions from the multi-agent perspective
      */
@@ -161,7 +166,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
 
-        super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        super.name = "PrP" + (this.TransientMAPFGoalCondition ? "t" : "") + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
     /**
@@ -213,18 +218,16 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.singleAgentFPsTriggered = 0;
 
         // heuristic
-        this.aStarGAndH = Objects.requireNonNullElseGet(parameters.aStarGAndH, () -> new DistanceTableAStarHeuristic(this.agents, instance.map));
-        if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
-            ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
+        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
+        }
+
+        if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
+            reorderAgentsByPriority(parameters.priorityOrder);
         }
 
         if(parameters instanceof RunParameters_PP parametersPP){
-
-            //reorder according to requested priority
-            if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
-                reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
-            }
-
             this.partialSolutionsStrategy = parametersPP.partialSolutionsStrategy;
 
             if (parametersPP.failedAgents != null){
@@ -325,7 +328,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         if (failedAgents.size() > numFailedAgentsBeforeFailPolicy){ // so the fail policy added more failed agents in failPolicy.getKSafeSolution
                             // reset constraints since the solution changed
                             currentConstraints = new ConstraintSet(initialConstraints);
-                            if (this.aStarGAndH instanceof DistanceTableAStarHeuristic distanceTable
+                            if (this.singleAgentGAndH instanceof DistanceTableSingleAgentHeuristic distanceTable
                                     && distanceTable.congestionMap != null){
                                 distanceTable.congestionMap.clear();
                             }
@@ -378,13 +381,15 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             // report the completed attempt
             this.instanceReport.putIntegerValue("fail policy iterations", failPolicyIterations.intValue());
             if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
-                this.instanceReport.putIntegerValue(countInitialAttemptsMetricString, attemptNumber + 1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", failedAgents.size());
+                if (reportIndvAttempts){
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", failedAgents.size());
+                }
+                this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, attemptNumber + 1);
             }
             else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue(countContingencyAttemptsMetricString, attemptNumber - restartsStrategy.numInitialRestarts);
+                this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, attemptNumber - restartsStrategy.numInitialRestarts);
             }
 
 
@@ -456,7 +461,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     private void addPlanToCongestionMap(SingleAgentPlan planForAgent) {
         // if using congestion, add this plan to the congestion map
-        if (this.aStarGAndH instanceof DistanceTableAStarHeuristic distanceTable
+        if (this.singleAgentGAndH instanceof DistanceTableSingleAgentHeuristic distanceTable
                 && distanceTable.congestionMap != null){
             distanceTable.congestionMap.registerPlan(planForAgent); // TODO horizon?
         }
@@ -509,7 +514,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 : timeLeftToTimeout;
         allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT_MS), timeLeftToTimeout);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(allocatedTime).
-                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH)
+                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH)
                 .setExistingSolution(new Solution(solutionSoFar))  // should probably work without copying, but just to be safe
                 .createRP());
         params.fBudget = maxCost;
@@ -557,7 +562,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
-        this.aStarGAndH = null;
+        this.singleAgentGAndH = null;
     }
 
     /*  = interfaces =  */

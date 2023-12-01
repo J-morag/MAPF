@@ -56,7 +56,7 @@ public class Main {
             String instancesRegex = null;
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
-            int timeoutEach = 300000;
+            Integer timeoutEach = null;
             Long minResponseTime;
             Integer maxTimeSteps;
 

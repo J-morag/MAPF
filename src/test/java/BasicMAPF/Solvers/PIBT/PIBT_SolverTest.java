@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
+import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,7 +79,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(24, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
@@ -104,7 +105,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(30, solved.sumIndividualCosts());
+        assertEquals(25, solved.sumIndividualCosts());
         assertEquals(6, solved.makespan());
         assertEquals(23 , solved.sumServiceTimes());
     }
@@ -126,7 +127,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(14, solved.sumIndividualCosts());
+        assertEquals(10, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
     }
@@ -452,7 +453,7 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(10, solved.sumIndividualCosts());
+        assertEquals(8, solved.sumIndividualCosts());
         assertEquals(5, solved.makespan());
         assertEquals(8 , solved.sumServiceTimes());
     }
@@ -474,10 +475,11 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(35, solved.sumIndividualCosts());
+        assertEquals(27, solved.sumIndividualCosts());
         assertEquals(7, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
+
 
     @Test
     void emptyMapValidityInfiniteConstraintTest() {
@@ -488,16 +490,12 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
 
-        assertThrows(UnsupportedOperationException.class, () -> {
-            PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-        });
-
-//        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-//        System.out.println(solved.readableToString());
-//        assertTrue(solved.solves(testInstance));
-//        assertEquals(40, solved.sumIndividualCosts());
-//        assertEquals(8, solved.makespan());
-//        assertEquals(22 , solved.sumServiceTimes());
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+        assertEquals(27, solved.sumIndividualCosts());
+        assertEquals(8, solved.makespan());
+        assertEquals(22 , solved.sumServiceTimes());
     }
 
     @Test
@@ -512,6 +510,14 @@ public class PIBT_SolverTest {
         constraints.add(constraint1);
         constraints.add(constraint2);
 
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+
+        System.out.println(solved.readableToString());
+        assertTrue(solved.solves(testInstance));
+
+        assertEquals(16, solved.sumIndividualCosts());
+        assertEquals(8, solved.makespan());
+        assertEquals(10 , solved.sumServiceTimes());
         assertThrows(UnsupportedOperationException.class, () -> {
             PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         });
@@ -519,9 +525,9 @@ public class PIBT_SolverTest {
 //        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 //        System.out.println(solved.readableToString());
 //        assertTrue(solved.solves(testInstance));
-//        assertEquals(16, solved.sumIndividualCosts());
+//        assertEquals(40, solved.sumIndividualCosts());
 //        assertEquals(8, solved.makespan());
-//        assertEquals(10 , solved.sumServiceTimes());
+//        assertEquals(22 , solved.sumServiceTimes());
     }
 
     // the following test important to check specific scenario where agent reached his goal,

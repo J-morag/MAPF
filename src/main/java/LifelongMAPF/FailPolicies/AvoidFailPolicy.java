@@ -8,7 +8,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
-import BasicMAPF.Solvers.I_OpenList;
+import BasicMAPF.DataTypesAndStructures.I_OpenList;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.I_AStarFailPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link AStarGAndH} that uses a pre-calculated dictionary of distances from possible goal locations to every
+ * A {@link SingleAgentGAndH} that uses a pre-calculated dictionary of distances from possible goal locations to every
  * accessible {@link I_Location location} to provide a perfectly tight heuristic.
  */
-public class DistanceTableAStarHeuristic implements AStarGAndH {
+public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
     /**
      * Dictionary from target location, to its distance from any location on the map.
      */
@@ -34,7 +34,7 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
         return distanceDictionaries;
     }
 
-    private DistanceTableAStarHeuristic(I_Map map, @Nullable CongestionMap congestionMap) {
+    private DistanceTableSingleAgentHeuristic(I_Map map, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.distanceDictionaries = new HashMap<>();
         this.congestionMap = congestionMap;
@@ -47,7 +47,7 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
      * @param congestionMap will apply a congestion penalty if this isn't null.
      */
-    public DistanceTableAStarHeuristic(@Nullable List<? extends Agent> agents, I_Map map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
+    public DistanceTableSingleAgentHeuristic(@Nullable List<? extends Agent> agents, I_Map map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.congestionMap = congestionMap;
         if (lruCacheSize != null && lruCacheSize < 1)
@@ -67,7 +67,7 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * @param agents agents (targets) we need to include in the distance table.
      * @param map the map this heuristic will work on.
      */
-    public DistanceTableAStarHeuristic(List<? extends Agent> agents, I_Map map) {
+    public DistanceTableSingleAgentHeuristic(List<? extends Agent> agents, I_Map map) {
         this(agents, map, null, null);
     }
 
@@ -78,7 +78,7 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
      * @param congestionMap will apply a congestion penalty if this isn't null.
      */
-    public DistanceTableAStarHeuristic(@NotNull I_ExplicitMap map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
+    public DistanceTableSingleAgentHeuristic(@NotNull I_ExplicitMap map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.congestionMap = congestionMap;
         if (lruCacheSize != null && lruCacheSize < 1)
@@ -96,7 +96,7 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
      * This makes the heuristic essentially the "All Pairs Shortest Path" heuristic.
      * @param map the map this heuristic will work on.
      */
-    public DistanceTableAStarHeuristic(I_ExplicitMap map) {
+    public DistanceTableSingleAgentHeuristic(I_ExplicitMap map) {
         this(map, null, null);
     }
 
@@ -155,10 +155,10 @@ public class DistanceTableAStarHeuristic implements AStarGAndH {
         return getHToTargetFromLocation(state.getMove().agent.target, state.getMove().currLocation);
     }
 
-    public Float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+    @Override
+    public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
         Map<I_Location, Integer> relevantDictionary = this.distanceDictionaries.get(map.getMapLocation(target));
         Integer h = relevantDictionary.get(currLocation);
-//        return ()h;
         if (h != null){
             return (float)h;
         }

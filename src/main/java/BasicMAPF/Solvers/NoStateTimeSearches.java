@@ -4,7 +4,7 @@ import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -12,16 +12,10 @@ import java.util.*;
 /**
  * Includes static implementations of searches that don't include state-time.
  * Because states do not include time, these are single-agent searches. They don't support things like constraints, as
- * those are time-dependant. Consequently, they search a significantly smaller state-space. Additionally, these searches
+ * those are time-dependent. Consequently, they search a significantly smaller state-space. Additionally, these searches
  * terminate even if the goal is unreachable (returning an appropriate value to indicate that).
- * Non thread safe!
  */
 public class NoStateTimeSearches {
-
-    // these being class static makes this class not thread safe
-    private static final HashSet<I_Location> visited = new HashSet<>();
-    private static final Queue<I_Location> open = new ArrayDeque<>();
-
 
     /**
      * Performs a light version of breadth first search to determine if a location is reachable from another location.
@@ -32,7 +26,7 @@ public class NoStateTimeSearches {
      */
     public static boolean BFSReachableFrom(I_Location goal, I_Location source) {
         // BFS algorithm
-        return basicSearch(goal, source, open, true);
+        return basicSearch(goal, source, new ArrayDeque<>(), true);
     }
 
     /**
@@ -51,6 +45,7 @@ public class NoStateTimeSearches {
     }
 
     private static boolean basicSearch(I_Location goal, I_Location source, Queue<I_Location> open, boolean earlyGoalTest) {
+        HashSet<I_Location> visited = new HashSet<>();
         open.offer(source);
         while(!open.isEmpty()){
             I_Location location = open.remove();
@@ -61,12 +56,12 @@ public class NoStateTimeSearches {
             visited.add(location);
             if (!earlyGoalTest && simpleGoalTest(goal, location)){
                 // found (reachable)
-                return finish((true));
+                return true;
             }
             for (I_Location neighbour: location.outgoingEdges()) {
                 if(earlyGoalTest && simpleGoalTest(goal, neighbour)){
                     // found (reachable)
-                    return finish(true);
+                    return true;
                 }
                 if(!visited.contains(neighbour)){
                     open.offer(neighbour);
@@ -74,7 +69,7 @@ public class NoStateTimeSearches {
             }
         }
         // they are in disjoint graph components
-        return finish(false);
+        return false;
     }
 
     private static boolean simpleGoalTest(I_Location goal, I_Location location) {
@@ -82,18 +77,7 @@ public class NoStateTimeSearches {
         return location.getCoordinate().equals(goal.getCoordinate());
     }
 
-    /**
-     * cleans up and returns returnVal. clean up eagerly.
-     * @param returnVal will return this.
-     * @return returnVal
-     */
-    private static boolean finish(boolean returnVal){
-        visited.clear();
-        open.clear();
-        return returnVal;
-    }
-
-    public static List<I_Location> uniformCostSearch(I_Location goal, I_Location source, AStarGAndH edgeCosts, Agent dummyAgent) {
+    public static List<I_Location> uniformCostSearch(I_Location goal, I_Location source, SingleAgentGAndH edgeCosts, Agent dummyAgent) {
         dummyAgent = Objects.requireNonNullElseGet(dummyAgent, () -> new Agent(0, source.getCoordinate(), goal.getCoordinate()));
         Map<I_Location, I_Location> parent = new HashMap<>();
         Map<I_Location, Integer> cummulativeCost = new HashMap<>();

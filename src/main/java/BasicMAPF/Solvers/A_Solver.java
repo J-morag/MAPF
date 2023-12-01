@@ -2,6 +2,7 @@ package BasicMAPF.Solvers;
 
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
@@ -10,7 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+
+import static BasicMAPF.DataTypesAndStructures.Timeout.getCurrentTimeMS_NSAccuracy;
 
 /**
  * Performs that functionality that is common to all solvers.
@@ -32,6 +34,7 @@ public abstract class A_Solver implements I_Solver{
     protected int totalLowLevelTimeMS;
     protected int totalLowLevelCalls;
     public String name;
+    private final Timeout timeout = new Timeout(0);
 
     /**
      * This implementation provides a skeleton for running a solver. You can override any of the invoked methods, but if
@@ -64,23 +67,22 @@ public abstract class A_Solver implements I_Solver{
 
         this.startTime = getCurrentTimeMS_NSAccuracy();
         this.startDate = System.currentTimeMillis();
+        this.maximumRuntime = (parameters.timeout >= 0) ? parameters.timeout : DEFAULT_TIMEOUT;
+        this.softTimeout = Math.min(parameters.softTimeout, this.maximumRuntime);
+        this.timeout.timeoutTimestampMS = Timeout.getTimeoutTimestampMS(this.startTime, this.maximumRuntime);
         this.endTime = 0;
         this.abortedForTimeout = false;
+
         this.totalLowLevelNodesGenerated = 0;
         this.totalLowLevelNodesExpanded = 0;
         this.totalLowLevelTimeMS = 0;
         this.totalLowLevelCalls = 0;
-        this.maximumRuntime = (parameters.timeout >= 0) ? parameters.timeout : DEFAULT_TIMEOUT;
-        this.softTimeout = Math.min(parameters.softTimeout, this.maximumRuntime);
+
         this.instanceReport = parameters.instanceReport == null ? S_Metrics.newInstanceReport()
                 : parameters.instanceReport;
-        // if we were given a report, we should leave it be. If we created our report locally, then it is unreachable
-        // outside the class, and should therefore be committed.
+        // If we were given a report, we should leave it be.
+        // If we created our report locally, it is unreachable outside the class, and should therefore be committed.
         this.commitReport = parameters.instanceReport == null;
-    }
-
-    public static long getCurrentTimeMS_NSAccuracy() {
-        return TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
     }
 
     /*  = algorithm =  */
@@ -163,14 +165,19 @@ public abstract class A_Solver implements I_Solver{
     /*  = utilities =  */
 
     protected boolean checkTimeout() {
-        if(getCurrentTimeMS_NSAccuracy() - startTime > maximumRuntime){
+        if(timeout.isTimeoutExceeded()){
             this.abortedForTimeout = true;
             return true;
         }
         return false;
     }
+
     protected boolean checkSoftTimeout() {
-        return getCurrentTimeMS_NSAccuracy() - startTime > softTimeout;
+        return Timeout.isTimeoutExceeded(startTime + softTimeout);
+    }
+
+    public Timeout getTimeout(){
+        return this.timeout;
     }
 
     @Override

@@ -1,8 +1,11 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.DataTypesAndStructures.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Stack;
 
@@ -11,21 +14,19 @@ public class DFSMDDBuilder extends AStarMDDBuilder {
     /**
      * Constructor for the AStar searcher
      *
-     * @param highLevelSearcher
      * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public DFSMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent, DistanceTableAStarHeuristicICTS heuristic) {
-        super(highLevelSearcher, source, target, agent, heuristic);
+    public DFSMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic) {
+        super(timeout, source, target, agent, heuristic);
     }
     /**
      * Constructor for the AStar searcher
      *
-     * @param highLevelSearcher
      * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public DFSMDDBuilder(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent,
-                         DistanceTableAStarHeuristicICTS heuristic, boolean disappearAtGoal) {
-        super(highLevelSearcher, source, target, agent, heuristic, disappearAtGoal);
+    public DFSMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target,
+                         @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic, @Nullable Boolean disappearAtGoal) {
+        super(timeout, source, target, agent, heuristic, disappearAtGoal);
     }
 
     @Override

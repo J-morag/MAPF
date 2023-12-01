@@ -9,12 +9,14 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSolution;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -48,7 +50,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     /**
      * heuristic to use in the low level search to find the closest nodes to an agent's goal.
      */
-    private DistanceTableAStarHeuristic heuristic;
+    private SingleAgentGAndH heuristic;
 
     /**
      * HashMap saves for each agent his plan.
@@ -122,12 +124,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         initPriority(instance);
 
         // distance between every vertex in the graph to each agent's goal
-        if (parameters.aStarGAndH instanceof DistanceTableAStarHeuristic) {
-            this.heuristic = (DistanceTableAStarHeuristic) parameters.aStarGAndH;
-        }
-        else {
-            this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
-        }
+        this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
     }
 
 
@@ -180,14 +177,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             updatePriorities(instance);
         }
 
-        Solution solution = new TransientMAPFSolution();
-        for (Agent agent : agentPlans.keySet()) {
-            solution.putPlan(this.agentPlans.get(agent));
-            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-            }
-        }
-        return solution;
+        return makeSolution();
     }
 
     @Nullable
@@ -235,8 +225,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         //  2. move to the node where the higher priority agent is
 
         candidates.add(this.currentLocations.get(current)); // 1
-
-
         if (higherPriorityAgent != null) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
@@ -297,7 +285,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 return false;
             };
         }
-
         return false;
     }
 
@@ -391,22 +378,12 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean indicates if all agents reached their goal.
      */
     private boolean finished() {
-
         for (Double priority : this.priorities.values()) {
             // check if agent reached his goal
             if (priority != -1.0) {
                 return false;
             }
         }
-
-        // if reached here, all agents reached their goals.
-        // need to make sure that all constraints are satisfied before return the solution.
-//        for (Agent agent : agentPlans.keySet()) {
-//            // check that is agent reach his goal, there is no constraint that prevents him from staying in place
-//            if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-//                return false;
-//            }
-//        }
         return true;
     }
 
@@ -446,6 +423,40 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             return this.RHCR_Horizon >= this.timeStamp;
         }
         return true;
+    }
+
+    @NotNull
+    private Solution makeSolution() {
+        this.timeStamp++;
+        Solution solution = new TransientMAPFSolution();
+
+        for (Agent agent : agentPlans.keySet()) {
+            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                solvePIBT(agent, null);
+            }
+            solution.putPlan(this.agentPlans.get(agent));
+        }
+
+        for (Agent agent : agentPlans.keySet()) {
+            SingleAgentPlan plan = this.agentPlans.get(agent);
+            // trim the plan to remove excess "stay" moves at the end
+
+            int lastChangedLocationTime = plan.getEndTime();
+            for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
+                if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
+                    break;
+                }
+            }
+            if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
+                SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
+                for (int t = 1; t <= lastChangedLocationTime; t++) {
+                    trimmedPlan.addMove(plan.moveAt(t));
+                }
+                solution.putPlan(trimmedPlan);
+            }
+            else solution.putPlan(this.agentPlans.get(agent));
+        }
+        return solution;
     }
 
     @Override

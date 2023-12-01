@@ -23,23 +23,18 @@ import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.COMPLETED_CONTINGENCY_ATTEMPTS_STR;
+import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.COMPLETED_INITIAL_ATTEMPTS_STR;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
+import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PrioritisedPlanningSolverTest {
 
-    private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
-
-    private final MAPF_Instance instanceEmptyHarder = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
-            {agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, agent00to10, agent55to34, agent34to32, agent31to14, agent40to02});
-    private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
-    private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
-    private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
     private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
-    private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
     I_Solver ppSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver());
 
@@ -116,8 +111,9 @@ class PrioritisedPlanningSolverTest {
     @Test
     void failsBeforeTimeoutWithRandomInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00, agent55to34, agent43to53});
-        I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
+        PrioritisedPlanning_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null, null);
+        solver.reportIndvAttempts = true;
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
@@ -128,14 +124,16 @@ class PrioritisedPlanningSolverTest {
         assertNull(solved);
         // should perform 3 + 21 attempts
         assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
-        assertEquals(21, instanceReport.getIntegerValue("count contingency attempts"));
+        assertEquals(3, instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
+        assertEquals(21, instanceReport.getIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR));
     }
 
     @Test
     void failsBeforeTimeoutWithDeterministicInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent55to34, agent43to53, agent00to10, agent10to00});
-        I_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
+        PrioritisedPlanning_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null, null, null);
+        solver.reportIndvAttempts = true;
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
@@ -146,7 +144,8 @@ class PrioritisedPlanningSolverTest {
         assertNull(solved);
         // should perform 3 + 1 attempts
         assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
-        assertEquals(1, instanceReport.getIntegerValue("count contingency attempts"));
+        assertEquals(3, instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
+        assertEquals(1, instanceReport.getIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR));
     }
 
     @Test
@@ -196,7 +195,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void sortAgents() {
         MAPF_Instance testInstance = instanceCircle1;
-        I_Solver solver = new PrioritisedPlanning_Solver((Agent a1, Agent a2) -> a2.priority - a1.priority);
+        I_Solver solver = new PrioritisedPlanning_Solver((Agent a1, Agent a2) -> a2.priorityClass - a1.priorityClass);
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
         Agent agent1 = new Agent(1, coor12, coor33, 1);

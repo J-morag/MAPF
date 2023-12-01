@@ -75,17 +75,35 @@ public class Solution implements Iterable<SingleAgentPlan>{
      * @return true if the solution is valid (contains no vertex or swapping conflicts).
      */
     public boolean isValidSolution(boolean sharedGoals, boolean sharedSources){
-        return arbitraryConflict(sharedGoals, sharedSources) == null;
+        return this.firstConflict(sharedGoals, sharedSources) == null;
     }
 
-    public A_Conflict arbitraryConflict(boolean sharedGoals, boolean sharedSources){
+    /**
+     * Looks for vertex conflicts ({@link VertexConflict}) or swapping conflicts ({@link SwappingConflict}). Runtime is
+     * O( (n-1)*mTotal ) , where n = the number of {@link SingleAgentPlan plans}/{@link Agent agents} in this solution,
+     * and mTotal = the total number of moves in all plans together.
+     * @return the first conflict found, or null if there are no conflicts.
+     */
+    public A_Conflict firstConflict(){
+        return this.firstConflict(false, false);
+    }
+
+    /**
+     * Looks for vertex conflicts ({@link VertexConflict}) or swapping conflicts ({@link SwappingConflict}). Runtime is
+     * O( (n-1)*mTotal ) , where n = the number of {@link SingleAgentPlan plans}/{@link Agent agents} in this solution,
+     * and mTotal = the total number of moves in all plans together.
+     * @param sharedGoals if agents can share goals
+     * @param sharedSources if agents share the same source and so don't conflict if one of them has been staying there since the start
+     * @return the first conflict found, or null if there are no conflicts.
+     */
+    public A_Conflict firstConflict(boolean sharedGoals, boolean sharedSources){
         List<SingleAgentPlan> allPlans = new ArrayList<>(agentPlans.values());
         for (int i = 0; i < allPlans.size(); i++) {
             SingleAgentPlan plan1 = allPlans.get(i);
             for (int j = i+1; j < allPlans.size(); j++) {
                 SingleAgentPlan plan2 = allPlans.get(j);
                 A_Conflict conflict = plan1.firstConflict(plan2, sharedGoals, sharedSources);
-                if (conflict != null) {
+                if(conflict != null) {
                     return conflict;
                 }
             }
@@ -211,15 +229,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
     }
 
     /**
-     * Calculates the sum of individual costs with the priorities ({{@link Agent#priority}} modifier.
+     * Calculates the sum of individual costs with the priorities ({{@link Agent#priorityClass}} modifier.
      * If the priority of all agents is set to 1, this method behaves the same as {{@link #sumIndividualCosts()}}.
-     * @return sum of individual costs with the priorities ({{@link Agent#priority}} modifier
+     * @return sum of individual costs with the priorities ({{@link Agent#priorityClass}} modifier
      */
     public int sumIndividualCostsWithPriorities(){
         int SOC = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            SOC += plan.getCost() * plan.agent.priority;
+            SOC += plan.getCost() * plan.agent.priorityClass;
         }
         return SOC;
     }
@@ -237,7 +255,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
                 agentPlans.values()) {
             int freeSpaceCost = aStar.solve(instance.getSubproblemFor(plan.agent), new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP())
                     .getPlanFor(plan.agent).getCost();
-            sum += ( plan.getCost() - freeSpaceCost ) * plan.agent.priority;
+            sum += ( plan.getCost() - freeSpaceCost ) * plan.agent.priorityClass;
         }
         return sum;
     }
@@ -250,7 +268,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int SOC = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            if (plan.agent.priority == priorityLevel){
+            if (plan.agent.priorityClass == priorityLevel){
                 SOC += plan.getCost();
             }
         }

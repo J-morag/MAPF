@@ -1,16 +1,17 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.DataTypesAndStructures.MDDs;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MDDNode {
-    private List<MDDNode> neighbors;
-    private I_Location location;
-    private int depth;
-    private Agent agent;
+public class MDDNode implements Comparable<MDDNode>{
+    private final List<MDDNode> neighbors;
+    private final I_Location location;
+    private final int depth;
+    private final Agent agent;
 
     public MDDNode(MDDSearchNode current) {
         neighbors = new ArrayList<>(5); // 5 because typically we can move in 4 directions, or stay
@@ -51,7 +52,7 @@ public class MDDNode {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode() { // todo cache it?
         int result = location.hashCode();
         result = 31 * result + depth;
         result = 31 * result + agent.hashCode();
@@ -65,9 +66,8 @@ public class MDDNode {
     @Override
     public String toString() {
         return "MDDNode{" +
-                "location=" + location +
+                "location=" + location.getCoordinate() +
                 ", depth=" + depth +
-                ", agent=" + agent +
                 '}';
     }
 
@@ -81,5 +81,15 @@ public class MDDNode {
 
     public Agent getAgent() {
         return agent;
+    }
+
+    /**
+     * Doesn't obey {@link #equals(Object)}
+     * @param o the object to be compared.
+     * @return {@inheritDoc}
+     */
+    @Override
+    public int compareTo(@NotNull MDDNode o) {
+        return this.location.compareTo(o.location);
     }
 }
