@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701341527509,
+  "lastUpdate": 1701412883807,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -809,6 +809,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 3853973.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "20d7bcebf65042bf4ead398941605d659cbcabb7",
+          "message": "Prioritised Planning with Guarantees (#67)\n\n* Refactor priority order from RunParameters_PP into RunParameters\r\n\r\n* Added ICTS stress test\r\n\r\n* Created Timeout class and refactored MDD classes to use it instead of ICTS_Solver\r\n\r\n* Reduce ICTS stress test timeout\r\n\r\n* refactor/rename Heuristics, MDDs\r\n\r\n* remove DistanceTableSingleAgentHeuristicMDD and just use SingleAgentGAndH\r\n\r\n* Fix a concurrency problem with maps by delegating equality of map vertices to their coordinates, rather than using a static counter. It's possible the current implementation was needed for corridor reasoning, but I can't find where.\r\n\r\n* refactor MDDs and extend their functionality",
+          "timestamp": "2023-12-01T17:11:31+11:00",
+          "tree_id": "feedd6eda92cc27930804016f015fa8ced665306",
+          "url": "https://github.com/J-morag/MAPF/commit/20d7bcebf65042bf4ead398941605d659cbcabb7"
+        },
+        "date": 1701412882987,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3448.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 34222.766,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 5231.1177,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 7089.0586,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 3183578.8,
             "unit": "Expansions"
           }
         ]
