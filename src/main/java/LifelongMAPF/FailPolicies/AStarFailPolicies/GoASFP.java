@@ -10,7 +10,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
-import BasicMAPF.Solvers.I_OpenList;
+import BasicMAPF.DataTypesAndStructures.I_OpenList;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
 import LifelongMAPF.FailPolicies.StayFailPolicy;
 import org.jetbrains.annotations.NotNull;
