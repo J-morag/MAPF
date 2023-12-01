@@ -1,8 +1,8 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.MDDs.MDD;
-import BasicMAPF.MDDs.MDDNode;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDDNode;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;

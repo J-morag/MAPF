@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers;
+package BasicMAPF.DataTypesAndStructures;
 
 import java.util.Comparator;
 import java.util.Queue;

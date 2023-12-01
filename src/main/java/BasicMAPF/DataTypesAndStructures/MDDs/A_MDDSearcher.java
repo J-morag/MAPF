@@ -1,8 +1,9 @@
-package BasicMAPF.MDDs;
+package BasicMAPF.DataTypesAndStructures.MDDs;
 
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class A_MDDSearcher {
     protected int expandedNodesNum;
@@ -12,7 +13,7 @@ public abstract class A_MDDSearcher {
     protected I_Location target;
     protected Agent agent;
 
-    public A_MDDSearcher(Timeout timeout, I_Location source, I_Location target, Agent agent) {
+    public A_MDDSearcher(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent) {
         expandedNodesNum = 0;
         generatedNodesNum = 0;
         this.timeout = timeout;

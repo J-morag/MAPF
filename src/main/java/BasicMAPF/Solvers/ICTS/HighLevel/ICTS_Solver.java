@@ -1,9 +1,12 @@
 package BasicMAPF.Solvers.ICTS.HighLevel;
 
+import BasicMAPF.DataTypesAndStructures.MDDs.AStarFactory;
+import BasicMAPF.DataTypesAndStructures.MDDs.I_MDDSearcherFactory;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDDManager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.MDDs.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.A_Solver;
