@@ -1986,8 +1986,8 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsSelector_PIBT(){
-        int replanningPeriod = 1;
+    public static I_Solver PIBT(){
+        int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;
@@ -2044,8 +2044,8 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsSelector_PrP(){
-        int replanningPeriod = 1;
+    public static I_Solver PrP(){
+        int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;
@@ -2060,8 +2060,8 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver allAgentsSelector_PrPt(){
-        int replanningPeriod = 1;
+    public static I_Solver PrPt(){
+        int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;
@@ -2075,6 +2075,43 @@ public class LifelongSolversFactory {
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }
+
+    public static I_Solver LNS(){
+        int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new GoASFP(5);
+        LargeNeighborhoodSearch_Solver lns = new LargeNeighborhoodSearch_Solver(null, null,
+                true, false, null, null, null);
+
+        A_Solver solver = new LifelongSimulationSolver(null,
+                new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                lns, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod,
+                null);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver LNSt(){
+        int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new GoASFP(5);
+        LargeNeighborhoodSearch_Solver lns = new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null, true);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                lns, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod, null);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+
+
+
+
+
+
 
     public static I_Solver LH1_Go5ASFP_Cap18_DisallowedPartialSolution_PrP(){
         int replanningPeriod = 1;

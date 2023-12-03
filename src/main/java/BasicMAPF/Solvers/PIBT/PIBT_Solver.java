@@ -431,31 +431,31 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         Solution solution = new TransientMAPFSolution();
 
         for (Agent agent : agentPlans.keySet()) {
-            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                solvePIBT(agent, null);
-            }
+//            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+//                solvePIBT(agent, null);
+//            }
             solution.putPlan(this.agentPlans.get(agent));
         }
 
-        for (Agent agent : agentPlans.keySet()) {
-            SingleAgentPlan plan = this.agentPlans.get(agent);
-            // trim the plan to remove excess "stay" moves at the end
-
-            int lastChangedLocationTime = plan.getEndTime();
-            for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
-                if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
-                    break;
-                }
-            }
-            if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
-                SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
-                for (int t = 1; t <= lastChangedLocationTime; t++) {
-                    trimmedPlan.addMove(plan.moveAt(t));
-                }
-                solution.putPlan(trimmedPlan);
-            }
-            else solution.putPlan(this.agentPlans.get(agent));
-        }
+//        for (Agent agent : agentPlans.keySet()) {
+//            SingleAgentPlan plan = this.agentPlans.get(agent);
+//            // trim the plan to remove excess "stay" moves at the end
+//
+//            int lastChangedLocationTime = plan.getEndTime();
+//            for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
+//                if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
+//                    break;
+//                }
+//            }
+//            if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
+//                SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
+//                for (int t = 1; t <= lastChangedLocationTime; t++) {
+//                    trimmedPlan.addMove(plan.moveAt(t));
+//                }
+//                solution.putPlan(trimmedPlan);
+//            }
+//            else solution.putPlan(this.agentPlans.get(agent));
+//        }
         return solution;
     }
 

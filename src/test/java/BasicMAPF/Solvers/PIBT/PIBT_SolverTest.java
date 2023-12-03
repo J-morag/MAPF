@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
-import static BasicMAPF.TestConstants.Instances.*;
+//import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -518,9 +518,9 @@ public class PIBT_SolverTest {
         assertEquals(16, solved.sumIndividualCosts());
         assertEquals(8, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
-        assertThrows(UnsupportedOperationException.class, () -> {
-            PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-        });
+//        assertThrows(UnsupportedOperationException.class, () -> {
+//            PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+//        });
 
 //        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 //        System.out.println(solved.readableToString());

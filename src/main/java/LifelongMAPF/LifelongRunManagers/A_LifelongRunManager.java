@@ -216,10 +216,12 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
 
 
-//        solvers.add(LifelongSolversFactory.subSetSelector_PrP());
-        solvers.add(LifelongSolversFactory.allAgentsSelector_PrP());
-        solvers.add(LifelongSolversFactory.allAgentsSelector_PIBT());
-        solvers.add((LifelongSolversFactory.allAgentsSelector_PrPt()));
+        solvers.add(LifelongSolversFactory.PrP());
+        solvers.add((LifelongSolversFactory.PrPt()));
+        solvers.add(LifelongSolversFactory.PIBT());
+        solvers.add(LifelongSolversFactory.LNS());
+        solvers.add(LifelongSolversFactory.LNSt());
+
 //        solvers.add(LifelongSolversFactory.subSetSelector_PIBT());
 
 //        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_infiniteHorizon_PIBT());
@@ -230,8 +232,8 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_DisallowedPartialSolution_PrP());
 
 
-        solvers.add(LifelongSolversFactory.simplePrP_infHorizon());
-        solvers.add(LifelongSolversFactory.simpleLNS_infHorizon());
+//        solvers.add(LifelongSolversFactory.simplePrP_infHorizon());
+//        solvers.add(LifelongSolversFactory.simpleLNS_infHorizon());
         return solvers;
     }
 
