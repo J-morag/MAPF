@@ -67,7 +67,6 @@ public class LaCAM_Solver extends A_Solver {
         super.init(instance, parameters);
         this.open = new Stack<>();
         this.explored = new HashMap<>();
-        this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
         this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
         this.agents = new HashMap<>();
@@ -75,6 +74,14 @@ public class LaCAM_Solver extends A_Solver {
 
         // init agent's priority to unique number
         initPriority(instance);
+
+        // distance between every vertex in the graph to each agent's goal
+        if (parameters.aStarGAndH instanceof DistanceTableAStarHeuristic) {
+            this.heuristic = (DistanceTableAStarHeuristic) parameters.aStarGAndH;
+        }
+        else {
+            this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
+        }
     }
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
@@ -101,7 +108,7 @@ public class LaCAM_Solver extends A_Solver {
                 return backTrack(N, instance);
             }
 
-            // low level search end
+            // finished low level search
             if (N.tree.isEmpty()) {
                 this.open.pop();
                 continue;
