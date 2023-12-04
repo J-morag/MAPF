@@ -14,6 +14,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import Environment.Metrics.InstanceReport;
+import TransientMAPF.TransientMAPFSolution;
 import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
@@ -58,9 +59,21 @@ public class LaCAM_Solver extends A_Solver {
      */
     private final I_SolutionCostFunction solutionCostFunction;
 
-    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction) {
-        super.name = "LaCAM";
+    /**
+     * boolean indicated whether the solution returned by the algorithm is transient.
+     */
+    private Boolean transientMAPFGoalCondition;
+
+
+    /**
+     * Constructor.
+     * @param solutionCostFunction how to calculate the cost of a solution
+     * @param transientMAPFGoalCondition indicates whether to solve transient-MAPF.
+     */
+    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, Boolean transientMAPFGoalCondition) {
+        this.transientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        super.name = "LaCAM" + (this.transientMAPFGoalCondition ? "t" : "");
     }
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
@@ -92,10 +105,9 @@ public class LaCAM_Solver extends A_Solver {
             this.agents.put(agent.iD, agent);
         }
         LowLevelNode C_init = new LowLevelNode(null, null, null);
-        HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, get_init_order(instance.agents, instance.map), null);
+        HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, get_init_order(instance.agents, instance.map), null, null);
         this.open.push(N_init);
         this.explored.put(initialConfiguration, N_init);
-
 
         while (!this.open.empty()) {
             if (checkTimeout()) {
@@ -104,7 +116,7 @@ public class LaCAM_Solver extends A_Solver {
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
-            if (reachedGoalConfiguration(N.configuration)) {
+            if (reachedGoalConfiguration(N.configuration, N)) {
                 return backTrack(N, instance);
             }
 
@@ -147,7 +159,17 @@ public class LaCAM_Solver extends A_Solver {
                 continue;
             }
 
-            HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, getOrder(newConfiguration, N, instance.map), N);
+            HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, getOrder(newConfiguration, N, instance.map), N, N.reachedGoalsMap);
+
+            // update reachedGoalMap according to new configuration
+            for (Map.Entry<Integer, Boolean> entry : N_new.reachedGoalsMap.entrySet()) {
+                Integer agentID = entry.getKey();
+                Boolean reachedGoal = entry.getValue();
+                if (!reachedGoal && newConfiguration.get(agentID).getCoordinate().equals(this.agents.get(agentID).target)) {
+                    N.reachedGoalsMap.put(agentID, true);
+                }
+            }
+
             this.open.push(N_new);
             this.explored.put(newConfiguration, N_new);
         }
@@ -159,12 +181,21 @@ public class LaCAM_Solver extends A_Solver {
      * @param configuration to check whether it's the goal.
      * @return boolean. true if configurations is the goal configuration, false otherwise.
      */
-    private boolean reachedGoalConfiguration(HashMap<Integer, I_Location> configuration) {
-        for (Map.Entry<Integer, I_Location> entry : configuration.entrySet()) {
-            I_Location currentLocation = entry.getValue();
-            I_Location goalLocation = this.goalConfiguration.get(entry.getKey());
-            if (!(currentLocation.equals(goalLocation))) {
-                return false;
+    private boolean reachedGoalConfiguration(HashMap<Integer, I_Location> configuration, HighLevelNode N) {
+        if (!this.transientMAPFGoalCondition) {
+            for (Map.Entry<Integer, I_Location> entry : configuration.entrySet()) {
+                I_Location currentLocation = entry.getValue();
+                I_Location goalLocation = this.goalConfiguration.get(entry.getKey());
+                if (!(currentLocation.equals(goalLocation))) {
+                    return false;
+                }
+            }
+        }
+        else {
+            for (Boolean reachedGoal : N.reachedGoalsMap.values()) {
+                if (!reachedGoal) {
+                    return false;
+                }
             }
         }
         return true;
@@ -279,15 +310,14 @@ public class LaCAM_Solver extends A_Solver {
      * @return Solution for the MAPF problem.
      */
     private Solution backTrack(HighLevelNode N, MAPF_Instance instance) {
-        Solution solution = new Solution();
         HashMap<Agent, SingleAgentPlan> agentPlans = new HashMap<>();
-
         for (Agent agent : instance.agents) {
             agentPlans.put(agent, new SingleAgentPlan(agent));
         }
 
         Stack<HashMap<Integer, I_Location>> configurationsInReverse = new Stack<>();
         configurationsInReverse.push(N.configuration);
+
         while (N.parent != null) {
             configurationsInReverse.push(N.parent.configuration);
             N = N.parent;
@@ -306,6 +336,14 @@ public class LaCAM_Solver extends A_Solver {
                 Move newMove = new Move(agent, timeStamp, currentLocation, nextLocation);
                 agentPlans.get(agent).addMove(newMove);
             }
+        }
+
+        Solution solution;
+        if (this.transientMAPFGoalCondition) {
+            solution = new TransientMAPFSolution();
+        }
+        else {
+            solution = new Solution();
         }
 
         for (Agent agent : instance.agents) {

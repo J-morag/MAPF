@@ -14,12 +14,23 @@ public class HighLevelNode {
 
     public ArrayList<Agent> order;
     public HighLevelNode parent;
+    public HashMap<Integer, Boolean> reachedGoalsMap;
 
-    public HighLevelNode(HashMap<Integer, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HighLevelNode parent) {
+    public HighLevelNode(HashMap<Integer, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HighLevelNode parent, HashMap<Integer, Boolean> reachedGoalsMap) {
         this.configuration = configuration;
         this.tree = new LinkedList<>();
         this.tree.add(root);
         this.order = order;
         this.parent = parent;
+        if (reachedGoalsMap == null) {
+            this.reachedGoalsMap = new HashMap<>();
+            for (Integer agentID : this.configuration.keySet()) {
+                this.reachedGoalsMap.put(agentID, false);
+            }
+        }
+        else {
+            this.reachedGoalsMap = reachedGoalsMap;
+        }
+
     }
 }

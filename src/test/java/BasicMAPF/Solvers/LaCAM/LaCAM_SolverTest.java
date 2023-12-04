@@ -60,12 +60,7 @@ public class LaCAM_SolverTest {
 
     private final MAPF_Instance instanceConnectorShapedMap = new MAPF_Instance("instanceConnectorShapedMap", mapConnector, new Agent[]{agent00to65, agent65to00, agent10to33, agent55to32, agent01to44, agent64to22});
 
-
-
-
-
-
-    I_Solver LaCAM_Solver = new LaCAM_Solver(null);
+    I_Solver LaCAM_Solver = new LaCAM_Solver(null, null);
 
     long timeout = 10*1000;
 
@@ -370,7 +365,7 @@ public class LaCAM_SolverTest {
 //                null, new RestartsStrategy(), null, null, null);
 //        String namePrP = PrPSolver.name();
 
-        I_Solver LaCAMSolver = new LaCAM_Solver(null);
+        I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
         String nameLaCAM = LaCAMSolver.name();
 
         I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false, null);
