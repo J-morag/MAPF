@@ -45,4 +45,6 @@ public abstract class A_MDDSearcher {
      * @return the goal state, which can easily be transferred to an MDD
      */
     public abstract MDD continueSearching(int depthOfSolution);
+
+    public abstract MDD searchToFirstSolution();
 }

@@ -51,6 +51,9 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     }
 
     private void initializeSearch() {
+        initOpenList();
+        contentOfOpen = new HashMap<>();
+        closeList = new HashMap<>();
         MDDSearchNode start = new MDDSearchNode(agent, super.getSource(), 0, heuristic.getHToTargetFromLocation(agent.target, super.getSource()));
         addToOpen(start);
     }
@@ -85,10 +88,9 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     @Override
     public MDD continueSearching(int depthOfSolution) {
         this.maxDepthOfSolution = depthOfSolution;
-        initOpenList();
-        contentOfOpen = new HashMap<>();
-        closeList = new HashMap<>();
-        initializeSearch();
+        if (openList == null){
+            initializeSearch();
+        }
 
         MDDSearchNode goal = null;
         while(!isOpenEmpty()){
@@ -96,12 +98,16 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                 return null;
             MDDSearchNode current = pollFromOpen();
             expandedNodesNum++;
-            if(current.getF() > depthOfSolution)
+            if(depthOfSolution > -1 && current.getF() > depthOfSolution)
             {
                 addToOpen(current);
                 break;
             }
             if(isGoalState(current)){
+                if (depthOfSolution == -1) {
+                    depthOfSolution = current.getG();
+                    this.maxDepthOfSolution = depthOfSolution;
+                }
                 if(current.getG() == depthOfSolution){
                     if(goal == null){
                         goal = current;
@@ -116,22 +122,18 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                         }
                     }
                 }
-                /*  it is logical, because of the DFS who extends AStar
-                else{
-
-                    try {
-                        throw new Exception("It is not logical that we will receive a different goal in a different depth");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                */
             }
             // Don't do else here, because we want to add the sons of current to the open list for later
             expand(current);
         }
-        releaseMemory();
         return goal == null ? null : new MDD(goal);
+    }
+
+    @Override
+    public MDD searchToFirstSolution() {
+        if (openList != null)
+            throw new IllegalStateException("should not search for first solution on a searcher that has already been used");
+        return continueSearching(-1);
     }
 
     protected void releaseMemory() {

@@ -36,10 +36,10 @@ public class DFSMDDBuilder extends AStarMDDBuilder {
 
     @Override
     protected void addToOpen(MDDSearchNode node) {
-        if(node.getF() > maxDepthOfSolution)
+        if(node.getF() > maxDepthOfSolution) // doesn't this mean we miss solutions when continuing later?
             return;
         if(contentOfOpen.containsKey(node)){
-            //Do not add this node twice to the open list, just add it's parents to the already "inOpen" node.
+            //Do not add this node twice to the open list, just add its parents to the already "inOpen" node.
             MDDSearchNode inOpen = contentOfOpen.get(node);
             inOpen.addParents(node.getParents());
         }

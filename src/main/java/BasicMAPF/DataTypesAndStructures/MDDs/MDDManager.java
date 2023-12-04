@@ -6,6 +6,8 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.apache.commons.lang3.NotImplementedException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,13 +62,7 @@ public class MDDManager {
 
     public MDD getMinMDDNoReuse(I_Location source, I_Location target, Agent agent, int depth){
         A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
-        // todo implement
-        // todo test
-        throw new NotImplementedException("todo");
-//        MDD result = searcher.continueSearching(depth);
-//        this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
-//        this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();
-//        return result;
+        return searcher.searchToFirstSolution();
     }
 
     public MDD getMinMDDUnderConstraints(I_Location source, I_Location target, Agent agent, ConstraintSet constraints){
