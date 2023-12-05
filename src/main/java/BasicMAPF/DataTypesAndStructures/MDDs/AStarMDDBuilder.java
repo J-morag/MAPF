@@ -4,8 +4,8 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -21,8 +21,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     protected Map<MDDSearchNode, MDDSearchNode> closeList;
     private final SingleAgentGAndH heuristic;
     protected int maxDepthOfSolution;
-    private boolean disappearAtGoal = false;
-    protected DisappearAtGoalFilter disappearAtGoalFilter = new DisappearAtGoalFilter();
+    protected final ConstraintSet constraints = null;
 
     /**
      * Constructor for the AStar searcher
@@ -30,20 +29,8 @@ public class AStarMDDBuilder extends A_MDDSearcher {
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
     public AStarMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic) {
-        this(timeout, source, target, agent, heuristic, null);
-    }
-
-    /**
-     * Constructor for the AStar searcher
-     *
-     * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
-     */
-    public AStarMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic,
-                           @Nullable Boolean disappearAtGoal) {
         super(timeout, source, target, agent);
         this.heuristic = heuristic;
-        this.disappearAtGoalFilter.target = target;
-        this.disappearAtGoal = Objects.requireNonNullElse(disappearAtGoal, false);
     }
 
     protected void initOpenList(){
@@ -123,7 +110,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                     }
                 }
             }
-            // Don't do else here, because we want to add the sons of current to the open list for later
+            // Don't do else here, because we want to add the sons of current to the open list for later even if it is a goal
             expand(current);
         }
         return goal == null ? null : new MDD(goal);
@@ -148,10 +135,6 @@ public class AStarMDDBuilder extends A_MDDSearcher {
 
     protected void expand(MDDSearchNode node){
         List<I_Location> neighborLocations = node.getNeighborLocations();
-        if (disappearAtGoal && node.getG() + 1 < maxDepthOfSolution){
-            // filter neighbors. Only allow generation of goal node if the goal node is at the target depth.
-            neighborLocations.removeIf(disappearAtGoalFilter);
-        }
         for (I_Location location : neighborLocations) {
             MDDSearchNode neighbor = new MDDSearchNode(agent, location, node.getG() + 1, heuristic.getHToTargetFromLocation(agent.target, location));
             neighbor.addParent(node);

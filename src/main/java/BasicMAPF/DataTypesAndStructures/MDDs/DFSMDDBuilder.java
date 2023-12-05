@@ -5,28 +5,16 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Stack;
 
 public class DFSMDDBuilder extends AStarMDDBuilder {
     private Stack<MDDSearchNode> openList;
     /**
-     * Constructor for the AStar searcher
-     *
-     * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
+     * {@inheritDoc}
      */
     public DFSMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic) {
         super(timeout, source, target, agent, heuristic);
-    }
-    /**
-     * Constructor for the AStar searcher
-     *
-     * @param heuristic         - the heuristics table that will enable us to get a more accurate heuristic
-     */
-    public DFSMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target,
-                         @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic, @Nullable Boolean disappearAtGoal) {
-        super(timeout, source, target, agent, heuristic, disappearAtGoal);
     }
 
     @Override

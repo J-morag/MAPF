@@ -16,7 +16,6 @@ import static BasicMAPF.TestConstants.Instances.instanceEmpty1;
 import static BasicMAPF.TestConstants.Instances.instanceSmallMaze;
 import static BasicMAPF.TestConstants.Maps.mapWithPocket;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.apache.commons.math3.util.CombinatoricsUtils.factorial;
 
 class AStarMDDBuilderTest {
 
