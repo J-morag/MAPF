@@ -342,6 +342,10 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return agentPlans.hashCode();
     }
 
+    public boolean contains(Agent agent) {
+        return this.agentPlans.containsKey(agent);
+    }
+
     /*  = Iterator Interface =  */
 
     @Override

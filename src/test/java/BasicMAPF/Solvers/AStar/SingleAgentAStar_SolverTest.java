@@ -6,8 +6,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
-import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
@@ -336,8 +335,8 @@ class SingleAgentAStar_SolverTest {
         Random rand = new Random();
         rand.setSeed(10);
         ConstraintSet constraints = new ConstraintSet();
-        Set<I_Location> checkDuplicates = new HashSet<I_Location>();
-        for (int t = 1; t <= 30; t++) {
+        Set<I_Location> checkDuplicates = new HashSet<>();
+        for (int t = 1; t <= 3000; t++) {
             for (int j = 0; j < 10; j++) {
                 I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
                 if (checkDuplicates.contains(randomLocation)){
@@ -348,7 +347,7 @@ class SingleAgentAStar_SolverTest {
                 Constraint constraint = new Constraint(agent, t, null, randomLocation);
                 constraints.add(constraint);
             }
-            checkDuplicates = new HashSet<I_Location>();
+            checkDuplicates = new HashSet<>();
         }
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
@@ -536,7 +535,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal3);
 
         RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
-        runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
         System.out.println(solved1.getPlanFor(agent));
@@ -562,7 +561,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoalAroundGoal2);
 
         RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
-        runParameters.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(agent.target));
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
         System.out.println(solved1.getPlanFor(agent));

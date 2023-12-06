@@ -69,9 +69,8 @@ class MDDTest {
         I_Map map = mapWithPocket;
         SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33, agent33to12), map);
 
-        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
-                map.getMapLocation(agent12to33.target), agent12to33, heuristic);
-        MDD mdd1 = searcher1.continueSearching(3);
+        MDD mdd1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic).continueSearching(3);
 
         // line
         assertEquals(3, mdd1.getDepth());
@@ -92,7 +91,8 @@ class MDDTest {
         }
 
         // line + all waiting options
-        mdd1 = searcher1.continueSearching(4);
+        mdd1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic).continueSearching(4);
         assertEquals(4, mdd1.getDepth());
         System.out.println(mdd1.getLevel(1));
         assertEquals(2, mdd1.getLevel(1).size());
@@ -113,7 +113,8 @@ class MDDTest {
         }
 
         // line + all waiting options x2 and small detours
-        mdd1 = searcher1.continueSearching(5);
+        mdd1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic).continueSearching(5);
         assertEquals(5, mdd1.getDepth());
         System.out.println(mdd1.getLevel(1));
         assertEquals(4, mdd1.getLevel(1).size());
@@ -140,9 +141,8 @@ class MDDTest {
         I_Map map = mapWithPocket;
         SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent33to12), map);
 
-        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent33to12.source),
-                map.getMapLocation(agent33to12.target), agent33to12, heuristic);
-        MDD mdd1 = searcher1.continueSearching(3);
+        MDD mdd1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent33to12.source),
+                map.getMapLocation(agent33to12.target), agent33to12, heuristic).continueSearching(3);
 
         // line
         assertEquals(3, mdd1.getDepth());
@@ -163,7 +163,8 @@ class MDDTest {
         }
 
         // line + all waiting options
-        mdd1 = searcher1.continueSearching(4);
+        mdd1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent33to12.source),
+                map.getMapLocation(agent33to12.target), agent33to12, heuristic).continueSearching(4);
         assertEquals(4, mdd1.getDepth());
         System.out.println(mdd1.getLevel(1));
         assertEquals(2, mdd1.getLevel(1).size());
@@ -184,7 +185,8 @@ class MDDTest {
         }
 
         // line + all waiting options x2 and small detours
-        mdd1 = searcher1.continueSearching(5);
+        mdd1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent33to12.source),
+                map.getMapLocation(agent33to12.target), agent33to12, heuristic).continueSearching(5);
         assertEquals(5, mdd1.getDepth());
         System.out.println(mdd1.getLevel(1));
         assertEquals(4, mdd1.getLevel(1).size());

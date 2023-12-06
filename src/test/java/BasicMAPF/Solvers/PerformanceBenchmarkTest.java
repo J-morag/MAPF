@@ -73,6 +73,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void AStarStressTest() {
+        // todo add constraints because this is too easy and not representative of the real use case
         I_Solver solver = new SingleAgentAStar_Solver();
         long timeout = 1000 * 10;
         int numAgents = 1;
