@@ -94,7 +94,7 @@ public class ConstraintSet{
     /**
      * @return the time of the last constraint. If it is a goal constraint (infinite), return the time when it starts
      */
-    public int getLastConstraintTime(){
+    public int getLastConstraintStartTime(){
         return this.lastConstraintTime;
     }
 
@@ -227,7 +227,9 @@ public class ConstraintSet{
      *
      * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
      * @param finalMove a move to occupy a location indefinitely.
-     * @return the *last* time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
+     * @return the *last* time when a constraint would eventually reject a "stay" move at the given move's location;
+     * Specifically, would return {@link Integer#MAX_VALUE} if there is an infinite (target/goal) constraint on the location;
+     * -1 if never rejected.
      */
     public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
         return firstOrLastRejectionTime(finalMove, checkOtherAgentsLastMoves, false);
@@ -273,7 +275,8 @@ public class ConstraintSet{
             for (I_Location loc : goalConstraints.keySet()){
                 if (loc.equals(finalMove.currLocation)){ // any two constraints that are infinite in time will eventually conflict
                     GoalConstraint constraint = this.goalConstraints.get(loc);
-                    rejectionTime = constraint.time;
+                    if (first) rejectionTime = Math.min(rejectionTime, Math.max(constraint.time, finalMove.timeNow));
+                    else return Integer.MAX_VALUE; // it rejects to infinity
                 }
             }
         }

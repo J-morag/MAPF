@@ -149,6 +149,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         if (!initOpen()) return null;
 
         AStarState currentState;
+        int lastRejectionTime = 0;
 
         while ((currentState = openList.poll()) != null){ //dequeu in the while condition
             if(checkTimeout()) {return null;}
@@ -160,15 +161,17 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if (isGoalState(currentState)){
                 // check to see if a rejecting constraint on the goal's location exists at some point in the future,
                 // which would mean we can't finish the plan there and stay forever
-                // TODO move caching responsibility inside the data structure.
-                //  And then this should be checked preemptively in the expand function, where other constraints are checked.
+                // TODO improve the data structure so that it can answer this query quickly, then we won't need to cache locally.
                 //  Also, this doesn't support multiple possible goal locations. But I guess nothing really does.
-                int firstRejectionAtLocationTime = agentsStayAtGoal ?
-                        constraints.rejectsEventually(currentState.move,
-                                goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
-                        : -1;
+                if (lastRejectionTime == 0 || // uninitialized
+                        goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) { // for PIBT style (Transient MAPF) paths. May try to stop forever to different locations so caching is more complicated. todo improve caching for this case?
+                    lastRejectionTime = agentsStayAtGoal ?
+                            constraints.lastRejectionTime(currentState.move,
+                                    goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
+                            : -1;
+                }
 
-                if(firstRejectionAtLocationTime == -1){ // no rejections
+                if(lastRejectionTime < currentState.move.timeNow){ // no rejections
                     // update this.existingPlan which is contained in this.existingSolution
                     currentState.backTracePlan(this.existingPlan);
                     return this.existingSolution; // the goal is good, and we can return the plan.
@@ -229,7 +232,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(state.move.currLocation.outgoingEdges());
         // no point to do stay moves or search the time dimension after the time of last constraint.
         // this makes A* complete even when there are goal constraints (infinite constraints)
-        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintTime();
+        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintStartTime();
         if (!afterLastConstraint &&
                 !state.move.currLocation.getType().equals(Enum_MapLocationType.NO_STOP)) { // can't stay on NO_STOP
             neighborLocationsIncludingCurrent.add(state.move.currLocation);
