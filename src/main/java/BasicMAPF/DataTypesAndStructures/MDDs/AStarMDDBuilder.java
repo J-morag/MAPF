@@ -1,17 +1,20 @@
 package BasicMAPF.DataTypesAndStructures.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
 
 public class AStarMDDBuilder extends A_MDDSearcher {
 
+    private static final int PLAN_START_TIME = 0;
     private Queue<MDDSearchNode> openList;
     /**
      * The key will not be updated, although, the value will be the last version of this node.
@@ -21,14 +24,15 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     protected Map<MDDSearchNode, MDDSearchNode> closeList;
     private final SingleAgentGAndH heuristic;
     protected int maxDepthOfSolution;
-    protected final ConstraintSet constraints = null;
+    protected ConstraintSet constraints;
 
     /**
      * Constructor for the AStar searcher
      *
      * @param heuristic - the heuristics table that will enable us to get a more accurate heuristic
      */
-    public AStarMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic) {
+    public AStarMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target,
+                           @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic) {
         super(timeout, source, target, agent);
         this.heuristic = heuristic;
     }
@@ -91,6 +95,15 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                 break;
             }
             if(isGoalState(current)){
+                // todo cache result to avoid repeated calls or improve performance of this call in ConstraintSet
+                int lastRejectionAtTargetTime = constraints == null ? -1 :
+                        constraints.lastRejectionTime(new Move(current.getAgent(), nodeTime(current),
+                                        current.getParents() == null ? current.getLocation() : current.getParents().get(0).getLocation(),
+                                        current.getLocation()), false);
+                if (lastRejectionAtTargetTime >= nodeTime(current)){
+                    continue;
+                }
+
                 if (depthOfSolution == -1) {
                     depthOfSolution = current.getG();
                     this.maxDepthOfSolution = depthOfSolution;
@@ -116,11 +129,18 @@ public class AStarMDDBuilder extends A_MDDSearcher {
         return goal == null ? null : new MDD(goal);
     }
 
+    private int nodeTime(MDDSearchNode current) {
+        return PLAN_START_TIME + current.getG();
+    }
+
     @Override
-    public MDD searchToFirstSolution() {
+    public MDD searchToFirstSolution(@Nullable ConstraintSet constraints) {
         if (openList != null)
             throw new IllegalStateException("should not search for first solution on a searcher that has already been used");
-        return continueSearching(-1);
+        this.constraints = constraints;
+        MDD res = continueSearching(-1);
+        this.constraints = null;
+        return res;
     }
 
     protected void releaseMemory() {
@@ -136,7 +156,12 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     protected void expand(MDDSearchNode node){
         List<I_Location> neighborLocations = node.getNeighborLocations();
         for (I_Location location : neighborLocations) {
-            MDDSearchNode neighbor = new MDDSearchNode(agent, location, node.getG() + 1, heuristic.getHToTargetFromLocation(agent.target, location));
+            int newG = node.getG() + 1;
+            if (constraints != null &&
+                    // todo profile Move creation impact
+                    constraints.rejects(new Move(agent, PLAN_START_TIME + newG, node.getLocation(), location)))
+                continue;
+            MDDSearchNode neighbor = new MDDSearchNode(agent, location, newG, heuristic.getHToTargetFromLocation(agent.target, location));
             neighbor.addParent(node);
             addToOpen(neighbor);
         }

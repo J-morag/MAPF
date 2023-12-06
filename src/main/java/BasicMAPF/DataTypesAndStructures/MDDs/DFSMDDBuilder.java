@@ -13,7 +13,8 @@ public class DFSMDDBuilder extends AStarMDDBuilder {
     /**
      * {@inheritDoc}
      */
-    public DFSMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic) {
+    public DFSMDDBuilder(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target,
+                         @NotNull Agent agent, @NotNull SingleAgentGAndH heuristic) {
         super(timeout, source, target, agent, heuristic);
     }
 

@@ -111,8 +111,13 @@ public class ImmutableConstraintSet extends ConstraintSet {
     }
 
     @Override
-    public int rejectsEventually(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.rejectsEventually(finalMove, checkOtherAgentsLastMoves);
+    public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
+        return constraintSet.firstRejectionTime(finalMove, checkOtherAgentsLastMoves);
+    }
+
+    @Override
+    public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
+        return super.lastRejectionTime(finalMove, checkOtherAgentsLastMoves);
     }
 
     @Override

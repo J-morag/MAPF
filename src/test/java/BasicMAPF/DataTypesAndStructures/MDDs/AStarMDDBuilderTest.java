@@ -6,14 +6,19 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static BasicMAPF.TestConstants.Agents.agent12to33;
 import static BasicMAPF.TestConstants.Agents.agent33to12;
+import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Instances.instanceEmpty1;
 import static BasicMAPF.TestConstants.Instances.instanceSmallMaze;
+import static BasicMAPF.TestConstants.Maps.mapEmpty;
 import static BasicMAPF.TestConstants.Maps.mapWithPocket;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -427,7 +432,7 @@ class AStarMDDBuilderTest {
                 map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
         MDD mdd;
 
-        mdd = builder.searchToFirstSolution();
+        mdd = builder.searchToFirstSolution(null);
         System.out.println("mdd: " + mdd);
         System.out.println("mdd.getDepth(): " + mdd.getDepth());
         System.out.println("minDepth: " + minDepth);
@@ -446,7 +451,7 @@ class AStarMDDBuilderTest {
                 map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
         MDD mdd;
 
-        mdd = builder.searchToFirstSolution();
+        mdd = builder.searchToFirstSolution(null);
         System.out.println("mdd: " + mdd);
         System.out.println("mdd.getDepth(): " + mdd.getDepth());
         System.out.println("minDepth: " + minDepth);
@@ -465,10 +470,197 @@ class AStarMDDBuilderTest {
                 map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
         MDD mdd;
 
-        mdd = builder.searchToFirstSolution();
+        mdd = builder.searchToFirstSolution(null);
         System.out.println("mdd: " + mdd);
         System.out.println("mdd.getDepth(): " + mdd.getDepth());
         System.out.println("minDepth: " + minDepth);
         assertEquals(minDepth, mdd.getDepth());
+    }
+
+    @Test
+    void searchToFirstSolutionWithConstraints1() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 1, map.getMapLocation(coor22)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(minDepth, mdd.getDepth()); // should be same depth still
+    }
+
+    @Test
+    void searchToFirstSolutionWithConstraints2() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 1, map.getMapLocation(coor22)));
+        constraints.add(new Constraint(agent, 1, map.getMapLocation(coor13)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(minDepth + 1, mdd.getDepth());
+    }
+
+    @Test
+    void searchToFirstSolutionWithConstraints3() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 1, map.getMapLocation(coor22)));
+        constraints.add(new Constraint(agent, 2, map.getMapLocation(coor23)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(minDepth + 1, mdd.getDepth());
+    }
+
+    @Test
+    void searchToFirstSolutionWithConstraintOnGoal() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 3, map.getMapLocation(coor33)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(minDepth + 1, mdd.getDepth());
+    }
+
+    @Test
+    void searchToFirstSolutionWithConstraintOnGoalLater() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 5, map.getMapLocation(coor33)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(6, mdd.getDepth());
+    }
+
+    @Test
+    void searchToFirstSolutionWithMultipleConstraintsOnGoalEarlierAndLater() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 2, map.getMapLocation(coor33)));
+        constraints.add(new Constraint(agent, 5, map.getMapLocation(coor33)));
+        constraints.add(new Constraint(agent, 7, map.getMapLocation(coor33)));
+        constraints.add(new Constraint(agent, 10, map.getMapLocation(coor33)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(11, mdd.getDepth());
+    }
+
+    @Test
+    void searchToFirstSolutionWithMultipleConstraints1() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+
+        constraints.add(new Constraint(agent, 1, map.getMapLocation(coor22)));
+        constraints.add(new Constraint(agent, 2, map.getMapLocation(coor23)));
+
+        constraints.add(new Constraint(agent, 2, map.getMapLocation(coor33)));
+        constraints.add(new Constraint(agent, 5, map.getMapLocation(coor33)));
+        constraints.add(new Constraint(agent, 10, map.getMapLocation(coor33)));
+
+        constraints.add(new Constraint(agent, 11, map.getMapLocation(coor23)));
+        constraints.add(new Constraint(agent, 11, map.getMapLocation(coor34)));
+        constraints.add(new Constraint(agent, 11, map.getMapLocation(coor32)));
+        constraints.add(new Constraint(agent, 11, map.getMapLocation(coor43)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(11, mdd.getDepth());
+    }
+
+    @Test
+    void searchToFirstSolutionWithMultipleConstraints2() {
+        I_Map map = mapEmpty;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(Collections.singletonList(agent12to33), map);
+        Agent agent = agent12to33;
+        int minDepth = (int)heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+
+        AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+        MDD mdd;
+        ConstraintSet constraints = new ConstraintSet();
+
+        constraints.add(new Constraint(agent, 1, map.getMapLocation(coor22)));
+        constraints.add(new Constraint(agent, 2, map.getMapLocation(coor23)));
+
+        constraints.add(new Constraint(agent, 2, map.getMapLocation(coor33)));
+        constraints.add(new Constraint(agent, 5, map.getMapLocation(coor33)));
+        constraints.add(new Constraint(agent, 10, map.getMapLocation(coor33)));
+
+        constraints.add(new Constraint(agent, 10, map.getMapLocation(coor23)));
+        constraints.add(new Constraint(agent, 10, map.getMapLocation(coor34)));
+        constraints.add(new Constraint(agent, 10, map.getMapLocation(coor32)));
+        constraints.add(new Constraint(agent, 10, map.getMapLocation(coor43)));
+
+        mdd = builder.searchToFirstSolution(constraints);
+        System.out.println("mdd: " + mdd);
+        System.out.println("mdd.getDepth(): " + mdd.getDepth());
+        System.out.println("minDepth: " + minDepth);
+        assertEquals(12, mdd.getDepth());
     }
 }

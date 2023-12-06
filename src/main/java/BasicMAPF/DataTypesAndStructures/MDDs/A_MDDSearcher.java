@@ -3,7 +3,9 @@ package BasicMAPF.DataTypesAndStructures.MDDs;
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class A_MDDSearcher {
     protected int expandedNodesNum;
@@ -46,5 +48,5 @@ public abstract class A_MDDSearcher {
      */
     public abstract MDD continueSearching(int depthOfSolution);
 
-    public abstract MDD searchToFirstSolution();
+    public abstract MDD searchToFirstSolution(@Nullable ConstraintSet constraints);
 }

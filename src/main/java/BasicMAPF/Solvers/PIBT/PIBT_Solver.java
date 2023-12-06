@@ -393,7 +393,7 @@ public class PIBT_Solver extends A_Solver {
         Solution solution = new TransientMAPFSolution();
 
         for (Agent agent : agentPlans.keySet()) {
-            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+            while (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 solvePIBT(agent, null);
             }
             solution.putPlan(this.agentPlans.get(agent));

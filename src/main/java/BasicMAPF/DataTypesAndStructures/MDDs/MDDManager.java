@@ -60,20 +60,12 @@ public class MDDManager {
         return result;
     }
 
-    public MDD getMinMDDNoReuse(I_Location source, I_Location target, Agent agent, int depth){
+    public MDD getMinMDDNoReuse(@NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @Nullable ConstraintSet constraints){
         A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
-        return searcher.searchToFirstSolution();
-    }
-
-    public MDD getMinMDDUnderConstraints(I_Location source, I_Location target, Agent agent, ConstraintSet constraints){
-        A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
-        // todo implement
-        // todo test
-        throw new NotImplementedException("todo");
-//        MDD result = searcher.continueSearching(depth);
-//        this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
-//        this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();
-//        return result;
+        MDD result = searcher.searchToFirstSolution(constraints);
+        this.expandedLowLevelNodes += searcher.getExpandedNodesNum();
+        this.generatedLowLevelNodes += searcher.getGeneratedNodesNum();
+        return result;
     }
 
     public int getExpandedNodesNum(){

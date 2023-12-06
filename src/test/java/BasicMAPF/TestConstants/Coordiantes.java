@@ -8,6 +8,7 @@ public class Coordiantes {
     public final static I_Coordinate coor13 = new Coordinate_2D(1,3);
     public final static I_Coordinate coor14 = new Coordinate_2D(1,4);
     public final static I_Coordinate coor22 = new Coordinate_2D(2,2);
+    public final static I_Coordinate coor23 = new Coordinate_2D(2,3);
     public final static I_Coordinate coor24 = new Coordinate_2D(2,4);
     public final static I_Coordinate coor32 = new Coordinate_2D(3,2);
     public final static I_Coordinate coor33 = new Coordinate_2D(3,3);

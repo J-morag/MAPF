@@ -18,7 +18,8 @@ public class ConstraintSet{
      * Basically a dictionary from [time,location] to agents who can't go there at that time, and locations from which
      * they can't go there at that time.
      */
-    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
+    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>(); // todo lists instead of sets?
+//    protected final Map<I_Location, List<Constraint>> timeSortedConstraintsAtLocation = new HashMap<>(); // todo implement. Or only keep last and forgo ability to remove constraints??
 
     /**
      * Goal constraints. Locations in this collection are reserved starting from the constraint's time, indefinitely.
@@ -151,7 +152,7 @@ public class ConstraintSet{
             throw new UnsupportedOperationException();
         }
         else if (constraint instanceof  GoalConstraint){
-            while (this.goalConstraints.values().remove(constraint));
+            while (this.goalConstraints.values().remove(constraint)); // todo check
         }
         else { // regular constraint
             I_ConstraintGroupingKey dummy = createDummy(constraint);
@@ -226,11 +227,30 @@ public class ConstraintSet{
      *
      * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
      * @param finalMove a move to occupy a location indefinitely.
-     * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
+     * @return the *last* time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
      */
-    public int rejectsEventually(Move finalMove, boolean checkOtherAgentsLastMoves){
-        int firstRejectionTime = Integer.MAX_VALUE;
+    public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
+        return firstOrLastRejectionTime(finalMove, checkOtherAgentsLastMoves, false);
+    }
+
+    /**
+     * Given a {@link Move} which an {@link Agent agent} makes to occupy a {@link I_Location location}
+     * indefinitely starting after move's time, checks if there is a {@link Constraint} that would reject it eventually.
+     *
+     * In other words, we simulate this set being given an infinite number of "stay" moves after the given move.
+     *
+     * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
+     * @param finalMove a move to occupy a location indefinitely.
+     * @return the *first* time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
+     */
+    public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
+        return firstOrLastRejectionTime(finalMove, checkOtherAgentsLastMoves, true);
+    }
+
+    protected int firstOrLastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves, boolean first){
+        int rejectionTime = first ? Integer.MAX_VALUE : -1;
         // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
+        //  Or a map from location to the time of the last constraint on it!.
         // traverses the entire data structure. expensive.
         for (I_ConstraintGroupingKey cw : constraints.keySet()) {
             // if found constraint for this location, sometime in the future. Should be rare.
@@ -240,8 +260,8 @@ public class ConstraintSet{
                     // In practice, this should happen very rarely, so not very expensive.
                     int constraintTime = cw.getTime();
                     if(constraint.rejects(new Move(finalMove.agent, constraintTime, finalMove.currLocation, finalMove.currLocation))
-                            && constraintTime < firstRejectionTime){
-                        firstRejectionTime = constraintTime;
+                            && ((first && constraintTime < rejectionTime) || (!first && constraintTime > rejectionTime)) ){
+                        rejectionTime = constraintTime;
                     }
                 }
             }
@@ -253,21 +273,21 @@ public class ConstraintSet{
             for (I_Location loc : goalConstraints.keySet()){
                 if (loc.equals(finalMove.currLocation)){ // any two constraints that are infinite in time will eventually conflict
                     GoalConstraint constraint = this.goalConstraints.get(loc);
-                    firstRejectionTime = constraint.time;
+                    rejectionTime = constraint.time;
                 }
             }
         }
 
-        return firstRejectionTime == Integer.MAX_VALUE ? -1 : firstRejectionTime;
+        return rejectionTime == Integer.MAX_VALUE ? -1 : rejectionTime;
     }
 
     /**
-     * The opposite of {@link #rejectsEventually(Move, boolean)}.
+     * The opposite of {@link #firstRejectionTime(Move, boolean)}.
      * @param finalMove a move to occupy a location indefinitely.
      * @return true if no constraint would eventually reject a "stay" move at the given move's location.
      */
     public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return rejectsEventually(finalMove, checkOtherAgentsLastMoves) == -1;
+        return firstRejectionTime(finalMove, checkOtherAgentsLastMoves) == -1;
     }
 
     /**
