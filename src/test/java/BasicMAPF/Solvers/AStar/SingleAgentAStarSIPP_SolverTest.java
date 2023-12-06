@@ -343,8 +343,8 @@ class SingleAgentAStarSIPP_SolverTest {
         rand.setSeed(10);
         ConstraintSet constraints = new ConstraintSet();
         Set<I_Location> checkDuplicates = new HashSet<>();
-        for (int t = 1; t <= 30; t++) {
-            for (int j = 0; j < 20; j++) {
+        for (int t = 1; t <= 3000; t++) {
+            for (int j = 0; j < 10; j++) {
                 I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
                 if (checkDuplicates.contains(randomLocation)){
                     j--;

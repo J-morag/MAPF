@@ -15,7 +15,8 @@ import java.util.Set;
  * An immutable view of a {@link ConstraintSet}.
  */
 public class ImmutableConstraintSet extends ConstraintSet {
-    // TODO put ConstraintSet behind an interface, and make this implement it
+    // TODO put ConstraintSet behind an interface, and make this implement it...
+    //  inheriting like this is inefficient and more importantly error-prone
 
     private final ConstraintSet constraintSet;
 
@@ -91,8 +92,8 @@ public class ImmutableConstraintSet extends ConstraintSet {
     }
 
     @Override
-    public int getLastConstraintTime() {
-        return constraintSet.getLastConstraintTime();
+    public int getLastConstraintStartTime() {
+        return constraintSet.getLastConstraintStartTime();
     }
 
     @Override
@@ -111,8 +112,13 @@ public class ImmutableConstraintSet extends ConstraintSet {
     }
 
     @Override
-    public int rejectsEventually(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.rejectsEventually(finalMove, checkOtherAgentsLastMoves);
+    public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
+        return constraintSet.firstRejectionTime(finalMove, checkOtherAgentsLastMoves);
+    }
+
+    @Override
+    public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
+        return constraintSet.lastRejectionTime(finalMove, checkOtherAgentsLastMoves);
     }
 
     @Override

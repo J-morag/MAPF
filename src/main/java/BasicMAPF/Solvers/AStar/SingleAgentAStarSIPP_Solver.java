@@ -87,7 +87,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         expandedNodes++;
         // can move to neighboring locations
         List<I_Location> neighborLocations = new ArrayList<>(state.move.currLocation.outgoingEdges());
-        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintTime();
+        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintStartTime();
 
         for (I_Location destination : neighborLocations) {
             Move possibleMove = new Move(state.move.agent, !afterLastConstraint ? state.move.timeNow + 1 : state.move.timeNow,
@@ -178,7 +178,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                 init = false;
             } else child = generateChildState(possibleMove, child, prevLocationRelevantInterval, false);
 
-            afterLastConstraint = child.move.timeNow > constraints.getLastConstraintTime();
+            afterLastConstraint = child.move.timeNow > constraints.getLastConstraintStartTime();
             possibleMoveTime = !afterLastConstraint ? possibleMove.timeNow + 1 : child.move.timeNow;
 
             // If the move time is within or right before the current interval, create the move and check constraints
