@@ -10,8 +10,8 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
-import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
+import BasicMAPF.Solvers.AStar.GoalConditions.AtTargetAStarGoalCondition;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -112,7 +112,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.goalCondition = parameters.goalCondition;
         }
         else{
-            this.goalCondition = new SingleTargetCoordinateGoalCondition(this.targetCoor);
+            this.goalCondition = new AtTargetAStarGoalCondition(this.targetCoor);
         }
 
         this.gAndH = Objects.requireNonNullElseGet(runParameters.singleAgentGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
@@ -164,10 +164,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 // TODO improve the data structure so that it can answer this query quickly, then we won't need to cache locally.
                 //  Also, this doesn't support multiple possible goal locations. But I guess nothing really does.
                 if (lastRejectionTime == 0 || // uninitialized
-                        goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) { // for PIBT style (Transient MAPF) paths. May try to stop forever to different locations so caching is more complicated. todo improve caching for this case?
+                        goalCondition instanceof VisitedTargetAStarGoalCondition) { // for PIBT style (Transient MAPF) paths. May try to stop forever to different locations so caching is more complicated. todo improve caching for this case?
                     lastRejectionTime = agentsStayAtGoal ?
                             constraints.lastRejectionTime(currentState.move,
-                                    goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
+                                    goalCondition instanceof VisitedTargetAStarGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
                             : -1;
                 }
 
@@ -343,7 +343,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.prev = prevState;
             this.g = g;
             this.conflicts = conflicts;
-            this.hasVisitedTargetLocationAncestor = goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition &&
+            this.hasVisitedTargetLocationAncestor = goalCondition instanceof VisitedTargetAStarGoalCondition &&
                     (isMoveToTargetLocation || (prevState != null && prevState.hasVisitedTargetLocationAncestor));
 
             // must call this last, since it needs some other fields to be initialized already.

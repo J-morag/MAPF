@@ -5,7 +5,7 @@ import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
@@ -28,7 +28,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         super.init(instance, runParameters);
         safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints);
 
-        if (goalCondition instanceof VisitedAGoalAtSomePointInPlanGoalCondition) {
+        if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
             throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
         }
     }
