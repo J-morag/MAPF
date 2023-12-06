@@ -148,7 +148,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param solutionCostFunction       A cost function to evaluate solutions with. Only used when using random restarts.
      * @param restartsStrategy           how to do restarts.
      * @param sharedGoals                if agents share goals, they will not conflict at their goal.
-     * @param transientMAPFGoalCondition if true will use {@link VisitedAGoalAtSomePointInPlanGoalCondition}
+     * @param transientMAPFBehaviour     if true will use be Transient MAPF
      * @param failPolicy                 how to handle single agent failures while solving
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
@@ -161,7 +161,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, ransientMAPFBehaviour.regularMAPF);
+        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, transientMAPFBehaviour.regularMAPF);
         this.RHCR_Horizon = RHCR_Horizon;
         this.failPolicy = failPolicy;
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
@@ -307,7 +307,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
                         : Float.POSITIVE_INFINITY;
                 //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, agentIndex, instance, currentConstraints, maxCost, solution, solution);
+                SingleAgentPlan planForAgent = solveSubproblem(agent, agentIndex, instance, currentConstraints, maxCost, solution);
 
                 if (planForAgent == null || ! planForAgent.containsTarget()) {
                     if (planForAgent != null)
