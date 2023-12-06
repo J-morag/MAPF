@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701414162253,
+  "lastUpdate": 1701851536941,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -917,6 +917,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 3123718,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1a47036796adbe5567b21868bfe3063088a9e368",
+          "message": "More mdd functionality (#76)\n\n* add searchToFirstSolution\r\n\r\n* more tests\r\n\r\n* remove or deprecate some dead code\r\n\r\n* Support constraints in building minimal MDD\r\n\r\n* Improve SingleAgentAStar_Solver to cache results of when there are constraints rejecting staying infinitely on the last move",
+          "timestamp": "2023-12-06T19:02:26+11:00",
+          "tree_id": "4d4db19f38615b0e7e14f1dfcf89c05c6c7bd9cc",
+          "url": "https://github.com/J-morag/MAPF/commit/1a47036796adbe5567b21868bfe3063088a9e368"
+        },
+        "date": 1701851535711,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3448.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 34457.53,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 5343.8823,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 6767.294,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 2909893.2,
             "unit": "Expansions"
           }
         ]
