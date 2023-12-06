@@ -9,8 +9,6 @@ import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -20,6 +18,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSo
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
 import Environment.Metrics.InstanceReport;
+import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 
@@ -76,7 +75,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     private RunParameters runParameters;
 
-    private boolean transientMAPFGoalCondition;
+    private TransientMAPFBehaviour transientMAPFBehaviour;
 
     /*  = Constructors =  */
 
@@ -90,17 +89,17 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * @param sharedSources        if agents share goals, they will not conflict at their source until they move.
      * @param reactionFactor       how quickly ALNS adapts to which heuristic is more successful. default = 0.01 .
      * @param neighborhoodSize     What size neighborhoods to select.
-     * @param transientMAPFGoalCondition indicates whether to solve transient-MAPF.
+     * @param transientMAPFBehaviour indicates whether to solve transient-MAPF instead of regular MAPF.
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                           Boolean sharedGoals, Boolean sharedSources, Double reactionFactor,
-                                          Integer neighborhoodSize, Boolean transientMAPFGoalCondition) {
+                                          Integer neighborhoodSize, TransientMAPFBehaviour transientMAPFBehaviour) {
 
-        this.transientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
+        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                sharedGoals, sharedSources, this.transientMAPFGoalCondition, null, null);
+                sharedGoals, sharedSources, this.transientMAPFBehaviour, null, null);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -111,7 +110,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
-        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFGoalCondition ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
     }
 
     /**
@@ -221,7 +220,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
-        return (transientMAPFGoalCondition && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
+        return (transientMAPFBehaviour.isTransientMAPF() && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
     private void updateDestroyHeuristicWeight(Solution newSubsetSolution, Solution oldSubsetSolution, int destroyHeuristicIndex) {

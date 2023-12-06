@@ -326,6 +326,7 @@ public class MDD {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("MDD{start=").append(start.getLocation().getCoordinate()).append(", goal=").append(goal.getLocation().getCoordinate()).append("}, levels (lacks edge information)=\n");
+        this.getLevel(1); // initialize levels (if not already initialized)
         for (int i = 0; i < levels.size(); i++) {
             sb.append(i).append(": ");
             for (MDDNode node : levels.get(i)) {

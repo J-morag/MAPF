@@ -14,6 +14,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import TransientMAPF.TransientMAPFBehaviour;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -221,7 +222,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, true, null, null);
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF, null, null);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -237,10 +238,32 @@ class PrioritisedPlanningSolverTest {
     }
 
     @Test
-    void worksWithTMAPFPathsAndRandomRestarts() {
+    void worksWithTMAPFAndRandomRestarts() {
         I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, true, null, null);
+                null, null, TransientMAPFBehaviour.transientMAPF, null, null);
+        Agent agentXMoving = new Agent(0, coor42, coor02, 1);
+        Agent agentYMoving = new Agent(1, coor10, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
+
+        I_Solver ppSolverWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
+                null, null, null, null, null);
+        Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedNormal.solves(testInstance));
+        assertEquals(8, solvedNormal.sumIndividualCosts());
+
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedPrPT.solves(testInstance));
+        assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+    }
+
+    @Test
+    void worksWithTMAPFAndBlacklistAndRandomRestarts() {
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
+                null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
