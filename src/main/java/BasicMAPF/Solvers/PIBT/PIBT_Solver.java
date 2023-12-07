@@ -190,7 +190,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                     numberOfNotMovingAgents++;
                 }
                 solution.putPlan(this.agentPlans.get(agent));
-                if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+
+
+                if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                     throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
                 }
             }
