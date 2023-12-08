@@ -2037,7 +2037,7 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, false);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, true);
 
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, new DeepPartialSolutionsStrategy(), fp, null, null);
