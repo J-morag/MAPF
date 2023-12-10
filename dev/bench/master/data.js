@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701857315608,
+  "lastUpdate": 1702187432680,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -1025,6 +1025,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 3036869,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "4dc970aa87ec35b0e37eac9356fae7e22e714372",
+          "message": "refactor cost functions and add MakespanServiceTime cost function",
+          "timestamp": "2023-12-10T16:20:27+11:00",
+          "tree_id": "0ed3d23e32faef02803aad04d5193ba13422d0a0",
+          "url": "https://github.com/J-morag/MAPF/commit/4dc970aa87ec35b0e37eac9356fae7e22e714372"
+        },
+        "date": 1702187431252,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3492.625,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 35033.65,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 7852.0586,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 11140.706,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 5133356,
             "unit": "Expansions"
           }
         ]
