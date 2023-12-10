@@ -1,11 +1,19 @@
 package BasicMAPF.CostFunctions;
 
 import BasicMAPF.DataTypesAndStructures.Solution;
+import Environment.Metrics.InstanceReport;
 
 public interface I_SolutionCostFunction {
 
-    float solutionCost(Solution solution);
+    int solutionCost(Solution solution);
 
     String name();
+
+    static void addCommonCostsToReport(Solution solution, InstanceReport report){
+        report.putIntegerValue(SumOfCosts.NAME, SumOfCosts.instance.solutionCost(solution));
+        report.putIntegerValue(Makespan.NAME, Makespan.instance.solutionCost(solution));
+        report.putIntegerValue(SumServiceTimes.NAME, SumServiceTimes.instance.solutionCost(solution));
+        report.putIntegerValue(MakespanServiceTime.NAME, MakespanServiceTime.instance.solutionCost(solution));
+    }
 
 }

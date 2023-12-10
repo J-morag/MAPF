@@ -1,7 +1,7 @@
 package TransientMAPF;
 
-import BasicMAPF.CostFunctions.SOCCostFunction;
-import BasicMAPF.CostFunctions.SSTCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -47,39 +47,39 @@ public class TransientMAPFExampleMain {
 
             // optimizing for SOC
 
-            PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
+            PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SumOfCosts(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, TransientMAPFBehaviour.transientMAPF);
             PrPT_SOC.name = "PrPT_SOC";
 
-            PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
+            PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SumOfCosts(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, TransientMAPFBehaviour.regularMAPF);
             PrP_SOC.name = "PrP_SOC";
 
             // optimizing for SST
 
-            PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
+            PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, TransientMAPFBehaviour.transientMAPF);
             PrPT_SST.name = "PrPT_SST";
 
-            PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
+            PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, TransientMAPFBehaviour.regularMAPF);
             PrP_SST.name = "PrP_SST";
 
             // transient MAPF with avoiding the targets of other agents
 
-            PrioritisedPlanning_Solver PrPT_SST_Blacklist = new PrioritisedPlanning_Solver(null, null, new SSTCostFunction(),
+            PrioritisedPlanning_Solver PrPT_SST_Blacklist = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
 
-            PrioritisedPlanning_Solver PrP_SOC_Blacklist = new PrioritisedPlanning_Solver(null, null, new SOCCostFunction(),
+            PrioritisedPlanning_Solver PrP_SOC_Blacklist = new PrioritisedPlanning_Solver(null, null, new SumOfCosts(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
 
-            genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST));
+            genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST, PrPT_SST_Blacklist, PrP_SOC_Blacklist));
             genericRunManager.runAllExperiments();
         }
     }

@@ -274,6 +274,15 @@ public class Solution implements Iterable<SingleAgentPlan>{
         return maxCost;
     }
 
+    public int makespanServiceTime() {
+        int maxCost = 0;
+        for (SingleAgentPlan plan :
+                agentPlans.values()) {
+            maxCost = Math.max(maxCost, plan.firstVisitToTargetTime());
+        }
+        return maxCost;
+    }
+
     public int endTime(){
         int maxTime = 0;
         for (SingleAgentPlan plan :
