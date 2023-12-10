@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1702189180279,
+  "lastUpdate": 1702189181917,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -2210,6 +2210,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions High Level",
             "value": 9659.117,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 38768,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "b1e732dbba3426aed573ce2afbc78935891427b3",
+          "message": "tiny fix for console output in examples",
+          "timestamp": "2023-12-10T16:49:41+11:00",
+          "tree_id": "76e7ffe634de282bf90d3003d4233e27efe0361f",
+          "url": "https://github.com/J-morag/MAPF/commit/b1e732dbba3426aed573ce2afbc78935891427b3"
+        },
+        "date": 1702189181245,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 5061,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 25515.705,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 9733.235,
             "unit": "Expansions"
           },
           {
