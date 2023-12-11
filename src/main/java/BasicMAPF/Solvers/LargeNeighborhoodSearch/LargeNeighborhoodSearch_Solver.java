@@ -305,6 +305,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                 this.destroyHeuristics) {
             ds.clear();
         }
+        this.instanceReport = null;
+        this.subSolverHeuristic = null;
     }
 
 }
