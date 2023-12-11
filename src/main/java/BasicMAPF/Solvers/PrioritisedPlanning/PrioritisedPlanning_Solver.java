@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
@@ -157,7 +157,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                                       Integer RHCR_Horizon, FailPolicy failPolicy) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
@@ -550,8 +550,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
-            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
         if (!instanceReport.hasField(countInitialAttemptsMetricString)){
             this.instanceReport.putIntegerValue(countInitialAttemptsMetricString, 0);

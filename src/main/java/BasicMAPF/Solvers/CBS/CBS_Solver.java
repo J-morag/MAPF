@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -122,7 +122,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.corridorReasoning = Objects.requireNonNullElse(useCorridorReasoning, false);
         clearOPEN();
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
-        this.costFunction = Objects.requireNonNullElseGet(costFunction, SOCCostFunction::new);
+        this.costFunction = Objects.requireNonNullElseGet(costFunction, SumOfCosts::new);
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
@@ -406,6 +406,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, costFunction.name());
             super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 

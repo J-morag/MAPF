@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.ICTS.HighLevel;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.DataTypesAndStructures.MDDs.AStarFactory;
 import BasicMAPF.DataTypesAndStructures.MDDs.I_MDDSearcherFactory;
 import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
@@ -222,6 +223,7 @@ public class ICTS_Solver extends A_Solver {
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 

@@ -32,7 +32,7 @@ import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 public class ExampleMain {
     public static void main(String[] args) {
         if (verifyOutputPath(DEFAULT_RESULTS_OUTPUT_DIR)){
-            System.out.println("Will print results to the default directory: " + DEFAULT_RESULTS_OUTPUT_DIR);
+            System.out.println("Will save results to the default directory: " + DEFAULT_RESULTS_OUTPUT_DIR);
             System.out.print("Starting in 3 seconds...");
             try {
                 Thread.sleep(1000);
