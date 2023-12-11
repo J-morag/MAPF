@@ -1,6 +1,6 @@
 package BasicMAPF.Solvers.CBS;
 
-import BasicMAPF.CostFunctions.SOCPCostFunction;
+import BasicMAPF.CostFunctions.SOCWithPriorities;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -148,7 +148,7 @@ class CBS_SolverTest {
     @Test
     void cbsWithPriorities() {
         I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCPCostFunction(), null, null, null, null);
+                new SOCWithPriorities(), null, null, null, null);
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -183,7 +183,7 @@ class CBS_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCPCostFunction(), null, null, null, null);
+                new SOCWithPriorities(), null, null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,

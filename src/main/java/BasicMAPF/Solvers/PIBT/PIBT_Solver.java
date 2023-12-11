@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.PIBT;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -88,7 +88,7 @@ public class PIBT_Solver extends A_Solver {
      */
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
         super.name = "PIBT";
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
     }
 
@@ -438,8 +438,7 @@ public class PIBT_Solver extends A_Solver {
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
-            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 }

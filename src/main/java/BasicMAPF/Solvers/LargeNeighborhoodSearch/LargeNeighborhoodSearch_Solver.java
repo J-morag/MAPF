@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -96,7 +96,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
                                           Integer neighborhoodSize, TransientMAPFBehaviour transientMAPFBehaviour) {
 
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                 sharedGoals, sharedSources, this.transientMAPFBehaviour, null, null);
@@ -319,8 +319,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
-            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 
@@ -340,6 +339,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
                 this.destroyHeuristics) {
             ds.clear();
         }
+        this.instanceReport = null;
+        this.subSolverHeuristic = null;
         this.runParameters = null;
     }
 
