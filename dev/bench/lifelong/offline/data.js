@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1702287419544,
+  "lastUpdate": 1702287420631,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -2854,6 +2854,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 819.64703,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "0826d4c641a2f1eab44a8fdbdcb46d81a007cf0d",
+          "message": "Merge branch 'master' into lifelong\n\n# Conflicts:\n#\tsrc/main/java/BasicMAPF/Solvers/LargeNeighborhoodSearch/LargeNeighborhoodSearch_Solver.java",
+          "timestamp": "2023-12-11T20:05:32+11:00",
+          "tree_id": "28e04c92a891f7bbdfd0bbe7eff13efb7c373e45",
+          "url": "https://github.com/J-morag/MAPF/commit/0826d4c641a2f1eab44a8fdbdcb46d81a007cf0d"
+        },
+        "date": 1702287420340,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 30143.7,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 963.2941,
             "unit": "Milliseconds"
           },
           {
