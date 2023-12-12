@@ -439,12 +439,15 @@ class LargeNeighborhoodSearch_SolverTest {
         assertTrue(solvedNormal.solves(testInstance));
         System.out.println(solvedNormal.readableToString());
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
+        assertEquals(4, solvedNormal.makespan());
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         System.out.println(solvedPrPT.readableToString());
         assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
     }
 
     @Test
@@ -459,11 +462,14 @@ class LargeNeighborhoodSearch_SolverTest {
         assertTrue(solvedNormal.solves(testInstance));
         System.out.println(solvedNormal.readableToString());
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
+        assertEquals(4, solvedNormal.makespan());
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         System.out.println(solvedPrPT.readableToString());
         assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
     }
 }

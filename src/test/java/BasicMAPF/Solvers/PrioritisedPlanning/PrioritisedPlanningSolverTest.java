@@ -229,11 +229,14 @@ class PrioritisedPlanningSolverTest {
         Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
+        assertEquals(4, solvedNormal.makespan());
 
         Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
     }
 
     @Test
@@ -251,11 +254,15 @@ class PrioritisedPlanningSolverTest {
         Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(8, solvedNormal.sumIndividualCosts());
+        // not much of a reason for it to be 6, but this seems to be the solution that is chosen because makespan isn't optimized for
+        assertEquals(6, solvedNormal.makespan());
 
         Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
     }
 
     @Test
