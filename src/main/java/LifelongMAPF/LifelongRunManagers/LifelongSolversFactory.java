@@ -2053,7 +2053,7 @@ public class LifelongSolversFactory {
         I_AStarFailPolicy asfpf = new GoASFP(5);
         PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000),
-                true, true, null, RHCRHorizon, null);
+                true, null, null, RHCRHorizon, null);
 
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 prp, null, new DeepPartialSolutionsStrategy(), fp, null, null);
@@ -2069,7 +2069,7 @@ public class LifelongSolversFactory {
         I_AStarFailPolicy asfpf = new GoASFP(5);
         PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000),
-                true, true, TransientMAPFBehaviour.transientMAPFWithBlacklist, RHCRHorizon, null);
+                true, null, TransientMAPFBehaviour.transientMAPFWithBlacklist, RHCRHorizon, null);
 
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 prp, null, new DeepPartialSolutionsStrategy(), fp, null, null);
@@ -2084,7 +2084,7 @@ public class LifelongSolversFactory {
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
         LargeNeighborhoodSearch_Solver lns = new LargeNeighborhoodSearch_Solver(null, null,
-                true, false, null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
+                true, null, null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 lns, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -2098,7 +2098,7 @@ public class LifelongSolversFactory {
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
         LargeNeighborhoodSearch_Solver lns = new LargeNeighborhoodSearch_Solver(null, null,
-                true, false, null, null, null);
+                true, null, null, null, null);
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 lns, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
