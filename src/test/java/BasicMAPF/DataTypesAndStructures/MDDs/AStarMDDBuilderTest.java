@@ -267,7 +267,7 @@ class AStarMDDBuilderTest {
     @Test
     void continueSearchingStandardFlowValidity() {
         I_Map map = mapWithPocket;
-        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33, agent33to12), map);
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33), map);
 
         A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
                 map.getMapLocation(agent12to33.target), agent12to33, heuristic);
@@ -275,6 +275,8 @@ class AStarMDDBuilderTest {
 
         // line
         assertEquals(3, mdd1.getDepth());
+        System.out.println(mdd1.getLevel(0));
+        assertEquals(1, mdd1.getLevel(0).size());
         System.out.println(mdd1.getLevel(1));
         assertEquals(1, mdd1.getLevel(1).size());
         System.out.println(mdd1.getLevel(2));
@@ -294,6 +296,8 @@ class AStarMDDBuilderTest {
         // line + all waiting options
         mdd1 = searcher1.continueSearching(4);
         assertEquals(4, mdd1.getDepth());
+        System.out.println(mdd1.getLevel(0));
+        assertEquals(1, mdd1.getLevel(0).size());
         System.out.println(mdd1.getLevel(1));
         assertEquals(2, mdd1.getLevel(1).size());
         System.out.println(mdd1.getLevel(2));
@@ -315,6 +319,8 @@ class AStarMDDBuilderTest {
         // line + all waiting options x2 and small detours
         mdd1 = searcher1.continueSearching(5);
         assertEquals(5, mdd1.getDepth());
+        System.out.println(mdd1.getLevel(0));
+        assertEquals(1, mdd1.getLevel(0).size());
         System.out.println(mdd1.getLevel(1));
         assertEquals(4, mdd1.getLevel(1).size());
         System.out.println(mdd1.getLevel(2));
