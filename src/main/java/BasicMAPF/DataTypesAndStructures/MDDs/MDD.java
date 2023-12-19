@@ -6,10 +6,12 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -23,7 +25,7 @@ public class MDD {
      */
     private List<List<MDDNode>> levels;
 
-    public MDD(MDDSearchNode goal){
+    public MDD(@NotNull MDDSearchNode goal){
         initialize(goal);
     }
 
@@ -31,8 +33,16 @@ public class MDD {
      * copy constructor (deep).
      * @param other an MDD to copy.
      */
-    public MDD(MDD other){
+    public MDD(@NotNull MDD other){
         // todo why do we need a copy constructor when everything is immutable?
+        this(other, null);
+    }
+
+    /**
+     * copy constructor (deep) with constraints.
+     * @param other an MDD to copy.
+     */
+    public MDD(@NotNull MDD other, @Nullable ConstraintSet constraints){
         // iterate over the mdd in BFS order
         // we don't need a closed list since this is a DAG
         // open will only contain nodes from other
@@ -49,6 +59,11 @@ public class MDD {
             List<MDDNode> originalChildren = originalCurrentMddNode.getNeighbors();
 
             for (MDDNode originalChild : originalChildren){
+                if (constraints!= null &&
+                        constraints.rejects(new Move(originalChild.getAgent(), originalChild.getDepth(), // assumes time == depth
+                        originalCurrentMddNode.getLocation(), originalChild.getLocation()))){
+                    continue;
+                }
                 MDDNode childCopy;
                 // never saw this child before
                 if(!copies.containsKey(originalChild)) {
@@ -65,7 +80,16 @@ public class MDD {
                 copyCurrentMddNode.addNeighbor(childCopy);
             }
         }
-        this.goal = copies.get(other.goal);
+        MDDNode goalCopy = copies.get(other.goal);
+        if (goalCopy == null || // constraints severed the MDD
+                (constraints != null && constraints.firstRejectionTime(new Move(goalCopy.getAgent(), goalCopy.getDepth(), // assumes time == depth
+                        goalCopy.getLocation(), goalCopy.getLocation()), false) != -1)){ // staying at the end of the MDD is rejected
+            this.start = null;
+            this.goal = null;
+            this.levels = null;
+            return;
+        }
+        else this.goal = copies.get(other.goal);
 
         // copy levels
         if (other.levels != null){
@@ -73,12 +97,19 @@ public class MDD {
             for (List<MDDNode> level : other.levels) {
                 List<MDDNode> levelCopy = new ArrayList<>(level.size());
                 for (MDDNode node : level) {
-                    levelCopy.add(copies.get(node));
+                    MDDNode copy = copies.get(node);
+                    if (copy != null){ // not removed because of constraints
+                        levelCopy.add(copies.get(node));
+                    }
                 }
                 this.levels.add(Collections.unmodifiableList(levelCopy));
             }
             this.levels = Collections.unmodifiableList(this.levels);
         }
+    }
+
+    public MDD constrainedView(Constraint newConstraint) {
+        throw new NotImplementedException("todo"); //todo
     }
 
     private void initialize(MDDSearchNode goal){
@@ -115,6 +146,10 @@ public class MDD {
             currentLevel.addAll(previousLevel.values());
         }
         this.start = currentLevel.poll();
+
+        if (this.start.getDepth() != 0){
+            throw new IllegalStateException("MDD start node has depth " + this.start.getDepth() + " instead of 0");
+        }
     }
 
     public MDDNode getStart() {
@@ -146,7 +181,7 @@ public class MDD {
     }
 
     public int getDepth() {
-        return goal.getDepth();
+        return this.goal != null ? this.goal.getDepth() : -1;
     }
 
     public Agent getAgent(){
@@ -316,10 +351,6 @@ public class MDD {
         }
 
         return conflicts;
-    }
-
-    public MDD constrainedView(Constraint newConstraint) {
-        throw new NotImplementedException("todo"); //todo
     }
 
     @Override
