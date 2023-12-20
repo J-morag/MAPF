@@ -1,21 +1,20 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import Environment.Metrics.InstanceReport;
+import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSolution;
 
 import java.util.*;
 
@@ -26,23 +25,13 @@ import java.util.*;
  */
 public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
-    /*  = Fields =  */
-    /*  =  = Fields related to the MAPF instance =  */
+    /*  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
     private List<Agent> agents;
 
-    /*  =  = Fields related to the run =  */
-
-    private AStarGAndH subSolverHeuristic;
-    private ConstraintSet constraints;
-    private Random random;
-    private int numIterations;
-    private double[] destroyHeuristicsWeights;
-    private double sumWeights;
-
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems for a subset of agents while avoiding other agents,
@@ -63,6 +52,15 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      */
     private final boolean sharedSources;
 
+    /*  = Fields related to the run =  */
+
+    private SingleAgentGAndH subSolverHeuristic;
+    private ConstraintSet constraints;
+    private Random random;
+    private int completedDestroyAndRepairIterations;
+    private double[] destroyHeuristicsWeights;
+    private double sumWeights;
+    private TransientMAPFBehaviour transientMAPFBehaviour;
 
     /*  = Constructors =  */
 
@@ -76,12 +74,16 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      * @param sharedSources        if agents share goals, they will not conflict at their source until they move.
      * @param reactionFactor       how quickly ALNS adapts to which heuristic is more successful. default = 0.01 .
      * @param neighborhoodSize     What size neighborhoods to select.
+     * @param transientMAPFBehaviour indicates whether to solve transient-MAPF instead of regular MAPF.
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize) {
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize, TransientMAPFBehaviour transientMAPFBehaviour) {
+
+        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts), sharedGoals, sharedSources, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+                sharedGoals, sharedSources, this.transientMAPFBehaviour);
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -92,14 +94,14 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
-        super.name = this.destroyHeuristics.size() > 1 ? "ALNS" : ("LNS-" + this.destroyHeuristics.get(0).getClass().getSimpleName());
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
     }
 
     /**
      * Default constructor.
      */
     public LargeNeighborhoodSearch_Solver(){
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -118,14 +120,17 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.constraints.setSharedGoals(this.sharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
         this.random = new Random(42);
-        this.numIterations = 0;
+        this.completedDestroyAndRepairIterations = 0;
 
         this.destroyHeuristicsWeights = new double[destroyHeuristics.size()];
         Arrays.fill(this.destroyHeuristicsWeights, 1.0);
         this.sumWeights = this.destroyHeuristicsWeights.length;
 
-        this.subSolverHeuristic = Objects.requireNonNullElse(parameters.aStarGAndH,
-                new DistanceTableAStarHeuristic(this.agents, instance.map));
+        // single agent heuristic for the sub solver
+        this.subSolverHeuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        if (this.subSolverHeuristic instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.subSolverHeuristic).setCurrentMap(instance.map);
+        }
     }
 
     /*  = algorithm =  */
@@ -150,7 +155,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             // select neighborhood (destroy heuristic)
             int destroyHeuristicIndex = selectDestroyHeuristicIndex();
             I_DestroyHeuristic destroyHeuristic = this.destroyHeuristics.get(destroyHeuristicIndex);
-            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()), random, instance.map));
+            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()-1), random, instance.map));
 
             // get solution without selected agents
             Solution destroyedSolution = new Solution();
@@ -183,8 +188,13 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                 }
                 bestSolution = destroyedSolution;
             }
+            completedDestroyAndRepairIterations++;
         }
-        return bestSolution;
+        return finalizeSolution(bestSolution);
+    }
+
+    private Solution finalizeSolution(Solution bestSolution) {
+        return (transientMAPFBehaviour.isTransientMAPF() && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
     private void updateDestroyHeuristicWeight(Solution newSubsetSolution, Solution oldSubsetSolution, int destroyHeuristicIndex) {
@@ -253,12 +263,12 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport,
                                                     ConstraintSet outsideConstraints, Solution destroyedSolution, Set<Agent> agentsSubset) {
         // TODO shorter timeout?
-        long timeLeftToTimeout = Math.max(super.maximumRuntime - (A_Solver.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
+        long timeLeftToTimeout = Math.max(super.maximumRuntime - (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
         ConstraintSet subproblemConstraints = new ConstraintSet(outsideConstraints);
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).createRP(), randomizedAgentsOrder.toArray(new Agent[0]));
+        return new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
     }
 
     /*  = wind down =  */
@@ -269,12 +279,13 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         instanceReport.putIntegerValue("Neighborhood Size", neighborhoodSize);
         instanceReport.putStringValue("Destroy Heuristics", destroyHeuristics.toString());
         for (int i = 0; i < destroyHeuristics.size(); i++) {
-            instanceReport.putFloatValue(destroyHeuristics.get(i).toString(), (float)destroyHeuristicsWeights[i]);
+            instanceReport.putFloatValue(destroyHeuristics.get(i).getClass().getSimpleName(), (float)destroyHeuristicsWeights[i]);
         }
-        instanceReport.putIntegerValue("Num Iterations", numIterations);
+        instanceReport.putIntegerValue("Num Iterations", completedDestroyAndRepairIterations);
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 
@@ -294,6 +305,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                 this.destroyHeuristics) {
             ds.clear();
         }
+        this.instanceReport = null;
+        this.subSolverHeuristic = null;
     }
 
 }

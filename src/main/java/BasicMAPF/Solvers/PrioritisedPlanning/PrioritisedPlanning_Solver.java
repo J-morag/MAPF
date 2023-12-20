@@ -1,9 +1,12 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
+import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -11,11 +14,10 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.*;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.AStarGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
-import BasicMAPF.Solvers.AStar.GoalConditions.SingleTargetCoordinateGoalCondition;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedAGoalAtSomePointInPlanGoalCondition;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -32,19 +34,23 @@ import static com.google.common.math.IntMath.factorial;
 public class PrioritisedPlanning_Solver extends A_Solver {
 
     /*  = Fields =  */
-    /*  =  = Fields related to the MAPF instance =  */
+    /*  = Constants =  */
+    public static final String COMPLETED_INITIAL_ATTEMPTS_STR = "completed initial attempts";
+    public static final String COMPLETED_CONTINGENCY_ATTEMPTS_STR = "completed contingency attempts";
+
+    /*  = Fields related to the MAPF instance =  */
     /**
      * An array of {@link Agent}s to plan for, ordered by priority (descending).
      */
     private List<Agent> agents;
 
-    /*  =  = Fields related to the run =  */
+    /*  = Fields related to the run =  */
 
     private ConstraintSet constraints;
 
     private Random random;
 
-    /*  =  = Fields related to the class instance =  */
+    /*  = Fields related to the class instance =  */
 
     /**
      * A {@link I_Solver solver}, to be used for solving sub-problems where only one agent is to be planned for, and the
@@ -66,17 +72,18 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     /**
      * optional heuristic function to use in the low level solver.
      */
-    private AStarGAndH aStarGAndH;
+    private SingleAgentGAndH singleAgentGAndH;
 
     /**
      * if agents share goals, they will not conflict at their goal.
      */
     public boolean sharedGoals;
     /**
-     * If true, agents staying at their source (since the start) will not conflict 
+     * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    private Boolean TransientMAPFGoalCondition;
+    private final TransientMAPFBehaviour transientMAPFBehaviour;
+    public boolean reportIndvAttempts = false;
 
 
     /*  = Constructors =  */
@@ -109,16 +116,17 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources, Boolean TransientMAPFGoalCondition) {
+                                      Boolean sharedGoals, Boolean sharedSources,  TransientMAPFBehaviour transientMAPFBehaviour) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.TransientMAPFGoalCondition = Objects.requireNonNullElse(TransientMAPFGoalCondition, false);
+        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
 
-        super.name = "PrP" + (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
+        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") +
+                (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
     /**
@@ -149,17 +157,13 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             this.agents.sort(this.agentComparator);
         }
         // heuristic
-        this.aStarGAndH = Objects.requireNonNullElseGet(parameters.aStarGAndH, () -> new DistanceTableAStarHeuristic(this.agents, instance.map));
-        if (this.aStarGAndH instanceof CachingDistanceTableHeuristic){
-            ((CachingDistanceTableHeuristic)this.aStarGAndH).setCurrentMap(instance.map);
+        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
+        if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
+            ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
         }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
-        if(parameters instanceof RunParameters_PP parametersPP){
-
-            //reorder according to requested priority
-            if(parametersPP.preferredPriorityOrder != null && parametersPP.preferredPriorityOrder.length > 0) {
-                reorderAgentsByPriority(parametersPP.preferredPriorityOrder);
-            }
+        if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
+            reorderAgentsByPriority(parameters.priorityOrder);
         }
     }
 
@@ -214,11 +218,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             for (Agent agent : agents) {
                 if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
 
+                // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
+                float maxCost = bestSolution != null ?
+                        solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
+                        : Float.POSITIVE_INFINITY;
                 //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints,
-                        // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
-                        bestSolution != null ? solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
-                                : Float.POSITIVE_INFINITY);
+                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints, maxCost, solution);
 
                 // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
                 if (planForAgent == null) {
@@ -246,11 +251,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
             // report the completed attempt
             if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+                if (reportIndvAttempts){
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+                }
+                this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, attemptNumber + 1);
             }
             else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue("count contingency attempts", attemptNumber - restartsStrategy.numInitialRestarts);
+                this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, attemptNumber - restartsStrategy.numInitialRestarts);
             }
 
 
@@ -297,14 +305,15 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
-        return (TransientMAPFGoalCondition && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
+        return (transientMAPFBehaviour.isTransientMAPF() && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
-    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints, float maxCost) {
+    protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints,
+                                              float maxCost, Solution solutionSoFar) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -325,13 +334,21 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         return subproblemReport;
     }
 
-    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost) {
+    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.aStarGAndH).createRP());
+                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
         params.fBudget = maxCost;
-        if (TransientMAPFGoalCondition){
-            params.goalCondition = new VisitedAGoalAtSomePointInPlanGoalCondition(new SingleTargetCoordinateGoalCondition(subproblem.agents.get(0).target));
+        if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF){
+            params.goalCondition = new VisitedTargetAStarGoalCondition();
+        } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist) {
+            Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
+            for (Agent agent: this.agents) {
+                if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)){
+                    targetsOfAgentsThatHaventPlannedYet.add(agent.target);
+                }
+            }
+            params.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
         }
         return params;
     }
@@ -346,8 +363,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
-            instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 
@@ -362,6 +378,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.constraints = null;
         this.agents = null;
         this.instanceReport = null;
-        this.aStarGAndH = null;
+        this.singleAgentGAndH = null;
     }
 }

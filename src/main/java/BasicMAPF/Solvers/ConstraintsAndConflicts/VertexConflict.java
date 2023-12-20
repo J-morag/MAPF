@@ -80,4 +80,13 @@ public class VertexConflict extends A_Conflict {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "VertexConflict{" +
+                "agent1=" + agent1 +
+                ", agent2=" + agent2 +
+                ", time=" + time +
+                ", coordinate=" + location.getCoordinate() +
+                '}';
+    }
 }

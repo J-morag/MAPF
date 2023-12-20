@@ -1,21 +1,24 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.DataTypesAndStructures.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class A_MDDSearcher {
     protected int expandedNodesNum;
     protected int generatedNodesNum;
-    protected ICTS_Solver highLevelSearcher;
+    protected Timeout timeout;
     protected I_Location source;
     protected I_Location target;
     protected Agent agent;
 
-    public A_MDDSearcher(ICTS_Solver highLevelSearcher, I_Location source, I_Location target, Agent agent) {
+    public A_MDDSearcher(@NotNull Timeout timeout, @NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent) {
         expandedNodesNum = 0;
         generatedNodesNum = 0;
-        this.highLevelSearcher = highLevelSearcher;
+        this.timeout = timeout;
         this.source = source;
         this.target = target;
         this.agent = agent;
@@ -44,4 +47,6 @@ public abstract class A_MDDSearcher {
      * @return the goal state, which can easily be transferred to an MDD
      */
     public abstract MDD continueSearching(int depthOfSolution);
+
+    public abstract MDD searchToFirstSolution(@Nullable ConstraintSet constraints);
 }

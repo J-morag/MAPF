@@ -7,13 +7,13 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import TransientMAPF.TransientMAPFBehaviour;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,20 +26,11 @@ import java.util.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LargeNeighborhoodSearch_SolverTest {
-    InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
-            new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
-
-    private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
-    private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
-    private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
-    private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
-    private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
-    private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
 //    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
 //    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new MapBasedDestroyHeuristic()), null, null, null, null);
@@ -253,7 +244,7 @@ class LargeNeighborhoodSearch_SolverTest {
         S_Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
+        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null, null);
         String nameBaseline = baselineSolver.name();
 
         I_Solver competitorSolver = new LargeNeighborhoodSearch_Solver();
@@ -384,7 +375,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void sharedGoals(){
-        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null);
+        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -434,5 +425,51 @@ class LargeNeighborhoodSearch_SolverTest {
             Solution solution = solverWithSharedGoals.solve(testInstance, getDefaultRunParameters());
             assertNull(solution);
         }
+    }
+
+    @Test
+    void worksWithTMAPF() {
+        I_Solver LNSt = new LargeNeighborhoodSearch_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        Agent agent1 = new Agent(0, coor42, coor02, 1);
+        Agent agent2 = new Agent(1, coor10, coor12, 1);
+        Agent agent3 = new Agent(2, coor30, coor32, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agent1, agent2, agent3});
+
+        Solution solvedNormal = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedNormal.solves(testInstance));
+        System.out.println(solvedNormal.readableToString());
+        assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
+        assertEquals(4, solvedNormal.makespan());
+
+        Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedPrPT.solves(testInstance));
+        System.out.println(solvedPrPT.readableToString());
+        assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
+    }
+
+    @Test
+    void worksWithTMAPFAndBlacklist() {
+        I_Solver LNSt = new LargeNeighborhoodSearch_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
+        Agent agent1 = new Agent(0, coor42, coor02, 1);
+        Agent agent2 = new Agent(1, coor10, coor12, 1);
+        Agent agent3 = new Agent(2, coor30, coor32, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agent1, agent2, agent3});
+
+        Solution solvedNormal = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedNormal.solves(testInstance));
+        System.out.println(solvedNormal.readableToString());
+        assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
+        assertEquals(4, solvedNormal.makespan());
+
+        Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedPrPT.solves(testInstance));
+        System.out.println(solvedPrPT.readableToString());
+        assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
     }
 }

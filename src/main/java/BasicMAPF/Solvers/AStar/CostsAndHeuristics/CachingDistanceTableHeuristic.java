@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
@@ -15,14 +16,14 @@ import java.util.*;
  * IMPORTANT: Using this make run times unstable. The first time a new target on a new map is requested
  * is significantly more expensive than subsequent calls. Use with caution!
  */
-public class CachingDistanceTableHeuristic implements AStarGAndH {
+public class CachingDistanceTableHeuristic implements SingleAgentGAndH {
     private final static int DEFAULT_MAP_CACHE_SIZE = 1;
     private final static int DEFAULT_TARGET_CACHE_SIZE = 1000;
     private final int targetCacheSizePerMap;
     /**
-     * Dictionary from {@link I_Map map} to a {@link DistanceTableAStarHeuristic distance table heuristic} for it.
+     * Dictionary from {@link I_Map map} to a {@link DistanceTableSingleAgentHeuristic distance table heuristic} for it.
      */
-    private final Map<I_Map, DistanceTableAStarHeuristic> distanceTables;
+    private final Map<I_Map, DistanceTableSingleAgentHeuristic> distanceTables;
     private I_Map currentMap;
 
     public CachingDistanceTableHeuristic() {
@@ -44,23 +45,30 @@ public class CachingDistanceTableHeuristic implements AStarGAndH {
     }
 
     @NotNull
-    private DistanceTableAStarHeuristic getNewDistanceTable(I_Map map) {
-        return new DistanceTableAStarHeuristic(null, map, targetCacheSizePerMap);
+    private DistanceTableSingleAgentHeuristic getNewDistanceTable(I_Map map) {
+        return new DistanceTableSingleAgentHeuristic(null, map, targetCacheSizePerMap);
     }
 
     @Override
     public float getH(SingleAgentAStar_Solver.AStarState state) {
-        DistanceTableAStarHeuristic dt = this.distanceTables.get(this.currentMap);
+        I_Coordinate target = state.getMove().agent.target;
+        I_Location currLocation = state.getMove().currLocation;
+        return getHToTargetFromLocation(target, currLocation);
+    }
+
+    @Override
+    public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+        DistanceTableSingleAgentHeuristic dt = this.distanceTables.get(this.currentMap);
         if (dt == null){
             throw new IllegalStateException("Current map not set. Call setCurrentMap(I_Map) before querying.");
         }
-        I_Location target = this.currentMap.getMapLocation(state.getMove().agent.target);
-        if (dt.getDistanceDictionaries().containsKey(target)){
-            return dt.getH(state);
+        I_Location targetLocation = this.currentMap.getMapLocation(target);
+        if (dt.getDistanceDictionaries().containsKey(targetLocation)){
+            return dt.getHToTargetFromLocation(target, currLocation);
         }
         else { // should only happen when encountering a new agent (target)
-            dt.addTargetToHeuristic(target);
-            return this.distanceTables.get(this.currentMap).getH(state);
+            dt.addTargetToHeuristic(targetLocation);
+            return dt.getHToTargetFromLocation(target, currLocation);
         }
     }
 

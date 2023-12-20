@@ -1,10 +1,8 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.DataTypesAndStructures.Move;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.util.*;
 
@@ -20,7 +18,8 @@ public class ConstraintSet{
      * Basically a dictionary from [time,location] to agents who can't go there at that time, and locations from which
      * they can't go there at that time.
      */
-    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>();
+    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>(); // todo lists instead of sets?
+//    protected final Map<I_Location, List<Constraint>> timeSortedConstraintsAtLocation = new HashMap<>(); // todo implement. Or only keep last and forgo ability to remove constraints??
 
     /**
      * Goal constraints. Locations in this collection are reserved starting from the constraint's time, indefinitely.
@@ -47,6 +46,9 @@ public class ConstraintSet{
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
     }
 
+    public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet(){
+        return Collections.unmodifiableSet(constraints.entrySet());
+    }
     public ConstraintSet(ConstraintSet toCopy){
         if(toCopy == null) {throw new IllegalArgumentException();}
         this.sharedGoals = toCopy.sharedGoals;
@@ -92,7 +94,7 @@ public class ConstraintSet{
     /**
      * @return the time of the last constraint. If it is a goal constraint (infinite), return the time when it starts
      */
-    public int getLastConstraintTime(){
+    public int getLastConstraintStartTime(){
         return this.lastConstraintTime;
     }
 
@@ -150,7 +152,7 @@ public class ConstraintSet{
             throw new UnsupportedOperationException();
         }
         else if (constraint instanceof  GoalConstraint){
-            while (this.goalConstraints.values().remove(constraint));
+            while (this.goalConstraints.values().remove(constraint)); // todo check
         }
         else { // regular constraint
             I_ConstraintGroupingKey dummy = createDummy(constraint);
@@ -225,13 +227,32 @@ public class ConstraintSet{
      *
      * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
      * @param finalMove a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the other agents' last moves would reject this move.
-     *                                  Only relevant if agents may finish their plans at locations other than their targets.
-     * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
+     * @return the *last* time when a constraint would eventually reject a "stay" move at the given move's location;
+     * Specifically, would return {@link Integer#MAX_VALUE} if there is an infinite (target/goal) constraint on the location;
+     * -1 if never rejected.
      */
-    public int rejectsEventually(Move finalMove, boolean checkOtherAgentsLastMoves){
-        int firstRejectionTime = Integer.MAX_VALUE;
+    public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
+        return firstOrLastRejectionTime(finalMove, checkOtherAgentsLastMoves, false);
+    }
+
+    /**
+     * Given a {@link Move} which an {@link Agent agent} makes to occupy a {@link I_Location location}
+     * indefinitely starting after move's time, checks if there is a {@link Constraint} that would reject it eventually.
+     *
+     * In other words, we simulate this set being given an infinite number of "stay" moves after the given move.
+     *
+     * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
+     * @param finalMove a move to occupy a location indefinitely.
+     * @return the *first* time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
+     */
+    public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
+        return firstOrLastRejectionTime(finalMove, checkOtherAgentsLastMoves, true);
+    }
+
+    protected int firstOrLastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves, boolean first){
+        int rejectionTime = first ? Integer.MAX_VALUE : -1;
         // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
+        //  Or a map from location to the time of the last constraint on it!.
         // traverses the entire data structure. expensive.
         for (I_ConstraintGroupingKey cw : constraints.keySet()) {
             // if found constraint for this location, sometime in the future. Should be rare.
@@ -241,8 +262,8 @@ public class ConstraintSet{
                     // In practice, this should happen very rarely, so not very expensive.
                     int constraintTime = cw.getTime();
                     if(constraint.rejects(new Move(finalMove.agent, constraintTime, finalMove.currLocation, finalMove.currLocation))
-                            && constraintTime < firstRejectionTime){
-                        firstRejectionTime = constraintTime;
+                            && ((first && constraintTime < rejectionTime) || (!first && constraintTime > rejectionTime)) ){
+                        rejectionTime = constraintTime;
                     }
                 }
             }
@@ -254,23 +275,22 @@ public class ConstraintSet{
             for (I_Location loc : goalConstraints.keySet()){
                 if (loc.equals(finalMove.currLocation)){ // any two constraints that are infinite in time will eventually conflict
                     GoalConstraint constraint = this.goalConstraints.get(loc);
-                    firstRejectionTime = constraint.time;
+                    if (first) rejectionTime = Math.min(rejectionTime, Math.max(constraint.time, finalMove.timeNow));
+                    else return Integer.MAX_VALUE; // it rejects to infinity
                 }
             }
         }
 
-        return firstRejectionTime == Integer.MAX_VALUE ? -1 : firstRejectionTime;
+        return rejectionTime == Integer.MAX_VALUE ? -1 : rejectionTime;
     }
 
     /**
-     * The opposite of {@link #rejectsEventually(Move, boolean)}.
+     * The opposite of {@link #firstRejectionTime(Move, boolean)}.
      * @param finalMove a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the other agents' last moves would reject this move.
-     *                                  Only relevant if agents may finish their plans at locations other than their targets.
      * @return true if no constraint would eventually reject a "stay" move at the given move's location.
      */
-    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves){
-        return rejectsEventually(finalMove, checkOtherAgentsLastMoves) == -1;
+    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves) {
+        return firstRejectionTime(finalMove, checkOtherAgentsLastMoves) == -1;
     }
 
     /**
@@ -278,7 +298,7 @@ public class ConstraintSet{
      * the given {@link Move}.
      *
      * Doesn't assume that the last move means stay at goal forever.
-     * @see #acceptsForever(Move,boolean)
+     * @see #acceptsForever(Move, boolean)
      * @param moves a {@link Collection} of {@link Move}s to check if the are ejected or not.
      * @return true iff all of the given {@link Move}s conflict with any of the {@link Constraint}s that were
      *          {@link #add(Constraint) added} to this set.
@@ -296,7 +316,7 @@ public class ConstraintSet{
      * the given {@link Move}.
      *
      * Doesn't assume that the last move means stay at goal forever.
-     * @see #acceptsForever(Move,boolean)
+     * @see #acceptsForever(Move, boolean)
      * @param moves
      * @return the opposite of {@link #rejectsAll(Collection)}.
      */

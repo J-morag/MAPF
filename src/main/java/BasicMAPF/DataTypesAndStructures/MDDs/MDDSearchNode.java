@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers.ICTS.MDDs;
+package BasicMAPF.DataTypesAndStructures.MDDs;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -8,23 +8,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class MDDSearchNode implements Comparable<MDDSearchNode>{
-    private I_Location location;
-    private List<MDDSearchNode> parents;
-    private int g;
-    private float h;
-    private Agent agent;
+    private final I_Location location;
+    private final List<MDDSearchNode> parents;
+    private final int g;
+    private final float h;
+    private final Agent agent;
 
-    public MDDSearchNode(Agent agent, I_Location location, int g, DistanceTableAStarHeuristicICTS heuristic) {
+    public MDDSearchNode(Agent agent, I_Location location, int g, float h) {
         this.agent = agent;
         this.location = location;
         this.g = g;
         parents = new LinkedList<>();
-
-        //calculate heuristic
-        heuristic.setH(this);
-    }
-
-    public void setH(float h) {
         this.h = h;
     }
 

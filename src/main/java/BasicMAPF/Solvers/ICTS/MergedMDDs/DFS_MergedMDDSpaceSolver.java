@@ -1,9 +1,9 @@
 package BasicMAPF.Solvers.ICTS.MergedMDDs;
 
+import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
-import BasicMAPF.Solvers.ICTS.MDDs.MDD;
-import BasicMAPF.Solvers.ICTS.MDDs.MDDNode;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDDNode;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -46,7 +46,7 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
     }
 
     @Override
-    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, ICTS_Solver highLevelSolver) {
+    public Solution findJointSolution(Map<Agent, MDD> agentMDDs, Timeout timout) {
         initializeSearch(agentMDDs);
         goalDepth = 0;
         for (MDD mdd : agentMDDs.values()) {
@@ -56,7 +56,7 @@ public class DFS_MergedMDDSpaceSolver implements I_MergedMDDSolver {
         }
 
         // search the state space of the merged MDD (merger of all individual MDDs together)
-        while (!openList.isEmpty() && !highLevelSolver.reachedTimeout()) {
+        while (!openList.isEmpty() && !timout.isTimeoutExceeded()) {
             MergedMDDSpaceNode current = this.openList.pop();
             if (!closedList.contains(current)
                     && isValidNode(current)

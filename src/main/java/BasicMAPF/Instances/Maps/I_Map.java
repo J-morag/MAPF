@@ -3,6 +3,7 @@ package BasicMAPF.Instances.Maps;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 public interface I_Map {
 

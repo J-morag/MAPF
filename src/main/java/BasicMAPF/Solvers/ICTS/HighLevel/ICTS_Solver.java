@@ -1,10 +1,16 @@
 package BasicMAPF.Solvers.ICTS.HighLevel;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
+import BasicMAPF.DataTypesAndStructures.MDDs.AStarFactory;
+import BasicMAPF.DataTypesAndStructures.MDDs.I_MDDSearcherFactory;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDD;
+import BasicMAPF.DataTypesAndStructures.MDDs.MDDManager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.A_Solver;
-import BasicMAPF.Solvers.ICTS.MDDs.*;
 import BasicMAPF.Solvers.ICTS.MergedMDDs.*;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -23,7 +29,7 @@ public class ICTS_Solver extends A_Solver {
     private I_MergedMDDSolver mergedMDDSolver;
     private PruningStrategy pruningStrategy;
     protected MDDManager mddManager;
-    protected DistanceTableAStarHeuristicICTS heuristicICTS;
+    protected SingleAgentGAndH heuristic;
     protected MAPF_Instance instance;
     private final I_MergedMDDCreator mergedMDDCreator;
     /**
@@ -61,8 +67,8 @@ public class ICTS_Solver extends A_Solver {
 //        closedList = createClosedList();
         expandedHighLevelNodes = 0;
         generatedHighLevelNodes = 0;
-        getHeuristic(instance);
-        this.mddManager = new MDDManager(searcherFactory, this, heuristicICTS);
+        heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
+        this.mddManager = new MDDManager(searcherFactory, super.getTimeout(), heuristic);
         this.instance = instance;
     }
 
@@ -84,7 +90,10 @@ public class ICTS_Solver extends A_Solver {
             expandedHighLevelNodes++;
             // we want copies of agent MDDs if we use enhanced pruning, because we would like to trim them as part of the pruning
             Map<Agent, MDD> agentMdds = getMDDs(instance, current);
-            if (agentMdds == null) return null; // if there is some agent that can't be solved at this cost (shouldn't happen)
+            if (agentMdds == null) {
+                checkTimeout();
+                return null; // if there is some agent that can't be solved at this cost (shouldn't happen) or there was a timeout
+            }
             boolean pruningFailed = true;
             if ((this.pruningStrategy == PruningStrategy.S2P || this.pruningStrategy == PruningStrategy.E2P) && instance.agents.size() > 2) {
                 // false := no joint solution for some pair agents at these costs (which is good, because we can prune!)
@@ -161,7 +170,7 @@ public class ICTS_Solver extends A_Solver {
     }
 
     private Solution getMergedMddSolution(Map<Agent, MDD> agentMdds) {
-        Solution solution = mergedMDDSolver.findJointSolution(agentMdds, this);
+        Solution solution = mergedMDDSolver.findJointSolution(agentMdds, getTimeout());
         super.totalLowLevelNodesExpanded = mergedMDDSolver.getExpandedLowLevelNodesNum();
         super.totalLowLevelNodesGenerated = mergedMDDSolver.getGeneratedLowLevelNodesNum();
         return solution;
@@ -183,7 +192,7 @@ public class ICTS_Solver extends A_Solver {
     }
 
     private MergedMDD getMergedMDD(Map<Agent, MDD> filteredMap) {
-        MergedMDD mergedMDD = mergedMDDCreator.createMergedMDD(filteredMap, this);
+        MergedMDD mergedMDD = mergedMDDCreator.createMergedMDD(filteredMap, getTimeout());
         super.totalLowLevelNodesExpanded += mergedMDDCreator.getExpandedLowLevelNodesNum();
         super.totalLowLevelNodesGenerated += mergedMDDCreator.getGeneratedLowLevelNodesNum();
         return mergedMDD;
@@ -214,6 +223,7 @@ public class ICTS_Solver extends A_Solver {
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 
@@ -228,25 +238,12 @@ public class ICTS_Solver extends A_Solver {
         Map<Agent, Integer> startCosts = new HashMap<>();
         for (Agent agent : instance.agents) {
 
-            Integer depth = Math.round(heuristicICTS.getHToTargetFromLocation(agent.target, getSource(agent)));
-            if (depth == null) { // TODO clean?
-                //The single agent path does not exist
-                try {
-                    throw new Exception("The single agent plan for agent " + agent.iD + " does not exist!");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return false;
-            }
+            Integer depth = Math.round(heuristic.getHToTargetFromLocation(agent.target, getSource(agent)));
             startCosts.put(agent, depth);
         }
         ICT_Node startNode = new ICT_Node(startCosts);
         addToOpen(startNode);
         return true;
-    }
-
-    protected void getHeuristic(MAPF_Instance instance) {
-        heuristicICTS = new DistanceTableAStarHeuristicICTS(instance.agents, instance.map);
     }
 
     protected I_Location getSource(Agent agent){

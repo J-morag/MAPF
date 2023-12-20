@@ -1,6 +1,6 @@
 package BasicMAPF.Solvers.CBS;
 
-import BasicMAPF.CostFunctions.SOCPCostFunction;
+import BasicMAPF.CostFunctions.SOCWithPriorities;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -28,6 +28,7 @@ import java.util.Map;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
+import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,14 +37,6 @@ class CBS_SolverTest {
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
-
-    private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty,
-            new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to54, agent00to10, agent10to00});
-    private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
-    private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
-    private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
-    private MAPF_Instance instanceSmallMaze = new MAPF_Instance("instanceSmallMaze", mapSmallMaze, new Agent[]{agent04to00, agent00to10});
-    private MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
 
     I_Solver cbsSolver = new CBS_Solver();
 
@@ -155,7 +148,7 @@ class CBS_SolverTest {
     @Test
     void cbsWithPriorities() {
         I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCPCostFunction(), null, null, null, null);
+                new SOCWithPriorities(), null, null, null, null);
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -190,7 +183,7 @@ class CBS_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCPCostFunction(), null, null, null, null);
+                new SOCWithPriorities(), null, null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
