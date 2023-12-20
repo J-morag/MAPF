@@ -1,7 +1,7 @@
 package BasicMAPF.Solvers.PIBT;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -9,7 +9,7 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
@@ -47,7 +47,7 @@ public class PIBT_Solver extends A_Solver {
     /**
      * heuristic to use in the low level search to find the closest nodes to an agent's goal.
      */
-    private DistanceTableAStarHeuristic heuristic;
+    private DistanceTableSingleAgentHeuristic heuristic;
 
     /**
      * HashMap saves for each agent his plan.
@@ -94,7 +94,7 @@ public class PIBT_Solver extends A_Solver {
      */
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions, Integer finalTimeStamp) {
         super.name = "PIBT";
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
         this.finalTimeStamp = Objects.requireNonNullElse(finalTimeStamp, Integer.MAX_VALUE);
@@ -123,11 +123,11 @@ public class PIBT_Solver extends A_Solver {
         initPriority(instance);
 
         // distance between every vertex in the graph to each agent's goal
-        if (parameters.aStarGAndH instanceof DistanceTableAStarHeuristic) {
-            this.heuristic = (DistanceTableAStarHeuristic) parameters.aStarGAndH;
+        if (parameters.singleAgentGAndH instanceof DistanceTableSingleAgentHeuristic) {
+            this.heuristic = (DistanceTableSingleAgentHeuristic) parameters.singleAgentGAndH;
         }
         else {
-            this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
+            this.heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, instance.map);
         }
     }
 
@@ -150,7 +150,7 @@ public class PIBT_Solver extends A_Solver {
                     Solution solution = new TransientMAPFSolution();
                     for (Agent agent : agentPlans.keySet()) {
                         solution.putPlan(this.agentPlans.get(agent));
-                        if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                        if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                             throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
                         }
                     }
@@ -167,7 +167,7 @@ public class PIBT_Solver extends A_Solver {
                     Solution solution = new TransientMAPFSolution();
                     for (Agent agent : agentPlans.keySet()) {
                         solution.putPlan(this.agentPlans.get(agent));
-                        if (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+                        if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                             throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
                         }
                     }
@@ -198,7 +198,7 @@ public class PIBT_Solver extends A_Solver {
         Solution solution = new TransientMAPFSolution();
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
-            if (this.agentPlans.get(agent).size() != 0 && this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+            if (this.agentPlans.get(agent).size() != 0 && this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
             }
         }

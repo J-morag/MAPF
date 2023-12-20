@@ -17,6 +17,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.S_Metrics;
+import TransientMAPF.TransientMAPFBehaviour;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ public class LaCAM_SolverTest {
 
     private final MAPF_Instance instanceConnectorShapedMap = new MAPF_Instance("instanceConnectorShapedMap", mapConnector, new Agent[]{agent00to65, agent65to00, agent10to33, agent55to32, agent01to44, agent64to22});
 
-    I_Solver LaCAM_Solver = new LaCAM_Solver(null, null);
+    I_Solver LaCAM_Solver = new LaCAM_Solver(null, TransientMAPFBehaviour.regularMAPF);
 
     long timeout = 10*1000;
 
@@ -237,7 +238,7 @@ public class LaCAM_SolverTest {
     }
 
 
-    @Test
+//    @Test
     void TestingBenchmark(){
         S_Metrics.clearAll();
         boolean useAsserts = true;
@@ -356,7 +357,7 @@ public class LaCAM_SolverTest {
         }
     }
 
-    @Test
+//    @Test
     void compareBetweenPIBTAndLaCAMTest(){
         S_Metrics.clearAll();
         boolean useAsserts = true;

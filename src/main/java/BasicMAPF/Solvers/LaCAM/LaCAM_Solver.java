@@ -1,19 +1,20 @@
 package BasicMAPF.Solvers.LaCAM;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SOCCostFunction;
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableAStarHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import Environment.Metrics.InstanceReport;
+import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
 import org.checkerframework.checker.units.qual.A;
 
@@ -35,7 +36,7 @@ public class LaCAM_Solver extends A_Solver {
     /**
      * heuristic to use in the low level search to find the closest nodes to an agent's goal
      */
-    private DistanceTableAStarHeuristic heuristic;
+    private DistanceTableSingleAgentHeuristic heuristic;
 
     /**
      * Map saving priority of each agent
@@ -60,20 +61,20 @@ public class LaCAM_Solver extends A_Solver {
     private final I_SolutionCostFunction solutionCostFunction;
 
     /**
-     * boolean indicated whether the solution returned by the algorithm is transient.
+     * variable indicates whether the solution returned by the algorithm is transient.
      */
-    private Boolean transientMAPFGoalCondition;
+    private final TransientMAPFBehaviour transientMAPFBehaviour;
 
 
     /**
      * Constructor.
      * @param solutionCostFunction how to calculate the cost of a solution
-     * @param transientMAPFGoalCondition indicates whether to solve transient-MAPF.
+     * @param transientMAPFBehaviour indicates whether to solve transient-MAPF.
      */
-    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, Boolean transientMAPFGoalCondition) {
-        this.transientMAPFGoalCondition = Objects.requireNonNullElse(transientMAPFGoalCondition, false);
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SOCCostFunction::new);
-        super.name = "LaCAM" + (this.transientMAPFGoalCondition ? "t" : "");
+    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFBehaviour transientMAPFBehaviour) {
+        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
+        super.name = "LaCAM" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "");
     }
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
@@ -83,17 +84,17 @@ public class LaCAM_Solver extends A_Solver {
         this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
         this.agents = new HashMap<>();
-        this.subInstanceSolver = new PIBT_Solver(null, 1, true, 1);
+        this.subInstanceSolver = new PIBT_Solver(null, null, true, 1);
 
         // init agent's priority to unique number
         initPriority(instance);
 
         // distance between every vertex in the graph to each agent's goal
-        if (parameters.aStarGAndH instanceof DistanceTableAStarHeuristic) {
-            this.heuristic = (DistanceTableAStarHeuristic) parameters.aStarGAndH;
+        if (parameters.singleAgentGAndH instanceof DistanceTableSingleAgentHeuristic) {
+            this.heuristic = (DistanceTableSingleAgentHeuristic) parameters.singleAgentGAndH;
         }
         else {
-            this.heuristic = new DistanceTableAStarHeuristic(instance.agents, instance.map);
+            this.heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, instance.map);
         }
     }
     @Override
@@ -137,8 +138,17 @@ public class LaCAM_Solver extends A_Solver {
 
                 LowLevelNode tmpC = C;
                 while (tmpC.who != null) {
-                    locations.remove(N.configuration.get(tmpC.who.iD)); // ??
-                    locations.remove(tmpC.where); // ??
+                    // found an agent that want to move to chosenAgent's current location
+                    // remove from locations the location that this agent was
+                    // so, only the first in order agent (higher in tree) could make the move
+                    // avoid swap conflict
+                    if (tmpC.where.getCoordinate() == N.configuration.get(chosenAgent.iD).getCoordinate()) {
+                        locations.remove(N.configuration.get(tmpC.who.iD));
+                    }
+
+                    // current agent can't go to a location chooses by previous agent in the low level tree
+                    // avoid vertex conflict
+                    locations.remove(tmpC.where);
                     tmpC = tmpC.parent;
                 }
 
@@ -182,7 +192,7 @@ public class LaCAM_Solver extends A_Solver {
      * @return boolean. true if configurations is the goal configuration, false otherwise.
      */
     private boolean reachedGoalConfiguration(HashMap<Integer, I_Location> configuration, HighLevelNode N) {
-        if (!this.transientMAPFGoalCondition) {
+        if (!this.transientMAPFBehaviour.isTransientMAPF()) {
             for (Map.Entry<Integer, I_Location> entry : configuration.entrySet()) {
                 I_Location currentLocation = entry.getValue();
                 I_Location goalLocation = this.goalConfiguration.get(entry.getKey());
@@ -277,7 +287,7 @@ public class LaCAM_Solver extends A_Solver {
             Float distance = this.heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
             agentsDistances.put(agent, distance);
         }
-        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent2), agentsDistances.get(agent1)));
+        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent1), agentsDistances.get(agent2)));
         return sortedAgents;
     }
 
@@ -298,7 +308,7 @@ public class LaCAM_Solver extends A_Solver {
             Float distance = this.heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
             agentsDistances.put(agent, distance);
         }
-        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent2), agentsDistances.get(agent1)));
+        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent1), agentsDistances.get(agent2)));
         return sortedAgents;
     }
 
@@ -339,7 +349,7 @@ public class LaCAM_Solver extends A_Solver {
         }
 
         Solution solution;
-        if (this.transientMAPFGoalCondition) {
+        if (this.transientMAPFBehaviour.isTransientMAPF()) {
             solution = new TransientMAPFSolution();
         }
         else {
