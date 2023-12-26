@@ -228,7 +228,7 @@ public class LaCAM_Solver extends A_Solver {
 
         // depth is zero hence target low level node is the root
         if (C.depth == 0) {
-            subProblemParameters = new RunParametersBuilder().createRP();
+            subProblemParameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP();
         }
         // create constraint according to the low-level node
         else {
@@ -241,7 +241,7 @@ public class LaCAM_Solver extends A_Solver {
                 newConfiguration.put(C.who.iD, C.where);
                 C = C.parent;
             }
-            subProblemParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
+            subProblemParameters = new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP();
         }
 
         Agent[] agentsSubset = new Agent[instance.agents.size() - numberOfConstraints];
@@ -278,7 +278,7 @@ public class LaCAM_Solver extends A_Solver {
      * @param map of current problem instance.
      * helper function to create initialized order of agents.
      * in this function, we determine the order of chosen agents by the distance between their source and target.
-     * @return ArrayList of agents in descending order by distance to target.
+     * @return ArrayList of agents in ascending order by distance to target.
      */
     private ArrayList<Agent> get_init_order(List<Agent> agents, I_Map map) {
         ArrayList<Agent> sortedAgents = new ArrayList<>(agents);
