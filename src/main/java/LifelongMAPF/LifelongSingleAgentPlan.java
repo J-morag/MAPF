@@ -4,10 +4,10 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
 import com.google.common.collect.Iterables;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LifelongSingleAgentPlan extends SingleAgentPlan {

@@ -10,7 +10,7 @@ import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.Metrics.InstanceReport;
 import LifelongMAPF.LifelongAgent;
-import LifelongMAPF.WaypointsGenerator;
+import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

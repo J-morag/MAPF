@@ -7,13 +7,11 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.*;
-import LifelongMAPF.AgentSelectors.AllAgentsSelector;
-import LifelongMAPF.AgentSelectors.FailedOrStationaryAgentsSelector;
-import LifelongMAPF.AgentSelectors.PeriodicSelector;
-import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
+import LifelongMAPF.AgentSelectors.*;
 import LifelongMAPF.FailPolicies.*;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.*;
 import LifelongMAPF.LifelongSimulationSolver;
+import TransientMAPF.TransientMAPFBehaviour;
 
 public class LifelongSolversFactory {
 
@@ -1966,6 +1964,18 @@ public class LifelongSolversFactory {
 //        prp.dynamicAStarTimeAllocation = true;
 //        prp.aStarTimeAllocationFactor = 1.5f;
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                prp, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod, null);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver simplePrP_plusTransient(){
+        int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1000, RestartsStrategy.RestartsKind.randomRestarts),
+                true, false, TransientMAPFBehaviour.transientMAPFWithBlacklist, null, null);
+        A_Solver solver = new LifelongSimulationSolver(null, new NoTargetInPlanAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 prp, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
