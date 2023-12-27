@@ -226,6 +226,9 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.PIBT_partial());
 //        solvers.add(LifelongSolversFactory.PIBT_noPartial());
 
+        solvers.add(LifelongSolversFactory.simplePrP_plusTransient());
+        solvers.add(LifelongSolversFactory.simplePrP_infHorizon());
+        solvers.add(LifelongSolversFactory.simpleLNS_infHorizon());
 
 //        solvers.add(LifelongSolversFactory.subSetSelector_PIBT());
 

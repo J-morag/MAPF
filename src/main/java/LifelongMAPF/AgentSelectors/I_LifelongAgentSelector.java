@@ -6,7 +6,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongAgent;
-import LifelongMAPF.WaypointsGenerator;
+import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

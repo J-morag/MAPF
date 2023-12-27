@@ -5,6 +5,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
 
 import java.util.*;
 

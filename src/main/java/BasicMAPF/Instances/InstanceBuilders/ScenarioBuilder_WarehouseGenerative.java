@@ -7,11 +7,10 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.GraphMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import LifelongMAPF.LifelongAgent;
-import LifelongMAPF.WaypointsGeneratorFactory;
+import LifelongMAPF.WaypointGenerators.WaypointsGeneratorFactory;
 import com.google.common.collect.Collections2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.IOException;

@@ -2,6 +2,8 @@ package LifelongMAPF;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
+import LifelongMAPF.WaypointGenerators.WaypointsGeneratorFactory;
 import org.jetbrains.annotations.NotNull;
 
 /**

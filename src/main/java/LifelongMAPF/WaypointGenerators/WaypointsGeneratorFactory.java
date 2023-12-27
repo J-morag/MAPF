@@ -1,4 +1,4 @@
-package LifelongMAPF;
+package LifelongMAPF.WaypointGenerators;
 
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;

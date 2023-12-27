@@ -5,7 +5,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import LifelongMAPF.LifelongAgent;
-import LifelongMAPF.WaypointsGenerator;
+import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

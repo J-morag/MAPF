@@ -26,6 +26,7 @@ import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
 import LifelongMAPF.FailPolicies.StayFailPolicy;
 import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
+import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
