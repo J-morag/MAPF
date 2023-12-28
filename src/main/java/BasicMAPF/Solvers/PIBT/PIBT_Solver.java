@@ -90,6 +90,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private final boolean returnPartialSolutions;
 
+    private boolean agentCantMove;
+
 
     /**
      * constructor.
@@ -111,6 +113,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
+        this.agentCantMove = false;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -173,6 +176,10 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 Map.Entry<Agent, Double> maxEntry = getMaxEntry(this.priorities); // <agent, priority> pair with max priority
                 Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
+                if (this.agentCantMove) {
+                    this.agentCantMove = false;
+                    return createSolution();
+                }
             }
             updatePriorities(instance);
         }
@@ -180,6 +187,12 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         return makeSolution();
     }
 
+    /**
+     * this function called when the algorithm return null: timeout, loop, ...
+     * when this happened - the function return null if returnPartialSolutions is false.
+     * if returnPartialSolutions is true, the function will return partial solution.
+     * @return Solution - partial solution
+     */
     @Nullable
     private Solution createSolution() {
         if (this.returnPartialSolutions) {
@@ -187,15 +200,17 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             int numberOfNotMovingAgents = 0;
             for (Agent agent : agentPlans.keySet()) {
                 if (this.agentPlans.get(agent).size() == 0) {
+                    // if agent didn't make a move, add a move to stay in current location
+                    this.agentPlans.get(agent).addMove(new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent)));
                     numberOfNotMovingAgents++;
                 }
                 solution.putPlan(this.agentPlans.get(agent));
-
-
-                if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                    throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-                }
+//                if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+//                    throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
+//                }
             }
+
+            // if all agents not moved, return null
             if (numberOfNotMovingAgents == this.agentPlans.keySet().size()) {
                 return null;
             }
@@ -285,7 +300,13 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             if (addNewMoveToAgent(current, this.currentLocations.get(current))) {
                 this.takenNodes.add(this.currentLocations.get(current));
                 return false;
-            };
+            }
+            // agent cant move to a location in candidates,
+            // agent can't stay in current location (constraints)
+            // unsolvable - return null
+            else {
+                this.agentCantMove = true;
+            }
         }
         return false;
     }
@@ -380,9 +401,12 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean indicates if all agents reached their goal.
      */
     private boolean finished() {
-        for (Double priority : this.priorities.values()) {
-            // check if agent reached his goal
-            if (priority != -1.0) {
+        for (Agent agent : this.priorities.keySet()) {
+            if (this.priorities.get(agent) != -1.0) {
+                return false;
+            }
+
+            if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 return false;
             }
         }
@@ -427,6 +451,11 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         return true;
     }
 
+    /**
+     * main function to return final solution.
+     * when the algorithm finished - all agents reached their goals and satisfies all constrains.
+     * @return solution.
+     */
     @NotNull
     private Solution makeSolution() {
         this.timeStamp++;
@@ -439,25 +468,26 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             solution.putPlan(this.agentPlans.get(agent));
         }
 
-//        for (Agent agent : agentPlans.keySet()) {
-//            SingleAgentPlan plan = this.agentPlans.get(agent);
-//            // trim the plan to remove excess "stay" moves at the end
-//
-//            int lastChangedLocationTime = plan.getEndTime();
-//            for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
-//                if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
-//                    break;
-//                }
-//            }
-//            if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
-//                SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
-//                for (int t = 1; t <= lastChangedLocationTime; t++) {
-//                    trimmedPlan.addMove(plan.moveAt(t));
-//                }
-//                solution.putPlan(trimmedPlan);
-//            }
-//            else solution.putPlan(this.agentPlans.get(agent));
-//        }
+        for (Agent agent : agentPlans.keySet()) {
+            SingleAgentPlan plan = this.agentPlans.get(agent);
+            // trim the plan to remove excess "stay" moves at the end
+            int lastChangedLocationTime = plan.getEndTime();
+            for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
+                if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
+                    break;
+                }
+            }
+            if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
+                SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
+                for (int t = 1; t <= lastChangedLocationTime; t++) {
+                    if (plan.moveAt(t) != null) {
+                        trimmedPlan.addMove(plan.moveAt(t));
+                    }
+                }
+                solution.putPlan(trimmedPlan);
+            }
+            else solution.putPlan(this.agentPlans.get(agent));
+        }
         return solution;
     }
 

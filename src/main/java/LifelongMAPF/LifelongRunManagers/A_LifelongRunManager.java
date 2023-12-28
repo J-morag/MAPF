@@ -216,19 +216,23 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
 
 
-        solvers.add(LifelongSolversFactory.PrP());
-        solvers.add((LifelongSolversFactory.PrPt()));
+//        solvers.add(LifelongSolversFactory.PrP_Stationary());
+//        solvers.add((LifelongSolversFactory.PrPt_Stationary()));
+//        solvers.add((LifelongSolversFactory.PrP_noTarget()));
+//        solvers.add((LifelongSolversFactory.PrPt_noTarget()));
         solvers.add(LifelongSolversFactory.PIBT());
-        solvers.add(LifelongSolversFactory.LNS());
-        solvers.add(LifelongSolversFactory.LNSt());
+        solvers.add(LifelongSolversFactory.PIBT_subSet());
+//        solvers.add((LifelongSolversFactory.PIBT_subSet()));
+//        solvers.add(LifelongSolversFactory.LNS());
+//        solvers.add(LifelongSolversFactory.LNSt());
 
 
 //        solvers.add(LifelongSolversFactory.PIBT_partial());
 //        solvers.add(LifelongSolversFactory.PIBT_noPartial());
 
-        solvers.add(LifelongSolversFactory.simplePrP_plusTransient());
-        solvers.add(LifelongSolversFactory.simplePrP_infHorizon());
-        solvers.add(LifelongSolversFactory.simpleLNS_infHorizon());
+//        solvers.add(LifelongSolversFactory.simplePrP_plusTransient());
+//        solvers.add(LifelongSolversFactory.simplePrP_infHorizon());
+//        solvers.add(LifelongSolversFactory.simpleLNS_infHorizon());
 
 //        solvers.add(LifelongSolversFactory.subSetSelector_PIBT());
 
