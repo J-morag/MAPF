@@ -2040,7 +2040,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver PIBT(){
+    public static I_Solver PIBT_allAgent(){
         int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
@@ -2054,7 +2054,7 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver PIBT_subSet(){
+    public static I_Solver PIBT_NoTarget(){
         int replanningPeriod = 3;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
@@ -2063,6 +2063,20 @@ public class LifelongSolversFactory {
         PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, true);
 
         A_Solver solver = new LifelongSimulationSolver(null, new NoTargetInPlanAgentsSelector(new PeriodicSelector(replanningPeriod)),
+                pibt, null, new DeepPartialSolutionsStrategy(), fp, null, null);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver PIBT_Stationary(){
+        int replanningPeriod = 3;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new GoASFP(5);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, true);
+
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
