@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1704439551082,
+  "lastUpdate": 1704439552330,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -6094,6 +6094,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 4.1764708,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 1115.8235,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0d43fe761c5b349705d7ab2a36e93e6d210de71f",
+          "message": "add CBS with SIPP to performance benchmark (#78)\n\n* add CBS with SIPP to performance benchmark",
+          "timestamp": "2024-01-05T17:47:40+11:00",
+          "tree_id": "69f60c8d69f9982fecfeead203f58e3c0a8f3e0a",
+          "url": "https://github.com/J-morag/MAPF/commit/0d43fe761c5b349705d7ab2a36e93e6d210de71f"
+        },
+        "date": 1704439551912,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 89.117645,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 5.2352943,
             "unit": "Milliseconds"
           },
           {
