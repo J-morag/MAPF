@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1702356971022,
+  "lastUpdate": 1704439546106,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -1241,6 +1241,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 5179113.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0d43fe761c5b349705d7ab2a36e93e6d210de71f",
+          "message": "add CBS with SIPP to performance benchmark (#78)\n\n* add CBS with SIPP to performance benchmark",
+          "timestamp": "2024-01-05T17:47:40+11:00",
+          "tree_id": "69f60c8d69f9982fecfeead203f58e3c0a8f3e0a",
+          "url": "https://github.com/J-morag/MAPF/commit/0d43fe761c5b349705d7ab2a36e93e6d210de71f"
+        },
+        "date": 1704439545246,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 33189.117,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 9511.941,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 18596,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 6161303.5,
             "unit": "Expansions"
           }
         ]
