@@ -4,6 +4,7 @@ import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.*;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
 import TransientMAPF.TransientMAPFBehaviour;
@@ -14,9 +15,6 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.*;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -125,7 +123,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
 
-        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") +
+        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + (this.transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsst ? "_sst" : "") +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
@@ -336,12 +334,23 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
+
+        RunParameters_SAAStar params;
+        if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsst) {
+            params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
+                    setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(new TransientDistanceTableSingleAgentHeuristic(this.agents, subproblem.map)).createRP());
+        }
+        else {
+            params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
+                    setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
+        }
+
+//        RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
+//                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
         params.fBudget = maxCost;
         if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF){
             params.goalCondition = new VisitedTargetAStarGoalCondition();
-        } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist) {
+        } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist || transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsst) {
             Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
             for (Agent agent: this.agents) {
                 if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)){

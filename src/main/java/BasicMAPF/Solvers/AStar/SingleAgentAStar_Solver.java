@@ -9,6 +9,7 @@ import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.TransientDistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.AtTargetAStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
@@ -216,7 +217,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     possibleMove.isStayAtSource = true;
                 }
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    AStarState rootState = new AStarState(possibleMove, null, this.gAndH.cost(possibleMove), 0, isMoveToTarget(possibleMove));
+                    AStarState rootState = new AStarState(possibleMove, null, this.gAndH.cost(possibleMove, this.gAndH instanceof TransientDistanceTableSingleAgentHeuristic && existingPlan.containsTarget()), 0, isMoveToTarget(possibleMove));
                     openList.add(rootState);
                 }
             }
@@ -249,7 +250,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // move not prohibited by existing constraint
             if (constraints.accepts(possibleMove)) {
                 AStarState child = new AStarState(possibleMove, state,
-                        state.g + gAndH.cost(possibleMove),
+                        state.g + gAndH.cost(possibleMove, this.gAndH instanceof TransientDistanceTableSingleAgentHeuristic && existingPlan.containsTarget()),
                         state.conflicts + numConflicts(possibleMove), isMoveToTarget(possibleMove));
 
                 addToOpenList(child);
