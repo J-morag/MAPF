@@ -12,11 +12,11 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuris
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
 import org.checkerframework.checker.units.qual.A;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -53,7 +53,7 @@ public class LaCAM_Solver extends A_Solver {
      */
     private HashMap<Integer, Agent> agents;
 
-    private PIBT_Solver subInstanceSolver;
+    private A_Solver subInstanceSolver;
 
     /**
      * The cost function to evaluate solutions with.
@@ -64,6 +64,10 @@ public class LaCAM_Solver extends A_Solver {
      * variable indicates whether the solution returned by the algorithm is transient.
      */
     private final TransientMAPFBehaviour transientMAPFBehaviour;
+
+    private ConstraintSet solverConstraints;
+
+    private int highLevelNodesCounter;
 
 
     /**
@@ -79,12 +83,14 @@ public class LaCAM_Solver extends A_Solver {
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
+        this.solverConstraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.open = new Stack<>();
         this.explored = new HashMap<>();
         this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
         this.agents = new HashMap<>();
-        this.subInstanceSolver = new PIBT_Solver(null, null, true, 1);
+        this.subInstanceSolver = new PIBT_ForLaCAM(null, null, true, 1);
+        this.highLevelNodesCounter = 0;
 
         // init agent's priority to unique number
         initPriority(instance);
@@ -107,6 +113,7 @@ public class LaCAM_Solver extends A_Solver {
         }
         LowLevelNode C_init = new LowLevelNode(null, null, null);
         HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, get_init_order(instance.agents, instance.map), null, null);
+        this.highLevelNodesCounter++;
         this.open.push(N_init);
         this.explored.put(initialConfiguration, N_init);
 
@@ -122,6 +129,7 @@ public class LaCAM_Solver extends A_Solver {
             }
 
             // finished low level search
+            // TODO - check how often this line should run
             if (N.tree.isEmpty()) {
                 this.open.pop();
                 continue;
@@ -170,6 +178,7 @@ public class LaCAM_Solver extends A_Solver {
             }
 
             HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, getOrder(newConfiguration, N, instance.map), N, N.reachedGoalsMap);
+            this.highLevelNodesCounter++;
 
             // update reachedGoalMap according to new configuration
             for (Map.Entry<Integer, Boolean> entry : N_new.reachedGoalsMap.entrySet()) {
@@ -221,14 +230,14 @@ public class LaCAM_Solver extends A_Solver {
      */
     private HashMap<Integer, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C, MAPF_Instance instance) {
         HashMap<Integer, I_Location> newConfiguration = new HashMap<>();
-        ConstraintSet constraints = new ConstraintSet();
+        ConstraintSet constraints = new ConstraintSet(this.solverConstraints);
         int numberOfConstraints = C.depth;
         ArrayList<Integer> agentsWithConstraint = new ArrayList<>();
         RunParameters subProblemParameters;
 
         // depth is zero hence target low level node is the root
         if (C.depth == 0) {
-            subProblemParameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP();
+            subProblemParameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setAStarGAndH(this.heuristic).createRP();
         }
         // create constraint according to the low-level node
         else {
@@ -241,7 +250,7 @@ public class LaCAM_Solver extends A_Solver {
                 newConfiguration.put(C.who.iD, C.where);
                 C = C.parent;
             }
-            subProblemParameters = new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP();
+            subProblemParameters = new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(this.heuristic).createRP();
         }
 
         Agent[] agentsSubset = new Agent[instance.agents.size() - numberOfConstraints];
@@ -272,6 +281,7 @@ public class LaCAM_Solver extends A_Solver {
         }
         return null;
     }
+
 
     /**
      * @param agents list of agents to sort.
@@ -359,6 +369,7 @@ public class LaCAM_Solver extends A_Solver {
         for (Agent agent : instance.agents) {
             solution.putPlan(agentPlans.get(agent));
         }
+        System.out.println("Number Of High-Level nodes generated: " + this.highLevelNodesCounter);
         return solution;
     }
 
