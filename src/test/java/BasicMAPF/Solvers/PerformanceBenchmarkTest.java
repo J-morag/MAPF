@@ -40,7 +40,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void CBS_SIPPStressTest() {
-        CBS_Solver solver = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null, null, null, null, null, null, null);
+        CBS_Solver solver = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null, null, null, null, null, null, null, null);
         solver.name = "CBS_SIPP";
         long timeout = 1000 * 60;
         int numAgents = 30;
