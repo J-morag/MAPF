@@ -1,7 +1,9 @@
 package LifelongMAPF.LifelongRunManagers;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
+import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -1977,6 +1979,32 @@ public class LifelongSolversFactory {
                 true, false, TransientMAPFBehaviour.transientMAPFWithBlacklist, null, null);
         A_Solver solver = new LifelongSimulationSolver(null, new NoTargetInPlanAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 prp, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod, null);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver CBS(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new GoASFP(5);
+        CBS_Solver cbs = new CBS_Solver(new SingleAgentAStar_Solver(asfpf), null, null,null, null, null, true, true, null);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                cbs, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
+
+    public static I_Solver CBSt(){
+        int replanningPeriod = 1;
+        I_SingleAgentFailPolicy fp = new StayFailPolicy();
+        Integer RHCRHorizon = null;
+        int targetsCapacity = 18;
+        I_AStarFailPolicy asfpf = new GoASFP(5);
+        CBS_Solver cbs = new CBS_Solver(new SingleAgentAStar_Solver(asfpf), null, null,null, null, null, true, true, TransientMAPFBehaviour.transientMAPF);
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                cbs, null, new DeepPartialSolutionsStrategy(), fp, null, targetsCapacity);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }

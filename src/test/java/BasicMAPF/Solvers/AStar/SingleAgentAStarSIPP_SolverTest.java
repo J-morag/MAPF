@@ -785,10 +785,10 @@ class SingleAgentAStarSIPP_SolverTest {
         boolean useAsserts = true;
 
         I_Solver regularCBS = new CBS_Solver(null, null, null,
-                null, null, false, null, null);
+                null, null, false, null, null, null);
         String nameBaseline = "regularCBS";
         I_Solver singleAgentSippCBS = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null, null,
-                null, null, false, null, null);
+                null, null, false, null, null, null);
         String nameExperimental = "singleAgentSippCBS";
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});

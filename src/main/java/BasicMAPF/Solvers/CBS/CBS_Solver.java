@@ -5,6 +5,7 @@ import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
@@ -20,6 +21,8 @@ import BasicMAPF.Solvers.AStar.RunParameters_SAAStar;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
 import LifelongMAPF.I_LifelongCompatibleSolver;
+import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSolution;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -99,6 +102,8 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      */
     public final boolean sharedSources;
 
+    private final TransientMAPFBehaviour transientMAPFBehaviour;
+
 
     /*  = Constructors =  */
 
@@ -114,8 +119,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
                       I_SolutionCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
-                      Boolean sharedGoals, Boolean sharedSources) {
-        super.name = "CBS";
+                      Boolean sharedGoals, Boolean sharedSources, TransientMAPFBehaviour transientMAPFBehaviour) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -126,13 +130,15 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
+        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
+        super.name = "CBS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "");
     }
 
     /**
      * Default constructor.
      */
     public CBS_Solver() {
-        this(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -185,7 +191,14 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      * Creates a root node.
      */
     private CBS_Node generateRoot(ConstraintSet initialConstraints) {
-        Solution solution = new Solution(); // init an empty solution
+        Solution solution; // init an empty solution
+        if (transientMAPFBehaviour.isTransientMAPF()) {
+            solution = new TransientMAPFSolution();
+        }
+        else {
+            solution = new Solution();
+        }
+
         // for every agent, add its plan to the solution
         for (Agent agent :
                 this.instance.agents) {
@@ -288,7 +301,13 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
         // replace with copies if required
         if(copyDatastructures) {
-            solution = new Solution(solution);
+//            solution = new Solution(solution);
+            if (transientMAPFBehaviour.isTransientMAPF()) {
+                solution = new TransientMAPFSolution(solution);
+            }
+            else {
+                solution = new Solution(solution);
+            }
         }
 
         // modify for this node
@@ -363,6 +382,12 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
                 .setAStarGAndH(this.singleAgentGAndH).createRP();
         if(this.lowLevelSolver instanceof SingleAgentAStar_Solver){
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
+
+            // TMAPF goal condition
+            if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF){
+                astarSubproblemParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+            }
+
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
             cat.sharedGoals = this.sharedGoals;
             cat.sharedSources = this.sharedSources;
