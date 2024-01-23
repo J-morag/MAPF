@@ -45,8 +45,6 @@ public class Agent {
 
     @Override
     public String toString() {
-        return "Agent{" +
-                "iD=" + iD +
-                '}';
+        return "Agent{" + iD + ": " + source + "->" + target +'}';
     }
 }

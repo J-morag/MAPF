@@ -279,6 +279,12 @@ class CBS_SolverTest {
                     report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
                     if (useAsserts) assertEquals(optimalCost, costWeGot);
 
+                    System.out.printf("Time(ms): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+                    System.out.printf("Expanded nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+                    System.out.printf("Generated nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodes));
+                    System.out.printf("Expanded nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
+                    System.out.printf("Generated nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel));
+
                     report.putIntegerValue("Runtime Delta",
                             report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
 

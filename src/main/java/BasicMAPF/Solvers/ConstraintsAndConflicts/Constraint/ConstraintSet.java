@@ -227,8 +227,10 @@ public class ConstraintSet{
      *
      * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
      * @param finalMove a move to occupy a location indefinitely.
+     * @param checkOtherAgentsLastMoves if true, also check if the agent's goal is occupied indefinitely.
+     *                                  Which should not happen if agents aren't allowed to have the same target.
      * @return the *last* time when a constraint would eventually reject a "stay" move at the given move's location;
-     * Specifically, would return {@link Integer#MAX_VALUE} if there is an infinite (target/goal) constraint on the location;
+     * Specifically, would return {@link Integer#MAX_VALUE} if there is an infinite (target/goal) constraint on the location (not checked unless checkOtherAgentsLastMoves is true);
      * -1 if never rejected.
      */
     public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
@@ -243,6 +245,8 @@ public class ConstraintSet{
      *
      * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
      * @param finalMove a move to occupy a location indefinitely.
+     * @param checkOtherAgentsLastMoves if true, also check if the agent's goal is occupied indefinitely.
+     *                                  Which should not happen if agents aren't allowed to have the same target.
      * @return the *first* time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
      */
     public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
