@@ -29,7 +29,7 @@ public class Coordinate_2D implements I_Coordinate {
     @Override
     public int hashCode() {
         int result = x_value;
-        result = 31 * result + y_value;
+        result = 524287 * result + y_value;
         return result;
     }
 
