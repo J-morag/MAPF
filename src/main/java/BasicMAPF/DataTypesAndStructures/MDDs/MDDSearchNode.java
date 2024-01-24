@@ -9,15 +9,20 @@ import java.util.List;
 
 public class MDDSearchNode implements Comparable<MDDSearchNode>{
     private final I_Location location;
+    /**
+     * Used to stop searching the time dimension when searching for a minimal MDD and have passed last constraint time.
+     */
+    private final int t;
     private final List<MDDSearchNode> parents;
     private final int g;
     private final float h;
     private final Agent agent;
 
-    public MDDSearchNode(Agent agent, I_Location location, int g, float h) {
+    public MDDSearchNode(Agent agent, I_Location location, int g, float h, int t) {
         this.agent = agent;
         this.location = location;
         this.g = g;
+        this.t = t;
         parents = new LinkedList<>();
         this.h = h;
     }
@@ -25,19 +30,17 @@ public class MDDSearchNode implements Comparable<MDDSearchNode>{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MDDSearchNode)) return false;
+        if (!(o instanceof MDDSearchNode that)) return false;
 
-        MDDSearchNode node = (MDDSearchNode) o;
-
-        if (g != node.g) return false;
-        if (!location.equals(node.location)) return false;
-        return agent.equals(node.agent);
+        if (t != that.t) return false;
+        if (!location.equals(that.location)) return false;
+        return agent.equals(that.agent);
     }
 
     @Override
     public int hashCode() {
         int result = location.hashCode();
-        result = 31 * result + g;
+        result = 31 * result + t;
         result = 31 * result + agent.hashCode();
         return result;
     }
@@ -66,13 +69,25 @@ public class MDDSearchNode implements Comparable<MDDSearchNode>{
         return g;
     }
 
+    /**
+     * Used to stop searching the time dimension when searching for a minimal MDD and have passed last constraint time.
+     */
+    public int getT() {
+        return t;
+    }
+
     public float getH() {
         return h;
     }
 
     @Override
     public int compareTo(MDDSearchNode node) {
-        return Float.compare(this.getF(), node.getF());
+        int result = Float.compare(this.getF(), node.getF());
+        if(result != 0) return result;
+        result = Integer.compare(node.getG(), this.getG());
+        if(result != 0) return result;
+        result = Integer.compare(System.identityHashCode(node), System.identityHashCode(this)); // todo unstable and non-determinitic, just for testing
+        return result;
     }
 
     public void addParents(List<MDDSearchNode> parents) {

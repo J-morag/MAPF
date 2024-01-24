@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 public class AStarMDDBuilder extends A_MDDSearcher {
 
     private static final int PLAN_START_TIME = 0;
+    private static final int VERBOSE = 1;
     private Queue<MDDSearchNode> openList;
     /**
      * The key will not be updated, although, the value will be the last version of this node.
@@ -45,19 +46,31 @@ public class AStarMDDBuilder extends A_MDDSearcher {
         initOpenList();
         contentOfOpen = new HashMap<>();
         closeList = new HashMap<>();
-        MDDSearchNode start = new MDDSearchNode(agent, super.getSource(), 0, heuristic.getHToTargetFromLocation(agent.target, super.getSource()));
+        MDDSearchNode start = new MDDSearchNode(agent, super.getSource(),
+                0, heuristic.getHToTargetFromLocation(agent.target, super.getSource()), PLAN_START_TIME);
         addToOpen(start);
     }
 
     protected void addToOpen(MDDSearchNode node){
-        if(contentOfOpen.containsKey(node)){
-            //Do not add this node twice to the open list, just add it's parents to the already "inOpen" node.
-            MDDSearchNode inOpen = contentOfOpen.get(node);
-            inOpen.addParents(node.getParents());
+        MDDSearchNode inOpen;
+        MDDSearchNode inClosed;
+        if((inOpen = contentOfOpen.get(node)) != null){
+            // Do not add this node twice to the open list, just add its parents to the already "inOpen" node.
+            if (node.getG() < inOpen.getG()){ // solely for when using the time ceiling because of searching for a minimal MDD under infinite constraints
+                openList.remove(inOpen); // todo might be inefficient because it's O(n)
+                contentOfOpen.remove(inOpen);
+                openList.add(node);
+                contentOfOpen.put(node, node);
+            } else if (node.getG() == inOpen.getG()) {
+                inOpen.addParents(node.getParents()); // without time ceiling, only this is needed (unconditionally)
+            }
         }
-        else if(closeList.containsKey(node)){
-            MDDSearchNode inClosed = closeList.get(node);
-            inClosed.addParents(node.getParents());
+        else if((inClosed = closeList.get(node)) != null){
+            if (node.getG() < inClosed.getG()){
+                throw new IllegalStateException("Should not enter here, because we should not get a new node if it is in closed list with a lower g");
+            } else if (node.getG() == inClosed.getG()) {
+                inClosed.addParents(node.getParents());
+            }
         }
         else{
             generatedNodesNum++;
@@ -79,34 +92,30 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     @Override
     public MDD continueSearching(int depthOfSolution) {
         this.maxDepthOfSolution = depthOfSolution;
+        int lastRejectionAtTargetTime = constraints == null ? -1 :
+                constraints.lastRejectionTime(new Move(agent, 1, target, target), false);
+        int lastConstraintsChangeTime = constraints == null ? 0 :
+                constraints.getLastConstraintStartTime();
+        lastConstraintsChangeTime = Math.max(lastConstraintsChangeTime, 0);
+        boolean findMinMode = depthOfSolution == -1;
+
         if (openList == null){
             initializeSearch();
         }
-
         MDDSearchNode goal = null;
         while(!isOpenEmpty()){
             if(timeout.isTimeoutExceeded())
                 return null;
             MDDSearchNode current = pollFromOpen();
-            expandedNodesNum++;
+            if (VERBOSE >= 3) System.out.println(this.getClass().getSimpleName() + "current is " + current.getLocation() + " at time " + current.getT() + " with g=" + current.getG() + " and h=" + current.getH());
             if(depthOfSolution > -1 && current.getF() > depthOfSolution)
             {
                 addToOpen(current);
                 break;
             }
             if(isGoalState(current)){
-                // todo cache result to avoid repeated calls or improve performance of this call in ConstraintSet
-                int lastRejectionAtTargetTime = constraints == null ? -1 :
-                        constraints.lastRejectionTime(new Move(current.getAgent(), nodeTime(current),
-                                        current.getParents() == null ? current.getLocation() : current.getParents().get(0).getLocation(),
-                                        current.getLocation()), false);
-                if (lastRejectionAtTargetTime >= nodeTime(current)){
-                    continue;
-                }
-
-                if (depthOfSolution == -1) {
+                if (depthOfSolution == -1 && current.getT() > lastRejectionAtTargetTime) {
                     depthOfSolution = current.getG();
-                    this.maxDepthOfSolution = depthOfSolution;
                 }
                 if(current.getG() == depthOfSolution){
                     if(goal == null){
@@ -114,7 +123,6 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                         // Don't do continue here, because we want to add the sons of current to the open list for later
                     }
                     else{
-                        //goal.addParents(current.getParents());
                         try {
                             throw new Exception("Should not enter here, because goal is already in closed list, so it already added the parents of the new solution to the goal");
                         } catch (Exception e) {
@@ -124,13 +132,9 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                 }
             }
             // Don't do else here, because we want to add the sons of current to the open list for later even if it is a goal
-            expand(current);
+            expand(current, lastConstraintsChangeTime, findMinMode);
         }
         return goal == null ? null : new MDD(goal);
-    }
-
-    private int nodeTime(MDDSearchNode current) {
-        return PLAN_START_TIME + current.getG();
     }
 
     @Override
@@ -153,19 +157,28 @@ public class AStarMDDBuilder extends A_MDDSearcher {
         return openList.isEmpty();
     }
 
-    protected void expand(MDDSearchNode node){
-        List<I_Location> neighborLocations = node.getNeighborLocations();
+    protected void expand(MDDSearchNode parent, int lastConstraintsChangeTime, boolean findMinMode){
+        expandedNodesNum++;
+        if (VERBOSE >= 3) System.out.println(this.getClass().getSimpleName() + "expanding " + parent.getLocation() + " at time " + parent.getT() + " with g=" + parent.getG() + " and h=" + parent.getH());
+
+        List<I_Location> neighborLocations = parent.getNeighborLocations();
         for (I_Location location : neighborLocations) {
-            int newG = node.getG() + 1;
+            int newG = parent.getG() + 1;
+            float newH = heuristic.getHToTargetFromLocation(agent.target, location);
+            int newTime = parent.getT() + 1;
+            if (findMinMode && newTime > lastConstraintsChangeTime){
+                if (location.equals(parent.getLocation())) continue; // no stay when after last constraint time
+                newTime = lastConstraintsChangeTime + 1; // keeps same time as the parent
+            }
             if (constraints != null &&
                     // todo profile Move creation impact
-                    constraints.rejects(new Move(agent, PLAN_START_TIME + newG, node.getLocation(), location)))
+                    constraints.rejects(new Move(agent, newTime, parent.getLocation(), location)))
                 continue;
-            MDDSearchNode neighbor = new MDDSearchNode(agent, location, newG, heuristic.getHToTargetFromLocation(agent.target, location));
-            neighbor.addParent(node);
+            MDDSearchNode neighbor = new MDDSearchNode(agent, location, newG, newH, newTime);
+            neighbor.addParent(parent);
             addToOpen(neighbor);
         }
-        addToClose(node);
+        addToClose(parent);
     }
 
     protected boolean isGoalState(MDDSearchNode node) {
