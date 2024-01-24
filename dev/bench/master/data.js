@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706080773983,
+  "lastUpdate": 1706080775051,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -4215,6 +4215,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 11052345,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "0ea0c1456807fe7b31af78922b276cd934c5578e",
+          "message": "Make S_Metrics implementation rely on ThreadLocal instead of being static, to support multithreading. Rename to just Metrics.",
+          "timestamp": "2024-01-24T17:41:02+11:00",
+          "tree_id": "fa35ba606500029df261dfb58f923dd66b174d93",
+          "url": "https://github.com/J-morag/MAPF/commit/0ea0c1456807fe7b31af78922b276cd934c5578e"
+        },
+        "date": 1706080774737,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 9006.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30003.059,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28008.176,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 11602598,
             "unit": "Expansions"
           }
         ]
