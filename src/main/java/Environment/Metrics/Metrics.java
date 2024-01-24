@@ -21,33 +21,38 @@ import java.util.*;
  * c2. after each report is filled, calling {@link InstanceReport#commit()} to immediately output its contents to the
  * output streams.
  */
-public class S_Metrics {
-    public static DateFormat defaultDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm_ss-SSS");
+public class Metrics {
+    public static DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm_ss-SSS");
     private static final char CSV_DELIMITER = ',';
+    /**
+     * Use ThreadLocal to store an instance of S_Metrics for each thread
+     */
+    private static final ThreadLocal<Metrics> threadLocalInstance = ThreadLocal.withInitial(Metrics::new);
 
     ////      MEMBERS      ////
     /**
      * Optional. Defines a header. Useful for formats such as CSV.
      */
-    private static String[] header = new String[0];
+    private String[] header = new String[0];
     /**
      *
      */
-    private final static List<InstanceReport> reports = new ArrayList<InstanceReport>();
+    private List<InstanceReport> reports = new ArrayList<>();
     // the following three lists are managed together, so that any index refers to the same OutputStream in outputStreams
     /**
      * OutputStreams for {@link InstanceReport#commit() comitted} {@link InstanceReport}s to be output to.
      */
-    private static List<OutputStream> outputStreams = new ArrayList<OutputStream>();
+    private List<OutputStream> outputStreams = new ArrayList<>();
     /**
      * Functions to convert {@link InstanceReport}s to strings for output.
      */
-    private static List<InstanceReportToString> instanceReportToStringsForOSs = new ArrayList<InstanceReportToString>();
+    private List<InstanceReportToString> instanceReportToStringsForOSs = new ArrayList<>();
     /**
      * Functions to convert the header to String to output at the start of an output stream. Can contain nulls, meaning
      * a header is not needed for the OutputStream of the same index.
      */
-    private static List<HeaderToString> headerToStringsForOSs = new ArrayList<HeaderToString>();
+    private List<HeaderToString> headerToStringsForOSs = new ArrayList<>();
+
     ////      INTERFACES      ////
     /**
      * Defines a function which converts an {@link InstanceReport} to a String.
@@ -62,7 +67,7 @@ public class S_Metrics {
 
     /**
      * Defines a function which converts a String array representing a header, to a String.
-     * {@link S_Metrics} contains static methods which comply with this interface, and may be used when this
+     * {@link Metrics} contains static methods which comply with this interface, and may be used when this
      * interface is required.
      * @see #headerArrayToStringCSV(String[]).
      */
@@ -70,6 +75,10 @@ public class S_Metrics {
         String headerToString(String[] headerArray);
     }
 
+    // Access the singleton instance for the current thread
+    private static Metrics getMetricsInstance() {
+        return threadLocalInstance.get();
+    }
 
     ////      SETTERS AND GETTERS      ////
 
@@ -78,9 +87,9 @@ public class S_Metrics {
      * @param newHeader the new header @NotNull
      * @throws IOException if an I/O error occurs when outputing the new header to one of the streams.
      */
-    public static void setHeaderAndOutputNewHeader(String[] newHeader) throws IOException {
+    public void setHeaderAndOutputNewHeader(String[] newHeader) throws IOException {
         if(newHeader != null){
-            S_Metrics.header = newHeader;
+            getMetricsInstance().header = newHeader;
             if(newHeader.length > 0 ){outputHeaderToAllRelevantStreams();}
         }
     }
@@ -91,14 +100,15 @@ public class S_Metrics {
      */
     public static void setHeader(String[] newHeader) throws IOException {
         if(newHeader != null){
-            S_Metrics.header = newHeader;}
+            getMetricsInstance().header = newHeader;}
     }
 
     private static String[] getHeader() {
-        return Arrays.copyOf(S_Metrics.header, S_Metrics.header.length);
+        return Arrays.copyOf(getMetricsInstance().header, getMetricsInstance().header.length);
     }
 
-    public static void clearHeader() {header = new String[0];}
+    public static void clearHeader() {
+        getMetricsInstance().header = new String[0];}
 
     /**
      * Creates a new, empty, {@link InstanceReport}, saves a reference to it, and returns it.
@@ -106,7 +116,7 @@ public class S_Metrics {
      */
     public static InstanceReport newInstanceReport(){
         InstanceReport newReport = new InstanceReport();
-        S_Metrics.reports.add(newReport);
+        getMetricsInstance().reports.add(newReport);
         return newReport;
     }
 
@@ -115,19 +125,19 @@ public class S_Metrics {
      * @return the most recently created {@link InstanceReport}.
      */
     public static InstanceReport getMostRecentInstanceReport(){
-        return S_Metrics.reports.get(S_Metrics.reports.size()-1);
+        return getMetricsInstance().reports.get(getMetricsInstance().reports.size()-1);
     }
 
     public static boolean removeReport(InstanceReport report){
-        return S_Metrics.reports.remove(report);
+        return getMetricsInstance().reports.remove(report);
     }
 
     public static void clearReports(){
-        S_Metrics.reports.clear();
+        getMetricsInstance().reports.clear();
     }
 
     public static List<InstanceReport> getAllReports(){
-        return List.copyOf(S_Metrics.reports);
+        return List.copyOf(getMetricsInstance().reports);
     }
 
     /**
@@ -142,12 +152,13 @@ public class S_Metrics {
     public static void addOutputStream(OutputStream outputStream, InstanceReportToString instanceReportToString,
                                        HeaderToString headerToString) throws IOException {
         if (outputStream != null && instanceReportToString != null) {
-            outputStreams.add(outputStream);
-            instanceReportToStringsForOSs.add(instanceReportToString);
-            headerToStringsForOSs.add(headerToString); // null is interpreted as "no need for header"
+            Metrics metricsInstance = getMetricsInstance();
+            metricsInstance.outputStreams.add(outputStream);
+            metricsInstance.instanceReportToStringsForOSs.add(instanceReportToString);
+            metricsInstance.headerToStringsForOSs.add(headerToString); // null is interpreted as "no need for header"
             //output the header to the new stream if a header is needed and is set.
-            if(header.length > 0 && headerToString != null){
-                outputStream.write(headerToString.headerToString(header).getBytes());
+            if(metricsInstance.header.length > 0 && headerToString != null){
+                outputStream.write(headerToString.headerToString(metricsInstance.header).getBytes());
             }
         }
     }
@@ -174,20 +185,22 @@ public class S_Metrics {
      * @throws IOException if an I/O error occurs.
      */
     public static void addOutputStream(OutputStream outputStream) throws IOException {
-        addOutputStream(outputStream, S_Metrics::instanceReportToStringCSV, S_Metrics::headerArrayToStringCSV);
+        addOutputStream(outputStream, Metrics::instanceReportToStringCSV, Metrics::headerArrayToStringCSV);
     }
 
     public static void removeOutputStream(OutputStream outputStream){
-        int streamIndex = outputStreams.indexOf(outputStream);
-        outputStreams.remove(streamIndex);
-        headerToStringsForOSs.remove(streamIndex);
-        instanceReportToStringsForOSs.remove(streamIndex);
+        Metrics metricsInstance = getMetricsInstance();
+        int streamIndex = metricsInstance.outputStreams.indexOf(outputStream);
+        metricsInstance.outputStreams.remove(streamIndex);
+        metricsInstance.headerToStringsForOSs.remove(streamIndex);
+        metricsInstance.instanceReportToStringsForOSs.remove(streamIndex);
     }
 
     public static void clearOutputStreams(){
-        outputStreams.clear();
-        headerToStringsForOSs.clear();
-        instanceReportToStringsForOSs.clear();
+        Metrics metricsInstance = getMetricsInstance();
+        metricsInstance.outputStreams.clear();
+        metricsInstance.headerToStringsForOSs.clear();
+        metricsInstance.instanceReportToStringsForOSs.clear();
     }
 
     /**
@@ -236,7 +249,7 @@ public class S_Metrics {
      * @return a string representation of the given header, in a format compatible with CSV.
      */
     public static String headerArrayToStringCSV(String[] headerArray){
-        return headerToStringCSV(headerArray, S_Metrics.CSV_DELIMITER);
+        return headerToStringCSV(headerArray, Metrics.CSV_DELIMITER);
     }
 
     /**
@@ -267,7 +280,7 @@ public class S_Metrics {
      * @return a string representation of the information in an instanceReport, in a format compatible with CSV.
      */
     public static String instanceReportToStringCSV(InstanceReport instanceReport){
-        return  instanceReportToStringCSV(instanceReport, S_Metrics.CSV_DELIMITER, S_Metrics.header);
+        return  instanceReportToStringCSV(instanceReport, Metrics.CSV_DELIMITER, getMetricsInstance().header);
     }
 
     /**
@@ -312,13 +325,14 @@ public class S_Metrics {
     }
 
     private static void outputHeaderToAllRelevantStreams() {
-        for (int i = 0; i < outputStreams.size(); i++) {
-            HeaderToString headerToString = headerToStringsForOSs.get(i);
+        Metrics metricsInstance = getMetricsInstance();
+        for (int i = 0; i < metricsInstance.outputStreams.size(); i++) {
+            HeaderToString headerToString = metricsInstance.headerToStringsForOSs.get(i);
             if(headerToString != null){
                 try {
-                    outputHeaderToStream(outputStreams.get(i), S_Metrics.header, headerToString);
+                    outputHeaderToStream(metricsInstance.outputStreams.get(i), getMetricsInstance().header, headerToString);
                 } catch (IOException e) {
-                    handleIO_Exception(e, outputStreams.get(i), headerToStringsForOSs.get(i).headerToString(S_Metrics.header));
+                    handleIO_Exception(e, metricsInstance.outputStreams.get(i), metricsInstance.headerToStringsForOSs.get(i).headerToString(getMetricsInstance().header));
                 }
             }
         }
@@ -330,23 +344,25 @@ public class S_Metrics {
     }
 
     private static void outputInstanceReportToAllStreams(InstanceReport instanceReport) {
-        for (int i = 0; i < outputStreams.size(); i++) {
+        Metrics metricsInstance = getMetricsInstance();
+        for (int i = 0; i < metricsInstance.outputStreams.size(); i++) {
             try {
-                outputInstanceReportToStream(outputStreams.get(i), instanceReport, instanceReportToStringsForOSs.get(i));
+                outputInstanceReportToStream(metricsInstance.outputStreams.get(i), instanceReport, metricsInstance.instanceReportToStringsForOSs.get(i));
             } catch (IOException e) {
-                handleIO_Exception(e, outputStreams.get(i), instanceReportToStringsForOSs.get(i).instanceReportToString(instanceReport));
+                handleIO_Exception(e, metricsInstance.outputStreams.get(i), metricsInstance.instanceReportToStringsForOSs.get(i).instanceReportToString(instanceReport));
             }
         }
     }
 
     private static void outputAllInstanceReportToAllStreams() {
-        for (int i = 0; i < outputStreams.size(); i++) {
-            OutputStream outputStream = outputStreams.get(i);
-            InstanceReportToString iToString = instanceReportToStringsForOSs.get(i);
+        Metrics metricsInstance = getMetricsInstance();
+        for (int i = 0; i < metricsInstance.outputStreams.size(); i++) {
+            OutputStream outputStream = metricsInstance.outputStreams.get(i);
+            InstanceReportToString iToString = metricsInstance.instanceReportToStringsForOSs.get(i);
             InstanceReport currentInstanceReport = null;
             try {
-                for (int j = 0; j < S_Metrics.reports.size(); j++) {
-                    currentInstanceReport = S_Metrics.reports.get(j);
+                for (int j = 0; j < getMetricsInstance().reports.size(); j++) {
+                    currentInstanceReport = getMetricsInstance().reports.get(j);
                     outputInstanceReportToStream(outputStream, currentInstanceReport, iToString);
                 }
             } catch (IOException e) {
@@ -358,7 +374,7 @@ public class S_Metrics {
     private static void outputAllInstanceReportsToStream(OutputStream outputStream,
                                                          InstanceReportToString instanceReportToString) throws IOException {
         for (InstanceReport report :
-                S_Metrics.reports) {
+                getMetricsInstance().reports) {
             outputInstanceReportToStream(outputStream, report, instanceReportToString);
         }
     }
@@ -376,7 +392,7 @@ public class S_Metrics {
 
     private static void flushAllOutputStreams() {
         for (OutputStream os :
-                outputStreams) {
+                getMetricsInstance().outputStreams) {
             try {
                 os.flush();
             } catch (IOException e) {
@@ -388,7 +404,7 @@ public class S_Metrics {
     private static String[] createHeaderFromCurrentReports(){
         Set<String> headerSet = new HashSet<>();
         for (InstanceReport report :
-                S_Metrics.reports) {
+                getMetricsInstance().reports) {
             headerSet.addAll(report.getAllFields());
         }
         return headerSet.toArray(String[]::new);
@@ -415,9 +431,9 @@ public class S_Metrics {
      */
     public static void exportToOutputStream(OutputStream out, InstanceReportToString instanceReportToString, HeaderToString headerToString) throws IOException {
         if(headerToString != null) {
-            outputHeaderToStream(out, S_Metrics.header, headerToString);
+            outputHeaderToStream(out, getMetricsInstance().header, headerToString);
             for (InstanceReport report :
-                    reports) {
+                    getMetricsInstance().reports) {
                 outputInstanceReportToStream(out, report, instanceReportToString);
             }
         }
@@ -431,7 +447,7 @@ public class S_Metrics {
      * @throws IOException if an I/O error occurs
      */
     public static void exportToOutputStream(OutputStream out) throws IOException {
-        exportToOutputStream(out, S_Metrics::instanceReportToStringCSV, S_Metrics::headerArrayToStringCSV);
+        exportToOutputStream(out, Metrics::instanceReportToStringCSV, Metrics::headerArrayToStringCSV);
         out.flush();
     }
 
@@ -453,9 +469,9 @@ public class S_Metrics {
      * @throws IOException if an I/O error occurs
      */
     public static void exportCSV(OutputStream outputStream, String[] headerArray) throws IOException {
-        outputHeaderToStream(outputStream, headerArray, S_Metrics::headerArrayToStringCSV);
+        outputHeaderToStream(outputStream, headerArray, Metrics::headerArrayToStringCSV);
         outputAllInstanceReportsToStream(outputStream,
-                instanceReport -> S_Metrics.instanceReportToStringCSV(instanceReport, S_Metrics.CSV_DELIMITER, headerArray));
+                instanceReport -> getMetricsInstance().instanceReportToStringCSV(instanceReport, Metrics.CSV_DELIMITER, headerArray));
         outputStream.flush();
     }
 

@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-class S_MetricsTest {
+class MetricsTest {
 
     private static final String outputFile = IO_Manager.buildPath(new String[]{   IO_Manager.testResources_Directory, "S_MetricsTest.csv"});
 
@@ -27,12 +27,12 @@ class S_MetricsTest {
     }
 
     void writeSomeInstanceReports(boolean commitThem) throws IOException {
-        InstanceReport ir1 = S_Metrics.newInstanceReport();
+        InstanceReport ir1 = Metrics.newInstanceReport();
         ir1.putStringValue("iName", "ir1");
         ir1.putIntegerValue("int1", 1);
         ir1.putFloatValue("fl1", (float)1.1);
         if(commitThem) {ir1.commit();}
-        InstanceReport ir2 = S_Metrics.newInstanceReport();
+        InstanceReport ir2 = Metrics.newInstanceReport();
         ir2.putStringValue("iName", "ir2");
         ir2.putIntegerValue("int1", 1);
         ir2.putFloatValue("fl1", (float)1.1);
@@ -41,7 +41,7 @@ class S_MetricsTest {
         ir2.floatAddition("fl1", (float)1.1); //fl1 = 2.2
         ir2.floatAddition("fl2", (float)1.1); //fl2 = 1.1
         if(commitThem) {ir2.commit();}
-        InstanceReport ir3 = S_Metrics.newInstanceReport();
+        InstanceReport ir3 = Metrics.newInstanceReport();
         ir3.putStringValue("iName", "ir3");
         ir3.putIntegerValue("int1", 1);
         ir3.putFloatValue("fl1", (float)1.1);
@@ -50,7 +50,7 @@ class S_MetricsTest {
         ir3.floatMultiplication("fl1", (float)1.1); //fl1 = 1.21
         ir3.floatMultiplication("fl2", (float)1.1); //fl2 = 0
         if(commitThem) {ir3.commit();}
-        InstanceReport ir4 = S_Metrics.newInstanceReport();
+        InstanceReport ir4 = Metrics.newInstanceReport();
         ir4.putStringValue("iName", "ir4");
         ir4.putStringValue("iName", "new name"); // iName = new name
         ir4.putIntegerValue("int1", 1);
@@ -64,7 +64,7 @@ class S_MetricsTest {
     @Test
     void manualTest_ConsoleOutput_withCommits(){
         try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+            Metrics.addOutputStream(System.out, Metrics::instanceReportToHumanReadableString);
             writeSomeInstanceReports(true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,8 +74,8 @@ class S_MetricsTest {
 
     void manualTest_FileOutput_FullHeader_withCommits(){
         try {
-            S_Metrics.setHeader(new String[]{"iName", "int1", "fl1"});
-            S_Metrics.addOutputStream(new FileOutputStream(outputFile));
+            Metrics.setHeader(new String[]{"iName", "int1", "fl1"});
+            Metrics.addOutputStream(new FileOutputStream(outputFile));
             writeSomeInstanceReports(true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,8 +85,8 @@ class S_MetricsTest {
 
     void manualTest_FileOutput_PartialHeader_withCommits(){
         try {
-            S_Metrics.setHeader(new String[]{"iName", "fl1"});
-            S_Metrics.addOutputStream(new FileOutputStream(outputFile));
+            Metrics.setHeader(new String[]{"iName", "fl1"});
+            Metrics.addOutputStream(new FileOutputStream(outputFile));
             writeSomeInstanceReports(true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,23 +96,23 @@ class S_MetricsTest {
 
     void exportAll() {
         try {
-            S_Metrics.setHeader(new String[]{"iName", "int1", "fl1"});
-            S_Metrics.addOutputStream(new FileOutputStream(outputFile), S_Metrics::instanceReportToHumanReadableString,
-                    S_Metrics::headerArrayToStringCSV);
-            S_Metrics.addOutputStream(System.out);
+            Metrics.setHeader(new String[]{"iName", "int1", "fl1"});
+            Metrics.addOutputStream(new FileOutputStream(outputFile), Metrics::instanceReportToHumanReadableString,
+                    Metrics::headerArrayToStringCSV);
+            Metrics.addOutputStream(System.out);
             writeSomeInstanceReports(false);
         } catch (IOException e) {
             e.printStackTrace();
             fail();
         }
-        S_Metrics.exportAll();
+        Metrics.exportAll();
     }
 
     void exportCSV() {
         try {
             writeSomeInstanceReports(false);
-            S_Metrics.exportCSV(new FileOutputStream(outputFile), new String[]{"iName", "int1", "fl1"});
-            S_Metrics.exportCSV(System.out, new String[]{"iName", "int1", "fl1"});
+            Metrics.exportCSV(new FileOutputStream(outputFile), new String[]{"iName", "int1", "fl1"});
+            Metrics.exportCSV(System.out, new String[]{"iName", "int1", "fl1"});
         } catch (IOException e) {
             e.printStackTrace();
             fail();

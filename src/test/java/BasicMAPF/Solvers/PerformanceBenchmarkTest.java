@@ -17,7 +17,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -91,7 +91,7 @@ public class PerformanceBenchmarkTest {
     }
     
     private static void StressTest(I_Solver solver, long timeout, int numAgents) {
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         String nameSolver = solver.name();
@@ -114,7 +114,7 @@ public class PerformanceBenchmarkTest {
             System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
             
             // build report
-            InstanceReport report = S_Metrics.newInstanceReport();
+            InstanceReport report = Metrics.newInstanceReport();
             report.putStringValue(InstanceReport.StandardFields.experimentName, "StressTest " + nameSolver);
             report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());

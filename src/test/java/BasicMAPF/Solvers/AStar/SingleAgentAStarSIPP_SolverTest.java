@@ -21,7 +21,7 @@ import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -78,12 +78,12 @@ class SingleAgentAStarSIPP_SolverTest {
 
     @BeforeEach
     void setUp() {
-        instanceReport = S_Metrics.newInstanceReport();
+        instanceReport = Metrics.newInstanceReport();
     }
 
     @AfterEach
     void tearDown() {
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
 
@@ -781,7 +781,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
     @Test
     void comparativeDiverseTest(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver regularCBS = new CBS_Solver(null, null, null,
@@ -808,7 +808,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
             // run baseline (without the improvement)
             //build report
-            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            InstanceReport reportBaseline = Metrics.newInstanceReport();
             reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -821,7 +821,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
             // run experimentl (with the improvement)
             //build report
-            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            InstanceReport reportExperimental = Metrics.newInstanceReport();
             reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -881,15 +881,17 @@ class SingleAgentAStarSIPP_SolverTest {
         System.out.println(nameExperimental + " time: " + runtimeExperimental);
 
         //save results
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
             directory.mkdir();
         }
-        String updatedPath = resultsOutputDir + "\\results " + dateFormat.format(System.currentTimeMillis()) + ".csv";
+        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
+                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
+                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+            Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
                             InstanceReport.StandardFields.instanceName,
                             InstanceReport.StandardFields.numAgents,

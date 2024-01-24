@@ -12,7 +12,7 @@ import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import TransientMAPF.TransientMAPFBehaviour;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -40,12 +40,12 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @BeforeEach
     void setUp() {
-        instanceReport = S_Metrics.newInstanceReport();
+        instanceReport = Metrics.newInstanceReport();
     }
 
     @AfterEach
     void tearDown() {
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
     @Test
@@ -80,9 +80,9 @@ class LargeNeighborhoodSearch_SolverTest {
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, getDefaultRunParameters());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -99,7 +99,7 @@ class LargeNeighborhoodSearch_SolverTest {
     @Test
     void ObeysSoftTimeout(){
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         long softTimeout = 1000L;
         long hardTimeout = 5L * 1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
@@ -110,12 +110,12 @@ class LargeNeighborhoodSearch_SolverTest {
         System.out.println("runtime: " + runtime);
         assertTrue(runtime >= softTimeout && runtime < hardTimeout);
 
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
     @Test
     void TestingBenchmark(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = this.solver;
@@ -142,7 +142,7 @@ class LargeNeighborhoodSearch_SolverTest {
 //                }
 
                 //build report
-                InstanceReport report = S_Metrics.newInstanceReport();
+                InstanceReport report = Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -199,7 +199,7 @@ class LargeNeighborhoodSearch_SolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -209,7 +209,7 @@ class LargeNeighborhoodSearch_SolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
-                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
                                 InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,
@@ -241,7 +241,7 @@ class LargeNeighborhoodSearch_SolverTest {
      */
     @Test
     void comparativeDiverseTestHasContingencyVsNoContingency(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null, null);
@@ -270,7 +270,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
             // run baseline (without the improvement)
             //build report
-            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            InstanceReport reportBaseline = Metrics.newInstanceReport();
             reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -283,7 +283,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
             // run experiment (with the improvement)
             //build report
-            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            InstanceReport reportExperimental = Metrics.newInstanceReport();
             reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -341,7 +341,7 @@ class LargeNeighborhoodSearch_SolverTest {
         System.out.println(nameExperimental + " avg. cost: " + sumCostExperimental);
 
         //save results
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
@@ -351,7 +351,7 @@ class LargeNeighborhoodSearch_SolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+            Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
                             InstanceReport.StandardFields.instanceName,
                             InstanceReport.StandardFields.solver,
