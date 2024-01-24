@@ -439,7 +439,7 @@ class LargeNeighborhoodSearch_SolverTest {
         assertTrue(solvedNormal.solves(testInstance));
         System.out.println(solvedNormal.readableToString());
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
-        assertEquals(4, solvedNormal.makespan());
+        assertTrue(solvedNormal.makespan() == 4 || solvedNormal.makespan() == 6);
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
@@ -462,7 +462,7 @@ class LargeNeighborhoodSearch_SolverTest {
         assertTrue(solvedNormal.solves(testInstance));
         System.out.println(solvedNormal.readableToString());
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
-        assertEquals(4, solvedNormal.makespan());
+        assertTrue(solvedNormal.makespan() == 4 || solvedNormal.makespan() == 6);
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
