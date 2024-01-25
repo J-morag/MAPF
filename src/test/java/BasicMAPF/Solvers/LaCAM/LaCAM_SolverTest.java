@@ -247,7 +247,7 @@ public class LaCAM_SolverTest {
     }
 
 
-//    @Test
+    @Test
     void TestingBenchmark(){
         S_Metrics.clearAll();
         boolean useAsserts = true;
@@ -260,9 +260,9 @@ public class LaCAM_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-//            long timeout = 5 /*seconds*/
-//                    *1000L;
-            long timeout = 5*60*1000;
+            long timeout = 5 /*seconds*/
+                    *1000L;
+//            long timeout = 5*60*1000;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
@@ -366,14 +366,10 @@ public class LaCAM_SolverTest {
         }
     }
 
-//    @Test
+    @Test
     void compareBetweenPIBTAndLaCAMTest(){
         S_Metrics.clearAll();
         boolean useAsserts = true;
-
-//        I_Solver PrPSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-//                null, new RestartsStrategy(), null, null, null);
-//        String namePrP = PrPSolver.name();
 
         I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
         String nameLaCAM = LaCAMSolver.name();
@@ -391,11 +387,11 @@ public class LaCAM_SolverTest {
 //        long timeout = 60 /*seconds*/   *1000L;
 //        long timeout = 10 /*seconds*/   *1000L;
         long timeout = 5*60*1000;
-        int solvedByPrP = 0;
+        int solvedByLaCAM = 0;
         int solvedByPIBT = 0;
-        int runtimePrP = 0;
+        int runtimeLaCAM = 0;
         int runtimePIBT = 0;
-        float sumCostPrP = 0;
+        float sumCosrLaCAM = 0;
         int sumCostPIBT = 0;
         while ((instance = instanceManager.getNextInstance()) != null) {
             System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
@@ -428,11 +424,11 @@ public class LaCAM_SolverTest {
 
             // compare
 
-            boolean PrPSolved = solutionLaCAM != null;
-            solvedByPrP += PrPSolved ? 1 : 0;
+            boolean LaCAMSolved = solutionLaCAM != null;
+            solvedByLaCAM += LaCAMSolved ? 1 : 0;
             boolean PIBTSolved = solutionPIBT != null;
             solvedByPIBT += PIBTSolved ? 1 : 0;
-            System.out.println(nameLaCAM + " Solved?: " + (PrPSolved ? "yes" : "no") +
+            System.out.println(nameLaCAM + " Solved?: " + (LaCAMSolved ? "yes" : "no") +
                     " ; " + namePIBT + " solved?: " + (PIBTSolved ? "yes" : "no"));
 
             if(solutionLaCAM != null){
@@ -450,25 +446,25 @@ public class LaCAM_SolverTest {
 
             if(solutionLaCAM != null && solutionPIBT != null){
                 // runtimes
-                runtimePrP += reportLaCAM.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                runtimeLaCAM += reportLaCAM.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
                 runtimePIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
                 reportLaCAM.putIntegerValue("Runtime Delta",
                         reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
                                 - reportLaCAM.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
                 // cost
-                sumCostPrP += solutionLaCAM.sumIndividualCosts();
+                sumCosrLaCAM += solutionLaCAM.sumIndividualCosts();
                 sumCostPIBT += solutionPIBT.sumIndividualCosts();
             }
         }
 
         System.out.println("--- TOTALS: ---");
         System.out.println("timeout for each (seconds): " + (timeout/1000));
-        System.out.println(nameLaCAM + " solved: " + solvedByPrP);
+        System.out.println(nameLaCAM + " solved: " + solvedByLaCAM);
         System.out.println(namePIBT + " solved: " + solvedByPIBT);
         System.out.println("runtime totals (instances where both solved) :");
-        System.out.println(nameLaCAM + " time: " + runtimePrP);
+        System.out.println(nameLaCAM + " time: " + runtimeLaCAM);
         System.out.println(namePIBT + " time: " + runtimePIBT);
-        System.out.println(nameLaCAM + " avg. cost: " + sumCostPrP);
+        System.out.println(nameLaCAM + " avg. cost: " + sumCosrLaCAM);
         System.out.println(namePIBT + " avg. cost: " + sumCostPIBT);
 
         //save results

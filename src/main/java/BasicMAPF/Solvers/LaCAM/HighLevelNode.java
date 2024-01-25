@@ -3,10 +3,7 @@ package BasicMAPF.Solvers.LaCAM;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class HighLevelNode {
     public HashMap<Integer, I_Location> configuration;
@@ -16,7 +13,13 @@ public class HighLevelNode {
     public HighLevelNode parent;
     public HashMap<Integer, Boolean> reachedGoalsMap;
 
-    public HighLevelNode(HashMap<Integer, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HighLevelNode parent, HashMap<Integer, Boolean> reachedGoalsMap) {
+    public Set<HighLevelNode> neighbors;
+
+    public float g;
+    public float h;
+    public float f;
+
+    public HighLevelNode(HashMap<Integer, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HighLevelNode parent, HashMap<Integer, Boolean> reachedGoalsMap, float g, float h) {
         this.configuration = configuration;
         this.tree = new LinkedList<>();
         this.tree.add(root);
@@ -31,6 +34,11 @@ public class HighLevelNode {
         else {
             this.reachedGoalsMap = reachedGoalsMap;
         }
+
+        this.neighbors = new HashSet<>();
+        this.g = g;
+        this.h = h;
+        this.f = this.g + this.h;
 
     }
 }
