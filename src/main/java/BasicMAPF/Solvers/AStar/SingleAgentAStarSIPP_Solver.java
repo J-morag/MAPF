@@ -17,6 +17,11 @@ import java.util.stream.Collectors;
 
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
+    public SingleAgentAStarSIPP_Solver() {
+        super();
+        super.name = "SIPP";
+    }
+
     private HashMap<I_Location, List<Interval>> safeIntervalsByLocation;
 
     private record Interval(int start, int end) {
