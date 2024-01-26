@@ -38,7 +38,7 @@ public class Constraint {
      * @param location the location the constraint applies to.
      */
     public Constraint(Agent agent, int time, @Nullable I_Location prevLocation, I_Location location) {
-        if(time<0 || location == null) throw new IllegalArgumentException();
+        if(time<0 || location == null) throw new IllegalArgumentException("time: "+time+" location: "+location);
         this.agent = agent;
         this.time = time;
         this.prevLocation = prevLocation;
