@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706263435162,
+  "lastUpdate": 1706263436838,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -9070,6 +9070,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "SIPP - Average Runtime",
             "value": 553.97644,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "SIPP - Average Expansions Low Level",
+            "value": 23324.754,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "08cc886e3e7b4cb76437e76612367dbd218ac8de",
+          "message": "SIPP performance: faster intervals initialization",
+          "timestamp": "2024-01-26T20:21:46+11:00",
+          "tree_id": "017dd00b716136e3252a7c598a4f2af253fc8be3",
+          "url": "https://github.com/J-morag/MAPF/commit/08cc886e3e7b4cb76437e76612367dbd218ac8de"
+        },
+        "date": 1706263436141,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "SIPP - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "SIPP - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "SIPP - Average Runtime",
+            "value": 475.91763,
             "unit": "Milliseconds"
           },
           {
