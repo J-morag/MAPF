@@ -6,7 +6,7 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.Experiment;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import Environment.RunManagers.A_RunManager;
 import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
@@ -86,13 +86,13 @@ public abstract class A_LifelongRunManager extends A_RunManager {
     }
 
     @Override
-    protected @NotNull S_Metrics.InstanceReportToString getStdoutReportToString() {
+    protected @NotNull Metrics.InstanceReportToString getStdoutReportToString() {
         return getInstanceReportToHumanReadableStringSkipWaypointTimes();
     }
 
     @NotNull
-    private static S_Metrics.InstanceReportToString getInstanceReportToHumanReadableStringSkipWaypointTimes() {
-        return S_Metrics::instanceReportToHumanReadableStringSkipWaypointTimes;
+    private static Metrics.InstanceReportToString getInstanceReportToHumanReadableStringSkipWaypointTimes() {
+        return Metrics::instanceReportToHumanReadableStringSkipWaypointTimes;
     }
 
     @Override

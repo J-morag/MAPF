@@ -3,7 +3,7 @@ package BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -49,7 +49,7 @@ public class AdaptiveIndexPartialSolutionsStrategy implements PartialSolutionsSt
 
     @Override
     public void resetState(@Nullable Random newRandom) {
-        S_Metrics.getMostRecentInstanceReport().putFloatValue("Adaptive Index reached cutoff", (float) this.indexBasedPartialSolutionsStrategy.getCutoffPercent());
+        Metrics.getMostRecentInstanceReport().putFloatValue("Adaptive Index reached cutoff", (float) this.indexBasedPartialSolutionsStrategy.getCutoffPercent());
         setIndexBasedStrategy();
         setRandomNumberGenerator(newRandom);
     }

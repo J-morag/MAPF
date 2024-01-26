@@ -15,7 +15,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.Disallowe
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.WidePartialSolutionsStrategy;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
@@ -76,12 +76,12 @@ class LifelongSimulationSolverTest {
 
     @BeforeEach
     void setUp() {
-        instanceReport = S_Metrics.newInstanceReport();
+        instanceReport = Metrics.newInstanceReport();
     }
 
     @AfterEach
     void tearDown() {
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
 
@@ -91,11 +91,11 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -105,11 +105,11 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -120,11 +120,11 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -135,11 +135,11 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(150L * 1000).setInstanceReport(instanceReport).createRP(), 150L * 1000);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -149,11 +149,11 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -163,11 +163,11 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -176,14 +176,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -193,7 +193,7 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_SnapshotOptimal() {
         I_Solver solver = snapshotOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
@@ -202,7 +202,7 @@ class LifelongSimulationSolverTest {
         // cheating: response time = max time left. to get snapshot optimal results.
         LifelongRunParameters parameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), DEFAULT_TIMEOUT);
         Solution solved = solver.solve(testInstance, parameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -214,9 +214,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -226,9 +226,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -238,9 +238,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -250,9 +250,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -262,9 +262,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -274,9 +274,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -285,12 +285,12 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -300,14 +300,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_ReplanSingle() {
         I_Solver solver = replanSingle;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -319,9 +319,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -331,9 +331,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -344,9 +344,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -356,9 +356,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -368,9 +368,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -380,9 +380,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -391,12 +391,12 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -406,14 +406,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_AllAgentsPrPr() {
         I_Solver solver = allAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -425,9 +425,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -437,9 +437,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -449,9 +449,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -461,9 +461,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -473,9 +473,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -485,9 +485,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -496,12 +496,12 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -511,14 +511,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_MandatoryAgentsOptimal() {
         I_Solver solver = mandatoryAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -530,9 +530,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -542,9 +542,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -555,9 +555,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -567,9 +567,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -579,9 +579,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -591,9 +591,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -602,12 +602,12 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -617,14 +617,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_MandatoryAgentsPrPr() {
         I_Solver solver = mandatoryAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -636,9 +636,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -648,9 +648,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -661,9 +661,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -673,9 +673,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -685,9 +685,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -697,9 +697,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -708,12 +708,12 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -723,14 +723,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_FreespaceConflictingAgentsPrP() {
         I_Solver solver = freespaceConflictingAgentsPrPr;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -742,9 +742,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -754,9 +754,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -767,9 +767,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -779,9 +779,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -791,9 +791,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -803,9 +803,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -814,12 +814,12 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -829,14 +829,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_freespaceConflictingAgentsOptimal() {
         I_Solver solver = freespaceConflictingAgentsOptimal;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -849,9 +849,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -861,9 +861,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -873,9 +873,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -885,9 +885,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -897,10 +897,10 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -910,9 +910,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -921,13 +921,13 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         System.out.println(solved);
@@ -938,14 +938,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_AllAgentsLNS() {
         I_Solver solver = allAgentsLNS;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isValidFullOrPartialSolution(solved, testInstance);
@@ -958,9 +958,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -970,9 +970,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -982,9 +982,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -994,9 +994,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isValidFullOrPartialSolution(solved, testInstance);
@@ -1006,10 +1006,10 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1019,9 +1019,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -1030,13 +1030,13 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         LifelongRunParameters lifelongRunParameters = new LifelongRunParameters(new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP(), 500L);
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         System.out.println(solved);
@@ -1047,14 +1047,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_baselineRHCR_w10_p5() {
         I_Solver solver = baselineRHCR_w20_p5;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isValidFullOrPartialSolution(solved, testInstance);
@@ -1067,9 +1067,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1079,9 +1079,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1092,9 +1092,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1104,9 +1104,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1116,9 +1116,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialRHCR_w10();
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1131,9 +1131,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1143,9 +1143,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1156,9 +1156,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1168,9 +1168,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1180,9 +1180,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1192,9 +1192,9 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseOfConflictsShouldBePartialSolution_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(2L * 1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         isPartialSolution(testInstance, solved);
     }
@@ -1203,12 +1203,12 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -1218,14 +1218,14 @@ class LifelongSimulationSolverTest {
     void unsolvableBecauseConstraintsShouldWorkThanksToFailPolicy2_mandatoryAgentsPrPrDeepPartial() {
         I_Solver solver = mandatoryAgentsPrPrDeepPartial;
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNotNull(solved);
         isFullSolution(solved, testInstance);
@@ -1237,9 +1237,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1249,9 +1249,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1262,9 +1262,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1274,9 +1274,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1286,9 +1286,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10() {
         I_Solver solver = LifelongSolversFactory.stationaryAgentsPrPCutoff25PercentPartialAvoidFPRHCR_w10();
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1300,9 +1300,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP() {
         I_Solver solver = stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1312,9 +1312,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP() {
         I_Solver solver = stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1325,9 +1325,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP() {
         I_Solver solver = stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1337,9 +1337,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP() {
         I_Solver solver = stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1349,9 +1349,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP() {
         I_Solver solver = stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1364,9 +1364,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_modern1() {
         I_Solver solver = modern1;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1376,9 +1376,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_modern1() {
         I_Solver solver = modern1;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1389,9 +1389,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_modern1() {
         I_Solver solver = modern1;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1401,9 +1401,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_modern1() {
         I_Solver solver = modern1;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1413,9 +1413,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_modern1() {
         I_Solver solver = modern1;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1429,9 +1429,9 @@ class LifelongSimulationSolverTest {
     void emptyMapValidityTest1_lotsAndPrPT() {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1441,9 +1441,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest1_lotsAndPrPT() {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1454,9 +1454,9 @@ class LifelongSimulationSolverTest {
     void circleMapValidityTest2_lotsAndPrPT() {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         isFullSolution(solved, 8, 5, testInstance);
@@ -1466,9 +1466,9 @@ class LifelongSimulationSolverTest {
     void smallMazeDenseValidityTest_lotsAndPrPT() {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceSmallMazeDense;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);
@@ -1478,9 +1478,9 @@ class LifelongSimulationSolverTest {
     void startAdjacentGoAroundValidityTest_lotsAndPrPT() {
         I_Solver solver = lotsAndPrPT_h1;
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
         assertNotNull(solved);
         System.out.println(solved.readableToString());
         isFullSolution(solved, testInstance);

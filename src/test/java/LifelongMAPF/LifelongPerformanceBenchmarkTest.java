@@ -10,7 +10,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import org.json.JSONArray;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ public class LifelongPerformanceBenchmarkTest {
     }
 
     private static void runStressTestWithSolver(I_Solver solver) {
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         String nameSolver = solver.name();
         InstanceManager instanceManager = new InstanceManager(PATH, new InstanceBuilder_MovingAI(null, true),
                 new InstanceProperties(null, -1d, new int[]{400, 600}));
@@ -57,7 +57,7 @@ public class LifelongPerformanceBenchmarkTest {
             System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
 
             // build report
-            InstanceReport report = S_Metrics.newInstanceReport();
+            InstanceReport report = Metrics.newInstanceReport();
             report.putStringValue(InstanceReport.StandardFields.experimentName, "StressTest " + nameSolver);
             report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
