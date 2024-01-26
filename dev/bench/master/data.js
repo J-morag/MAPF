@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706260632478,
+  "lastUpdate": 1706260633474,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -7189,6 +7189,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Expansions Low Level",
             "value": 1115.8235,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "25ca566b8108630355842a767b30127dc199ef78",
+          "message": "add SIPP name so that performance benchmark reports right",
+          "timestamp": "2024-01-26T19:35:36+11:00",
+          "tree_id": "226a22d0339d9979bc7851e5f58b97ab48449606",
+          "url": "https://github.com/J-morag/MAPF/commit/25ca566b8108630355842a767b30127dc199ef78"
+        },
+        "date": 1706260633189,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 1052.3412,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 396247.8,
             "unit": "Expansions"
           }
         ]
