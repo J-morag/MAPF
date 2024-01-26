@@ -3,12 +3,17 @@ package BasicMAPF.Solvers;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
+import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
@@ -16,7 +21,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -24,7 +29,11 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
+import static BasicMAPF.TestUtils.addRandomConstraints;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PerformanceBenchmarkTest {
@@ -34,7 +43,16 @@ public class PerformanceBenchmarkTest {
         I_Solver solver = new CBS_Solver();
         long timeout = 1000 * 60;
         int numAgents = 30;
-        StressTest(solver, timeout, numAgents);
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
+    public void CBS_SIPPStressTest() {
+        CBS_Solver solver = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null, null, null, null, null, null, null);
+        solver.name = "CBS_SIPP";
+        long timeout = 1000 * 60;
+        int numAgents = 30;
+        stressTest(solver, timeout, numAgents, false);
     }
 
     @Test
@@ -42,7 +60,7 @@ public class PerformanceBenchmarkTest {
         I_Solver solver = new ICTS_Solver();
         long timeout = 1000 * 30;
         int numAgents = 30;
-        StressTest(solver, timeout, numAgents);
+        stressTest(solver, timeout, numAgents, false);
     }
 
     @Test
@@ -52,7 +70,7 @@ public class PerformanceBenchmarkTest {
                 null, null, null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 100;
-        StressTest(solver, timeout, numAgents);
+        stressTest(solver, timeout, numAgents, false);
     }
 
     @Test
@@ -60,7 +78,7 @@ public class PerformanceBenchmarkTest {
         I_Solver solver = new LargeNeighborhoodSearch_Solver();
         long timeout = 1000 * 30;
         int numAgents = 100;
-        StressTest(solver, timeout, numAgents);
+        stressTest(solver, timeout, numAgents, false);
     }
 
     @Test
@@ -68,20 +86,27 @@ public class PerformanceBenchmarkTest {
         I_Solver solver = new PIBT_Solver(null, null);
         long timeout = 1000 * 30;
         int numAgents = 200;
-        StressTest(solver, timeout, numAgents);
+        stressTest(solver, timeout, numAgents, false);
     }
 
     @Test
     public void AStarStressTest() {
-        // todo add constraints because this is too easy and not representative of the real use case
         I_Solver solver = new SingleAgentAStar_Solver();
         long timeout = 1000 * 10;
-        int numAgents = 1;
-        StressTest(solver, timeout, numAgents);
+        int numAgents = 5;
+        stressTest(solver, timeout, numAgents, true);
+    }
+
+    @Test
+    public void SIPPStressTest() {
+        I_Solver solver = new SingleAgentAStarSIPP_Solver();
+        long timeout = 1000 * 10;
+        int numAgents = 5;
+        stressTest(solver, timeout, numAgents, true);
     }
     
-    private static void StressTest(I_Solver solver, long timeout, int numAgents) {
-        S_Metrics.clearAll();
+    private static void stressTest(I_Solver solver, long timeout, int numAgents, boolean singleAgentSolver) {
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         String nameSolver = solver.name();
@@ -101,52 +126,91 @@ public class PerformanceBenchmarkTest {
 
         MAPF_Instance instance;
         while ((instance = instanceManager.getNextInstance()) != null) {
-            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
-            
-            // build report
-            InstanceReport report = S_Metrics.newInstanceReport();
-            report.putStringValue(InstanceReport.StandardFields.experimentName, "StressTest " + nameSolver);
-            report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-            report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-            report.putStringValue(InstanceReport.StandardFields.solver, nameSolver);
+            if (singleAgentSolver){
+                for (Agent agent: instance.agents){
+                    MAPF_Instance subproblem = instance.getSubproblemFor(agent);
+                    ConstraintSet constraints = new ConstraintSet();
+                    List<I_Location> allLocations = new ArrayList<>(((I_ExplicitMap)subproblem.map).getAllLocations());
+                    addRandomConstraints(agent, allLocations, new Random(42),
+                            constraints, 300, allLocations.size()/20);
 
-            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
+                    InstanceReport report = Metrics.newInstanceReport();
+                    Solution solution = solveOneInstance(report, nameSolver, subproblem, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report)
+                            .setConstraints(constraints).createRP(), solver, subproblem);
 
-            // solve
-            Solution solution = solver.solve(instance, runParametersBaseline);
+                    // report
 
-            // report
+                    boolean solved = solution != null;
+                    countSolved += solved ? 1 : 0;
+                    countFailed += solved ? 0 : 1;
+                    System.out.println(nameSolver + " Solved?: " + (solved ? "yes" : "no") );
 
-            boolean solved = solution != null;
-            countSolved += solved ? 1 : 0;
-            countFailed += solved ? 0 : 1;
-            System.out.println(nameSolver + " Solved?: " + (solved ? "yes" : "no") );
+                    // runtimes
+                    runtime += report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                    System.out.println(nameSolver + " runtime: " + report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+                    runtimeLowLevel += report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+                    System.out.println(nameSolver + " runtime low level: " + report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS));
+                    // expansions
+                    if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodes) != null){
+                        expansionsHighLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                        System.out.println(nameSolver + " Expansions High Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+                    }
+                    if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) != null) {
+                        expansionsLowLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+                        System.out.println(nameSolver + " Expansions Low Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
+                    }
 
-            // runtimes
-            runtime += report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-            System.out.println(nameSolver + " runtime: " + report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
-            runtimeLowLevel += report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
-            System.out.println(nameSolver + " runtime low level: " + report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS));
-            // expansions
-            if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodes) != null){
-                expansionsHighLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
-                System.out.println(nameSolver + " Expansions High Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+                    if(solution != null){
+                        boolean valid = solution.solves(subproblem);
+                        System.out.println(nameSolver + " Valid?: " + (valid ? "yes" : "no"));
+                        if (useAsserts) assertTrue(valid);
+
+                        // cost
+                        sumCost += solution.sumIndividualCosts();
+                        System.out.println(nameSolver + " Cost: " + solution.sumIndividualCosts());
+                    }
+                    System.out.println();
+                }
             }
-            if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) != null) {
-                expansionsLowLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-                System.out.println(nameSolver + " Expansions Low Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
-            }
+            else {
+                InstanceReport report = Metrics.newInstanceReport();
+                // build report
+                Solution solution = solveOneInstance(report, nameSolver, instance,
+                        new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP(), solver, instance);
 
-            if(solution != null){
-                boolean valid = solution.solves(instance);
-                System.out.println(nameSolver + " Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
+                // report
 
-                // cost
-                sumCost += solution.sumIndividualCosts();
-                System.out.println(nameSolver + " Cost: " + solution.sumIndividualCosts());
+                boolean solved = solution != null;
+                countSolved += solved ? 1 : 0;
+                countFailed += solved ? 0 : 1;
+                System.out.println(nameSolver + " Solved?: " + (solved ? "yes" : "no") );
+
+                // runtimes
+                runtime += report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                System.out.println(nameSolver + " runtime: " + report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+                runtimeLowLevel += report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+                System.out.println(nameSolver + " runtime low level: " + report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS));
+                // expansions
+                if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodes) != null){
+                    expansionsHighLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                    System.out.println(nameSolver + " Expansions High Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+                }
+                if (report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) != null) {
+                    expansionsLowLevel += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+                    System.out.println(nameSolver + " Expansions Low Level: " + report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
+                }
+
+                if(solution != null){
+                    boolean valid = solution.solves(instance);
+                    System.out.println(nameSolver + " Valid?: " + (valid ? "yes" : "no"));
+                    if (useAsserts) assertTrue(valid);
+
+                    // cost
+                    sumCost += solution.sumIndividualCosts();
+                    System.out.println(nameSolver + " Cost: " + solution.sumIndividualCosts());
+                }
+                System.out.println();
             }
-            System.out.println();
         }
 
         long timeoutS = timeout/1000;
@@ -195,6 +259,18 @@ public class PerformanceBenchmarkTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static Solution solveOneInstance(InstanceReport report, String nameSolver, MAPF_Instance instance, RunParameters rp, I_Solver solver, MAPF_Instance subproblem) {
+        // build report
+        report.putStringValue(InstanceReport.StandardFields.experimentName, "StressTest " + nameSolver);
+        report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+        report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+        report.putStringValue(InstanceReport.StandardFields.solver, nameSolver);
+
+        // solve
+        System.out.println("---------- solving " + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
+        return solver.solve(subproblem, rp);
     }
 
     public static void addMetric(JSONArray jsonArray, String nameSolver, String metricName, String unit, int value) {

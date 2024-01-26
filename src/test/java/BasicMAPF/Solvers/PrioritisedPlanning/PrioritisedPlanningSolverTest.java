@@ -9,7 +9,7 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
@@ -44,12 +44,12 @@ class PrioritisedPlanningSolverTest {
 
     @BeforeEach
     void setUp() {
-        instanceReport = S_Metrics.newInstanceReport();
+        instanceReport = Metrics.newInstanceReport();
     }
 
     @AfterEach
     void tearDown() {
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
     @Test
@@ -79,9 +79,9 @@ class PrioritisedPlanningSolverTest {
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -176,7 +176,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void ObeysSoftTimeout(){
         MAPF_Instance testInstance = instanceEmptyHarder;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         long softTimeout = 100L;
         long hardTimeout = 5L * 1000;
 
@@ -190,7 +190,7 @@ class PrioritisedPlanningSolverTest {
         System.out.println("runtime: " + runtime);
         assertTrue(runtime >= softTimeout && runtime < hardTimeout);
 
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
     @Test
@@ -230,11 +230,14 @@ class PrioritisedPlanningSolverTest {
         Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
+        assertEquals(4, solvedNormal.makespan());
 
         Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
     }
 
     @Test
@@ -252,11 +255,15 @@ class PrioritisedPlanningSolverTest {
         Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(8, solvedNormal.sumIndividualCosts());
+        // not much of a reason for it to be 6, but this seems to be the solution that is chosen because makespan isn't optimized for
+        assertEquals(6, solvedNormal.makespan());
 
         Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
+        assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
     }
 
     @Test
@@ -284,7 +291,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void TestingBenchmark(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = ppSolver;
@@ -311,7 +318,7 @@ class PrioritisedPlanningSolverTest {
 //                }
 
                 //build report
-                InstanceReport report = S_Metrics.newInstanceReport();
+                InstanceReport report = Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -368,7 +375,7 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -378,7 +385,7 @@ class PrioritisedPlanningSolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
-                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
                                 InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,
@@ -406,7 +413,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void TestingBenchmarkWInitialRandomRestarts(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
@@ -434,7 +441,7 @@ class PrioritisedPlanningSolverTest {
 //                }
 
                 //build report
-                InstanceReport report = S_Metrics.newInstanceReport();
+                InstanceReport report = Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -491,7 +498,7 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -501,7 +508,7 @@ class PrioritisedPlanningSolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
-                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
                                 InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,
@@ -529,7 +536,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void TestingBenchmarkWInitialDeterministicRestarts(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
@@ -557,7 +564,7 @@ class PrioritisedPlanningSolverTest {
 //                }
 
                 //build report
-                InstanceReport report = S_Metrics.newInstanceReport();
+                InstanceReport report = Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -614,7 +621,7 @@ class PrioritisedPlanningSolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -624,7 +631,7 @@ class PrioritisedPlanningSolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
-                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
                                 InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,
@@ -654,7 +661,7 @@ class PrioritisedPlanningSolverTest {
      */
     @Test
     void comparativeDiverseTestHasContingencyVsNoContingency(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
@@ -683,7 +690,7 @@ class PrioritisedPlanningSolverTest {
 
             // run baseline (without the improvement)
             //build report
-            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            InstanceReport reportBaseline = Metrics.newInstanceReport();
             reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -696,7 +703,7 @@ class PrioritisedPlanningSolverTest {
 
             // run experiment (with the improvement)
             //build report
-            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            InstanceReport reportExperimental = Metrics.newInstanceReport();
             reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -748,7 +755,7 @@ class PrioritisedPlanningSolverTest {
         System.out.println(nameExperimental + " time: " + runtimeExperimental);
 
         //save results
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
@@ -758,7 +765,7 @@ class PrioritisedPlanningSolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+            Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
                             InstanceReport.StandardFields.instanceName,
                             InstanceReport.StandardFields.solver,

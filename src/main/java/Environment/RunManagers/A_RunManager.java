@@ -6,7 +6,7 @@ import BasicMAPF.Solvers.I_Solver;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.jetbrains.annotations.NotNull;
 import Environment.Visualization.I_VisualizeSolution;
 
@@ -106,24 +106,24 @@ public abstract class A_RunManager {
     protected void setOutputStreamsBeforeRunning() {
         // output to stdout while running
         try {
-            S_Metrics.addOutputStream(System.out, getStdoutReportToString());
+            Metrics.addOutputStream(System.out, getStdoutReportToString());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // output (only the following fields) to csv while running
         try {
-            S_Metrics.setHeader(metricsHeader);
+            Metrics.setHeader(metricsHeader);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         sleepToAvoidOverridingPreviousResultsFiles();
 
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String pathWithStartTime = IO_Manager.buildPath(new String[]{resultsOutputDir, "log " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
-            S_Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
+            Metrics.addOutputStream(new FileOutputStream((pathWithStartTime)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -131,16 +131,16 @@ public abstract class A_RunManager {
     }
 
     @NotNull
-    protected S_Metrics.InstanceReportToString getStdoutReportToString() {
-        return S_Metrics::instanceReportToHumanReadableString;
+    protected Metrics.InstanceReportToString getStdoutReportToString() {
+        return Metrics::instanceReportToHumanReadableString;
     }
 
     protected void exportAllResults() {
         sleepToAvoidOverridingPreviousResultsFiles();
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String pathWithEndTime =  IO_Manager.buildPath(new String[]{resultsOutputDir, "res " + resultsFilePrefix + " " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
-            S_Metrics.exportCSV(new FileOutputStream(pathWithEndTime)            );
+            Metrics.exportCSV(new FileOutputStream(pathWithEndTime)            );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -155,7 +155,7 @@ public abstract class A_RunManager {
     }
 
     protected static void clearMetrics() {
-        S_Metrics.clearAll();
+        Metrics.clearAll();
     }
 
 }
