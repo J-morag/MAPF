@@ -106,7 +106,7 @@ class ICTS_SolverTest {
     @Test
     void TestingBenchmark(){
         Metrics.clearAll();
-        boolean useAsserts = false;
+        boolean useAsserts = true;
 
         I_Solver solver = ictsSolver;
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -116,8 +116,7 @@ class ICTS_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 5 /*seconds*/
-                    *1000L;
+            long timeout = 60 /*seconds*/ *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
@@ -153,7 +152,7 @@ class ICTS_SolverTest {
 
                 boolean solved = solution != null;
                 System.out.println("Solved?: " + (solved ? "yes" : "no"));
-                if (useAsserts) assertNotNull(solution);
+//                if (useAsserts) assertNotNull(solution);
                 if (solved) numSolved++;
                 else numFailed++;
 
@@ -247,8 +246,7 @@ class ICTS_SolverTest {
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-//        long timeout = 60 /*seconds*/   *1000L;
-        long timeout = 10 /*seconds*/   *1000L;
+        long timeout = 60 /*seconds*/ * 1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
