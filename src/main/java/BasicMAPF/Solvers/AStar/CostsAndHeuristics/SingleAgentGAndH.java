@@ -27,7 +27,9 @@ public interface SingleAgentGAndH {
      * @param move a move
      * @return the cost of a {@link Move}.
      */
-    default int cost(Move move){ return 1; }
+    default int cost(Move move){
+//        System.out.println("regular H: return 1");
+        return 1; }
 
     /**
      * @return whether this is a consistent heuristic
