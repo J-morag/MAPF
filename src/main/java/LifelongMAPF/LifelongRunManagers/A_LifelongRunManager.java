@@ -216,20 +216,11 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 //        solvers.add(LifelongSolversFactory.LH1_Approach30ASFP_Cap18_Timeout1p5()); // greedy +IS +Avoid-20-ASFP + 18 capacity + dynamic timeout 1.5
 
 
-//        solvers.add(LifelongSolversFactory.PrP_Stationary());
-//        solvers.add((LifelongSolversFactory.PrPt_Stationary()));
-//        solvers.add((LifelongSolversFactory.PrP_noTarget()));
-//        solvers.add((LifelongSolversFactory.PrPt_noTarget()));
-//        solvers.add(LifelongSolversFactory.PIBT_allAgent());
-//        solvers.add(LifelongSolversFactory.PIBT_NoTarget());
-//        solvers.add(LifelongSolversFactory.PIBT_Stationary());
-
-//        solvers.add((LifelongSolversFactory.PIBT_subSet()));
-        solvers.add(LifelongSolversFactory.LNS());
-        solvers.add(LifelongSolversFactory.LNSt());
-        solvers.add(LifelongSolversFactory.PrP());
-        solvers.add(LifelongSolversFactory.PrPt());
-        solvers.add(LifelongSolversFactory.PIBT());
+        solvers.add(LifelongSolversFactory.LNS_SubSetSelector());
+        solvers.add(LifelongSolversFactory.LNSt_SubSetSelector());
+        solvers.add(LifelongSolversFactory.PrP_SubSetSelector());
+        solvers.add(LifelongSolversFactory.PrPt_SubSetSelector());
+        solvers.add(LifelongSolversFactory.PIBT_AllAgentSelector());
 
 
 //        solvers.add(LifelongSolversFactory.PIBT_partial());
