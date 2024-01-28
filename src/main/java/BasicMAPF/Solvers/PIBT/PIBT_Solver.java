@@ -91,6 +91,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     private final boolean returnPartialSolutions;
 
     private boolean agentCantMove;
+    private boolean allAgentsReachedGoal;
 
 
     /**
@@ -114,6 +115,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
         this.agentCantMove = false;
+        this.allAgentsReachedGoal = false;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -147,7 +149,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             for (Agent agent : instance.agents) {
                 currentConfiguration.add(this.currentLocations.get(agent));
             }
-            if (this.configurations.contains(currentConfiguration)) {
+            if (this.configurations.contains(currentConfiguration) && !this.allAgentsReachedGoal) {
                 if (DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
@@ -205,9 +207,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                     numberOfNotMovingAgents++;
                 }
                 solution.putPlan(this.agentPlans.get(agent));
-//                if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-//                    throw new UnsupportedOperationException("Limited support for constraints. Ignoring infinite constraints, and constrains while a finished agent stays in place");
-//                }
             }
 
             // if all agents not moved, return null
@@ -317,15 +316,15 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private void updatePriorities(MAPF_Instance instance) {
         for (Agent agent : this.priorities.keySet()) {
+            double currentPriority = this.priorities.get(agent);
             // agent reach his target
             if (this.agentPlans.get(agent).containsTarget()) {
-                if (this.priorities.get(agent) != -1.0) {
+                if (currentPriority != -1.0) {
                     this.configurations = new HashSet<>();
                 }
                 this.priorities.put(agent, -1.0);
             }
             else {
-                double currentPriority = this.priorities.get(agent);
                 this.priorities.put(agent, currentPriority + 1);
             }
         }
@@ -406,6 +405,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 return false;
             }
 
+            // all agent's priority are -1, all agents reached goal
+            this.allAgentsReachedGoal = true;
             if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 return false;
             }
@@ -462,9 +463,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         Solution solution = new TransientMAPFSolution();
 
         for (Agent agent : agentPlans.keySet()) {
-//            while (this.constraints.rejectsEventually(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-//                solvePIBT(agent, null);
-//            }
             solution.putPlan(this.agentPlans.get(agent));
         }
 

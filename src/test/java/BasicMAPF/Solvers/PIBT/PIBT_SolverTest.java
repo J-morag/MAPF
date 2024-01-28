@@ -493,8 +493,8 @@ public class PIBT_SolverTest {
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
-        assertEquals(27, solved.sumIndividualCosts());
-        assertEquals(8, solved.makespan());
+        assertEquals(29, solved.sumIndividualCosts());
+        assertEquals(10, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
 
@@ -515,19 +515,9 @@ public class PIBT_SolverTest {
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(16, solved.sumIndividualCosts());
-        assertEquals(8, solved.makespan());
+        assertEquals(20, solved.sumIndividualCosts());
+        assertEquals(10, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
-//        assertThrows(UnsupportedOperationException.class, () -> {
-//            PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-//        });
-
-//        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-//        System.out.println(solved.readableToString());
-//        assertTrue(solved.solves(testInstance));
-//        assertEquals(40, solved.sumIndividualCosts());
-//        assertEquals(8, solved.makespan());
-//        assertEquals(22 , solved.sumServiceTimes());
     }
 
     // the following test important to check specific scenario where agent reached his goal,
