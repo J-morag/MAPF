@@ -13,7 +13,7 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -45,12 +45,12 @@ class CBS_SolverTest {
 
     @BeforeEach
     void setUp() {
-        instanceReport = S_Metrics.newInstanceReport();
+        instanceReport = Metrics.newInstanceReport();
     }
 
     @AfterEach
     void tearDown() {
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
     void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
@@ -65,9 +65,9 @@ class CBS_SolverTest {
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
@@ -76,9 +76,9 @@ class CBS_SolverTest {
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 2, 8, 5, testInstance);
@@ -88,9 +88,9 @@ class CBS_SolverTest {
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 2, 8, 5, testInstance);
@@ -99,9 +99,9 @@ class CBS_SolverTest {
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 2, 6, 4, testInstance);
@@ -110,9 +110,9 @@ class CBS_SolverTest {
     @Test
     void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(2L*1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNull(solved);
     }
@@ -120,12 +120,12 @@ class CBS_SolverTest {
     @Test
     void unsolvableBecauseConstraintsShouldReturnNull1() {
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNull(solved);
     }
@@ -133,14 +133,14 @@ class CBS_SolverTest {
     @Test
     void unsolvableBecauseConstraintsShouldReturnNull2() {
         MAPF_Instance testInstance = instanceSmallMaze;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor14)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNull(solved);
     }
@@ -217,7 +217,7 @@ class CBS_SolverTest {
 
     @Test
     void TestingBenchmark(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = cbsSolver;
@@ -241,7 +241,7 @@ class CBS_SolverTest {
             while ((instance = instanceManager.getNextInstance()) != null) {
 
                 //build report
-                InstanceReport report = S_Metrics.newInstanceReport();
+                InstanceReport report = Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -279,6 +279,12 @@ class CBS_SolverTest {
                     report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
                     if (useAsserts) assertEquals(optimalCost, costWeGot);
 
+                    System.out.printf("Time(ms): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+                    System.out.printf("Expanded nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+                    System.out.printf("Generated nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodes));
+                    System.out.printf("Expanded nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
+                    System.out.printf("Generated nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel));
+
                     report.putIntegerValue("Runtime Delta",
                             report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
 
@@ -299,7 +305,7 @@ class CBS_SolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -309,7 +315,7 @@ class CBS_SolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
-                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
                                 InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,

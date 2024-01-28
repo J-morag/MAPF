@@ -12,7 +12,7 @@ import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -60,7 +60,7 @@ class CorridorConflictManagerTest {
      */
     @Test
     void comparativeDiverseTest(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver regularCBS = new CBS_Solver(null, null, null,
@@ -88,7 +88,7 @@ class CorridorConflictManagerTest {
 
             // run baseline (without the improvement)
             //build report
-            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            InstanceReport reportBaseline = Metrics.newInstanceReport();
             reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -101,7 +101,7 @@ class CorridorConflictManagerTest {
 
             // run experimentl (with the improvement)
             //build report
-            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            InstanceReport reportExperimental = Metrics.newInstanceReport();
             reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -161,7 +161,7 @@ class CorridorConflictManagerTest {
         System.out.println(nameExperimental + " time: " + runtimeExperimental);
 
         //save results
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
@@ -171,7 +171,7 @@ class CorridorConflictManagerTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+            Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
                             InstanceReport.StandardFields.instanceName,
                             InstanceReport.StandardFields.numAgents,

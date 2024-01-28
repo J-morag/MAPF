@@ -8,7 +8,7 @@ import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -48,7 +48,7 @@ public class Experiment {
     public boolean keepSolutionInReport = false;
     public boolean keepWaypointTimesInReport = false;
     /**
-     * If reports are written to an {@link java.io.OutputStream} (through {@link S_Metrics}) immediately upon being committed,
+     * If reports are written to an {@link java.io.OutputStream} (through {@link Metrics}) immediately upon being committed,
      * it may be preferred to just remove them afterwards, rather than keep accumulating them.
      */
     public boolean keepReportAfterCommit = true;
@@ -78,7 +78,7 @@ public class Experiment {
 
 
     public InstanceReport setReport(MAPF_Instance instance, I_Solver solver) {
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
 
         instanceReport.putStringValue(InstanceReport.StandardFields.experimentName, this.experimentName);
         instanceReport.putStringValue(InstanceReport.StandardFields.instanceName, instance.extendedName);
@@ -222,7 +222,7 @@ public class Experiment {
         try {
             instanceReport.commit();
             if (!keepReportAfterCommit) {
-                S_Metrics.removeReport(instanceReport);
+                Metrics.removeReport(instanceReport);
             }
         } catch (IOException e) {
             e.printStackTrace();

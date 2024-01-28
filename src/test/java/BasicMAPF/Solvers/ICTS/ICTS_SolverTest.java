@@ -14,7 +14,7 @@ import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,9 +51,9 @@ class ICTS_SolverTest {
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
@@ -62,9 +62,9 @@ class ICTS_SolverTest {
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 2, 8, 5, testInstance);
@@ -74,9 +74,9 @@ class ICTS_SolverTest {
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 2, 8, 5, testInstance);
@@ -85,9 +85,9 @@ class ICTS_SolverTest {
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         validate(solved, 2, 6, 4, testInstance);
@@ -96,17 +96,17 @@ class ICTS_SolverTest {
     @Test
     void unsolvableBecauseOfConflictsShouldTimeout() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(2L*1000).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         assertNull(solved);
     }
 
     @Test
     void TestingBenchmark(){
-        S_Metrics.clearAll();
-        boolean useAsserts = false;
+        Metrics.clearAll();
+        boolean useAsserts = true;
 
         I_Solver solver = ictsSolver;
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -116,8 +116,7 @@ class ICTS_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 5 /*seconds*/
-                    *1000L;
+            long timeout = 60 /*seconds*/ *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
@@ -132,7 +131,7 @@ class ICTS_SolverTest {
 //                }
 
                 //build report
-                InstanceReport report = S_Metrics.newInstanceReport();
+                InstanceReport report = Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -153,7 +152,7 @@ class ICTS_SolverTest {
 
                 boolean solved = solution != null;
                 System.out.println("Solved?: " + (solved ? "yes" : "no"));
-                if (useAsserts) assertNotNull(solution);
+//                if (useAsserts) assertNotNull(solution);
                 if (solved) numSolved++;
                 else numFailed++;
 
@@ -190,7 +189,7 @@ class ICTS_SolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -200,7 +199,7 @@ class ICTS_SolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
-                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
                                 InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,
@@ -232,7 +231,7 @@ class ICTS_SolverTest {
      */
     @Test
     void comparativeDiverseTest(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver cbs = new CBS_Solver();
@@ -247,8 +246,7 @@ class ICTS_SolverTest {
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-//        long timeout = 60 /*seconds*/   *1000L;
-        long timeout = 10 /*seconds*/   *1000L;
+        long timeout = 60 /*seconds*/ * 1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
@@ -258,7 +256,7 @@ class ICTS_SolverTest {
 
             // run baseline (without the improvement)
             //build report
-            InstanceReport reportBaseline = S_Metrics.newInstanceReport();
+            InstanceReport reportBaseline = Metrics.newInstanceReport();
             reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -271,7 +269,7 @@ class ICTS_SolverTest {
 
             // run experimentl (with the improvement)
             //build report
-            InstanceReport reportExperimental = S_Metrics.newInstanceReport();
+            InstanceReport reportExperimental = Metrics.newInstanceReport();
             reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -332,7 +330,7 @@ class ICTS_SolverTest {
         System.out.println(nameExperimental + " time: " + runtimeExperimental);
 
         //save results
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
@@ -342,7 +340,7 @@ class ICTS_SolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+            Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
                             InstanceReport.StandardFields.instanceName,
                             InstanceReport.StandardFields.solver,

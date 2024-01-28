@@ -1,10 +1,14 @@
 package BasicMAPF;
 
+import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class TestUtils {
 
@@ -35,5 +39,37 @@ public class TestUtils {
         csvReader.close();
 
         return result;
+    }
+
+    public static void addRandomConstraints(Agent agent, List<I_Location> locations, Random rand, ConstraintSet constraints,
+                                            int maxTime, int numConstraintsEachType) {
+        for (int t = 1; t <= maxTime; t++) {
+            Set<I_Location> checkDuplicates = new HashSet<>();
+            Set<Constraint> edgeConstraints = new HashSet<>();
+            for (int j = 0; j < numConstraintsEachType; j++) {
+                // vertex constraint
+                I_Location randomLocation;
+                do {
+                    randomLocation = locations.get(rand.nextInt(locations.size()));
+                }
+                while (checkDuplicates.contains(randomLocation));
+                checkDuplicates.add(randomLocation);
+                Constraint constraint = new Constraint(agent, t, null, randomLocation);
+                constraints.add(constraint);
+
+                // edge constraint
+                I_Location toLocation;
+                I_Location prevLocation;
+                Constraint edgeConstraint;
+                do {
+                    toLocation = locations.get(rand.nextInt(locations.size()));
+                    prevLocation = locations.get(rand.nextInt(locations.size()));
+                    edgeConstraint = new Constraint(agent, t, prevLocation, toLocation);
+                }
+                while (toLocation.equals(prevLocation) || edgeConstraints.contains(edgeConstraint));
+                edgeConstraints.add(edgeConstraint);
+                constraints.add(edgeConstraint);
+            }
+        }
     }
 }

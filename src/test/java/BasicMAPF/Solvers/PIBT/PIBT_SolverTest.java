@@ -19,7 +19,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,12 +62,12 @@ public class PIBT_SolverTest {
 
     @BeforeEach
     void setUp() {
-        instanceReport = S_Metrics.newInstanceReport();
+        instanceReport = Metrics.newInstanceReport();
     }
 
     @AfterEach
     void tearDown() {
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
 
@@ -148,9 +148,9 @@ public class PIBT_SolverTest {
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        InstanceReport instanceReport = S_Metrics.newInstanceReport();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
 
         System.out.println(solved.readableToString());
         assertTrue(solved.solves(testInstance));
@@ -172,7 +172,7 @@ public class PIBT_SolverTest {
 
     @Test
     void TestingBenchmark(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver solver = PIBT_Solver;
@@ -196,7 +196,7 @@ public class PIBT_SolverTest {
             while ((instance = instanceManager.getNextInstance()) != null) {
 
                 //build report
-                InstanceReport report = S_Metrics.newInstanceReport();
+                InstanceReport report = Metrics.newInstanceReport();
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -253,7 +253,7 @@ public class PIBT_SolverTest {
             System.out.println("not valid but optimal: " + numInvalidOptimal);
 
             //save results
-            DateFormat dateFormat = S_Metrics.defaultDateFormat;
+            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
             String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
             File directory = new File(resultsOutputDir);
             if (! directory.exists()){
@@ -263,7 +263,7 @@ public class PIBT_SolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
-                S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+                Metrics.exportCSV(new FileOutputStream(updatedPath),
                         new String[]{
                                 InstanceReport.StandardFields.instanceName,
                                 InstanceReport.StandardFields.numAgents,
@@ -290,7 +290,7 @@ public class PIBT_SolverTest {
 
     @Test
     void compareBetweenPrPAndPIBTTest(){
-        S_Metrics.clearAll();
+        Metrics.clearAll();
         boolean useAsserts = true;
 
         I_Solver PrPSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
@@ -320,7 +320,7 @@ public class PIBT_SolverTest {
 
             // run PrP
             //build report
-            InstanceReport reportPrP = S_Metrics.newInstanceReport();
+            InstanceReport reportPrP = Metrics.newInstanceReport();
             reportPrP.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportPrP.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportPrP.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -333,7 +333,7 @@ public class PIBT_SolverTest {
 
             // run PIBT
             //build report
-            InstanceReport reportPIBT = S_Metrics.newInstanceReport();
+            InstanceReport reportPIBT = Metrics.newInstanceReport();
             reportPIBT.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
             reportPIBT.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportPIBT.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
@@ -390,7 +390,7 @@ public class PIBT_SolverTest {
         System.out.println(namePIBT + " avg. cost: " + sumCostPIBT);
 
         //save results
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
         File directory = new File(resultsOutputDir);
         if (! directory.exists()){
@@ -400,7 +400,7 @@ public class PIBT_SolverTest {
                 "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
                         "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
         try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+            Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{
                             InstanceReport.StandardFields.instanceName,
                             InstanceReport.StandardFields.solver,

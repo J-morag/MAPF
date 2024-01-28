@@ -41,11 +41,7 @@ public class Agent implements Comparable<Agent>{
 
     @Override
     public String toString() {
-        return "Agent{" +
-                "iD=" + iD +
-                ", source=" + source +
-                ", target=" + target +
-                '}';
+        return "Agent{" + iD + ": " + source + "->" + target +'}';
     }
 
     @Override
