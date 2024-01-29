@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706492283995,
+  "lastUpdate": 1706492285514,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -9934,6 +9934,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "SIPP - Average Runtime",
             "value": 418.9647,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "SIPP - Average Expansions Low Level",
+            "value": 23324.754,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "5aafae9e8d05c3ac31db5159a56f340997cb235c",
+          "message": "change ICTS tests timeout",
+          "timestamp": "2024-01-29T11:54:26+11:00",
+          "tree_id": "f05e4e2ad1bfca83adba80decdf9ce515c215e0a",
+          "url": "https://github.com/J-morag/MAPF/commit/5aafae9e8d05c3ac31db5159a56f340997cb235c"
+        },
+        "date": 1706492285203,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "SIPP - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "SIPP - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "SIPP - Average Runtime",
+            "value": 597.2118,
             "unit": "Milliseconds"
           },
           {
