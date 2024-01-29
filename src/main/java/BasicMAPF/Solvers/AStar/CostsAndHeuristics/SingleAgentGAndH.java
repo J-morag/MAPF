@@ -16,10 +16,11 @@ public interface SingleAgentGAndH {
 
     /**
      * @param move a move
-     * @param isAfterTarget a boolean indicates whether the agent reached his goal or not
+     * @param isAfterTargetExcludingFirstMoveToTarget if the agent has already visited its target,
+     *                                           previously (not reaching it for the first time now)
      * @return the cost of a {@link Move}.
      */
-    default int cost(Move move, boolean isAfterTarget){
+    default int cost(Move move, boolean isAfterTargetExcludingFirstMoveToTarget){
         return cost(move);
     }
 
@@ -28,7 +29,6 @@ public interface SingleAgentGAndH {
      * @return the cost of a {@link Move}.
      */
     default int cost(Move move){
-//        System.out.println("regular H: return 1");
         return 1; }
 
     /**

@@ -21,7 +21,7 @@ import java.util.Map;
  * A {@link SingleAgentGAndH} that uses a pre-calculated dictionary of distances from possible goal locations to every
  * accessible {@link I_Location location} to provide a perfectly tight heuristic.
  */
-public class TransientDistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
+public class ServiceTimeGAndH implements SingleAgentGAndH {
     /**
      * Dictionary from target location, to its distance from any location on the map.
      */
@@ -38,7 +38,7 @@ public class TransientDistanceTableSingleAgentHeuristic implements SingleAgentGA
      * @param map the map this heuristic will work on.
      * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
      */
-    public TransientDistanceTableSingleAgentHeuristic(@Nullable List<? extends Agent> agents, I_Map map, @Nullable Integer lruCacheSize) {
+    public ServiceTimeGAndH(@Nullable List<? extends Agent> agents, I_Map map, @Nullable Integer lruCacheSize) {
         this.map = map;
         if (lruCacheSize != null && lruCacheSize < 1)
             throw new IllegalArgumentException("If used, the LRU cache size must be at least 1.");
@@ -57,7 +57,7 @@ public class TransientDistanceTableSingleAgentHeuristic implements SingleAgentGA
      * @param agents agents (targets) we need to include in the distance table.
      * @param map the map this heuristic will work on.
      */
-    public TransientDistanceTableSingleAgentHeuristic(List<? extends Agent> agents, I_Map map) {
+    public ServiceTimeGAndH(List<? extends Agent> agents, I_Map map) {
         this(agents, map, null);
     }
 
@@ -67,7 +67,7 @@ public class TransientDistanceTableSingleAgentHeuristic implements SingleAgentGA
      * @param map the map this heuristic will work on.
      * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
      */
-    public TransientDistanceTableSingleAgentHeuristic(@NotNull I_ExplicitMap map, @Nullable Integer lruCacheSize) {
+    public ServiceTimeGAndH(@NotNull I_ExplicitMap map, @Nullable Integer lruCacheSize) {
         this.map = map;
         if (lruCacheSize != null && lruCacheSize < 1)
             throw new IllegalArgumentException("If used, the LRU cache size must be at least 1.");
@@ -84,7 +84,7 @@ public class TransientDistanceTableSingleAgentHeuristic implements SingleAgentGA
      * This makes the heuristic essentially the "All Pairs Shortest Path" heuristic.
      * @param map the map this heuristic will work on.
      */
-    public TransientDistanceTableSingleAgentHeuristic(I_ExplicitMap map) {
+    public ServiceTimeGAndH(I_ExplicitMap map) {
         this(map, null);
     }
 
@@ -140,7 +140,7 @@ public class TransientDistanceTableSingleAgentHeuristic implements SingleAgentGA
 
     @Override
     public float getH(SingleAgentAStar_Solver.AStarState state) {
-        if (state.hasVisitedTargetLocationAncestor) {
+        if (state.getPrev().visitedTarget) {
             return 0;
         }
         return getHToTargetFromLocation(state.getMove().agent.target, state.getMove().currLocation);
@@ -168,14 +168,12 @@ public class TransientDistanceTableSingleAgentHeuristic implements SingleAgentGA
     }
 
     /**
-     * @param move a move
-     * @param isAfterTarget a boolean indicates if the agents reached his goal.
-     * @return the cost of a {@link Move}.
+     * @inheritDoc
      */
-    public int cost(Move move, boolean isAfterTarget){
-        if (isAfterTarget) {
+    public int cost(Move move, boolean isAfterTargetExcludingFirstMoveToTarget){
+        if (isAfterTargetExcludingFirstMoveToTarget) {
             return 0;
         }
-        return 1;
+        return cost(move);
     }
 }

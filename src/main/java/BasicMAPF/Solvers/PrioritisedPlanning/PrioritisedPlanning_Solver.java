@@ -338,7 +338,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         RunParameters_SAAStar params;
         if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsst) {
             params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-                    setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(new TransientDistanceTableSingleAgentHeuristic(this.agents, subproblem.map)).createRP());
+                    setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(new ServiceTimeGAndH(this.agents, subproblem.map)).createRP());
         }
         else {
             params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
