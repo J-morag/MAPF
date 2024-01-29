@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706492282926,
+  "lastUpdate": 1706492283995,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -7999,6 +7999,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Expansions Low Level",
             "value": 396247.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "5aafae9e8d05c3ac31db5159a56f340997cb235c",
+          "message": "change ICTS tests timeout",
+          "timestamp": "2024-01-29T11:54:26+11:00",
+          "tree_id": "f05e4e2ad1bfca83adba80decdf9ce515c215e0a",
+          "url": "https://github.com/J-morag/MAPF/commit/5aafae9e8d05c3ac31db5159a56f340997cb235c"
+        },
+        "date": 1706492283676,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 1,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.0595,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 1576.3882,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 394922.34,
             "unit": "Expansions"
           }
         ]
