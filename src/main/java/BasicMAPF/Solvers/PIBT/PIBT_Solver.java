@@ -405,7 +405,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 return false;
             }
 
-            // all agent's priority are -1, all agents reached goal
+            // all agents' priorities are -1, all agents reached goals
             this.allAgentsReachedGoal = true;
             if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 return false;
