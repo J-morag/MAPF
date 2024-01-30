@@ -90,7 +90,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private final boolean returnPartialSolutions;
 
-    private boolean agentCantMove;
+    private boolean agentCantMoveOrStay;
     private boolean allAgentsReachedGoal;
 
 
@@ -114,7 +114,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
-        this.agentCantMove = false;
+        this.agentCantMoveOrStay = false;
         this.allAgentsReachedGoal = false;
 
         for (Agent agent : instance.agents) {
@@ -137,12 +137,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
         // each iteration of the while represents timestamp
         while (!(finished())) {
-
-            // algorithm starts agents' plans only from problemTimeStamp
-            if (this.problemStartTime > this.timeStamp) {
-                this.timeStamp++;
-                continue;
-            }
 
             // loop detection
             ArrayList<I_Location> currentConfiguration = new ArrayList<>(instance.agents.size());
@@ -178,8 +172,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 Map.Entry<Agent, Double> maxEntry = getMaxEntry(this.priorities); // <agent, priority> pair with max priority
                 Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
-                if (this.agentCantMove) {
-                    this.agentCantMove = false;
+                if (this.agentCantMoveOrStay) {
                     return createSolution();
                 }
             }
@@ -200,13 +193,15 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         if (this.returnPartialSolutions) {
             Solution solution = new TransientMAPFSolution();
             int numberOfNotMovingAgents = 0;
-            for (Agent agent : agentPlans.keySet()) {
-                if (this.agentPlans.get(agent).size() == 0) {
+            for (Map.Entry<Agent, SingleAgentPlan> entry : agentPlans.entrySet()) {
+                Agent agent = entry.getKey();
+                SingleAgentPlan plan = entry.getValue();
+                if (plan.size() == 0) {
                     // if agent didn't make a move, add a move to stay in current location
-                    this.agentPlans.get(agent).addMove(new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent)));
+                    plan.addMove(new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent)));
                     numberOfNotMovingAgents++;
                 }
-                solution.putPlan(this.agentPlans.get(agent));
+                solution.putPlan(plan);
             }
 
             // if all agents not moved, return null
@@ -304,7 +299,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             // agent can't stay in current location (constraints)
             // unsolvable - return null
             else {
-                this.agentCantMove = true;
+                this.agentCantMoveOrStay = true;
             }
         }
         return false;

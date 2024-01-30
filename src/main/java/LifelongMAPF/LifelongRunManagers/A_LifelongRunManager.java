@@ -205,27 +205,7 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         solvers.add(LifelongSolversFactory.PrP_SubSetSelector());
         solvers.add(LifelongSolversFactory.PrPt_SubSetSelector());
         solvers.add(LifelongSolversFactory.PIBT_AllAgentSelector());
-
-
-//        solvers.add(LifelongSolversFactory.PIBT_partial());
-//        solvers.add(LifelongSolversFactory.PIBT_noPartial());
-
-//        solvers.add(LifelongSolversFactory.simplePrP_plusTransient());
-//        solvers.add(LifelongSolversFactory.simplePrP_infHorizon());
-//        solvers.add(LifelongSolversFactory.simpleLNS_infHorizon());
-
-//        solvers.add(LifelongSolversFactory.subSetSelector_PIBT());
-
-//        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_infiniteHorizon_PIBT());
-//        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_Horizon1_PIBT());
-//        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_infiniteHorizon_partialSolution_PIBT());
-//        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_SubsetSelector_PrP());
-//        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_AllAgentSelector_PrP());
-//        solvers.add(LifelongSolversFactory.LH1_Go5ASFP_Cap18_DisallowedPartialSolution_PrP());
-
-
-//        solvers.add(LifelongSolversFactory.simplePrP_infHorizon());
-//        solvers.add(LifelongSolversFactory.simpleLNS_infHorizon());
+        
         return solvers;
     }
 
