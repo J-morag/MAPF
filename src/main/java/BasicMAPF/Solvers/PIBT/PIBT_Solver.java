@@ -138,7 +138,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         // each iteration of the while represents timestamp
         while (!(finished())) {
 
-            // algorithm starts agent's plans only from problemTimeStamp
+            // algorithm starts agents' plans only from problemTimeStamp
             if (this.problemStartTime > this.timeStamp) {
                 this.timeStamp++;
                 continue;
