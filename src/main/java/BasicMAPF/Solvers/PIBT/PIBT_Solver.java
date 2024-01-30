@@ -317,7 +317,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     private void updatePriorities(MAPF_Instance instance) {
         for (Agent agent : this.priorities.keySet()) {
             double currentPriority = this.priorities.get(agent);
-            // agent reach his target
+            // agent reached its target
             if (this.agentPlans.get(agent).containsTarget()) {
                 if (currentPriority != -1.0) {
                     this.configurations = new HashSet<>();
