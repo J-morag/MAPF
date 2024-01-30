@@ -5,9 +5,9 @@ public enum TransientMAPFBehaviour {
     transientMAPF, // transient MAPF
     transientMAPFWithBlacklist,// transient MAPF with avoiding the targets of other agents
 
-    transientMAPFsst; // transient MAPF that optimize SST
+    transientMAPFsstWithBlacklist; // transient MAPF that optimize SST
 
     public boolean isTransientMAPF() {
-        return this == transientMAPF || this == transientMAPFWithBlacklist || this == transientMAPFsst;
+        return this == transientMAPF || this == transientMAPFWithBlacklist || this == transientMAPFsstWithBlacklist;
     }
 }

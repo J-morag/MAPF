@@ -3,7 +3,6 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -54,7 +53,7 @@ public class GenericRunManager extends A_RunManager {
                 null, null, null));
         super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                null, null, TransientMAPFBehaviour.transientMAPFsst));
+                null, null, TransientMAPFBehaviour.transientMAPFsstWithBlacklist));
         super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                 null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist));
