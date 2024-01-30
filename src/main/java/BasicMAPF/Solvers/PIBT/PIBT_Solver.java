@@ -85,8 +85,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     private Set<List<I_Location>> configurations;
 
     /**
-     * booleans indicate if it needs to return partial plans in case PIBT can't find solution.
-     * if true, instead of return null, the current solution will return.
+     * indicate if it needs to return partial plans in case PIBT can't find solution.
+     * if true, instead of returning null, the current (partial) solution will return.
      */
     private final boolean returnPartialSolutions;
 
