@@ -519,21 +519,4 @@ public class PIBT_SolverTest {
         assertEquals(10, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
     }
-
-    // the following test important to check specific scenario where agent reached his goal,
-    // but can't stay in place since there is a infinite constraint, a constraint about his final location in future timestamp
-    // this scenario throws an UnsupportedOperationException
-//    @Test
-//    void emptyMapValidityInfiniteConstraintThrowsError() {
-//        MAPF_Instance testInstance = instanceEmpty1;
-//
-//        I_Coordinate coor02 = new Coordinate_2D(1,2);
-//        Constraint constraint1 = new Constraint(agent33to12, 10, mapEmpty.getMapLocation(coor02));
-//        ConstraintSet constraints = new ConstraintSet();
-//        constraints.add(constraint1);
-//
-//        assertThrows(UnsupportedOperationException.class, () -> {
-//            PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-//        });
-//    }
 }
