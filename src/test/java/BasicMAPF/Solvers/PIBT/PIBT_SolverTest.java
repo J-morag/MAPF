@@ -32,7 +32,6 @@ import java.util.Map;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
-//import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
