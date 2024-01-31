@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706677656762,
+  "lastUpdate": 1706677657698,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3835,6 +3835,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 36702.59,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "be48dc1f618b84b3b75c9ce93b3d0e5e6c7096a2",
+          "message": "make LNS constructor package-private for safety",
+          "timestamp": "2024-01-31T15:25:48+11:00",
+          "tree_id": "762aeb8b50ce40e581538e7f0fa069a7459fb58f",
+          "url": "https://github.com/J-morag/MAPF/commit/be48dc1f618b84b3b75c9ce93b3d0e5e6c7096a2"
+        },
+        "date": 1706677657420,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 5290.75,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 26832.176,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 7511.4707,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 36744.117,
             "unit": "Expansions"
           }
         ]
