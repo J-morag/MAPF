@@ -99,8 +99,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      *
      */
     LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                   Boolean sharedGoals, Boolean sharedSources, Double reactionFactor,
-                                          Integer neighborhoodSize,
+                                   Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
                                    I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFBehaviour transientMAPFBehaviour) {
 
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
