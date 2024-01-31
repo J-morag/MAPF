@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706678641802,
+  "lastUpdate": 1706678643388,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -1368,6 +1368,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Runtime Low Level  (Reciprocal)",
             "value": 0.000004951079,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "3d92435db04b1f6f3d8f819f91fbcf81b069ecac",
+          "message": "fixes following merge from master",
+          "timestamp": "2024-01-31T15:36:58+11:00",
+          "tree_id": "9392106f4b1855ac0dc7ad6efe08b773ffdab3ad",
+          "url": "https://github.com/J-morag/MAPF/commit/3d92435db04b1f6f3d8f819f91fbcf81b069ecac"
+        },
+        "date": 1706678642692,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Throughput",
+            "value": 370.83334,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Runtime (Reciprocal)",
+            "value": 0.00000427101,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.0000049574974,
             "unit": "1 / Milliseconds"
           }
         ]
