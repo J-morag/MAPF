@@ -32,9 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LargeNeighborhoodSearch_SolverTest {
 
-//    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
-//    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new MapBasedDestroyHeuristic()), null, null, null, null);
-    I_Solver solver = new LargeNeighborhoodSearch_Solver();
+    I_Solver solver = new LNSBuilder().createLNS();
 
     InstanceReport instanceReport;
 
@@ -244,10 +242,10 @@ class LargeNeighborhoodSearch_SolverTest {
         Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null, null);
+        I_Solver baselineSolver = new LNSBuilder().setDestroyHeuristics(List.of(new RandomDestroyHeuristic())).createLNS();
         String nameBaseline = baselineSolver.name();
 
-        I_Solver competitorSolver = new LargeNeighborhoodSearch_Solver();
+        I_Solver competitorSolver = new LNSBuilder().createLNS();
         String nameExperimental = competitorSolver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -375,7 +373,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void sharedGoals(){
-        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, null);
+        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LNSBuilder().setSharedGoals(true).createLNS();
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -429,7 +427,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPF() {
-        I_Solver LNSt = new LargeNeighborhoodSearch_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(TransientMAPFBehaviour.transientMAPF).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);
@@ -452,7 +450,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPFAndBlacklist() {
-        I_Solver LNSt = new LargeNeighborhoodSearch_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(TransientMAPFBehaviour.transientMAPFWithBlacklist).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);

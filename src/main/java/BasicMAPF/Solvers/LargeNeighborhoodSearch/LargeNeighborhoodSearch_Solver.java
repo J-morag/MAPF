@@ -34,10 +34,13 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     /*  = Fields related to the class instance =  */
 
     /**
-     * A {@link I_Solver solver}, to be used for solving sub-problems for a subset of agents while avoiding other agents,
-     * and for finding the initial plan.
+     * A {@link I_Solver solver} to be used for finding the initial plan.
      */
-    private final I_Solver subSolver;
+    private final I_Solver initialSolver;
+    /**
+     * A {@link I_Solver solver} to be used for solving sub-problems for a subset of agents while avoiding other agents.
+     */
+    private final I_Solver iterationsSolver;
     private final List<I_DestroyHeuristic> destroyHeuristics;
     private final I_SolutionCostFunction solutionCostFunction;
     private final double reactionFactor;
@@ -51,6 +54,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict
      */
     private final boolean sharedSources;
+    private final TransientMAPFBehaviour transientMAPFBehaviour;
 
     /*  = Fields related to the run =  */
 
@@ -60,7 +64,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     private int completedDestroyAndRepairIterations;
     private double[] destroyHeuristicsWeights;
     private double sumWeights;
-    private TransientMAPFBehaviour transientMAPFBehaviour;
 
     /*  = Constructors =  */
 
@@ -75,15 +78,29 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      * @param reactionFactor       how quickly ALNS adapts to which heuristic is more successful. default = 0.01 .
      * @param neighborhoodSize     What size neighborhoods to select.
      * @param transientMAPFBehaviour indicates whether to solve transient-MAPF instead of regular MAPF.
+     * @param initialSolver         a solver to use for the initial solution.
+     *                              If null, use {@link PrioritisedPlanning_Solver} with random restarts until an initial solution is found.
+     * @param iterationsSolver      a solver to use for solving sub-problems for a subset of agents while avoiding other agents.
+     *                              If null, use {@link PrioritisedPlanning_Solver} with no restarts.
+     *
      */
     public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize, TransientMAPFBehaviour transientMAPFBehaviour) {
+                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
+                                          I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFBehaviour transientMAPFBehaviour) {
 
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
-        this.subSolver = new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
+
+        this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
+                // PP with random restarts until an initial solution is found
+                () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                sharedGoals, sharedSources, this.transientMAPFBehaviour);
+                sharedGoals, sharedSources, this.transientMAPFBehaviour));
+        this.iterationsSolver = Objects.requireNonNullElseGet(iterationsSolver,
+                // PP with just one attempt
+                () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+                sharedGoals, sharedSources, this.transientMAPFBehaviour));
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
@@ -95,13 +112,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
         super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
-    }
-
-    /**
-     * Default constructor.
-     */
-    public LargeNeighborhoodSearch_Solver(){
-        this(null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -247,7 +257,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                 destroyedSolution, agentsSubset);
 
         //solve sub-problem
-        Solution newSubsetSolution = this.subSolver.solve(subproblem, subproblemParameters);
+        Solution newSubsetSolution = this.iterationsSolver.solve(subproblem, subproblemParameters);
         digestSubproblemReport(subproblemReport);
         return newSubsetSolution;
     }
