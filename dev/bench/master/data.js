@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706672594002,
+  "lastUpdate": 1706672595229,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -5187,6 +5187,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 10878266,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "c02393aba6ddaf0c2440a7dd6264e6bc62f4582f",
+          "message": "bugfix: LNS RandomDestroyHeuristic getting exception when there are fewer agents than the neighborhood size",
+          "timestamp": "2024-01-31T13:50:28+11:00",
+          "tree_id": "ce9503cf87d542dcbb6cde4af2152e93d01418a5",
+          "url": "https://github.com/J-morag/MAPF/commit/c02393aba6ddaf0c2440a7dd6264e6bc62f4582f"
+        },
+        "date": 1706672594841,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 8678.467,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30008.412,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28137.646,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 12116872,
             "unit": "Expansions"
           }
         ]
