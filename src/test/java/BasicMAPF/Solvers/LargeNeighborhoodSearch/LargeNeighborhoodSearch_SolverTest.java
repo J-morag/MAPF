@@ -84,7 +84,7 @@ class LargeNeighborhoodSearch_SolverTest {
         Solution solved = solver.solve(testInstance, getDefaultRunParameters());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
     }
 
@@ -104,7 +104,7 @@ class LargeNeighborhoodSearch_SolverTest {
         long hardTimeout = 5L * 1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
         int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
         System.out.println("runtime: " + runtime);
@@ -437,13 +437,13 @@ class LargeNeighborhoodSearch_SolverTest {
 
         Solution solvedNormal = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
-        System.out.println(solvedNormal.readableToString());
+        System.out.println(solvedNormal);
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
         assertTrue(solvedNormal.makespan() == 4 || solvedNormal.makespan() == 6);
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
-        System.out.println(solvedPrPT.readableToString());
+        System.out.println(solvedPrPT);
         assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
         assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
@@ -460,13 +460,13 @@ class LargeNeighborhoodSearch_SolverTest {
 
         Solution solvedNormal = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
-        System.out.println(solvedNormal.readableToString());
+        System.out.println(solvedNormal);
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
         assertTrue(solvedNormal.makespan() == 4 || solvedNormal.makespan() == 6);
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
-        System.out.println(solvedPrPT.readableToString());
+        System.out.println(solvedPrPT);
         assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
         assertEquals(4, solvedPrPT.makespan()); // makespan (normal)

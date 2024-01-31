@@ -55,7 +55,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
     }
 
@@ -66,7 +66,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 8, 5, testInstance);
 
     }
@@ -78,7 +78,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 8, 5, testInstance);
     }
 
@@ -89,7 +89,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 6, 4, testInstance);
     }
 

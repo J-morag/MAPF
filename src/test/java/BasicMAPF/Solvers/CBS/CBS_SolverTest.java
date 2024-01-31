@@ -69,7 +69,7 @@ class CBS_SolverTest {
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
     }
 
@@ -80,7 +80,7 @@ class CBS_SolverTest {
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 8, 5, testInstance);
 
     }
@@ -92,7 +92,7 @@ class CBS_SolverTest {
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 8, 5, testInstance);
     }
 
@@ -103,7 +103,7 @@ class CBS_SolverTest {
         Solution solved = cbsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 6, 4, testInstance);
     }
 
@@ -163,10 +163,10 @@ class CBS_SolverTest {
         MAPF_Instance agent1prioritisedInstance = new MAPF_Instance("agent1prioritised", mapCircle, new Agent[]{agent0, agent1});
         Solution agent1prioritisedSolution = solver.solve(agent1prioritisedInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
-        System.out.println(agent0prioritisedSolution.readableToString());
+        System.out.println(agent0prioritisedSolution);
         validate(agent0prioritisedSolution, 2, 8, 5, agent0prioritisedInstance);
 
-        System.out.println(agent1prioritisedSolution.readableToString());
+        System.out.println(agent1prioritisedSolution);
         validate(agent1prioritisedSolution, 2, 8, 5, agent1prioritisedInstance);
 
         // check that agents were logically prioritised to minimise cost with priorities
