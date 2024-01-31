@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706663181531,
+  "lastUpdate": 1706663182706,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -5025,6 +5025,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 8268835,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "020e7d06f44c027ca9e93b93a373f93eca627acd",
+          "message": "fix tests string method",
+          "timestamp": "2024-01-31T11:24:39+11:00",
+          "tree_id": "8c6a43491acc155bebabad72054183704c303dbf",
+          "url": "https://github.com/J-morag/MAPF/commit/020e7d06f44c027ca9e93b93a373f93eca627acd"
+        },
+        "date": 1706663182325,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 9000.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30003.117,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28022.824,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 10878266,
             "unit": "Expansions"
           }
         ]
