@@ -184,7 +184,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             Solution newSubsetSolution = null;
             if (!agentsSubset.isEmpty()){
                 // plan while avoiding the unselected agents
-                newSubsetSolution = solveSubproblem(destroyedSolution, agentsSubset, instance, initialConstraints);
+                newSubsetSolution = solveSubproblem(destroyedSolution, agentsSubset, instance, initialConstraints, false);
             }
 
             updateDestroyHeuristicWeight(newSubsetSolution, oldSubsetSolution, destroyHeuristicIndex);
@@ -219,7 +219,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     }
 
     private Solution getInitialSolution(MAPF_Instance instance, ConstraintSet initialConstraints) {
-        return solveSubproblem(new Solution(), new HashSet<>(this.agents), instance, initialConstraints);
+        return solveSubproblem(new Solution(), new HashSet<>(this.agents), instance, initialConstraints, true);
     }
 
     /**
@@ -249,7 +249,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     }
 
     protected Solution solveSubproblem(Solution destroyedSolution, Set<Agent> agentsSubset,
-                                       MAPF_Instance fullInstance, ConstraintSet outsideConstraints) {
+                                       MAPF_Instance fullInstance, ConstraintSet outsideConstraints, boolean initial) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(agentsSubset);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
@@ -257,7 +257,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                 destroyedSolution, agentsSubset);
 
         //solve sub-problem
-        Solution newSubsetSolution = this.iterationsSolver.solve(subproblem, subproblemParameters);
+        Solution newSubsetSolution = initial ? this.initialSolver.solve(subproblem, subproblemParameters)
+                : this.iterationsSolver.solve(subproblem, subproblemParameters);
         digestSubproblemReport(subproblemReport);
         return newSubsetSolution;
     }
