@@ -65,7 +65,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceEmpty;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(24, solved.sumIndividualCosts());
@@ -78,7 +78,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceEmpty3;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(8, solved.sumIndividualCosts());
@@ -91,7 +91,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceEmpty2;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(25, solved.sumIndividualCosts());
@@ -104,7 +104,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceEmptyHarder;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
     }
 
@@ -113,7 +113,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceCircle1;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(10, solved.sumIndividualCosts());
@@ -126,7 +126,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceCircle2;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(14, solved.sumIndividualCosts());
@@ -141,7 +141,7 @@ public class PIBT_SolverTest {
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
     }
 
@@ -150,7 +150,7 @@ public class PIBT_SolverTest {
         MAPF_Instance testInstance = instanceAgentsInterruptsEachOther;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(10, solved.sumIndividualCosts());
@@ -439,7 +439,7 @@ public class PIBT_SolverTest {
         constraints.add(constraint1);
         constraints.add(constraint2);
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(8, solved.sumIndividualCosts());
@@ -461,7 +461,7 @@ public class PIBT_SolverTest {
 
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(27, solved.sumIndividualCosts());
@@ -480,7 +480,7 @@ public class PIBT_SolverTest {
         constraints.add(constraint1);
 
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
         assertEquals(27, solved.sumIndividualCosts());
         assertEquals(8, solved.makespan());
@@ -501,7 +501,7 @@ public class PIBT_SolverTest {
 
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
         assertEquals(16, solved.sumIndividualCosts());

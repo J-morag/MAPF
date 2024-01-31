@@ -348,21 +348,14 @@ public class SingleAgentPlan implements Iterable<Move> {
 
     @Override
     public String toString() {
-        return this.readableToString().toString();
-    }
-
-    /**
-     * A string output that is easier for humans to read.
-     * @return a string output that is easier for humans to read.
-     */
-    public StringBuilder readableToString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Plan for agent ").append(agent);
-        for(Move move : this){
-            sb.append(move.readableToString());
+        sb.append("Plan for agent ").append(agent.iD).append(':');
+        sb.append(this.moves.isEmpty() ? " empty" : " 0:" + moves.get(0).prevLocation.getCoordinate());
+        for (int i = 1; i <= this.getEndTime(); i++) {
+            Move move = this.moveAt(i);
+            sb.append(' ').append(move.timeNow).append(':').append(move.currLocation.getCoordinate());
         }
-        sb.append("\n");
-        return sb;
+        return sb.toString();
     }
 
     @Override

@@ -20,7 +20,7 @@ public class RandomDestroyHeuristic implements I_DestroyHeuristic{
             shuffledAgentsList.add(plan.agent);
         }
         Collections.shuffle(shuffledAgentsList, rnd);
-        return shuffledAgentsList.subList(0, neighborhoodSize);
+        return shuffledAgentsList.subList(0, Math.min(neighborhoodSize, shuffledAgentsList.size()));
     }
 
     @Override

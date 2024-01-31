@@ -55,7 +55,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 7, solved.sumIndividualCosts(),solved.makespan(), testInstance); //need to find actual optimal costs
     }
 
@@ -66,7 +66,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 8, 5, testInstance);
 
     }
@@ -78,7 +78,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 8, 5, testInstance);
     }
 
@@ -89,7 +89,7 @@ class ICTS_SolverTest {
         Solution solved = ictsSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 6, 4, testInstance);
     }
 
@@ -116,7 +116,7 @@ class ICTS_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 60 /*seconds*/ *1000L;
+            long timeout = 30 /*seconds*/ *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
@@ -246,7 +246,7 @@ class ICTS_SolverTest {
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-        long timeout = 60 /*seconds*/ * 1000L;
+        long timeout = 30 /*seconds*/ * 1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;

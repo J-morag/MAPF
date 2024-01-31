@@ -83,7 +83,7 @@ class PrioritisedPlanningSolverTest {
         Solution solved = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
         assertEquals(10, solved.sumIndividualCosts());
         assertEquals(8, solved.makespan());
@@ -184,7 +184,7 @@ class PrioritisedPlanningSolverTest {
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null, null, null, null);
         Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
         int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
         System.out.println("runtime: " + runtime);

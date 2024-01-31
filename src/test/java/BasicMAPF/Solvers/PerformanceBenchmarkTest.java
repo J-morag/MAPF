@@ -15,7 +15,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
-import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -75,7 +75,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void LNSStressTest() {
-        I_Solver solver = new LargeNeighborhoodSearch_Solver();
+        I_Solver solver = new LNSBuilder().createLNS();
         long timeout = 1000 * 30;
         int numAgents = 100;
         stressTest(solver, timeout, numAgents, false);
