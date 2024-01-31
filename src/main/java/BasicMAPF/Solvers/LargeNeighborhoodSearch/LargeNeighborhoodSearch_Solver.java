@@ -84,9 +84,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      *                              If null, use {@link PrioritisedPlanning_Solver} with no restarts.
      *
      */
-    public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                          Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
-                                          I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFBehaviour transientMAPFBehaviour) {
+    LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
+                                   Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
+                                   I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFBehaviour transientMAPFBehaviour) {
 
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
