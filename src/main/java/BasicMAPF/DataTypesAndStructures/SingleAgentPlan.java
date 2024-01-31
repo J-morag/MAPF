@@ -351,8 +351,7 @@ public class SingleAgentPlan implements Iterable<Move> {
         StringBuilder sb = new StringBuilder();
         sb.append("Plan for agent ").append(agent.iD).append(':');
         sb.append(this.moves.isEmpty() ? " empty" : " 0:" + moves.get(0).prevLocation.getCoordinate());
-        for (int i = 1; i <= this.getEndTime(); i++) {
-            Move move = this.moveAt(i);
+        for (Move move: this) {
             sb.append(' ').append(move.timeNow).append(':').append(move.currLocation.getCoordinate());
         }
         return sb.toString();
