@@ -5,7 +5,7 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     protected Map<MDDSearchNode, MDDSearchNode> closeList;
     private final SingleAgentGAndH heuristic;
     protected int maxDepthOfSolution;
-    protected ConstraintSet constraints;
+    protected I_ConstraintSet constraints;
 
     /**
      * Constructor for the AStar searcher
@@ -138,7 +138,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     }
 
     @Override
-    public MDD searchToFirstSolution(@Nullable ConstraintSet constraints) {
+    public MDD searchToFirstSolution(@Nullable I_ConstraintSet constraints) {
         if (openList != null)
             throw new IllegalStateException("should not search for first solution on a searcher that has already been used");
         this.constraints = constraints;

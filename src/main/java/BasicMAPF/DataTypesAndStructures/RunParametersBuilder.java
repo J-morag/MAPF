@@ -2,7 +2,7 @@ package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 
 import java.util.Random;
@@ -10,7 +10,7 @@ import java.util.Random;
 public class RunParametersBuilder {
     private long timeout = 1000*60*5 /*5 minutes*/;
     private long softTimeout = timeout;
-    private ConstraintSet constraints = null;
+    private I_ConstraintSet constraints = null;
     private InstanceReport instanceReport = null;
     private Solution existingSolution = null;
     private SingleAgentGAndH singleAgentGAndH = null;
@@ -38,7 +38,7 @@ public class RunParametersBuilder {
     /**
      * @see RunParameters#constraints
      */
-    public RunParametersBuilder setConstraints(ConstraintSet constraints) {
+    public RunParametersBuilder setConstraints(I_ConstraintSet constraints) {
         this.constraints = constraints;
         return this;
     }

@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Metrics.InstanceReport;
@@ -59,7 +60,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     /*  = Fields related to the run =  */
 
     private SingleAgentGAndH subSolverHeuristic;
-    private ConstraintSet constraints;
+    private I_ConstraintSet constraints;
     private Random random;
     private int completedDestroyAndRepairIterations;
     private double[] destroyHeuristicsWeights;
@@ -159,7 +160,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      * @param instance problem instance
      * @param initialConstraints constraints to solve under
      */
-    protected Solution solveLNS(MAPF_Instance instance, ConstraintSet initialConstraints) {
+    protected Solution solveLNS(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
         Solution bestSolution = getInitialSolution(instance, initialConstraints);
         while (bestSolution != null && !checkTimeout() && !checkSoftTimeout()){ // anytime behaviour
             // select neighborhood (destroy heuristic)
@@ -218,7 +219,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         sumWeights += destroyHeuristicsWeights[destroyHeuristicIndex] - oldWeight;
     }
 
-    private Solution getInitialSolution(MAPF_Instance instance, ConstraintSet initialConstraints) {
+    private Solution getInitialSolution(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
         return solveSubproblem(new Solution(), new HashSet<>(this.agents), instance, initialConstraints, true);
     }
 
@@ -249,7 +250,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     }
 
     protected Solution solveSubproblem(Solution destroyedSolution, Set<Agent> agentsSubset,
-                                       MAPF_Instance fullInstance, ConstraintSet outsideConstraints, boolean initial) {
+                                       MAPF_Instance fullInstance, I_ConstraintSet outsideConstraints, boolean initial) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(agentsSubset);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
@@ -272,7 +273,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     }
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport,
-                                                    ConstraintSet outsideConstraints, Solution destroyedSolution, Set<Agent> agentsSubset) {
+                                                    I_ConstraintSet outsideConstraints, Solution destroyedSolution, Set<Agent> agentsSubset) {
         // TODO shorter timeout?
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
         ConstraintSet subproblemConstraints = new ConstraintSet(outsideConstraints);
