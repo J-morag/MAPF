@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706764272418,
+  "lastUpdate": 1706764273953,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -12863,6 +12863,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 10475633,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "77ceccb3414568af8be3fe9c170ed2ca4e8397f7",
+          "message": "bugfix: SIPP was ignoring all vertex constraints...\nreimplemented ImmutableConstraintSet as a proper wrapper - put ConstraintSet under an interface I_ConstraintSet.\nfinally, renamed ImmutableConstraintSet to UnmodifiableConstraintSet",
+          "timestamp": "2024-02-01T15:30:05+11:00",
+          "tree_id": "35c29ebbd429760f1ca91c7495d733bb4fd8a4d5",
+          "url": "https://github.com/J-morag/MAPF/commit/77ceccb3414568af8be3fe9c170ed2ca4e8397f7"
+        },
+        "date": 1706764273324,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 30002,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 9348.235,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 69539.88,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 7839327.5,
             "unit": "Expansions"
           }
         ]
