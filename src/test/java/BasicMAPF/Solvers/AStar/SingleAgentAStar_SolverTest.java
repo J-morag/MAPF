@@ -19,7 +19,7 @@ import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,12 +71,12 @@ class SingleAgentAStar_SolverTest {
 
     @BeforeEach
     void setUp() {
-        instanceReport = S_Metrics.newInstanceReport();
+        instanceReport = Metrics.newInstanceReport();
     }
 
     @AfterEach
     void tearDown() {
-        S_Metrics.removeReport(instanceReport);
+        Metrics.removeReport(instanceReport);
     }
 
 

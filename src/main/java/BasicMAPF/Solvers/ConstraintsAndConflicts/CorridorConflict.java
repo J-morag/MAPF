@@ -6,9 +6,9 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.RunParameters_SAAStar;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.NoStateTimeSearches;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.RangeConstraint;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -31,7 +31,7 @@ public class CorridorConflict extends A_Conflict {
      * The end vertex of the corridor. The beginning vertex is stored in {@link #location}.
      */
     private final I_Location end;
-    private final ConstraintSet constraints;
+    private final I_ConstraintSet constraints;
     private final MAPF_Instance instance;
     private final HashSet<I_Location> corridorVertices;
     private final int agent1MinTimeToEnd;
@@ -42,7 +42,7 @@ public class CorridorConflict extends A_Conflict {
     private Constraint[] preventingConstraints = null;
 
     public CorridorConflict(Agent agent1, Agent agent2, int time, I_Location begin, I_Location end,
-                            HashSet<I_Location> corridorVertices, ConstraintSet constraints, MAPF_Instance instance,
+                            HashSet<I_Location> corridorVertices, I_ConstraintSet constraints, MAPF_Instance instance,
                             SingleAgentPlan agent1CurrentPlan, SingleAgentPlan agent2CurrentPlan) {
         super(agent1, agent2, time, begin);
         this.end = end;

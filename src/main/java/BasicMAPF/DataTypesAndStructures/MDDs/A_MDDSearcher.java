@@ -3,7 +3,7 @@ package BasicMAPF.DataTypesAndStructures.MDDs;
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,5 +54,5 @@ public abstract class A_MDDSearcher {
      * @param constraints - the constraints that the MDD should satisfy
      * @return the minimal-depth MDD that satisfies the constraints
      */
-    public abstract MDD searchToFirstSolution(@Nullable ConstraintSet constraints);
+    public abstract MDD searchToFirstSolution(@Nullable I_ConstraintSet constraints);
 }

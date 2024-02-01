@@ -4,8 +4,7 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import org.apache.commons.lang3.NotImplementedException;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,7 +59,7 @@ public class MDDManager {
         return result;
     }
 
-    public MDD getMinMDDNoReuse(@NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @Nullable ConstraintSet constraints){
+    public MDD getMinMDDNoReuse(@NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @Nullable I_ConstraintSet constraints){
         A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
         MDD result = searcher.searchToFirstSolution(constraints);
         this.expandedLowLevelNodes += searcher.getExpandedNodesNum();

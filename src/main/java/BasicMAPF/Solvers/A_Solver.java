@@ -5,7 +5,7 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,7 +78,7 @@ public abstract class A_Solver implements I_Solver{
         this.totalLowLevelTimeMS = 0;
         this.totalLowLevelCalls = 0;
 
-        this.instanceReport = parameters.instanceReport == null ? S_Metrics.newInstanceReport()
+        this.instanceReport = parameters.instanceReport == null ? Metrics.newInstanceReport()
                 : parameters.instanceReport;
         // If we were given a report, we should leave it be.
         // If we created our report locally, it is unreachable outside the class, and should therefore be committed.

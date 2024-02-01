@@ -80,7 +80,7 @@ public class Main {
             System.out.println("Instances Dir: " + optInstancesDir);
             instancesDir = optInstancesDir;
             if (! new File(instancesDir).exists()){
-                System.out.printf("Could not locate the provided instances dir (%s)\n", instancesDir);
+                System.err.printf("Could not locate the provided instances dir (%s)\n", instancesDir);
                 System.exit(0);
             }
 

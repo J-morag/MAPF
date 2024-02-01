@@ -13,6 +13,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,7 @@ public class PIBT_Solver extends A_Solver {
      * The cost function to evaluate solutions with.
      */
     private final I_SolutionCostFunction solutionCostFunction;
-    private ConstraintSet constraints;
+    private I_ConstraintSet constraints;
 
     /**
      * How far forward in time to consider conflicts. Further than this time conflicts will be ignored.

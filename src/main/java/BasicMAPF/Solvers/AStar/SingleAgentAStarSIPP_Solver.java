@@ -6,16 +6,17 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintGroupingKey;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
+
+    public SingleAgentAStarSIPP_Solver() {
+        super();
+        super.name = "SIPP";
+    }
 
     private HashMap<I_Location, List<Interval>> safeIntervalsByLocation;
 
@@ -198,29 +199,22 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(ConstraintSet constraints) {
+    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(I_ConstraintSet constraints) {
         /*
-          Originally constraints are by location and time, for the SIPP algorithm
-          we convert the production of the constraints into time intervals by location
+          Originally constraints are by location and time. For the SIPP algorithm,
+          we convert the constraints into time intervals by location
          */
         HashMap<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
 
-        // filter out constraints that are not vertex constraints
-        Map<I_ConstraintGroupingKey, Set<Constraint>> vertexConstraints = constraints.getEntrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().stream()
-                                .filter(constraint -> (((constraint.getPrevLocation() == null) && (constraint.agent == null) || (constraint.getPrevLocation() == null) && (constraint.agent.equals(this.agent)))))
-                                .collect(Collectors.toSet())
-                ));
-
-        vertexConstraints.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-
-
-        for (I_ConstraintGroupingKey timeLocation : vertexConstraints.keySet()) {
-            List<Integer> timesList = timeIntervals.computeIfAbsent(timeLocation.getLocation(), k -> new ArrayList<>());
-            timesList.add(timeLocation.getTime());
+        for (Map.Entry<I_ConstraintGroupingKey, Set<Constraint>> entry : constraints.getEntrySet()) {
+            for (Constraint constraint : entry.getValue()) {
+                // skip constraints that are not vertex constraints
+                if ((constraint.getPrevLocation() == null) && (constraint.agent == null || constraint.agent.equals(this.agent))){
+                    List<Integer> timesList = timeIntervals.computeIfAbsent(entry.getKey().getLocation(), k -> new ArrayList<>());
+                    timesList.add(entry.getKey().getTime());
+                    break;
+                }
+            }
         }
 
         HashMap<I_Location, List<Interval>> intervalMap = new HashMap<>();

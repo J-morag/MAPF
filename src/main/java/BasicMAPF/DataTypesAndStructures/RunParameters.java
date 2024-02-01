@@ -2,6 +2,7 @@ package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -39,7 +40,7 @@ public class RunParameters {
      * A {@link I_Solver solver} that uses this field should start its solution process with these constraints, but may
      * later add or remove constraints, depending on the algorithm being used. @Nullable
      */
-    public final ConstraintSet constraints;
+    public final I_ConstraintSet constraints;
 
     /**
      * An {@link InstanceReport} where to {@link I_Solver} will write metrics generated from the run.
@@ -85,7 +86,7 @@ public class RunParameters {
      * Intentionally package-private constructor.
      * Use {@link RunParametersBuilder} to create a {@link RunParameters} object.
      */
-    RunParameters(long timeout, ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, SingleAgentGAndH singleAgentGAndH, int problemStartTime, @Nullable Random randomNumberGenerator, Agent[] priorityOrder) {
+    RunParameters(long timeout, I_ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, SingleAgentGAndH singleAgentGAndH, int problemStartTime, @Nullable Random randomNumberGenerator, Agent[] priorityOrder) {
         this.timeout = timeout;
         this.softTimeout = softTimeout;
         if (this.softTimeout > this.timeout){

@@ -13,12 +13,13 @@ import Environment.Metrics.InstanceReport;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static Environment.Metrics.InstanceReport.MAX_STRING_SIZE;
+
 /**
  * A collection of {@link SingleAgentPlan}s, representing a solution to a Path Finding problem.
  * If the collection contains more than one plan, it is a solution to a Multi Agent Path Finding problem.
  */
 public class Solution implements Iterable<SingleAgentPlan>{
-    private static final int looseMaxSolutionStringChars = 10000 /*lines*/ * 20 /*chars (roughly)*/;
     /**
      * A {@link Map}, mapping {@link Agent agents} to their {@link SingleAgentPlan plans}.
      */
@@ -294,29 +295,22 @@ public class Solution implements Iterable<SingleAgentPlan>{
 
     @Override
     public String toString() {
-        return this.readableToString().toString();
-    }
-
-    //nicetohave JSON toString
-
-    /**
-     * A string output that is easier for humans to read.
-     * @return a string output that is easier for humans to read.
-     */
-    public StringBuilder readableToString(){
         StringBuilder sb = new StringBuilder();
         List<Agent> agents = new ArrayList<>(this.agentPlans.keySet());
-        Collections.sort(agents, Comparator.comparing(agent -> agent.iD));
-        for(Agent agent : agents){
+        agents.sort(Comparator.comparing(agent -> agent.iD));
+        for (Agent agent : agents){
             sb.append(this.agentPlans.get(agent));
-            if (sb.length() > looseMaxSolutionStringChars){
+            if (sb.length() > MAX_STRING_SIZE){
                 sb.append("... (truncated)");
                 break;
             }
+            sb.append('\n');
         }
         sb.append('\n');
-        return sb;
+        return sb.toString();
     }
+
+    //nicetohave JSON toString
 
     @Override
     public boolean equals(Object o) {
