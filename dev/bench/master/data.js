@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706764273953,
+  "lastUpdate": 1706764275558,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -4267,6 +4267,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 36734,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "77ceccb3414568af8be3fe9c170ed2ca4e8397f7",
+          "message": "bugfix: SIPP was ignoring all vertex constraints...\nreimplemented ImmutableConstraintSet as a proper wrapper - put ConstraintSet under an interface I_ConstraintSet.\nfinally, renamed ImmutableConstraintSet to UnmodifiableConstraintSet",
+          "timestamp": "2024-02-01T15:30:05+11:00",
+          "tree_id": "35c29ebbd429760f1ca91c7495d733bb4fd8a4d5",
+          "url": "https://github.com/J-morag/MAPF/commit/77ceccb3414568af8be3fe9c170ed2ca4e8397f7"
+        },
+        "date": 1706764274918,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 5290.75,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 27018.646,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 7345.8823,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 36328.766,
             "unit": "Expansions"
           }
         ]
