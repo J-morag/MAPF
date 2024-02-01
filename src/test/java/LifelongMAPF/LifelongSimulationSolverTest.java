@@ -7,6 +7,7 @@ import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -53,7 +54,7 @@ class LifelongSimulationSolverTest {
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(null, new AllAgentsSelector(),
-            new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new LNSBuilder().setSharedGoals(true).setSharedSources(false).createLNS(), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, 20, null), null, new WidePartialSolutionsStrategy(), null, null, null);
@@ -97,7 +98,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, parameters);
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -111,7 +112,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, parameters);
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
 
     }
@@ -126,7 +127,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, parameters);
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -141,7 +142,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, parameters);
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -155,7 +156,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, parameters);
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -218,7 +219,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -230,7 +231,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -242,7 +243,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -254,7 +255,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -266,7 +267,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -323,7 +324,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -335,7 +336,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
 
     }
@@ -348,7 +349,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -360,7 +361,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -372,7 +373,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -429,7 +430,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -441,7 +442,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -453,7 +454,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -465,7 +466,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -477,7 +478,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -534,7 +535,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -546,7 +547,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
 
     }
@@ -559,7 +560,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -571,7 +572,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -583,7 +584,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -640,7 +641,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -652,9 +653,8 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
-
     }
 
     @Test
@@ -665,7 +665,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -677,7 +677,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -689,7 +689,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -746,7 +746,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -758,7 +758,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
 
     }
@@ -771,7 +771,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -783,7 +783,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -795,7 +795,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -853,7 +853,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -865,7 +865,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -877,7 +877,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -889,7 +889,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -902,7 +902,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -962,7 +962,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -974,7 +974,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -986,7 +986,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -998,7 +998,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isValidFullOrPartialSolution(solved, testInstance);
     }
 
@@ -1011,7 +1011,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, lifelongRunParameters);
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1071,7 +1071,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1083,7 +1083,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
 
     }
@@ -1096,7 +1096,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -1108,7 +1108,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1120,7 +1120,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1135,7 +1135,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1147,7 +1147,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
 
     }
@@ -1160,7 +1160,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -1172,7 +1172,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1184,7 +1184,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1241,7 +1241,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1253,7 +1253,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
 
     }
@@ -1266,7 +1266,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -1278,7 +1278,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1290,7 +1290,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
     
@@ -1304,7 +1304,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1316,7 +1316,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
 
     }
@@ -1329,7 +1329,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1341,7 +1341,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1353,7 +1353,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1368,7 +1368,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1380,7 +1380,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
 
     }
@@ -1393,7 +1393,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1405,7 +1405,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1417,7 +1417,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1433,7 +1433,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1445,7 +1445,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
 
     }
@@ -1458,7 +1458,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, 8, 5, testInstance);
     }
 
@@ -1470,7 +1470,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -1482,7 +1482,7 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 

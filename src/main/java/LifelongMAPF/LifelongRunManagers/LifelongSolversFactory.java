@@ -3,6 +3,7 @@ package LifelongMAPF.LifelongRunManagers;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -1945,8 +1946,7 @@ public class LifelongSolversFactory {
 //                true, true, null, RHCRHorizon, new FailPolicy(replanningPeriod, fp));
 //        prp.dynamicAStarTimeAllocation = true;
 //        prp.aStarTimeAllocationFactor = 1.5f;
-        // todo prp as an LNS argument... need for RHCR
-        LargeNeighborhoodSearch_Solver lns = new LargeNeighborhoodSearch_Solver(null, null, true, false, null, null, null);
+        LargeNeighborhoodSearch_Solver lns = new LNSBuilder().setSharedGoals(true).setSharedSources(false).createLNS();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 lns, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();

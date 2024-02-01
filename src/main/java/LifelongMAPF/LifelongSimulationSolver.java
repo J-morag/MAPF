@@ -47,7 +47,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
     /* static fields */
     private static final StayFailPolicy STAY_ONCE_FAIL_POLICY = new StayFailPolicy();
-    private static final int DEBUG = 2;
+    private static final int DEBUG = 1;
 
     /* fields related to instance */
     /**
@@ -312,8 +312,10 @@ public class LifelongSimulationSolver extends A_Solver {
 
             sumFailedAgentsAfterPolicy += failedAgents.size();
 
-            if (DEBUG >= 2){
-                printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexOneBasedInPlanner);
+            if (DEBUG >= 1){
+                if (! selectedTimelyOfflineAgentsSubset.isEmpty()){
+                    printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexOneBasedInPlanner);
+                }
                 if (DEBUG >= 3){
                     System.out.println(latestSolution);
                 }

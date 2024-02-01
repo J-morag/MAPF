@@ -21,7 +21,7 @@ public class LifelongTestInstances {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -31,7 +31,7 @@ public class LifelongTestInstances {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
 
     }
@@ -42,7 +42,7 @@ public class LifelongTestInstances {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -52,7 +52,7 @@ public class LifelongTestInstances {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 
@@ -62,7 +62,7 @@ public class LifelongTestInstances {
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNotNull(solved);
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         isFullSolution(solved, testInstance);
     }
 

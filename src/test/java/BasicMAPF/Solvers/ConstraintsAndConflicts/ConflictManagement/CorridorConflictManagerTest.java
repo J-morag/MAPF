@@ -49,7 +49,7 @@ class CorridorConflictManagerTest {
         InstanceReport instanceReport = new InstanceReport();
         Solution solved = corridorSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         validate(solved, 2, 14, 9, testInstance);
         // did it correctly use corridor reasoning?
         assertEquals(1, instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes));

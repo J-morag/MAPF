@@ -32,9 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LargeNeighborhoodSearch_SolverTest {
 
-//    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null);
-//    I_Solver solver = new LargeNeighborhoodSearch_Solver(null, List.of(new MapBasedDestroyHeuristic()), null, null, null, null);
-    I_Solver solver = new LargeNeighborhoodSearch_Solver();
+    I_Solver solver = new LNSBuilder().createLNS();
 
     InstanceReport instanceReport;
 
@@ -84,7 +82,7 @@ class LargeNeighborhoodSearch_SolverTest {
         Solution solved = solver.solve(testInstance, getDefaultRunParameters());
         Metrics.removeReport(instanceReport);
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
     }
 
@@ -104,7 +102,7 @@ class LargeNeighborhoodSearch_SolverTest {
         long hardTimeout = 5L * 1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
-        System.out.println(solved.readableToString());
+        System.out.println(solved);
         assertTrue(solved.solves(testInstance));
         int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
         System.out.println("runtime: " + runtime);
@@ -244,10 +242,10 @@ class LargeNeighborhoodSearch_SolverTest {
         Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver baselineSolver = new LargeNeighborhoodSearch_Solver(null, List.of(new RandomDestroyHeuristic()), null, null, null, null, null);
+        I_Solver baselineSolver = new LNSBuilder().setDestroyHeuristics(List.of(new RandomDestroyHeuristic())).createLNS();
         String nameBaseline = baselineSolver.name();
 
-        I_Solver competitorSolver = new LargeNeighborhoodSearch_Solver();
+        I_Solver competitorSolver = new LNSBuilder().createLNS();
         String nameExperimental = competitorSolver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -375,7 +373,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void sharedGoals(){
-        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LargeNeighborhoodSearch_Solver(null, null, true, null, null, null, null);
+        LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LNSBuilder().setSharedGoals(true).createLNS();
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -429,7 +427,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPF() {
-        I_Solver LNSt = new LargeNeighborhoodSearch_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(TransientMAPFBehaviour.transientMAPF).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);
@@ -437,13 +435,13 @@ class LargeNeighborhoodSearch_SolverTest {
 
         Solution solvedNormal = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
-        System.out.println(solvedNormal.readableToString());
+        System.out.println(solvedNormal);
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
         assertTrue(solvedNormal.makespan() == 4 || solvedNormal.makespan() == 6);
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
-        System.out.println(solvedPrPT.readableToString());
+        System.out.println(solvedPrPT);
         assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
         assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
@@ -452,7 +450,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPFAndBlacklist() {
-        I_Solver LNSt = new LargeNeighborhoodSearch_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(TransientMAPFBehaviour.transientMAPFWithBlacklist).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);
@@ -460,13 +458,13 @@ class LargeNeighborhoodSearch_SolverTest {
 
         Solution solvedNormal = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
-        System.out.println(solvedNormal.readableToString());
+        System.out.println(solvedNormal);
         assertEquals(4 + 4 + 2, solvedNormal.sumIndividualCosts());
         assertTrue(solvedNormal.makespan() == 4 || solvedNormal.makespan() == 6);
 
         Solution solvedPrPT = LNSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
-        System.out.println(solvedPrPT.readableToString());
+        System.out.println(solvedPrPT);
         assertEquals(4 + 3 + 2, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
         assertEquals(4, solvedPrPT.makespan()); // makespan (normal)

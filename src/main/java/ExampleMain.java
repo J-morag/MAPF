@@ -78,7 +78,7 @@ public class ExampleMain {
         Solution solution = solver.solve(instance, runParameters);
 
         //output results
-        System.out.println(solution.readableToString());
+        System.out.println(solution.toString());
         outputResults();
 
         GridSolutionVisualizer.visualizeSolution(instance, solution, solver.name() + " - " + instance.extendedName);
