@@ -123,7 +123,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
 
-        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + (this.transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist ? "_sst" : "") +
+        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + " (" + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
