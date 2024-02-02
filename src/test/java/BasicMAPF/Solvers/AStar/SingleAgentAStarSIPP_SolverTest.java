@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
+import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -357,8 +358,8 @@ class SingleAgentAStarSIPP_SolverTest {
 
                 List<Integer> sippPlanCosts = null;
                 if (sippSolution != null){
-                    List<I_Location> sippPlanLocations = planLocations(sippSolution.getPlanFor(agent));
-                    sippPlanCosts = getCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
+                    List<I_Location> sippPlanLocations = TestUtils.planLocations(sippSolution.getPlanFor(agent));
+                    sippPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
                     System.out.println("SIPP:");
                     System.out.println("Running Time:");
                     System.out.println(endTime - startTime);
@@ -381,8 +382,8 @@ class SingleAgentAStarSIPP_SolverTest {
 
                 List<Integer> aStarPlanCosts = null;
                 if (aStarSolution != null){
-                    List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));
-                    aStarPlanCosts = getCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
+                    List<I_Location> aStarPlanLocations = TestUtils.planLocations(aStarSolution.getPlanFor(agent));
+                    aStarPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
                     System.out.println("aStar:");
                     System.out.println("Running Time:");
                     System.out.println(endTime - startTime);
@@ -453,8 +454,8 @@ class SingleAgentAStarSIPP_SolverTest {
                 List<Integer> sippPlanCosts = null;
                 boolean sippSolved = sippSolution != null;
                 if (sippSolved){
-                    List<I_Location> sippPlanLocations = planLocations(sippSolution.getPlanFor(agent));
-                    sippPlanCosts = getCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
+                    List<I_Location> sippPlanLocations = TestUtils.planLocations(sippSolution.getPlanFor(agent));
+                    sippPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
                     System.out.println("SIPP:");
                     System.out.println("Running Time:");
                     System.out.println(endTime - startTime);
@@ -478,8 +479,8 @@ class SingleAgentAStarSIPP_SolverTest {
                 List<Integer> aStarPlanCosts = null;
                 boolean aStarSolved = aStarSolution != null;
                 if (aStarSolved){
-                    List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));
-                    aStarPlanCosts = getCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
+                    List<I_Location> aStarPlanLocations = TestUtils.planLocations(aStarSolution.getPlanFor(agent));
+                    aStarPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
                     System.out.println("aStar:");
                     System.out.println("Running Time:");
                     System.out.println(endTime - startTime);
@@ -561,8 +562,8 @@ class SingleAgentAStarSIPP_SolverTest {
                 List<Integer> sippPlanCosts = null;
                 boolean sippSolved = sippSolution != null;
                 if (sippSolved){
-                    List<I_Location> sippPlanLocations = planLocations(sippSolution.getPlanFor(agent));
-                    sippPlanCosts = getCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
+                    List<I_Location> sippPlanLocations = TestUtils.planLocations(sippSolution.getPlanFor(agent));
+                    sippPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
                     System.out.println("SIPP:");
                     System.out.println("Running Time:");
                     System.out.println(endTime - startTime);
@@ -586,8 +587,8 @@ class SingleAgentAStarSIPP_SolverTest {
                 List<Integer> aStarPlanCosts = null;
                 boolean aStarSolved = aStarSolution != null;
                 if (aStarSolved){
-                    List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));
-                    aStarPlanCosts = getCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
+                    List<I_Location> aStarPlanLocations = TestUtils.planLocations(aStarSolution.getPlanFor(agent));
+                    aStarPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
                     System.out.println("aStar:");
                     System.out.println("Running Time:");
                     System.out.println(endTime - startTime);
@@ -833,7 +834,7 @@ class SingleAgentAStarSIPP_SolverTest {
         // but the surrounding locations also have constraints in the future, so has to take 2 steps
         assertEquals(9, solved1.getPlanFor(agent).size());
     }
-    private final SingleAgentGAndH unitCostAndNoHeuristic = new SingleAgentAStar_SolverTest.UnitCostAndNoHeuristic();
+    private final SingleAgentGAndH unitCostAndNoHeuristic = new TestUtils.UnitCostAndNoHeuristic();
 
     @Test
     void optimalVsUCS1(){

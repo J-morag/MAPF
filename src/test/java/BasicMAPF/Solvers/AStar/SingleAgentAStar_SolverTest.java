@@ -8,6 +8,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuris
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
+import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -20,7 +21,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +30,7 @@ import java.util.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
+import static BasicMAPF.TestUtils.unitCostAndNoHeuristic;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SingleAgentAStar_SolverTest {
@@ -571,47 +572,6 @@ class SingleAgentAStar_SolverTest {
         assertEquals(9, solved1.getPlanFor(agent).size());
     }
 
-    public static class UnitCostAndNoHeuristic implements SingleAgentGAndH {
-        @Override
-        public float getH(SingleAgentAStar_Solver.AStarState state) {
-            return 0;
-        }
-
-        @Override
-        public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
-            return 0;
-        }
-
-        @Override
-        public int cost(Move move) {
-            return SingleAgentGAndH.super.cost(move);
-        }
-
-        @Override
-        public boolean isConsistent() {
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "All edges = 1";
-        }
-    }
-
-    public final SingleAgentGAndH unitCostAndNoHeuristic = new UnitCostAndNoHeuristic();
-
-    public static List<I_Location> planLocations(SingleAgentPlan planFromAStar) {
-        List<I_Location> aStarPlanLocations = new ArrayList<>();
-        for (Move move :
-                planFromAStar) {
-            if (move.timeNow == 1) {
-                aStarPlanLocations.add(move.prevLocation);
-            }
-            aStarPlanLocations.add(move.currLocation);
-        }
-        return aStarPlanLocations;
-    }
-
     @Test
     void optimalVsUCS1(){
         MAPF_Instance testInstance = instanceMaze1;
@@ -802,8 +762,8 @@ class SingleAgentAStar_SolverTest {
         Solution aStarSolution = aStar.solve(testInstance, runParameters);
         List<Integer> aSTsarPlanCosts = null;
         if (aStarSolution != null){
-            List<I_Location> aStarPlanLocations = planLocations(aStarSolution.getPlanFor(agent));
-            aSTsarPlanCosts = getCosts(agent, costFunction, aStarPlanLocations);
+            List<I_Location> aStarPlanLocations = TestUtils.planLocations(aStarSolution.getPlanFor(agent));
+            aSTsarPlanCosts = TestUtils.getPlanCosts(agent, costFunction, aStarPlanLocations);
             System.out.println("AStar:");
             System.out.println(aStarPlanLocations);
             System.out.println(aSTsarPlanCosts);
@@ -816,7 +776,7 @@ class SingleAgentAStar_SolverTest {
                 testInstance.map.getMapLocation(agent.source), costFunction, agent);
         List<Integer> UCSPlanCosts = null;
         if (UCSPlanLocations != null){
-            UCSPlanCosts = getCosts(agent, costFunction, UCSPlanLocations);
+            UCSPlanCosts = TestUtils.getPlanCosts(agent, costFunction, UCSPlanLocations);
             System.out.println("UCS:");
             System.out.println(UCSPlanLocations);
             System.out.println(UCSPlanCosts);
@@ -845,18 +805,4 @@ class SingleAgentAStar_SolverTest {
         assertEquals(costAStar, costUCS);
     }
 
-    @NotNull
-    public static List<Integer> getCosts(Agent agent, SingleAgentGAndH costFunction, List<I_Location> UCSPlanLocations) {
-        List<Integer> UCSPlanCosts = new ArrayList<>();
-        UCSPlanCosts.add(0);
-        I_Location prev = null;
-        for (I_Location curr :
-                UCSPlanLocations) {
-            if (prev != null){
-                UCSPlanCosts.add(costFunction.cost(new Move(agent, 1, prev, curr)));
-            }
-            prev = curr;
-        }
-        return UCSPlanCosts;
-    }
 }
