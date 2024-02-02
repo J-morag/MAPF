@@ -10,6 +10,7 @@ public class PCSBuilder {
     private Comparator<? super PCSNode> nodeComparator;
     private I_MDDSearcherFactory mddSearcherFactory;
     private Boolean useSimpleMDDCache;
+    private Boolean usePartialGeneration;
 
     public PCSBuilder setOpenList(I_OpenList<PCSNode> openList) {
         this.openList = openList;
@@ -31,7 +32,12 @@ public class PCSBuilder {
         return this;
     }
 
+    public PCSBuilder setUsePartialGeneration(boolean usePartialGeneration) {
+        this.usePartialGeneration = usePartialGeneration;
+        return this;
+    }
+
     public PriorityConstrainedSearch createPriorityConstrainedSearch() {
-        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory, useSimpleMDDCache);
+        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory, useSimpleMDDCache, usePartialGeneration);
     }
 }
