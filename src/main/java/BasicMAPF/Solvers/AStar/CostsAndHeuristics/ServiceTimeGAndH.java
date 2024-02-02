@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link SingleAgentGAndH} that uses a pre-calculated dictionary of distances from possible goal locations to every
- * accessible {@link I_Location location} to provide a perfectly tight heuristic.
+ * A {@link SingleAgentGAndH} that wraps another implementation, adding that both cost and heuristic are zeroed after visiting the target.
  */
 public class ServiceTimeGAndH implements SingleAgentGAndH {
 
