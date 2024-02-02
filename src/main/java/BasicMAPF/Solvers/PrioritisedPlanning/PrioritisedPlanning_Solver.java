@@ -341,22 +341,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
-
-//        RunParameters_SAAStar params;
-//        params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-//                    setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).
-//                    setAStarGAndH(transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist ? new ServiceTimeGAndH(this.agents, subproblem.map) : this.singleAgentGAndH).
-//                    createRP());
-
-//        if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsst) {
-//            params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-//                    setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(new ServiceTimeGAndH(this.agents, subproblem.map)).createRP());
-//        }
-//        else {
-//            params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-//                    setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
-//        }
-
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
                 setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
 
