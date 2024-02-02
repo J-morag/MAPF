@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706843507758,
+  "lastUpdate": 1706843508743,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -15064,6 +15064,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "SIPP - Average Runtime",
             "value": 454.42352,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "SIPP - Average Expansions Low Level",
+            "value": 23324.754,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "1ee32c30cff54befe7a9bebf11f0021ad2f1930a",
+          "message": "shorten SIPP largeNumberOfConstraintsWithInfiniteConstraintsBigger test",
+          "timestamp": "2024-02-02T13:30:58+11:00",
+          "tree_id": "63c16c4207fc7d5f3108cb588c475a3f6e35bab9",
+          "url": "https://github.com/J-morag/MAPF/commit/1ee32c30cff54befe7a9bebf11f0021ad2f1930a"
+        },
+        "date": 1706843508448,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "SIPP - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "SIPP - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "SIPP - Average Runtime",
+            "value": 453.88235,
             "unit": "Milliseconds"
           },
           {
