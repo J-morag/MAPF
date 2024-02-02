@@ -23,15 +23,14 @@ import java.util.Map;
  */
 public class ServiceTimeGAndH implements SingleAgentGAndH {
 
-    private final DistanceTableSingleAgentHeuristic heuristic;
+    private final SingleAgentGAndH gAndH;
 
     /**
-     * Constructor. Create a dictionary of real distances from anywhere in the map, to any location that is a target of any agent.
-     * @param agents agents (targets) we need to include in the distance table.
-     * @param map the map this heuristic will work on.
+     * Constructor.
+     * @param gAndH delegate to this {@link SingleAgentGAndH}
      */
-    public ServiceTimeGAndH(@Nullable List<? extends Agent> agents, I_Map map, @Nullable SingleAgentGAndH heuristic) {
-        this.heuristic = new DistanceTableSingleAgentHeuristic(agents, map);
+    public ServiceTimeGAndH(@NotNull SingleAgentGAndH gAndH) {
+        this.gAndH = gAndH;
     }
 
 
