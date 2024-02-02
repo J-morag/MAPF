@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706862886988,
+  "lastUpdate": 1706862887870,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -15891,6 +15891,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
             "value": 5862841.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "f76e38bb14c0fa64a83950435dadf94fe76236bb",
+          "message": "make MDDManager handle getting queried for depth out of order",
+          "timestamp": "2024-02-02T18:54:14+11:00",
+          "tree_id": "272c8cd4b9377898b59e7eb1ef59ad1a498c5f58",
+          "url": "https://github.com/J-morag/MAPF/commit/f76e38bb14c0fa64a83950435dadf94fe76236bb"
+        },
+        "date": 1706862886811,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime",
+            "value": 12755.706,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime Low Level",
+            "value": 11290.529,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
+            "value": 5599626,
             "unit": "Expansions"
           }
         ]
