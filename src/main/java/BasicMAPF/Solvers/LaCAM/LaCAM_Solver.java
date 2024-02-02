@@ -7,7 +7,6 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -15,8 +14,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
-import org.checkerframework.checker.units.qual.A;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -71,6 +68,10 @@ public class LaCAM_Solver extends A_Solver {
 
     private int highLevelNodesCounter;
 
+    private int lowLevelNodesCounter;
+    private int failedToFindConfigCounter;
+    private long totalTimeFindConfigurations;
+
     public HighLevelNode N_Goal;
 
 
@@ -95,6 +96,9 @@ public class LaCAM_Solver extends A_Solver {
         this.agents = new HashMap<>();
         this.subInstanceSolver = new PIBT_ForLaCAM(null, null, true, 1);
         this.highLevelNodesCounter = 0;
+        this.lowLevelNodesCounter = 0;
+        this.failedToFindConfigCounter = 0;
+        totalTimeFindConfigurations = 0;
         this.N_Goal = null;
         this.instance = instance;
 
@@ -118,6 +122,7 @@ public class LaCAM_Solver extends A_Solver {
             this.agents.put(agent.iD, agent);
         }
         LowLevelNode C_init = new LowLevelNode(null, null, null);
+        this.lowLevelNodesCounter++;
         HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, get_init_order(instance.agents), null, null, 0, calc_h(initialConfiguration));
         this.highLevelNodesCounter++;
         this.open.push(N_init);
@@ -174,6 +179,7 @@ public class LaCAM_Solver extends A_Solver {
 
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
+                    this.lowLevelNodesCounter++;
                     N.tree.add(C_new);
                 }
             }
@@ -182,6 +188,7 @@ public class LaCAM_Solver extends A_Solver {
 
             // algorithm couldn't find configuration
             if (newConfiguration == null) {
+                this.failedToFindConfigCounter++;
                 continue;
             }
 
@@ -571,10 +578,11 @@ public class LaCAM_Solver extends A_Solver {
 
     private boolean swapConflict(Agent currentAgent, I_Location newLocation,Map<Integer, I_Location> currentConfiguration, Map<Integer, I_Location> newConfiguration) {
         // swap conflict
+        I_Coordinate newCoordinate = newLocation.getCoordinate();
         for (Map.Entry<Integer, I_Location> entry : newConfiguration.entrySet()) {
             Integer otherAgentId = entry.getKey();
             I_Location otherAgentLocation = entry.getValue();
-            if (newLocation.getCoordinate() == currentConfiguration.get(otherAgentId).getCoordinate() &&
+            if (newCoordinate == currentConfiguration.get(otherAgentId).getCoordinate() &&
                     otherAgentLocation == currentConfiguration.get(currentAgent.iD)) {
                 // swap conflict
                 return true;
@@ -625,6 +633,10 @@ public class LaCAM_Solver extends A_Solver {
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
             instanceReport.putIntegerValue("SST", solution.sumServiceTimes());
             instanceReport.putIntegerValue("SOC", solution.sumIndividualCosts());
+
+            instanceReport.putIntegerValue("# of High-Level Nodes", this.highLevelNodesCounter);
+            instanceReport.putIntegerValue("# of Low-Level Nodes", this.lowLevelNodesCounter);
+            instanceReport.putIntegerValue("# of failed config", this.failedToFindConfigCounter);
         }
     }
 }
