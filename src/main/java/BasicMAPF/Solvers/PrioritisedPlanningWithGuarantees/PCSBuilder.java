@@ -9,6 +9,7 @@ public class PCSBuilder {
     private I_OpenList<PCSNode> openList;
     private Comparator<? super PCSNode> nodeComparator;
     private I_MDDSearcherFactory mddSearcherFactory;
+    private Boolean useSimpleMDDCache;
 
     public PCSBuilder setOpenList(I_OpenList<PCSNode> openList) {
         this.openList = openList;
@@ -25,7 +26,12 @@ public class PCSBuilder {
         return this;
     }
 
+    public PCSBuilder setUseSimpleMDDCache(boolean useSimpleMDDCache) {
+        this.useSimpleMDDCache = useSimpleMDDCache;
+        return this;
+    }
+
     public PriorityConstrainedSearch createPriorityConstrainedSearch() {
-        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory);
+        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory, useSimpleMDDCache);
     }
 }
