@@ -155,7 +155,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             this.agents.sort(this.agentComparator);
         }
         // heuristic
-//        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
 
         this.singleAgentGAndH = Objects.requireNonNullElseGet(
                 parameters.singleAgentGAndH,
