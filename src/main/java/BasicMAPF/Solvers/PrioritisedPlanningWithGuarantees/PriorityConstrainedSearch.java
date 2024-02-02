@@ -463,6 +463,10 @@ public class PriorityConstrainedSearch extends A_Solver {
             if (res != 0){
                 return res;
             }
+            res = Integer.compare(o2.g(), o1.g()); // reversed to prefer higher g
+            if (res != 0){
+                return res;
+            }
             return Integer.compare(o1.uniqueID(), o2.uniqueID());
         }
     }
