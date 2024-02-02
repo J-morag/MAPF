@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706862885248,
+  "lastUpdate": 1706862886138,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -4910,6 +4910,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions High Level",
             "value": 7437.4707,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 36740.06,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "f76e38bb14c0fa64a83950435dadf94fe76236bb",
+          "message": "make MDDManager handle getting queried for depth out of order",
+          "timestamp": "2024-02-02T18:54:14+11:00",
+          "tree_id": "272c8cd4b9377898b59e7eb1ef59ad1a498c5f58",
+          "url": "https://github.com/J-morag/MAPF/commit/f76e38bb14c0fa64a83950435dadf94fe76236bb"
+        },
+        "date": 1706862885162,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 5290.75,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 26870.646,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 7489.4707,
             "unit": "Expansions"
           },
           {
