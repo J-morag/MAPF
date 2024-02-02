@@ -51,13 +51,7 @@ public class GenericRunManager extends A_RunManager {
         super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                 null, null, null));
-        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                null, null, TransientMAPFBehaviour.transientMAPFsstWithBlacklist));
-        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist));
-//        super.solvers.add(new CBS_Solver());
+        super.solvers.add(new CBS_Solver());
     }
 
     public void overrideSolvers(@NotNull List<I_Solver> solvers){
