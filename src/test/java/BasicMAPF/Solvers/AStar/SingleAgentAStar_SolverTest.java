@@ -677,7 +677,7 @@ class SingleAgentAStar_SolverTest {
         }
 
         @Override
-        public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+        public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
             return 0;
         }
 

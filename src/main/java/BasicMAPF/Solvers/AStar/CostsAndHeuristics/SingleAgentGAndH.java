@@ -12,7 +12,7 @@ public interface SingleAgentGAndH {
      */
     float getH(SingleAgentAStar_Solver.AStarState state);
 
-    float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation);
+    int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation);
 
     /**
      * @param move a move

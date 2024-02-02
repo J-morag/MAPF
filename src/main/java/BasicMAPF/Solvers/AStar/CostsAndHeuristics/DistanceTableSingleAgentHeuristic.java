@@ -145,18 +145,18 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
     }
 
     @Override
-    public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+    public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
         Map<I_Location, Integer> relevantDictionary = this.distanceDictionaries.get(map.getMapLocation(target));
         Integer h = relevantDictionary.get(currLocation);
         if (h != null){
-            return (float)h;
+            return h;
         }
         else if (map.isStronglyConnected()){
             throw new IllegalArgumentException("It seems the target is unreachable from the location, even though this is " +
                     "a strongly connected graph. Are target and location valid for this map?");
         }
         else {
-            return Float.POSITIVE_INFINITY;
+            return Integer.MAX_VALUE;
         }
     }
 
