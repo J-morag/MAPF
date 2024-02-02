@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706843506831,
+  "lastUpdate": 1706843507758,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -11332,6 +11332,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 1094.2588,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 396247.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "1ee32c30cff54befe7a9bebf11f0021ad2f1930a",
+          "message": "shorten SIPP largeNumberOfConstraintsWithInfiniteConstraintsBigger test",
+          "timestamp": "2024-02-02T13:30:58+11:00",
+          "tree_id": "63c16c4207fc7d5f3108cb588c475a3f6e35bab9",
+          "url": "https://github.com/J-morag/MAPF/commit/1ee32c30cff54befe7a9bebf11f0021ad2f1930a"
+        },
+        "date": 1706843507480,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 1109.1765,
             "unit": "Milliseconds"
           },
           {
