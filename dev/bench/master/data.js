@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706837299633,
+  "lastUpdate": 1706843502001,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -2321,6 +2321,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 8694399,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "1ee32c30cff54befe7a9bebf11f0021ad2f1930a",
+          "message": "shorten SIPP largeNumberOfConstraintsWithInfiniteConstraintsBigger test",
+          "timestamp": "2024-02-02T13:30:58+11:00",
+          "tree_id": "63c16c4207fc7d5f3108cb588c475a3f6e35bab9",
+          "url": "https://github.com/J-morag/MAPF/commit/1ee32c30cff54befe7a9bebf11f0021ad2f1930a"
+        },
+        "date": 1706843501273,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 31618.588,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 11348.647,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 47057.766,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 8779957,
             "unit": "Expansions"
           }
         ]
