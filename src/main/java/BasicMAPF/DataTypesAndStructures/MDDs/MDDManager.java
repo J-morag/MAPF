@@ -4,17 +4,17 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import org.apache.commons.lang3.NotImplementedException;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class MDDManager {
 
-    public Map<SourceTargetAgent, Map<Integer, MDD>> mdds = new HashMap<>();
+    public Map<SourceTargetAgent, LinkedList<MDD>> mdds = new HashMap<>();
     public Map<SourceTargetAgent, A_MDDSearcher> searchers = new HashMap<>();
     final private I_MDDSearcherFactory searcherFactory;
     final public SourceTargetAgent keyDummy = new SourceTargetAgent(null, null, null);
@@ -33,21 +33,28 @@ public class MDDManager {
         keyDummy.set(source, target, agent);
         if(!mdds.containsKey(keyDummy)) {
             SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
-            mdds.put(sourceTargetAgent, new HashMap<>());
+            mdds.put(sourceTargetAgent, new LinkedList<>());
         }
         if(!searchers.containsKey(keyDummy)) {
             SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
             searchers.put(sourceTargetAgent, searcherFactory.createSearcher(timeout, source, target, agent, heuristic));
         }
 
-        if(mdds.get(keyDummy).containsKey(depth)) {
-            return mdds.get(keyDummy).get(depth);
+        LinkedList<MDD> mddsAtIncrementalDepths = mdds.get(keyDummy);
+        int depthDeltaFromMinMDD = mddsAtIncrementalDepths.isEmpty() ? 0 : depth - mddsAtIncrementalDepths.get(0).getDepth();
+        if(depthDeltaFromMinMDD < mddsAtIncrementalDepths.size()) {
+            return mddsAtIncrementalDepths.get(depthDeltaFromMinMDD);
         }
-        else{
-            MDD curr = searchers.get(keyDummy).continueSearching(depth);
-            if(curr == null)
-                return null;
-            mdds.get(keyDummy).put(depth, curr);
+        else {
+            MDD curr = null;
+            for (int currDelta = mddsAtIncrementalDepths.size(); currDelta <= depthDeltaFromMinMDD; currDelta++) {
+                int currDepth = mddsAtIncrementalDepths.isEmpty() ? heuristic.getHToTargetFromLocation(target.getCoordinate(), source) :
+                        mddsAtIncrementalDepths.get(0).getDepth() + currDelta;
+                curr = searchers.get(keyDummy).continueSearching(currDepth);
+                if(curr == null)
+                    return null;
+                mddsAtIncrementalDepths.add(curr);
+            }
             return curr;
         }
     }
@@ -60,7 +67,7 @@ public class MDDManager {
         return result;
     }
 
-    public MDD getMinMDDNoReuse(@NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @Nullable ConstraintSet constraints){
+    public MDD getMinMDDNoReuse(@NotNull I_Location source, @NotNull I_Location target, @NotNull Agent agent, @Nullable I_ConstraintSet constraints){
         A_MDDSearcher searcher = this.searcherFactory.createSearcher(timeout, source, target, agent, heuristic);
         MDD result = searcher.searchToFirstSolution(constraints);
         this.expandedLowLevelNodes += searcher.getExpandedNodesNum();

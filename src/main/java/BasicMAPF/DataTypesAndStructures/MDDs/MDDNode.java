@@ -25,10 +25,14 @@ public class MDDNode implements Comparable<MDDNode>{
      * @param other an MDDNode to copy.
      */
     public MDDNode(MDDNode other){
+        this(other.location, other.depth, other.agent);
+    }
+
+    public MDDNode(I_Location location, int depth, Agent agent) {
         neighbors = new ArrayList<>(5); // 5 because typically we can move in 4 directions, or stay
-        this.location = other.location;
-        this.depth = other.depth;
-        this.agent = other.agent;
+        this.location = location;
+        this.depth = depth;
+        this.agent = agent;
     }
 
     public void addNeighbor(MDDNode neighbor){

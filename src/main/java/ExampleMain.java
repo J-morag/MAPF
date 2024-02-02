@@ -8,7 +8,7 @@ import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
-import Environment.Metrics.S_Metrics;
+import Environment.Metrics.Metrics;
 import Environment.RunManagers.A_RunManager;
 import Environment.RunManagers.GenericRunManager;
 import Environment.RunManagers.RunManagerSimpleExample;
@@ -78,7 +78,7 @@ public class ExampleMain {
         Solution solution = solver.solve(instance, runParameters);
 
         //output results
-        System.out.println(solution.readableToString());
+        System.out.println(solution.toString());
         outputResults();
 
         GridSolutionVisualizer.visualizeSolution(instance, solution, solver.name() + " - " + instance.extendedName);
@@ -104,7 +104,7 @@ public class ExampleMain {
 
     private static void addConsoleAsOutputStream() {
         try {
-            S_Metrics.addOutputStream(System.out, S_Metrics::instanceReportToHumanReadableString);
+            Metrics.addOutputStream(System.out, Metrics::instanceReportToHumanReadableString);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,7 +114,7 @@ public class ExampleMain {
      * An example of a simple output of results to a file. It is best to handle this inside your custom
      * {@link A_RunManager run managers} instead.
      * Note that you can add more fields here, if you want metrics that are collected and not exported.
-     * Note that you can easily add other metrics which are not currently collected. see {@link S_Metrics}.
+     * Note that you can easily add other metrics which are not currently collected. see {@link Metrics}.
      */
     private static void outputResults() {
         try {
@@ -122,10 +122,10 @@ public class ExampleMain {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        DateFormat dateFormat = S_Metrics.defaultDateFormat;
+        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
         String updatedPath =  IO_Manager.buildPath(new String[]{DEFAULT_RESULTS_OUTPUT_DIR, "results " + dateFormat.format(System.currentTimeMillis())}) + " .csv";
         try {
-            S_Metrics.exportCSV(new FileOutputStream(updatedPath),
+            Metrics.exportCSV(new FileOutputStream(updatedPath),
                     new String[]{   InstanceReport.StandardFields.experimentName,
                             InstanceReport.StandardFields.mapName,
                             InstanceReport.StandardFields.instanceName,
@@ -140,7 +140,7 @@ public class ExampleMain {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        S_Metrics.clearReports();
+        Metrics.clearReports();
     }
 
 }

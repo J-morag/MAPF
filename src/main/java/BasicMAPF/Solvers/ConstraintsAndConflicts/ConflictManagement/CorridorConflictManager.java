@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.CorridorConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.DataTypesAndStructures.Move;
@@ -21,7 +22,7 @@ import java.util.Set;
  */
 public class CorridorConflictManager extends ConflictManager {
 
-    private final ConstraintSet constraints;
+    private final I_ConstraintSet constraints;
     private final MAPF_Instance instance;
     private final Set<CorridorConflict> corridorConflicts = new HashSet<>();
 
@@ -31,7 +32,7 @@ public class CorridorConflictManager extends ConflictManager {
         this.instance = instance;
     }
 
-    public CorridorConflictManager(ConstraintSet constraints, MAPF_Instance instance) {
+    public CorridorConflictManager(I_ConstraintSet constraints, MAPF_Instance instance) {
         this.constraints = constraints;
         this.instance = instance;
     }

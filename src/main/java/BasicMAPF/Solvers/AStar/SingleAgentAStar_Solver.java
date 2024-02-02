@@ -13,6 +13,7 @@ import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.AtTargetAStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -33,7 +34,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     public boolean agentsStayAtGoal;
 
-    protected ConstraintSet constraints;
+    protected I_ConstraintSet constraints;
     protected SingleAgentGAndH gAndH;
     protected final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
     protected final Set<AStarState> closed = new HashSet<>();

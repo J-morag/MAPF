@@ -6,6 +6,8 @@ import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,8 @@ import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 class MDDTest {
+
+    // = levels = //
 
     @Test
     void getLevelCircleTest() {
@@ -208,6 +212,8 @@ class MDDTest {
             }
         }
     }
+
+    // = conflicts = //
 
     @Test
     void conflictsWithMDDAtDepthVertexConflictTest1() {
@@ -703,4 +709,268 @@ class MDDTest {
         conflicts = mdd1.conflictsWithMDDAtDepth(mdd2, 6, true);
         assertEquals(0, conflicts.size());
     }
+
+    // = constraints = //
+
+    @Test
+    void copyUnderConstraintsNoChangeWhenNoRelevanceTest(){
+        I_Map map = mapWithPocket;
+        Agent agent1 = agent02to43;
+        Agent agent2 = agent35to30;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent1, agent2), map);
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent1, 3, map.getMapLocation(coor40)));
+        constraintSet.add(new Constraint(agent2, 1, map.getMapLocation(coor12)));
+
+        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent1.source), map.getMapLocation(agent1.target), agent1, heuristic);
+        MDD mdd1 = searcher1.continueSearching(6);
+        MDD mdd1Copy = new MDD(mdd1, constraintSet);
+        System.out.println("mdd1 = " + mdd1);
+        System.out.println("mdd1Copy = " + mdd1Copy);
+        assertTrue(mdd1.levelsEquals(mdd1Copy)); // doesn't check MDD edges
+
+
+        A_MDDSearcher searcher2 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent2.source), map.getMapLocation(agent2.target), agent2, heuristic);
+        MDD mdd2 = searcher2.continueSearching(6);
+        MDD mdd2Copy = new MDD(mdd2, constraintSet);
+        System.out.println("mdd2 = " + mdd2);
+        System.out.println("mdd2Copy = " + mdd2Copy);
+        assertTrue(mdd2.levelsEquals(mdd2Copy)); // doesn't check MDD edges
+    }
+
+    @Test
+    void copyUnderConstraintsTest(){
+        I_Map map = mapWithPocket;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33), map);
+
+        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic);
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent12to33, 1, map.getMapLocation(coor22)));
+
+        MDD mdd1 = searcher1.continueSearching(3);
+        MDD mdd1Constrained = new MDD(mdd1, constraintSet);
+        assertEquals(-1, mdd1Constrained.getDepth());
+
+        // just the option of waiting and then moving
+        mdd1 = searcher1.continueSearching(4);
+        mdd1Constrained = new MDD(mdd1, constraintSet);
+        assertEquals(4, mdd1Constrained.getDepth());
+        System.out.println(mdd1Constrained.getLevel(0));
+        assertEquals(1, mdd1Constrained.getLevel(0).size());
+        System.out.println(mdd1Constrained.getLevel(1));
+        assertEquals(1, mdd1Constrained.getLevel(1).size());
+        System.out.println(mdd1Constrained.getLevel(2));
+        assertEquals(1, mdd1Constrained.getLevel(2).size());
+        System.out.println(mdd1Constrained.getLevel(3));
+        assertEquals(1, mdd1Constrained.getLevel(3).size());
+        System.out.println(mdd1Constrained.getLevel(4));
+        assertEquals(1, mdd1Constrained.getLevel(4).size());
+
+        // the option of waiting and then moving + waiting options later + small detours
+        mdd1 = searcher1.continueSearching(5);
+        mdd1Constrained = new MDD(mdd1, constraintSet);
+        assertEquals(5, mdd1Constrained.getDepth());
+        System.out.println(mdd1Constrained.getLevel(0));
+        assertEquals(1, mdd1Constrained.getLevel(0).size());
+        System.out.println(mdd1Constrained.getLevel(1));
+        assertEquals(3, mdd1Constrained.getLevel(1).size());
+        System.out.println(mdd1Constrained.getLevel(2));
+        assertEquals(2, mdd1Constrained.getLevel(2).size());
+        System.out.println(mdd1Constrained.getLevel(3));
+        assertEquals(2, mdd1Constrained.getLevel(3).size());
+        System.out.println(mdd1Constrained.getLevel(4));
+        assertEquals(2, mdd1Constrained.getLevel(4).size());
+        System.out.println(mdd1Constrained.getLevel(5));
+        assertEquals(1, mdd1Constrained.getLevel(5).size());
+    }
+
+    @Test
+    void copyUnderConstraintsAfterGoalTest(){
+        I_Map map = mapWithPocket;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33), map);
+
+        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic);
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(agent12to33, 9, map.getMapLocation(coor22)));
+
+        MDD mdd1 = searcher1.continueSearching(3);
+        MDD mdd1Constrained = new MDD(mdd1, constraintSet);
+        assertEquals(3, mdd1Constrained.getDepth());
+
+        constraintSet.add(new Constraint(agent12to33, 9, map.getMapLocation(coor33)));
+        mdd1Constrained = new MDD(mdd1, constraintSet);
+        assertEquals(-1, mdd1Constrained.getDepth());
+    }
+
+    @Test
+    void copyUnderPositiveConstraintNoChangeWhenNoRelevanceThrowsExceptionTest(){
+        I_Map map = mapWithPocket;
+        Agent agent1 = agent02to43;
+        Agent agent2 = agent35to30;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent1, agent2), map);
+        Constraint positiveConstraint = new Constraint(agent1, 3, map.getMapLocation(coor40));
+
+        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent1.source), map.getMapLocation(agent1.target), agent1, heuristic);
+        MDD mdd1 = searcher1.continueSearching(6);
+        assertThrows(IllegalArgumentException.class, () -> mdd1.shallowCopyWithConstraint(positiveConstraint, true));
+
+        Constraint positiveConstraint2 = new Constraint(agent2, 1, map.getMapLocation(coor12));
+        A_MDDSearcher searcher2 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
+                map.getMapLocation(agent2.source), map.getMapLocation(agent2.target), agent2, heuristic);
+        MDD mdd2 = searcher2.continueSearching(6);
+        assertThrows(IllegalArgumentException.class, () -> mdd2.shallowCopyWithConstraint(positiveConstraint2, true));
+    }
+
+    @Test
+    void copyUnderPositiveConstraintTest(){
+        I_Map map = mapWithPocket;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33), map);
+
+        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic);
+        Constraint positiveConstraint = new Constraint(agent12to33, 1, map.getMapLocation(coor22));
+
+        MDD mdd1 = searcher1.continueSearching(3);
+        System.out.println(mdd1);
+        MDD mdd1Constrained = mdd1.shallowCopyWithConstraint(positiveConstraint, true);
+        System.out.println(mdd1Constrained);
+        assertTrue(mdd1.levelsEquals(mdd1Constrained)); // doesn't check MDD edges
+
+        // without the option of waiting at the first vertex
+        MDD mdd2 = searcher1.continueSearching(4);
+        System.out.println(mdd2);
+        MDD mdd2Constrained = mdd2.shallowCopyWithConstraint(positiveConstraint, true);
+        assertEquals(4, mdd2Constrained.getDepth());
+        System.out.println(mdd2Constrained.getLevel(0));
+        assertEquals(1, mdd2Constrained.getLevel(0).size());
+        System.out.println(mdd2Constrained.getLevel(1));
+        assertEquals(1, mdd2Constrained.getLevel(1).size());
+        System.out.println(mdd2Constrained.getLevel(2));
+        assertEquals(2, mdd2Constrained.getLevel(2).size());
+        System.out.println(mdd2Constrained.getLevel(3));
+        assertEquals(2, mdd2Constrained.getLevel(3).size());
+        System.out.println(mdd2Constrained.getLevel(4));
+        assertEquals(1, mdd2Constrained.getLevel(4).size());
+
+        MDD mdd3 = searcher1.continueSearching(5);
+        System.out.println(mdd3);
+        MDD mdd3Constrained = mdd3.shallowCopyWithConstraint(positiveConstraint, true);
+        assertEquals(5, mdd3Constrained.getDepth());
+        System.out.println(mdd3Constrained.getLevel(0));
+        assertEquals(1, mdd3Constrained.getLevel(0).size());
+        System.out.println(mdd3Constrained.getLevel(1));
+        assertEquals(1, mdd3Constrained.getLevel(1).size());
+        System.out.println(mdd3Constrained.getLevel(2));
+        assertEquals(3, mdd3Constrained.getLevel(2).size());
+        System.out.println(mdd3Constrained.getLevel(3));
+        assertEquals(4, mdd3Constrained.getLevel(3).size());
+        System.out.println(mdd3Constrained.getLevel(4));
+        assertEquals(4, mdd3Constrained.getLevel(4).size());
+        System.out.println(mdd3Constrained.getLevel(5));
+        assertEquals(1, mdd3Constrained.getLevel(5).size());
+    }
+
+    @Test
+    void copyUnderPositiveConstraintTest2(){
+        I_Map map = mapWithPocket;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33), map);
+
+        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic);
+        Constraint positiveConstraint = new Constraint(agent12to33, 2, map.getMapLocation(coor32));
+
+        MDD mdd1 = searcher1.continueSearching(3);
+        System.out.println(mdd1);
+        MDD mdd1Constrained = mdd1.shallowCopyWithConstraint(positiveConstraint, true);
+        System.out.println(mdd1Constrained);
+        assertTrue(mdd1.levelsEquals(mdd1Constrained)); // doesn't check MDD edges
+
+        // without the option of waiting at the first vertex
+        MDD mdd2 = searcher1.continueSearching(4);
+        System.out.println(mdd2);
+        MDD mdd2Constrained = mdd2.shallowCopyWithConstraint(positiveConstraint, true);
+        assertEquals(4, mdd2Constrained.getDepth());
+        System.out.println(mdd2Constrained.getLevel(0));
+        assertEquals(1, mdd2Constrained.getLevel(0).size());
+        System.out.println(mdd2Constrained.getLevel(1));
+        assertEquals(1, mdd2Constrained.getLevel(1).size());
+        System.out.println(mdd2Constrained.getLevel(2));
+        assertEquals(1, mdd2Constrained.getLevel(2).size());
+        System.out.println(mdd2Constrained.getLevel(3));
+        assertEquals(2, mdd2Constrained.getLevel(3).size());
+        System.out.println(mdd2Constrained.getLevel(4));
+        assertEquals(1, mdd2Constrained.getLevel(4).size());
+
+        MDD mdd3 = searcher1.continueSearching(5);
+        System.out.println(mdd3);
+        MDD mdd3Constrained = mdd3.shallowCopyWithConstraint(positiveConstraint, true);
+        assertEquals(5, mdd3Constrained.getDepth());
+        System.out.println(mdd3Constrained.getLevel(0));
+        assertEquals(1, mdd3Constrained.getLevel(0).size());
+        System.out.println(mdd3Constrained.getLevel(1));
+        assertEquals(1, mdd3Constrained.getLevel(1).size());
+        System.out.println(mdd3Constrained.getLevel(2));
+        assertEquals(1, mdd3Constrained.getLevel(2).size());
+        System.out.println(mdd3Constrained.getLevel(3));
+        assertEquals(4, mdd3Constrained.getLevel(3).size());
+        System.out.println(mdd3Constrained.getLevel(4));
+        assertEquals(4, mdd3Constrained.getLevel(4).size());
+        System.out.println(mdd3Constrained.getLevel(5));
+        assertEquals(1, mdd3Constrained.getLevel(5).size());
+    }
+
+    @Test
+    void copyUnderPositiveConstraintTest3(){
+        I_Map map = mapWithPocket;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33), map);
+
+        A_MDDSearcher searcher1 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L), map.getMapLocation(agent12to33.source),
+                map.getMapLocation(agent12to33.target), agent12to33, heuristic);
+        Constraint positiveConstraint = new Constraint(agent12to33, 3, map.getMapLocation(coor33));
+
+        MDD mdd1 = searcher1.continueSearching(3);
+        System.out.println(mdd1);
+        MDD mdd1Constrained = mdd1.shallowCopyWithConstraint(positiveConstraint, true);
+        System.out.println(mdd1Constrained);
+        assertTrue(mdd1.levelsEquals(mdd1Constrained)); // doesn't check MDD edges
+
+        // without the option of waiting at the first vertex
+        MDD mdd2 = searcher1.continueSearching(4);
+        System.out.println(mdd2);
+        MDD mdd2Constrained = mdd2.shallowCopyWithConstraint(positiveConstraint, true);
+        assertEquals(4, mdd2Constrained.getDepth());
+        System.out.println(mdd2Constrained.getLevel(0));
+        assertEquals(1, mdd2Constrained.getLevel(0).size());
+        System.out.println(mdd2Constrained.getLevel(1));
+        assertEquals(1, mdd2Constrained.getLevel(1).size());
+        System.out.println(mdd2Constrained.getLevel(2));
+        assertEquals(1, mdd2Constrained.getLevel(2).size());
+        System.out.println(mdd2Constrained.getLevel(3));
+        assertEquals(1, mdd2Constrained.getLevel(3).size());
+        System.out.println(mdd2Constrained.getLevel(4));
+        assertEquals(1, mdd2Constrained.getLevel(4).size());
+
+        MDD mdd3 = searcher1.continueSearching(5);
+        System.out.println(mdd3);
+        MDD mdd3Constrained = mdd3.shallowCopyWithConstraint(positiveConstraint, true);
+        assertEquals(5, mdd3Constrained.getDepth());
+        System.out.println(mdd3Constrained.getLevel(0));
+        assertEquals(1, mdd3Constrained.getLevel(0).size());
+        System.out.println(mdd3Constrained.getLevel(1));
+        assertEquals(1, mdd3Constrained.getLevel(1).size());
+        System.out.println(mdd3Constrained.getLevel(2));
+        assertEquals(1, mdd3Constrained.getLevel(2).size());
+        System.out.println(mdd3Constrained.getLevel(3));
+        assertEquals(1, mdd3Constrained.getLevel(3).size());
+        System.out.println(mdd3Constrained.getLevel(4));
+        assertEquals(4, mdd3Constrained.getLevel(4).size());
+        System.out.println(mdd3Constrained.getLevel(5));
+        assertEquals(1, mdd3Constrained.getLevel(5).size());
+    }
+
 }

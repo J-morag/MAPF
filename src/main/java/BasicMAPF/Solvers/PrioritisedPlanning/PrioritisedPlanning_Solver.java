@@ -4,9 +4,9 @@ import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.*;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
 import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
@@ -15,6 +15,9 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -44,7 +47,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     /*  = Fields related to the run =  */
 
-    private ConstraintSet constraints;
+    private I_ConstraintSet constraints;
 
     private Random random;
 
@@ -154,15 +157,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
         }
-
         // heuristic
-        this.singleAgentGAndH = Objects.requireNonNullElseGet(
-                parameters.singleAgentGAndH,
-                () -> this.transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist ?
-                        new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(this.agents, instance.map)) :
-                        new DistanceTableSingleAgentHeuristic(this.agents, instance.map)
-        );
-
+        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
         if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
             ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
         }
@@ -204,7 +200,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param instance problem instance
      * @param initialConstraints constraints to solve under
      */
-    protected Solution solvePrioritisedPlanning(MAPF_Instance instance, ConstraintSet initialConstraints) {
+    protected Solution solvePrioritisedPlanning(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
         Solution bestSolution = null;
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
@@ -342,12 +338,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
-
+                setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
         params.fBudget = maxCost;
         if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF){
             params.goalCondition = new VisitedTargetAStarGoalCondition();
-        } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist || transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist) {
+        } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist) {
             Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
             for (Agent agent: this.agents) {
                 if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)){
