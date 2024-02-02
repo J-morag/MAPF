@@ -17,8 +17,8 @@ public class UnitCostsAndManhattanDistance implements SingleAgentGAndH {
     }
 
     @Override
-    public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
-        return currLocation.getCoordinate().distance(target);
+    public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+        return (int) currLocation.getCoordinate().distance(target);
     }
 
     @Override

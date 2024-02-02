@@ -291,9 +291,9 @@ public class PIBT_Solver extends A_Solver {
      */
     private I_Location findBest(List<I_Location> candidates, Agent current) {
         I_Location bestCandidate = null;
-        Float minDistance = Float.MAX_VALUE;
+        float minDistance = Float.MAX_VALUE;
         for (I_Location location : candidates) {
-            Float distance = this.heuristic.getHToTargetFromLocation(current.target, location);
+            float distance = (float) this.heuristic.getHToTargetFromLocation(current.target, location);
             if (distance < minDistance) {
                 minDistance = distance;
                 bestCandidate = location;
