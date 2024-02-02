@@ -34,7 +34,7 @@ public class ServiceTimeGAndH implements SingleAgentGAndH {
 
 
     @Override
-    public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+    public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
         return gAndH.getHToTargetFromLocation(target, currLocation);
     }
 
