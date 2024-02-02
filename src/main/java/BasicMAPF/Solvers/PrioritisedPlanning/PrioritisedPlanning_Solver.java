@@ -154,12 +154,12 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
         }
-        // heuristic
 
+        // heuristic
         this.singleAgentGAndH = Objects.requireNonNullElseGet(
                 parameters.singleAgentGAndH,
                 () -> this.transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist ?
-                        new ServiceTimeGAndH(instance.agents, instance.map, null) :
+                        new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(this.agents, instance.map)) :
                         new DistanceTableSingleAgentHeuristic(this.agents, instance.map)
         );
 

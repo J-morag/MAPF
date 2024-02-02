@@ -3,6 +3,7 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;

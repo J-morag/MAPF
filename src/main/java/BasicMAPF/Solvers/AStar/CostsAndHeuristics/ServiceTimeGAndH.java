@@ -35,13 +35,13 @@ public class ServiceTimeGAndH implements SingleAgentGAndH {
 
     @Override
     public float getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
-        return heuristic.getHToTargetFromLocation(target, currLocation);
+        return gAndH.getHToTargetFromLocation(target, currLocation);
     }
 
 
     @Override
     public boolean isConsistent() {
-        return heuristic.isConsistent();
+        return gAndH.isConsistent();
     }
 
     @Override
