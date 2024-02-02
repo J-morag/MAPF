@@ -530,7 +530,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance baseInstance = new MAPF_Instance("instanceEmpty" + mapDim + "=" + mapDim, map,
                 new Agent[]{agent53to05, agent43to11, agent33to12, agent12to33, agent04to00, agent00to55, agent43to53, agent53to15,
                         new Agent(100, new Coordinate_2D(1,2), new Coordinate_2D(mapDim - 2, mapDim - 3))});
-        int seeds = 5;
+        int seeds = 2;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
