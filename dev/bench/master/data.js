@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706919603020,
+  "lastUpdate": 1706919604282,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -5023,6 +5023,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 36740.06,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "47f495ff47684a6c9b3579196ede6dedc916cf92",
+          "message": "Sst optimization a star (#79)\n\n* add sst optimization to A* using prp\r\n\r\n* add sst optimization to A* using prp\r\n\r\n* try to fix cost function\r\n\r\n* refactoring and fix(?) getH\r\n\r\n* use composition for ServiceTimeGAndH\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PrioritisedPlanning/PrioritisedPlanning_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PrioritisedPlanning/PrioritisedPlanning_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/AStar/CostsAndHeuristics/ServiceTimeGAndH.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/AStar/CostsAndHeuristics/ServiceTimeGAndH.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/Environment/RunManagers/GenericRunManager.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* clean code for PR\r\n\r\n* clean code for PR\r\n\r\n* clean code for PR\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2024-02-03T01:39:05+02:00",
+          "tree_id": "c64f6a139508ecc711c1e5143d4d89cd7b396f2b",
+          "url": "https://github.com/J-morag/MAPF/commit/47f495ff47684a6c9b3579196ede6dedc916cf92"
+        },
+        "date": 1706919603975,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 5290.75,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 27045.646,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 7423.1177,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 36433.824,
             "unit": "Expansions"
           }
         ]
