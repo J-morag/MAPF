@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706919601884,
+  "lastUpdate": 1706919603020,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -14969,6 +14969,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 7804256,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "47f495ff47684a6c9b3579196ede6dedc916cf92",
+          "message": "Sst optimization a star (#79)\n\n* add sst optimization to A* using prp\r\n\r\n* add sst optimization to A* using prp\r\n\r\n* try to fix cost function\r\n\r\n* refactoring and fix(?) getH\r\n\r\n* use composition for ServiceTimeGAndH\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PrioritisedPlanning/PrioritisedPlanning_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PrioritisedPlanning/PrioritisedPlanning_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/AStar/CostsAndHeuristics/ServiceTimeGAndH.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/AStar/CostsAndHeuristics/ServiceTimeGAndH.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/Environment/RunManagers/GenericRunManager.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* clean code for PR\r\n\r\n* clean code for PR\r\n\r\n* clean code for PR\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2024-02-03T01:39:05+02:00",
+          "tree_id": "c64f6a139508ecc711c1e5143d4d89cd7b396f2b",
+          "url": "https://github.com/J-morag/MAPF/commit/47f495ff47684a6c9b3579196ede6dedc916cf92"
+        },
+        "date": 1706919602699,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 30039.883,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 9429.706,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 69450.766,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 7623199.5,
             "unit": "Expansions"
           }
         ]
