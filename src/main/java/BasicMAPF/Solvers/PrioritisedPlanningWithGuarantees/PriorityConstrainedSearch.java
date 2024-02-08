@@ -87,7 +87,7 @@ public class PriorityConstrainedSearch extends A_Solver {
 
         this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, false);
         this.MDDCacheDepthDeltaMax = Objects.requireNonNullElse(MDDCacheDepthDeltaMax, 1);
-        this.usePartialGeneration = Objects.requireNonNullElse(usePartialGeneration, false);
+        this.usePartialGeneration = Objects.requireNonNullElse(usePartialGeneration, true);
 
         super.name = "Priority Constrained Search";
     }
