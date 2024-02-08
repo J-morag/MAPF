@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706919610425,
+  "lastUpdate": 1707362372638,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -2537,6 +2537,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 8521790,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "13114ae3f96fc07abaad92698f5e15b66c3c680b",
+          "message": "add using perfect heuristic in some SIPP tests",
+          "timestamp": "2024-02-08T13:38:04+11:00",
+          "tree_id": "bbd7c94a7b6ca7dc73d44fc292f6f0974572ed6d",
+          "url": "https://github.com/J-morag/MAPF/commit/13114ae3f96fc07abaad92698f5e15b66c3c680b"
+        },
+        "date": 1707362371649,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 33111.824,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 10852.941,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 30375.234,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 8185587,
             "unit": "Expansions"
           }
         ]
