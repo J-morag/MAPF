@@ -40,6 +40,7 @@ public class PriorityConstrainedSearch extends A_Solver {
      */
     private final Comparator<? super PCSNode> nodeComparator;
     private final boolean useSimpleMDDCache;
+    private final int MDDCacheDepthDeltaMax;
     private final boolean usePartialGeneration;
 
     /* = Run Fields = */
@@ -79,12 +80,14 @@ public class PriorityConstrainedSearch extends A_Solver {
     private int expandedNodes;
     PriorityConstrainedSearch(@Nullable I_OpenList<PCSNode> openList, @Nullable Comparator<? super PCSNode> nodeComparator,
                               @Nullable I_MDDSearcherFactory searcherFactory, @Nullable Boolean useSimpleMDDCache,
-                              @Nullable Boolean usePartialGeneration) {
+                              @Nullable Integer MDDCacheDepthDeltaMax, @Nullable Boolean usePartialGeneration) {
         this.nodeComparator = Objects.requireNonNullElse(nodeComparator, DEFAULT_COMPARATOR_INSTANCE);
         this.openList = Objects.requireNonNullElseGet(openList, () -> new OpenListTree<>(this.nodeComparator));
         this.searcherFactory = Objects.requireNonNullElseGet(searcherFactory, AStarFactory::new);
-        this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, true);
-        this.usePartialGeneration = Objects.requireNonNullElse(usePartialGeneration, true);
+
+        this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, false);
+        this.MDDCacheDepthDeltaMax = Objects.requireNonNullElse(MDDCacheDepthDeltaMax, 1);
+        this.usePartialGeneration = Objects.requireNonNullElse(usePartialGeneration, false);
 
         super.name = "Priority Constrained Search";
     }
@@ -107,12 +110,7 @@ public class PriorityConstrainedSearch extends A_Solver {
         }
         this.singleAgentHeuristic = runParameters.singleAgentGAndH != null ? runParameters.singleAgentGAndH :
                 new DistanceTableSingleAgentHeuristic(Arrays.asList(priorityOrderedAgents), this.currentInstance.map);
-//        if (runParameters.constraints != null){
-//            // todo support initial constraints?
-//            throw new UnsupportedOperationException("Initial constraints are not supported yet in " + this.getClass().getSimpleName());
-//        }
         this.initialConstraints = Objects.requireNonNullElseGet(runParameters.constraints, ConstraintSet::new);
-//        this.initialConstraints = new ConstraintSet();
         this.agentIndices = new HashMap<>();
         for (int i = 0; i < priorityOrderedAgents.length; i++) {
             agentIndices.put(priorityOrderedAgents[i], i);
@@ -270,8 +268,7 @@ public class PriorityConstrainedSearch extends A_Solver {
                             currentMap.getMapLocation(parent.getLeastPriorityMDD().getAgent().source),
                             currentMap.getMapLocation(parent.getLeastPriorityMDD().getAgent().target),
                             parent.getLeastPriorityMDD().getDepth());
-//                    compliantMDD = getMinMDD(parent.getLeastPriorityMDD().getAgent(), updatedConstraints);
-                    if (compliantMDD == null){ // impossible at any depth
+                    if (compliantMDD == null){ // impossible at any depth, or timeout
                         return null;
                     }
                 }
@@ -304,7 +301,7 @@ public class PriorityConstrainedSearch extends A_Solver {
             // next least-priority agent
             Agent nextAgent = priorityOrderedAgents[MDDs.size()];
             MDD nextAgentMDD = getInitialMDDForAgent(nextAgent, updatedConstraints);
-            if (nextAgentMDD == null){ // unsolvable at any depth under current constraints
+            if (nextAgentMDD == null){ // unsolvable at any depth under current constraints, or timeout
                 return null;
             }
             MDDs.add(nextAgentMDD);
@@ -389,7 +386,13 @@ public class PriorityConstrainedSearch extends A_Solver {
         I_Location target = currentMap.getMapLocation(newlyAddedAgent.target);
         int minDepth = singleAgentHeuristic.getHToTargetFromLocation(newlyAddedAgent.target, source);
         // get MDD from a cache of unconstrained MDDs (generate if absent), check if it conflicts with an existing constraint.
-        MDD unconstrainedMDD = mddManager.getMDD(source, target, newlyAddedAgent, minDepth);
+        MDD unconstrainedMDD = getUnconstrainedMddAtDepth(newlyAddedAgent, source, target, minDepth);
+        if (unconstrainedMDD == null){ // should only be because of timeout
+            return null;
+        }
+        if (MDDCacheDepthDeltaMax == 1){
+            mddManager.clearSearchers();
+        }
         if (unconstrainedMDD.acceptedBy(constraints)){
             return unconstrainedMDD;
         }
@@ -405,9 +408,28 @@ public class PriorityConstrainedSearch extends A_Solver {
         }
     }
 
+    private MDD getUnconstrainedMddAtDepth(Agent newlyAddedAgent, I_Location source, I_Location target, int requestedDepth) {
+        MDD unconstrainedMDD = mddManager.getMDD(source, target, newlyAddedAgent, requestedDepth);
+        if (checkTimeout()){
+            return null;
+        }
+        else if (unconstrainedMDD == null){
+            throw new IllegalStateException("Should not fail to build an MDD without constraints, assuming the requested depth was more than the minimal depth. " +
+                    "\nrequestedDepth: " + requestedDepth + "\nnewlyAddedAgent:" + newlyAddedAgent + "\nsource:" + source +
+                    "\ntarget:" + target + "\nminimalDepthFromHeuristic:" + singleAgentHeuristic.getHToTargetFromLocation(newlyAddedAgent.target, source));
+        }
+        return unconstrainedMDD;
+    }
+
     private MDD deeperMDD(Agent agent, @NotNull I_ConstraintSet constraints, I_Location source, I_Location target, int currentImpossibleDepth) {
+        if (!useSimpleMDDCache || MDDCacheDepthDeltaMax == 1){
+            return getMinMDD(agent, constraints);
+        }
         // get a +1 deeper unconstrained MDD from the cache (generate if absent), check if it still conflicts
-        MDD unconstrainedMDD = mddManager.getMDD(source, target, agent, currentImpossibleDepth + 1);
+        MDD unconstrainedMDD = getUnconstrainedMddAtDepth(agent, source, target, currentImpossibleDepth + 1);
+        if (unconstrainedMDD == null){ // should only be because of timeout
+            return null;
+        }
         if (unconstrainedMDD.acceptedBy(constraints)){
             return unconstrainedMDD;
         }
@@ -470,7 +492,6 @@ public class PriorityConstrainedSearch extends A_Solver {
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
-            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 

@@ -10,6 +10,7 @@ public class PCSBuilder {
     private Comparator<? super PCSNode> nodeComparator;
     private I_MDDSearcherFactory mddSearcherFactory;
     private Boolean useSimpleMDDCache;
+    private Integer MDDCacheDepthDeltaMax;
     private Boolean usePartialGeneration;
 
     public PCSBuilder setOpenList(I_OpenList<PCSNode> openList) {
@@ -37,7 +38,12 @@ public class PCSBuilder {
         return this;
     }
 
+    public PCSBuilder setMDDCacheDepthDeltaMax(int MDDCacheDepthDeltaMax) {
+        this.MDDCacheDepthDeltaMax = MDDCacheDepthDeltaMax;
+        return this;
+    }
+
     public PriorityConstrainedSearch createPriorityConstrainedSearch() {
-        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory, useSimpleMDDCache, usePartialGeneration);
+        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory, useSimpleMDDCache, MDDCacheDepthDeltaMax, usePartialGeneration);
     }
 }
