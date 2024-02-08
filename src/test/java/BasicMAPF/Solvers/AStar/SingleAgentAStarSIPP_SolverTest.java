@@ -330,7 +330,11 @@ class SingleAgentAStarSIPP_SolverTest {
 
     @Test
     void largeNumberOfConstraints(){
+        SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
+        SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
         MAPF_Instance baseInstance = instanceEmpty1;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
+
         int seeds = 20;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
@@ -347,8 +351,7 @@ class SingleAgentAStarSIPP_SolverTest {
                 ConstraintSet constraints = new ConstraintSet();
                 addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
 
-                SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
-                RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
+                RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).setAStarGAndH(heuristic).createRP();
                 long startTime = System.currentTimeMillis();
                 Solution sippSolution = sipp.solve(testInstance, parameters);
                 long endTime = System.currentTimeMillis();
@@ -372,7 +375,6 @@ class SingleAgentAStarSIPP_SolverTest {
                     System.out.println("SIPP Didn't Solve!!!");
                 }
 
-                SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
                 startTime = System.currentTimeMillis();
                 Solution aStarSolution = astar.solve(testInstance, parameters);
                 endTime = System.currentTimeMillis();
@@ -421,7 +423,10 @@ class SingleAgentAStarSIPP_SolverTest {
 
     @Test
     void largeNumberOfConstraintsWithInfiniteConstraints(){
+        SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
+        SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
         MAPF_Instance baseInstance = instanceEmpty1;
+
         int seeds = 20;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
@@ -442,7 +447,6 @@ class SingleAgentAStarSIPP_SolverTest {
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
-                SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
                 RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
                 long startTime = System.currentTimeMillis();
                 Solution sippSolution = sipp.solve(testInstance, parameters);
@@ -468,7 +472,106 @@ class SingleAgentAStarSIPP_SolverTest {
                     System.out.println("SIPP Didn't Solve!!!");
                 }
 
-                SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
+                startTime = System.currentTimeMillis();
+                Solution aStarSolution = astar.solve(testInstance, parameters);
+                endTime = System.currentTimeMillis();
+
+                int astarExpandedNodes = astar.getExpandedNodes();
+                int astarGeneratedNodes = astar.getGeneratedNodes();
+
+                List<Integer> aStarPlanCosts = null;
+                boolean aStarSolved = aStarSolution != null;
+                if (aStarSolved){
+                    List<I_Location> aStarPlanLocations = TestUtils.planLocations(aStarSolution.getPlanFor(agent));
+                    aStarPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, aStarPlanLocations);
+                    System.out.println("aStar:");
+                    System.out.println("Running Time:");
+                    System.out.println(endTime - startTime);
+                    System.out.println("Expanded nodes:");
+                    System.out.println(astarExpandedNodes);
+                    System.out.println("Generated nodes:");
+                    System.out.println(astarGeneratedNodes);
+                }
+                else{
+                    System.out.println("aStar Didn't Solve!!!");
+                }
+
+
+                System.out.println("Costs were:");
+                System.out.println(unitCostAndNoHeuristic);
+
+                assertTrue(!aStarSolved || sippSolved, "SIPP should solve if AStar solved");
+
+                if (aStarSolved && sippSolved){
+                    int costAStar = 0;
+                    int costSipp = 0;
+                    for (int i = 0; i < Math.max(aStarPlanCosts.size(), sippPlanCosts.size()); i++) {
+                        if (i < aStarPlanCosts.size()){
+                            costAStar += aStarPlanCosts.get(i);
+                        }
+                        if (i < sippPlanCosts.size()){
+                            costSipp += sippPlanCosts.get(i);
+                        }
+                    }
+                    assertEquals(costAStar, costSipp, "aStar cost " + costAStar + " should be the same as Sipp cost " + costSipp);
+                    assertTrue(astarExpandedNodes >= sippExpandedNodes, "aStar number of expanded nodes: " + astarExpandedNodes + " not be smaller than Sipp number of expanded nodes: " + sippExpandedNodes);
+                }
+            }
+        }
+    }
+
+    @Test
+    void largeNumberOfConstraintsWithInfiniteConstraintsAndPerfectHeuristic(){
+        SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
+        SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
+        MAPF_Instance baseInstance = instanceEmpty1;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
+
+        int seeds = 20;
+        for (int seed = 0; seed < seeds; seed++) {
+            for (Agent agent : baseInstance.agents) {
+                MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
+                List<I_Location> locations = new ArrayList<>();
+                for (int i = 0; i <= 5; i++) {
+                    for (int j = 0; j <= 5; j++) {
+                        I_Coordinate newCoor = new Coordinate_2D(i, j);
+                        I_Location newLocation = testInstance.map.getMapLocation(newCoor);
+                        locations.add(newLocation);
+                    }
+                }
+                Random rand = new Random(seed);
+                ConstraintSet constraints = new ConstraintSet();
+                for (int i = 0; i < 5; i++){
+                    I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    constraints.add(goalConstraint);
+                }
+                addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
+                RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).setAStarGAndH(heuristic).createRP();
+                long startTime = System.currentTimeMillis();
+                Solution sippSolution = sipp.solve(testInstance, parameters);
+                long endTime = System.currentTimeMillis();
+
+                int sippExpandedNodes = sipp.getExpandedNodes();
+                int sippGeneratedNodes = sipp.getGeneratedNodes();
+
+                List<Integer> sippPlanCosts = null;
+                boolean sippSolved = sippSolution != null;
+                if (sippSolved){
+                    List<I_Location> sippPlanLocations = TestUtils.planLocations(sippSolution.getPlanFor(agent));
+                    sippPlanCosts = TestUtils.getPlanCosts(agent, unitCostAndNoHeuristic, sippPlanLocations);
+                    System.out.println("SIPP:");
+                    System.out.println("Running Time:");
+                    System.out.println(endTime - startTime);
+                    System.out.println("Expanded nodes:");
+                    System.out.println(sippExpandedNodes);
+                    System.out.println("Generated nodes:");
+                    System.out.println(sippGeneratedNodes);
+                }
+                else{
+                    System.out.println("SIPP Didn't Solve!!!");
+                }
+
                 startTime = System.currentTimeMillis();
                 Solution aStarSolution = astar.solve(testInstance, parameters);
                 endTime = System.currentTimeMillis();
@@ -519,6 +622,9 @@ class SingleAgentAStarSIPP_SolverTest {
 
     @Test
     void largeNumberOfConstraintsWithInfiniteConstraintsBigger(){
+        SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
+        SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
+
         int mapDim = 20;
         Enum_MapLocationType[][] map_matrix = new Enum_MapLocationType[mapDim][mapDim];
         for (int i = 0; i < mapDim; i++) {
@@ -530,7 +636,10 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance baseInstance = new MAPF_Instance("instanceEmpty" + mapDim + "=" + mapDim, map,
                 new Agent[]{agent53to05, agent43to11, agent33to12, agent12to33, agent04to00, agent00to55, agent43to53, agent53to15,
                         new Agent(100, new Coordinate_2D(1,2), new Coordinate_2D(mapDim - 2, mapDim - 3))});
-        int seeds = 2;
+        // perfect heuristic is no better than manhattan distance on empty grid
+//        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
+
+        int seeds = 5;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
@@ -550,7 +659,6 @@ class SingleAgentAStarSIPP_SolverTest {
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, mapDim);
-                SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
                 RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
                 long startTime = System.currentTimeMillis();
                 Solution sippSolution = sipp.solve(testInstance, parameters);
@@ -576,7 +684,6 @@ class SingleAgentAStarSIPP_SolverTest {
                     System.out.println("SIPP Didn't Solve!!!");
                 }
 
-                SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
                 startTime = System.currentTimeMillis();
                 Solution aStarSolution = astar.solve(testInstance, parameters);
                 endTime = System.currentTimeMillis();
