@@ -9,6 +9,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
+import TransientMAPF.TransientMAPFBehaviour;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
