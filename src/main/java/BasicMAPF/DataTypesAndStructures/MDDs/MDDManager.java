@@ -75,6 +75,10 @@ public class MDDManager {
         return result;
     }
 
+    public void clearSearchers(){
+        searchers.clear();
+    }
+
     public int getExpandedNodesNum(){
         int sum = 0;
         for (A_MDDSearcher searcher:
