@@ -125,7 +125,7 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls, this.totalLowLevelCalls);
     }
 
-    private static String getProcessorInfo() {
+    public static String getProcessorInfo() {
         try (java.util.stream.Stream<String> lines = Files.lines(Paths.get("/proc/cpuinfo"))) {
                     return lines.filter(line -> line.startsWith("model name"))
                     .map(line -> line.replaceAll(".*: ", ""))
@@ -165,6 +165,7 @@ public abstract class A_Solver implements I_Solver{
     /*  = utilities =  */
 
     protected boolean checkTimeout() {
+        if (this.abortedForTimeout) return true;
         if(timeout.isTimeoutExceeded()){
             this.abortedForTimeout = true;
             return true;
