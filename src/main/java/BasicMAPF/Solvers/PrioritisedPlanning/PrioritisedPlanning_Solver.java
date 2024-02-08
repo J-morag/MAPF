@@ -364,7 +364,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 

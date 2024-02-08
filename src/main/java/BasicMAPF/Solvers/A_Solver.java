@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.DataTypesAndStructures.Timeout;
@@ -111,10 +112,13 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startDate).toString());
         instanceReport.putStringValue(InstanceReport.StandardFields.processorInfo, processorInfo);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));
+
+        //todo bring expanded and generated nodes up here, add rates
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
             if (instanceReport.keepSolutionString)
                 instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
         else{
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
