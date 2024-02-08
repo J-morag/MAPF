@@ -1,26 +1,35 @@
 package BasicMAPF.DataTypesAndStructures.MDDs;
 
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import static BasicMAPF.TestConstants.Agents.agent12to33;
 import static BasicMAPF.TestConstants.Agents.agent33to12;
 import static BasicMAPF.TestConstants.Coordiantes.*;
-import static BasicMAPF.TestConstants.Instances.instanceEmpty1;
-import static BasicMAPF.TestConstants.Instances.instanceSmallMaze;
+import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestConstants.Maps.mapEmpty;
 import static BasicMAPF.TestConstants.Maps.mapWithPocket;
+import static BasicMAPF.TestUtils.addRandomConstraints;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AStarMDDBuilderTest {
@@ -344,6 +353,35 @@ class AStarMDDBuilderTest {
     }
 
     @Test
+    void standardFlowMore() {
+        int depthDelta = 40;
+        for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+            I_Map map = instance.map;
+            SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
+
+            for (Agent agent: instance.agents){
+                A_MDDSearcher searcher = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 60 * 1000L),
+                        map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+
+                MDD mddWithSearchToFirstSolution = searcher.searchToFirstSolution(null);
+                assertNotNull(mddWithSearchToFirstSolution);
+                System.out.println(mddWithSearchToFirstSolution);
+
+                int minDepth = heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+                assertEquals(minDepth, mddWithSearchToFirstSolution.getDepth());
+
+                for (int delta = 0; delta < depthDelta; delta++){
+                    System.out.println("minDepth + delta: " + (minDepth + delta));
+                    MDD mddWithContinueSearching = searcher.continueSearching(minDepth + delta);
+                    assertNotNull(mddWithContinueSearching);
+                    System.out.println(mddWithContinueSearching);
+                }
+            }
+        }
+    }
+
+    @Test
     void continueSearchingWithSkipsValidity1() {
         I_Map map = mapWithPocket;
         SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(List.of(agent12to33, agent33to12), map);
@@ -423,6 +461,36 @@ class AStarMDDBuilderTest {
                 MDDNode node = level.get(i);
                 MDDNode prevNode = level.get(i - 1);
                 assertTrue(node.compareTo(prevNode) > 0);
+            }
+        }
+    }
+
+    @Test
+    void skipsMore() {
+        int depthDelta = 200;
+        for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+            System.out.println("instance: " + instance.extendedName);
+            I_Map map = instance.map;
+            SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
+
+            for (Agent agent: instance.agents){
+                A_MDDSearcher searcher = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 60 * 1000L),
+                        map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
+
+                MDD mddWithSearchToFirstSolution = searcher.searchToFirstSolution(null);
+                assertNotNull(mddWithSearchToFirstSolution);
+                System.out.println(mddWithSearchToFirstSolution);
+
+                int minDepth = heuristic.getHToTargetFromLocation(agent.target, map.getMapLocation(agent.source));
+                assertEquals(minDepth, mddWithSearchToFirstSolution.getDepth());
+
+                for (int delta = 0; delta < depthDelta; delta+=7){
+                    System.out.println("minDepth + delta: " + (minDepth + delta));
+                    MDD mddWithContinueSearching = searcher.continueSearching(minDepth + delta);
+                    assertNotNull(mddWithContinueSearching);
+                    System.out.println(mddWithContinueSearching);
+                }
             }
         }
     }
@@ -1014,6 +1082,50 @@ class AStarMDDBuilderTest {
         assertEquals(5, mdd.getLevel(10).size());
         System.out.println(mdd.getLevel(11));
         assertEquals(3, mdd.getLevel(11).size());
+    }
+
+    @Test
+    void largeNumberOfConstraintsWithInfiniteConstraints(){
+        SingleAgentAStarSIPP_Solver sipp = new SingleAgentAStarSIPP_Solver();
+        MAPF_Instance baseInstance = instanceEmpty1;
+        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
+
+        int seeds = 20;
+        for (int seed = 0; seed < seeds; seed++) {
+            for (Agent agent : baseInstance.agents) {
+                MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
+                List<I_Location> locations = new ArrayList<>();
+                for (int i = 0; i <= 5; i++) {
+                    for (int j = 0; j <= 5; j++) {
+                        I_Coordinate newCoor = new Coordinate_2D(i, j);
+                        I_Location newLocation = testInstance.map.getMapLocation(newCoor);
+                        locations.add(newLocation);
+                    }
+                }
+                Random rand = new Random(seed);
+                ConstraintSet constraints = new ConstraintSet();
+                for (int i = 0; i < 5; i++){
+                    I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    constraints.add(goalConstraint);
+                }
+                addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
+                RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).setAStarGAndH(heuristic).createRP();
+                Solution sippSolution = sipp.solve(testInstance, parameters);
+                if (sippSolution != null){
+                    int sippPlanLength = sippSolution.getPlanFor(agent).size();
+
+                    // get MDD for the depth of the solution that SIPP found
+
+                    AStarMDDBuilder builder = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 60 * 1000L),
+                            testInstance.map.getMapLocation(agent.source), testInstance.map.getMapLocation(agent.target), agent, heuristic);
+
+                    MDD mddWithSearchToFirstSolution = builder.searchToFirstSolution(constraints);
+                    assertNotNull(mddWithSearchToFirstSolution);
+                    assertEquals(sippPlanLength, mddWithSearchToFirstSolution.getDepth());
+                }
+            }
+        }
     }
 
     // todo add test for source == target
