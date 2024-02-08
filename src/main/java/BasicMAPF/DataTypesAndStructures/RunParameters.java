@@ -24,6 +24,7 @@ public class RunParameters {
     /**
      * The maximum time (milliseconds) allotted to the search. If the search exceeds this time, it is aborted.
      * Can also be 0, or negative.
+     * TODO change this to a {@link Timeout} object.
      */
     public final long timeout;
 
