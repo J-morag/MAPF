@@ -1,6 +1,5 @@
 package BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees;
 
-import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.DataTypesAndStructures.MDDs.*;
 import BasicMAPF.Instances.Agent;
@@ -9,12 +8,15 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +28,9 @@ public class PriorityConstrainedSearch extends A_Solver {
     private static final int VERBOSE = 1;
 
     /* = Constants = */
+
+    private static final I_Solver DEFAULT_SINGLE_AGENT_SOLVER = new SingleAgentAStarSIPP_Solver();
+//    private static final I_Solver DEFAULT_SINGLE_AGENT_SOLVER = new SingleAgentAStar_Solver();
 
     /* = Class Instance Fields = */
 
@@ -149,12 +154,13 @@ public class PriorityConstrainedSearch extends A_Solver {
             // todo closed list?
             if (isPartiallyGenerated(node)){
                 // continue generating the node
-                continueAddingAgents(node.MDDs(), new ArrayList<>() /*misses the already added constraints because we don't save them*/,
+                PCSNode continuedNode = continueAddingAgents(node.MDDs(), new ArrayList<>() /*for now, misses the already added constraints because we don't save them and don't use them for anything*/,
                         node.constraints());
-                continue;
+                addToOpen(continuedNode);
             }
-            if (isGoal(node))
+            else if (isGoal(node))
                 return node;
+            else
             expandNode(node);
         }
         return null;
@@ -285,8 +291,10 @@ public class PriorityConstrainedSearch extends A_Solver {
     private PCSNode continueAddingAgents(ArrayList<MDD> MDDs, List<Constraint> addedConstraints, ConstraintSet updatedConstraints) {
         // todo switch to creating a mutable node and adding to it every time instead of creating a new one every time?
         int g = getG(MDDs);
-        int h = getH(MDDs);
+        int[] harr = getSIPPConstrainedH(MDDs.size(), updatedConstraints);
+        int h = Arrays.stream(harr).sum();
         A_Conflict conflict;
+        int addedAgents = 0;
         // continue adding agents and their MDDs while there are no conflicts
         while ((conflict = earliestConflictWithLeastPriorityMDD(MDDs)) == null && MDDs.size() < priorityOrderedAgents.length
                 /*check fmin (partial generation)*/ && (!usePartialGeneration || openList.isEmpty() || g + h <= openList.peek().getF())) {
@@ -305,8 +313,9 @@ public class PriorityConstrainedSearch extends A_Solver {
                 return null;
             }
             MDDs.add(nextAgentMDD);
+            addedAgents++;
             g += nextAgentMDD.getDepth();
-            h -= singleAgentHeuristic.getHToTargetFromLocation(nextAgent.target, currentMap.getMapLocation(nextAgent.source));
+            h -= harr[addedAgents - 1];
         }
 
         if (conflict != null || MDDs.size() == priorityOrderedAgents.length){
@@ -456,26 +465,29 @@ public class PriorityConstrainedSearch extends A_Solver {
 //        return g;
     }
 
-    private int getH(@NotNull List<MDD> MDDsInNode) {
+    private int getFreeSpaceH(int numMDDsInNode) {
         // todo derive H by decreasing H from parent?
-        int res = 0; // todo get g as argument instead?
-//        for (Agent agent: priorityOrderedAgents) {
-//            I_Location source = currentMap.getMapLocation(agent.source);
-////            I_Location target = currentMap.getMapLocation(agent.target);
-////            res += mddManager.getMDD(source, target, agent, (int) aStarGAndH.getHToTargetFromLocation(agent.target, source)).getDepth();
-//            res += (int) singleAgentHeuristic.getHToTargetFromLocation(agent.target, source);
-//        }
-//        for (MDD mdd: MDDsInNode) {
-//            res -= (int) singleAgentHeuristic.getHToTargetFromLocation(mdd.getAgent().target, currentMap.getMapLocation(mdd.getAgent().source));
-//        }
-
-        for (int i = MDDsInNode.size(); i < priorityOrderedAgents.length; i++) {
+        int res = 0;
+        for (int i = numMDDsInNode; i < priorityOrderedAgents.length; i++) {
             Agent agent = priorityOrderedAgents[i];
             I_Location source = currentMap.getMapLocation(agent.source);
             res += singleAgentHeuristic.getHToTargetFromLocation(agent.target, source);
         }
+        return res;
+    }
 
-//        int res = 0;
+    private int[] getSIPPConstrainedH(int numMDDsInNode, @NotNull I_ConstraintSet constraints) {
+        int[] res = new int[priorityOrderedAgents.length - numMDDsInNode];
+        for (int i = numMDDsInNode; i < priorityOrderedAgents.length; i++) {
+            Agent agent = priorityOrderedAgents[i];
+//            long timeLeftToTimeout = Math.max(super.maximumRuntime - (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
+            // todo timeout?
+//            int shortestPathLength = DEFAULT_SINGLE_AGENT_SOLVER.solve(currentInstance.getSubproblemFor(agent),
+//                    new RunParametersBuilder().setAStarGAndH(singleAgentHeuristic).setInstanceReport(new InstanceReport())
+//                            .setConstraints(constraints).createRP()).getPlanFor(agent).size();
+            int shortestPathLength = singleAgentHeuristic.getHToTargetFromLocation(agent.target, currentMap.getMapLocation(agent.source));
+            res[i - numMDDsInNode] = shortestPathLength;
+        }
         return res;
     }
 
@@ -486,8 +498,12 @@ public class PriorityConstrainedSearch extends A_Solver {
         super.totalLowLevelNodesExpanded = mddManager.getExpandedNodesNum();
         super.totalLowLevelNodesGenerated = mddManager.getGeneratedNodesNum();
         super.writeMetricsToReport(solution);
+
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodes, this.expandedNodes);
+        super.instanceReport.putFloatValue(InstanceReport.StandardFields.expansionRate, (float) this.expandedNodes / ((float) (endTime-startTime) / 1000f));
         super.instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodes, this.fullyGeneratedNodes);
+        super.instanceReport.putFloatValue(InstanceReport.StandardFields.generationRate, (float) this.fullyGeneratedNodes / ((float) (endTime-startTime) / 1000f));
+
         super.instanceReport.putIntegerValue("partiallyGeneratedNodes", this.generatedNodesIncludingPartial - this.fullyGeneratedNodes);
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
