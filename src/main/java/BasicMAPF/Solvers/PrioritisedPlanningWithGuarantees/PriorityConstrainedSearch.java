@@ -8,15 +8,12 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
-import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
-import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,9 +25,6 @@ public class PriorityConstrainedSearch extends A_Solver {
     private static final int VERBOSE = 1;
 
     /* = Constants = */
-
-    private static final I_Solver DEFAULT_SINGLE_AGENT_SOLVER = new SingleAgentAStarSIPP_Solver();
-//    private static final I_Solver DEFAULT_SINGLE_AGENT_SOLVER = new SingleAgentAStar_Solver();
 
     /* = Class Instance Fields = */
 
@@ -47,6 +41,7 @@ public class PriorityConstrainedSearch extends A_Solver {
     private final boolean useSimpleMDDCache;
     private final int MDDCacheDepthDeltaMax;
     private final boolean usePartialGeneration;
+    private final I_PCSHeuristic pcsHeuristic;
 
     /* = Run Fields = */
 
@@ -85,14 +80,16 @@ public class PriorityConstrainedSearch extends A_Solver {
     private int expandedNodes;
     PriorityConstrainedSearch(@Nullable I_OpenList<PCSNode> openList, @Nullable Comparator<? super PCSNode> nodeComparator,
                               @Nullable I_MDDSearcherFactory searcherFactory, @Nullable Boolean useSimpleMDDCache,
-                              @Nullable Integer MDDCacheDepthDeltaMax, @Nullable Boolean usePartialGeneration) {
+                              @Nullable Integer MDDCacheDepthDeltaMax, @Nullable Boolean usePartialGeneration, I_PCSHeuristic pcsHeuristic) {
         this.nodeComparator = Objects.requireNonNullElse(nodeComparator, DEFAULT_COMPARATOR_INSTANCE);
         this.openList = Objects.requireNonNullElseGet(openList, () -> new OpenListTree<>(this.nodeComparator));
         this.searcherFactory = Objects.requireNonNullElseGet(searcherFactory, AStarFactory::new);
 
+        // todo change defaults according to experiment results
         this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, false);
         this.MDDCacheDepthDeltaMax = Objects.requireNonNullElse(MDDCacheDepthDeltaMax, 1);
         this.usePartialGeneration = Objects.requireNonNullElse(usePartialGeneration, true);
+        this.pcsHeuristic = Objects.requireNonNullElse(pcsHeuristic, new PCSHeuristicDefault());
 
         super.name = "Priority Constrained Search";
     }
@@ -198,7 +195,8 @@ public class PriorityConstrainedSearch extends A_Solver {
 
     private void expandNode(PCSNode node) {
         if (cLowerBound > node.getF()){
-            throw new IllegalStateException("Lower bound should not decrease during search");
+            throw new IllegalStateException("Lower bound should not decrease during search unless the heuristic is inconsistent or there is a bug. " +
+                    "Lower bound: " + cLowerBound + ", node f: " + node.getF() + ", node: " + node);
         }
         cLowerBound = node.getF();
 
@@ -291,7 +289,7 @@ public class PriorityConstrainedSearch extends A_Solver {
     private PCSNode continueAddingAgents(ArrayList<MDD> MDDs, List<Constraint> addedConstraints, ConstraintSet updatedConstraints) {
         // todo switch to creating a mutable node and adding to it every time instead of creating a new one every time?
         int g = getG(MDDs);
-        int[] harr = getSIPPConstrainedH(MDDs.size(), updatedConstraints);
+        int[] harr = pcsHeuristic.getH(priorityOrderedAgents, MDDs.size(), updatedConstraints, currentInstance, singleAgentHeuristic);
         int h = Arrays.stream(harr).sum();
         A_Conflict conflict;
         int addedAgents = 0;
@@ -314,6 +312,10 @@ public class PriorityConstrainedSearch extends A_Solver {
             }
             MDDs.add(nextAgentMDD);
             addedAgents++;
+            if (nextAgentMDD.getDepth() < harr[addedAgents - 1]){
+                throw new IllegalStateException("Inconsistent heuristic! MDD depth is less than the heuristic value. " +
+                        "MDD depth: " + nextAgentMDD.getDepth() + ", heuristic value: " + harr[addedAgents - 1] + ", agent: " + nextAgent + ", MDDs: " + MDDs);
+            }
             g += nextAgentMDD.getDepth();
             h -= harr[addedAgents - 1];
         }
@@ -472,21 +474,6 @@ public class PriorityConstrainedSearch extends A_Solver {
             Agent agent = priorityOrderedAgents[i];
             I_Location source = currentMap.getMapLocation(agent.source);
             res += singleAgentHeuristic.getHToTargetFromLocation(agent.target, source);
-        }
-        return res;
-    }
-
-    private int[] getSIPPConstrainedH(int numMDDsInNode, @NotNull I_ConstraintSet constraints) {
-        int[] res = new int[priorityOrderedAgents.length - numMDDsInNode];
-        for (int i = numMDDsInNode; i < priorityOrderedAgents.length; i++) {
-            Agent agent = priorityOrderedAgents[i];
-//            long timeLeftToTimeout = Math.max(super.maximumRuntime - (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
-            // todo timeout?
-//            int shortestPathLength = DEFAULT_SINGLE_AGENT_SOLVER.solve(currentInstance.getSubproblemFor(agent),
-//                    new RunParametersBuilder().setAStarGAndH(singleAgentHeuristic).setInstanceReport(new InstanceReport())
-//                            .setConstraints(constraints).createRP()).getPlanFor(agent).size();
-            int shortestPathLength = singleAgentHeuristic.getHToTargetFromLocation(agent.target, currentMap.getMapLocation(agent.source));
-            res[i - numMDDsInNode] = shortestPathLength;
         }
         return res;
     }

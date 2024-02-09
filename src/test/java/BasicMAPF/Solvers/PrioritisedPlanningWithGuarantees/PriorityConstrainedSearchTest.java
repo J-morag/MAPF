@@ -7,6 +7,7 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.IO_Package.IO_Manager;
@@ -36,8 +37,7 @@ class PriorityConstrainedSearchTest {
 
     private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
 
-    I_Solver PCSSolver = new PCSBuilder().createPriorityConstrainedSearch();
-
+    I_Solver PCSSolver = new PCSBuilder().createPCS();
 
     InstanceReport instanceReport;
 
@@ -263,7 +263,6 @@ class PriorityConstrainedSearchTest {
 
     }
 
-
     /**
      * This contains diverse instances, comparing the performance of two algorithms.
      */
@@ -272,10 +271,10 @@ class PriorityConstrainedSearchTest {
         Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver baselineSolver = new PrioritisedPlanning_Solver();
+        I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStarSIPP_Solver());
         String nameBaseline = baselineSolver.name();
 
-        I_Solver competitorSolver = new PCSBuilder().createPriorityConstrainedSearch();
+        I_Solver competitorSolver = PCSSolver;
         String nameExperimental = competitorSolver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -287,7 +286,6 @@ class PriorityConstrainedSearchTest {
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
         long timeout = 30 /*seconds*/   *1000L;
-//        long timeout = 3 /*seconds*/   *1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
@@ -399,8 +397,286 @@ class PriorityConstrainedSearchTest {
             }
         }
 
+        outputResults(timeout, nameBaseline, solvedByBaseline, nameExperimental, solvedByExperimental, sumHighLevelExpandedExperimentalOnAll, runtimeBaseline, runtimeExperimental, sumCostBaseline, sumCostExperimental, sumHighLevelExpandedExperimentalOnSolved);
+    }
+
+    /**
+     * This contains diverse instances, comparing the performance of two algorithms.
+     */
+    @Test
+    void comparativeDiverseTestDefaultVsSIPPHeuristic(){
+        Metrics.clearAll();
+        boolean useAsserts = true;
+
+        I_Solver baselineSolver = new PCSBuilder().setUseSimpleMDDCache(false).setUsePartialGeneration(false).setPCSHeuristic(new PCSHeuristicDefault()).createPCS();
+        String nameBaseline = baselineSolver.name();
+
+        I_Solver competitorSolver = new PCSBuilder().setUseSimpleMDDCache(false).setUsePartialGeneration(false).setPCSHeuristic(new PCSHeuristicSIPP()).createPCS();
+        String nameExperimental = competitorSolver.name();
+
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "ComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+//                new InstanceProperties(null, -1d, new int[]{100}));
+                new InstanceProperties(null, -1d, new int[]{10}));
+
+        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
+        MAPF_Instance instance = null;
+        long timeout = 30 /*seconds*/   *1000L;
+        int solvedByBaseline = 0;
+        int solvedByExperimental = 0;
+        int runtimeBaseline = 0;
+        int runtimeExperimental = 0;
+        int sumCostBaseline = 0;
+        int sumCostExperimental = 0;
+        int sumHighLevelExpandedExperimentalOnAll = 0;
+        int sumHighLevelExpandedExperimentalOnSolved = 0;
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            for (int j = 0; j < 5; j++) {
+                System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
+                List<Agent> order = new ArrayList<>(instance.agents);
+                Random rand = new Random(j);
+                Collections.shuffle(order, rand);
+                Agent[] orderedAgents = order.toArray(new Agent[0]);
+                System.out.println("order: " + Arrays.toString(orderedAgents));
+
+                // run baseline (without the improvement)
+                //build report
+                InstanceReport reportBaseline = Metrics.newInstanceReport();
+                reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+                reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+                reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+                reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+                RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout)
+                        .setInstanceReport(reportBaseline).setPriorityOrder(orderedAgents).createRP();
+
+                //solve
+                Solution solutionBaseline = baselineSolver.solve(instance, runParametersBaseline);
+
+                // run experiment (with the improvement)
+                //build report
+                InstanceReport reportExperimental = Metrics.newInstanceReport();
+                reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+                reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+                reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+                reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+                RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout)
+                        .setInstanceReport(reportExperimental).setPriorityOrder(orderedAgents).createRP();
+
+                //solve
+                Solution solutionExperimental = competitorSolver.solve(instance, runParametersExperimental);
+
+                // compare
+
+                boolean baselineSolved = solutionBaseline != null;
+                solvedByBaseline += baselineSolved ? 1 : 0;
+                boolean experimentalSolved = solutionExperimental != null;
+                solvedByExperimental += experimentalSolved ? 1 : 0;
+                System.out.println(nameBaseline + " Solved?: " + (baselineSolved ? "yes" : "no") +
+                        " ; " + nameExperimental + " solved?: " + (experimentalSolved ? "yes" : "no"));
+
+                if(solutionBaseline != null){
+                    boolean valid = solutionBaseline.solves(instance);
+                    System.out.print(nameBaseline + " Valid?: " + (valid ? "yes" : "no"));
+                    if (useAsserts) assertTrue(valid);
+                }
+
+                if(solutionExperimental != null){
+                    boolean valid = solutionExperimental.solves(instance);
+                    System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
+                    if (useAsserts) assertTrue(valid);
+                    sumHighLevelExpandedExperimentalOnSolved += reportExperimental.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                }
+                else System.out.println();
+
+                sumHighLevelExpandedExperimentalOnAll += reportExperimental.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                System.out.println("Expanded nodes: "+ nameExperimental + ": " + reportExperimental.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+
+                if(solutionBaseline != null && solutionExperimental != null){
+                    // runtimes
+                    runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                    runtimeExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                    reportBaseline.putIntegerValue("Runtime Delta",
+                            reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
+                                    - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+
+                    // cost
+                    int costBaseline = solutionBaseline.sumIndividualCosts();
+                    sumCostBaseline += costBaseline;
+                    int costExperimental = solutionExperimental.sumIndividualCosts();
+                    sumCostExperimental += costExperimental;
+                    if (costExperimental > costBaseline){
+                        System.out.println(nameBaseline + " cost: " + costBaseline);
+                        System.out.println(nameExperimental + " cost: " + costExperimental);
+                        for (Agent agent : instance.agents) {
+                            SingleAgentPlan planBaseline = solutionBaseline.getPlanFor(agent);
+                            SingleAgentPlan planExperimental = solutionExperimental.getPlanFor(agent);
+                            if (planBaseline.size() < planExperimental.size()) {
+                                for (int i = 1; i <= planBaseline.getEndTime(); i++) {
+                                    Move moveBaseline = planBaseline.moveAt(i);
+                                    Move moveExperimental = planExperimental.moveAt(i);
+                                    if (!moveBaseline.equals(moveExperimental)){
+                                        System.out.println("agent " + agent.iD + " has different moves at time " + i + ": " +
+                                                moveBaseline.toString().replace("\n", "") + " vs " + moveExperimental.toString().replace("\n", ""));
+                                    }
+                                }
+                                System.out.println("agent " + agent.iD + " has different plan lengths: " +
+                                        planBaseline.size() + " vs " + planExperimental.size()
+                                        + " with plans: \n" + planBaseline + "\nvs\n" + planExperimental);
+                            }
+                        }
+                    }
+                    if (useAsserts)
+                        assertEquals(costBaseline, costExperimental);
+                }
+            }
+        }
+
+        outputResults(timeout, nameBaseline, solvedByBaseline, nameExperimental, solvedByExperimental, sumHighLevelExpandedExperimentalOnAll, runtimeBaseline, runtimeExperimental, sumCostBaseline, sumCostExperimental, sumHighLevelExpandedExperimentalOnSolved);
+    }
+
+    /**
+     * This contains diverse instances, comparing the performance of two algorithms.
+     */
+    @Test
+    void comparativeDiverseTestAllFeaturesOffVsOn(){
+        Metrics.clearAll();
+        boolean useAsserts = true;
+
+        I_Solver baselineSolver = new PCSBuilder().setUseSimpleMDDCache(false).setUsePartialGeneration(false).setPCSHeuristic(new PCSHeuristicDefault()).createPCS();
+        String nameBaseline = baselineSolver.name();
+
+        I_Solver competitorSolver = new PCSBuilder().setUseSimpleMDDCache(true).setUsePartialGeneration(true).setMDDCacheDepthDeltaMax(Integer.MAX_VALUE).setPCSHeuristic(new PCSHeuristicSIPP()).createPCS();
+        String nameExperimental = competitorSolver.name();
+
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
+                "ComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+//                new InstanceProperties(null, -1d, new int[]{100}));
+                new InstanceProperties(null, -1d, new int[]{10}));
+
+        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
+        MAPF_Instance instance = null;
+        long timeout = 30 /*seconds*/   *1000L;
+        int solvedByBaseline = 0;
+        int solvedByExperimental = 0;
+        int runtimeBaseline = 0;
+        int runtimeExperimental = 0;
+        int sumCostBaseline = 0;
+        int sumCostExperimental = 0;
+        int sumHighLevelExpandedExperimentalOnAll = 0;
+        int sumHighLevelExpandedExperimentalOnSolved = 0;
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            for (int j = 0; j < 5; j++) {
+                System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
+                List<Agent> order = new ArrayList<>(instance.agents);
+                Random rand = new Random(j);
+                Collections.shuffle(order, rand);
+                Agent[] orderedAgents = order.toArray(new Agent[0]);
+                System.out.println("order: " + Arrays.toString(orderedAgents));
+
+                // run baseline (without the improvement)
+                //build report
+                InstanceReport reportBaseline = Metrics.newInstanceReport();
+                reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+                reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+                reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+                reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+                RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout)
+                        .setInstanceReport(reportBaseline).setPriorityOrder(orderedAgents).createRP();
+
+                //solve
+                Solution solutionBaseline = baselineSolver.solve(instance, runParametersBaseline);
+
+                // run experiment (with the improvement)
+                //build report
+                InstanceReport reportExperimental = Metrics.newInstanceReport();
+                reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+                reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
+                reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+                reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+
+                RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout)
+                        .setInstanceReport(reportExperimental).setPriorityOrder(orderedAgents).createRP();
+
+                //solve
+                Solution solutionExperimental = competitorSolver.solve(instance, runParametersExperimental);
+
+                // compare
+
+                boolean baselineSolved = solutionBaseline != null;
+                solvedByBaseline += baselineSolved ? 1 : 0;
+                boolean experimentalSolved = solutionExperimental != null;
+                solvedByExperimental += experimentalSolved ? 1 : 0;
+                System.out.println(nameBaseline + " Solved?: " + (baselineSolved ? "yes" : "no") +
+                        " ; " + nameExperimental + " solved?: " + (experimentalSolved ? "yes" : "no"));
+
+                if(solutionBaseline != null){
+                    boolean valid = solutionBaseline.solves(instance);
+                    System.out.print(nameBaseline + " Valid?: " + (valid ? "yes" : "no"));
+                    if (useAsserts) assertTrue(valid);
+                }
+
+                if(solutionExperimental != null){
+                    boolean valid = solutionExperimental.solves(instance);
+                    System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
+                    if (useAsserts) assertTrue(valid);
+                    sumHighLevelExpandedExperimentalOnSolved += reportExperimental.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                }
+                else System.out.println();
+
+                sumHighLevelExpandedExperimentalOnAll += reportExperimental.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                System.out.println("Expanded nodes: "+ nameExperimental + ": " + reportExperimental.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
+
+                if(solutionBaseline != null && solutionExperimental != null){
+                    // runtimes
+                    runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                    runtimeExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                    reportBaseline.putIntegerValue("Runtime Delta",
+                            reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
+                                    - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
+
+                    // cost
+                    int costBaseline = solutionBaseline.sumIndividualCosts();
+                    sumCostBaseline += costBaseline;
+                    int costExperimental = solutionExperimental.sumIndividualCosts();
+                    sumCostExperimental += costExperimental;
+                    if (costExperimental > costBaseline){
+                        System.out.println(nameBaseline + " cost: " + costBaseline);
+                        System.out.println(nameExperimental + " cost: " + costExperimental);
+                        for (Agent agent : instance.agents) {
+                            SingleAgentPlan planBaseline = solutionBaseline.getPlanFor(agent);
+                            SingleAgentPlan planExperimental = solutionExperimental.getPlanFor(agent);
+                            if (planBaseline.size() < planExperimental.size()) {
+                                for (int i = 1; i <= planBaseline.getEndTime(); i++) {
+                                    Move moveBaseline = planBaseline.moveAt(i);
+                                    Move moveExperimental = planExperimental.moveAt(i);
+                                    if (!moveBaseline.equals(moveExperimental)){
+                                        System.out.println("agent " + agent.iD + " has different moves at time " + i + ": " +
+                                                moveBaseline.toString().replace("\n", "") + " vs " + moveExperimental.toString().replace("\n", ""));
+                                    }
+                                }
+                                System.out.println("agent " + agent.iD + " has different plan lengths: " +
+                                        planBaseline.size() + " vs " + planExperimental.size()
+                                        + " with plans: \n" + planBaseline + "\nvs\n" + planExperimental);
+                            }
+                        }
+                    }
+                    if (useAsserts)
+                        assertEquals(costBaseline, costExperimental);
+                }
+            }
+        }
+
+        outputResults(timeout, nameBaseline, solvedByBaseline, nameExperimental, solvedByExperimental, sumHighLevelExpandedExperimentalOnAll, runtimeBaseline, runtimeExperimental, sumCostBaseline, sumCostExperimental, sumHighLevelExpandedExperimentalOnSolved);
+    }
+
+    private void outputResults(long timeout, String nameBaseline, int solvedByBaseline, String nameExperimental, int solvedByExperimental, int sumHighLevelExpandedExperimentalOnAll, int runtimeBaseline, int runtimeExperimental, int sumCostBaseline, int sumCostExperimental, int sumHighLevelExpandedExperimentalOnSolved) {
         System.out.println("--- TOTALS: ---");
-        System.out.println("timeout for each (seconds): " + (timeout/1000));
+        System.out.println("timeout for each (seconds): " + (timeout / 1000));
         System.out.println(nameBaseline + " solved: " + solvedByBaseline);
         System.out.println(nameExperimental + " solved: " + solvedByExperimental);
         System.out.println(nameExperimental + " expanded nodes: " + sumHighLevelExpandedExperimentalOnAll);

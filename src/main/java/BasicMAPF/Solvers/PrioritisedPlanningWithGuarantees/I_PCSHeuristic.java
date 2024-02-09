@@ -1,0 +1,19 @@
+package BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees;
+
+import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import org.jetbrains.annotations.NotNull;
+
+public interface I_PCSHeuristic {
+    default int[] getH(Agent[] priorityOrderedAgents, int numMDDsAlreadyInNode, @NotNull I_ConstraintSet constraints, MAPF_Instance currentInstance, SingleAgentGAndH singleAgentHeuristic) {
+        int[] res = new int[priorityOrderedAgents.length - numMDDsAlreadyInNode];
+        for (int i = numMDDsAlreadyInNode; i < priorityOrderedAgents.length; i++) {
+            Agent agent = priorityOrderedAgents[i];
+            int shortestPathLength = singleAgentHeuristic.getHToTargetFromLocation(agent.target, currentInstance.map.getMapLocation(agent.source));
+            res[i - numMDDsAlreadyInNode] = shortestPathLength;
+        }
+        return res;
+    }
+}

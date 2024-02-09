@@ -12,6 +12,7 @@ public class PCSBuilder {
     private Boolean useSimpleMDDCache;
     private Integer MDDCacheDepthDeltaMax;
     private Boolean usePartialGeneration;
+    private I_PCSHeuristic PCSHeuristic;
 
     public PCSBuilder setOpenList(I_OpenList<PCSNode> openList) {
         this.openList = openList;
@@ -43,7 +44,12 @@ public class PCSBuilder {
         return this;
     }
 
-    public PriorityConstrainedSearch createPriorityConstrainedSearch() {
-        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory, useSimpleMDDCache, MDDCacheDepthDeltaMax, usePartialGeneration);
+    public PCSBuilder setPCSHeuristic(I_PCSHeuristic PCSHeuristic) {
+        this.PCSHeuristic = PCSHeuristic;
+        return this;
+    }
+
+    public PriorityConstrainedSearch createPCS() {
+        return new PriorityConstrainedSearch(openList, nodeComparator, mddSearcherFactory, useSimpleMDDCache, MDDCacheDepthDeltaMax, usePartialGeneration, PCSHeuristic);
     }
 }
