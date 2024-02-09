@@ -31,22 +31,23 @@ public class MDDManager {
 
     public MDD getMDD(I_Location source, I_Location target, Agent agent, int depth){
         keyDummy.set(source, target, agent);
-        if(!mdds.containsKey(keyDummy)) {
+        LinkedList<MDD> mddsAtIncrementalDepths = mdds.get(keyDummy);
+        if(mddsAtIncrementalDepths == null) {
             SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
-            mdds.put(sourceTargetAgent, new LinkedList<>());
-        }
-        if(!searchers.containsKey(keyDummy)) {
-            SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
-            searchers.put(sourceTargetAgent, searcherFactory.createSearcher(timeout, source, target, agent, heuristic));
+            mddsAtIncrementalDepths = new LinkedList<>();
+            mdds.put(sourceTargetAgent, mddsAtIncrementalDepths);
         }
 
-        LinkedList<MDD> mddsAtIncrementalDepths = mdds.get(keyDummy);
         int depthDeltaFromMinMDD = mddsAtIncrementalDepths.isEmpty() ? 0 : depth - mddsAtIncrementalDepths.get(0).getDepth();
         if(depthDeltaFromMinMDD < mddsAtIncrementalDepths.size()) {
             return mddsAtIncrementalDepths.get(depthDeltaFromMinMDD);
         }
         else {
             MDD curr = null;
+            if(!searchers.containsKey(keyDummy)) {
+                SourceTargetAgent sourceTargetAgent = new SourceTargetAgent(keyDummy);
+                searchers.put(sourceTargetAgent, searcherFactory.createSearcher(timeout, source, target, agent, heuristic));
+            }
             for (int currDelta = mddsAtIncrementalDepths.size(); currDelta <= depthDeltaFromMinMDD; currDelta++) {
                 int currDepth = mddsAtIncrementalDepths.isEmpty() ? heuristic.getHToTargetFromLocation(target.getCoordinate(), source) :
                         mddsAtIncrementalDepths.get(0).getDepth() + currDelta;
