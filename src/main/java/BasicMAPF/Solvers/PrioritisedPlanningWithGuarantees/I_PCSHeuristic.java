@@ -5,9 +5,10 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface I_PCSHeuristic {
-    default int[] getH(Agent[] priorityOrderedAgents, int numMDDsAlreadyInNode, @NotNull I_ConstraintSet constraints, MAPF_Instance currentInstance, SingleAgentGAndH singleAgentHeuristic) {
+    default int @Nullable [] getH(Agent[] priorityOrderedAgents, int numMDDsAlreadyInNode, @NotNull I_ConstraintSet constraints, MAPF_Instance currentInstance, SingleAgentGAndH singleAgentHeuristic) {
         int[] res = new int[priorityOrderedAgents.length - numMDDsAlreadyInNode];
         for (int i = numMDDsAlreadyInNode; i < priorityOrderedAgents.length; i++) {
             Agent agent = priorityOrderedAgents[i];

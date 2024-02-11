@@ -139,7 +139,7 @@ public class PriorityConstrainedSearch extends A_Solver {
         addToOpen(root);
     }
 
-    private void addToOpen(PCSNode node) {
+    private void addToOpen(@Nullable PCSNode node) {
         if (node != null){
             openList.add(node);
         }
@@ -290,6 +290,9 @@ public class PriorityConstrainedSearch extends A_Solver {
         // todo switch to creating a mutable node and adding to it every time instead of creating a new one every time?
         int g = getG(MDDs);
         int[] harr = pcsHeuristic.getH(priorityOrderedAgents, MDDs.size(), updatedConstraints, currentInstance, singleAgentHeuristic);
+        if (harr == null){ // if using a smart heuristic that might detect a node already can't lead to a solution
+            return null;
+        }
         int h = Arrays.stream(harr).sum();
         A_Conflict conflict;
         int addedAgents = 0;
