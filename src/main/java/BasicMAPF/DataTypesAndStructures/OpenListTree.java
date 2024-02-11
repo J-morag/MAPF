@@ -150,6 +150,10 @@ public class OpenListTree<E> implements I_OpenList<E> {
         if(removed != null && !removed.equals(e)){ // existing equal element was replaced
             queue.remove(removed);
         }
+        // todo this doesn't accept multiple nodes that compare to 0.
+        //  possible bug when we use an equals() function that isn't consistent with the comparator
+        //  means comparators have to either be consistent with equals, or enforce a total order such that
+        //  "incomparable" search nodes will still have some tie-breaking
         return queue.add(e);
     }
 

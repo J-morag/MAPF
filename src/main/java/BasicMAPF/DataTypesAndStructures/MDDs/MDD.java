@@ -6,14 +6,17 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class MDD {
+    private static final int DEBUG = 1;
     private MDDNode start;
     private MDDNode goal;
     /**
@@ -23,62 +26,148 @@ public class MDD {
      */
     private List<List<MDDNode>> levels;
 
-    public MDD(MDDSearchNode goal){
+    public MDD(@NotNull MDDSearchNode goal){
         initialize(goal);
+        verifyIntegrity(null, null);
+    }
+
+    public MDD(@NotNull MDDNode start, @NotNull MDDNode goal){
+        this.start = start;
+        this.goal = goal;
+        verifyIntegrity(null, null);
     }
 
     /**
      * copy constructor (deep).
      * @param other an MDD to copy.
      */
-    public MDD(MDD other){
+    public MDD(@NotNull MDD other){
         // todo why do we need a copy constructor when everything is immutable?
-        // iterate over the mdd in BFS order
-        // we don't need a closed list since this is a DAG
-        // open will only contain nodes from other
-        Queue<MDDNode> open = new ArrayDeque<>();
-        // copies will only contain nodes from this (copies)
-        Map<MDDNode, MDDNode> copies = new HashMap<>();
-        this.start = new MDDNode(other.getStart());
-        open.add(other.getStart());
-        copies.put(this.start, this.start);
-        while (!open.isEmpty()){
-            MDDNode originalCurrentMddNode = open.remove();
-            // a copy has to exist already
-            MDDNode copyCurrentMddNode = copies.get(originalCurrentMddNode);
-            List<MDDNode> originalChildren = originalCurrentMddNode.getNeighbors();
+        this(other, null);
+        verifyIntegrity(null, null);
+    }
 
-            for (MDDNode originalChild : originalChildren){
-                MDDNode childCopy;
-                // never saw this child before
-                if(!copies.containsKey(originalChild)) {
-                    // so we will have to expand it later
-                    open.add(originalChild);
-                    // copy the child. should only happen once because we check the contents of copies.
-                    childCopy = new MDDNode(originalChild);
-                    copies.put(childCopy, childCopy);
+    /**
+     * copy constructor (deep) with constraints.
+     * @param other an MDD to copy.
+     */
+    public MDD(@NotNull MDD other, @Nullable ConstraintSet constraints){
+        // todo avoid code duplications with the other copy option
+        // at each level collect all edges that point to nodes seen in the previous level -
+        //  any edge/vertex we collect would be on a path from start to goal without passing constraints
+        MDDNode goalCopy = new MDDNode(other.goal);
+        Map<MDDNode, MDDNode> collectedNodes = new HashMap<>();
+        collectedNodes.put(goalCopy, goalCopy);
+        for (int d = other.getDepth()-1; d >= 0; d--) {
+            List<MDDNode> level = other.getLevel(d);
+            for (MDDNode node : level) {
+                for (MDDNode neighbor : node.getNeighbors()) {
+                    if (collectedNodes.containsKey(neighbor)){
+                        if (constraints != null &&
+                                constraints.rejects(new Move(neighbor.getAgent(), neighbor.getDepth(), // assumes time == depth
+                                node.getLocation(), neighbor.getLocation()))){
+                            continue;
+                        }
+                        MDDNode nodeCopy;
+                        if (!collectedNodes.containsKey(node)){
+                            nodeCopy = new MDDNode(node); // without the original neighbors
+                            collectedNodes.put(nodeCopy, nodeCopy);
+                        }
+                        else nodeCopy = collectedNodes.get(node);
+                        // todo reuse original if we end up with the same list of neighbors as the original?
+                        nodeCopy.addNeighbor(collectedNodes.get(neighbor));
+                    }
                 }
-                else{
-                    // this child has already been seen. we just have to get the copy we've already made
-                    childCopy = copies.get(originalChild);
-                }
-                copyCurrentMddNode.addNeighbor(childCopy);
             }
         }
-        this.goal = copies.get(other.goal);
+        MDDNode newMDDStartNode = collectedNodes.get(other.start);
+        if (newMDDStartNode == null || // constraints severed the MDD
+                (constraints != null && constraints.firstRejectionTime(new Move(goalCopy.getAgent(), Math.max(goalCopy.getDepth(), 1), // assumes time == depth
+                        goalCopy.getLocation(), goalCopy.getLocation()), false) != -1)){ // staying at the end of the MDD is rejected
+            this.start = null;
+            this.goal = null;
+            this.levels = null;
+            return;
+        }
+        else {
+            this.start = newMDDStartNode;
+            this.goal = goalCopy;
+        }
 
-        // copy levels
-        if (other.levels != null){
-            this.levels = new ArrayList<>(other.levels.size());
-            for (List<MDDNode> level : other.levels) {
-                List<MDDNode> levelCopy = new ArrayList<>(level.size());
+        verifyIntegrity(constraints, null);
+    }
+
+    /**
+     * copy (deep) with constraints (negative).
+     */
+    public MDD deepCopyWithConstraints(@NotNull ConstraintSet constraints){
+        return new MDD(this, constraints);
+    }
+
+    /**
+     * Copy (deep) with constraint.
+     */
+    public MDD shallowCopyWithConstraint(@NotNull Constraint constraint, boolean isPositiveConstraint) {
+        if (!isPositiveConstraint){
+            // todo optimize by removing the singleton creations?
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.add(constraint);
+            return this.deepCopyWithConstraints(constraintSet);
+        }
+        else {
+            int constraintEndDepth = constraint.time;// assumes depth := time
+            // shallow copy! This already connects us to the rest of the MDD after the constraint, but is a shallow copy.
+            MDDNode constraintEndNodeShallowCopy;
+            try {
+                 constraintEndNodeShallowCopy = getLevel(constraintEndDepth).get(
+                         Collections.binarySearch(getLevel(constraintEndDepth),
+                                new MDDNode(constraint.location, constraintEndDepth, constraint.agent)));
+            } catch (IndexOutOfBoundsException e){
+                throw new IllegalArgumentException("positive constraint " + constraint + " not found in MDD\n" + this);
+            }
+            int constraintStartDepth = constraint.prevLocation != null ? constraint.time-1 : constraint.time; // assumes depth := time
+            MDDNode constraintStartNodeCopy = constraint.prevLocation != null ?
+                    new MDDNode(constraint.prevLocation, constraintStartDepth, constraint.agent) : constraintEndNodeShallowCopy;
+            if (DEBUG >= 2 && Collections.binarySearch(getLevel(constraintStartDepth), constraintStartNodeCopy) < 0){
+                throw new IllegalStateException("constraintStartNodeCopy" + constraintStartNodeCopy + " not found in level " + constraintStartDepth + " of " + this);
+            }
+
+            // at each level collect all edges that point to nodes seen in the previous level -
+            //  any edge/vertex we collect would be on a path from start to the constraint
+            Map<MDDNode, MDDNode> collectedNodes = new HashMap<>();
+            collectedNodes.put(constraintStartNodeCopy, constraintStartNodeCopy);
+            for (int d = constraintStartDepth-1; d >= 0; d--) {
+                List<MDDNode> level = getLevel(d);
                 for (MDDNode node : level) {
-                    levelCopy.add(copies.get(node));
+                    for (MDDNode neighbor : node.getNeighbors()) {
+                        if (collectedNodes.containsKey(neighbor)){
+                            MDDNode nodeCopy;
+                            if (!collectedNodes.containsKey(node)){
+                                nodeCopy = new MDDNode(node); // without the original neighbors
+                                collectedNodes.put(nodeCopy, nodeCopy);
+                            }
+                            else nodeCopy = collectedNodes.get(node);
+                            nodeCopy.addNeighbor(collectedNodes.get(neighbor));
+                        }
+                    }
                 }
-                this.levels.add(Collections.unmodifiableList(levelCopy));
             }
-            this.levels = Collections.unmodifiableList(this.levels);
+            MDDNode newMDDStartNode = collectedNodes.get(start);
+            // we now have an MDD up to the start of the constraint
+
+            // now add the edge from the constraint to the MDD (only if it's an edge constraint)
+            if (constraintStartNodeCopy != constraintEndNodeShallowCopy){
+                constraintStartNodeCopy.addNeighbor(constraintEndNodeShallowCopy);
+            }
+
+            MDD mdd = new MDD(newMDDStartNode, this.goal); // again, goal is shallow copied here
+            mdd.verifyIntegrity(null, constraint);
+            return mdd;
         }
+    }
+
+    public MDD constrainedView(Constraint newConstraint) {
+        throw new NotImplementedException("todo"); //todo
     }
 
     private void initialize(MDDSearchNode goal){
@@ -115,6 +204,10 @@ public class MDD {
             currentLevel.addAll(previousLevel.values());
         }
         this.start = currentLevel.poll();
+
+        if (this.start.getDepth() != 0){
+            throw new IllegalStateException("MDD start node has depth " + this.start.getDepth() + " instead of 0");
+        }
     }
 
     public MDDNode getStart() {
@@ -126,17 +219,22 @@ public class MDD {
     }
 
     public Solution getPossibleSolution() {
+        return getPossibleSolutionFrom(start);
+    }
+
+    public Solution getPossibleSolutionFrom(MDDNode current) {
         Solution solution = new Solution();
         List<Move> moves = new ArrayList<>();
 
-        MDDNode current = start;
-        while (!current.equals(goal)) {
+        while (current != goal) {
             MDDNode next = current.getNeighbors().get(0); //It doesn't matter which son it was - we take a single path.
-
             Move move = new Move(current.getAgent(), next.getDepth(), current.getLocation(), next.getLocation());
-            moves.add(move); //insert the move to the moves
-
+            moves.add(move);
             current = next;
+        }
+        if (start == goal){ // special case for starting at goal
+            Move move = new Move(start.getAgent(), 1, start.getLocation(), start.getLocation());
+            moves.add(move);
         }
 
         SingleAgentPlan plan = new SingleAgentPlan(start.getAgent(), moves);
@@ -146,7 +244,7 @@ public class MDD {
     }
 
     public int getDepth() {
-        return goal.getDepth();
+        return this.goal != null ? this.goal.getDepth() : -1;
     }
 
     public Agent getAgent(){
@@ -200,6 +298,7 @@ public class MDD {
         // look for vertex conflicts
         List<MDDNode> localLevel = depth <= this.getDepth() ? this.getLevel(depth) : Collections.singletonList(this.getGoal()); // wrong depth inside goal node, but shouldn't matter
         List<MDDNode> otherLevel = depth <= other.getDepth() ? other.getLevel(depth) : Collections.singletonList(other.getGoal()); // wrong depth inside goal node, but shouldn't matter
+        if (otherLevel.isEmpty()) System.out.println("otherLevel is empty: " + other); // todo tmp
         List<A_Conflict> vertexConflicts = getLevelVertexConflicts(depth, localLevel, otherLevel, stopAtFirstConflict);
         if (stopAtFirstConflict && ! vertexConflicts.isEmpty()) return Collections.singletonList(vertexConflicts.get(0));
 
@@ -318,15 +417,66 @@ public class MDD {
         return conflicts;
     }
 
-    public MDD constrainedView(Constraint newConstraint) {
-        throw new NotImplementedException("todo"); //todo
+    public void verifyIntegrity(@Nullable ConstraintSet negativeConstraints, @Nullable Constraint positiveConstraint) {
+        if (DEBUG >= 2 && getDepth() != -1){
+            for (int i = 0; i < getDepth(); i++) {
+                List<MDDNode> level = getLevel(i);
+                for (MDDNode node : level) {
+                    // exists a path from each node to the goal
+                    Solution possibleSolution = getPossibleSolutionFrom(node);
+                    SingleAgentPlan plan = possibleSolution.getPlanFor(getAgent());
+                    if (plan == null){
+                        throw new IllegalStateException("MDD has no plan for agent " + getAgent() + ": " + this);
+                    }
+                    if (plan.getEndTime() != this.getDepth() && getDepth() > 0){
+                        throw new IllegalStateException("MDD has depth " + this.getDepth() + " but plan for agent " + getAgent() + " has end time " + plan.getEndTime() + ": " + this);
+                    }
+                    if (! plan.getLastMove().currLocation.equals(this.getGoal().getLocation())){
+                        throw new IllegalStateException("MDD goal is " + this.getGoal().getLocation() + " but plan for agent " + getAgent() + " ends at " + plan.getLastMove().currLocation + ": " + this);
+                    }
+                    if (DEBUG >= 3){
+                        // all neighbors are in the next level
+                        for (MDDNode neighbor : node.getNeighbors()) {
+                            if (Collections.binarySearch(getLevel(i+1), neighbor) < 0){
+                                throw new IllegalStateException("MDD node " + node + " has neighbor " + neighbor + " but it is not in the next level: " + this);
+                            }
+                        }
+                        // obeys negative constraints
+                        if (negativeConstraints != null){
+                            for (Move move : plan) {
+                                if (negativeConstraints.rejects(move)){
+                                    throw new IllegalStateException("MDD node " + node + " has move " + move + " that is rejected by negative constraints: " + this);
+                                }
+                            }
+                        }
+                        // obeys positive constraint
+                        if (positiveConstraint != null){
+                            if (i < positiveConstraint.time){
+                                boolean found = false;
+                                for (Move move : plan) {
+                                    if (move.currLocation.equals(positiveConstraint.location) && move.timeNow == positiveConstraint.time &&
+                                            (positiveConstraint.prevLocation == null || move.prevLocation.equals(positiveConstraint.prevLocation))){
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (! found){
+                                    throw new IllegalStateException("MDD node " + node + " does not have a move that obeys positive constraint " + positiveConstraint + ": " + this);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("MDD{start=").append(start.getLocation().getCoordinate()).append(", goal=").append(goal.getLocation().getCoordinate()).append("}, levels (lacks edge information)=\n");
-        this.getLevel(1); // initialize levels (if not already initialized)
+        this.getLevel(0); // initialize levels (if not already initialized)
         for (int i = 0; i < levels.size(); i++) {
             sb.append(i).append(": ");
             for (MDDNode node : levels.get(i)) {
@@ -337,5 +487,15 @@ public class MDD {
         return sb.toString();
     }
 
-    // todo equals and hashcode(cached)
+    // todo equals and hashcode (cached)
+
+    public boolean levelsEquals(MDD other){
+        if (this == other) return true;
+        if (other == null) return false;
+        if (levels == null) return other.levels == null;
+        else {
+            if (other.levels == null) other.initializeLevels();
+            return levels.equals(other.levels);
+        }
+    }
 }

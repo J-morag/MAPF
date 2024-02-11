@@ -11,6 +11,7 @@ import org.apache.commons.cli.*;
 import java.io.File;
 import java.util.Arrays;
 
+import static BasicMAPF.Solvers.A_Solver.getProcessorInfo;
 import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 
 
@@ -42,6 +43,8 @@ public class Main {
             System.out.println("No arguments were given. To run a built-in example, run ExampleMain.main(args).");
             helper.printHelp("java -jar <jar name>", options, true);
         }
+
+        printEnv();
 
         try {
             String instancesDir;
@@ -80,7 +83,7 @@ public class Main {
             System.out.println("Instances Dir: " + optInstancesDir);
             instancesDir = optInstancesDir;
             if (! new File(instancesDir).exists()){
-                System.out.printf("Could not locate the provided instances dir (%s)\n", instancesDir);
+                System.err.printf("Could not locate the provided instances dir (%s)\n", instancesDir);
                 System.exit(0);
             }
 
@@ -250,6 +253,23 @@ public class Main {
                 .desc("Set the timeout for each instance. Integer in milliseconds. Optional. Default is 300000 (5 minutes).")
                 .build();
         options.addOption(timeoutEachOption);
+    }
+
+    private static void printEnv() {
+        // Get maximum size of heap in bytes. The heap cannot grow beyond this size.// Any attempt will result in an OutOfMemoryException.
+        long heapMaxSize = Runtime.getRuntime().maxMemory();
+        // get cpu name
+        String cpuName = getProcessorInfo();
+
+        System.out.println("CPU: " + cpuName +
+                "; cores (inc. virtual): " + Runtime.getRuntime().availableProcessors() +
+                "; max heap: " + formatSize(heapMaxSize));
+    }
+
+    public static String formatSize(long v) {
+        if (v < 1024) return v + " B";
+        int z = (63 - Long.numberOfLeadingZeros(v)) / 10;
+        return String.format("%.1f %sB", (double)v / (1L << (z*10)), " KMGTPE".charAt(z));
     }
 
 }

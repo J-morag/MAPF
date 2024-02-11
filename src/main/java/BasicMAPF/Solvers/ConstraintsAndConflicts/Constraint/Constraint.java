@@ -4,6 +4,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A constraint on a {@link I_Location location}, at a specific time. It may or may not apply to all agents.
@@ -23,7 +24,7 @@ public class Constraint {
      * The location from which the constraint forbids entry to {@link #location}. @Nullable
      * This is meant to prevent swapping conflicts. If it is null, then this constraint prevents vertex conflicts.
      */
-    public final I_Location prevLocation;
+    @Nullable public final I_Location prevLocation;
     /**
      * The location the constraint applies to.
      */
@@ -36,8 +37,8 @@ public class Constraint {
      * @param prevLocation the location from which the constraint forbids entry to {@link #location}. @Nullable
      * @param location the location the constraint applies to.
      */
-    public Constraint(Agent agent, int time, I_Location prevLocation, I_Location location) {
-        if(time<0 || location == null) throw new IllegalArgumentException();
+    public Constraint(Agent agent, int time, @Nullable I_Location prevLocation, I_Location location) {
+        if(time<0 || location == null) throw new IllegalArgumentException("time: "+time+" location: "+location);
         this.agent = agent;
         this.time = time;
         this.prevLocation = prevLocation;
@@ -47,10 +48,11 @@ public class Constraint {
     /**
      * Constructor. The constraint will prevent swapping conflicts and apply to all agents.
      * @param time the time the constraint applies to.
-     * @param prevLocation the location from which the constraint forbids entry to {@link #location}. @Nullable
+     * @param prevLocation the location from which the constraint forbids entry to {@link #location}. @Nullable.
+     *                     If null, this constraint prevents vertex conflicts.
      * @param location the location the constraint applies to.
      */
-    public Constraint(int time, I_Location prevLocation, I_Location location) {
+    public Constraint(int time, @Nullable I_Location prevLocation, I_Location location) {
         this(null, time, prevLocation, location);
     }
 
@@ -156,6 +158,16 @@ public class Constraint {
         result = 31 * result + (prevLocation != null ? prevLocation.hashCode() : 0);
         result = 31 * result + location.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Constraint{" +
+                "agent=" + agent +
+                ", time=" + time +
+                ", prevLocation=" + prevLocation +
+                ", location=" + location +
+                '}';
     }
 }
 

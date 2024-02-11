@@ -5,7 +5,8 @@ import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
 import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
@@ -46,7 +47,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     /*  = Fields related to the run =  */
 
-    private ConstraintSet constraints;
+    private I_ConstraintSet constraints;
 
     private Random random;
 
@@ -125,7 +126,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
 
-        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") +
+        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + " (" + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
@@ -199,7 +200,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * @param instance problem instance
      * @param initialConstraints constraints to solve under
      */
-    protected Solution solvePrioritisedPlanning(MAPF_Instance instance, ConstraintSet initialConstraints) {
+    protected Solution solvePrioritisedPlanning(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
         Solution bestSolution = null;
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
@@ -337,7 +338,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
-                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
+                setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
         params.fBudget = maxCost;
         if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF){
             params.goalCondition = new VisitedTargetAStarGoalCondition();
@@ -363,7 +364,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 

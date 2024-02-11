@@ -3,7 +3,7 @@ package BasicMAPF.DataTypesAndStructures.MDDs;
 import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,12 +41,18 @@ public abstract class A_MDDSearcher {
     }
 
     /**
-     * Searches for all the solutions in a wanted depth
-     * Continuing the search from the last "checkpoint" that means that all of the open list and closed list is already saved in the searcher.
-     * @param depthOfSolution - the depth of the wanted solutions
+     * Searches for the MDD (all paths) of a wanted depth
+     * Continuing the search from the last "checkpoint" - meaning all the open and closed lists are already saved in the searcher.
+     * @param depthOfSolution - The depth of the wanted solutions. Must be greater than the previous depth.
      * @return the goal state, which can easily be transferred to an MDD
      */
     public abstract MDD continueSearching(int depthOfSolution);
 
-    public abstract MDD searchToFirstSolution(@Nullable ConstraintSet constraints);
+    /**
+     * Searches for the first (minimal depth) MDD that can be found under the given constraints
+     * @throws IllegalStateException if this searcher is called after the searcher has already been used
+     * @param constraints - the constraints that the MDD should satisfy
+     * @return the minimal-depth MDD that satisfies the constraints
+     */
+    public abstract MDD searchToFirstSolution(@Nullable I_ConstraintSet constraints);
 }
