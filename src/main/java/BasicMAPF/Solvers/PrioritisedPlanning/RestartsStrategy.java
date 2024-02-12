@@ -11,7 +11,7 @@ import java.util.Objects;
 public class RestartsStrategy {
 
     public enum RestartsKind{
-        randomRestarts, deterministicRescheduling, none
+        randomRestarts, deterministicRescheduling, AStarRestarts, none
     }
 
     /**
