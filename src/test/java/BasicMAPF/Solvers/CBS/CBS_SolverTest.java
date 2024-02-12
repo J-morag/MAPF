@@ -438,7 +438,7 @@ class CBS_SolverTest {
         assertEquals(4, solvedCBSt.makespan()); // makespan (normal)
         assertEquals(4, solvedCBSt.makespanServiceTime()); // makespan (TMAPF)
 
-        System.out.println(solvedNormal.readableToString());
-        System.out.println(solvedCBSt.readableToString());
+        System.out.println(solvedNormal);
+        System.out.println(solvedCBSt);
     }
 }

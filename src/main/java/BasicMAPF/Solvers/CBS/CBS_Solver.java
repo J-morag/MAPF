@@ -6,6 +6,7 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
@@ -127,7 +128,7 @@ public class CBS_Solver extends A_Solver {
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
-        super.name = "CBS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "");
+        super.name = "CBS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + (this.transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist ? "_sst" : "");
     }
 
     /**
@@ -149,6 +150,8 @@ public class CBS_Solver extends A_Solver {
         this.instance = instance;
         this.singleAgentGAndH = runParameters.singleAgentGAndH != null ? runParameters.singleAgentGAndH :
                 this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
+                        this.transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist ?
+                                new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(new ArrayList<>(this.instance.agents), this.instance.map)) :
                 new DistanceTableSingleAgentHeuristic(new ArrayList<>(this.instance.agents), this.instance.map) :
                 null;
     }

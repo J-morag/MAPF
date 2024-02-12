@@ -1,5 +1,6 @@
 package Environment.RunManagers;
 
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
@@ -57,6 +58,7 @@ public class GenericRunManager extends A_RunManager {
 //                null, null, TransientMAPFBehaviour.transientMAPF));
         super.solvers.add(new CBS_Solver(null, null, null, null, null, null, null, null, null));
         super.solvers.add(new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF));
+        super.solvers.add(new CBS_Solver(null, null, null, new SumServiceTimes(), null, null, null, null, TransientMAPFBehaviour.transientMAPFsstWithBlacklist));
 
     }
 
