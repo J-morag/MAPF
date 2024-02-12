@@ -281,7 +281,7 @@ class PriorityConstrainedSearchTest {
                 "ComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
 //                new InstanceProperties(null, -1d, new int[]{100}));
-                new InstanceProperties(null, -1d, new int[]{10}));
+                new InstanceProperties(null, -1d, new int[]{15}));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
@@ -409,16 +409,16 @@ class PriorityConstrainedSearchTest {
         boolean useAsserts = true;
 
         I_Solver baselineSolver = new PCSBuilder().setUseSimpleMDDCache(false).setUsePartialGeneration(false).setPCSHeuristic(new PCSHeuristicDefault()).createPCS();
-        String nameBaseline = baselineSolver.name();
+        String nameBaseline = "PCS-default";
 
         I_Solver competitorSolver = new PCSBuilder().setUseSimpleMDDCache(false).setUsePartialGeneration(false).setPCSHeuristic(new PCSHeuristicSIPP()).createPCS();
-        String nameExperimental = competitorSolver.name();
+        String nameExperimental = "PCS-SIPP";
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
 //                new InstanceProperties(null, -1d, new int[]{100}));
-                new InstanceProperties(null, -1d, new int[]{10}));
+                new InstanceProperties(null, -1d, new int[]{15}));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
@@ -546,16 +546,16 @@ class PriorityConstrainedSearchTest {
         boolean useAsserts = true;
 
         I_Solver baselineSolver = new PCSBuilder().setUseSimpleMDDCache(false).setUsePartialGeneration(false).setPCSHeuristic(new PCSHeuristicDefault()).createPCS();
-        String nameBaseline = baselineSolver.name();
+        String nameBaseline = "PCS-allFeaturesOff";
 
         I_Solver competitorSolver = new PCSBuilder().setUseSimpleMDDCache(true).setUsePartialGeneration(true).setMDDCacheDepthDeltaMax(Integer.MAX_VALUE).setPCSHeuristic(new PCSHeuristicSIPP()).createPCS();
-        String nameExperimental = competitorSolver.name();
+        String nameExperimental = "PCS-allFeaturesOn";
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
 //                new InstanceProperties(null, -1d, new int[]{100}));
-                new InstanceProperties(null, -1d, new int[]{10}));
+                new InstanceProperties(null, -1d, new int[]{15}));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
