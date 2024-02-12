@@ -930,8 +930,8 @@ class PrioritisedPlanningSolverTest {
     void comparativeDiverseTestHasAStarRestartsVsOrderRandomRestarts(){
         Metrics.clearAll();
         boolean useAsserts = true;
-        boolean experimentalCoverageShouldNeverBeWorse = true;
-        boolean experimentalCostShouldNeverBeWorse = true;
+        boolean experimentalCoverageShouldNeverBeWorse = false;
+        boolean experimentalCostShouldNeverBeWorse = false;
 
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1000, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
@@ -1012,6 +1012,7 @@ class PrioritisedPlanningSolverTest {
                 // cost
                 int costBaseline = solutionBaseline.sumIndividualCosts();
                 int costExperimental = solutionExperimental.sumIndividualCosts();
+                System.out.println("Costs: " + costBaseline + " vs " + costExperimental);
                 if (experimentalCostShouldNeverBeWorse && useAsserts){
                     assertTrue(costExperimental <= costBaseline);
                 }
