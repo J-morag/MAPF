@@ -339,7 +339,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
          */
         private final int id = getID();
         public final Move move;
-        private final AStarState prev;
+        protected final AStarState prev;
         protected final int g;
         protected final float h;
         /**
@@ -397,13 +397,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * @return the existingPlan after updating it with the plan that this state represents.
          */
         public SingleAgentPlan backTracePlan(SingleAgentPlan existingPlan) {
-            List<Move> moves = new ArrayList<>();
-            AStarState currentState = this;
-            while (currentState != null){
-                moves.add(currentState.move);
-                currentState = currentState.prev;
-            }
-            Collections.reverse(moves); //reorder moves because they were reversed
+            List<Move> moves = getOrderedMoves();
 
             // patch move times in case we had moves that don't progress time, because they were after last constraint time
             for (int i = 1; i < moves.size(); i++) {
@@ -418,6 +412,18 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if(existingPlan.size() > 0) {moves.remove(0);}
             existingPlan.addMoves(moves);
             return existingPlan;
+        }
+
+        @NotNull
+        protected List<Move> getOrderedMoves() {
+            List<Move> moves = new ArrayList<>();
+            AStarState currentState = this;
+            while (currentState != null){
+                moves.add(currentState.move);
+                currentState = currentState.prev;
+            }
+            Collections.reverse(moves); //reorder moves because they were reversed
+            return moves;
         }
 
 

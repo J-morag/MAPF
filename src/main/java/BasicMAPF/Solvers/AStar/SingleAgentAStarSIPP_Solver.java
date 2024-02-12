@@ -155,7 +155,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @param prevLocationRelevantInterval The relevant interval of the previous location.
      * @param currInterval               The current interval being considered.
      */
-    private void moveIntoSafeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation, I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
+    private void moveIntoSafeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation,
+                                      I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
         AStarSIPPState child = state;
         int possibleMoveTime;
         boolean afterLastConstraint;
@@ -294,6 +295,13 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             int result = move.currLocation.hashCode();
             result = 31 * result + this.timeInterval.start;
             return result;
+        }
+
+        @Override
+        protected @NotNull List<Move> getOrderedMoves() {
+            // todo randomize the transition times
+            return super.getOrderedMoves();
+
         }
     }
 }
