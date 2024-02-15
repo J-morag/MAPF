@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1707974906827,
+  "lastUpdate": 1707974907787,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -17673,6 +17673,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
             "value": 5563009,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "090151cca0fad14f9b0ea7d665f35790905dc31b",
+          "message": "add the sum of freespace costs to every instance report in Experiment",
+          "timestamp": "2024-02-15T15:46:01+11:00",
+          "tree_id": "1161834e133cf98ccf6432b9ace665c8e7ea8802",
+          "url": "https://github.com/J-morag/MAPF/commit/090151cca0fad14f9b0ea7d665f35790905dc31b"
+        },
+        "date": 1707974907500,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime",
+            "value": 13032.471,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime Low Level",
+            "value": 11483.883,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
+            "value": 5844728.5,
             "unit": "Expansions"
           }
         ]
