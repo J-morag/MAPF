@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.DataTypesAndStructures.Timeout;
@@ -111,10 +112,13 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putStringValue(InstanceReport.StandardFields.startDateTime, new Date(startDate).toString());
         instanceReport.putStringValue(InstanceReport.StandardFields.processorInfo, processorInfo);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.elapsedTimeMS, (int)(endTime-startTime));
+
+        //todo bring expanded and generated nodes up here, add rates
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
             if (instanceReport.keepSolutionString)
                 instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
+            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
         else{
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
@@ -125,7 +129,7 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls, this.totalLowLevelCalls);
     }
 
-    private static String getProcessorInfo() {
+    public static String getProcessorInfo() {
         try (java.util.stream.Stream<String> lines = Files.lines(Paths.get("/proc/cpuinfo"))) {
                     return lines.filter(line -> line.startsWith("model name"))
                     .map(line -> line.replaceAll(".*: ", ""))
@@ -165,6 +169,7 @@ public abstract class A_Solver implements I_Solver{
     /*  = utilities =  */
 
     protected boolean checkTimeout() {
+        if (this.abortedForTimeout) return true;
         if(timeout.isTimeoutExceeded()){
             this.abortedForTimeout = true;
             return true;

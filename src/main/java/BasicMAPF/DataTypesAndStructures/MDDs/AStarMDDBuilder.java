@@ -5,7 +5,7 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +16,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
 
     private static final int PLAN_START_TIME = 0;
     private static final int VERBOSE = 1;
+    private final SingleAgentGAndH heuristic;
     private Queue<MDDSearchNode> openList;
     /**
      * The key will not be updated, although, the value will be the last version of this node.
@@ -23,9 +24,8 @@ public class AStarMDDBuilder extends A_MDDSearcher {
      */
     protected Map<MDDSearchNode, MDDSearchNode> contentOfOpen;
     protected Map<MDDSearchNode, MDDSearchNode> closeList;
-    private final SingleAgentGAndH heuristic;
     protected int maxDepthOfSolution;
-    protected ConstraintSet constraints;
+    protected I_ConstraintSet constraints;
 
     /**
      * Constructor for the AStar searcher
@@ -91,6 +91,11 @@ public class AStarMDDBuilder extends A_MDDSearcher {
 
     @Override
     public MDD continueSearching(int depthOfSolution) {
+        MDDSearchNode goal = continueSearchingDontBuildMDD(depthOfSolution);
+        return MDDFromGoalNode(goal);
+    }
+
+    private MDDSearchNode continueSearchingDontBuildMDD(int depthOfSolution){
         this.maxDepthOfSolution = depthOfSolution;
         int lastRejectionAtTargetTime = constraints == null ? -1 :
                 constraints.lastRejectionTime(new Move(agent, 1, target, target), false);
@@ -132,39 +137,46 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                 }
             }
             // Don't do else here, because we want to add the sons of current to the open list for later even if it is a goal
-            expand(current, lastConstraintsChangeTime, findMinMode);
+            expand(current, lastConstraintsChangeTime, findMinMode, depthOfSolution > -1 ? depthOfSolution  : null);
         }
-        return goal == null ? null : new MDD(goal);
+        return goal;
     }
 
     @Override
-    public MDD searchToFirstSolution(@Nullable ConstraintSet constraints) {
+    public MDD searchToFirstSolution(@Nullable I_ConstraintSet constraints) {
         if (openList != null)
             throw new IllegalStateException("should not search for first solution on a searcher that has already been used");
         this.constraints = constraints;
-        MDD res = continueSearching(-1);
-        this.constraints = null;
-        return res;
+        MDDSearchNode goal = continueSearchingDontBuildMDD(-1);
+        this.releaseMemory();
+        return MDDFromGoalNode(goal);
+    }
+
+    @Nullable
+    private MDD MDDFromGoalNode(MDDSearchNode goal) {
+        return goal == null ? null : new MDD(goal);
     }
 
     protected void releaseMemory() {
         this.contentOfOpen = null;
         this.closeList = null;
         this.openList = null;
+        this.maxDepthOfSolution = 0;
     }
 
     protected boolean isOpenEmpty() {
         return openList.isEmpty();
     }
 
-    protected void expand(MDDSearchNode parent, int lastConstraintsChangeTime, boolean findMinMode){
+    protected void expand(MDDSearchNode parent, int lastConstraintsChangeTime, boolean findMinMode, Integer gMax){
         expandedNodesNum++;
         if (VERBOSE >= 3) System.out.println(this.getClass().getSimpleName() + "expanding " + parent.getLocation() + " at time " + parent.getT() + " with g=" + parent.getG() + " and h=" + parent.getH());
 
         List<I_Location> neighborLocations = parent.getNeighborLocations();
         for (I_Location location : neighborLocations) {
             int newG = parent.getG() + 1;
-            float newH = heuristic.getHToTargetFromLocation(agent.target, location);
+            if (findMinMode && gMax != null && newG > gMax) continue;
+            int newH = heuristic.getHToTargetFromLocation(agent.target, location);
             int newTime = parent.getT() + 1;
             if (findMinMode && newTime > lastConstraintsChangeTime){
                 if (location.equals(parent.getLocation())) continue; // no stay when after last constraint time

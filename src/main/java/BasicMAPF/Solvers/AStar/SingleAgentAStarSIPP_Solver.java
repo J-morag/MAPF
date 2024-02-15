@@ -6,14 +6,10 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintGroupingKey;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
@@ -59,7 +55,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                     break;
                 }
             }
-            openList.add(new AStarSIPPState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, existingPlan.containsTarget()));
+            openList.add(new AStarSIPPState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget())));
 
         } else { // the existing plan is empty (no existing plan)
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
@@ -71,7 +67,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
             for (I_Location destination : neighborLocations) {
                 Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
-                AStarSIPPState rootState = new AStarSIPPState(possibleMove, null, this.gAndH.cost(possibleMove), 0, null, isMoveToTarget(possibleMove));
+                AStarSIPPState rootState = new AStarSIPPState(possibleMove, null, getG(null, possibleMove), 0, null, visitedTarget(null, isMoveToTarget(possibleMove)));
                 moveToNeighbor(rootState, possibleMove, true);
             }
         }
@@ -112,9 +108,9 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      */
     private AStarSIPPState generateChildState(Move move, AStarSIPPState state, Interval interval, boolean init) {
         if (init) {
-            return new AStarSIPPState(move, null, gAndH.cost(move), 0, interval, isMoveToTarget(move));
+            return new AStarSIPPState(move, null, getG(null, move), 0, interval, visitedTarget(null, isMoveToTarget(move)));
         }
-        return new AStarSIPPState(move, state, state.g + gAndH.cost(move), state.conflicts + numConflicts(move), interval, isMoveToTarget(move));
+        return new AStarSIPPState(move, state, getG(state, move), state.conflicts + numConflicts(move), interval, visitedTarget(state, isMoveToTarget(move)));
     }
 
     /**
@@ -203,9 +199,9 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(ConstraintSet constraints) {
+    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(I_ConstraintSet constraints) {
         /*
-          Originally constraints are by location and time, for the SIPP algorithm
+          Originally constraints are by location and time. For the SIPP algorithm,
           we convert the constraints into time intervals by location
          */
         HashMap<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
@@ -213,7 +209,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         for (Map.Entry<I_ConstraintGroupingKey, Set<Constraint>> entry : constraints.getEntrySet()) {
             for (Constraint constraint : entry.getValue()) {
                 // skip constraints that are not vertex constraints
-                if ((constraint.getPrevLocation() == null) && (constraint.agent == null) || (constraint.getPrevLocation() == null) && (constraint.agent.equals(this.agent))){
+                if ((constraint.getPrevLocation() == null) && (constraint.agent == null || constraint.agent.equals(this.agent))){
                     List<Integer> timesList = timeIntervals.computeIfAbsent(entry.getKey().getLocation(), k -> new ArrayList<>());
                     timesList.add(entry.getKey().getTime());
                     break;
@@ -276,10 +272,9 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     public class AStarSIPPState extends AStarState {
         private final Interval timeInterval;
 
-        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, Interval timeInterval, boolean isMoveToTargetLocation) {
-            super(move, prev, g, conflicts, isMoveToTargetLocation);
+        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, Interval timeInterval, boolean visitedTarget) {
+            super(move, prev, g, conflicts, visitedTarget);
             this.timeInterval = timeInterval;
-
         }
 
         @Override

@@ -14,6 +14,7 @@ import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
@@ -67,7 +68,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
     /*  = fields related to run =  */
 
-    private ConstraintSet initialConstraints;
+    private I_ConstraintSet initialConstraints;
     private MAPF_Instance lifelongInstance;
     private List<LifelongAgent> lifelongAgents;
     private Random random;
@@ -174,8 +175,8 @@ public class LifelongSimulationSolver extends A_Solver {
 
         this.finishedAgents = new HashSet<>();
         if (this.initialConstraints != null){
-            this.initialConstraints.sharedSources = true;
-            this.initialConstraints.sharedGoals = true;
+            this.initialConstraints.setSharedSources(true);
+            this.initialConstraints.setSharedGoals(true);
         }
         this.cachingDistanceTableHeuristic = new CachingDistanceTableHeuristic(1, instance.agents.size());
         this.cachingDistanceTableHeuristic.setCurrentMap(instance.map);
