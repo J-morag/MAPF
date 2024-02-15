@@ -1,12 +1,15 @@
 package Environment;
 
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
+import BasicMAPF.Solvers.NoStateTimeSearches;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.I_Solver;
@@ -82,14 +85,14 @@ public class Experiment {
         instanceReport.putStringValue(InstanceReport.StandardFields.instanceName, instance.extendedName);
         instanceReport.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
         putMapStats(instanceReport, instance);
-        instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-        instanceReport.putIntegerValue(InstanceReport.StandardFields.obstacleRate, instance.getObstaclePercentage());
+        putInstanceStats(instanceReport, instance);
         instanceReport.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
         return instanceReport;
     }
 
     private void putMapStats(InstanceReport instanceReport, MAPF_Instance instance) {
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.obstacleRate, instance.getObstaclePercentage());
         if (instance.map instanceof I_ExplicitMap explicitMap) {
             int traversableLocations = 0;
             int sumInDegree = 0;
@@ -105,6 +108,18 @@ public class Experiment {
             instanceReport.putFloatValue(InstanceReport.StandardFields.avgInDegree, sumInDegree / (float)traversableLocations);
             instanceReport.putFloatValue(InstanceReport.StandardFields.avgOutDegree, sumOutDegree / (float)traversableLocations);
         }
+    }
+
+    private void putInstanceStats(InstanceReport instanceReport, MAPF_Instance instance) {
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
+        // get the freespace path cost for the agents
+        int sumOfFreespacePathCosts = 0;
+        for (Agent agent : instance.agents) {
+            sumOfFreespacePathCosts += NoStateTimeSearches.uniformCostSearch(instance.map.getMapLocation(agent.target),
+                    instance.map.getMapLocation(agent.source), new UnitCostsAndManhattanDistance(agent.target), agent)
+                    .size()-1;
+        }
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.sumFreespaceCosts, sumOfFreespacePathCosts);
     }
 
 
