@@ -13,6 +13,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,7 @@ public class PIBT_Solver extends A_Solver {
      * The cost function to evaluate solutions with.
      */
     private final I_SolutionCostFunction solutionCostFunction;
-    private ConstraintSet constraints;
+    private I_ConstraintSet constraints;
 
     /**
      * How far forward in time to consider conflicts. Further than this time conflicts will be ignored.
@@ -290,9 +291,9 @@ public class PIBT_Solver extends A_Solver {
      */
     private I_Location findBest(List<I_Location> candidates, Agent current) {
         I_Location bestCandidate = null;
-        Float minDistance = Float.MAX_VALUE;
+        float minDistance = Float.MAX_VALUE;
         for (I_Location location : candidates) {
-            Float distance = this.heuristic.getHToTargetFromLocation(current.target, location);
+            float distance = (float) this.heuristic.getHToTargetFromLocation(current.target, location);
             if (distance < minDistance) {
                 minDistance = distance;
                 bestCandidate = location;
@@ -438,7 +439,6 @@ public class PIBT_Solver extends A_Solver {
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
     }
 }

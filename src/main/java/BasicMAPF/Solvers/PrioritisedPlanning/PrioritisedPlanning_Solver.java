@@ -5,7 +5,8 @@ import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ImmutableConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
 import TransientMAPF.TransientMAPFBehaviour;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
@@ -65,7 +66,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     /*  = Fields related to the run =  */
 
-    private ConstraintSet constraints;
+    private I_ConstraintSet constraints;
 
     private Random random;
     private Set<Agent> failedAgents;
@@ -168,7 +169,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
 
-        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") +
+        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + " (" + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
@@ -277,7 +278,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param instance problem instance
      * @param initialConstraints constraints to solve under
      */
-    protected Solution solvePrioritisedPlanning(MAPF_Instance instance, ConstraintSet initialConstraints) {
+    protected Solution solvePrioritisedPlanning(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
         Solution bestSolution = null;
         Solution bestPartialSolution = new Solution();
         int bestPartialSolutionSingleAgentSuccesses = 0;
@@ -519,7 +520,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 : timeLeftToTimeout;
         allocatedTime = Math.min(Math.max(allocatedTime, MINIMUM_TIME_PER_AGENT_MS), timeLeftToTimeout);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(allocatedTime).
-                setConstraints(new ImmutableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH)
+                setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH)
                 .setExistingSolution(new Solution(solutionSoFar))  // should probably work without copying, but just to be safe
                 .createRP());
         params.fBudget = maxCost;
@@ -550,7 +551,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-            I_SolutionCostFunction.addCommonCostsToReport(solution, instanceReport);
         }
         if (!instanceReport.hasField(countInitialAttemptsMetricString)){
             this.instanceReport.putIntegerValue(countInitialAttemptsMetricString, 0);

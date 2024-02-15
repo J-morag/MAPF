@@ -15,16 +15,20 @@ public class MDDSearchNode implements Comparable<MDDSearchNode>{
     private final int t;
     private final List<MDDSearchNode> parents;
     private final int g;
-    private final float h;
+    private final int h;
     private final Agent agent;
+    // serial ID for tie-breaking consistency
+    private static int serialIDCounter = 0;
+    private final int serialID;
 
-    public MDDSearchNode(Agent agent, I_Location location, int g, float h, int t) {
+    public MDDSearchNode(Agent agent, I_Location location, int g, int h, int t) {
         this.agent = agent;
         this.location = location;
         this.g = g;
         this.t = t;
         parents = new LinkedList<>();
         this.h = h;
+        this.serialID = serialIDCounter++;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class MDDSearchNode implements Comparable<MDDSearchNode>{
         parents.add(parent);
     }
 
-    public float getF(){
+    public int getF(){
         return g + h;
     }
 
@@ -82,11 +86,11 @@ public class MDDSearchNode implements Comparable<MDDSearchNode>{
 
     @Override
     public int compareTo(MDDSearchNode node) {
-        int result = Float.compare(this.getF(), node.getF());
+        int result = Integer.compare(this.getF(), node.getF());
         if(result != 0) return result;
         result = Integer.compare(node.getG(), this.getG());
         if(result != 0) return result;
-        result = Integer.compare(System.identityHashCode(node), System.identityHashCode(this)); // todo unstable and non-determinitic, just for testing
+        result = Integer.compare(this.serialID, node.serialID);
         return result;
     }
 
