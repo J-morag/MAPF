@@ -432,7 +432,11 @@ public class ConstraintSet implements I_ConstraintSet {
      * @param singleAgentPlan a plan to get constraints for.
      * @return all constraints to protect the plan.
      */
-    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan) {
+    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan, int horizonTime) {
+        int firstMoveTime = singleAgentPlan.getFirstMoveTime();
+        if (horizonTime < firstMoveTime){
+            throw new IllegalArgumentException("horizon must include at least one move");
+        }
         List<Constraint> constraints = new LinkedList<>();
         boolean stayingAtSourceSinceStart = true;
         // protect the agent's plan
