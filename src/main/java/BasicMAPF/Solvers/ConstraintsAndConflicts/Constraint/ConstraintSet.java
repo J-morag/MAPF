@@ -1,6 +1,5 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
-import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.DataTypesAndStructures.Move;
@@ -63,11 +62,11 @@ public class ConstraintSet implements I_ConstraintSet {
         this.addAll(seedConstraints);
     }
 
-    public ConstraintSet(@NotNull ConstraintSet toCopy, int upToAndIncludingTime) {
-        this.sharedGoals = toCopy.sharedGoals;
-        this.sharedSources = toCopy.sharedSources;
+    public ConstraintSet(@NotNull I_ConstraintSet toCopy, int upToAndIncludingTime) {
+        this.sharedGoals = toCopy.isSharedGoals();
+        this.sharedSources = toCopy.isSharedSources();
         this.addAll(toCopy, upToAndIncludingTime);
-        this.lastConstraintTime = Math.min(upToAndIncludingTime, toCopy.lastConstraintTime);
+        this.lastConstraintTime = Math.min(upToAndIncludingTime, toCopy.getLastConstraintStartTime());
     }
 
 
@@ -162,17 +161,18 @@ public class ConstraintSet implements I_ConstraintSet {
         addAll(other, Integer.MAX_VALUE);
     }
 
-    private void addAll(ConstraintSet other, int upToTime) {
-        for (I_ConstraintGroupingKey cw : other.constraints.keySet()) {
-            for (Constraint cons : other.constraints.get(cw)) {
+    private void addAll(@NotNull I_ConstraintSet other, int upToTime) {
+        for (Map.Entry<I_ConstraintGroupingKey, Set<Constraint>> entry : other.getEntrySet()) {
+            for (Constraint cons : entry.getValue()) {
                 if (cons.time <= upToTime) {
                     this.add(cons);
                 }
             }
         }
-        for (I_Location loc : other.goalConstraints.keySet()){
-            if (other.goalConstraints.get(loc).time <= upToTime){
-                this.add(other.goalConstraints.get(loc));
+        Map<I_Location, GoalConstraint> otherGoalConstraints = other.getGoalConstraints();
+        for (I_Location loc : otherGoalConstraints.keySet()){
+            if (otherGoalConstraints.get(loc).time <= upToTime){
+                this.add(otherGoalConstraints.get(loc));
             }
         }
     }
