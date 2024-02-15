@@ -35,7 +35,8 @@ public abstract class A_Solver implements I_Solver{
     protected int totalLowLevelTimeMS;
     protected int totalLowLevelCalls;
     public String name;
-    private final Timeout timeout = new Timeout(0);
+    private final Timeout timeout = new Timeout(0); // todo initialize this properly and replace other fields
+    protected int runtimeToFirstSolution;
 
     /**
      * This implementation provides a skeleton for running a solver. You can override any of the invoked methods, but if
@@ -73,6 +74,7 @@ public abstract class A_Solver implements I_Solver{
         this.timeout.timeoutTimestampMS = Timeout.getTimeoutTimestampMS(this.startTime, this.maximumRuntime);
         this.endTime = 0;
         this.abortedForTimeout = false;
+        this.runtimeToFirstSolution = -1;
 
         this.totalLowLevelNodesGenerated = 0;
         this.totalLowLevelNodesExpanded = 0;
@@ -115,6 +117,8 @@ public abstract class A_Solver implements I_Solver{
 
         //todo bring expanded and generated nodes up here, add rates
         if(solution != null){
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.runtimeToFirstSolution,
+                    runtimeToFirstSolution >= 0 ? runtimeToFirstSolution : (int)(endTime-startTime));
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 1);
             if (instanceReport.keepSolutionString)
                 instanceReport.putStringValue(InstanceReport.StandardFields.solution, solution.toString());
