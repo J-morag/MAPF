@@ -220,7 +220,10 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     }
 
     private Solution getInitialSolution(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
-        return solveSubproblem(new Solution(), new HashSet<>(this.agents), instance, initialConstraints, true);
+        Solution solution = solveSubproblem(new Solution(), new HashSet<>(this.agents), instance, initialConstraints, true);
+        if (solution != null)
+            super.runtimeToFirstSolution = (int) (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime);
+        return solution;
     }
 
     /**

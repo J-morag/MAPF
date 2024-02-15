@@ -32,4 +32,8 @@ public class Timeout {
     public static long getCurrentTimeMS_NSAccuracy() {
         return TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
     }
+
+    public static long elapsedMSSince_NSAccuracy(long since) {
+        return getCurrentTimeMS_NSAccuracy() - since;
+    }
 }
