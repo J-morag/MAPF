@@ -151,6 +151,7 @@ public class LaCAM_Solver extends A_Solver {
                 continue;
             }
 
+            // low-level search successors
             LowLevelNode C = N.tree.poll();
             if (C.depth < instance.agents.size()) {
                 Agent chosenAgent = N.order.get(C.depth);
@@ -403,7 +404,7 @@ public class LaCAM_Solver extends A_Solver {
         for (Map.Entry<Agent, I_Location> entry : configuration.entrySet()) {
             Agent agent = entry.getKey();
             I_Location agentLocation = entry.getValue();
-            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, this.instance.map.getMapLocation(agent.source));
+            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, this.instance.map.getMapLocation(agentLocation.getCoordinate()));
             agentsDistances.put(agent, distance);
         }
         sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent1), agentsDistances.get(agent2)));
