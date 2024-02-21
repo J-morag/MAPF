@@ -798,7 +798,7 @@ class PrioritisedPlanningSolverTest {
         String nameBaseline = "No Restarts";
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 1000, RestartsStrategy.RestartsKind.AStarRestarts), null, null, null);
+                null, new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 10, RestartsStrategy.RestartsKind.AStarRestarts), null, null, null);
         String nameExperimental = "AStar Restarts";
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -934,11 +934,11 @@ class PrioritisedPlanningSolverTest {
         boolean experimentalCostShouldNeverBeWorse = false;
 
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1000, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
+                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 5, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
         String nameBaseline = "Random Restarts";
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 1000, RestartsStrategy.RestartsKind.AStarRestarts), null, null, null);
+                null, new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 5, RestartsStrategy.RestartsKind.AStarRestarts), null, null, null);
         String nameExperimental = "AStar Restarts";
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,

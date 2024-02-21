@@ -158,7 +158,7 @@ public class PriorityConstrainedSearch extends A_Solver {
             else if (isGoal(node))
                 return node;
             else
-            expandNode(node);
+                expandNode(node);
         }
         return null;
     }

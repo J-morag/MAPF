@@ -27,6 +27,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
+        // todo expose an interface to do this conversion outside the class, such that it can be done once and reused for all agents
         safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints);
 
         if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
