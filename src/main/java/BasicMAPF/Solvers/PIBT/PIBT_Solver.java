@@ -148,14 +148,14 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 if (DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
-                return createSolution();
+                return partialOrNoSolution();
             }
             else {
                 this.configurations.add(currentConfiguration);
             }
 
             if (checkTimeout()) {
-                return createSolution();
+                return partialOrNoSolution();
             }
             this.timeStamp++;
 
@@ -174,13 +174,13 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
                 if (this.agentCantMoveOrStay) {
-                    return createSolution();
+                    return partialOrNoSolution();
                 }
             }
             updatePriorities(instance);
         }
 
-        return makeSolution();
+        return finalSolution();
     }
 
     /**
@@ -190,7 +190,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return Solution - partial solution
      */
     @Nullable
-    private Solution createSolution() {
+    private Solution partialOrNoSolution() {
         if (this.returnPartialSolutions) {
             Solution solution = new TransientMAPFSolution();
             int numberOfNotMovingAgents = 0;
@@ -454,7 +454,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return solution.
      */
     @NotNull
-    private Solution makeSolution() {
+    private Solution finalSolution() {
         this.timeStamp++;
         Solution solution = new TransientMAPFSolution();
 
