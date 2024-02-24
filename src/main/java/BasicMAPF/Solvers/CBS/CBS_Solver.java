@@ -128,6 +128,7 @@ public class CBS_Solver extends A_Solver {
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
+
         super.name = "CBS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "");
     }
 
