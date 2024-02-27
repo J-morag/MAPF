@@ -188,14 +188,8 @@ public class CBS_Solver extends A_Solver {
      * Creates a root node.
      */
     private CBS_Node generateRoot(I_ConstraintSet initialConstraints) {
-        Solution solution; // init an empty solution
-        if (transientMAPFBehaviour.isTransientMAPF()) {
-            solution = new TransientMAPFSolution();
-        }
-        else {
-            solution = new Solution();
-        }
-
+        // init an empty solution
+        Solution solution = transientMAPFBehaviour.isTransientMAPF() ? new TransientMAPFSolution() : new Solution(); 
         // for every agent, add its plan to the solution
         for (Agent agent :
                 this.instance.agents) {
