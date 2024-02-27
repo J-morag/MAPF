@@ -292,15 +292,7 @@ public class CBS_Solver extends A_Solver {
 
         // replace with copies if required
         if(copyDatastructures) {
-//            solution = new Solution(solution);
-
-            if (transientMAPFBehaviour.isTransientMAPF()) {
-                solution = new TransientMAPFSolution(solution);
-            }
-            else {
-                solution = new Solution(solution);
-            }
-
+            solution =  transientMAPFBehaviour.isTransientMAPF() ? new TransientMAPFSolution(solution) : new Solution(solution);
         }
 
         // modify for this node
