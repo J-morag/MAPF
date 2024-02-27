@@ -74,7 +74,8 @@ public class LaCAM_Solver extends A_Solver {
 
     public HighLevelNode N_Goal;
 
-    private ArrayList<Agent> unhandledAgentsInCurrentConfig;
+    private HashMap<Agent, I_Location> occupiedNowConfig;
+    private HashMap<Agent, I_Location> occupiedNextConfig;
 
 
     /**
@@ -103,7 +104,8 @@ public class LaCAM_Solver extends A_Solver {
         this.totalTimeFindConfigurations = 0;
         this.N_Goal = null;
         this.instance = instance;
-        this.unhandledAgentsInCurrentConfig = new ArrayList<>(instance.agents);
+        this.occupiedNowConfig = new HashMap<>();
+        this.occupiedNextConfig = new HashMap<>();
 
         // init agent's priority to unique number
         initPriority(this.instance);
@@ -126,15 +128,17 @@ public class LaCAM_Solver extends A_Solver {
         }
         LowLevelNode C_init = new LowLevelNode(null, null, null);
         this.lowLevelNodesCounter++;
-        HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, get_init_order(instance.agents), null, null, 0, calc_h(initialConfiguration));
+        HashMap<Agent, Float> priorities = initPriorities(initialConfiguration);
+        ArrayList<Agent> order = sortByPriority(priorities);
+        HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, order, priorities,null, null, 0, calc_h(initialConfiguration));
         this.highLevelNodesCounter++;
         this.open.push(N_init);
         this.explored.put(initialConfiguration, N_init);
 
         while (!this.open.empty()) {
-            if (checkTimeout()) {
-                return null;
-            }
+//            if (checkTimeout()) {
+//                return null;
+//            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
@@ -165,21 +169,22 @@ public class LaCAM_Solver extends A_Solver {
                 // shuffle the order of the location so that the inserting will be randomized
                 Collections.shuffle(locations);
 
-                LowLevelNode tmpC = C;
-                while (tmpC.who != null) {
-                    // found an agent that want to move to chosenAgent's current location
-                    // remove from locations the location that this agent was
-                    // so, only the first in order agent (higher in tree) could make the move
-                    // avoid swap conflict
-                    if (tmpC.where.getCoordinate() == chosenLocation.getCoordinate()) {
-                        locations.remove(N.configuration.get(tmpC.who));
-                    }
 
-                    // current agent can't go to a location chooses by previous agent in the low level tree
-                    // avoid vertex conflict
-                    locations.remove(tmpC.where);
-                    tmpC = tmpC.parent;
-                }
+//                LowLevelNode tmpC = C;
+//                while (tmpC.who != null) {
+//                    // found an agent that want to move to chosenAgent's current location
+//                    // remove from locations the location that this agent was
+//                    // so, only the first in order agent (higher in tree) could make the move
+//                    // avoid swap conflict
+//                    if (tmpC.where.getCoordinate() == chosenLocation.getCoordinate()) {
+//                        locations.remove(N.configuration.get(tmpC.who));
+//                    }
+//
+//                    // current agent can't go to a location chooses by previous agent in the low level tree
+//                    // avoid vertex conflict
+//                    locations.remove(tmpC.where);
+//                    tmpC = tmpC.parent;
+//                }
 
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
@@ -230,7 +235,9 @@ public class LaCAM_Solver extends A_Solver {
             }
 
             else {
-                HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, getOrder(newConfiguration, N), N, N.reachedGoalsMap, N.g + getCost(N.configuration, newConfiguration), calc_h(newConfiguration));
+                HashMap<Agent, Float> newPriorities = updatePriorities(N);
+                ArrayList<Agent> newOrder = sortByPriority(newPriorities);
+                HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, newOrder, newPriorities, N, N.reachedGoalsMap, N.g + getCost(N.configuration, newConfiguration), calc_h(newConfiguration));
                 N.neighbors.add(N_new);
                 this.highLevelNodesCounter++;
 
@@ -292,82 +299,6 @@ public class LaCAM_Solver extends A_Solver {
             }
         }
         return true;
-    }
-
-
-    /**
-     * main function of LaCAM algorithm.
-     * @param N - current high level node.
-     * @param C - current low level node.
-     * generates new configuration from current configuration according to N, following constraints defined in C.
-     * @return new configuration.
-     */
-    private HashMap<Integer, I_Location> getNewConfig(HighLevelNode N, LowLevelNode C) {
-        HashMap<Integer, I_Location> newConfiguration = new HashMap<>();
-        ConstraintSet constraints = new ConstraintSet(this.solverConstraints);
-        int numberOfConstraints = C.depth;
-        ArrayList<Integer> agentsWithConstraint = new ArrayList<>();
-        RunParameters subProblemParameters;
-
-        // depth is zero hence target low level node is the root
-        // no constraints needed
-        if (C.depth == 0) {
-            subProblemParameters = new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(this.heuristic).createRP();
-        }
-
-        // bottom of low level tree - each agent have a constraint
-        // exactly one configuration is possible, no need pibt
-        else if (C.depth == this.instance.agents.size()) {
-            while (C.parent != null) {
-                newConfiguration.put(C.who.iD, C.where);
-                C = C.parent;
-            }
-            return newConfiguration;
-        }
-
-        // create constraint according to the low-level node
-        else {
-            while (C.parent != null) {
-                Constraint swapConstraint = new Constraint(1, C.where, N.configuration.get(C.who.iD));
-                constraints.add(swapConstraint);
-                Constraint locationConstraint = new Constraint(1, C.where);
-                constraints.add(locationConstraint);
-                agentsWithConstraint.add(C.who.iD);
-                newConfiguration.put(C.who.iD, C.where);
-                C = C.parent;
-            }
-            subProblemParameters = new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(this.heuristic).createRP();
-        }
-
-        // agent with no constraints
-        Agent[] agentsSubset = new Agent[instance.agents.size() - numberOfConstraints];
-        Object[] AllAgents = N.configuration.keySet().toArray();
-        int index = 0;
-        for (Object allAgent : AllAgents) {
-            Integer agentID = (Integer) allAgent;
-            if (agentsWithConstraint.contains(agentID)) {
-                continue;
-            }
-            Agent newAgent = new Agent(agentID, N.configuration.get(agentID).getCoordinate(), this.agents.get(agentID).target);
-            agentsSubset[index] = newAgent;
-            index++;
-        }
-
-        MAPF_Instance subInstance = new MAPF_Instance("subInstance", instance.map, agentsSubset);
-        Solution subInstanceSolution = this.subInstanceSolver.solve(subInstance, subProblemParameters);
-
-        if (subInstanceSolution != null) {
-            for (Agent agent : agentsSubset) {
-                // cant find step for an agent - not valid configuration
-                if (subInstanceSolution.getPlanFor(agent).size() == 0) {
-                    return null;
-                }
-                I_Location location = subInstanceSolution.getAgentLocation(agent, 1);
-                newConfiguration.put(agent.iD, location);
-            }
-            return newConfiguration;
-        }
-        return null;
     }
 
 
@@ -481,57 +412,130 @@ public class LaCAM_Solver extends A_Solver {
         }
     }
 
+    /**
+     * init priority of each agent for a new High-Level node without a parent.
+     * initialized priorities based on distance heuristic.
+     * @return priorities, hashmap stores for each agent his priority.
+     */
+    private HashMap<Agent, Float> initPriorities(HashMap <Agent, I_Location> currentConfiguration) {
+        HashMap<Agent, Float> priorities = new HashMap<>();
+        int numberOfAgents = currentConfiguration.keySet().size();
+        for (Map.Entry<Agent, I_Location> entry : currentConfiguration.entrySet()) {
+            Agent agent = entry.getKey();
+            I_Location location = entry.getValue();
+            Float priority = this.heuristic.getHToTargetFromLocation(agent.target, location) / numberOfAgents;
+            priorities.put(agent, priority);
+        }
+        return priorities;
+    }
+
+    /**
+     * priority of each agent based on parent in High-Level node.
+     * @return priorities, hashmap stores for each agent his priority.
+     */
+    private HashMap<Agent, Float> updatePriorities(HighLevelNode parentNode) {
+        HashMap<Agent, Float> priorities = new HashMap<>();
+        HashMap<Agent, I_Location> configuration = parentNode.configuration;
+        for (Map.Entry<Agent, Float> entry : parentNode.priorities.entrySet()) {
+            Agent agent = entry.getKey();
+            Float currentPriority = entry.getValue();
+            if (this.heuristic.getHToTargetFromLocation(agent.target, configuration.get(agent)) != 0) {
+                priorities.put(agent, currentPriority + 1);
+            }
+            else {
+                priorities.put(agent, currentPriority - currentPriority.intValue());
+//                priorities.put(agent, (float) 0);
+            }
+        }
+        return priorities;
+    }
+
+    public static ArrayList<Agent> sortByPriority(HashMap<Agent, Float> priorities) {
+        List<Map.Entry<Agent, Float>> entryList = new ArrayList<>(priorities.entrySet());
+        entryList.sort(Map.Entry.comparingByValue());
+        ArrayList<Agent> sortedAgents = new ArrayList<>();
+//        for (Map.Entry<Agent, Float> entry : entryList) {
+//            sortedAgents.add(entry.getKey());
+//        }
+        for (int i = entryList.size() - 1; i >= 0; i--) {
+            sortedAgents.add(entryList.get(i).getKey());
+        }
+        return sortedAgents;
+    }
+
     private HashMap<Agent, I_Location> getNewRandomConfig(HighLevelNode N, LowLevelNode C) {
-        this.unhandledAgentsInCurrentConfig = new ArrayList<>(instance.agents);
-        HashMap<Agent, I_Location> newConfiguration = new HashMap<>();
+        this.occupiedNowConfig = new HashMap<>();
+        this.occupiedNextConfig = new HashMap<>();
+
+        // set occupied now
+        for (Map.Entry<Agent, I_Location> entry : N.configuration.entrySet()) {
+            Agent agent = entry.getKey();
+            I_Location agentLocation = entry.getValue();
+            this.occupiedNowConfig.put(agent, agentLocation);
+        }
+
+//        HashMap<Agent, I_Location> newConfiguration = new HashMap<>();
         ConstraintSet constraints = new ConstraintSet(this.solverConstraints);
 
         // bottom of low level tree - each agent have a constraint
         // exactly one configuration is possible
         if (C.depth == this.instance.agents.size()) {
-            while (C.parent != null) {
-                newConfiguration.put(C.who, C.where);
-                C = C.parent;
-            }
-            return newConfiguration;
+//            while (C.parent != null) {
+//                this.occupiedNowConfig.put(C.who, C.where);
+//                C = C.parent;
+//            }
+            return this.occupiedNowConfig;
         }
 
         // create constraints according to the low-level node
         else {
             while (C.parent != null) {
+
+                // vertex conflict
+                if (this.occupiedNextConfig.containsValue(C.where)) {
+                    return null; // vertex conflict detected!
+                }
+
+                // swap conflict
+                I_Location currentLocation = occupiedNowConfig.get(C.who);
+                I_Location nextLocation = C.where;
+                for (Map.Entry<Agent, I_Location> entry : occupiedNowConfig.entrySet()) {
+                    Agent otherAgent = entry.getKey();
+                    I_Location otherAgentLocation = entry.getValue();
+                    if (nextLocation.equals(otherAgentLocation) && !otherAgent.equals(C.who)
+                            && this.occupiedNowConfig.get(otherAgent) != null
+                            && !this.occupiedNowConfig.get(otherAgent).equals(currentLocation)) {
+                        return null; // Swap conflict detected!
+                    }
+                }
+//                this.occupiedNext.put(C.who, C.where);
                 Constraint swapConstraint = new Constraint(1, C.where, N.configuration.get(C.who));
                 constraints.add(swapConstraint);
                 Constraint locationConstraint = new Constraint(1, C.where);
                 constraints.add(locationConstraint);
-                newConfiguration.put(C.who, C.where);
-                this.unhandledAgentsInCurrentConfig.remove(C.who);
+                this.occupiedNextConfig.put(C.who, C.where);
                 C = C.parent;
             }
         }
 
         for (Agent agent : N.order) {
-            if (newConfiguration.containsKey(agent)) continue; // move already chose for agent
-            if (!solvePIBT(agent, null, newConfiguration,N.configuration ,constraints)) {
+            if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chose for agent
+            if (this.occupiedNextConfig.get(agent) == null && !solvePIBT(agent, null ,constraints)) {
                 return null;
             }
         }
-        return newConfiguration;
+        return this.occupiedNextConfig;
     }
 
-    private boolean solvePIBT(Agent currentAgent, Agent higherPriorityAgent, HashMap<Agent, I_Location> newConfiguration, HashMap<Agent, I_Location> currentConfiguration, ConstraintSet constraints) {
-
-//        System.out.println(currentAgent);
-//        System.out.println(higherPriorityAgent);
-        if (!unhandledAgentsInCurrentConfig.contains(currentAgent)) {
-            return false;
-        }
-        this.unhandledAgentsInCurrentConfig.remove(currentAgent);
-        I_Location currentLocation = currentConfiguration.get(currentAgent);
+    private boolean solvePIBT(Agent currentAgent, Agent higherPriorityAgent,  ConstraintSet constraints) {
+        I_Location currentLocation = this.occupiedNowConfig.get(currentAgent);
         List<I_Location> candidates = new ArrayList<>(findAllNeighbors(currentLocation));
 
-        // avoid swap with higher priority agent
         if (higherPriorityAgent != null) {
-            candidates.remove(currentConfiguration.get(higherPriorityAgent));
+            // avoid swap with higher priority agent
+            candidates.remove(this.occupiedNowConfig.get(higherPriorityAgent));
+            // avoid vertex with higher priority agent
+            candidates.remove(this.occupiedNextConfig.get(higherPriorityAgent));
         }
         else {
             candidates.add(currentLocation);
@@ -544,33 +548,16 @@ public class LaCAM_Solver extends A_Solver {
 
         for (I_Location nextLocation : candidates) {
 
-            // vertex conflict
-            // location already taken by a higher priority agent || low level constraints
-            if (newConfiguration.containsValue(nextLocation)) continue;
-
-            // swap conflict
-            if (swapConflict(currentAgent, nextLocation, currentConfiguration, newConfiguration)) continue;
-
-            // check constraints
-            Move newMove = new Move(currentAgent, 1, currentLocation, nextLocation);
-            if (!constraints.accepts(newMove)) continue;
-
+            // find current agent occupying nextLocation
             Agent occupyingAgent = null;
-            // valid move!
-            if (!currentConfiguration.containsValue(nextLocation)) {
-                newConfiguration.put(currentAgent, nextLocation);
-                return true;
-            }
-            // location not in newConfiguration but he is in currentConfiguration
-            // need to perform pibt in order to move the agent to another location
-            else {
-                for (Map.Entry<Agent, I_Location> entry : currentConfiguration.entrySet()) {
+            if (this.occupiedNowConfig.containsValue(nextLocation)) {
+                for (Map.Entry<Agent, I_Location> entry : this.occupiedNowConfig.entrySet()) {
                     Agent otherAgent = entry.getKey();
                     I_Location otherAgentLocation = entry.getValue();
                     if (nextLocation.equals(otherAgentLocation)) {
                         // same agent, needs to stay in current location
                         if (otherAgent.equals(currentAgent)) {
-                            newConfiguration.put(currentAgent, nextLocation);
+                            this.occupiedNextConfig.put(currentAgent, nextLocation);
                             return true;
                         }
                         occupyingAgent = otherAgent;
@@ -579,48 +566,61 @@ public class LaCAM_Solver extends A_Solver {
                 }
             }
 
-            if (newConfiguration.containsKey(occupyingAgent)) {
-                return false;
-            }
+            // vertex conflict
+            if (this.occupiedNextConfig.containsValue(nextLocation)) continue;
+
+            // swap
+            if (occupyingAgent != null && this.occupiedNowConfig.get(occupyingAgent).equals(currentLocation)) continue;
+
+            // check constraints
+            Move newMove = new Move(currentAgent, 1, currentLocation, nextLocation);
+            if (!constraints.accepts(newMove)) continue;
+
+            // reserve next location
+            this.occupiedNextConfig.put(currentAgent, nextLocation);
+
+            // empty or stay
+            if (occupyingAgent == null || nextLocation.equals(currentLocation)) return true;
 
             // priority inheritance
-            if (occupyingAgent == null || solvePIBT(occupyingAgent, currentAgent, newConfiguration, currentConfiguration, constraints)) {
-                newConfiguration.put(currentAgent, nextLocation);
-                return true;
+            if (!this.occupiedNextConfig.containsKey(occupyingAgent) && !solvePIBT(occupyingAgent, currentAgent, constraints)) {
+                this.occupiedNextConfig.remove(currentAgent);
+                continue;
             }
-//            newConfiguration.put(agent.iD, nextLocation);
-//            return true;
+
+            // success to plan next one step
+            return true;
         }
         return false;
     }
 
-    private boolean swapConflict(Agent currentAgent, I_Location newLocation,Map<Agent, I_Location> currentConfiguration, Map<Agent, I_Location> newConfiguration) {
-        // swap conflict
-        I_Coordinate newCoordinate = newLocation.getCoordinate();
-        for (Map.Entry<Agent, I_Location> entry : newConfiguration.entrySet()) {
-            Agent otherAgent = entry.getKey();
-            I_Location otherAgentLocation = entry.getValue();
-            if (newCoordinate == currentConfiguration.get(otherAgent).getCoordinate() &&
-                    otherAgentLocation == currentConfiguration.get(currentAgent)) {
-                // swap conflict
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean swapConflict(Agent currentAgent, I_Location newLocation,Map<Agent, I_Location> currentConfiguration, Map<Agent, I_Location> newConfiguration) {
+//        // swap conflict
+//        I_Coordinate newCoordinate = newLocation.getCoordinate();
+//        for (Map.Entry<Agent, I_Location> entry : newConfiguration.entrySet()) {
+//            Agent otherAgent = entry.getKey();
+//            I_Location otherAgentLocation = entry.getValue();
+//            if (newCoordinate == currentConfiguration.get(otherAgent).getCoordinate() &&
+//                    otherAgentLocation == currentConfiguration.get(currentAgent)) {
+//                // swap conflict
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-    private I_Location findBest(List<I_Location> candidates, Agent current) {
-        I_Location bestCandidate = null;
-        Float minDistance = Float.MAX_VALUE;
-        for (I_Location location : candidates) {
-            Float distance = this.heuristic.getHToTargetFromLocation(current.target, location);
-            if (distance < minDistance) {
-                minDistance = distance;
-                bestCandidate = location;
-            }
-        }
-        return bestCandidate;
-    }
+//    private I_Location findBest(List<I_Location> candidates, Agent current) {
+//        I_Location bestCandidate = null;
+//        Float minDistance = Float.MAX_VALUE;
+//        for (I_Location location : candidates) {
+//            Float distance = this.heuristic.getHToTargetFromLocation(current.target, location);
+//            if (distance < minDistance) {
+//                minDistance = distance;
+//                bestCandidate = location;
+//            }
+//        }
+//        return bestCandidate;
+//    }
 
     /**
      * helper function to find all neighbors of single agent

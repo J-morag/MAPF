@@ -10,6 +10,7 @@ public class HighLevelNode {
     public Queue<LowLevelNode> tree;
 
     public ArrayList<Agent> order;
+    public HashMap<Agent, Float> priorities;
     public HighLevelNode parent;
     public HashMap<Agent, Boolean> reachedGoalsMap;
 
@@ -19,11 +20,12 @@ public class HighLevelNode {
     public float h;
     public float f;
 
-    public HighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HighLevelNode parent, HashMap<Agent, Boolean> reachedGoalsMap, float g, float h) {
+    public HighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent, HashMap<Agent, Boolean> reachedGoalsMap, float g, float h) {
         this.configuration = configuration;
         this.tree = new LinkedList<>();
         this.tree.add(root);
         this.order = order;
+        this.priorities = priorities;
         this.parent = parent;
         if (reachedGoalsMap == null) {
             this.reachedGoalsMap = new HashMap<>();
@@ -39,6 +41,5 @@ public class HighLevelNode {
         this.g = g;
         this.h = h;
         this.f = this.g + this.h;
-
     }
 }
