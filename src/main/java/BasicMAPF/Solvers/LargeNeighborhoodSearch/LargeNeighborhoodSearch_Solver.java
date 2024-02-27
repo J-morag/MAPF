@@ -99,7 +99,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      *                              If null, use {@link PrioritisedPlanning_Solver} with no restarts.
      *
      */
-    public LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
+    LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                    Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
                                    I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFBehaviour transientMAPFBehaviour) {
 
