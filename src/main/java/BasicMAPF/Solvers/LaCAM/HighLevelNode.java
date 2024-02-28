@@ -20,21 +20,21 @@ public class HighLevelNode {
     public float h;
     public float f;
 
-    public HighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent, HashMap<Agent, Boolean> reachedGoalsMap, float g, float h) {
+    public HighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent, float g, float h) {
         this.configuration = configuration;
         this.tree = new LinkedList<>();
         this.tree.add(root);
         this.order = order;
         this.priorities = priorities;
         this.parent = parent;
-        if (reachedGoalsMap == null) {
+        if (parent == null) {
             this.reachedGoalsMap = new HashMap<>();
             for (Agent agent : this.configuration.keySet()) {
                 this.reachedGoalsMap.put(agent, false);
             }
         }
         else {
-            this.reachedGoalsMap = reachedGoalsMap;
+            this.reachedGoalsMap = parent.reachedGoalsMap;
         }
 
         this.neighbors = new HashSet<>();

@@ -247,7 +247,7 @@ public class LaCAM_SolverTest {
     }
 
 
-//    @Test
+    @Test
     void TestingBenchmark(){
         S_Metrics.clearAll();
         boolean useAsserts = true;
@@ -366,7 +366,7 @@ public class LaCAM_SolverTest {
         }
     }
 
-//    @Test
+    @Test
     void compareBetweenPIBTAndLaCAMTest(){
         S_Metrics.clearAll();
         boolean useAsserts = true;

@@ -35,10 +35,10 @@ public class LaCAM_Solver extends A_Solver {
      */
     private DistanceTableSingleAgentHeuristic heuristic;
 
-    /**
-     * Map saving priority of each agent
-     */
-    private HashMap<Agent, Double> priorities;
+//    /**
+//     * Map saving priority of each agent
+//     */
+//    private HashMap<Agent, Double> priorities;
 
     /**
      * Map saving for each agent his goal location, representing the goal configuration.
@@ -94,7 +94,7 @@ public class LaCAM_Solver extends A_Solver {
         this.solverConstraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.open = new Stack<>();
         this.explored = new HashMap<>();
-        this.priorities = new HashMap<>();
+//        this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
         this.agents = new HashMap<>();
         this.subInstanceSolver = new PIBT_ForLaCAM(null, null, true, 1);
@@ -108,7 +108,7 @@ public class LaCAM_Solver extends A_Solver {
         this.occupiedNextConfig = new HashMap<>();
 
         // init agent's priority to unique number
-        initPriority(this.instance);
+//        initPriority(this.instance);
 
         // distance between every vertex in the graph to each agent's goal
         if (parameters.singleAgentGAndH instanceof DistanceTableSingleAgentHeuristic) {
@@ -130,15 +130,15 @@ public class LaCAM_Solver extends A_Solver {
         this.lowLevelNodesCounter++;
         HashMap<Agent, Float> priorities = initPriorities(initialConfiguration);
         ArrayList<Agent> order = sortByPriority(priorities);
-        HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, order, priorities,null, null, 0, calc_h(initialConfiguration));
+        HighLevelNode N_init = new HighLevelNode(initialConfiguration, C_init, order, priorities, null, 0, calc_h(initialConfiguration));
         this.highLevelNodesCounter++;
         this.open.push(N_init);
         this.explored.put(initialConfiguration, N_init);
 
         while (!this.open.empty()) {
-//            if (checkTimeout()) {
-//                return null;
-//            }
+            if (checkTimeout()) {
+                return null;
+            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
@@ -170,21 +170,21 @@ public class LaCAM_Solver extends A_Solver {
                 Collections.shuffle(locations);
 
 
-//                LowLevelNode tmpC = C;
-//                while (tmpC.who != null) {
-//                    // found an agent that want to move to chosenAgent's current location
-//                    // remove from locations the location that this agent was
-//                    // so, only the first in order agent (higher in tree) could make the move
-//                    // avoid swap conflict
-//                    if (tmpC.where.getCoordinate() == chosenLocation.getCoordinate()) {
-//                        locations.remove(N.configuration.get(tmpC.who));
-//                    }
-//
-//                    // current agent can't go to a location chooses by previous agent in the low level tree
-//                    // avoid vertex conflict
-//                    locations.remove(tmpC.where);
-//                    tmpC = tmpC.parent;
-//                }
+                LowLevelNode tmpC = C;
+                while (tmpC.who != null) {
+                    // found an agent that want to move to chosenAgent's current location
+                    // remove from locations the location that this agent was
+                    // so, only the first in order agent (higher in tree) could make the move
+                    // avoid swap conflict
+                    if (tmpC.where.getCoordinate() == chosenLocation.getCoordinate()) {
+                        locations.remove(N.configuration.get(tmpC.who));
+                    }
+
+                    // current agent can't go to a location chooses by previous agent in the low level tree
+                    // avoid vertex conflict
+                    locations.remove(tmpC.where);
+                    tmpC = tmpC.parent;
+                }
 
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
@@ -205,10 +205,11 @@ public class LaCAM_Solver extends A_Solver {
                 continue;
             }
 
-            if (this.explored.get(newConfiguration) != null) {
-
+            HighLevelNode reInsertionNode = this.explored.get(newConfiguration);
+            if (reInsertionNode != null) {
                 // re-insertion of already seen configuration
-                this.open.push(this.explored.get(newConfiguration));
+                // by reference
+                this.open.push(reInsertionNode);
 
 //                HighLevelNode existingNode = this.explored.get(newConfiguration);
 //                N.neighbors.add(existingNode);
@@ -237,8 +238,8 @@ public class LaCAM_Solver extends A_Solver {
             else {
                 HashMap<Agent, Float> newPriorities = updatePriorities(N);
                 ArrayList<Agent> newOrder = sortByPriority(newPriorities);
-                HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, newOrder, newPriorities, N, N.reachedGoalsMap, N.g + getCost(N.configuration, newConfiguration), calc_h(newConfiguration));
-                N.neighbors.add(N_new);
+                HighLevelNode N_new = new HighLevelNode(newConfiguration, C_init, newOrder, newPriorities, N, N.g + getCost(N.configuration, newConfiguration), calc_h(newConfiguration));
+//                N.neighbors.add(N_new);
                 this.highLevelNodesCounter++;
 
                 // update reachedGoalMap according to new configuration
@@ -396,21 +397,21 @@ public class LaCAM_Solver extends A_Solver {
         return solution;
     }
 
-    /**
-     * init priority of each agent in the beginning of the algorithm.
-     * each agent have a unique double representing his priority.
-     * update this.priorities.
-     */
-    private void initPriority(MAPF_Instance instance) {
-        int numberOfAgents = instance.agents.size();
-        double uniqueFactor = 1.0 / numberOfAgents;
-        int i = 1;
-        for (Agent agent : instance.agents) {
-            // (uniqueFactor * i) is a unique representation for the priority of each agent
-            this.priorities.put(agent, uniqueFactor * i);
-            i++;
-        }
-    }
+//    /**
+//     * init priority of each agent in the beginning of the algorithm.
+//     * each agent have a unique double representing his priority.
+//     * update this.priorities.
+//     */
+//    private void initPriority(MAPF_Instance instance) {
+//        int numberOfAgents = instance.agents.size();
+//        double uniqueFactor = 1.0 / numberOfAgents;
+//        int i = 1;
+//        for (Agent agent : instance.agents) {
+//            // (uniqueFactor * i) is a unique representation for the priority of each agent
+//            this.priorities.put(agent, uniqueFactor * i);
+//            i++;
+//        }
+//    }
 
     /**
      * init priority of each agent for a new High-Level node without a parent.
@@ -480,11 +481,11 @@ public class LaCAM_Solver extends A_Solver {
         // bottom of low level tree - each agent have a constraint
         // exactly one configuration is possible
         if (C.depth == this.instance.agents.size()) {
-//            while (C.parent != null) {
-//                this.occupiedNowConfig.put(C.who, C.where);
-//                C = C.parent;
-//            }
-            return this.occupiedNowConfig;
+            while (C.parent != null) {
+                this.occupiedNextConfig.put(C.who, C.where);
+                C = C.parent;
+            }
+            return this.occupiedNextConfig;
         }
 
         // create constraints according to the low-level node
@@ -637,7 +638,7 @@ public class LaCAM_Solver extends A_Solver {
         this.open = null;
         this.explored = null;
         this.heuristic = null;
-        this.priorities = null;
+//        this.priorities = null;
         this.goalConfiguration = null;
         this.agents = null;
         this.subInstanceSolver = null;
