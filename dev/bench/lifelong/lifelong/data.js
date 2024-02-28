@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1709082683366,
+  "lastUpdate": 1709082685506,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -1602,6 +1602,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Runtime Low Level  (Reciprocal)",
             "value": 0.000004953626,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1fa530c34cc4897ee2b753e98d462c01f4875f91",
+          "message": "Lifelong pibt (#80)\n\n* first commit\r\n\r\n* adapt PIBT to lifeling\r\n\r\n* add solvers\r\n\r\n* fix PIBT RHCR bug\r\n\r\n* PIBT should always select all agents\r\n\r\n* lifelong bug fixed\r\n\r\n* lifelong bug fixed\r\n\r\n* PIBT improvements and lifelong additions\r\n\r\n* pibt experiments\r\n\r\n* lifelong experiments\r\n\r\n* lifelong experiments\r\n\r\n* partial solution in PIBT\r\n\r\n* bux fix: error when plan is not valid with partial solution of pibt\r\n\r\n* add experiments agent selector in pibt\r\n\r\n* add experiments agent selector in pibt\r\n\r\n* try to add infinite constraints to pibt\r\n\r\n* lifelong experiments, all agents selector in pibt\r\n\r\n* lifelong experiments, merge master changes\r\n\r\n* lifelong experiment setting\r\n\r\n* lifelong experiment setting\r\n\r\n* lifelong experiment setting\r\n\r\n* lifelong experiment setting\r\n\r\n* adapt pibt to handle constraints with agent subset selector\r\n\r\n* agent selection strategies test with pibt\r\n\r\n* clean pibt code before PR\r\n\r\n* clean pibt code before PR\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/LifelongMAPF/LifelongRunManagers/A_LifelongRunManager.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/test/java/BasicMAPF/Solvers/PIBT/PIBT_SolverTest.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/test/java/BasicMAPF/Solvers/PIBT/PIBT_SolverTest.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* clean pibt code before PR\r\n\r\n* clean pibt code before PR\r\n\r\n* fix and clean before PR\r\n\r\n* use LNS builder\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <moragj@post.bgu.ac.il>\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2024-02-28T02:23:42+02:00",
+          "tree_id": "45c6e94ecbd76a5bcfc1c88e4104db7fe5e1b9a5",
+          "url": "https://github.com/J-morag/MAPF/commit/1fa530c34cc4897ee2b753e98d462c01f4875f91"
+        },
+        "date": 1709082684831,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Throughput",
+            "value": 368.5,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Runtime (Reciprocal)",
+            "value": 0.000004194244,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "LH1_Avoid5ASFP_Cap18_Timeout1p5 - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.00000495347,
             "unit": "1 / Milliseconds"
           }
         ]
