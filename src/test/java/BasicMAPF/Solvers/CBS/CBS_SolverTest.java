@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.SOCWithPriorities;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -438,6 +439,32 @@ class CBS_SolverTest {
         assertEquals(4, solvedCBSt.makespan()); // makespan (normal)
         assertEquals(4, solvedCBSt.makespanServiceTime()); // makespan (TMAPF)
 
+        System.out.println(solvedNormal);
+        System.out.println(solvedCBSt);
+    }
+
+
+    @Test
+    void transientExample() {
+        I_Solver CBSt = new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        Agent agent1 = new Agent(0, coor10, coor13, 1);
+        Agent agent2 = new Agent(1, coor11, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
+
+        Solution solvedNormal = cbsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedNormal.solves(testInstance));
+        assertEquals(4 + 1, solvedNormal.sumIndividualCosts());
+        assertEquals(4 + 1, solvedNormal.sumServiceTimes());
+        assertEquals(4, solvedNormal.makespan());
+        assertEquals(4, solvedNormal.makespanServiceTime());
+//
+        Solution solvedCBSt = CBSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedCBSt.solves(testInstance));
+//        assertEquals(3 + 3, solvedCBSt.sumIndividualCosts()); // normal SOC function
+//        assertEquals(3 + 1, solvedCBSt.sumServiceTimes()); // TMAPF cost function
+//        assertEquals(3, solvedCBSt.makespan()); // makespan (normal)
+//        assertEquals(3, solvedCBSt.makespanServiceTime()); // makespan (TMAPF)
+//
         System.out.println(solvedNormal);
         System.out.println(solvedCBSt);
     }
