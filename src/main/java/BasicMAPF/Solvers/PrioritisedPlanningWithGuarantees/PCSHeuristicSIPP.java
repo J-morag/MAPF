@@ -4,27 +4,33 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.RunParameters_SAAStarSIPP;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
-import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class PCSHeuristicSIPP implements I_PCSHeuristic {
-    private final I_Solver singleAgentSolver = new SingleAgentAStarSIPP_Solver();
+    private final SingleAgentAStarSIPP_Solver sippSolver = new SingleAgentAStarSIPP_Solver();
     @Override
     public int @Nullable [] getH(Agent[] priorityOrderedAgents, int numMDDsAlreadyInNode, @NotNull I_ConstraintSet constraints,
-                                 MAPF_Instance currentInstance, SingleAgentGAndH singleAgentHeuristic) {
+                                 MAPF_Instance currentInstance, SingleAgentGAndH singleAgentHeuristic,
+                                 @Nullable HashMap<I_Location, List<SingleAgentAStarSIPP_Solver.Interval>> safeIntervalsByLocation) {
         int[] res = new int[priorityOrderedAgents.length - numMDDsAlreadyInNode];
         for (int i = numMDDsAlreadyInNode; i < priorityOrderedAgents.length; i++) {
             Agent agent = priorityOrderedAgents[i];
 //            long timeLeftToTimeout = Math.max(super.maximumRuntime - (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
             // todo timeout?
-            Solution solution = singleAgentSolver.solve(currentInstance.getSubproblemFor(agent),
-                    new RunParametersBuilder().setAStarGAndH(singleAgentHeuristic).setInstanceReport(new InstanceReport())
-                            .setConstraints(constraints).createRP());
+            RunParameters_SAAStarSIPP parameters = new RunParameters_SAAStarSIPP(new RunParametersBuilder().setAStarGAndH(singleAgentHeuristic).setInstanceReport(new InstanceReport())
+                    .setConstraints(constraints).createRP());
+            parameters.safeIntervalsByLocation = safeIntervalsByLocation;
+            Solution solution = sippSolver.solve(currentInstance.getSubproblemFor(agent), parameters);
             if (solution == null) {
                 return null;
             }
