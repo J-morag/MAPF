@@ -8,6 +8,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -289,7 +290,7 @@ public class PriorityConstrainedSearch extends A_Solver {
     private PCSNode continueAddingAgents(ArrayList<MDD> MDDs, List<Constraint> addedConstraints, ConstraintSet updatedConstraints) {
         // todo switch to creating a mutable node and adding to it every time instead of creating a new one every time?
         int g = getG(MDDs);
-        int[] harr = pcsHeuristic.getH(priorityOrderedAgents, MDDs.size(), updatedConstraints, currentInstance, singleAgentHeuristic);
+        int[] harr = getHarr(MDDs, updatedConstraints);
         if (harr == null){ // if using a smart heuristic that might detect a node already can't lead to a solution
             return null;
         }
@@ -327,6 +328,15 @@ public class PriorityConstrainedSearch extends A_Solver {
             fullyGeneratedNodes++;
         }
         return new PCSNode(MDDs, g, h, updatedConstraints, conflict, runningNodeID++);
+    }
+
+    @Nullable
+    private int[] getHarr(ArrayList<MDD> MDDs, ConstraintSet updatedConstraints) {
+        HashMap<I_Location, List<SingleAgentAStarSIPP_Solver.Interval>> safeIntervalsByLocation = null;
+        if (pcsHeuristic instanceof PCSHeuristicSIPP){
+            safeIntervalsByLocation = SingleAgentAStarSIPP_Solver.vertexConstraintsToSafeTimeIntervals(updatedConstraints, null);
+        }
+        return pcsHeuristic.getH(priorityOrderedAgents, MDDs.size(), updatedConstraints, currentInstance, singleAgentHeuristic, safeIntervalsByLocation);
     }
 
     private List<Constraint> getCriticalResourcesAsNegativeConstraints(MDD positivelyConstrainedHighPriorityMDD) {
