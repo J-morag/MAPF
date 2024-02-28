@@ -32,18 +32,28 @@ import java.util.Map;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
-import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PIBT_SolverTest {
 
-    private final MAPF_Instance instanceEmpty = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+    private final MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00});
+    private final MAPF_Instance instanceEmptyEasy = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent04to00});
+    private final MAPF_Instance instanceEmptyHarder = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
+            {agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, agent00to10, agent55to34, agent34to32, agent31to14, agent40to02});
+    private final MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12, agent12to33});
+    private final MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33, agent33to12});
+    private final MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00});
     private final MAPF_Instance instanceAgentsInterruptsEachOther = new MAPF_Instance("instanceAgentsInterruptsEachOther", mapWithPocket, new Agent[]{agent43to53, agent55to34});
+    private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
+
+    private final MAPF_Instance instanceEmpty2 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to35, agent34to32, agent31to14, agent40to02, agent30to33});
+
+    private final MAPF_Instance instanceEmpty3 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent10to00, agent04to00});
 
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
-    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
 
     long timeout = 10*1000;
 
@@ -62,7 +72,7 @@ public class PIBT_SolverTest {
 
     @Test
     void emptyMapValidityTest1() {
-        MAPF_Instance testInstance = instanceEmpty;
+        MAPF_Instance testInstance = instanceEmpty1;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
@@ -286,7 +296,7 @@ public class PIBT_SolverTest {
                 null, new RestartsStrategy(), null, null, null, null, null);
         String namePrP = PrPSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
         String namePIBT = PIBT_Solver.name();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
@@ -452,7 +462,7 @@ public class PIBT_SolverTest {
     // so, PIBT(agent, null) should find different node for this agent
     @Test
     void emptyMapValidityStayInPlaceConstraint() {
-        MAPF_Instance testInstance = instanceEmpty;
+        MAPF_Instance testInstance = instanceEmpty1;
 
         I_Coordinate coor33 = new Coordinate_2D(3,3);
         Constraint constraint1 = new Constraint(agent12to33, 5, mapEmpty.getMapLocation(coor33));
@@ -472,7 +482,7 @@ public class PIBT_SolverTest {
 
     @Test
     void emptyMapValidityInfiniteConstraintTest() {
-        MAPF_Instance testInstance = instanceEmpty;
+        MAPF_Instance testInstance = instanceEmpty1;
 
         I_Coordinate coor02 = new Coordinate_2D(1,2);
         Constraint constraint1 = new Constraint(agent33to12, 10, mapEmpty.getMapLocation(coor02));
@@ -482,8 +492,8 @@ public class PIBT_SolverTest {
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
-        assertEquals(27, solved.sumIndividualCosts());
-        assertEquals(8, solved.makespan());
+        assertEquals(29, solved.sumIndividualCosts());
+        assertEquals(10, solved.makespan());
         assertEquals(22 , solved.sumServiceTimes());
     }
 
@@ -504,8 +514,8 @@ public class PIBT_SolverTest {
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(16, solved.sumIndividualCosts());
-        assertEquals(8, solved.makespan());
+        assertEquals(20, solved.sumIndividualCosts());
+        assertEquals(10, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
     }
 }

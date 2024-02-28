@@ -15,13 +15,14 @@ import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
+import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class PIBT_Solver extends A_Solver {
+public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /**
      * Set contains all not handled agents at timestamp t.
@@ -85,12 +86,23 @@ public class PIBT_Solver extends A_Solver {
     private Set<List<I_Location>> configurations;
 
     /**
+     * indicate if it needs to return partial plans in case PIBT can't find solution.
+     * if true, instead of returning null, the current (partial) solution will return.
+     */
+    private final boolean returnPartialSolutions;
+
+    private boolean agentCantMoveOrStay;
+    private boolean allAgentsReachedGoal;
+
+
+    /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions) {
         super.name = "PIBT";
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
+        this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
     }
 
     @Override
@@ -103,6 +115,8 @@ public class PIBT_Solver extends A_Solver {
         this.timeStamp = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
+        this.agentCantMoveOrStay = false;
+        this.allAgentsReachedGoal = false;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -130,18 +144,18 @@ public class PIBT_Solver extends A_Solver {
             for (Agent agent : instance.agents) {
                 currentConfiguration.add(this.currentLocations.get(agent));
             }
-            if (this.configurations.contains(currentConfiguration)) {
+            if (this.configurations.contains(currentConfiguration) && !this.allAgentsReachedGoal) {
                 if (DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
-                return null;
+                return partialOrNoSolution();
             }
             else {
                 this.configurations.add(currentConfiguration);
             }
 
             if (checkTimeout()) {
-                return null;
+                return partialOrNoSolution();
             }
             this.timeStamp++;
 
@@ -159,11 +173,45 @@ public class PIBT_Solver extends A_Solver {
                 Map.Entry<Agent, Double> maxEntry = getMaxEntry(this.priorities); // <agent, priority> pair with max priority
                 Agent cur = maxEntry.getKey(); // agent with the highest priority
                 solvePIBT(cur, null);
+                if (this.agentCantMoveOrStay) {
+                    return partialOrNoSolution();
+                }
             }
             updatePriorities(instance);
         }
 
-        return makeSolution();
+        return finalSolution();
+    }
+
+    /**
+     * this function called when the algorithm return null: timeout, loop, ...
+     * when this happened - the function return null if returnPartialSolutions is false.
+     * if returnPartialSolutions is true, the function will return partial solution.
+     * @return Solution - partial solution
+     */
+    @Nullable
+    private Solution partialOrNoSolution() {
+        if (this.returnPartialSolutions) {
+            Solution solution = new TransientMAPFSolution();
+            int numberOfNotMovingAgents = 0;
+            for (Map.Entry<Agent, SingleAgentPlan> entry : agentPlans.entrySet()) {
+                Agent agent = entry.getKey();
+                SingleAgentPlan plan = entry.getValue();
+                if (plan.size() == 0) {
+                    // if agent didn't make a move, add a move to stay in current location
+                    plan.addMove(new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent)));
+                    numberOfNotMovingAgents++;
+                }
+                solution.putPlan(plan);
+            }
+
+            // if all agents not moved, return null
+            if (numberOfNotMovingAgents == this.agentPlans.keySet().size()) {
+                return null;
+            }
+            return solution;
+        }
+        return null;
     }
 
     /**
@@ -247,7 +295,13 @@ public class PIBT_Solver extends A_Solver {
             if (addNewMoveToAgent(current, this.currentLocations.get(current))) {
                 this.takenNodes.add(this.currentLocations.get(current));
                 return false;
-            };
+            }
+            // agent cant move to a location in candidates,
+            // agent can't stay in current location (constraints)
+            // unsolvable - return null
+            else {
+                this.agentCantMoveOrStay = true;
+            }
         }
         return false;
     }
@@ -258,15 +312,15 @@ public class PIBT_Solver extends A_Solver {
      */
     private void updatePriorities(MAPF_Instance instance) {
         for (Agent agent : this.priorities.keySet()) {
-            // agent reach his target
+            double currentPriority = this.priorities.get(agent);
+            // agent reached its target
             if (this.agentPlans.get(agent).containsTarget()) {
-                if (this.priorities.get(agent) != -1.0) {
+                if (currentPriority != -1.0) {
                     this.configurations = new HashSet<>();
                 }
                 this.priorities.put(agent, -1.0);
             }
             else {
-                double currentPriority = this.priorities.get(agent);
                 this.priorities.put(agent, currentPriority + 1);
             }
         }
@@ -342,8 +396,14 @@ public class PIBT_Solver extends A_Solver {
      * @return boolean indicates if all agents reached their goal.
      */
     private boolean finished() {
-        for (Double priority : this.priorities.values()) {
-            if (priority != -1.0) {
+        for (Agent agent : this.priorities.keySet()) {
+            if (this.priorities.get(agent) != -1.0) {
+                return false;
+            }
+
+            // all agents' priorities are -1, all agents reached goals
+            this.allAgentsReachedGoal = true;
+            if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
                 return false;
             }
         }
@@ -388,22 +448,23 @@ public class PIBT_Solver extends A_Solver {
         return true;
     }
 
+    /**
+     * main function to return final solution.
+     * when the algorithm finished - all agents reached their goals and satisfies all constrains.
+     * @return solution.
+     */
     @NotNull
-    private Solution makeSolution() {
+    private Solution finalSolution() {
         this.timeStamp++;
         Solution solution = new TransientMAPFSolution();
 
         for (Agent agent : agentPlans.keySet()) {
-            while (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
-                solvePIBT(agent, null);
-            }
             solution.putPlan(this.agentPlans.get(agent));
         }
 
         for (Agent agent : agentPlans.keySet()) {
             SingleAgentPlan plan = this.agentPlans.get(agent);
             // trim the plan to remove excess "stay" moves at the end
-
             int lastChangedLocationTime = plan.getEndTime();
             for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
                 if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
@@ -413,7 +474,9 @@ public class PIBT_Solver extends A_Solver {
             if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
                 SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
                 for (int t = 1; t <= lastChangedLocationTime; t++) {
-                    trimmedPlan.addMove(plan.moveAt(t));
+                    if (plan.moveAt(t) != null) {
+                        trimmedPlan.addMove(plan.moveAt(t));
+                    }
                 }
                 solution.putPlan(trimmedPlan);
             }
@@ -431,6 +494,8 @@ public class PIBT_Solver extends A_Solver {
         this.priorities = null;
         this.takenNodes = null;
         this.unhandledAgents = null;
+        this.constraints = null;
+        this.configurations = null;
     }
 
     @Override
@@ -440,5 +505,15 @@ public class PIBT_Solver extends A_Solver {
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
         }
+    }
+
+    @Override
+    public boolean sharedSources() {
+        return false;
+    }
+
+    @Override
+    public boolean sharedGoals() {
+        return true;
     }
 }
