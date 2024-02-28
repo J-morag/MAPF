@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1709082587956,
+  "lastUpdate": 1709082589533,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -6767,6 +6767,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
             "value": 5672409,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1fa530c34cc4897ee2b753e98d462c01f4875f91",
+          "message": "Lifelong pibt (#80)\n\n* first commit\r\n\r\n* adapt PIBT to lifeling\r\n\r\n* add solvers\r\n\r\n* fix PIBT RHCR bug\r\n\r\n* PIBT should always select all agents\r\n\r\n* lifelong bug fixed\r\n\r\n* lifelong bug fixed\r\n\r\n* PIBT improvements and lifelong additions\r\n\r\n* pibt experiments\r\n\r\n* lifelong experiments\r\n\r\n* lifelong experiments\r\n\r\n* partial solution in PIBT\r\n\r\n* bux fix: error when plan is not valid with partial solution of pibt\r\n\r\n* add experiments agent selector in pibt\r\n\r\n* add experiments agent selector in pibt\r\n\r\n* try to add infinite constraints to pibt\r\n\r\n* lifelong experiments, all agents selector in pibt\r\n\r\n* lifelong experiments, merge master changes\r\n\r\n* lifelong experiment setting\r\n\r\n* lifelong experiment setting\r\n\r\n* lifelong experiment setting\r\n\r\n* lifelong experiment setting\r\n\r\n* adapt pibt to handle constraints with agent subset selector\r\n\r\n* agent selection strategies test with pibt\r\n\r\n* clean pibt code before PR\r\n\r\n* clean pibt code before PR\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/PIBT/PIBT_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/LifelongMAPF/LifelongRunManagers/A_LifelongRunManager.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/test/java/BasicMAPF/Solvers/PIBT/PIBT_SolverTest.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/test/java/BasicMAPF/Solvers/PIBT/PIBT_SolverTest.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* clean pibt code before PR\r\n\r\n* clean pibt code before PR\r\n\r\n* fix and clean before PR\r\n\r\n* use LNS builder\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <moragj@post.bgu.ac.il>\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2024-02-28T02:23:42+02:00",
+          "tree_id": "45c6e94ecbd76a5bcfc1c88e4104db7fe5e1b9a5",
+          "url": "https://github.com/J-morag/MAPF/commit/1fa530c34cc4897ee2b753e98d462c01f4875f91"
+        },
+        "date": 1709082588869,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime",
+            "value": 12986.412,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime Low Level",
+            "value": 11439.471,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
+            "value": 6010889.5,
             "unit": "Expansions"
           }
         ]
