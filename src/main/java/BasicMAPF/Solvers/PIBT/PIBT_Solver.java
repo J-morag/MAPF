@@ -144,7 +144,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             for (Agent agent : instance.agents) {
                 currentConfiguration.add(this.currentLocations.get(agent));
             }
-            if (this.configurations.contains(currentConfiguration) && !this.allAgentsReachedGoal) {
+            if (this.configurations.contains(currentConfiguration)) {
                 if (DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
