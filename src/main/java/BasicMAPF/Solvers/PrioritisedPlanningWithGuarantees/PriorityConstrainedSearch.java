@@ -169,7 +169,6 @@ public class PriorityConstrainedSearch extends A_Solver {
     }
 
     private boolean isGoal(PCSNode node) {
-        // todo early stopping? - no need to check conflicts?
         return node.MDDs().size() == priorityOrderedAgents.length && node.conflict() == null;
     }
 
