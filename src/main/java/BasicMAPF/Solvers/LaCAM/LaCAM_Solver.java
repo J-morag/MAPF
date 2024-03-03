@@ -35,11 +35,6 @@ public class LaCAM_Solver extends A_Solver {
      */
     private DistanceTableSingleAgentHeuristic heuristic;
 
-//    /**
-//     * Map saving priority of each agent
-//     */
-//    private HashMap<Agent, Double> priorities;
-
     /**
      * Map saving for each agent his goal location, representing the goal configuration.
      */
@@ -49,8 +44,6 @@ public class LaCAM_Solver extends A_Solver {
      * Map saving for each agent's ID his Agent as object.
      */
     private HashMap<Integer, Agent> agents;
-
-    private A_Solver subInstanceSolver;
 
     /**
      * The cost function to evaluate solutions with.
@@ -94,10 +87,8 @@ public class LaCAM_Solver extends A_Solver {
         this.solverConstraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.open = new Stack<>();
         this.explored = new HashMap<>();
-//        this.priorities = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
         this.agents = new HashMap<>();
-        this.subInstanceSolver = new PIBT_ForLaCAM(null, null, true, 1);
         this.highLevelNodesCounter = 0;
         this.lowLevelNodesCounter = 0;
         this.failedToFindConfigCounter = 0;
@@ -106,9 +97,6 @@ public class LaCAM_Solver extends A_Solver {
         this.instance = instance;
         this.occupiedNowConfig = new HashMap<>();
         this.occupiedNextConfig = new HashMap<>();
-
-        // init agent's priority to unique number
-//        initPriority(this.instance);
 
         // distance between every vertex in the graph to each agent's goal
         if (parameters.singleAgentGAndH instanceof DistanceTableSingleAgentHeuristic) {
@@ -135,10 +123,10 @@ public class LaCAM_Solver extends A_Solver {
         this.open.push(N_init);
         this.explored.put(initialConfiguration, N_init);
 
-        while (!this.open.empty()) {
-            if (checkTimeout()) {
-                return null;
-            }
+        while (!this.open.empty() && !checkTimeout()) {
+//            if (checkTimeout()) {
+//                return null;
+//            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
@@ -303,45 +291,45 @@ public class LaCAM_Solver extends A_Solver {
     }
 
 
-    /**
-     * @param agents list of agents to sort.
-     * helper function to create initialized order of agents.
-     * in this function, we determine the order of chosen agents by the distance between their source and target.
-     * @return ArrayList of agents in ascending order by distance to target.
-     */
-    private ArrayList<Agent> get_init_order(List<Agent> agents) {
-        ArrayList<Agent> sortedAgents = new ArrayList<>(agents);
-        Collections.shuffle(sortedAgents);
-        HashMap<Agent, Float> agentsDistances = new HashMap<>();
-        for (Agent agent : agents) {
-            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, this.instance.map.getMapLocation(agent.source));
-            agentsDistances.put(agent, distance);
-        }
-        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent1), agentsDistances.get(agent2)));
-        return sortedAgents;
-    }
-
-    /**
-     * @param configuration - current configuration of agent's locations.
-     * @param N - current High Level Node.
-     * helper function to create order of agents.
-     * order of agents can be determined by several heuristics, for simplicity we first try the heuristic we used for the init order,
-     * and change in the future when we will test and try to improve the algorithm.
-     * @return ArrayList of agents in ascending order by distance to target.
-     */
-    private ArrayList<Agent> getOrder(HashMap<Agent, I_Location> configuration, HighLevelNode N) {
-        ArrayList<Agent> sortedAgents = new ArrayList<>(this.agents.values());
-        Collections.shuffle(sortedAgents);
-        HashMap<Agent, Float> agentsDistances = new HashMap<>();
-        for (Map.Entry<Agent, I_Location> entry : configuration.entrySet()) {
-            Agent agent = entry.getKey();
-            I_Location agentLocation = entry.getValue();
-            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, this.instance.map.getMapLocation(agentLocation.getCoordinate()));
-            agentsDistances.put(agent, distance);
-        }
-        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent1), agentsDistances.get(agent2)));
-        return sortedAgents;
-    }
+//    /**
+//     * @param agents list of agents to sort.
+//     * helper function to create initialized order of agents.
+//     * in this function, we determine the order of chosen agents by the distance between their source and target.
+//     * @return ArrayList of agents in ascending order by distance to target.
+//     */
+//    private ArrayList<Agent> get_init_order(List<Agent> agents) {
+//        ArrayList<Agent> sortedAgents = new ArrayList<>(agents);
+//        Collections.shuffle(sortedAgents);
+//        HashMap<Agent, Float> agentsDistances = new HashMap<>();
+//        for (Agent agent : agents) {
+//            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, this.instance.map.getMapLocation(agent.source));
+//            agentsDistances.put(agent, distance);
+//        }
+//        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent1), agentsDistances.get(agent2)));
+//        return sortedAgents;
+//    }
+//
+//    /**
+//     * @param configuration - current configuration of agent's locations.
+//     * @param N - current High Level Node.
+//     * helper function to create order of agents.
+//     * order of agents can be determined by several heuristics, for simplicity we first try the heuristic we used for the init order,
+//     * and change in the future when we will test and try to improve the algorithm.
+//     * @return ArrayList of agents in ascending order by distance to target.
+//     */
+//    private ArrayList<Agent> getOrder(HashMap<Agent, I_Location> configuration, HighLevelNode N) {
+//        ArrayList<Agent> sortedAgents = new ArrayList<>(this.agents.values());
+//        Collections.shuffle(sortedAgents);
+//        HashMap<Agent, Float> agentsDistances = new HashMap<>();
+//        for (Map.Entry<Agent, I_Location> entry : configuration.entrySet()) {
+//            Agent agent = entry.getKey();
+//            I_Location agentLocation = entry.getValue();
+//            Float distance = this.heuristic.getHToTargetFromLocation(agent.target, this.instance.map.getMapLocation(agentLocation.getCoordinate()));
+//            agentsDistances.put(agent, distance);
+//        }
+//        sortedAgents.sort((agent1, agent2) -> Float.compare(agentsDistances.get(agent1), agentsDistances.get(agent2)));
+//        return sortedAgents;
+//    }
 
     /**
      *
@@ -382,36 +370,13 @@ public class LaCAM_Solver extends A_Solver {
             }
         }
 
-        Solution solution;
-        if (this.transientMAPFBehaviour.isTransientMAPF()) {
-            solution = new TransientMAPFSolution();
-        }
-        else {
-            solution = new Solution();
-        }
-
+        // init an empty solution
+        Solution solution = transientMAPFBehaviour.isTransientMAPF() ? new TransientMAPFSolution() : new Solution();
         for (Agent agent : instance.agents) {
             solution.putPlan(agentPlans.get(agent));
         }
-        System.out.println("Number Of High-Level nodes generated: " + this.highLevelNodesCounter);
         return solution;
     }
-
-//    /**
-//     * init priority of each agent in the beginning of the algorithm.
-//     * each agent have a unique double representing his priority.
-//     * update this.priorities.
-//     */
-//    private void initPriority(MAPF_Instance instance) {
-//        int numberOfAgents = instance.agents.size();
-//        double uniqueFactor = 1.0 / numberOfAgents;
-//        int i = 1;
-//        for (Agent agent : instance.agents) {
-//            // (uniqueFactor * i) is a unique representation for the priority of each agent
-//            this.priorities.put(agent, uniqueFactor * i);
-//            i++;
-//        }
-//    }
 
     /**
      * init priority of each agent for a new High-Level node without a parent.
@@ -509,7 +474,6 @@ public class LaCAM_Solver extends A_Solver {
                         return null; // Swap conflict detected!
                     }
                 }
-//                this.occupiedNext.put(C.who, C.where);
                 Constraint swapConstraint = new Constraint(1, C.where, N.configuration.get(C.who));
                 constraints.add(swapConstraint);
                 Constraint locationConstraint = new Constraint(1, C.where);
@@ -520,7 +484,7 @@ public class LaCAM_Solver extends A_Solver {
         }
 
         for (Agent agent : N.order) {
-            if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chose for agent
+            if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chose for agent or agent have a constraint
             if (this.occupiedNextConfig.get(agent) == null && !solvePIBT(agent, null ,constraints)) {
                 return null;
             }
@@ -529,8 +493,23 @@ public class LaCAM_Solver extends A_Solver {
     }
 
     private boolean solvePIBT(Agent currentAgent, Agent higherPriorityAgent,  ConstraintSet constraints) {
+
+//        if (checkTimeout()) {
+//            return false;
+//        }
+//        System.out.println("HEY");
         I_Location currentLocation = this.occupiedNowConfig.get(currentAgent);
         List<I_Location> candidates = new ArrayList<>(findAllNeighbors(currentLocation));
+
+//        if (higherPriorityAgent == null) {
+//            System.out.println("OUT");
+//        }
+//        else {
+//            System.out.println("IN");
+//            System.out.println(currentAgent);
+//            System.out.println(higherPriorityAgent);
+//            System.out.println(currentLocation);
+//        }
 
         if (higherPriorityAgent != null) {
             // avoid swap with higher priority agent
@@ -542,7 +521,7 @@ public class LaCAM_Solver extends A_Solver {
             candidates.add(currentLocation);
         }
 
-        // sort in ascending order
+        // sort in ascending order of the distance between location to agent's target
         candidates.sort((loc1, loc2) ->
                 Double.compare(this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1),
                         this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2)));
@@ -638,10 +617,8 @@ public class LaCAM_Solver extends A_Solver {
         this.open = null;
         this.explored = null;
         this.heuristic = null;
-//        this.priorities = null;
         this.goalConfiguration = null;
         this.agents = null;
-        this.subInstanceSolver = null;
     }
 
     @Override
