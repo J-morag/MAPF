@@ -485,9 +485,13 @@ public class LaCAM_Solver extends A_Solver {
 
         for (Agent agent : N.order) {
             if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chose for agent or agent have a constraint
-            if (this.occupiedNextConfig.get(agent) == null && !solvePIBT(agent, null ,constraints)) {
+//            if (this.occupiedNextConfig.get(agent) == null && !solvePIBT(agent, null ,constraints)) {
+//                return null;
+//            }
+            if (!solvePIBT(agent, null ,constraints)) {
                 return null;
             }
+
         }
         return this.occupiedNextConfig;
     }
@@ -521,10 +525,18 @@ public class LaCAM_Solver extends A_Solver {
             candidates.add(currentLocation);
         }
 
+//        // sort in ascending order of the distance between location to agent's target
+//        candidates.sort((loc1, loc2) ->
+//                Double.compare(this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1),
+//                        this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2)));
+
+
+        // Create a Random instance
+        Random random = new Random();
         // sort in ascending order of the distance between location to agent's target
         candidates.sort((loc1, loc2) ->
-                Double.compare(this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1),
-                        this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2)));
+                Double.compare(this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + random.nextFloat(),
+                        this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + random.nextFloat()));
 
         for (I_Location nextLocation : candidates) {
 
