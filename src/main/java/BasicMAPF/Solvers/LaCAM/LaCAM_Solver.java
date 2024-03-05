@@ -576,13 +576,14 @@ public class LaCAM_Solver extends A_Solver {
 
             // priority inheritance
             if (!this.occupiedNextConfig.containsKey(occupyingAgent) && !solvePIBT(occupyingAgent, currentAgent, constraints)) {
-                this.occupiedNextConfig.remove(currentAgent);
+//                this.occupiedNextConfig.remove(currentAgent);
                 continue;
             }
 
             // success to plan next one step
             return true;
         }
+        this.occupiedNextConfig.put(currentAgent, currentLocation);
         return false;
     }
 
