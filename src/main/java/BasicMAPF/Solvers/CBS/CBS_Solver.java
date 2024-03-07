@@ -367,7 +367,7 @@ public class CBS_Solver extends A_Solver {
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
 
             // TMAPF goal condition
-            if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF){
+            if (transientMAPFBehaviour.isTransientMAPF()){
                 astarSubproblemParameters.goalCondition = new VisitedTargetAStarGoalCondition();
             }
 
