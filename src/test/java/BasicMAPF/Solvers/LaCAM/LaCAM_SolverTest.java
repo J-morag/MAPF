@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.LaCAM;
 
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Agents.agent21to00;
+import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
@@ -498,5 +500,53 @@ public class LaCAM_SolverTest {
             e.printStackTrace();
             fail();
         }
+    }
+
+    @Test
+    void worksWithTMAPFPaths() {
+        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFBehaviour.transientMAPF);
+        Agent agentXMoving = new Agent(0, coor42, coor02, 1);
+        Agent agentYMoving = new Agent(1, coor10, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
+
+        Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAM.solves(testInstance));
+//        assertEquals(4 + 4, solvedLaCAM.sumIndividualCosts());
+//        assertEquals(6, solvedLaCAM.makespan());
+
+        Solution solvedLaCAMt = LaCAMt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+//        assertEquals(4 + 3, solvedLaCAMt.sumIndividualCosts()); // normal SOC function
+//        assertEquals(4 + 2, solvedLaCAMt.sumServiceTimes()); // TMAPF cost function
+//        assertEquals(4, solvedLaCAMt.makespan()); // makespan (normal)
+//        assertEquals(4, solvedLaCAMt.makespanServiceTime()); // makespan (TMAPF)
+
+        System.out.println(solvedLaCAM);
+        System.out.println(solvedLaCAMt);
+    }
+
+    @Test
+    void transientExample() {
+        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFBehaviour.transientMAPF);
+        Agent agent1 = new Agent(0, coor10, coor13, 1);
+        Agent agent2 = new Agent(1, coor11, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
+
+        Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAM.solves(testInstance));
+//        assertEquals(4 + 1, solvedLaCAM.sumIndividualCosts()); // normal SOC function
+//        assertEquals(4 + 1, solvedLaCAM.sumServiceTimes()); // TMAPF cost function
+//        assertEquals(4, solvedLaCAM.makespan()); // makespan (normal)
+//        assertEquals(4, solvedLaCAM.makespanServiceTime()); // makespan (TMAPF)
+
+        Solution solvedLaCAMt = LaCAMt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+        assertEquals(3 + 3, solvedLaCAMt.sumIndividualCosts()); // normal SOC function
+        assertEquals(3 + 1, solvedLaCAMt.sumServiceTimes()); // TMAPF cost function
+        assertEquals(3, solvedLaCAMt.makespan()); // makespan (normal)
+        assertEquals(3, solvedLaCAMt.makespanServiceTime()); // makespan (TMAPF)
+
+        System.out.println(solvedLaCAM);
+        System.out.println(solvedLaCAMt);
     }
 }

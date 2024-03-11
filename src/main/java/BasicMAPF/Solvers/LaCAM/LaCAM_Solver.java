@@ -124,9 +124,6 @@ public class LaCAM_Solver extends A_Solver {
         this.explored.put(initialConfiguration, N_init);
 
         while (!this.open.empty() && !checkTimeout()) {
-//            if (checkTimeout()) {
-//                return null;
-//            }
             HighLevelNode N = this.open.peek();
 
             // reached goal configuration, stop and backtrack to return the solution
@@ -372,9 +369,29 @@ public class LaCAM_Solver extends A_Solver {
 
         // init an empty solution
         Solution solution = transientMAPFBehaviour.isTransientMAPF() ? new TransientMAPFSolution() : new Solution();
+//        for (Agent agent : instance.agents) {
+//            solution.putPlan(agentPlans.get(agent));
+//        }
         for (Agent agent : instance.agents) {
-            solution.putPlan(agentPlans.get(agent));
+            SingleAgentPlan plan = agentPlans.get(agent);
+            // trim the plan to remove excess "stay" moves at the end
+
+            int lastChangedLocationTime = plan.getEndTime();
+            for (; lastChangedLocationTime >= 1; lastChangedLocationTime--) {
+                if (! plan.moveAt(lastChangedLocationTime).prevLocation.equals(plan.getLastMove().currLocation)) {
+                    break;
+                }
+            }
+            if (lastChangedLocationTime < plan.getEndTime() && lastChangedLocationTime > 0) {
+                SingleAgentPlan trimmedPlan = new SingleAgentPlan(agent);
+                for (int t = 1; t <= lastChangedLocationTime; t++) {
+                    trimmedPlan.addMove(plan.moveAt(t));
+                }
+                solution.putPlan(trimmedPlan);
+            }
+            else solution.putPlan(agentPlans.get(agent));
         }
+
         return solution;
     }
 
