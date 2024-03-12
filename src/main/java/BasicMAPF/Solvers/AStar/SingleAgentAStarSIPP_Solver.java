@@ -2,12 +2,14 @@ package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -20,14 +22,18 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
     private HashMap<I_Location, List<Interval>> safeIntervalsByLocation;
 
-    private record Interval(int start, int end) {
+    public record Interval(int start, int end) {
         public static final Interval DEFAULT_INTERVAL = new Interval(0, Integer.MAX_VALUE);
     }
 
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
-        safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints);
+        if (runParameters instanceof RunParameters_SAAStarSIPP parameters && parameters.safeIntervalsByLocation != null) {
+            this.safeIntervalsByLocation = parameters.safeIntervalsByLocation;
+        } else {
+            this.safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints, this.agent);
+        }
 
         if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
             throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
@@ -155,7 +161,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @param prevLocationRelevantInterval The relevant interval of the previous location.
      * @param currInterval               The current interval being considered.
      */
-    private void moveIntoSafeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation, I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
+    private void moveIntoSafeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation,
+                                      I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
         AStarSIPPState child = state;
         int possibleMoveTime;
         boolean afterLastConstraint;
@@ -199,7 +206,11 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    private HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(I_ConstraintSet constraints) {
+    /**
+     * @param agent if null, will only consider vertex constraints that are not agent-specific
+     * @return the safe intervals for each location
+     */
+    public static HashMap<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(I_ConstraintSet constraints, @Nullable Agent agent) {
         /*
           Originally constraints are by location and time. For the SIPP algorithm,
           we convert the constraints into time intervals by location
@@ -209,7 +220,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         for (Map.Entry<I_ConstraintGroupingKey, Set<Constraint>> entry : constraints.getEntrySet()) {
             for (Constraint constraint : entry.getValue()) {
                 // skip constraints that are not vertex constraints
-                if ((constraint.getPrevLocation() == null) && (constraint.agent == null || constraint.agent.equals(this.agent))){
+                if ((constraint.getPrevLocation() == null) && (constraint.agent == null || constraint.agent.equals(agent))){
                     List<Integer> timesList = timeIntervals.computeIfAbsent(entry.getKey().getLocation(), k -> new ArrayList<>());
                     timesList.add(entry.getKey().getTime());
                     break;
