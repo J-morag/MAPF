@@ -74,6 +74,8 @@ public class Maps {
     public static final I_ExplicitMap randomArbitraryGraphMap4 = createRandomStronglyConnectedGraphMap(45, 2, 1, true);
     public static final I_ExplicitMap randomArbitraryGraphMap5 = createRandomStronglyConnectedGraphMap(46, 20, 1, true);
 
+    public static final I_ExplicitMap transientExampleMap = createTransientExampleGraphMap();
+
     private static I_ExplicitMap createRandomStronglyConnectedGraphMap(int seed, int maxWeight, int connectivityFactor, boolean enforceStronglyConnected) {
         int weightBound = maxWeight + 1;
         Map<Coordinate_2D, List<Coordinate_2D>> coordinatesAdjacencyLists = new HashMap<>();
@@ -140,6 +142,52 @@ public class Maps {
 
         return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights, coordinatesLocationTypes, true, null);
     }
+
+    private static I_ExplicitMap createTransientExampleGraphMap() {
+
+        // Define coordinates for nodes
+        I_Coordinate coordinate1 = new Coordinate_2D(0, 0);
+        I_Coordinate coordinate2 = new Coordinate_2D(0, 1);
+        I_Coordinate coordinate3 = new Coordinate_2D(0, 2);
+        I_Coordinate coordinate4 = new Coordinate_2D(1, 0);
+        I_Coordinate coordinate5 = new Coordinate_2D(1, 1);
+        I_Coordinate coordinate6 = new Coordinate_2D(1, 2);
+        I_Coordinate coordinate7 = new Coordinate_2D(1, 3);
+
+        // Define adjacency lists
+        Map<I_Coordinate, List<I_Coordinate>> coordinatesAdjacencyLists = new HashMap<>();
+        coordinatesAdjacencyLists.put(coordinate1, Arrays.asList(coordinate2, coordinate4));
+        coordinatesAdjacencyLists.put(coordinate2, Arrays.asList(coordinate1, coordinate3));
+        coordinatesAdjacencyLists.put(coordinate3, Arrays.asList(coordinate2, coordinate7));
+        coordinatesAdjacencyLists.put(coordinate4, Arrays.asList(coordinate1, coordinate5));
+        coordinatesAdjacencyLists.put(coordinate5, Arrays.asList(coordinate4, coordinate6));
+        coordinatesAdjacencyLists.put(coordinate6, Arrays.asList(coordinate5, coordinate7));
+        coordinatesAdjacencyLists.put(coordinate7, Arrays.asList(coordinate3, coordinate6));
+
+        // Define edge weights
+        Map<I_Coordinate, List<Integer>> coordinatesEdgeWeights = new HashMap<>();
+        coordinatesEdgeWeights.put(coordinate1, Arrays.asList(1, 1));
+        coordinatesEdgeWeights.put(coordinate2, Arrays.asList(1, 1));
+        coordinatesEdgeWeights.put(coordinate3, Arrays.asList(1, 1));
+        coordinatesEdgeWeights.put(coordinate4, Arrays.asList(1, 1));
+        coordinatesEdgeWeights.put(coordinate5, Arrays.asList(1, 1));
+        coordinatesEdgeWeights.put(coordinate6, Arrays.asList(1, 1));
+        coordinatesEdgeWeights.put(coordinate7, Arrays.asList(1, 1));
+
+        // Define location types (set all to EMPTY)
+        Map<I_Coordinate, Enum_MapLocationType> coordinatesLocationTypes = new HashMap<>();
+        coordinatesLocationTypes.put(coordinate1, Enum_MapLocationType.EMPTY);
+        coordinatesLocationTypes.put(coordinate2, Enum_MapLocationType.EMPTY);
+        coordinatesLocationTypes.put(coordinate3, Enum_MapLocationType.EMPTY);
+        coordinatesLocationTypes.put(coordinate4, Enum_MapLocationType.EMPTY);
+        coordinatesLocationTypes.put(coordinate5, Enum_MapLocationType.EMPTY);
+        coordinatesLocationTypes.put(coordinate6, Enum_MapLocationType.EMPTY);
+        coordinatesLocationTypes.put(coordinate7, Enum_MapLocationType.EMPTY);
+
+        return MapFactory.newArbitraryGraphMap(coordinatesAdjacencyLists, coordinatesEdgeWeights, coordinatesLocationTypes, true, null);
+    }
+
+
 
     public static final Map<I_ExplicitMap, String> singleStronglyConnectedComponentMapsWithNames = Map.of(
             mapCircle, "mapCircle", mapEmpty, "mapEmpty", mapSmallMaze, "mapSmallMaze", mapH, "mapH",
