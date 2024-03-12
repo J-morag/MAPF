@@ -367,8 +367,16 @@ public class CBS_Solver extends A_Solver {
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
 
             // TMAPF goal condition
-            if (transientMAPFBehaviour.isTransientMAPF()){
+            if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF || transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist){
                 astarSubproblemParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+            } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist) {
+                Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
+                for (Agent agentToBlack: this.instance.agents) {
+                    if (!agent.equals(agentToBlack)){
+                        targetsOfAgentsThatHaventPlannedYet.add(agentToBlack.target);
+                    }
+                }
+                astarSubproblemParameters.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
             }
 
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
