@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710289986416,
+  "lastUpdate": 1710289987397,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -8535,6 +8535,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 10738273,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "104091867+NoyGabay@users.noreply.github.com",
+            "name": "NoyGabay",
+            "username": "NoyGabay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f7e7a672e638c38cf16b19f51f4ea8c02cc9f64b",
+          "message": "Transient CBS (#81)\n\n* add transient parameter in CBS constructor\r\n\r\n* CBSt optimizes sst\r\n\r\n* fix and clean before PR\r\n\r\n* fix and clean before PR\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/CBS/CBS_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/BasicMAPF/Solvers/CBS/CBS_Solver.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* Update src/main/java/Environment/RunManagers/GenericRunManager.java\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>\r\n\r\n* add test to CBS, still not passing\r\n\r\n* add transient example to CBS tests\r\n\r\n* sst optimization for CBS\r\n\r\n---------\r\n\r\nCo-authored-by: J-morag <38430800+J-morag@users.noreply.github.com>",
+          "timestamp": "2024-03-12T14:46:49+02:00",
+          "tree_id": "1fb562be8a75359718902bb6d0c71194e900d7cf",
+          "url": "https://github.com/J-morag/MAPF/commit/f7e7a672e638c38cf16b19f51f4ea8c02cc9f64b"
+        },
+        "date": 1710289987143,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 8700.6,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30002.883,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28267.705,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 10906212,
             "unit": "Expansions"
           }
         ]
