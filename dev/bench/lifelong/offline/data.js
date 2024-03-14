@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710391170642,
+  "lastUpdate": 1710391172125,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3515,6 +3515,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 9888305,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d98a181f451cfe74b6328dccfa18cba7c8da689b",
+          "message": "fix 1fa530c3 PIBT performance regression (#83)\n\nfix PIBT 'allAgentsReachedGoal' update",
+          "timestamp": "2024-03-14T14:57:43+11:00",
+          "tree_id": "2320a86d0bdbfad2d9f247fbf1814bdc305de724",
+          "url": "https://github.com/J-morag/MAPF/commit/d98a181f451cfe74b6328dccfa18cba7c8da689b"
+        },
+        "date": 1710391171601,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 1,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 9551.3125,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30002.766,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 27869.234,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 11154864,
             "unit": "Expansions"
           }
         ]
