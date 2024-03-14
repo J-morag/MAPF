@@ -2,6 +2,8 @@ package BasicMAPF.Instances.Maps;
 
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -28,11 +30,12 @@ public class MapFactory {
         int xAxis_length = rectangle_2D_Map.length;
         int yAxis_length = rectangle_2D_Map[0].length;
         GraphMapVertex[][] locations = new GraphMapVertex[xAxis_length][yAxis_length]; //rectangle map
+        int serialID = 0;
         //generate all locations
         for (int xIndex = 0; xIndex < xAxis_length; xIndex++) {
             for (int yIndex = 0; yIndex < yAxis_length; yIndex++) {
                 if(rectangle_2D_Map[xIndex][yIndex] == Enum_MapLocationType.EMPTY){
-                    locations[xIndex][yIndex] = new GraphMapVertex(rectangle_2D_Map[xIndex][yIndex], new Coordinate_2D(xIndex, yIndex));
+                    locations[xIndex][yIndex] = new GraphMapVertex(rectangle_2D_Map[xIndex][yIndex], new Coordinate_2D(xIndex, yIndex), serialID++);
                 }
             }
         }
@@ -104,13 +107,10 @@ public class MapFactory {
                                                 boolean isStronglyConnected,
                                                 @Nullable Map<? extends I_Coordinate, List<String>> coordinatesLocationSubtypes){
         HashMap<I_Coordinate, GraphMapVertex> allLocations = new HashMap<>(coordinatesAdjacencyLists.size());
+        MutableInt serialID = new MutableInt(0);
 
         for (I_Coordinate coordinateCurrentVertex: coordinatesAdjacencyLists.keySet()){
-            allLocations.putIfAbsent(coordinateCurrentVertex,
-                    new GraphMapVertex(coordinatesLocationType != null ? coordinatesLocationType.get(coordinateCurrentVertex) : Enum_MapLocationType.EMPTY,
-                            coordinateCurrentVertex,
-                            coordinatesLocationSubtypes != null ? coordinatesLocationSubtypes.get(coordinateCurrentVertex) : null));
-            GraphMapVertex currentVertex = allLocations.get(coordinateCurrentVertex);
+            GraphMapVertex currentVertex = getOrGenerateVertex(allLocations, coordinateCurrentVertex, coordinatesLocationType, coordinatesLocationSubtypes, serialID);
 
             List<? extends I_Coordinate> coordinateNeighbors = coordinatesAdjacencyLists.get(coordinateCurrentVertex);
             List<Integer> edgeWeights = coordinatesEdgeWeights.get(coordinateCurrentVertex);
@@ -118,17 +118,29 @@ public class MapFactory {
             GraphMapVertex[] neighbors = new GraphMapVertex[coordinateNeighbors.size()];
             for (int i = 0; i < neighbors.length; i++) {
                 I_Coordinate neighborCoordinate = coordinateNeighbors.get(i);
-                allLocations.putIfAbsent(neighborCoordinate,
-                        new GraphMapVertex(coordinatesLocationType != null ? coordinatesLocationType.get(neighborCoordinate) : Enum_MapLocationType.EMPTY,
-                                neighborCoordinate,
-                                coordinatesLocationSubtypes != null ? coordinatesLocationSubtypes.get(coordinateCurrentVertex) : null));
-                neighbors[i] = allLocations.get(neighborCoordinate);
+                GraphMapVertex neighbor = getOrGenerateVertex(allLocations, neighborCoordinate, coordinatesLocationType, coordinatesLocationSubtypes, serialID);
+                neighbors[i] = neighbor;
             }
 
             currentVertex.setNeighbors(neighbors, edgeWeights.toArray(Integer[]::new));
         }
 
         return new GraphMap(allLocations, isStronglyConnected);
+    }
+
+    private static GraphMapVertex getOrGenerateVertex(Map<I_Coordinate, GraphMapVertex> allLocations, I_Coordinate coordinate,
+                                                      Map<? extends I_Coordinate, Enum_MapLocationType> coordinatesLocationType,
+                                                      @Nullable Map<? extends I_Coordinate, List<String>> coordinatesLocationSubtypes,
+                                                      @NotNull MutableInt serialID){
+        GraphMapVertex vertex = allLocations.get(coordinate);
+        if (vertex == null) {
+            vertex = new GraphMapVertex(coordinatesLocationType != null ? coordinatesLocationType.get(coordinate) : Enum_MapLocationType.EMPTY,
+                    coordinate,
+                    coordinatesLocationSubtypes != null ? coordinatesLocationSubtypes.get(coordinate) : null,
+                    serialID.getAndIncrement());
+            allLocations.put(coordinate, vertex);
+        }
+        return vertex;
     }
 
 }

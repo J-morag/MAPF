@@ -4,10 +4,7 @@ import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GraphBasedGridMap extends GraphMap implements I_GridMap {
 
@@ -15,11 +12,11 @@ public class GraphBasedGridMap extends GraphMap implements I_GridMap {
     public final int width;
     public final I_Location[][] locationsGrid;
 
-    GraphBasedGridMap(I_Location[][] locationsGrid, HashMap<I_Coordinate, GraphMapVertex> allGraphVertices) {
+    GraphBasedGridMap(I_Location[][] locationsGrid, Map<I_Coordinate, GraphMapVertex> allGraphVertices) {
         this(locationsGrid, allGraphVertices, null);
     }
 
-    GraphBasedGridMap(@NotNull I_Location[][] locationsGrid, HashMap<I_Coordinate, GraphMapVertex> allGraphVertices, Boolean isStronglyConnected) {
+    GraphBasedGridMap(@NotNull I_Location[][] locationsGrid, Map<I_Coordinate, GraphMapVertex> allGraphVertices, Boolean isStronglyConnected) {
         super(allGraphVertices, isStronglyConnected);
         if (locationsGrid.length == 0 || locationsGrid[0].length == 0 )
             throw new IllegalArgumentException("Grid must have at least one row and one column.");
@@ -34,7 +31,7 @@ public class GraphBasedGridMap extends GraphMap implements I_GridMap {
      * @param locationsGrid the grid representation of the map.
      * @param allGraphVertices the graph representation of the map.
      */
-    private void verifyGridAndGraphAreEqual(I_Location[][] locationsGrid, HashMap<I_Coordinate, GraphMapVertex> allGraphVertices) {
+    private void verifyGridAndGraphAreEqual(I_Location[][] locationsGrid, Map<I_Coordinate, GraphMapVertex> allGraphVertices) {
         Set<I_Coordinate> graphCoordinates = allGraphVertices.keySet();
         Set<I_Coordinate> gridCoordinates = new HashSet<>();
         for (int y = 0; y < height; y++) {
