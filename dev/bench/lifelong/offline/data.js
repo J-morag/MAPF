@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710391165978,
+  "lastUpdate": 1710391167884,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -6655,6 +6655,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 6816852.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d98a181f451cfe74b6328dccfa18cba7c8da689b",
+          "message": "fix 1fa530c3 PIBT performance regression (#83)\n\nfix PIBT 'allAgentsReachedGoal' update",
+          "timestamp": "2024-03-14T14:57:43+11:00",
+          "tree_id": "2320a86d0bdbfad2d9f247fbf1814bdc305de724",
+          "url": "https://github.com/J-morag/MAPF/commit/d98a181f451cfe74b6328dccfa18cba7c8da689b"
+        },
+        "date": 1710391167351,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 30013.766,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 9021.529,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 70387.414,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 7076848.5,
             "unit": "Expansions"
           }
         ]
