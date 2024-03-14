@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1709082688645,
+  "lastUpdate": 1710391588924,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -818,6 +818,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
             "value": 0.00001558393,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d98a181f451cfe74b6328dccfa18cba7c8da689b",
+          "message": "fix 1fa530c3 PIBT performance regression (#83)\n\nfix PIBT 'allAgentsReachedGoal' update",
+          "timestamp": "2024-03-14T14:57:43+11:00",
+          "tree_id": "2320a86d0bdbfad2d9f247fbf1814bdc305de724",
+          "url": "https://github.com/J-morag/MAPF/commit/d98a181f451cfe74b6328dccfa18cba7c8da689b"
+        },
+        "date": 1710391587522,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Throughput",
+            "value": 443.83334,
+            "unit": "Throughput @ T=200"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime (Reciprocal)",
+            "value": 0.000011441102,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 - Average Runtime Low Level  (Reciprocal)",
+            "value": 0.000015048532,
             "unit": "1 / Milliseconds"
           }
         ]
