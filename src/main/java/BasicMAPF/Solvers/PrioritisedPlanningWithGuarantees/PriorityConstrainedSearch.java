@@ -331,9 +331,9 @@ public class PriorityConstrainedSearch extends A_Solver {
 
     @Nullable
     private int[] getHarr(ArrayList<MDD> MDDs, ConstraintSet updatedConstraints) {
-        HashMap<I_Location, List<SingleAgentAStarSIPP_Solver.Interval>> safeIntervalsByLocation = null;
+        Map<I_Location, List<SingleAgentAStarSIPP_Solver.Interval>> safeIntervalsByLocation = null;
         if (pcsHeuristic instanceof PCSHeuristicSIPP){
-            safeIntervalsByLocation = SingleAgentAStarSIPP_Solver.vertexConstraintsToSafeTimeIntervals(updatedConstraints, null);
+            safeIntervalsByLocation = SingleAgentAStarSIPP_Solver.vertexConstraintsToSafeTimeIntervals(updatedConstraints, null, this.currentMap);
         }
         return pcsHeuristic.getH(priorityOrderedAgents, MDDs.size(), updatedConstraints, currentInstance, singleAgentHeuristic, safeIntervalsByLocation);
     }
