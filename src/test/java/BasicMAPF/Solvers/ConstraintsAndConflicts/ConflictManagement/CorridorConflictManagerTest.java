@@ -32,7 +32,7 @@ class CorridorConflictManagerTest {
 
     private MAPF_Instance instanceHFromPaper = new MAPF_Instance("instanceHFromPaper", mapHLong,
             new Agent[]{agent30to33, agent13to10});
-    I_Solver corridorSolver = new CBS_Solver(null,null,null,null,null,true, null, null);
+    I_Solver corridorSolver = new CBS_Solver(null,null,null,null,null,true, null, null, null);
 
     void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
         assertTrue(solution.isValidSolution()); //is valid (no conflicts)
@@ -64,10 +64,10 @@ class CorridorConflictManagerTest {
         boolean useAsserts = true;
 
         I_Solver regularCBS = new CBS_Solver(null, null, null,
-                null, null, false, null, null);
+                null, null, false, null, null, null);
         String nameBaseline = "regularCBS";
         I_Solver corridorCBS = new CBS_Solver(null, null, null,
-                null, null, true, null, null);
+                null, null, true, null, null, null);
         String nameExperimental = "corridorCBS";
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});

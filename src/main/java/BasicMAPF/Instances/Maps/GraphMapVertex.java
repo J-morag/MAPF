@@ -32,17 +32,22 @@ public class GraphMapVertex implements I_Location {
     public List<Integer> incomingEdgeWeights = new ArrayList<>();
 
     public final I_Coordinate coordinate;
+    /**
+     * ID within the specific map's locations. Should be serial, unique, and 0-based.
+     */
+    public final int serialID;
 
     public final List<String> locationSubtypes;
 
-    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate, @Nullable List<String> locationSubtypes) {
+    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate, @Nullable List<String> locationSubtypes, int serialID) {
         this.locationType = locationType;
         this.coordinate = coordinate;
+        this.serialID = serialID;
         this.outgoingEdges = null;
         this.locationSubtypes = locationSubtypes == null ? null : List.copyOf(locationSubtypes);
     }
-    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate) {
-        this(locationType, coordinate, null);
+    GraphMapVertex(Enum_MapLocationType locationType, I_Coordinate coordinate, int serialID) {
+        this(locationType, coordinate, null, serialID);
     }
 
     /**
@@ -173,11 +178,15 @@ public class GraphMapVertex implements I_Location {
         if (this == o) return true;
         if (!(o instanceof GraphMapVertex that)) return false;
 
-        return coordinate.equals(that.coordinate);
+        if (serialID != -1) {
+            return serialID == that.serialID;
+        } else {
+            return coordinate.equals(that.coordinate);
+        }
     }
 
     @Override
     public int hashCode() {
-        return coordinate.hashCode();
+        return (serialID != -1) ? Integer.hashCode(serialID) : coordinate.hashCode();
     }
 }

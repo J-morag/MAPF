@@ -1,10 +1,12 @@
 package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.SOCWithPriorities;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -17,6 +19,7 @@ import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import TransientMAPF.TransientMAPFBehaviour;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -148,7 +151,7 @@ class CBS_SolverTest {
     @Test
     void cbsWithPriorities() {
         I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null);
+                new SOCWithPriorities(), null, null, null, null, null);
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -183,7 +186,7 @@ class CBS_SolverTest {
         boolean useAsserts = true;
 
         I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null);
+                new SOCWithPriorities(), null, null, null, null, null);
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
@@ -343,7 +346,7 @@ class CBS_SolverTest {
     @Test
     void sharedGoals(){
         CBS_Solver cbsSolverSharedGoals = new CBS_Solver(null, null, null,
-                null, null, null, true, null);
+                null, null, null, true, null, null);
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -415,5 +418,54 @@ class CBS_SolverTest {
             Solution solution = cbsSolverSharedGoals.solve(testInstance, new RunParametersBuilder().setTimeout(5L*1000).setInstanceReport(instanceReport).createRP());
             assertNull(solution);
         }
+    }
+
+    @Test
+    void worksWithTMAPFPaths() {
+        I_Solver CBSt = new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        Agent agentXMoving = new Agent(0, coor42, coor02, 1);
+        Agent agentYMoving = new Agent(1, coor10, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
+
+        Solution solvedNormal = cbsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedNormal.solves(testInstance));
+        assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
+        assertEquals(6, solvedNormal.makespan());
+
+        Solution solvedCBSt = CBSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedCBSt.solves(testInstance));
+        assertEquals(4 + 3, solvedCBSt.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 2, solvedCBSt.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedCBSt.makespan()); // makespan (normal)
+        assertEquals(4, solvedCBSt.makespanServiceTime()); // makespan (TMAPF)
+
+        System.out.println(solvedNormal);
+        System.out.println(solvedCBSt);
+    }
+
+
+    @Test
+    void transientExample() {
+        I_Solver CBSt = new CBS_Solver(null, null, null, new SumServiceTimes(), null, null, null, null, TransientMAPFBehaviour.transientMAPFsstWithBlacklist);
+        Agent agent1 = new Agent(0, coor10, coor13, 1);
+        Agent agent2 = new Agent(1, coor11, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
+
+        Solution solvedNormal = cbsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedNormal.solves(testInstance));
+        assertEquals(4 + 1, solvedNormal.sumIndividualCosts()); // normal SOC function
+        assertEquals(4 + 1, solvedNormal.sumServiceTimes()); // TMAPF cost function
+        assertEquals(4, solvedNormal.makespan()); // makespan (normal)
+        assertEquals(4, solvedNormal.makespanServiceTime()); // makespan (TMAPF)
+
+        Solution solvedCBSt = CBSt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedCBSt.solves(testInstance));
+        assertEquals(3 + 3, solvedCBSt.sumIndividualCosts()); // normal SOC function
+        assertEquals(3 + 1, solvedCBSt.sumServiceTimes()); // TMAPF cost function
+        assertEquals(3, solvedCBSt.makespan()); // makespan (normal)
+        assertEquals(3, solvedCBSt.makespanServiceTime()); // makespan (TMAPF)
+
+        System.out.println(solvedNormal);
+        System.out.println(solvedCBSt);
     }
 }

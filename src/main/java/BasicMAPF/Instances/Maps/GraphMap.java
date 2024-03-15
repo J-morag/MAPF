@@ -17,23 +17,23 @@ import java.util.*;
  */
 public class GraphMap implements I_ExplicitMap {
 
-    private final HashMap<I_Coordinate, GraphMapVertex> allGraphLocations;
+    private final Map<I_Coordinate, GraphMapVertex> allGraphLocations;
     private final boolean isStronglyConnected;
 
     /**
      * Initialization in {@link MapFactory}.
-     * @param allGraphVertices a {@link HashMap} containing all locations in the graph.
+     * @param allGraphVertices a {@link Map} containing all locations in the graph.
      */
-    GraphMap(HashMap<I_Coordinate, GraphMapVertex> allGraphVertices) {
+    GraphMap(Map<I_Coordinate, GraphMapVertex> allGraphVertices) {
         this(allGraphVertices, null);
     }
 
     /**
      * Initialization in {@link MapFactory}.
-     * @param allGraphVertices a {@link HashMap} containing all locations in the graph.
+     * @param allGraphVertices a {@link Map} containing all locations in the graph.
      * @param isStronglyConnected - if the graph can be assumed to be strongly connected.
      */
-    GraphMap(HashMap<I_Coordinate, GraphMapVertex> allGraphVertices, Boolean isStronglyConnected) {
+    GraphMap(Map<I_Coordinate, GraphMapVertex> allGraphVertices, Boolean isStronglyConnected) {
         this.allGraphLocations = allGraphVertices;
         this.isStronglyConnected = Objects.requireNonNullElse(isStronglyConnected, true);
     }
@@ -57,11 +57,12 @@ public class GraphMap implements I_ExplicitMap {
     public I_Map getSubmapWithout(Collection<? extends I_Location> mapLocations) {
         // have to rebuild the entire map to remove the removed vertices from the neighbour lists of remaining vertices.
 
-        HashMap<I_Coordinate, GraphMapVertex> vertexMappings = new HashMap<>();
+        Map<I_Coordinate, GraphMapVertex> vertexMappings = new HashMap<>(this.getNumMapLocations() - mapLocations.size());
         // populate with stub vertices (copies), except for vertices that we want to remove
         for (Map.Entry<I_Coordinate, GraphMapVertex> pair : this.allGraphLocations.entrySet()) {
+            GraphMapVertex vertex = pair.getValue();
             if(!mapLocations.contains(pair.getValue())){
-                vertexMappings.put(pair.getKey(), new GraphMapVertex(pair.getValue().locationType, pair.getKey()));
+                vertexMappings.put(pair.getKey(), new GraphMapVertex(vertex.locationType, pair.getKey(), vertex.serialID));
             }
         }
         // now iterate over original vertices and copy over their neighbors, except for neighbors that were removed.
@@ -83,10 +84,10 @@ public class GraphMap implements I_ExplicitMap {
         return new GraphMap(vertexMappings);
     }
 
+    @Override
     public int getNumMapLocations(){
         return allGraphLocations.size();
     }
-
 
     /**
      * O(n)

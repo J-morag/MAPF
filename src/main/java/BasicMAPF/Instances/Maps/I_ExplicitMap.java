@@ -13,6 +13,9 @@ import java.util.Collection;
  * complexity challenge. Example: A 1000x1000x1000 map with just one agent, whose source and target are adjacent.
  */
 public interface I_ExplicitMap extends I_Map{
+    int getNumMapLocations();
+
     Collection<? extends I_Location> getAllLocations();
+
     Graph<I_Location, Edge> getJGraphTRepresentation();
 }
