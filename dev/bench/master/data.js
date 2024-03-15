@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710466425203,
+  "lastUpdate": 1710466427004,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -5887,6 +5887,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 36983.65,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c",
+          "message": "performance - ArrayMap for array lookup instead of hash map lookup (#84)\n\nadd ArrayMap for faster access to maps with I_Location keys - primarily for DistanceTableSingleAgentHeuristic",
+          "timestamp": "2024-03-15T11:55:02+11:00",
+          "tree_id": "3d22a6ba4fdb5f2f1b747090bee2de7c28dbbcd8",
+          "url": "https://github.com/J-morag/MAPF/commit/ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c"
+        },
+        "date": 1710466426319,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 12,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4351.4,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 22032.588,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 10837.941,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 41297.65,
             "unit": "Expansions"
           }
         ]
