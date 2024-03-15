@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710476566437,
+  "lastUpdate": 1710476567425,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -14572,6 +14572,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 968.48236,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 396247.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dc6e4a352e31b64a98f42c1c31db63591070d0a3",
+          "message": "use ArrayMap in more places (#85)\n\nthat index on I_Location",
+          "timestamp": "2024-03-15T14:44:16+11:00",
+          "tree_id": "89ec75887491f91db2d5a1a1b2009279d0ecda24",
+          "url": "https://github.com/J-morag/MAPF/commit/dc6e4a352e31b64a98f42c1c31db63591070d0a3"
+        },
+        "date": 1710476567119,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 849.62354,
             "unit": "Milliseconds"
           },
           {
