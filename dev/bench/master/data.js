@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710466433727,
+  "lastUpdate": 1710466435337,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -19222,6 +19222,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "SIPP - Average Runtime",
             "value": 466.91763,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "SIPP - Average Expansions Low Level",
+            "value": 23324.754,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c",
+          "message": "performance - ArrayMap for array lookup instead of hash map lookup (#84)\n\nadd ArrayMap for faster access to maps with I_Location keys - primarily for DistanceTableSingleAgentHeuristic",
+          "timestamp": "2024-03-15T11:55:02+11:00",
+          "tree_id": "3d22a6ba4fdb5f2f1b747090bee2de7c28dbbcd8",
+          "url": "https://github.com/J-morag/MAPF/commit/ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c"
+        },
+        "date": 1710466434647,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "SIPP - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "SIPP - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "SIPP - Average Runtime",
+            "value": 334.1647,
             "unit": "Milliseconds"
           },
           {
