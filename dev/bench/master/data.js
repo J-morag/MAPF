@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710466427004,
+  "lastUpdate": 1710466428607,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -19833,6 +19833,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
             "value": 5849520,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c",
+          "message": "performance - ArrayMap for array lookup instead of hash map lookup (#84)\n\nadd ArrayMap for faster access to maps with I_Location keys - primarily for DistanceTableSingleAgentHeuristic",
+          "timestamp": "2024-03-15T11:55:02+11:00",
+          "tree_id": "3d22a6ba4fdb5f2f1b747090bee2de7c28dbbcd8",
+          "url": "https://github.com/J-morag/MAPF/commit/ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c"
+        },
+        "date": 1710466427920,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime",
+            "value": 13178.883,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime Low Level",
+            "value": 11224.823,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
+            "value": 6247272.5,
             "unit": "Expansions"
           }
         ]
