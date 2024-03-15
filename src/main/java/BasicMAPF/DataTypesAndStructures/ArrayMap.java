@@ -3,6 +3,7 @@ package BasicMAPF.DataTypesAndStructures;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * ArrayMap is a simple implementation of a Map using an array.
@@ -84,6 +85,18 @@ public class ArrayMap<K, V> implements Map<K, V> {
     }
 
     @Override
+    public V putIfAbsent(K key, V value) {
+        checkKey(key);
+        int hash = hash(key);
+        V oldValue = values[hash];
+        if (oldValue == null) {
+            values[hash] = value;
+            size++;
+        }
+        return oldValue;
+    }
+
+    @Override
     public void clear() {
         Arrays.fill(values, null);
         size = 0;
@@ -96,7 +109,8 @@ public class ArrayMap<K, V> implements Map<K, V> {
 
     @Override
     public @NotNull Collection<V> values() {
-        return Arrays.asList(values);
+        // return a list of all the non-null values
+        return  Arrays.stream(values).filter(value -> value != null).collect(Collectors.toList());
     }
 
     @Override
