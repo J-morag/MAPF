@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710466430299,
+  "lastUpdate": 1710466432006,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -11492,6 +11492,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 982.7059,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c",
+          "message": "performance - ArrayMap for array lookup instead of hash map lookup (#84)\n\nadd ArrayMap for faster access to maps with I_Location keys - primarily for DistanceTableSingleAgentHeuristic",
+          "timestamp": "2024-03-15T11:55:02+11:00",
+          "tree_id": "3d22a6ba4fdb5f2f1b747090bee2de7c28dbbcd8",
+          "url": "https://github.com/J-morag/MAPF/commit/ab47b7c423d0fe1e285ec5e6e13fd44a74f9691c"
+        },
+        "date": 1710466431308,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 6,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 27725.818,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 464.2353,
             "unit": "Milliseconds"
           },
           {
