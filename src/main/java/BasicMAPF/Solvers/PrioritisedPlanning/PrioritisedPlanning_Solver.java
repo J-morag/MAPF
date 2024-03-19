@@ -7,7 +7,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -80,7 +80,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    private final TransientMAPFBehaviour transientMAPFBehaviour;
+    private final TransientMAPFSettings transientMAPFSettings;
     public boolean reportIndvAttempts = false;
 
 
@@ -114,16 +114,16 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources,  TransientMAPFBehaviour transientMAPFBehaviour) {
+                                      Boolean sharedGoals, Boolean sharedSources,  TransientMAPFSettings transientMAPFSettings) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
+        this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
 
-        super.name = "PrP" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "") + " (" + this.lowLevelSolver.name() + ")" +
+        super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
@@ -304,7 +304,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
-        return (transientMAPFBehaviour.isTransientMAPF() && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
+        return (transientMAPFSettings.isTransientMAPF() && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints,
@@ -338,20 +338,21 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
                 setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
         params.fBudget = maxCost;
-        if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF){
-            params.goalCondition = new VisitedTargetAStarGoalCondition();
-        } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist) {
-            Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
-            for (Agent agent: this.agents) {
-                if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)){
-                    targetsOfAgentsThatHaventPlannedYet.add(agent.target);
+        if (transientMAPFSettings.isTransientMAPF()) {
+            if (transientMAPFSettings.useBlacklist()) {
+                Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
+                for (Agent agent : this.agents) {
+                    if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)) {
+                        targetsOfAgentsThatHaventPlannedYet.add(agent.target);
+                    }
                 }
+                params.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
+            } else {
+                params.goalCondition = new VisitedTargetAStarGoalCondition();
             }
-            params.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
         }
         return params;
     }
-
 
 
     /*  = wind down =  */

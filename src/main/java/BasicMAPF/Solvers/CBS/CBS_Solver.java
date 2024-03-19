@@ -24,7 +24,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.RunParameters_SAAStar;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 
 import java.util.*;
@@ -100,7 +100,7 @@ public class CBS_Solver extends A_Solver {
      */
     private final boolean sharedSources;
 
-    private final TransientMAPFBehaviour transientMAPFBehaviour;
+    private final TransientMAPFSettings transientMAPFSettings;
 
     /*  = Constructors =  */
 
@@ -116,7 +116,7 @@ public class CBS_Solver extends A_Solver {
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
                       I_SolutionCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
-                      Boolean sharedGoals, Boolean sharedSources, TransientMAPFBehaviour transientMAPFBehaviour) {
+                      Boolean sharedGoals, Boolean sharedSources, TransientMAPFSettings transientMAPFSettings) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -127,9 +127,9 @@ public class CBS_Solver extends A_Solver {
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        this.transientMAPFBehaviour = Objects.requireNonNullElse(transientMAPFBehaviour, TransientMAPFBehaviour.regularMAPF);
+        this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
 
-        super.name = "CBS" + (this.transientMAPFBehaviour.isTransientMAPF() ? "t" : "");
+        super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
     }
 
     /**
@@ -151,7 +151,7 @@ public class CBS_Solver extends A_Solver {
         this.instance = instance;
         this.singleAgentGAndH = runParameters.singleAgentGAndH != null ? runParameters.singleAgentGAndH :
                 this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
-                        this.transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist ?
+                        this.transientMAPFSettings.useSST() ?
                                 new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(new ArrayList<>(this.instance.agents), this.instance.map)) :
                 new DistanceTableSingleAgentHeuristic(new ArrayList<>(this.instance.agents), this.instance.map) :
                 null;
@@ -189,7 +189,7 @@ public class CBS_Solver extends A_Solver {
      */
     private CBS_Node generateRoot(I_ConstraintSet initialConstraints) {
         // init an empty solution
-        Solution solution = transientMAPFBehaviour.isTransientMAPF() ? new TransientMAPFSolution() : new Solution(); 
+        Solution solution = transientMAPFSettings.isTransientMAPF() ? new TransientMAPFSolution() : new Solution();
         // for every agent, add its plan to the solution
         for (Agent agent :
                 this.instance.agents) {
@@ -292,7 +292,7 @@ public class CBS_Solver extends A_Solver {
 
         // replace with copies if required
         if(copyDatastructures) {
-            solution =  transientMAPFBehaviour.isTransientMAPF() ? new TransientMAPFSolution(solution) : new Solution(solution);
+            solution =  transientMAPFSettings.isTransientMAPF() ? new TransientMAPFSolution(solution) : new Solution(solution);
         }
 
         // modify for this node
@@ -367,16 +367,19 @@ public class CBS_Solver extends A_Solver {
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
 
             // TMAPF goal condition
-            if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPF || transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFsstWithBlacklist){
-                astarSubproblemParameters.goalCondition = new VisitedTargetAStarGoalCondition();
-            } else if (transientMAPFBehaviour == TransientMAPFBehaviour.transientMAPFWithBlacklist) {
-                Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
-                for (Agent agentToBlack: this.instance.agents) {
-                    if (!agent.equals(agentToBlack)){
-                        targetsOfAgentsThatHaventPlannedYet.add(agentToBlack.target);
+            if (transientMAPFSettings.isTransientMAPF()){
+                if (transientMAPFSettings.useBlacklist()) {
+                    Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
+                    for (Agent agentToBlack : this.instance.agents) {
+                        if (!agent.equals(agentToBlack)) {
+                            targetsOfAgentsThatHaventPlannedYet.add(agentToBlack.target);
+                        }
                     }
+                    astarSubproblemParameters.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
                 }
-                astarSubproblemParameters.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
+                else {
+                    astarSubproblemParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+                }
             }
 
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);

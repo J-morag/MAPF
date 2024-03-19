@@ -13,7 +13,7 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -427,7 +427,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPF() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(TransientMAPFBehaviour.transientMAPF).createLNS();
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, false, false)).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);
@@ -450,7 +450,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPFAndBlacklist() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(TransientMAPFBehaviour.transientMAPFWithBlacklist).createLNS();
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false)).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);

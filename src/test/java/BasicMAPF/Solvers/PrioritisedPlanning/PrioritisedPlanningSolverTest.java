@@ -14,7 +14,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -221,7 +221,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -243,7 +243,7 @@ class PrioritisedPlanningSolverTest {
     void worksWithTMAPFAndRandomRestarts() {
         I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, TransientMAPFBehaviour.transientMAPF);
+                null, null, TransientMAPFSettings.defaultTransientMAPF);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
@@ -269,7 +269,7 @@ class PrioritisedPlanningSolverTest {
     void worksWithTMAPFAndBlacklistAndRandomRestarts() {
         I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist);
+                null, null, new TransientMAPFSettings(true, true, false));
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
