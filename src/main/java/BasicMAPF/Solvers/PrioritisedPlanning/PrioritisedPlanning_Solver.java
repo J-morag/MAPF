@@ -2,8 +2,10 @@ package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
@@ -154,14 +156,25 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
         }
-        // heuristic
-        this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
-        if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
-            ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
-        }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
         if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
             reorderAgentsByPriority(parameters.priorityOrder);
+        }
+        
+        // heuristic
+        if (parameters.singleAgentGAndH != null){
+            this.singleAgentGAndH = parameters.singleAgentGAndH;
+        }
+        else {
+            if (this.lowLevelSolver instanceof SingleAgentAStar_Solver){
+                this.singleAgentGAndH = new DistanceTableSingleAgentHeuristic(new ArrayList<>(instance.agents), instance.map);
+            }
+            if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
+                ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
+            }
+            if (this.singleAgentGAndH != null && this.solutionCostFunction instanceof SumServiceTimes){
+                this.singleAgentGAndH = new ServiceTimeGAndH(this.singleAgentGAndH);
+            }
         }
     }
 

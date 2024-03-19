@@ -2,10 +2,12 @@ package BasicMAPF.Solvers.CBS;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
@@ -112,7 +114,7 @@ public class CBS_Solver extends A_Solver {
      * @param openListManagementMode @see {@link OpenListManagementMode}. @Nullable
      * @param costFunction a cost function for solutions. @Nullable
      * @param cbsNodeComparator determines how to sort {@link #openList OPEN}. @Nullable
-     * @param useCorridorReasoning whether or not to use corridor reasoning.
+     * @param useCorridorReasoning whether to use corridor reasoning.
      */
     public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
                       I_SolutionCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
@@ -149,12 +151,22 @@ public class CBS_Solver extends A_Solver {
         this.generatedNodes = 0;
         this.expandedNodes = 0;
         this.instance = instance;
-        this.singleAgentGAndH = runParameters.singleAgentGAndH != null ? runParameters.singleAgentGAndH :
-                this.lowLevelSolver instanceof SingleAgentAStar_Solver ?
-                        this.transientMAPFSettings.useSST() ?
-                                new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(new ArrayList<>(this.instance.agents), this.instance.map)) :
-                new DistanceTableSingleAgentHeuristic(new ArrayList<>(this.instance.agents), this.instance.map) :
-                null;
+
+        // heuristic
+        if (runParameters.singleAgentGAndH != null){
+            this.singleAgentGAndH = runParameters.singleAgentGAndH;
+        }
+        else {
+            if (this.lowLevelSolver instanceof SingleAgentAStar_Solver){
+                this.singleAgentGAndH = new DistanceTableSingleAgentHeuristic(new ArrayList<>(instance.agents), instance.map);
+            }
+            if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
+                ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
+            }
+            if (this.singleAgentGAndH != null && this.costFunction instanceof SumServiceTimes){
+                this.singleAgentGAndH = new ServiceTimeGAndH(this.singleAgentGAndH);
+            }
+        }
     }
 
     /*  = algorithm =  */

@@ -269,7 +269,7 @@ class PrioritisedPlanningSolverTest {
     void worksWithTMAPFAndBlacklistAndRandomRestarts() {
         I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, new TransientMAPFSettings(true, true, false));
+                null, null, new TransientMAPFSettings(true, true));
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});

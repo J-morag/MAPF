@@ -49,7 +49,7 @@ public class TransientMAPFExampleMain {
 
             PrioritisedPlanning_Solver PrPT_SOC = new PrioritisedPlanning_Solver(null, null, new SumOfCosts(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, new TransientMAPFSettings(true, false, false));
+                    null, null, new TransientMAPFSettings(true, false));
             PrPT_SOC.name = "PrPT_SOC";
 
             PrioritisedPlanning_Solver PrP_SOC = new PrioritisedPlanning_Solver(null, null, new SumOfCosts(),
@@ -61,7 +61,7 @@ public class TransientMAPFExampleMain {
 
             PrioritisedPlanning_Solver PrPT_SST = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, new TransientMAPFSettings(true, false, true));
+                    null, null, new TransientMAPFSettings(true, false));
             PrPT_SST.name = "PrPT_SST";
 
             PrioritisedPlanning_Solver PrP_SST = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
@@ -73,11 +73,11 @@ public class TransientMAPFExampleMain {
 
             PrioritisedPlanning_Solver PrPT_SST_Blacklist = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, new TransientMAPFSettings(true, true, true));
+                    null, null, new TransientMAPFSettings(true, true));
 
             PrioritisedPlanning_Solver PrP_SOC_Blacklist = new PrioritisedPlanning_Solver(null, null, new SumOfCosts(),
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, new TransientMAPFSettings(false, true, false));
+                    null, null, new TransientMAPFSettings(false, true));
 
             genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST, PrPT_SST_Blacklist, PrP_SOC_Blacklist));
             genericRunManager.runAllExperiments();
