@@ -75,11 +75,7 @@ public class TransientMAPFExampleMain {
                     new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                     null, null, new TransientMAPFSettings(true, true));
 
-            PrioritisedPlanning_Solver PrP_SOC_Blacklist = new PrioritisedPlanning_Solver(null, null, new SumOfCosts(),
-                    new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
-                    null, null, new TransientMAPFSettings(false, true));
-
-            genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST, PrPT_SST_Blacklist, PrP_SOC_Blacklist));
+            genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST, PrPT_SST_Blacklist));
             genericRunManager.runAllExperiments();
         }
     }
