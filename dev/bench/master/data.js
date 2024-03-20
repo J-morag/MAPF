@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710897081486,
+  "lastUpdate": 1710897083920,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -20697,6 +20697,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
             "value": 6491270.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "82e96516129ca60eaaf3ef39d30fd158e9e6da99",
+          "message": "refactor TransientMAPFBehaviour (#86)\n\n* Remove SST from TransientMAPFSettings, use only I_SolutionCostFunction. In PrP, properly initialize subproblem GAndH when using SST cost function\r\n\r\n* fix TransientMAPFExampleMain",
+          "timestamp": "2024-03-20T11:32:57+11:00",
+          "tree_id": "70af99a762404e76353ec7aae86afa3029231397",
+          "url": "https://github.com/J-morag/MAPF/commit/82e96516129ca60eaaf3ef39d30fd158e9e6da99"
+        },
+        "date": 1710897083553,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime",
+            "value": 13204.765,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime Low Level",
+            "value": 11129.647,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
+            "value": 6435984.5,
             "unit": "Expansions"
           }
         ]
