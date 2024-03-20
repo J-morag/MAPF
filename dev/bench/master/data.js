@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710897085311,
+  "lastUpdate": 1710897086665,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -11924,6 +11924,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 453.2353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "82e96516129ca60eaaf3ef39d30fd158e9e6da99",
+          "message": "refactor TransientMAPFBehaviour (#86)\n\n* Remove SST from TransientMAPFSettings, use only I_SolutionCostFunction. In PrP, properly initialize subproblem GAndH when using SST cost function\r\n\r\n* fix TransientMAPFExampleMain",
+          "timestamp": "2024-03-20T11:32:57+11:00",
+          "tree_id": "70af99a762404e76353ec7aae86afa3029231397",
+          "url": "https://github.com/J-morag/MAPF/commit/82e96516129ca60eaaf3ef39d30fd158e9e6da99"
+        },
+        "date": 1710897086256,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 6,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 27725.818,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 458.64706,
             "unit": "Milliseconds"
           },
           {
