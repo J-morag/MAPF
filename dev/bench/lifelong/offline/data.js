@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710898458326,
+  "lastUpdate": 1710898459674,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -6979,6 +6979,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 7076848.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "96f9f2adc7f31fd6fbb94967280ebd8edce1f243",
+          "message": "merge from master",
+          "timestamp": "2024-03-20T11:54:57+11:00",
+          "tree_id": "428e02822fe5fe56e5c8ee1bbfa25c4e0fc47895",
+          "url": "https://github.com/J-morag/MAPF/commit/96f9f2adc7f31fd6fbb94967280ebd8edce1f243"
+        },
+        "date": 1710898459284,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 2989.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 29234.824,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 7885.8823,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 78625.586,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 8091344,
             "unit": "Expansions"
           }
         ]
