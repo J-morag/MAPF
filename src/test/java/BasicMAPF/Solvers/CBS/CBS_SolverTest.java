@@ -6,7 +6,6 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -19,7 +18,7 @@ import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -422,7 +421,7 @@ class CBS_SolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        I_Solver CBSt = new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -446,7 +445,7 @@ class CBS_SolverTest {
 
     @Test
     void transientExample() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, new SumServiceTimes(), null, null, null, null, TransientMAPFBehaviour.transientMAPFsstWithBlacklist);
+        I_Solver CBSt = new CBS_Solver(null, null, null, new SumServiceTimes(), null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
         Agent agent1 = new Agent(0, coor10, coor13, 1);
         Agent agent2 = new Agent(1, coor11, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
