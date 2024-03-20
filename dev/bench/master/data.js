@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710897083920,
+  "lastUpdate": 1710897085311,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -9021,6 +9021,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 12308679,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "82e96516129ca60eaaf3ef39d30fd158e9e6da99",
+          "message": "refactor TransientMAPFBehaviour (#86)\n\n* Remove SST from TransientMAPFSettings, use only I_SolutionCostFunction. In PrP, properly initialize subproblem GAndH when using SST cost function\r\n\r\n* fix TransientMAPFExampleMain",
+          "timestamp": "2024-03-20T11:32:57+11:00",
+          "tree_id": "70af99a762404e76353ec7aae86afa3029231397",
+          "url": "https://github.com/J-morag/MAPF/commit/82e96516129ca60eaaf3ef39d30fd158e9e6da99"
+        },
+        "date": 1710897084939,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 9024,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30002.824,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28060,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 12956522,
             "unit": "Expansions"
           }
         ]
