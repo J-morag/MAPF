@@ -722,7 +722,7 @@ public class LifelongSimulationSolver extends A_Solver {
         SingleAgentGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;
         if (congestionMultiplier != null && congestionMultiplier > 0){
             List<Agent> agents = new ArrayList<>(selectedTimelyOfflineAgentsSubset);
-            costAndHeuristic = new DistanceTableSingleAgentHeuristic(agents, this.lifelongInstance.map, null, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
+            costAndHeuristic = new DistanceTableSingleAgentHeuristic(agents, this.lifelongInstance.map, -1, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
         }
 
         long hardTimeout = Math.min(minResponseTime, Math.max(0, super.maximumRuntime - (getCurrentTimeMS_NSAccuracy() - super.startTime)));

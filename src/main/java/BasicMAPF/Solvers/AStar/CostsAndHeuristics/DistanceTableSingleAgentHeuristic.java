@@ -49,8 +49,6 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
     public DistanceTableSingleAgentHeuristic(@Nullable List<? extends Agent> agents, I_Map map, int lruCacheSize, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.congestionMap = congestionMap;
-        if (lruCacheSize != null && lruCacheSize < 1)
-            throw new IllegalArgumentException("If used, the LRU cache size must be at least 1.");
         this.distanceDictionaries = getInitDistanceDictionaries(map, lruCacheSize);
         if (agents != null){
             if (lruCacheSize > 0 && lruCacheSize < agents.size())

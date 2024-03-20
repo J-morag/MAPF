@@ -39,11 +39,11 @@ import static LifelongMAPF.LifelongTestConstants.*;
 class LifelongSimulationSolverTest {
 
     I_Solver snapshotOptimal = new LifelongSimulationSolver(null, new AllAgentsSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
+            new CBS_Solver(null, null, null, null, null, null, true, false, null), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
     I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
+            new CBS_Solver(null, null, null, null, null, null, true, false, null), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, false), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
+            new CBS_Solver(null, null, null, null, null, null, true, false, null), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
     I_Solver replanSingle = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(null, new AllAgentsSelector(),
