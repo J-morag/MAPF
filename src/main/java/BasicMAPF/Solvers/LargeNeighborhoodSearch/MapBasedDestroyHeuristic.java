@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
+import BasicMAPF.DataTypesAndStructures.ArrayMap;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -18,7 +19,7 @@ public class MapBasedDestroyHeuristic implements I_DestroyHeuristic {
 
     @Override
     public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map) {
-        Map<I_Location, List<AgentTime>> intersectionsToAgentsSortedByTime = getIntersectionsToAgentsSortedByTime(currentSolution);
+        Map<I_Location, List<AgentTime>> intersectionsToAgentsSortedByTime = getIntersectionsToAgentsSortedByTime(currentSolution, map);
 
         List<I_Location> allIntersections = getAndCacheAllIntersections(map, intersectionsToAgentsSortedByTime);
         if (allIntersections.isEmpty()){
@@ -114,8 +115,9 @@ public class MapBasedDestroyHeuristic implements I_DestroyHeuristic {
     }
 
     @NotNull
-    private Map<I_Location, List<AgentTime>> getIntersectionsToAgentsSortedByTime(Solution currentSolution) {
-        Map<I_Location, List<AgentTime>> intersectionsToAgentsByTime = new HashMap<>();
+    private Map<I_Location, List<AgentTime>> getIntersectionsToAgentsSortedByTime(Solution currentSolution, I_Map map) {
+        Map<I_Location, List<AgentTime>> intersectionsToAgentsByTime = map instanceof I_ExplicitMap explicitMap ?
+                new ArrayMap<>(explicitMap.getNumMapLocations()) : new HashMap<>();
         for (SingleAgentPlan p :
                 currentSolution) {
             I_Location sourceLocation = p.getFirstMove().prevLocation;

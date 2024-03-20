@@ -1,5 +1,6 @@
 package Environment.RunManagers;
 
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;

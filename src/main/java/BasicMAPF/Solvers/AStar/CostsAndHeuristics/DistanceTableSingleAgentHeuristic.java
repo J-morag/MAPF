@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
+import BasicMAPF.DataTypesAndStructures.ArrayMap;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.GraphMapVertex;
@@ -32,10 +33,6 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
     public final CongestionMap congestionMap;
     private final static int edgeCost = 1;
 
-    public Map<I_Location, Map<I_Location, Integer>> getDistanceDictionaries() {
-        return distanceDictionaries;
-    }
-
     private DistanceTableSingleAgentHeuristic(I_Map map, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.distanceDictionaries = new HashMap<>();
@@ -46,17 +43,17 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
      * Constructor. Create a dictionary of real distances from anywhere in the map, to any location that is a target of any agent.
      * @param agents agents (targets) we need to include in the distance table.
      * @param map the map this heuristic will work on.
-     * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
+     * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If <= 0, no cache is used.
      * @param congestionMap will apply a congestion penalty if this isn't null.
      */
-    public DistanceTableSingleAgentHeuristic(@Nullable List<? extends Agent> agents, I_Map map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
+    public DistanceTableSingleAgentHeuristic(@Nullable List<? extends Agent> agents, I_Map map, int lruCacheSize, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.congestionMap = congestionMap;
         if (lruCacheSize != null && lruCacheSize < 1)
             throw new IllegalArgumentException("If used, the LRU cache size must be at least 1.");
-        this.distanceDictionaries = getInitDistanceDictionaries(lruCacheSize);
+        this.distanceDictionaries = getInitDistanceDictionaries(map, lruCacheSize);
         if (agents != null){
-            if (lruCacheSize != null && lruCacheSize < agents.size())
+            if (lruCacheSize > 0 && lruCacheSize < agents.size())
                 throw new IllegalArgumentException("LRU cache size must be at least as large as the number of agents.");
             for (Agent agent : agents) {
                 addAgentToHeuristic(agent);
@@ -70,24 +67,22 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
      * @param map the map this heuristic will work on.
      */
     public DistanceTableSingleAgentHeuristic(List<? extends Agent> agents, I_Map map) {
-        this(agents, map, null, null);
+        this(agents, map, -1, null);
     }
 
     /**
      * Constructor. Create a dictionary of real distances from anywhere in the map to anywhere in the map.
      * This makes the heuristic essentially the "All Pairs Shortest Path" heuristic.
      * @param map the map this heuristic will work on.
-     * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If null, no cache is used.
+     * @param lruCacheSize the size of the LRU cache used to store the distance dictionaries. If <= 0, no cache is used.
      * @param congestionMap will apply a congestion penalty if this isn't null.
      */
-    public DistanceTableSingleAgentHeuristic(@NotNull I_ExplicitMap map, @Nullable Integer lruCacheSize, @Nullable CongestionMap congestionMap) {
+    public DistanceTableSingleAgentHeuristic(@NotNull I_ExplicitMap map, int lruCacheSize, @Nullable CongestionMap congestionMap) {
         this.map = map;
         this.congestionMap = congestionMap;
-        if (lruCacheSize != null && lruCacheSize < 1)
-            throw new IllegalArgumentException("If used, the LRU cache size must be at least 1.");
-        if (lruCacheSize != null && lruCacheSize < map.getAllLocations().size())
+        if (lruCacheSize > 0 && lruCacheSize < map.getAllLocations().size())
             throw new IllegalArgumentException("lruCacheSize must be at least as large as the number of locations in the map (" + map.getAllLocations().size() + ")");
-        this.distanceDictionaries = getInitDistanceDictionaries(lruCacheSize);
+        this.distanceDictionaries = getInitDistanceDictionaries(map, lruCacheSize);
         for (I_Location location : map.getAllLocations()) {
             addTargetToHeuristic(location);
         }
@@ -99,11 +94,16 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
      * @param map the map this heuristic will work on.
      */
     public DistanceTableSingleAgentHeuristic(I_ExplicitMap map) {
-        this(map, null, null);
+        this(map, -1, null);
     }
 
-    private Map<I_Location, Map<I_Location, Integer>> getInitDistanceDictionaries(Integer lruCacheSize) {
-        return lruCacheSize != null ? new LRUMap<>(lruCacheSize): new HashMap<>();
+    private Map<I_Location, Map<I_Location, Integer>> getInitDistanceDictionaries(I_Map map, int lruCacheSize) {
+        return lruCacheSize > 0 ? new LRUMap<>(lruCacheSize):
+                map instanceof I_ExplicitMap explicitMap ? new ArrayMap<>(explicitMap.getNumMapLocations()) : new HashMap<>();
+    }
+
+    public Map<I_Location, Map<I_Location, Integer>> getDistanceDictionaries() {
+        return distanceDictionaries;
     }
 
     public void addAgentToHeuristic(Agent agent) {
@@ -118,7 +118,8 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
     public void addTargetToHeuristic(I_Location target) {
         if (!distanceDictionaries.containsKey(target)){
             //this map will be added to distanceDictionaries for every agent
-            Map<I_Location, Integer> mapForAgent = new HashMap<>();
+            Map<I_Location, Integer> mapForAgent = map instanceof I_ExplicitMap explicitMap ?
+                    new ArrayMap<>(explicitMap.getNumMapLocations()) : new HashMap<>();
             this.distanceDictionaries.put(target, mapForAgent);
 
             //distance of a vertex from itself
