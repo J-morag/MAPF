@@ -213,10 +213,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     protected Solution solvePrioritisedPlanning(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
         Solution bestSolution = null;
         int numPossibleOrderings = factorial(this.agents.size());
-        Set<List<Agent>> randomOrderings = new HashSet<>(); // TODO prefix tree memoization?
-        randomOrderings.add(new ArrayList<>(agents));
+        Set<List<Agent>> attemptedOrderings = new HashSet<>(); // TODO prefix tree memoization?
+        attemptedOrderings.add(new ArrayList<>(agents));
         Set<List<Agent>> deterministicOrderings = new HashSet<>();
         deterministicOrderings.add(new ArrayList<>(agents));
+        RestartsStrategy.RestartsKind restartsKind = RestartsStrategy.RestartsKind.none;
         // if using random restarts, try more than once and randomize between them
         for (int attemptNumber = 0;
                 ;
@@ -234,7 +235,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                         solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
                         : Float.POSITIVE_INFINITY;
                 //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints, maxCost, solution);
+                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints, maxCost, solution, restartsKind);
 
                 // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
                 if (planForAgent == null) {
@@ -248,7 +249,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 //add constraints to prevent the next agents from conflicting with the new plan
                 currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
             }
-
 
             /* = random/deterministic restarts = */
 
@@ -274,11 +274,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             }
 
 
-            if (attemptNumber + 1 == numPossibleOrderings){
+            if (attemptedOrderings.size() == numPossibleOrderings){ // so with AStarRestarts this won't increase
                 break; // exhausted all possible orderings
             }
 
-            RestartsStrategy.RestartsKind restartsKind;
             if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.numInitialRestarts){
                 restartsKind = restartsStrategy.initialRestarts;
             }
@@ -293,9 +292,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 do { // do not repeat orderings
                     Collections.shuffle(this.agents, this.random);
                 }
-                while (randomOrderings.contains(this.agents) || deterministicOrderings.contains(this.agents));
+                while (attemptedOrderings.contains(this.agents) || deterministicOrderings.contains(this.agents));
 
-                randomOrderings.add(new ArrayList<>(this.agents));
+                attemptedOrderings.add(new ArrayList<>(this.agents));
             }
             else if (restartsKind == RestartsStrategy.RestartsKind.deterministicRescheduling){
                 if (agentWeFailedOn != null){
@@ -305,12 +304,16 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                         break; // deterministic ordering can end up in a loop - terminates if repeats itself
                     }
 
-                    deterministicOrderings.add(new ArrayList<>(this.agents));
+                    ArrayList<Agent> newOrdering = new ArrayList<>(this.agents);
+                    deterministicOrderings.add(newOrdering);
+                    attemptedOrderings.add(newOrdering);
                 }
                 else { // deterministic restarts only restarts if no solution was found
                     break;
                 }
             }
+            // else if (restartsKind == RestartsStrategy.RestartsKind.AStarRestarts)
+            // do nothing - the next iteration will be the same ordering and randomization will happen inside AStar
         }
 
         return finalizeSolution(bestSolution);
@@ -321,11 +324,11 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, MAPF_Instance fullInstance, ConstraintSet constraints,
-                                              float maxCost, Solution solutionSoFar) {
+                                              float maxCost, Solution solutionSoFar, RestartsStrategy.RestartsKind currentRestartsKind){
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar, currentRestartsKind);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -346,10 +349,15 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         return subproblemReport;
     }
 
-    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport, ConstraintSet constraints, float maxCost, Solution solutionSoFar) {
+    protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport,
+                                                    ConstraintSet constraints, float maxCost, Solution solutionSoFar,
+                                                    RestartsStrategy.RestartsKind currentRestartsKind) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
                 setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
+        if (currentRestartsKind == RestartsStrategy.RestartsKind.AStarRestarts){
+            params.randomNumberGenerator = this.random;
+        }
         params.fBudget = maxCost;
         if (transientMAPFSettings.isTransientMAPF()) {
             if (transientMAPFSettings.useBlacklist()) {
