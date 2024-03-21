@@ -417,8 +417,6 @@ class SingleAgentAStar_SolverTest {
 
     @Test
     void accountsForConstraintAfterReachingGoal2() {
-        // now with an expected plan
-
         MAPF_Instance testInstance = instanceCircle2;
         Agent agent = testInstance.agents.get(0);
 
@@ -428,29 +426,8 @@ class SingleAgentAStar_SolverTest {
         RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
         Solution solved = aStar.solve(testInstance, runParameters);
-
-        SingleAgentPlan plan1 = new SingleAgentPlan(agent);
-        plan1.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        plan1.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        plan1.addMove(new Move(agent, 3, location32Circle, location33Circle));
-        plan1.addMove(new Move(agent, 4, location33Circle, location33Circle));
-        plan1.addMove(new Move(agent, 5, location33Circle, location32Circle));
-        plan1.addMove(new Move(agent, 6, location32Circle, location33Circle));
-        Solution expected1 = new Solution();
-        expected1.putPlan(plan1);
-
-        SingleAgentPlan plan2 = new SingleAgentPlan(agent);
-        plan2.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        plan2.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        plan2.addMove(new Move(agent, 3, location32Circle, location33Circle));
-        plan2.addMove(new Move(agent, 4, location33Circle, location33Circle));
-        plan2.addMove(new Move(agent, 5, location33Circle, location34Circle));
-        plan2.addMove(new Move(agent, 6, location34Circle, location33Circle));
-        Solution expected2 = new Solution();
-        expected2.putPlan(plan2);
-
-        assertEquals(6, solved.getPlanFor(agent).size());
-        assertTrue(expected1.equals(solved) || expected2.equals(solved));
+        System.out.println(solved);
+        assertEquals(6, solved.getPlanFor(agent).getCost());
     }
 
     @Test

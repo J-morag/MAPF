@@ -7,6 +7,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
 import org.apache.commons.lang3.NotImplementedException;
@@ -51,7 +52,7 @@ public class MDD {
      * copy constructor (deep) with constraints.
      * @param other an MDD to copy.
      */
-    public MDD(@NotNull MDD other, @Nullable ConstraintSet constraints){
+    public MDD(@NotNull MDD other, @Nullable I_ConstraintSet constraints){
         // todo avoid code duplications with the other copy option
         // at each level collect all edges that point to nodes seen in the previous level -
         //  any edge/vertex we collect would be on a path from start to goal without passing constraints
@@ -82,8 +83,7 @@ public class MDD {
         }
         MDDNode newMDDStartNode = collectedNodes.get(other.start);
         if (newMDDStartNode == null || // constraints severed the MDD
-                (constraints != null && constraints.firstRejectionTime(new Move(goalCopy.getAgent(), Math.max(goalCopy.getDepth(), 1), // assumes time == depth
-                        goalCopy.getLocation(), goalCopy.getLocation()), false) != -1)){ // staying at the end of the MDD is rejected
+                (constraints != null && constraintsRejectStayingAtTargetForever(constraints, goalCopy))){
             this.start = null;
             this.goal = null;
             this.levels = null;
@@ -100,7 +100,7 @@ public class MDD {
     /**
      * copy (deep) with constraints (negative).
      */
-    public MDD deepCopyWithConstraints(@NotNull ConstraintSet constraints){
+    public MDD deepCopyWithConstraints(@NotNull I_ConstraintSet constraints){
         return new MDD(this, constraints);
     }
 
@@ -168,6 +168,12 @@ public class MDD {
 
     public MDD constrainedView(Constraint newConstraint) {
         throw new NotImplementedException("todo"); //todo
+    }
+
+    private boolean constraintsRejectStayingAtTargetForever(@NotNull I_ConstraintSet constraints, MDDNode goalCopy) {
+        // todo? profile Move creation runtime?
+        return constraints.firstRejectionTime(new Move(goalCopy.getAgent(), Math.max(goalCopy.getDepth(), 1), // assumes time == depth
+                goalCopy.getLocation(), goalCopy.getLocation()), false) != -1;
     }
 
     private void initialize(MDDSearchNode goal){
@@ -417,7 +423,7 @@ public class MDD {
         return conflicts;
     }
 
-    public void verifyIntegrity(@Nullable ConstraintSet negativeConstraints, @Nullable Constraint positiveConstraint) {
+    public void verifyIntegrity(@Nullable I_ConstraintSet negativeConstraints, @Nullable Constraint positiveConstraint) {
         if (DEBUG >= 2 && getDepth() != -1){
             for (int i = 0; i < getDepth(); i++) {
                 List<MDDNode> level = getLevel(i);
@@ -497,5 +503,21 @@ public class MDD {
             if (other.levels == null) other.initializeLevels();
             return levels.equals(other.levels);
         }
+    }
+
+    public boolean acceptedBy(I_ConstraintSet constraints) {
+        for (int i = 0; i < getDepth(); i++) {
+            List<MDDNode> level = getLevel(i);
+            for (MDDNode node : level) {
+                for (MDDNode neighbor : node.getNeighbors()) {
+                    // todo? profile Move creation runtime?
+                    if (constraints.rejects(new Move(neighbor.getAgent(), neighbor.getDepth(), // assumes time == depth
+                            node.getLocation(), neighbor.getLocation()))){
+                        return false;
+                    }
+                }
+            }
+        }
+        return ! constraintsRejectStayingAtTargetForever(constraints, goal);
     }
 }
