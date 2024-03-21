@@ -21,6 +21,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -425,9 +426,29 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal1);
         RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
-        Solution solved = aStar.solve(testInstance, runParameters);
-        System.out.println(solved);
-        assertEquals(6, solved.getPlanFor(agent).getCost());
+        SingleAgentPlan solved = aStar.solve(testInstance, runParameters).getPlanFor(agent);
+
+        SingleAgentPlan expectedPlanOption1 = new SingleAgentPlan(agent);
+        expectedPlanOption1.addMove(new Move(agent, 1, location12Circle, location22Circle));
+        expectedPlanOption1.addMove(new Move(agent, 2, location22Circle, location32Circle));
+        expectedPlanOption1.addMove(new Move(agent, 3, location32Circle, location33Circle));
+        expectedPlanOption1.addMove(new Move(agent, 4, location33Circle, location33Circle));
+        expectedPlanOption1.addMove(new Move(agent, 5, location33Circle, location32Circle));
+        expectedPlanOption1.addMove(new Move(agent, 6, location32Circle, location33Circle));
+
+        SingleAgentPlan expectedPlanOption2 = new SingleAgentPlan(agent);
+        expectedPlanOption2.addMove(new Move(agent, 1, location12Circle, location22Circle));
+        expectedPlanOption2.addMove(new Move(agent, 2, location22Circle, location32Circle));
+        expectedPlanOption2.addMove(new Move(agent, 3, location32Circle, location33Circle));
+        expectedPlanOption2.addMove(new Move(agent, 4, location33Circle, location33Circle));
+        expectedPlanOption2.addMove(new Move(agent, 5, location33Circle, location34Circle));
+        expectedPlanOption2.addMove(new Move(agent, 6, location34Circle, location33Circle));
+
+        System.out.println("expected1: " + expectedPlanOption1);
+        System.out.println("expected2: " + expectedPlanOption2);
+        System.out.println("solved: " + solved);
+        assertEquals(6, solved.getCost());
+        assertTrue(expectedPlanOption1.equals(solved) || expectedPlanOption2.equals(solved));
     }
 
     @Test
@@ -649,12 +670,12 @@ class SingleAgentAStar_SolverTest {
         }
 
         @Override
-        public float getH(SingleAgentAStar_Solver.AStarState state) {
+        public float getH(SingleAgentAStar_Solver.@NotNull AStarState state) {
             return 0;
         }
 
         @Override
-        public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+        public int getHToTargetFromLocation(@NotNull I_Coordinate target, @NotNull I_Location currLocation) {
             return 0;
         }
 
