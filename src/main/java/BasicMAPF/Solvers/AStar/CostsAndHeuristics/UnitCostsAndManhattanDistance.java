@@ -3,21 +3,22 @@ package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import org.jetbrains.annotations.NotNull;
 
 public class UnitCostsAndManhattanDistance implements SingleAgentGAndH {
     private final I_Coordinate target;
 
-    public UnitCostsAndManhattanDistance(I_Coordinate target) {
+    public UnitCostsAndManhattanDistance(@NotNull I_Coordinate target) {
         this.target = target;
     }
 
     @Override
-    public float getH(SingleAgentAStar_Solver.AStarState state) {
+    public float getH(@NotNull SingleAgentAStar_Solver.AStarState state) {
         return getHToTargetFromLocation(target, state.move.currLocation);
     }
 
     @Override
-    public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+    public int getHToTargetFromLocation(@NotNull I_Coordinate target, @NotNull I_Location currLocation) {
         return (int) currLocation.getCoordinate().distance(target);
     }
 

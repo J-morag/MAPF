@@ -35,12 +35,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
     public boolean agentsStayAtGoal;
 
     protected I_ConstraintSet constraints;
-    protected SingleAgentGAndH gAndH;
-    private PseudoRandomUniformSamplingIntNoRepeat randomIDGenerator;
     protected final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
     protected final Set<AStarState> closed = new HashSet<>();
     protected Agent agent;
-
     protected I_Map map;
     protected SingleAgentPlan existingPlan;
     protected Solution existingSolution;
@@ -48,6 +45,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
     public I_AStarGoalCondition goalCondition;
+    protected SingleAgentGAndH gAndH;
+    private PseudoRandomUniformSamplingIntNoRepeat randomIDGenerator;
     /**
      * Not real-world time. The problem's start time.
      */
@@ -95,15 +94,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
             this.existingSolution.putPlan(this.existingPlan);
         }
 
-        this.gAndH = Objects.requireNonNullElseGet(runParameters.singleAgentGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
-        if (! this.gAndH.isConsistent()){
-            throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
-        }
-
-        // todo should make this more explicit. Getting an rng might not necessarily mean that we want to use it like this.
-        this.randomIDGenerator = runParameters.randomNumberGenerator == null ? null:
-                new PseudoRandomUniformSamplingIntNoRepeat(runParameters.randomNumberGenerator);
-
         if(runParameters instanceof RunParameters_SAAStar parameters
                 && ((RunParameters_SAAStar) runParameters).conflictAvoidanceTable != null){
             this.conflictAvoidanceTable = parameters.conflictAvoidanceTable;
@@ -126,6 +116,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
         else{
             this.goalCondition = new AtTargetAStarGoalCondition(this.targetCoor);
         }
+
+        this.gAndH = Objects.requireNonNullElseGet(runParameters.singleAgentGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
+        if (! this.gAndH.isConsistent()){
+            throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
+        }
+
+        // todo should make this more explicit. Getting an rng might not necessarily mean that we want to use it like this.
+        this.randomIDGenerator = runParameters.randomNumberGenerator == null ? null:
+                new PseudoRandomUniformSamplingIntNoRepeat(runParameters.randomNumberGenerator);
 
         if(runParameters instanceof RunParameters_SAAStar parameters){
             this.fBudget = parameters.fBudget;
