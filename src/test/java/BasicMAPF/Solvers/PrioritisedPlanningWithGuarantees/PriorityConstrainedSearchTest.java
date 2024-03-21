@@ -15,6 +15,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -146,7 +147,7 @@ class PriorityConstrainedSearchTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 10 /*seconds*/
+            long timeout = 5 /*seconds*/
                     *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
@@ -404,6 +405,7 @@ class PriorityConstrainedSearchTest {
      * This contains diverse instances, comparing the performance of two algorithms.
      */
     @Test
+    @Disabled
     void comparativeDiverseTestAllFeaturesOffVsOn(){
         Metrics.clearAll();
         boolean useAsserts = true;

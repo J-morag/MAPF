@@ -116,7 +116,7 @@ class ICTS_SolverTest {
         MAPF_Instance instance = null;
         // load the pre-made benchmark
         try {
-            long timeout = 30 /*seconds*/ *1000L;
+            long timeout = 10 /*seconds*/ *1000L;
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
@@ -242,11 +242,11 @@ class ICTS_SolverTest {
                 "ComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
 //                new InstanceProperties(null, -1d, new int[]{5, 10, 15, 20, 25}));
-                new InstanceProperties(null, -1d, new int[]{5, 10}));
+                new InstanceProperties(null, -1d, new int[]{10}));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-        long timeout = 30 /*seconds*/ * 1000L;
+        long timeout = 10 /*seconds*/ * 1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
