@@ -72,7 +72,7 @@ Modify the `Main.java` file to run your experiment. Examples are provided in the
 
 ## Acknowledgements 
     Designed by Jonathan Morag and Yonatan Zax.
-    Started at 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
+    Started in 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
     Conflict Based Search (CBS) is based on:
         Sharon, G., Stern, R., Felner, A., & Sturtevant, N. R. (2015). Conflict-based search for optimal multi-agent pathfinding. Artificial Intelligence, 219, 40-66.
         And:
