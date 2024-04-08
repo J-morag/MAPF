@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712556833162,
+  "lastUpdate": 1712556834939,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -21129,6 +21129,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
             "value": 6435984.5,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "Priority Constrained Search Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "276b557d549b31fddb9e32cbcbb6d7f84ffae6e4",
+          "message": "24_SoCS_PPwG (#88)\n\n* Priority Constrained Search \r\n\r\n* shorten unit tests\r\n\r\n* fix AStar heuristic initialization when not given a heuristic in run parameters\r\n\r\n* add target folder to gitignore\r\n\r\n* Make solves() easier to debug\r\n\r\n* add MANIFEST.MF - for creating project JAR\r\n\r\n* fix main arg default timeoutEach help\r\n\r\n* update README.md",
+          "timestamp": "2024-04-08T15:31:40+10:00",
+          "tree_id": "1dfc45b1d22f7cefb7fc686d18d77c97b9bb2935",
+          "url": "https://github.com/J-morag/MAPF/commit/276b557d549b31fddb9e32cbcbb6d7f84ffae6e4"
+        },
+        "date": 1712556834150,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Priority Constrained Search - Fails",
+            "value": 5,
+            "unit": "Instances"
+          },
+          {
+            "name": "Priority Constrained Search - Average Cost",
+            "value": 1857.6666,
+            "unit": "SOC"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime",
+            "value": 12712.353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions High Level",
+            "value": 7498.5884,
+            "unit": "Expansions"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions Low Level",
+            "value": 1773509.8,
             "unit": "Expansions"
           }
         ]
