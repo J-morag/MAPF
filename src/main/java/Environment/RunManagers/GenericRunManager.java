@@ -61,13 +61,13 @@ public class GenericRunManager extends A_RunManager {
 
         PrioritisedPlanning_Solver pp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
-                null, null, null);
+                null, null, null, null, null);
         pp.name = "PP-no-restarts";
         super.solvers.add(pp);
 
         PrioritisedPlanning_Solver ppRandomAStar = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 10000000, RestartsStrategy.RestartsKind.none),
-                null, null, null);
+                null, null, null, null, null);
         ppRandomAStar.name = "PP-rand-AStar";
         super.solvers.add(ppRandomAStar);
 

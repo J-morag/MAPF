@@ -13,7 +13,7 @@ import LifelongMAPF.AgentSelectors.*;
 import LifelongMAPF.FailPolicies.*;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.*;
 import LifelongMAPF.LifelongSimulationSolver;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 
 public class LifelongSolversFactory {
 
@@ -1975,7 +1975,7 @@ public class LifelongSolversFactory {
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1000, RestartsStrategy.RestartsKind.randomRestarts),
-                true, false, TransientMAPFBehaviour.transientMAPFWithBlacklist, null, null);
+                true, false, TransientMAPFSettings.defaultTransientMAPF, null, null);
         A_Solver solver = new LifelongSimulationSolver(null, new NoTargetInPlanAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 prp, null, new DeepPartialSolutionsStrategy(), fp, replanningPeriod, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -2048,7 +2048,7 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        LargeNeighborhoodSearch_Solver lns = new LNSBuilder().setSharedGoals(true).setTransientMAPFBehaviour(TransientMAPFBehaviour.transientMAPFWithBlacklist).createLNS();
+        LargeNeighborhoodSearch_Solver lns = new LNSBuilder().setSharedGoals(true).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLNS();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 lns, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -2090,7 +2090,7 @@ public class LifelongSolversFactory {
         I_AStarFailPolicy asfpf = new GoASFP(5);
         PrioritisedPlanning_Solver prp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000),
-                true, null, TransientMAPFBehaviour.transientMAPFWithBlacklist, RHCRHorizon, null);
+                true, null, TransientMAPFSettings.defaultTransientMAPF, RHCRHorizon, null);
 
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 prp, null, new DeepPartialSolutionsStrategy(), fp, null, null);
