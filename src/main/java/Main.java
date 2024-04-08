@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import static BasicMAPF.Solvers.A_Solver.getProcessorInfo;
+import static Environment.Experiment.DEFAULT_TIMEOUT_EACH;
 import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 
 
@@ -323,7 +324,7 @@ public class Main {
                 .argName(STR_TIMEOUT_EACH)
                 .hasArg()
                 .required(false)
-                .desc("Set the timeout for each instance. Integer in milliseconds. Optional. Default is 300000 (5 minutes).")
+                .desc("Set the timeout for each instance. Integer in milliseconds. Optional. Default is " + DEFAULT_TIMEOUT_EACH + "ms.")
                 .build();
         options.addOption(timeoutEachOption);
     }

@@ -1,7 +1,8 @@
 # MAPF - Multi-Agent Path Finding
 ## A Java implementation of several MAPF algorithms
 
-[![CI-tests](https://github.com/J-morag/MAPF/actions/workflows/CI-tests.yml/badge.svg)](https://github.com/J-morag/MAPF/actions/workflows/CI-tests.yml)
+[![CI-tests](https://github.com/J-morag/MAPF_dev/actions/workflows/CI-tests.yml/badge.svg)](https://github.com/J-morag/MAPF_dev/actions/workflows/CI-tests.yml)
+&emsp;[Continuous Benchmark](https://j-morag.github.io/MAPF_dev/dev/bench/master/)
 
 ## Getting Started
 ### Running the project using the CLI
@@ -71,7 +72,7 @@ Modify the `Main.java` file to run your experiment. Examples are provided in the
 
 ## Acknowledgements 
     Designed by Jonathan Morag and Yonatan Zax.
-    Started at 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
+    Started in 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
     Conflict Based Search (CBS) is based on:
         Sharon, G., Stern, R., Felner, A., & Sturtevant, N. R. (2015). Conflict-based search for optimal multi-agent pathfinding. Artificial Intelligence, 219, 40-66.
         And:
