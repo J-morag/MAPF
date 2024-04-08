@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710897089371,
+  "lastUpdate": 1712556829621,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3077,6 +3077,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 10667614,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "276b557d549b31fddb9e32cbcbb6d7f84ffae6e4",
+          "message": "24_SoCS_PPwG (#88)\n\n* Priority Constrained Search \r\n\r\n* shorten unit tests\r\n\r\n* fix AStar heuristic initialization when not given a heuristic in run parameters\r\n\r\n* add target folder to gitignore\r\n\r\n* Make solves() easier to debug\r\n\r\n* add MANIFEST.MF - for creating project JAR\r\n\r\n* fix main arg default timeoutEach help\r\n\r\n* update README.md",
+          "timestamp": "2024-04-08T15:31:40+10:00",
+          "tree_id": "1dfc45b1d22f7cefb7fc686d18d77c97b9bb2935",
+          "url": "https://github.com/J-morag/MAPF/commit/276b557d549b31fddb9e32cbcbb6d7f84ffae6e4"
+        },
+        "date": 1712556827794,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 30872.412,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 7128.294,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 21765.766,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 5718978,
             "unit": "Expansions"
           }
         ]
