@@ -108,12 +108,12 @@ public class TestUtils {
 
     public static class UnitCostAndNoHeuristic implements SingleAgentGAndH {
         @Override
-        public float getH(SingleAgentAStar_Solver.AStarState state) {
+        public float getH(SingleAgentAStar_Solver.@NotNull AStarState state) {
             return 0;
         }
 
         @Override
-        public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+        public int getHToTargetFromLocation(@NotNull I_Coordinate target, @NotNull I_Location currLocation) {
             return 0;
         }
 

@@ -50,14 +50,14 @@ public class CachingDistanceTableHeuristic implements SingleAgentGAndH {
     }
 
     @Override
-    public float getH(SingleAgentAStar_Solver.AStarState state) {
+    public float getH(SingleAgentAStar_Solver.@NotNull AStarState state) {
         I_Coordinate target = state.getMove().agent.target;
         I_Location currLocation = state.getMove().currLocation;
         return getHToTargetFromLocation(target, currLocation);
     }
 
     @Override
-    public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+    public int getHToTargetFromLocation(@NotNull I_Coordinate target, @NotNull I_Location currLocation) {
         DistanceTableSingleAgentHeuristic dt = this.distanceTables.get(this.currentMap);
         if (dt == null){
             throw new IllegalStateException("Current map not set. Call setCurrentMap(I_Map) before querying.");

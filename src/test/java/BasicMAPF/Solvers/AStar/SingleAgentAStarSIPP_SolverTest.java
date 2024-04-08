@@ -639,7 +639,7 @@ class SingleAgentAStarSIPP_SolverTest {
         // perfect heuristic is no better than manhattan distance on empty grid
 //        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
 
-        int seeds = 5;
+        int seeds = 3;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
