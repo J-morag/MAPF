@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712556840477,
+  "lastUpdate": 1712556842355,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -15112,6 +15112,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 886.4353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 396247.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "276b557d549b31fddb9e32cbcbb6d7f84ffae6e4",
+          "message": "24_SoCS_PPwG (#88)\n\n* Priority Constrained Search \r\n\r\n* shorten unit tests\r\n\r\n* fix AStar heuristic initialization when not given a heuristic in run parameters\r\n\r\n* add target folder to gitignore\r\n\r\n* Make solves() easier to debug\r\n\r\n* add MANIFEST.MF - for creating project JAR\r\n\r\n* fix main arg default timeoutEach help\r\n\r\n* update README.md",
+          "timestamp": "2024-04-08T15:31:40+10:00",
+          "tree_id": "1dfc45b1d22f7cefb7fc686d18d77c97b9bb2935",
+          "url": "https://github.com/J-morag/MAPF/commit/276b557d549b31fddb9e32cbcbb6d7f84ffae6e4"
+        },
+        "date": 1712556841585,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 998.28235,
             "unit": "Milliseconds"
           },
           {
