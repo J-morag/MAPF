@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716451646427,
+  "lastUpdate": 1716451647562,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -15652,6 +15652,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 955.4471,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 396247.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "1445d50d0dc8617ab84e590fb102bffe23bd275b",
+          "message": "compress tracker_bounds\n\n(cherry picked from commit 3ffc16eb2d3e51fcbc9e05c8a11554bcef9221ae)",
+          "timestamp": "2024-05-23T17:24:13+10:00",
+          "tree_id": "285d44aeed0759ec1703d1087e1873fa640ef641",
+          "url": "https://github.com/J-morag/MAPF/commit/1445d50d0dc8617ab84e590fb102bffe23bd275b"
+        },
+        "date": 1716451647286,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 833.17645,
             "unit": "Milliseconds"
           },
           {
