@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712800479486,
+  "lastUpdate": 1716451638824,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3185,6 +3185,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 5877434.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "1445d50d0dc8617ab84e590fb102bffe23bd275b",
+          "message": "compress tracker_bounds\n\n(cherry picked from commit 3ffc16eb2d3e51fcbc9e05c8a11554bcef9221ae)",
+          "timestamp": "2024-05-23T17:24:13+10:00",
+          "tree_id": "285d44aeed0759ec1703d1087e1873fa640ef641",
+          "url": "https://github.com/J-morag/MAPF/commit/1445d50d0dc8617ab84e590fb102bffe23bd275b"
+        },
+        "date": 1716451637945,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 31191.705,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 10245.588,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 29653.883,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 8655005,
             "unit": "Expansions"
           }
         ]
