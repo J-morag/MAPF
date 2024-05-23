@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716451647562,
+  "lastUpdate": 1716451648674,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -21112,6 +21112,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "SIPP - Average Runtime",
             "value": 328.7647,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "SIPP - Average Expansions Low Level",
+            "value": 23324.754,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "1445d50d0dc8617ab84e590fb102bffe23bd275b",
+          "message": "compress tracker_bounds\n\n(cherry picked from commit 3ffc16eb2d3e51fcbc9e05c8a11554bcef9221ae)",
+          "timestamp": "2024-05-23T17:24:13+10:00",
+          "tree_id": "285d44aeed0759ec1703d1087e1873fa640ef641",
+          "url": "https://github.com/J-morag/MAPF/commit/1445d50d0dc8617ab84e590fb102bffe23bd275b"
+        },
+        "date": 1716451648400,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "SIPP - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "SIPP - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "SIPP - Average Runtime",
+            "value": 328.1059,
             "unit": "Milliseconds"
           },
           {
