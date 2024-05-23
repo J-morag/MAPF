@@ -3,6 +3,9 @@ import os
 import math
 import matplotlib.pyplot as plt
 import shutil
+import zipfile
+import io
+
 
 PIC_BESTBOUND_DIR = 'plots/pic-bestbound'
 CSV_BESTBOUND_DIR = 'plots/csv-bestbound'
@@ -20,6 +23,30 @@ LABEL_X_AXIS = False
 '''
     Classify results into folders group by maps
 '''
+
+
+def read_tracker_bounds(zip_file_path):
+    # Read the zip file in binary mode
+    with open(zip_file_path, 'rb') as f:
+        zip_data = f.read()
+
+    # Use BytesIO to load the zip file into memory
+    with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
+        # List the contents of the zip file
+        file_names = z.namelist()
+
+        # Create a dictionary to hold the contents of the files
+        tracker_bounds = {}
+
+        # Read each file in the zip file
+        for file_name in file_names:
+            with z.open(file_name) as file:
+                # Assuming the files are text files, read the contents as a string
+                file_content = file.read().decode('utf-8')
+                tracker_bounds[file_name] = file_content
+
+    print(tracker_bounds.keys())
+    return tracker_bounds
 
 
 def classify_files(map_files):
@@ -203,10 +230,11 @@ def plot_bestbound(map_file):
     xpcs_plus = []
 
     files = os.listdir('results/' + map_file)
+    zip_file_path = 'tracker_bounds.zip'
+    tracker_bounds = read_tracker_bounds(zip_file_path)
 
     for filename in files:
-        # read tracker file
-        tracker_df = pd.DataFrame(pd.read_csv('tracker_bounds/' + map_file + '.csv'))
+        tracker_df = pd.DataFrame(pd.read_csv(io.StringIO(tracker_bounds[map_file + '.csv'])))
         print(filename)
         csv_file = 'results/' + map_file + '/' + filename
         csv_data = pd.read_csv(csv_file)
