@@ -85,6 +85,13 @@ public class PIBT_Solver extends A_Solver {
     private Set<List<I_Location>> configurations;
 
     /**
+     * Default constructor.
+     */
+    public PIBT_Solver() {
+        this(null, null);
+    }
+
+    /**
      * constructor.
      */
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon) {
