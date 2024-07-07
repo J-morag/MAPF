@@ -17,6 +17,10 @@ import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
+/**
+ * Lazy Constraints Addition Search.
+ * Okumura, Keisuke. "Lacam: Search-based algorithm for quick multi-agent pathfinding." Proceedings of the AAAI Conference on Artificial Intelligence. 2023.
+ */
 public class LaCAM_Solver extends A_Solver {
 
     /**
