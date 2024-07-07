@@ -12,6 +12,10 @@ import jdk.jfr.Experimental;
 
 import java.util.*;
 
+/**
+ * LaCAM star.
+ * Okumura, Keisuke. "Improving lacam for scalable eventually optimal multi-agent pathfinding." arXiv preprint arXiv:2305.03632 (2023).
+ */
 @Experimental
 public class LaCAMStar_Solver extends A_Solver {
 
