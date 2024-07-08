@@ -54,6 +54,13 @@ public class Maps {
             { e, e, e, e},
             { e, w, w, e},
     };
+
+    public static final Enum_MapLocationType[][] map_2D_small = {
+            { e, e, e},
+            { w, e, w}
+    };
+    public static final I_ExplicitMap mapTwoWallsSmall = MapFactory.newSimple4Connected2D_GraphMap(map_2D_small);
+
     public static final I_ExplicitMap mapH = MapFactory.newSimple4Connected2D_GraphMap(map_2D_H);
 
     public static final Enum_MapLocationType[][] twoLocationMap = new Enum_MapLocationType[][]{{e,e}};
@@ -73,6 +80,62 @@ public class Maps {
     public static final I_ExplicitMap randomArbitraryGraphMap3 = createRandomStronglyConnectedGraphMap(44, 5, 5, true);
     public static final I_ExplicitMap randomArbitraryGraphMap4 = createRandomStronglyConnectedGraphMap(45, 2, 1, true);
     public static final I_ExplicitMap randomArbitraryGraphMap5 = createRandomStronglyConnectedGraphMap(46, 20, 1, true);
+
+    public static final Enum_MapLocationType[][] map_2D_tree = {
+            {w, e, w},
+            {w, e, e},
+            {w, e, w},
+            {e, e, e},
+    };
+    public static final I_ExplicitMap mapTree = MapFactory.newSimple4Connected2D_GraphMap(map_2D_tree);
+
+    public static final Enum_MapLocationType[][] map_2D_corners = {
+            {e, w, w, w, w},
+            {e, e, e, e, w},
+            {w, e, w, e, w},
+            {w, e, e, e, e},
+            {w, w, w, w, e}
+    };
+    public static final I_ExplicitMap mapCorners = MapFactory.newSimple4Connected2D_GraphMap(map_2D_corners);
+
+    public static final Enum_MapLocationType[][] map_2D_tunnel = {
+            {e, w, w, w},
+            {e, e, e, e},
+            {e, w, w, w},
+            {e, w, w, w},
+            {e, w, w, w},
+            {e, w, w, w},
+    };
+    public static final I_ExplicitMap mapTunnel = MapFactory.newSimple4Connected2D_GraphMap(map_2D_tunnel);
+
+    public static final Enum_MapLocationType[][] map_2D_string = {
+            {w, e, w},
+            {e, e, w},
+            {w, e, e},
+            {e, e, w},
+            {w, e, e},
+            {e, e, w},
+    };
+    public static final I_ExplicitMap mapString = MapFactory.newSimple4Connected2D_GraphMap(map_2D_string);
+
+    public static final Enum_MapLocationType[][] map_2D_loopChain = {
+            {e, e, e, e},
+            {e, w, e, w},
+            {e, e, e, w},
+    };
+    public static final I_ExplicitMap mapLoopChain = MapFactory.newSimple4Connected2D_GraphMap(map_2D_loopChain);
+
+    public static final Enum_MapLocationType[][] map_2D_connector = {
+            {e, e, e, w, w, w},
+            {e, w, e, w, w, w},
+            {e, e, e, w, w, w},
+            {w, w, e, e, w, w},
+            {w, w, w, e, e, e},
+            {w, w, w, e, w, e},
+            {w, w, w, e, e, e},
+    };
+    public static final I_ExplicitMap mapConnector = MapFactory.newSimple4Connected2D_GraphMap(map_2D_connector);
+
 
     public static final I_ExplicitMap transientExampleMap = createTransientExampleGraphMap();
 

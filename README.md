@@ -21,11 +21,17 @@ Example arguments to solve all instances in a directory, with 10 agents:<br>
 The following algorithms are set to run by default: CBS and Prioritised Planning. 
 Currently, choosing different algorithms is only possible by changing the code and re-compiling.
 
+The default instance format is from the [MovingAI benchmark](https://movingai.com/benchmarks/mapf/index.html)!.
+
 ### Running the project by modifying the code
 
 Modify the `Main.java` file to run your experiment. Examples are provided in the `ExampleMain.java` file.
+
+## News
+* 2024-07: Added LaCAM algorithm
+* 2024-04: Added PCS algorithm
   
-### Usage Notes
+## Usage Notes
 
 * How to create a single instance
     
@@ -68,10 +74,10 @@ Modify the `Main.java` file to run your experiment. Examples are provided in the
                             @param numOfAgents - An array of different amounts of agents. 
             
                 2.3 numOfInstances - You can choose how many instances you want for the experiment
-                                     Note: default = Integer.MAX_VALUE
+                                     Note: default = unlimited
 
 ## Acknowledgements 
-    Designed by Jonathan Morag and Yonatan Zax.
+    Originally designed by Jonathan Morag and Yonatan Zax.
     Started in 2019 at the heuristic search group of the Department of Software and Information Systems Engineering, Ben-Gurion University of the Negev
     Conflict Based Search (CBS) is based on:
         Sharon, G., Stern, R., Felner, A., & Sturtevant, N. R. (2015). Conflict-based search for optimal multi-agent pathfinding. Artificial Intelligence, 219, 40-66.
@@ -86,3 +92,7 @@ Modify the `Main.java` file to run your experiment. Examples are provided in the
         Silver, David. "Cooperative pathfinding." Proceedings of the aaai conference on artificial intelligence and interactive digital entertainment. Vol. 1. No. 1. 2005.
     Large Neighborhood Search (LNS) is based on:
         Li, Jiaoyang, et al. "Anytime multi-agent path finding via large neighborhood search." Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI). 2021.
+    Priority Inheritance with Backtracking (PIBT) is based on:
+        Okumura, Keisuke, et al. "Priority inheritance with backtracking for iterative multi-agent path finding." Artificial Intelligence 310 (2022).
+    Lazy Constraints Addition Search (LaCAM) is based on:
+        Okumura, Keisuke. "Improving lacam for scalable eventually optimal multi-agent pathfinding." arXiv preprint arXiv:2305.03632 (2023).

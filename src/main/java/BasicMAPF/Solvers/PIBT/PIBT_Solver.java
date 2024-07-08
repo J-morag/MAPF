@@ -21,6 +21,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * Priority Inheritance with Backtracking (PIBT) algorithm.
+ * Okumura, Keisuke, et al. "Priority inheritance with backtracking for iterative multi-agent path finding." Artificial Intelligence 310 (2022).
+ */
 public class PIBT_Solver extends A_Solver {
 
     /**
@@ -83,6 +87,13 @@ public class PIBT_Solver extends A_Solver {
      * The use of this set is to detect loops.
      */
     private Set<List<I_Location>> configurations;
+
+    /**
+     * Default constructor.
+     */
+    public PIBT_Solver() {
+        this(null, null);
+    }
 
     /**
      * constructor.
