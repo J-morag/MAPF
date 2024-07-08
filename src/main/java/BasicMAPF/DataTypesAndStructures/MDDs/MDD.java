@@ -20,6 +20,7 @@ public class MDD {
     private static final int DEBUG = 1;
     private MDDNode start;
     private MDDNode goal;
+    private int numNodes;
     /**
      * Allows random access to MDD levels. The first index is the depth.
      * The second index is sorted on the natural ordering of the nodes.
@@ -35,6 +36,8 @@ public class MDD {
     public MDD(@NotNull MDDNode start, @NotNull MDDNode goal){
         this.start = start;
         this.goal = goal;
+        initializeUpToLevel(getDepth());
+        this.numNodes = levels.stream().mapToInt(List::size).sum();
         verifyIntegrity(null, null);
     }
 
@@ -92,6 +95,7 @@ public class MDD {
         else {
             this.start = newMDDStartNode;
             this.goal = goalCopy;
+            this.numNodes = collectedNodes.size();
         }
 
         verifyIntegrity(constraints, null);
@@ -105,7 +109,7 @@ public class MDD {
     }
 
     /**
-     * Copy (deep) with constraint.
+     * Copy with constraint.
      */
     public MDD shallowCopyWithConstraint(@NotNull Constraint constraint, boolean isPositiveConstraint) {
         if (!isPositiveConstraint){
@@ -209,11 +213,13 @@ public class MDD {
             }
             currentLevel.addAll(previousLevel.values());
         }
-        this.start = currentLevel.poll();
 
+        this.start = currentLevel.poll();
         if (this.start.getDepth() != 0){
             throw new IllegalStateException("MDD start node has depth " + this.start.getDepth() + " instead of 0");
         }
+
+        this.numNodes = mddNodesToSearchNodes.size();
     }
 
     public MDDNode getStart() {
@@ -517,5 +523,9 @@ public class MDD {
             }
         }
         return ! constraintsRejectStayingAtTargetForever(constraints, goal);
+    }
+
+    public int numNodes() {
+        return numNodes;
     }
 }
