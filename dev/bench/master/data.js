@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1720425330560,
+  "lastUpdate": 1720425332095,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -22589,6 +22589,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "Priority Constrained Search - Average Expansions Low Level",
             "value": 1802472.2,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f9dfde61877e42be27a818623443459822f1cda9",
+          "message": "V0.001.0 - LaCAM (#90)\n\n* Lacam\r\n\r\n(cherry picked from commit 5dfb82574e9e06bcca2559f9fa1e9824317c28b8)\r\n\r\n* Updated README.md and docs\r\n\r\n(cherry picked from commit 2f933319e8be511903438c33e0e85a57f150642f)\r\n\r\n---------\r\n\r\nCo-authored-by: NoyGabay <104091867+NoyGabay@users.noreply.github.com>",
+          "timestamp": "2024-07-08T10:13:03+03:00",
+          "tree_id": "e80de395482c10e5858aa0f1acecf8f62fecfa33",
+          "url": "https://github.com/J-morag/MAPF/commit/f9dfde61877e42be27a818623443459822f1cda9"
+        },
+        "date": 1720425331715,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Priority Constrained Search - Fails",
+            "value": 5,
+            "unit": "Instances"
+          },
+          {
+            "name": "Priority Constrained Search - Average Cost",
+            "value": 1857.6666,
+            "unit": "SOC"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime",
+            "value": 12364.294,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions High Level",
+            "value": 7750.8237,
+            "unit": "Expansions"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions Low Level",
+            "value": 1822621,
             "unit": "Expansions"
           }
         ]
