@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1720425334863,
+  "lastUpdate": 1720425336124,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -12788,6 +12788,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 460.2353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f9dfde61877e42be27a818623443459822f1cda9",
+          "message": "V0.001.0 - LaCAM (#90)\n\n* Lacam\r\n\r\n(cherry picked from commit 5dfb82574e9e06bcca2559f9fa1e9824317c28b8)\r\n\r\n* Updated README.md and docs\r\n\r\n(cherry picked from commit 2f933319e8be511903438c33e0e85a57f150642f)\r\n\r\n---------\r\n\r\nCo-authored-by: NoyGabay <104091867+NoyGabay@users.noreply.github.com>",
+          "timestamp": "2024-07-08T10:13:03+03:00",
+          "tree_id": "e80de395482c10e5858aa0f1acecf8f62fecfa33",
+          "url": "https://github.com/J-morag/MAPF/commit/f9dfde61877e42be27a818623443459822f1cda9"
+        },
+        "date": 1720425335722,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 6,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 27725.818,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 461.47058,
             "unit": "Milliseconds"
           },
           {
