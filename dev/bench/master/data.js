@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1720425332095,
+  "lastUpdate": 1720425333422,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -22425,6 +22425,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
             "value": 6479383,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f9dfde61877e42be27a818623443459822f1cda9",
+          "message": "V0.001.0 - LaCAM (#90)\n\n* Lacam\r\n\r\n(cherry picked from commit 5dfb82574e9e06bcca2559f9fa1e9824317c28b8)\r\n\r\n* Updated README.md and docs\r\n\r\n(cherry picked from commit 2f933319e8be511903438c33e0e85a57f150642f)\r\n\r\n---------\r\n\r\nCo-authored-by: NoyGabay <104091867+NoyGabay@users.noreply.github.com>",
+          "timestamp": "2024-07-08T10:13:03+03:00",
+          "tree_id": "e80de395482c10e5858aa0f1acecf8f62fecfa33",
+          "url": "https://github.com/J-morag/MAPF/commit/f9dfde61877e42be27a818623443459822f1cda9"
+        },
+        "date": 1720425333040,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime",
+            "value": 12339.117,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Runtime Low Level",
+            "value": 11460.529,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + randomRestarts x9 - Average Expansions Low Level",
+            "value": 6308652,
             "unit": "Expansions"
           }
         ]
