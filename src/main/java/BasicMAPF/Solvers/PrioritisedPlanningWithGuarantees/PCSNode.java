@@ -28,4 +28,8 @@ public record PCSNode(@NotNull ArrayList<MDD> MDDs, int g, int h, @NotNull Const
     public int hashCode() { // todo is there and can we detect symmetries where MDD lists are equivalent?
         return uniqueID;
     }
+
+    public int getSumMddSizes() {
+        return MDDs.stream().mapToInt(MDD::numNodes).sum();
+    }
 }
