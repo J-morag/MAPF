@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716451648674,
+  "lastUpdate": 1720425327688,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3239,6 +3239,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 8655005,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f9dfde61877e42be27a818623443459822f1cda9",
+          "message": "V0.001.0 - LaCAM (#90)\n\n* Lacam\r\n\r\n(cherry picked from commit 5dfb82574e9e06bcca2559f9fa1e9824317c28b8)\r\n\r\n* Updated README.md and docs\r\n\r\n(cherry picked from commit 2f933319e8be511903438c33e0e85a57f150642f)\r\n\r\n---------\r\n\r\nCo-authored-by: NoyGabay <104091867+NoyGabay@users.noreply.github.com>",
+          "timestamp": "2024-07-08T10:13:03+03:00",
+          "tree_id": "e80de395482c10e5858aa0f1acecf8f62fecfa33",
+          "url": "https://github.com/J-morag/MAPF/commit/f9dfde61877e42be27a818623443459822f1cda9"
+        },
+        "date": 1720425326641,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3448.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 33323.293,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 8239.177,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 55578.707,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 6223039,
             "unit": "Expansions"
           }
         ]
