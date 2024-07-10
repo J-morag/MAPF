@@ -518,4 +518,11 @@ public class PIBT_SolverTest {
         assertEquals(10, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
     }
+    private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
+    @Test
+    void agentsNeedToSwapReturnNullTest() {
+        MAPF_Instance testInstance = instanceAgentsNeedsToSwapLocations;
+        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertNull(solved);
+    }
 }

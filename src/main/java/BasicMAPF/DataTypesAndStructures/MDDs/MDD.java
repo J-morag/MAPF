@@ -20,6 +20,7 @@ public class MDD {
     private static final int DEBUG = 1;
     private MDDNode start;
     private MDDNode goal;
+    private int numNodes;
     /**
      * Allows random access to MDD levels. The first index is the depth.
      * The second index is sorted on the natural ordering of the nodes.
@@ -35,6 +36,8 @@ public class MDD {
     public MDD(@NotNull MDDNode start, @NotNull MDDNode goal){
         this.start = start;
         this.goal = goal;
+        initializeUpToLevel(getDepth());
+        this.numNodes = levels.stream().mapToInt(List::size).sum();
         verifyIntegrity(null, null);
     }
 
@@ -92,6 +95,7 @@ public class MDD {
         else {
             this.start = newMDDStartNode;
             this.goal = goalCopy;
+            this.numNodes = collectedNodes.size();
         }
 
         verifyIntegrity(constraints, null);
@@ -105,7 +109,7 @@ public class MDD {
     }
 
     /**
-     * Copy (deep) with constraint.
+     * Copy with constraint.
      */
     public MDD shallowCopyWithConstraint(@NotNull Constraint constraint, boolean isPositiveConstraint) {
         if (!isPositiveConstraint){
@@ -209,11 +213,13 @@ public class MDD {
             }
             currentLevel.addAll(previousLevel.values());
         }
-        this.start = currentLevel.poll();
 
+        this.start = currentLevel.poll();
         if (this.start.getDepth() != 0){
             throw new IllegalStateException("MDD start node has depth " + this.start.getDepth() + " instead of 0");
         }
+
+        this.numNodes = mddNodesToSearchNodes.size();
     }
 
     public MDDNode getStart() {
@@ -268,34 +274,28 @@ public class MDD {
     public List<MDDNode> getLevel(int depth){
         if (depth < 0 || depth > getDepth())
             throw new IllegalArgumentException("depth must be between 0 and " + getDepth() + " inclusive (got " + depth + ")");
-        // todo only initialize up to depth?
-        if (levels == null) initializeLevels();
+        initializeUpToLevel(depth);
         return levels.get(depth);
     }
 
-    private void initializeLevels() {
-        levels = new ArrayList<>(getDepth() + 1);
-        for (int i = 0; i <= getDepth(); i++) {
-            levels.add(new ArrayList<>());
+    private void initializeUpToLevel(int depth) {
+        if (levels == null){
+            levels = new ArrayList<>(getDepth() + 1);
+            levels.add(Collections.singletonList(start));
         }
-        Queue<MDDNode> open = new ArrayDeque<>();
-        Set<MDDNode> touched = new HashSet<>();
-        open.add(start);
-        while (!open.isEmpty()){
-            MDDNode current = open.remove();
-            levels.get(current.getDepth()).add(current);
-            for (MDDNode neighbor : current.getNeighbors()){
-                if (touched.contains(neighbor)) continue;
-                open.add(neighbor);
-                touched.add(neighbor);
+        for (int i = levels.size(); i <= depth; i++) {
+            Set<MDDNode> currentLevelSet = new HashSet<>();
+            List<MDDNode> prevLevel = levels.get(i-1);
+            for (MDDNode node : prevLevel) {
+                currentLevelSet.addAll(node.getNeighbors());
             }
+            List<MDDNode> currentLevel = new ArrayList<>(currentLevelSet);
+            Collections.sort(currentLevel);
+            levels.add(Collections.unmodifiableList(currentLevel));
         }
-        for (int i = 0; i < levels.size(); i++) {
-            List<MDDNode> level = levels.get(i);
-            Collections.sort(level);
-            levels.set(i, Collections.unmodifiableList(level));
+        if (depth == getDepth()){
+            levels = Collections.unmodifiableList(levels);
         }
-        levels = Collections.unmodifiableList(levels);
     }
 
     public List<A_Conflict> conflictsWithMDDAtDepth(@NotNull MDD other, int depth, boolean stopAtFirstConflict){
@@ -482,10 +482,9 @@ public class MDD {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("MDD{start=").append(start.getLocation().getCoordinate()).append(", goal=").append(goal.getLocation().getCoordinate()).append("}, levels (lacks edge information)=\n");
-        this.getLevel(0); // initialize levels (if not already initialized)
-        for (int i = 0; i < levels.size(); i++) {
+        for (int i = 0; i < getDepth(); i++) {
             sb.append(i).append(": ");
-            for (MDDNode node : levels.get(i)) {
+            for (MDDNode node : getLevel(i)) {
                 sb.append(node.getLocation().getCoordinate()).append(" ");
             }
             sb.append("\n");
@@ -498,11 +497,16 @@ public class MDD {
     public boolean levelsEquals(MDD other){
         if (this == other) return true;
         if (other == null) return false;
-        if (levels == null) return other.levels == null;
-        else {
-            if (other.levels == null) other.initializeLevels();
-            return levels.equals(other.levels);
+        if (getDepth() != other.getDepth()) return false;
+        for (int i = 0; i < getDepth(); i++) {
+            List<MDDNode> level = getLevel(i);
+            List<MDDNode> otherLevel = other.getLevel(i);
+            if (level.size() != otherLevel.size()) return false;
+            for (int j = 0; j < level.size(); j++) {
+                if (! level.get(j).equals(otherLevel.get(j))) return false;
+            }
         }
+        return true;
     }
 
     public boolean acceptedBy(I_ConstraintSet constraints) {
@@ -519,5 +523,9 @@ public class MDD {
             }
         }
         return ! constraintsRejectStayingAtTargetForever(constraints, goal);
+    }
+
+    public int numNodes() {
+        return numNodes;
     }
 }
