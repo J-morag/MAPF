@@ -103,7 +103,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * Default constructor.
      */
     public PIBT_Solver() {
-        this(null, null);
+        this(null, null, null);
     }
 
     /**
