@@ -87,7 +87,7 @@ public class PriorityConstrainedSearch extends A_Solver {
         this.searcherFactory = Objects.requireNonNullElseGet(searcherFactory, AStarFactory::new);
 
         // todo change defaults according to experiment results
-        this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, false);
+        this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, true);
         this.MDDCacheDepthDeltaMax = Objects.requireNonNullElse(MDDCacheDepthDeltaMax, 1);
         this.usePartialGeneration = Objects.requireNonNullElse(usePartialGeneration, true);
         this.pcsHeuristic = Objects.requireNonNullElse(pcsHeuristic, new PCSHeuristicSIPP());
