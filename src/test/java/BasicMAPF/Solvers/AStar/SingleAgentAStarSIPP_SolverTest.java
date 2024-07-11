@@ -1086,7 +1086,7 @@ class SingleAgentAStarSIPP_SolverTest {
     }
 
     @Test
-    void comparativeDiverseTest(){
+    void comparativeTest(){
         Metrics.clearAll();
         boolean useAsserts = true;
 
@@ -1115,7 +1115,7 @@ class SingleAgentAStarSIPP_SolverTest {
             // run baseline (without the improvement)
             //build report
             InstanceReport reportBaseline = Metrics.newInstanceReport();
-            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, "regularCBS");
@@ -1128,7 +1128,7 @@ class SingleAgentAStarSIPP_SolverTest {
             // run experimentl (with the improvement)
             //build report
             InstanceReport reportExperimental = Metrics.newInstanceReport();
-            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, "singleAgentSippCBS");
