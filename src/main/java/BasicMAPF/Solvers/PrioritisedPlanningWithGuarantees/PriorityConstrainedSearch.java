@@ -15,6 +15,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class PriorityConstrainedSearch extends A_Solver {
-    private static final int DEBUG = 1;
-    private static final int VERBOSE = 1;
 
     /* = Constants = */
 
@@ -107,7 +106,7 @@ public class PriorityConstrainedSearch extends A_Solver {
         if (this.priorityOrderedAgents.length != instance.agents.size()){
             throw new IllegalArgumentException("Priority order array must cover exactly the same set of agents that exist in the instance");
         }
-        if (DEBUG >= 2 &&  ! Set.of(this.priorityOrderedAgents).equals(new HashSet<>(instance.agents))){
+        if (Config.DEBUG >= 2 &&  ! Set.of(this.priorityOrderedAgents).equals(new HashSet<>(instance.agents))){
             throw new IllegalArgumentException("Priority order array must cover exactly the same set of agents that exist in the instance: \n" +
                     Arrays.toString(this.priorityOrderedAgents) + "\nvs\n" + instance.agents);
         }
@@ -233,7 +232,7 @@ public class PriorityConstrainedSearch extends A_Solver {
         if (parent != null && newConstraintOnHighPriorityAgent == null){
             throw new IllegalArgumentException("Must have a new constraint on the high priority agent in a non-root node");
         }
-        if (VERBOSE >= 2) System.out.println("Generating node with constraint " + newConstraintOnHighPriorityAgent + " and isPositiveConstraint=" + isPositiveConstraint);
+        if (Config.INFO >= 2) System.out.println("Generating node with constraint " + newConstraintOnHighPriorityAgent + " and isPositiveConstraint=" + isPositiveConstraint);
 
         ConstraintSet updatedConstraints = new ConstraintSet(parent != null ? parent.constraints() : new ConstraintSet(initialConstraints));
         List<Constraint> addedConstraints = new ArrayList<>();
@@ -243,7 +242,7 @@ public class PriorityConstrainedSearch extends A_Solver {
             // root only
             MDD firstMDD = getInitialMDDForAgent(priorityOrderedAgents[0], initialConstraints);
             if (firstMDD == null){ // timeout or initial constraints
-                if (DEBUG >= 1 && ! initialConstraints.isEmpty() && ! checkTimeout()){
+                if (Config.DEBUG >= 1 && ! initialConstraints.isEmpty() && ! checkTimeout()){
                     throw new IllegalStateException("Should not fail to build the first MDD when there are no initial constraints, except for due to timeout");
                 }
                 return null;
@@ -255,7 +254,7 @@ public class PriorityConstrainedSearch extends A_Solver {
             // it might generate new constraints on lower priority agents because of new critical resources
             MDD constrainedHighPriorityMDD = parent.MDDs().get(agentIndex(newConstraintOnHighPriorityAgent.agent))
                     .shallowCopyWithConstraint(newConstraintOnHighPriorityAgent, isPositiveConstraint);
-            if (DEBUG >= 1 && constrainedHighPriorityMDD == null){
+            if (Config.DEBUG >= 1 && constrainedHighPriorityMDD == null){
                 throw new IllegalStateException("Should not get a constraint on high priority MDD that severs it if all " +
                         "critical resources were preemptively added as constraints on the lower priority agents.");
             }
