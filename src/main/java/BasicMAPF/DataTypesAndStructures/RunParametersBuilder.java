@@ -18,6 +18,19 @@ public class RunParametersBuilder {
     public Random randomNumberGenerator;
     public Agent[] priorityOrder;
 
+    public RunParametersBuilder copy(RunParameters rp) {
+        this.timeout = rp.timeout;
+        this.softTimeout = rp.softTimeout;
+        this.constraints = rp.constraints;
+        this.instanceReport = rp.instanceReport;
+        this.existingSolution = rp.existingSolution;
+        this.singleAgentGAndH = rp.singleAgentGAndH;
+        this.problemStartTime = rp.problemStartTime;
+        this.randomNumberGenerator = rp.randomNumberGenerator;
+        this.priorityOrder = rp.priorityOrder;
+        return this;
+    }
+
     /**
      * @see RunParameters#timeout
      */
