@@ -1,7 +1,4 @@
-import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicMAPF.Instances.InstanceBuilders.*;
 import Environment.Config;
 import Environment.RunManagers.*;
 import Environment.Visualization.I_VisualizeSolution;
@@ -22,6 +19,7 @@ public class Main {
     public static final String STR_MOVING_AI = "MovingAI";
     protected static final String STR_BGU = "BGU";
     public static final String STR_WAREHOUSE = "Warehouse";
+    public static final String STR_ARBITRARY = "ArbitraryGraph";
     public static final String STR_INSTANCES_DIR = "instancesDir";
     public static final String STR_INSTANCES_REGEX = "instancesRegex";
     private static final String STR_RESULTS_DIR_OPTION = "resultsOutputDir";
@@ -117,6 +115,7 @@ public class Main {
                     case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI();
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
                     case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, forceBiDiEdges);
+                    case STR_ARBITRARY -> instanceBuilder = new InstanceBuilder_ArbitraryGraph();
                     default -> {
                         System.out.printf("Unrecognized instance format: %s\n", optInstancesFormat);
                         System.exit(0);
@@ -263,7 +262,7 @@ public class Main {
                 .hasArg()
                 .required(false)
                 .desc(String.format("Set the format of the instances. " +
-                        "Supports %s format (https://movingai.com/benchmarks/formats.html) and %s format.", STR_MOVING_AI, STR_BGU)
+                        "Supports %s format (https://movingai.com/benchmarks/formats.html), %s format, and %s format.", STR_MOVING_AI, STR_BGU, STR_ARBITRARY)
                         + " Optional (default is " + STR_MOVING_AI + ").")
                 .build();
         options.addOption(InstancesFormatOption);
