@@ -2,7 +2,9 @@ package BasicMAPF.Instances.Maps;
 
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import Environment.Config;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -10,19 +12,28 @@ public class GraphBasedGridMap extends GraphMap implements I_GridMap {
 
     public final int height;
     public final int width;
-    public final I_Location[][] locationsGrid;
+    public final GraphMapVertex[][] locationsGrid;
 
-    GraphBasedGridMap(I_Location[][] locationsGrid, Map<I_Coordinate, GraphMapVertex> allGraphVertices) {
+    GraphBasedGridMap(GraphMapVertex[][] locationsGrid, Map<I_Coordinate, GraphMapVertex> allGraphVertices) {
         this(locationsGrid, allGraphVertices, null);
     }
 
-    GraphBasedGridMap(@NotNull I_Location[][] locationsGrid, Map<I_Coordinate, GraphMapVertex> allGraphVertices, Boolean isStronglyConnected) {
+    GraphBasedGridMap(@NotNull GraphMapVertex[][] locationsGrid, Map<I_Coordinate, GraphMapVertex> allGraphVertices, Boolean isStronglyConnected) {
         super(allGraphVertices, isStronglyConnected);
         if (locationsGrid.length == 0 || locationsGrid[0].length == 0 )
             throw new IllegalArgumentException("Grid must have at least one row and one column.");
         this.width = locationsGrid.length;
         this.height = locationsGrid[0].length;
-        verifyGridAndGraphAreEqual(locationsGrid, allGraphVertices);
+        if (Config.DEBUG >= 2) {
+            verifyGridAndGraphAreEqual(locationsGrid, allGraphVertices);
+            // verify all coordinates are 2D
+            for (GraphMapVertex[] row : locationsGrid) {
+                for (GraphMapVertex location : row) {
+                    if (!(location.getCoordinate() instanceof Coordinate_2D))
+                        throw new IllegalArgumentException("Location must be 2D.");
+                }
+            }
+        }
         this.locationsGrid = locationsGrid;
     }
 
@@ -75,6 +86,10 @@ public class GraphBasedGridMap extends GraphMap implements I_GridMap {
         }
     }
 
+    @Override
+    public @Nullable GraphMapVertex getMapLocation(@NotNull I_Coordinate coordinate) {
+        return locationsGrid[((Coordinate_2D)coordinate).x_value][((Coordinate_2D)coordinate).y_value];
+    }
 
     @Override
     public int getWidth() {
