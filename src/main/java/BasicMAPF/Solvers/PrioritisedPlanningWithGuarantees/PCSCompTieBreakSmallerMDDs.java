@@ -3,6 +3,9 @@ package BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees;
 import java.util.Comparator;
 
 public class PCSCompTieBreakSmallerMDDs implements Comparator<PCSNode> {
+
+    public static final PCSCompTieBreakSmallerMDDs defaultInstance = new PCSCompTieBreakSmallerMDDs();
+
     @Override
     public int compare(PCSNode o1, PCSNode o2) {
         int res = Integer.compare(o1.getF(), o2.getF());
