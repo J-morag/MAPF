@@ -81,15 +81,14 @@ public class PriorityConstrainedSearch extends A_Solver {
     PriorityConstrainedSearch(@Nullable I_OpenList<PCSNode> openList, @Nullable Comparator<? super PCSNode> nodeComparator,
                               @Nullable I_MDDSearcherFactory searcherFactory, @Nullable Boolean useSimpleMDDCache,
                               @Nullable Integer MDDCacheDepthDeltaMax, @Nullable Boolean usePartialGeneration, I_PCSHeuristic pcsHeuristic) {
-        this.nodeComparator = Objects.requireNonNullElse(nodeComparator, DEFAULT_COMPARATOR_INSTANCE);
+        this.nodeComparator = Objects.requireNonNullElse(nodeComparator, PCSCompTieBreakSmallerMDDs.defaultInstance);
         this.openList = Objects.requireNonNullElseGet(openList, () -> new OpenListTree<>(this.nodeComparator));
         this.searcherFactory = Objects.requireNonNullElseGet(searcherFactory, AStarFactory::new);
 
-        // todo change defaults according to experiment results
         this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, true);
         this.MDDCacheDepthDeltaMax = Objects.requireNonNullElse(MDDCacheDepthDeltaMax, 1);
         this.usePartialGeneration = Objects.requireNonNullElse(usePartialGeneration, true);
-        this.pcsHeuristic = Objects.requireNonNullElse(pcsHeuristic, new PCSHeuristicSIPP());
+        this.pcsHeuristic = Objects.requireNonNullElseGet(pcsHeuristic, PCSHeuristicSIPP::new);
 
         super.name = "Priority Constrained Search";
     }
