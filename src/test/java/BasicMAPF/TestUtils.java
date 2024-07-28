@@ -292,6 +292,7 @@ public class TestUtils {
         long timeout = timeoutSeconds * 1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
+        int solvedByBoth = 0;
         int runtimeBaseline = 0;
         int runtimeExperimental = 0;
         int sumCostBaseline = 0;
@@ -348,6 +349,7 @@ public class TestUtils {
                 boolean experimentalSolved = solutionExperimental != null;
                 solvedByExperimental += experimentalSolved ? 1 : 0;
                 System.out.print(nameBaseline + " Solved?: " + (baselineSolved ? "yes" : "no") + "; ");
+                solvedByBoth += baselineSolved && experimentalSolved ? 1 : 0;
 
                 int highLevelExpandedBaseline = 0;
                 float highLevelExpansionRateBaseline = 0;
@@ -365,8 +367,9 @@ public class TestUtils {
                     catch (NullPointerException e){
                     }
                 }
+                else System.out.println();
 
-                System.out.println(nameExperimental + " Solved?: " + (experimentalSolved ? "yes" : "no") + "; ");
+                System.out.print(nameExperimental + " Solved?: " + (experimentalSolved ? "yes" : "no") + "; ");
 
                 int highLevelExpandedExperimental = 0;
                 float highLevelExpansionRateExperimental = 0;
@@ -451,17 +454,18 @@ public class TestUtils {
             }
         }
 
-        outputResults(timeout, nameBaseline, solvedByBaseline, nameExperimental, solvedByExperimental,
+        outputResults(timeout, nameBaseline, nameExperimental, solvedByBaseline, solvedByExperimental,
                 sumHighLevelExpandedExperimentalOnAll, runtimeBaseline, runtimeExperimental, sumCostBaseline,
                 sumCostExperimental, sumHighLevelExpandedExperimentalOnSolved, sumHighLevelExpandedBaselineOnAll,
-                sumHighLevelExpandedBaselineOnSolved, sumHighLevelExpansionRateOnSolvedBaseline, sumHighLevelExpansionRateOnSolvedExperimental);
+                sumHighLevelExpandedBaselineOnSolved, sumHighLevelExpansionRateOnSolvedBaseline,
+                sumHighLevelExpansionRateOnSolvedExperimental, solvedByBoth);
     }
 
-    public static void outputResults(long timeout, String nameBaseline, int solvedByBaseline, String nameExperimental,
-                              int solvedByExperimental, int sumHighLevelExpandedExperimentalOnAll, int runtimeBaseline,
-                              int runtimeExperimental, int sumCostBaseline, int sumCostExperimental, int sumHighLevelExpandedExperimentalOnSolved,
-                              int sumHighLevelExpandedBaselineOnAll, int sumHighLevelExpandedBaselineOnSolved,
-                              float sumHighLevelExpansionRateOnSolvedBaseline, float sumHighLevelExpansionRateOnSolvedExperimental) {
+    public static void outputResults(long timeout, String nameBaseline, String nameExperimental, int solvedByBaseline,
+                                     int solvedByExperimental, int sumHighLevelExpandedExperimentalOnAll, int runtimeBaseline,
+                                     int runtimeExperimental, int sumCostBaseline, int sumCostExperimental, int sumHighLevelExpandedExperimentalOnSolved,
+                                     int sumHighLevelExpandedBaselineOnAll, int sumHighLevelExpandedBaselineOnSolved,
+                                     float sumHighLevelExpansionRateOnSolvedBaseline, float sumHighLevelExpansionRateOnSolvedExperimental, int solvedByBoth) {
         System.out.println("--- TOTALS: ---");
         System.out.println("timeout for each (seconds): " + (timeout / 1000));
         System.out.println(nameBaseline + " solved: " + solvedByBaseline);
@@ -472,12 +476,12 @@ public class TestUtils {
         System.out.println("totals (on instances where both solved) :");
         System.out.println(nameBaseline + " time: " + runtimeBaseline);
         System.out.println(nameExperimental + " time: " + runtimeExperimental);
-        System.out.printf(nameBaseline + " avg. cost: %.2f\n", (double) sumCostBaseline / solvedByBaseline);
-        System.out.printf(nameExperimental + " avg. cost: %.2f\n", (double) sumCostExperimental / solvedByExperimental);
-        System.out.printf(nameBaseline + " avg. expanded nodes: %.2f\n", (double) sumHighLevelExpandedBaselineOnSolved / solvedByBaseline);
-        System.out.printf(nameExperimental + " avg. expanded nodes: %.2f\n", (double) sumHighLevelExpandedExperimentalOnSolved / solvedByExperimental);
-        System.out.printf(nameBaseline + " avg. expansion rate: %.2f\n", (double) sumHighLevelExpansionRateOnSolvedBaseline / solvedByBaseline);
-        System.out.printf(nameExperimental + " avg. expansion rate: %.2f\n", (double) sumHighLevelExpansionRateOnSolvedExperimental / solvedByExperimental);
+        System.out.printf(nameBaseline + " avg. cost: %.2f\n", (double) sumCostBaseline / solvedByBoth);
+        System.out.printf(nameExperimental + " avg. cost: %.2f\n", (double) sumCostExperimental / solvedByBoth);
+        System.out.printf(nameBaseline + " avg. expanded nodes: %.2f\n", (double) sumHighLevelExpandedBaselineOnSolved / solvedByBoth);
+        System.out.printf(nameExperimental + " avg. expanded nodes: %.2f\n", (double) sumHighLevelExpandedExperimentalOnSolved / solvedByBoth);
+        System.out.printf(nameBaseline + " avg. expansion rate: %.2f\n", (double) sumHighLevelExpansionRateOnSolvedBaseline / solvedByBoth);
+        System.out.printf(nameExperimental + " avg. expansion rate: %.2f\n", (double) sumHighLevelExpansionRateOnSolvedExperimental / solvedByBoth);
 
         //save results
         DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
