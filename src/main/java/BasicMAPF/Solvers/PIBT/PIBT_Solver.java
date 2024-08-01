@@ -433,6 +433,15 @@ public class PIBT_Solver extends A_Solver {
     }
 
     @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        if(solution != null){
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
+            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+        }
+    }
+
+    @Override
     protected void releaseMemory() {
         super.releaseMemory();
         this.agentPlans = null;
@@ -441,14 +450,5 @@ public class PIBT_Solver extends A_Solver {
         this.priorities = null;
         this.takenNodes = null;
         this.unhandledAgents = null;
-    }
-
-    @Override
-    protected void writeMetricsToReport(Solution solution) {
-        super.writeMetricsToReport(solution);
-        if(solution != null){
-            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
-            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-        }
     }
 }
