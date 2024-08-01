@@ -23,7 +23,6 @@ public class LaCAMStar_Solver extends A_Solver {
      * LaCAM instance - composition.
      */
     private LaCAM_Solver lacamSolver;
-
     public HighLevelNodeStar N_Goal;
 
     /**
@@ -115,7 +114,7 @@ public class LaCAMStar_Solver extends A_Solver {
 
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
-                    this.lacamSolver.lowLevelNodesCounter++;
+                    totalLowLevelNodesExpanded++;
                     N.tree.add(C_new);
                 }
             }
@@ -182,7 +181,7 @@ public class LaCAMStar_Solver extends A_Solver {
                         N_new.reachedGoalsMap.put(agent, true);
                     }
                 }
-                this.lacamSolver.highLevelNodesCounter++;
+                expandedNodes++;
                 this.lacamSolver.explored.put(newConfiguration, N_new);
                 if (N_Goal == null || N_new.f < N_Goal.f) this.lacamSolver.open.push(N_new);
             }
@@ -204,7 +203,7 @@ public class LaCAMStar_Solver extends A_Solver {
      */
     protected HighLevelNode initNewHighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent, float g, float h) {
         HighLevelNode N_init = new HighLevelNodeStar(configuration, root, order, priorities, (HighLevelNodeStar) parent, g, h);
-        this.lacamSolver.highLevelNodesCounter++;
+        expandedNodes++;
         return N_init;
     }
 
@@ -348,21 +347,26 @@ public class LaCAMStar_Solver extends A_Solver {
     }
 
     @Override
-    protected void releaseMemory() {
-        this.lacamSolver.releaseMemory();
-        super.releaseMemory();
-    }
-
-    @Override
     protected void writeMetricsToReport(Solution solution) {
+        // messy, but since both use the same instance report, this is a workaround to handle both of them counting separately
+        this.lacamSolver.writeMetricsToReport(solution);
+        this.expandedNodes += instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+        this.generatedNodes += instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
+        this.totalLowLevelNodesGenerated += instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
+        this.totalLowLevelNodesExpanded += instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
         super.writeMetricsToReport(solution);
-        instanceReport.putIntegerValue("Expanded Nodes (High Level)", this.lacamSolver.highLevelNodesCounter);
-        instanceReport.putIntegerValue("Expanded Nodes (Low Level)", this.lacamSolver.lowLevelNodesCounter);
+
         instanceReport.putIntegerValue("# of failed config", this.lacamSolver.failedToFindConfigCounter);
         instanceReport.putFloatValue("Time in config", (float) this.lacamSolver.totalTimeFindConfigurations);
         if(solution != null){
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, this.lacamSolver.solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, this.lacamSolver.solutionCostFunction.name());
         }
+    }
+
+    @Override
+    protected void releaseMemory() {
+        this.lacamSolver.releaseMemory();
+        super.releaseMemory();
     }
 }
