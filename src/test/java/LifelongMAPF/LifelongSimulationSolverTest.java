@@ -3,12 +3,11 @@ package LifelongMAPF;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
-import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
@@ -39,11 +38,11 @@ import static LifelongMAPF.LifelongTestConstants.*;
 class LifelongSimulationSolverTest {
 
     I_Solver snapshotOptimal = new LifelongSimulationSolver(null, new AllAgentsSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, false, null), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
+            new CBSBuilder().setSharedGoals(true).setSharedSources(false).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
     I_Solver mandatoryAgentsOptimal = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, false, null), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
+            new CBSBuilder().setSharedGoals(true).setSharedSources(false).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(),
-            new CBS_Solver(null, null, null, null, null, null, true, false, null), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
+            new CBSBuilder().setSharedGoals(true).setSharedSources(false).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
     I_Solver replanSingle = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
             new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(null, new AllAgentsSelector(),

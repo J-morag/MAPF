@@ -6,7 +6,7 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -32,7 +32,7 @@ class CorridorConflictManagerTest {
 
     private MAPF_Instance instanceHFromPaper = new MAPF_Instance("instanceHFromPaper", mapHLong,
             new Agent[]{agent30to33, agent13to10});
-    I_Solver corridorSolver = new CBS_Solver(null,null,null,null,null,true, null, null, null);
+    I_Solver corridorSolver = new CBSBuilder().setUseCorridorReasoning(true).createCBS_Solver();
 
     void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
         assertTrue(solution.isValidSolution()); //is valid (no conflicts)
@@ -59,15 +59,13 @@ class CorridorConflictManagerTest {
      * This contains diverse instances
      */
     @Test
-    void comparativeDiverseTest(){
+    void comparativeTest(){
         Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver regularCBS = new CBS_Solver(null, null, null,
-                null, null, false, null, null, null);
+        I_Solver regularCBS = new CBSBuilder().setUseCorridorReasoning(false).createCBS_Solver();
         String nameBaseline = "regularCBS";
-        I_Solver corridorCBS = new CBS_Solver(null, null, null,
-                null, null, true, null, null, null);
+        I_Solver corridorCBS = new CBSBuilder().setUseCorridorReasoning(true).createCBS_Solver();
         String nameExperimental = "corridorCBS";
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
@@ -89,7 +87,7 @@ class CorridorConflictManagerTest {
             // run baseline (without the improvement)
             //build report
             InstanceReport reportBaseline = Metrics.newInstanceReport();
-            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, "regularCBS");
@@ -102,7 +100,7 @@ class CorridorConflictManagerTest {
             // run experimentl (with the improvement)
             //build report
             InstanceReport reportExperimental = Metrics.newInstanceReport();
-            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, "corridorCBS");

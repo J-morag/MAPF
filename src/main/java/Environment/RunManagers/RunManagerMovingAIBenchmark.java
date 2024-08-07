@@ -3,7 +3,7 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
 
@@ -22,7 +22,7 @@ public class RunManagerMovingAIBenchmark extends A_RunManager{
     @Override
     public void setSolvers() {
         super.solvers.add(new PrioritisedPlanning_Solver());
-        super.solvers.add(new CBS_Solver());
+        super.solvers.add(new CBSBuilder().createCBS_Solver());
     }
 
     @Override

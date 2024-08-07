@@ -6,6 +6,7 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -23,15 +24,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
-import java.text.DateFormat;
-import java.util.Map;
-
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Instances.*;
-import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CBS_SolverTest {
@@ -40,7 +36,7 @@ class CBS_SolverTest {
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
-    I_Solver cbsSolver = new CBS_Solver();
+    I_Solver cbsSolver = new CBSBuilder().createCBS_Solver();
 
 
     InstanceReport instanceReport;
@@ -149,8 +145,7 @@ class CBS_SolverTest {
 
     @Test
     void cbsWithPriorities() {
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null, null);
+        I_Solver solver = new CBSBuilder().setCostFunction(new SOCWithPriorities()).createCBS_Solver();
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -184,8 +179,7 @@ class CBS_SolverTest {
     void cbsWithPrioritiesUsingBuilder() {
         boolean useAsserts = true;
 
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null, null);
+        I_Solver solver = new CBSBuilder().setCostFunction(new SOCWithPriorities()).createCBS_Solver();
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
@@ -219,133 +213,12 @@ class CBS_SolverTest {
 
     @Test
     void TestingBenchmark(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
-        I_Solver solver = cbsSolver;
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
-
-        MAPF_Instance instance = null;
-        // load the pre-made benchmark
-        try {
-            long timeout = 300 /*seconds*/
-                    *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
-            int numSolved = 0;
-            int numFailed = 0;
-            int numValid = 0;
-            int numOptimal = 0;
-            int numValidSuboptimal = 0;
-            int numInvalidOptimal = 0;
-            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-            while ((instance = instanceManager.getNextInstance()) != null) {
-
-                //build report
-                InstanceReport report = Metrics.newInstanceReport();
-                report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
-                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-                report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
-
-                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
-
-                //solve
-                System.out.println("---------- solving "  + instance.name + " ----------");
-                Solution solution = solver.solve(instance, runParameters);
-
-                // validate
-                Map<String, String> benchmarkForInstance = benchmarks.get(instance.name);
-                if(benchmarkForInstance == null){
-                    System.out.println("can't find benchmark for " + instance.name);
-                    continue;
-                }
-
-                boolean solved = solution != null;
-                System.out.println("Solved?: " + (solved ? "yes" : "no"));
-                if (useAsserts) assertNotNull(solution);
-                if (solved) numSolved++;
-                else numFailed++;
-
-                if(solution != null){
-                    boolean valid = solution.solves(instance);
-                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                    if (useAsserts) assertTrue(valid);
-
-                    int optimalCost = Integer.parseInt(benchmarkForInstance.get("Plan Cost"));
-                    int costWeGot = solution.sumIndividualCosts();
-                    boolean optimal = optimalCost==costWeGot;
-                    System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
-                            ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
-                    report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-                    if (useAsserts) assertEquals(optimalCost, costWeGot);
-
-                    System.out.printf("Time(ms): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
-                    System.out.printf("Expanded nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
-                    System.out.printf("Generated nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodes));
-                    System.out.printf("Expanded nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
-                    System.out.printf("Generated nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel));
-
-                    report.putIntegerValue("Runtime Delta",
-                            report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
-
-                    if(valid) numValid++;
-                    if(optimal) numOptimal++;
-                    if(valid && !optimal) numValidSuboptimal++;
-                    if(!valid && optimal) numInvalidOptimal++;
-                }
-            }
-
-            System.out.println("--- TOTALS: ---");
-            System.out.println("timeout for each (seconds): " + (timeout/1000));
-            System.out.println("solved: " + numSolved);
-            System.out.println("failed: " + numFailed);
-            System.out.println("valid: " + numValid);
-            System.out.println("optimal: " + numOptimal);
-            System.out.println("valid but not optimal: " + numValidSuboptimal);
-            System.out.println("not valid but optimal: " + numInvalidOptimal);
-
-            //save results
-            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-            File directory = new File(resultsOutputDir);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-            try {
-                Metrics.exportCSV(new FileOutputStream(updatedPath),
-                        new String[]{
-                                InstanceReport.StandardFields.instanceName,
-                                InstanceReport.StandardFields.numAgents,
-                                InstanceReport.StandardFields.timeoutThresholdMS,
-                                InstanceReport.StandardFields.solved,
-                                InstanceReport.StandardFields.elapsedTimeMS,
-                                "Runtime Delta",
-                                InstanceReport.StandardFields.solutionCost,
-                                "Cost Delta",
-                                InstanceReport.StandardFields.totalLowLevelTimeMS,
-                                InstanceReport.StandardFields.generatedNodes,
-                                InstanceReport.StandardFields.expandedNodes,
-                                InstanceReport.StandardFields.generatedNodesLowLevel,
-                                InstanceReport.StandardFields.expandedNodesLowLevel});
-            } catch (IOException e) {
-                e.printStackTrace();
-                fail();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            fail();
-        }
+        TestUtils.TestingBenchmark(cbsSolver, 300, true, true);
     }
 
     @Test
     void sharedGoals(){
-        CBS_Solver cbsSolverSharedGoals = new CBS_Solver(null, null, null,
-                null, null, null, true, null, null);
+        CBS_Solver cbsSolverSharedGoals = new CBSBuilder().setSharedGoals(true).createCBS_Solver();
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -421,7 +294,7 @@ class CBS_SolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -445,7 +318,7 @@ class CBS_SolverTest {
 
     @Test
     void transientExample() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, new SumServiceTimes(), null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver CBSt = new CBSBuilder().setCostFunction(new SumServiceTimes()).setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
         Agent agent1 = new Agent(0, coor10, coor13, 1);
         Agent agent2 = new Agent(1, coor11, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});

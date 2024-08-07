@@ -3,9 +3,11 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -73,7 +75,7 @@ public class ExampleMain {
         MAPF_Instance instance = A_RunManager.getInstanceFromPath(instanceManager, instancePath);
 
         // Solve
-        CBS_Solver solver = new CBS_Solver();
+        CBS_Solver solver = new CBSBuilder().createCBS_Solver();
         RunParameters runParameters = new RunParametersBuilder().createRP();
         Solution solution = solver.solve(instance, runParameters);
 

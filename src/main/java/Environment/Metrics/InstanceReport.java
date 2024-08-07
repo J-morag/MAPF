@@ -43,8 +43,8 @@ public class InstanceReport {
         public final static String solver = "Solver";
         public final static String expandedNodesLowLevel = "Expanded Nodes (Low Level)";
         public final static String expandedNodes = "Expanded Nodes (High Level)";
-        public final static String generatedNodesLowLevel = "Generated Nodes(Low Level)";
-        public final static String generatedNodes = "Generated Nodes  (High Level)";
+        public final static String generatedNodesLowLevel = "Generated Nodes (Low Level)";
+        public final static String generatedNodes = "Generated Nodes (High Level)";
         public final static String startDateTime = "Start Date";
         public final static String endDateTime = "End Date";
         public final static String processorInfo = "Processor Info";

@@ -3,7 +3,7 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import Environment.Experiment;
 
@@ -21,7 +21,7 @@ public class RunManagerWarehouse extends A_RunManager{
     @Override
     protected void setSolvers() {
         super.solvers.add(new PrioritisedPlanning_Solver(null, null, null, null, true, true, null, null, null));
-        super.solvers.add(new CBS_Solver(null, null, null, null, null, null, true, true, null));
+        super.solvers.add(new CBSBuilder().setSharedGoals(true).setSharedSources(true).createCBS_Solver());
     }
 
     @Override
