@@ -3,7 +3,9 @@ package BasicMAPF.Solvers.CBS;
 import BasicMAPF.CostFunctions.SOCWithPriorities;
 import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.TestUtils;
@@ -339,5 +341,32 @@ class CBS_SolverTest {
 
         System.out.println(solvedNormal);
         System.out.println(solvedCBSt);
+    }
+
+    @Test
+    void worksWithRHCR(){
+        Integer[] rhcrHorizons = new Integer[]{1, 2, 3, 7, null, Integer.MAX_VALUE};
+        for (Integer rhcrHorizon : rhcrHorizons){
+            System.out.printf("testing with RHCR horizon %d\n", rhcrHorizon);
+            I_Solver solver = new CBS_Solver(null, null, null, null, null, null, null, null, null, rhcrHorizon);
+            for (MAPF_Instance instance : new MAPF_Instance[]{instanceEmpty1, instanceEmpty2, instanceEmpty3, instanceEmptyEasy,
+                    instanceEmptyHarder, instanceCircle1, instanceCircle2, instanceSmallMaze, instanceStartAdjacentGoAround}){
+                System.out.println("testing " + instance.name);
+                Solution solution = solver.solve(instance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setTimeout(2000).createRP());
+                if (solution != null){
+                    for (SingleAgentPlan plan : solution){
+                        for (SingleAgentPlan otherPlan : solution){
+                            if (plan != otherPlan){
+                                A_Conflict firstConf = plan.firstConflict(otherPlan);
+                                assertTrue(firstConf == null || firstConf.time > rhcrHorizon);
+                            }
+                        }
+                    }
+                }
+                else {
+                    System.out.println("warning: no solution found.");
+                }
+            }
+        }
     }
 }

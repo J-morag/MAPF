@@ -98,9 +98,11 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      * If true, agents staying at their source (since the start) will not conflict 
      */
     public final boolean sharedSources;
-
-
     private final TransientMAPFSettings transientMAPFSettings;
+    /**
+     * How far forward in time to consider conflicts. Beyond than this time conflicts will be ignored.
+     */
+    public final Integer RHCR_Horizon;
 
     /*  = Constructors =  */
 
@@ -114,9 +116,9 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      * @param cbsNodeComparator determines how to sort {@link #openList OPEN}.
      * @param useCorridorReasoning whether to use corridor reasoning.
      */
-    public CBS_Solver(@Nullable I_Solver lowLevelSolver, @Nullable I_OpenList<CBS_Node> openList, @Nullable OpenListManagementMode openListManagementMode,
+    CBS_Solver(@Nullable I_Solver lowLevelSolver, @Nullable I_OpenList<CBS_Node> openList, @Nullable OpenListManagementMode openListManagementMode,
                       @Nullable I_SolutionCostFunction costFunction, @Nullable Comparator<? super CBS_Node> cbsNodeComparator, @Nullable Boolean useCorridorReasoning,
-                      @Nullable Boolean sharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings) {
+                      @Nullable Boolean sharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings, Integer RHCR_Horizon) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -128,6 +130,10 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        if (RHCR_Horizon != null && RHCR_Horizon <= 0){
+            throw new IllegalArgumentException("RHCR_Horizon must be positive");
+        }
+        this.RHCR_Horizon = RHCR_Horizon;
 
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
     }
@@ -135,8 +141,8 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
     /**
      * Default constructor.
      */
-    public CBS_Solver() {
-        this(null, null, null, null, null, null, null, null, null);
+    CBS_Solver() {
+        this(null, null, null, null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -251,7 +257,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
                 new ConflictManager(null, this.sharedGoals, this.sharedSources);
         for (SingleAgentPlan plan :
                 node.getSolution()) {
-            cat.addPlan(plan);
+            cat.addPlan(RHCR_Horizon != null ? plan.getPrefix(Math.min(RHCR_Horizon, plan.size())) : plan);
         }
         return cat;
     }

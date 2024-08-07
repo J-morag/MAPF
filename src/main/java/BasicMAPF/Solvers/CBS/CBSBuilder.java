@@ -17,6 +17,7 @@ public class CBSBuilder {
     private Boolean sharedGoals = null;
     private Boolean sharedSources = null;
     private TransientMAPFSettings transientMAPFSettings = null;
+    private Integer RHCR_Horizon;
 
     public CBSBuilder setLowLevelSolver(I_Solver lowLevelSolver) {
         this.lowLevelSolver = lowLevelSolver;
@@ -63,7 +64,12 @@ public class CBSBuilder {
         return this;
     }
 
+    public CBSBuilder setRHCR_Horizon(Integer RHCR_Horizon) {
+        this.RHCR_Horizon = RHCR_Horizon;
+        return this;
+    }
+
     public CBS_Solver createCBS_Solver() {
-        return new CBS_Solver(lowLevelSolver, openList, openListManagementMode, costFunction, cbsNodeComparator, useCorridorReasoning, sharedGoals, sharedSources, transientMAPFSettings);
+        return new CBS_Solver(lowLevelSolver, openList, openListManagementMode, costFunction, cbsNodeComparator, useCorridorReasoning, sharedGoals, sharedSources, transientMAPFSettings, RHCR_Horizon);
     }
 }
