@@ -28,6 +28,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -100,17 +101,17 @@ public class CBS_Solver extends A_Solver {
 
     /**
      * Parameterised constructor.
-     * @param lowLevelSolver this {@link I_Solver solver} will be used to solve single agent sub-problems. @Nullable
+     * @param lowLevelSolver this {@link I_Solver solver} will be used to solve single agent sub-problems.
      * @param openList this will be used as the {@link I_OpenList open list} in the solver. This instance will be reused
-     *                 by calling {@link I_OpenList#clear()} after every run. @Nullable
-     * @param openListManagementMode @see {@link OpenListManagementMode}. @Nullable
-     * @param costFunction a cost function for solutions. @Nullable
-     * @param cbsNodeComparator determines how to sort {@link #openList OPEN}. @Nullable
+     *                 by calling {@link I_OpenList#clear()} after every run.
+     * @param openListManagementMode @see {@link OpenListManagementMode}.
+     * @param costFunction a cost function for solutions.
+     * @param cbsNodeComparator determines how to sort {@link #openList OPEN}.
      * @param useCorridorReasoning whether to use corridor reasoning.
      */
-    public CBS_Solver(I_Solver lowLevelSolver, I_OpenList<CBS_Node> openList, OpenListManagementMode openListManagementMode,
-                      I_SolutionCostFunction costFunction, Comparator<? super CBS_Node> cbsNodeComparator, Boolean useCorridorReasoning,
-                      Boolean sharedGoals, Boolean sharedSources, TransientMAPFSettings transientMAPFSettings) {
+    public CBS_Solver(@Nullable I_Solver lowLevelSolver, @Nullable I_OpenList<CBS_Node> openList, @Nullable OpenListManagementMode openListManagementMode,
+                      @Nullable I_SolutionCostFunction costFunction, @Nullable Comparator<? super CBS_Node> cbsNodeComparator, @Nullable Boolean useCorridorReasoning,
+                      @Nullable Boolean sharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -445,7 +446,7 @@ public class CBS_Solver extends A_Solver {
      * A data type for representing a single node in the CBS search tree.
      * Try to keep most logic in {@link CBS_Solver}, avoiding methods in this class.
      */
-    private class CBS_Node implements Comparable<CBS_Node>{
+    public class CBS_Node implements Comparable<CBS_Node>{
 
         /*  =  = fields =  */
 
