@@ -6,7 +6,7 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.MapDimensions;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -104,7 +104,7 @@ class ICTS_SolverTest {
 
     @Test
     void comparativeTest(){
-        I_Solver cbs = new CBS_Solver();
+        I_Solver cbs = new CBSBuilder().createCBS_Solver();
         String nameBaseline = "cbs";
         I_Solver icts = new ICTS_Solver();
         String nameExperimental = "ICTS";

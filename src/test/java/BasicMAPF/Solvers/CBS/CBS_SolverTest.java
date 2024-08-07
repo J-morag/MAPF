@@ -36,7 +36,7 @@ class CBS_SolverTest {
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
-    I_Solver cbsSolver = new CBS_Solver();
+    I_Solver cbsSolver = new CBSBuilder().createCBS_Solver();
 
 
     InstanceReport instanceReport;
@@ -145,8 +145,7 @@ class CBS_SolverTest {
 
     @Test
     void cbsWithPriorities() {
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null, null);
+        I_Solver solver = new CBSBuilder().setCostFunction(new SOCWithPriorities()).createCBS_Solver();
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -180,8 +179,7 @@ class CBS_SolverTest {
     void cbsWithPrioritiesUsingBuilder() {
         boolean useAsserts = true;
 
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null, null);
+        I_Solver solver = new CBSBuilder().setCostFunction(new SOCWithPriorities()).createCBS_Solver();
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
@@ -220,8 +218,7 @@ class CBS_SolverTest {
 
     @Test
     void sharedGoals(){
-        CBS_Solver cbsSolverSharedGoals = new CBS_Solver(null, null, null,
-                null, null, null, true, null, null);
+        CBS_Solver cbsSolverSharedGoals = new CBSBuilder().setSharedGoals(true).createCBS_Solver();
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -297,7 +294,7 @@ class CBS_SolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -321,7 +318,7 @@ class CBS_SolverTest {
 
     @Test
     void transientExample() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, new SumServiceTimes(), null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver CBSt = new CBSBuilder().setCostFunction(new SumServiceTimes()).setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
         Agent agent1 = new Agent(0, coor10, coor13, 1);
         Agent agent2 = new Agent(1, coor11, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});

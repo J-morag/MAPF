@@ -3,16 +3,10 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSHeuristicDefault;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSHeuristicSIPP;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PriorityConstrainedSearch;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +52,7 @@ public class GenericRunManager extends A_RunManager {
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
                 null, null, null));
 
-        super.solvers.add(new CBS_Solver());
+        super.solvers.add(new CBSBuilder().createCBS_Solver());
     }
 
     public void overrideSolvers(@NotNull List<I_Solver> solvers){
