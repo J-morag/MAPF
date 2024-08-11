@@ -109,7 +109,7 @@ public class CBS_Solver extends A_Solver {
      * @param cbsNodeComparator determines how to sort {@link #openList OPEN}.
      * @param useCorridorReasoning whether to use corridor reasoning.
      */
-    public CBS_Solver(@Nullable I_Solver lowLevelSolver, @Nullable I_OpenList<CBS_Node> openList, @Nullable OpenListManagementMode openListManagementMode,
+    CBS_Solver(@Nullable I_Solver lowLevelSolver, @Nullable I_OpenList<CBS_Node> openList, @Nullable OpenListManagementMode openListManagementMode,
                       @Nullable I_SolutionCostFunction costFunction, @Nullable Comparator<? super CBS_Node> cbsNodeComparator, @Nullable Boolean useCorridorReasoning,
                       @Nullable Boolean sharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
@@ -130,7 +130,7 @@ public class CBS_Solver extends A_Solver {
     /**
      * Default constructor.
      */
-    public CBS_Solver() {
+    CBS_Solver() {
         this(null, null, null, null, null, null, null, null, null);
     }
 
