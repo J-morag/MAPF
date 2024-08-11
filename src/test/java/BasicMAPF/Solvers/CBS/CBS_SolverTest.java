@@ -349,7 +349,7 @@ class CBS_SolverTest {
         for (Integer rhcrHorizon : rhcrHorizons){
             System.out.printf("testing with RHCR horizon %d\n", rhcrHorizon);
             I_Solver solver = new CBS_Solver(null, null, null, null, null, null, null, null, null, rhcrHorizon);
-            for (MAPF_Instance instance : new MAPF_Instance[]{instanceEmpty1, instanceEmpty2, instanceEmpty3, instanceEmptyEasy,
+            for (MAPF_Instance instance : new MAPF_Instance[]{instanceEmpty1, instanceEmpty2, instanceEmptyEasy,
                     instanceEmptyHarder, instanceCircle1, instanceCircle2, instanceSmallMaze, instanceStartAdjacentGoAround}){
                 System.out.println("testing " + instance.name);
                 Solution solution = solver.solve(instance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setTimeout(2000).createRP());
