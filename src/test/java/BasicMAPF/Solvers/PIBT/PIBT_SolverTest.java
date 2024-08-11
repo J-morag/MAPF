@@ -74,7 +74,7 @@ public class PIBT_SolverTest {
 
     @Test
     void emptyMapAgentsWithTheSameGoal() {
-        MAPF_Instance testInstance = instanceEmpty3;
+        MAPF_Instance testInstance = instanceEmptySameTarget;
         Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
