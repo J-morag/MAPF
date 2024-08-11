@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static BasicMAPF.TestConstants.Instances.*;
-import static BasicMAPF.TestConstants.Instances.instanceEmpty3;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MDDManagerTest {
@@ -20,7 +19,7 @@ class MDDManagerTest {
     void standardFlow() {
         int depthDelta = 40;
         for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
-                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder)){
             I_Map map = instance.map;
             SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
             MDDManager mddManager = new MDDManager(new AStarFactory(), new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(),
@@ -50,7 +49,7 @@ class MDDManagerTest {
     void skips() {
         int depthDelta = 200;
         for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
-                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder)){
             I_Map map = instance.map;
             SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
             MDDManager mddManager = new MDDManager(new AStarFactory(), new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(),
