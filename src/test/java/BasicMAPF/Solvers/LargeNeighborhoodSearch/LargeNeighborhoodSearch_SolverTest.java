@@ -1,8 +1,10 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -204,5 +206,37 @@ class LargeNeighborhoodSearch_SolverTest {
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
         assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
         assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
+    }
+
+    @Test
+    void worksWithRHCR(){
+        Integer[] rhcrHorizons = new Integer[]{1, 2, 3, 7, null, Integer.MAX_VALUE};
+        for (Integer rhcrHorizon : rhcrHorizons){
+            System.out.printf("testing with RHCR horizon %d\n", rhcrHorizon);
+            LargeNeighborhoodSearch_Solver solver = new LNSBuilder().setRHCR_Horizon(rhcrHorizon).createLNS();
+            for (MAPF_Instance instance : new MAPF_Instance[]{instanceEmpty1, instanceEmpty2, instanceEmptyEasy,
+                    instanceEmptyHarder, instanceCircle1, instanceCircle2, instanceSmallMaze, instanceStartAdjacentGoAround}){
+                System.out.println("testing " + instance.name);
+                Solution solution = solver.solve(instance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setTimeout(2000).createRP());
+                if (solution != null){
+                    for (SingleAgentPlan plan : solution){
+                        for (SingleAgentPlan otherPlan : solution){
+                            if (plan != otherPlan){
+                                A_Conflict firstConf = plan.firstConflict(otherPlan);
+                                if (firstConf != null){
+                                    if (firstConf.time <= rhcrHorizon){
+                                        System.out.println("first conflict is " + firstConf + " but RHCR horizon is " + rhcrHorizon);
+                                        assert false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    System.out.println("warning: no solution found.");
+                }
+            }
+        }
     }
 }

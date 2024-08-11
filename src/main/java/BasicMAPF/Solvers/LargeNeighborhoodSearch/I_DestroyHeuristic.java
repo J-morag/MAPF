@@ -9,7 +9,7 @@ import java.util.Random;
 
 public interface I_DestroyHeuristic {
 
-    List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map);
+    List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map, int maxTimeToConsider);
 
     void clear();
 

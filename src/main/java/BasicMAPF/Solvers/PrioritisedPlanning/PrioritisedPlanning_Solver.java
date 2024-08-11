@@ -196,6 +196,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
         if (parameters.constraints != null){
             if (this.RHCR_Horizon != null){
+                // todo warning or info if actually cutting constraints here?
                 this.constraints = new ConstraintSet(parameters.constraints, horizonAsAbsoluteTime(this.problemStartTime, this.RHCR_Horizon));
             }
             else {
@@ -493,8 +494,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         }
     }
 
-    private int horizonAsAbsoluteTime(int problemStartTime, int horizon) {
-        return Math.addExact(problemStartTime, horizon);
+    public static int horizonAsAbsoluteTime(int problemStartTime, int horizon) {
+        return problemStartTime + horizon >= problemStartTime ? problemStartTime + horizon : Integer.MAX_VALUE;
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, int agentIndexInCurrentOrdering,

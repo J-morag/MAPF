@@ -14,16 +14,15 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
-import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
+import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 
 import java.util.*;
+
+import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.horizonAsAbsoluteTime;
 
 /**
  * Implements Large Neighborhood Search for MAPF.
@@ -79,6 +78,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * Run parameters for the current run
      */
     private RunParameters runParameters;
+    public final Integer RHCR_Horizon;
 
     /*  = Constructors =  */
 
@@ -101,28 +101,38 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                    Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
-                                   I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFSettings transientMAPFSettings) {
+                                   I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFSettings transientMAPFSettings,
+                                   Integer RHCR_horizon) {
 
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
+        this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_horizon, Integer.MAX_VALUE);
+        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
 
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-                sharedGoals, sharedSources, this.transientMAPFSettings, null, null));
+                this.sharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
+        // verify horizon of self and initial
+        if (Config.WARNING >= 1 && this.initialSolver instanceof PrioritisedPlanning_Solver ppInitialSolver && !ppInitialSolver.RHCR_Horizon.equals(this.RHCR_Horizon)){
+            System.err.println("WARNING: RHCR horizon of LargeNeighborhoodSearch_Solver and initial solver do not match.");
+        }
         this.iterationsSolver = Objects.requireNonNullElseGet(iterationsSolver,
                 // PP with just one attempt
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
-                sharedGoals, sharedSources, this.transientMAPFSettings, null, null));
+                this.sharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
+        // verify horizon of self and iteration
+        if (Config.WARNING >= 1 && this.iterationsSolver instanceof PrioritisedPlanning_Solver ppIterationsSolver && !ppIterationsSolver.RHCR_Horizon.equals(this.RHCR_Horizon)){
+            System.err.println("WARNING: RHCR horizon of LargeNeighborhoodSearch_Solver and iterations solver do not match.");
+        }
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
                 List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
                 : new ArrayList<>(destroyHeuristics);
 
-        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
-        this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
@@ -190,7 +200,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
             // select neighborhood (destroy heuristic)
             int destroyHeuristicIndex = selectDestroyHeuristicIndex();
             I_DestroyHeuristic destroyHeuristic = this.destroyHeuristics.get(destroyHeuristicIndex);
-            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()-1), random, instance.map));
+            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()-1), random, instance.map, horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon)));
 
             // get solution without selected agents
             Solution destroyedSolution = new Solution();

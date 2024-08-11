@@ -18,7 +18,7 @@ public class MapBasedDestroyHeuristic implements I_DestroyHeuristic {
     private List<I_Location> cachedMapIntersections;
 
     @Override
-    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map) {
+    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map, int maxTimeToConsider) {
         Map<I_Location, List<AgentTime>> intersectionsToAgentsSortedByTime = getIntersectionsToAgentsSortedByTime(currentSolution, map);
 
         List<I_Location> allIntersections = getAndCacheAllIntersections(map, intersectionsToAgentsSortedByTime);
@@ -45,7 +45,7 @@ public class MapBasedDestroyHeuristic implements I_DestroyHeuristic {
             }
 
             if (isIntersection(currLocation)){
-                addAgentsAtIntersectionByProximityToARandomTime(neighborhoodSize, rnd, intersectionsToAgentsSortedByTime, currLocation, selectedAgents);
+                addAgentsAtIntersectionByProximityToARandomTime(neighborhoodSize, rnd, intersectionsToAgentsSortedByTime, currLocation, selectedAgents, maxTimeToConsider);
             }
 
             Set<I_Location> children = new HashSet<>(currLocation.outgoingEdges());
@@ -62,12 +62,12 @@ public class MapBasedDestroyHeuristic implements I_DestroyHeuristic {
         return new ArrayList<>(selectedAgents);
     }
 
-    private void addAgentsAtIntersectionByProximityToARandomTime(int neighborhoodSize, Random rnd, Map<I_Location, List<AgentTime>> intersectionsToAgentsSortedByTime, I_Location currLocation, Set<Agent> selectedAgents) {
+    private void addAgentsAtIntersectionByProximityToARandomTime(int neighborhoodSize, Random rnd, Map<I_Location, List<AgentTime>> intersectionsToAgentsSortedByTime, I_Location currLocation, Set<Agent> selectedAgents, int maxTimeToConsider) {
         List<AgentTime> agentTimesSorted = intersectionsToAgentsSortedByTime.get(currLocation);
         if (agentTimesSorted == null){
             return;
         }
-        int T = agentTimesSorted.get(agentTimesSorted.size()-1).t;
+        int T = Math.min(agentTimesSorted.get(agentTimesSorted.size()-1).t, maxTimeToConsider);
         int t = rnd.nextInt(T);
 
         // find the index where the time is closest to t
