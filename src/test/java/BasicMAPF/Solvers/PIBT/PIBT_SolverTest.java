@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
+import static BasicMAPF.TestConstants.Instances.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

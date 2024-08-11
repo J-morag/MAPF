@@ -29,7 +29,7 @@ public class GraphBasedGridMap extends GraphMap implements I_GridMap {
             // verify all coordinates are 2D
             for (GraphMapVertex[] row : locationsGrid) {
                 for (GraphMapVertex location : row) {
-                    if (!(location.getCoordinate() instanceof Coordinate_2D))
+                    if (location != null && !(location.getCoordinate() instanceof Coordinate_2D))
                         throw new IllegalArgumentException("Location must be 2D.");
                 }
             }

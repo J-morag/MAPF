@@ -28,6 +28,7 @@ public class Main {
     private static final String STR_TIMEOUT_EACH = "timeoutEach";
     private static final String STR_DEBUG_LEVEL = "debugLevel";
     private static final String STR_INFO_LEVEL = "infoLevel";
+    private static final String STR_WARNING_LEVEL = "warningLevel";
 
     public static void main(String[] args) {
         CLIMain(args);
@@ -62,8 +63,9 @@ public class Main {
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
             Integer timeoutEach = null;
-            Integer debugLevel = null;
-            Integer infoLevel = null;
+            int debugLevel;
+            int infoLevel;
+            int warningLevel;
             Long minResponseTime;
             Integer maxTimeSteps;
 
@@ -222,6 +224,19 @@ public class Main {
                 }
             }
 
+            if (cmd.hasOption(STR_WARNING_LEVEL)) {
+                String optWarningLevel = cmd.getOptionValue(STR_WARNING_LEVEL);
+                System.out.println("Warning Level: " + optWarningLevel);
+                try {
+                    warningLevel = Integer.parseInt(optWarningLevel);
+                    Config.WARNING = warningLevel;
+                }
+                catch (NumberFormatException e){
+                    System.out.printf("%s should be an integer, got %s\n", STR_WARNING_LEVEL, optWarningLevel);
+                    System.exit(0);
+                }
+            }
+
             String[] optAgents = cmd.getOptionValues(STR_AGENT_NUMS);
             System.out.println("Agent nums: " + Arrays.toString(optAgents));
 
@@ -373,6 +388,14 @@ public class Main {
                 .desc("Set the info level. Integer. Optional. Default is 1.")
                 .build();
         options.addOption(infoLevelOption);
+
+        Option warningLevelOption = Option.builder("w").longOpt(STR_WARNING_LEVEL)
+                .argName(STR_WARNING_LEVEL)
+                .hasArg()
+                .required(false)
+                .desc("Set the warning level. Integer. Optional. Default is 1.")
+                .build();
+        options.addOption(warningLevelOption);
     }
 
     private static void printEnv() {
