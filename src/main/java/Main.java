@@ -333,7 +333,7 @@ public class Main {
                 .argName("responseTime")
                 .hasArg()
                 .required(false)
-                .desc("Set the minimum response time per time step for the solver. Optional.")
+                .desc("Set the minimum response time (ms) per planning iteration for the solver. Optional. Default is 1000ms.")
                 .build();
         options.addOption(responseTimeOption);
 
