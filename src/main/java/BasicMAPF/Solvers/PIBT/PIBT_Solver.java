@@ -525,6 +525,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
     @Override
     public boolean sharedGoals() {
-        return true;
+        return true; // todo when this gets the option to be non-transient, return this.isTransient
     }
 }

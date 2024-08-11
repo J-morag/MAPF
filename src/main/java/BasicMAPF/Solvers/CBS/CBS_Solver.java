@@ -19,6 +19,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
+import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
@@ -130,6 +131,9 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
+            System.err.println("Warning: CBS has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
+        }
         if (RHCR_Horizon != null && RHCR_Horizon <= 0){
             throw new IllegalArgumentException("RHCR_Horizon must be positive");
         }
@@ -465,7 +469,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     @Override
     public boolean sharedGoals() {
-        return this.sharedGoals;
+        return this.transientMAPFSettings.isTransientMAPF() || this.sharedGoals;
     }
 
     /*  = internal classes and interfaces =  */

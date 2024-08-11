@@ -110,6 +110,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.RHCR_Horizon = RHCR_horizon;
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
+        if (Config.WARNING >= 1 && this.sharedGoals && this.sharedSources){
+            System.err.println("Warning: LNS has shared goals and is set to transient MAPF. Shared goals is likely unnecessary if already transient.");
+        }
 
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
@@ -374,6 +377,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
 
     @Override
     public boolean sharedGoals() {
-        return this.sharedGoals;
+        return this.transientMAPFSettings.isTransientMAPF() || this.sharedGoals;
     }
 }

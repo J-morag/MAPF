@@ -9,6 +9,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
+import Environment.Config;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 import BasicMAPF.Instances.Agent;
@@ -162,6 +163,9 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        if (Config.WARNING >= 1 && this.sharedGoals && this.sharedSources){
+            System.err.println("Warning: PrP has shared goals and is set to transient MAPF. Shared goals is likely unnecessary if already transient.");
+        }
         this.RHCR_Horizon = RHCR_Horizon;
         this.failPolicy = failPolicy;
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
@@ -605,6 +609,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     @Override
     public boolean sharedGoals() {
-        return this.sharedGoals;
+        return this.transientMAPFSettings.isTransientMAPF() || this.sharedGoals;
     }
 }
