@@ -286,14 +286,14 @@ class PrioritisedPlanningSolverTest {
     @Test
     void TestingBenchmarkWInitialRandomRestarts(){
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null, null);
+                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null, null, null , null);
         TestUtils.TestingBenchmark(solver, 5, false, false);
     }
 
     @Test
     void TestingBenchmarkWInitialDeterministicRestarts(){
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null, null);
+                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null, null, null, null);
         TestUtils.TestingBenchmark(solver, 5, false, false);
     }
 
