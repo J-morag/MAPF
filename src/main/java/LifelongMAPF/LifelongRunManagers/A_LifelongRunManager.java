@@ -5,10 +5,10 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.Experiment;
-import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import Environment.RunManagers.A_RunManager;
 import Environment.Visualization.I_VisualizeSolution;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,30 +25,11 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
     public A_LifelongRunManager(String resultsOutputDir, I_VisualizeSolution visualizer) {
         super(resultsOutputDir, visualizer);
-        metricsHeader = getMetricsHeader();
+        metricsHeader = ArrayUtils.addAll(metricsHeader, lifelongMetricsForHeader());
     }
 
-    public String[] getMetricsHeader() {
+    public String[] lifelongMetricsForHeader() {
         return new String[]{
-                InstanceReport.StandardFields.experimentName,
-                InstanceReport.StandardFields.mapName,
-                InstanceReport.StandardFields.numTraversableLocations,
-                InstanceReport.StandardFields.avgInDegree,
-                InstanceReport.StandardFields.avgOutDegree,
-                InstanceReport.StandardFields.instanceName,
-                InstanceReport.StandardFields.numAgents,
-                InstanceReport.StandardFields.solver,
-                InstanceReport.StandardFields.solved,
-                InstanceReport.StandardFields.skipped,
-                InstanceReport.StandardFields.valid,
-                InstanceReport.StandardFields.elapsedTimeMS,
-                InstanceReport.StandardFields.totalLowLevelTimeMS,
-                InstanceReport.StandardFields.generatedNodes,
-                InstanceReport.StandardFields.expandedNodes,
-                InstanceReport.StandardFields.solutionCost,
-                InstanceReport.StandardFields.solution,
-                InstanceReport.StandardFields.startDateTime,
-                InstanceReport.StandardFields.processorInfo,
                 "reachedTimestepInPlanning",
                 "numPlanningIterations",
                 "avgGroupSize",
