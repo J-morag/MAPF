@@ -49,8 +49,9 @@ Modify the `Main.java` file to run your experiment. Examples are provided in the
                                                         
 * How to run single\multiple Experiments
         
-        In order to run experiments you will need:
-        RunManager class that extends Environment.RunManagers.A_RunManager and implements the following
+        In order to run experiments you can use GenericRunManager.
+        Alternatively, you can create you own RunManager class that extends Environment.RunManagers.A_RunManager, 
+        and implements the following methods:
         1.  abstract void setSolvers(); // choose solvers to add (one or more)
             Example: solvers.add(new CBS_Solver())
             
