@@ -6,15 +6,14 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public interface I_ConstraintSet {
 
     Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet();
     Map<I_Location, GoalConstraint> getGoalConstraints();
+
+    Map<I_Location, ArrayList<Constraint>> getLocationConstraints();
 
     boolean isSharedGoals();
 
@@ -30,8 +29,6 @@ public interface I_ConstraintSet {
      * @return the time of the last constraint. If it is a goal constraint (infinite), return the time when it starts
      */
     int getLastConstraintStartTime();
-
-    void add(Set<Constraint> constraintSet, Constraint constraint);
 
     void add(Constraint constraint);
 
