@@ -20,6 +20,8 @@ public class ConstraintSet implements I_ConstraintSet {
      */
     protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>(); // todo lists instead of sets?
 //    protected final Map<I_Location, List<Constraint>> timeSortedConstraintsAtLocation = new HashMap<>(); // todo implement. Or only keep last and forgo ability to remove constraints??
+    // todo use only locationConstraints instead of constraints field?
+    protected final Map<I_Location, ArrayList<Constraint>> locationConstraints = new HashMap<>(); // todo ArrayMap for explicit maps?
 
     /**
      * Goal constraints. Locations in this collection are reserved starting from the constraint's time, indefinitely.
@@ -78,6 +80,11 @@ public class ConstraintSet implements I_ConstraintSet {
     }
 
     @Override
+    public Map<I_Location, ArrayList<Constraint>> getLocationConstraints() {
+        return Collections.unmodifiableMap(this.locationConstraints);
+    }
+
+    @Override
     public boolean isSharedGoals() {
         return sharedGoals;
     }
@@ -128,15 +135,16 @@ public class ConstraintSet implements I_ConstraintSet {
         else{ // regular constraint
             I_ConstraintGroupingKey dummy = createDummy(constraint);
             this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
-            add(this.constraints.get(dummy), constraint);
+            this.constraints.get(dummy).add(constraint);
             this.lastConstraintTime = Math.max(this.lastConstraintTime, constraint.time);
+
+            ArrayList<Constraint> constraintsAtLocation = locationConstraints.computeIfAbsent(constraint.location, k -> new ArrayList<>());
+            // insert sorted on constraint time (using binary search)
+            int index = Collections.binarySearch(constraintsAtLocation, constraint, Comparator.comparingInt(c -> c.time));
+            if (index < 0) index = -index - 1;
+            constraintsAtLocation.add(index, constraint);
         }
 
-    }
-
-    @Override
-    public void add(Set<Constraint> constraintSet, Constraint constraint){
-        constraintSet.add(constraint);
     }
 
     @Override
@@ -156,6 +164,11 @@ public class ConstraintSet implements I_ConstraintSet {
         for (I_Location loc : other.goalConstraints.keySet()){
             this.add(other.goalConstraints.get(loc));
         }
+        for (I_Location loc : other.locationConstraints.keySet()){
+            for (Constraint cons : other.locationConstraints.get(loc)){
+                this.add(cons);
+            }
+        }
     }
 
     @Override
@@ -167,6 +180,11 @@ public class ConstraintSet implements I_ConstraintSet {
         }
         for (GoalConstraint goalConstraint : other.getGoalConstraints().values()) {
             this.add(goalConstraint);
+        }
+        for (Map.Entry<I_Location, ArrayList<Constraint>> entry : other.getLocationConstraints().entrySet()) {
+            for (Constraint constraint : entry.getValue()) {
+                this.add(constraint);
+            }
         }
     }
 
@@ -190,6 +208,14 @@ public class ConstraintSet implements I_ConstraintSet {
                     this.constraints.remove(dummy);
                 }
             }
+
+            ArrayList<Constraint> constraintsAtLocation = this.locationConstraints.get(constraint.location);
+            if (constraintsAtLocation != null) {
+                constraintsAtLocation.remove(constraint);
+                if (constraintsAtLocation.isEmpty()) {
+                    this.locationConstraints.remove(constraint.location);
+                }
+            }
         }
     }
 
@@ -203,6 +229,8 @@ public class ConstraintSet implements I_ConstraintSet {
     @Override
     public void clear() {
         this.constraints.clear();
+        this.goalConstraints.clear();
+        this.locationConstraints.clear();
     }
 
     @Override
@@ -267,25 +295,39 @@ public class ConstraintSet implements I_ConstraintSet {
 
     protected int firstOrLastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves, boolean first){
         int rejectionTime = first ? Integer.MAX_VALUE : -1;
-        // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
-        //  Or a map from location to the time of the last constraint on it!.
-        // traverses the entire data structure. expensive.
-        for (I_ConstraintGroupingKey cw : constraints.keySet()) {
-            // if found constraint for this location, sometime in the future. Should be rare.
-            if(cw.relevantInTheFuture(finalMove)){
-                for (Constraint constraint : constraints.get(cw)) {
-                    // make an artificial "stay" move for the relevant time.
-                    // In practice, this should happen very rarely, so not very expensive.
-                    int constraintTime = cw.getTime();
-                    if(constraint.rejects(new Move(finalMove.agent, constraintTime, finalMove.currLocation, finalMove.currLocation))
-                            && ((first && constraintTime < rejectionTime) || (!first && constraintTime > rejectionTime)) ){
-                        rejectionTime = constraintTime;
+
+        ArrayList<Constraint> constraintsSortedByTime = locationConstraints.get(finalMove.currLocation);
+        if (constraintsSortedByTime != null){
+            if (first){
+                // todo skip to finalMove.time with binary search
+                for (Constraint constraint : constraintsSortedByTime){
+                    if (constraint.time >= finalMove.timeNow){
+                        // todo dummy move to save object creations?
+                        if (constraint.rejects(new Move(finalMove.agent, constraint.time, finalMove.currLocation, finalMove.currLocation))){
+                            rejectionTime = constraint.time;
+                            break;
+                        }
+                    }
+                }
+            }
+            else { // last
+                for (int i = constraintsSortedByTime.size() - 1; i >= 0; i--){
+                    Constraint constraint = constraintsSortedByTime.get(i);
+                    if (constraint.time < finalMove.timeNow){
+                        break;
+                    }
+                    // todo dummy move to save object creations?
+                    if (constraint.rejects(new Move(finalMove.agent, constraint.time, finalMove.currLocation, finalMove.currLocation))){
+                        rejectionTime = Math.max(rejectionTime, constraint.time);
+                        break;
                     }
                 }
             }
         }
-        // Unless explicitly requested, #goalConstraints is irrelevant, since if there are no shared goals,
-        // there won't be two agents trying to get to the same goal, and if there are shared goals then it's not a conflict
+
+        // Unless explicitly requested, #goalConstraints is irrelevant, since in classic MAPF targets are unique.
+        // So, there won't be two agents trying to end their plan at the same location.
+        // Additionally, if there are shared goals then it's not a conflict
         if (checkOtherAgentsLastMoves && !sharedGoals){
             // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
             for (I_Location loc : goalConstraints.keySet()){

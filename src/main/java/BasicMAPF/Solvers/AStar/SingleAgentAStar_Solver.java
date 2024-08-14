@@ -156,6 +156,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         AStarState currentState;
         int lastRejectionTime = 0;
+        Map<I_Location, Integer> lastRejectionTimes = new HashMap<>(); // todo ArrayMap?
 
         while ((currentState = openList.poll()) != null){ //dequeu in the while condition
             if(checkTimeout()) {return null;}
@@ -167,14 +168,19 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if (isGoalState(currentState)){
                 // check to see if a rejecting constraint on the goal's location exists at some point in the future,
                 // which would mean we can't finish the plan there and stay forever
-                // TODO improve the data structure so that it can answer this query quickly, then we won't need to cache locally.
-                //  Also, this doesn't support multiple possible goal locations. But I guess nothing really does.
-                if (lastRejectionTime == 0 || // uninitialized
-                        goalCondition instanceof VisitedTargetAStarGoalCondition) { // for PIBT style (Transient MAPF) paths. May try to stop forever to different locations so caching is more complicated. todo improve caching for this case?
-                    lastRejectionTime = agentsStayAtGoal ?
-                            constraints.lastRejectionTime(currentState.move,
-                                    goalCondition instanceof VisitedTargetAStarGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
-                            : -1;
+
+                if (!agentsStayAtGoal){
+                    lastRejectionTime = -1;
+                }
+                // For Transient MAPF paths. May try to stop forever to different locations so caching is more complicated.
+                else if (goalCondition instanceof VisitedTargetAStarGoalCondition){
+                    Move currentMove = currentState.move;
+                    lastRejectionTime = lastRejectionTimes.computeIfAbsent(currentState.move.currLocation,
+                            k -> constraints.lastRejectionTime(currentMove,
+                                    true)); // kinda messy. For Transient MAPF paths
+                }
+                else if (lastRejectionTime == 0) { // (classic MAPF) uninitialized (caching the result)
+                    lastRejectionTime = constraints.lastRejectionTime(currentState.move, false);
                 }
 
                 if(lastRejectionTime < currentState.move.timeNow){ // no rejections
