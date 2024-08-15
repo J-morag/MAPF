@@ -31,6 +31,11 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     }
 
     @Override
+    public Map<I_Location, ArrayList<Constraint>> getLocationConstraints() {
+        return this.constraintSet.getLocationConstraints();
+    }
+
+    @Override
     public boolean isSharedGoals() {
         return constraintSet.isSharedGoals();
     }
@@ -58,11 +63,6 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     @Override
     public int getLastConstraintStartTime() {
         return constraintSet.getLastConstraintStartTime();
-    }
-
-    @Override
-    public void add(Set<Constraint> constraintSet, Constraint constraint) {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
     }
 
     @Override
