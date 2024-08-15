@@ -183,9 +183,11 @@ public class ConstraintSet implements I_ConstraintSet {
                 this.add(otherGoalConstraints.get(loc));
             }
         }
-        for (I_Location loc : other.locationConstraints.keySet()){
-            for (Constraint cons : other.locationConstraints.get(loc)){
-                this.add(cons);
+        for (Map.Entry<I_Location, ArrayList<Constraint>> entry : other.getLocationConstraints().entrySet()) {
+            for (Constraint cons : entry.getValue()) {
+                if (cons.time <= upToTime) {
+                    this.add(cons);
+                }
             }
         }
     }
