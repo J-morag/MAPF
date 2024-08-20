@@ -180,8 +180,8 @@ public class ConstraintSet implements I_ConstraintSet {
     }
 
     private void addAll(@NotNull I_ConstraintSet other, int upToTime) {
-        for (I_Location loc : other.locationConstraintsTimeSorted.keySet()){
-            for (Constraint cons : other.locationConstraintsTimeSorted.get(loc)){
+        for (I_Location loc : other.getLocationConstraintsTimeSorted().keySet()){
+            for (Constraint cons : other.getLocationConstraintsTimeSorted().get(loc)){
                 if (cons.time <= upToTime) {
                     this.add(cons);
                 }
