@@ -19,20 +19,14 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
         this.constraintSet = toCopy;
     }
 
-
     @Override
-    public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet() {
-        return constraintSet.getEntrySet();
+    public Map<I_Location, ArrayList<Constraint>> getLocationConstraintsTimeSorted() {
+        return this.constraintSet.getLocationConstraintsTimeSorted();
     }
 
     @Override
     public Map<I_Location, GoalConstraint> getGoalConstraints() {
         return constraintSet.getGoalConstraints();
-    }
-
-    @Override
-    public Map<I_Location, ArrayList<Constraint>> getLocationConstraints() {
-        return this.constraintSet.getLocationConstraints();
     }
 
     @Override
@@ -138,11 +132,6 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     @Override
     public void trimToTimeRange(int minTime, int maxTime) {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
-    }
-
-    @Override
-    public int lastRejectAt(I_Location target, Agent agent) {
-        return constraintSet.lastRejectAt(target, agent);
     }
 
     @Override
