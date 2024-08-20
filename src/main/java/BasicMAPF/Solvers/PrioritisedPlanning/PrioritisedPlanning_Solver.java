@@ -163,8 +163,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
-        if (Config.WARNING >= 1 && this.sharedGoals && this.sharedSources){
-            System.err.println("Warning: PrP has shared goals and is set to transient MAPF. Shared goals is likely unnecessary if already transient.");
+        if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
+            System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
         this.RHCR_Horizon = RHCR_Horizon;
         this.failPolicy = failPolicy;
