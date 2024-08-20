@@ -18,13 +18,9 @@ import java.util.*;
 public class ConstraintSet implements I_ConstraintSet {
 
     /**
-     * Basically a dictionary from [time,location] to agents who can't go there at that time, and locations from which
-     * they can't go there at that time.
+     * Constraints are grouped by location, and then sorted (ascending) on their time.
      */
-    protected final Map<I_ConstraintGroupingKey, Set<Constraint>> constraints = new HashMap<>(); // todo lists instead of sets?
-//    protected final Map<I_Location, List<Constraint>> timeSortedConstraintsAtLocation = new HashMap<>(); // todo implement. Or only keep last and forgo ability to remove constraints??
-    // todo use only locationConstraints instead of constraints field?
-    protected final Map<I_Location, ArrayList<Constraint>> locationConstraints = new HashMap<>(); // todo ArrayMap for explicit maps?
+    protected final Map<I_Location, ArrayList<Constraint>> locationConstraintsTimeSorted = new HashMap<>(); // todo ArrayMap for explicit maps?
 
     /**
      * Goal constraints. Locations in this collection are reserved starting from the constraint's time, indefinitely.
@@ -74,24 +70,19 @@ public class ConstraintSet implements I_ConstraintSet {
 
     /*  = Set Interface =  */
 
-    //removed, because the size of constraints field isn't the number of constraints in the set. if we need this, add size field to class.
+    //removed, because the size of getLocationConstraintsTimeSorted field isn't the number of constraints in the set. if we need this, add size field to class.
 //    public int size() {
-//        return constraints.size();
+//        return getLocationConstraintsTimeSorted.size();
 //    }
 
     @Override
-    public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet(){
-        return Collections.unmodifiableSet(constraints.entrySet());
+    public Map<I_Location, ArrayList<Constraint>> getLocationConstraintsTimeSorted() {
+        return Collections.unmodifiableMap(this.locationConstraintsTimeSorted);
     }
 
     @Override
     public Map<I_Location, GoalConstraint> getGoalConstraints() {
         return Collections.unmodifiableMap(this.goalConstraints);
-    }
-
-    @Override
-    public Map<I_Location, ArrayList<Constraint>> getLocationConstraints() {
-        return Collections.unmodifiableMap(this.locationConstraints);
     }
 
     @Override
@@ -116,7 +107,7 @@ public class ConstraintSet implements I_ConstraintSet {
 
     @Override
     public boolean isEmpty() {
-        return constraints.isEmpty();
+        return this.locationConstraintsTimeSorted.isEmpty();
     }
 
     @Override
@@ -125,10 +116,8 @@ public class ConstraintSet implements I_ConstraintSet {
     }
 
     public void add(Constraint constraint){
-        if(constraint instanceof  RangeConstraint){
+        if(constraint instanceof RangeConstraint rangeConstraint){
             // add an individual constraint for each of the times covered by the range constraint
-            RangeConstraint rangeConstraint = (RangeConstraint) constraint;
-
             for (int time = rangeConstraint.lowerBound; time <= rangeConstraint.upperBound; time++) {
                 this.add(rangeConstraint.getConstraint(time));
             }
@@ -142,19 +131,40 @@ public class ConstraintSet implements I_ConstraintSet {
             }
             this.lastConstraintTime = Math.max(this.lastConstraintTime, constraint.time);
         }
-        else{ // regular constraint
-            I_ConstraintGroupingKey dummy = createDummy(constraint);
-            this.constraints.computeIfAbsent(dummy, k -> new HashSet<>());
-            this.constraints.get(dummy).add(constraint);
-            this.lastConstraintTime = Math.max(this.lastConstraintTime, constraint.time);
-
-            ArrayList<Constraint> constraintsAtLocation = locationConstraints.computeIfAbsent(constraint.location, k -> new ArrayList<>());
-            // insert sorted on constraint time (using binary search)
-            int index = Collections.binarySearch(constraintsAtLocation, constraint, Comparator.comparingInt(c -> c.time));
-            if (index < 0) index = -index - 1;
-            constraintsAtLocation.add(index, constraint);
+        else{
+            addRegularConstraint(constraint);
         }
 
+    }
+
+    private void addRegularConstraint(Constraint constraint) {
+        ArrayList<Constraint> constraintsAtLocation = locationConstraintsTimeSorted.computeIfAbsent(constraint.location, k -> new ArrayList<>());
+        // insert sorted on constraint time (using binary search)
+        int index = Collections.binarySearch(constraintsAtLocation, constraint, Comparator.comparingInt(c -> c.time));
+        if (index < 0) {
+            index = -index - 1;
+            constraintsAtLocation.add(index, constraint);
+        }
+        else {
+            // detect duplicates
+            boolean duplicate = false;
+            for (int i = index; i < constraintsAtLocation.size(); i++) {
+                if (constraintsAtLocation.get(i).equals(constraint)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            for (int i = index - 1; i >= 0 && !duplicate; i--) {
+                if (constraintsAtLocation.get(i).equals(constraint)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                constraintsAtLocation.add(index, constraint);
+            }
+        }
+        this.lastConstraintTime = Math.max(this.lastConstraintTime, constraint.time);
     }
 
     @Override
@@ -170,8 +180,8 @@ public class ConstraintSet implements I_ConstraintSet {
     }
 
     private void addAll(@NotNull I_ConstraintSet other, int upToTime) {
-        for (Map.Entry<I_ConstraintGroupingKey, Set<Constraint>> entry : other.getEntrySet()) {
-            for (Constraint cons : entry.getValue()) {
+        for (I_Location loc : other.locationConstraintsTimeSorted.keySet()){
+            for (Constraint cons : other.locationConstraintsTimeSorted.get(loc)){
                 if (cons.time <= upToTime) {
                     this.add(cons);
                 }
@@ -183,29 +193,17 @@ public class ConstraintSet implements I_ConstraintSet {
                 this.add(otherGoalConstraints.get(loc));
             }
         }
-        for (Map.Entry<I_Location, ArrayList<Constraint>> entry : other.getLocationConstraints().entrySet()) {
-            for (Constraint cons : entry.getValue()) {
-                if (cons.time <= upToTime) {
-                    this.add(cons);
-                }
-            }
-        }
     }
 
     @Override
     public void addAll(I_ConstraintSet other) {
-        for (Map.Entry<I_ConstraintGroupingKey, Set<Constraint>> entry : other.getEntrySet()) {
-            for (Constraint constraint : entry.getValue()) {
+        for (ArrayList<Constraint> constraints : other.getLocationConstraintsTimeSorted().values()) {
+            for (Constraint constraint : constraints) {
                 this.add(constraint);
             }
         }
         for (GoalConstraint goalConstraint : other.getGoalConstraints().values()) {
             this.add(goalConstraint);
-        }
-        for (Map.Entry<I_Location, ArrayList<Constraint>> entry : other.getLocationConstraints().entrySet()) {
-            for (Constraint constraint : entry.getValue()) {
-                this.add(constraint);
-            }
         }
     }
 
@@ -219,22 +217,11 @@ public class ConstraintSet implements I_ConstraintSet {
             while (this.goalConstraints.values().remove(constraint)); // todo check
         }
         else { // regular constraint
-            I_ConstraintGroupingKey dummy = createDummy(constraint);
-
-            if (this.constraints.containsKey(dummy)) {
-                Set<Constraint> constraints = this.constraints.get(dummy);
-                constraints.remove(constraint);
-                if (constraints.isEmpty()) {
-                    // if we've emptied the constraints, there is no more reason to keep an entry.
-                    this.constraints.remove(dummy);
-                }
-            }
-
-            ArrayList<Constraint> constraintsAtLocation = this.locationConstraints.get(constraint.location);
+            ArrayList<Constraint> constraintsAtLocation = this.locationConstraintsTimeSorted.get(constraint.location);
             if (constraintsAtLocation != null) {
                 constraintsAtLocation.remove(constraint);
                 if (constraintsAtLocation.isEmpty()) {
-                    this.locationConstraints.remove(constraint.location);
+                    this.locationConstraintsTimeSorted.remove(constraint.location);
                 }
             }
         }
@@ -249,9 +236,8 @@ public class ConstraintSet implements I_ConstraintSet {
 
     @Override
     public void clear() {
-        this.constraints.clear();
+        this.locationConstraintsTimeSorted.clear();
         this.goalConstraints.clear();
-        this.locationConstraints.clear();
     }
 
     @Override
@@ -261,24 +247,39 @@ public class ConstraintSet implements I_ConstraintSet {
 
     @Override
     public boolean rejects(Move move){
-        I_ConstraintGroupingKey dummy = createDummy(move);
-        boolean rejects = false;
-        if (constraints.containsKey(dummy)){
-            rejects = rejects(constraints.get(dummy), move);
+        List<Constraint> constraintsAtLocation;
+        if ((constraintsAtLocation = locationConstraintsTimeSorted.get(move.currLocation)) != null){
+            // binary search for the constraint at the move's time
+            int index = Collections.binarySearch(constraintsAtLocation, getDummyConstraint(move), Comparator.comparingInt(c -> c.time));
+            if (index >= 0){
+                // check all constraints with the correct time
+                for (int i = index; i < constraintsAtLocation.size(); i++){
+                    if (constraintsAtLocation.get(i).time != move.timeNow){
+                        break;
+                    }
+                    if (constraintsAtLocation.get(i).rejects(move)){
+                        return true;
+                    }
+                }
+                for (int i = index - 1; i >= 0; i--) {
+                    if (constraintsAtLocation.get(i).time != move.timeNow) {
+                        break;
+                    }
+                    if (constraintsAtLocation.get(i).rejects(move)) {
+                        return true;
+                    }
+                }
+            }
         }
-        if (!rejects && goalConstraints.containsKey(move.currLocation)){
-            rejects = sharedGoals ? goalConstraints.get(move.currLocation).rejectsWithSharedGoals(move) :
-                    goalConstraints.get(move.currLocation).rejects(move);
-        }
-        return rejects;
-    }
-
-    protected boolean rejects(Set<Constraint> constraints, Move move){
-        for (Constraint constraint : constraints){
-            if(constraint.rejects(move))
-                return true;
+        if (goalConstraints.containsKey(move.currLocation)){
+            return sharedGoals ?  goalConstraints.get(move.currLocation).rejectsWithSharedGoals(move) : goalConstraints.get(move.currLocation).rejects(move);
         }
         return false;
+    }
+
+    private Constraint getDummyConstraint(Move move) {
+        // todo create a permanent dummy to avoid too many object creations?
+        return new Constraint(null, move.timeNow, null, move.currLocation);
     }
 
     /**
@@ -303,7 +304,6 @@ public class ConstraintSet implements I_ConstraintSet {
      * <p>
      * In other words, we simulate this set being given an infinite number of "stay" moves after the given move.
      * <p>
-     * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
      *
      * @param finalMove                 a move to occupy a location indefinitely.
      * @param checkOtherAgentsLastMoves if true, also check if the agent's goal is occupied indefinitely.
@@ -318,7 +318,7 @@ public class ConstraintSet implements I_ConstraintSet {
     protected int firstOrLastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves, boolean first){
         int rejectionTime = first ? Integer.MAX_VALUE : -1;
 
-        ArrayList<Constraint> constraintsSortedByTime = locationConstraints.get(finalMove.currLocation);
+        ArrayList<Constraint> constraintsSortedByTime = locationConstraintsTimeSorted.get(finalMove.currLocation);
         if (constraintsSortedByTime != null){
             if (first){
                 // todo skip to finalMove.time with binary search
@@ -388,50 +388,16 @@ public class ConstraintSet implements I_ConstraintSet {
     }
 
     @Override
-    public void trimToTimeRange(int minTime, int maxTime){
-        this.constraints.keySet().removeIf(cw -> ((TimeLocation)cw).time < minTime || ((TimeLocation)cw).time >= maxTime);
-    }
-
-    protected I_ConstraintGroupingKey createDummy(Constraint constraint){
-        return new TimeLocation(constraint);
-    }
-
-    protected I_ConstraintGroupingKey createDummy(Move move){
-        return new TimeLocation(move);
-    }
-
-    /**
-     * Find the last time when the agent is prevented from being at its goal.
-     * <p>
-     * This method can be expensive in large sets, as it traverses all of {@link #constraints}.
-     *
-     * @param target the agent's target.
-     * @param agent  the agent.
-     * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
-     */
-    @Override
-    public int lastRejectAt(I_Location target, Agent agent) {
-        int lastRejectionTime = Integer.MIN_VALUE;
-        Move fakeFinalMove = new Move(agent, 1, target, target);
-        // traverses the entire data structure. expensive.
-        for (I_ConstraintGroupingKey cw :
-                constraints.keySet()) {
-            //found constraint for this location, sometime in the future. Should be rare.
-            if(cw.relevantInTheFuture(fakeFinalMove)){
-                for (Constraint constraint :
-                        constraints.get(cw)) {
-                    // make an artificial "stay" move for the relevant time.
-                    // In practice, this should happen very rarely, so not very expensive.
-                    int constraintTime = ((TimeLocation)cw).time;
-                    if(constraint.rejects(new Move(agent, constraintTime, target, target))
-                            && constraintTime > lastRejectionTime){
-                        lastRejectionTime = constraintTime;
-                    }
-                }
+    public void trimToTimeRange(int minTime, int maxTimeExclusive){
+        for (ArrayList<Constraint> constraintsAtLocation : locationConstraintsTimeSorted.values()){
+            // two binary searches?
+            constraintsAtLocation.removeIf(constraint -> constraint.time < minTime || constraint.time >= maxTimeExclusive);
+        }
+        for (GoalConstraint goalConstraint : goalConstraints.values()){
+            if (goalConstraint.time >= maxTimeExclusive){ // todo what to do about goal constraints smaller than minTime?
+                goalConstraints.remove(goalConstraint.location);
             }
         }
-
-        return lastRejectionTime == Integer.MIN_VALUE ? -1 : lastRejectionTime;
     }
 
     /*  = translating moves and plans into constraints =*/
@@ -525,19 +491,20 @@ public class ConstraintSet implements I_ConstraintSet {
     /* = from Object = */
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ConstraintSet)) return false;
+        if (!(o instanceof ConstraintSet that)) return false;
 
-        ConstraintSet that = (ConstraintSet) o;
-
-        return constraints.equals(that.constraints);
-
+        return lastConstraintTime == that.lastConstraintTime && sharedGoals == that.sharedGoals && sharedSources == that.sharedSources && locationConstraintsTimeSorted.equals(that.locationConstraintsTimeSorted) && goalConstraints.equals(that.goalConstraints);
     }
 
     @Override
     public int hashCode() {
-        return constraints.hashCode();
+        int result = locationConstraintsTimeSorted.hashCode();
+        result = 31 * result + goalConstraints.hashCode();
+        result = 31 * result + lastConstraintTime;
+        result = 31 * result + Boolean.hashCode(sharedGoals);
+        result = 31 * result + Boolean.hashCode(sharedSources);
+        return result;
     }
-
 }
