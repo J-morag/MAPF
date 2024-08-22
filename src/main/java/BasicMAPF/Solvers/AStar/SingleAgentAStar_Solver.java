@@ -176,11 +176,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 else if (goalCondition instanceof VisitedTargetAStarGoalCondition){
                     Move currentMove = currentState.move;
                     lastRejectionTime = lastRejectionTimes.computeIfAbsent(currentState.move.currLocation,
-                            k -> constraints.lastRejectionTime(currentMove,
-                                    true)); // kinda messy. For Transient MAPF paths
+                            k -> constraints.lastRejectionTime(currentMove));
                 }
                 else if (lastRejectionTime == 0) { // (classic MAPF) uninitialized (caching the result)
-                    lastRejectionTime = constraints.lastRejectionTime(currentState.move, false);
+                    lastRejectionTime = constraints.lastRejectionTime(currentState.move);
                 }
 
                 if(lastRejectionTime < currentState.move.timeNow){ // no rejections

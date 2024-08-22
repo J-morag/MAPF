@@ -177,7 +177,7 @@ public class MDD {
     private boolean constraintsRejectStayingAtTargetForever(@NotNull I_ConstraintSet constraints, MDDNode goalCopy) {
         // todo? profile Move creation runtime?
         return constraints.firstRejectionTime(new Move(goalCopy.getAgent(), Math.max(goalCopy.getDepth(), 1), // assumes time == depth
-                goalCopy.getLocation(), goalCopy.getLocation()), false) != -1;
+                goalCopy.getLocation(), goalCopy.getLocation())) != -1;
     }
 
     private void initialize(MDDSearchNode goal){

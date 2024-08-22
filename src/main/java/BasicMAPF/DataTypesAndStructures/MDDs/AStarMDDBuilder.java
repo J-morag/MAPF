@@ -98,7 +98,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     private MDDSearchNode continueSearchingDontBuildMDD(int depthOfSolution){
         this.maxDepthOfSolution = depthOfSolution;
         int lastRejectionAtTargetTime = constraints == null ? -1 :
-                constraints.lastRejectionTime(new Move(agent, 1, target, target), false);
+                constraints.lastRejectionTime(new Move(agent, 1, target, target));
         int lastConstraintsChangeTime = constraints == null ? 0 :
                 constraints.getLastConstraintStartTime();
         lastConstraintsChangeTime = Math.max(lastConstraintsChangeTime, 0);

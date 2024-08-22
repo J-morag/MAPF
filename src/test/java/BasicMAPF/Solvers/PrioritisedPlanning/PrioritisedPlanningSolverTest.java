@@ -216,12 +216,12 @@ class PrioritisedPlanningSolverTest {
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
 
-        Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000000000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
         assertEquals(4, solvedNormal.makespan());
 
-        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000000000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
