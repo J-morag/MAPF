@@ -131,15 +131,15 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
-        if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
-            System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
-        }
         if (RHCR_Horizon != null && RHCR_Horizon <= 0){
             throw new IllegalArgumentException("RHCR_Horizon must be positive");
         }
         this.RHCR_Horizon = RHCR_Horizon;
 
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
+        if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
+            System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
+        }
     }
 
     /**

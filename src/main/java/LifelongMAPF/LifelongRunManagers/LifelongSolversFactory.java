@@ -115,7 +115,7 @@ public class LifelongSolversFactory {
     }
 
     public static I_Solver allAgentsPrPNoPartialAvoidFPRHCR_w10_h01(){
-        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, true, null, 10, null), null, new DisallowedPartialSolutionsStrategy(), new AvoidFailPolicy(true), null, null);
@@ -235,7 +235,7 @@ public class LifelongSolversFactory {
     }
 
     public static I_Solver allAgentsPrPCutoffStochasticIndexNoWeightPartial(){
-        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new StochasticIndexBasedPartialSolutionsStrategy(1.0, null), null, null, null);
@@ -262,7 +262,7 @@ public class LifelongSolversFactory {
     }
 
     public static I_Solver allAgentsPrPCutoffAdaptiveIndex25PercentInit0Point1IncrementPartial(){
-        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new AdaptiveIndexPartialSolutionsStrategy(0.25, 0.1, 42), null, null, null);
@@ -280,7 +280,7 @@ public class LifelongSolversFactory {
     }
 
     public static I_Solver allAgentsPrPCutoff50PercentPartial(){
-        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.50), null, null, null);
@@ -289,7 +289,7 @@ public class LifelongSolversFactory {
     }
 
     public static I_Solver allAgentsPrPCutoff75PercentPartial(){
-        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, null, null), null, new IndexBasedPartialSolutionsStrategy(0.75), null, null, null);
@@ -343,7 +343,7 @@ public class LifelongSolversFactory {
     }
 
     public static I_Solver allAgentsPrPDeepPartialAvoidRHCR_w10_h01(){
-        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
                 new PrioritisedPlanning_Solver(null, null, null,
                         new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
                         true, false, null, 10, null), null, new DeepPartialSolutionsStrategy(), new AvoidFailPolicy(true), null, null);
@@ -839,8 +839,8 @@ public class LifelongSolversFactory {
         return solver;
     }
 
-    public static I_Solver LH1_Avoid5ASFP_Cap18_Timeout1p5(){
-        int replanningPeriod = 1;
+    public static I_Solver Avoid5ASFP_Cap18_Timeout1p5(){
+        int replanningPeriod = 5;
         I_SingleAgentFailPolicy fp = new StayFailPolicy();
         Integer RHCRHorizon = null;
         int targetsCapacity = 18;

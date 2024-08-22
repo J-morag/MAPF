@@ -26,23 +26,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class LifelongPerformanceBenchmarkTest {
 
     public static final boolean USE_ASSERTS = true;
-    public static final long TIMEOUT = 1000 * 300;
+    public static final long TIMEOUT = 1000 * 500;
     public static final String PATH = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory,
-            "WarehouseMaps"});
+            "MovingAIWarehouseMaps"});
 
     @Test
     public void StressTest() {
         runStressTestWithSolver(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5());
-        runStressTestWithSolver(LifelongSolversFactory.LH1_Avoid5ASFP_Cap18_Timeout1p5());
-        runStressTestWithSolver(LifelongSolversFactory.simplePrP_infHorizon());
-        runStressTestWithSolver(LifelongSolversFactory.simpleLNS_infHorizon());
+        runStressTestWithSolver(LifelongSolversFactory.Avoid5ASFP_Cap18_Timeout1p5());
+        runStressTestWithSolver(LifelongSolversFactory.PIBT_AllAgentSelector());
     }
 
     private static void runStressTestWithSolver(I_Solver solver) {
         Metrics.clearAll();
         String nameSolver = solver.name();
         InstanceManager instanceManager = new InstanceManager(PATH, new InstanceBuilder_MovingAI(null, true),
-                new InstanceProperties(null, -1d, new int[]{400, 600}));
+                new InstanceProperties(null, -1d, new int[]{600}));
 
         int countSolved = 0;
         int countFailed = 0;
@@ -64,7 +63,7 @@ public class LifelongPerformanceBenchmarkTest {
             report.putStringValue(InstanceReport.StandardFields.solver, nameSolver);
 
             RunParameters runParametersBaseline = new LifelongRunParameters(new RunParametersBuilder().setTimeout(TIMEOUT).setInstanceReport(report).createRP(),
-                    null, 201);
+                    null, 301);
 
             // solve
             Solution solution = solver.solve(instance, runParametersBaseline);
@@ -98,9 +97,9 @@ public class LifelongPerformanceBenchmarkTest {
                 }
 
                 // cost
-                if (report.getIntegerValue("throughputAtT200") != null){
-                    sumThroughput += report.getIntegerValue("throughputAtT200");
-                    System.out.println(nameSolver + " throughputAtT200: " + report.getIntegerValue("throughputAtT200"));
+                if (report.getIntegerValue("throughputAtT300") != null){
+                    sumThroughput += report.getIntegerValue("throughputAtT300");
+                    System.out.println(nameSolver + " throughputAtT300: " + report.getIntegerValue("throughputAtT300"));
                 }
             }
             System.out.println();
@@ -117,7 +116,7 @@ public class LifelongPerformanceBenchmarkTest {
         System.out.println("timeout for each (seconds): " + timeoutS);
         System.out.println(nameSolver + " solved: " + countSolved + " (failed: " + countFailed + ")");
         System.out.println("totals (solved instances) :");
-        System.out.println(nameSolver + " avg. throughputAtT200: " + avgThroughput);
+        System.out.println(nameSolver + " avg. throughputAtT300: " + avgThroughput);
         System.out.println(nameSolver + " avg. time (ms): " + avgRuntime);
         System.out.println(nameSolver + " avg. time low level  (ms): " + avgRuntimeLowLevel);
         System.out.println(nameSolver + " avg. expansions high level: " + avgExpansionsHighLevel);

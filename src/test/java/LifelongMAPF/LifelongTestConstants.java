@@ -8,7 +8,7 @@ import static BasicMAPF.TestConstants.Maps.*;
 
 public class LifelongTestConstants {
 
-    public static final long DEFAULT_TIMEOUT = 90L * 1000;
+    public static final long DEFAULT_TIMEOUT = 30L * 1000;
 
 
     public static final LifelongAgent agent33to12 = new LifelongAgent(new Agent(0, coor33, coor12), new I_Coordinate[]{coor33, coor14, coor12});

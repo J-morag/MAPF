@@ -110,9 +110,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.RHCR_Horizon = RHCR_horizon;
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
-        if (Config.WARNING >= 1 && this.sharedGoals && this.sharedSources){
-            System.err.println("Warning: LNS has shared goals and is set to transient MAPF. Shared goals is likely unnecessary if already transient.");
-        }
 
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
@@ -139,11 +136,11 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
 
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
+
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
-
-        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
     }
 
     /*  = initialization =  */

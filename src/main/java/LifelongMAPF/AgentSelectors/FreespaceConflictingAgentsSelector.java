@@ -24,13 +24,14 @@ public class FreespaceConflictingAgentsSelector extends A_LifelongAgentSelector{
     SingleAgentAStar_Solver singleAgentSolver;
     int maxGroupSize;
 
-    public FreespaceConflictingAgentsSelector(SingleAgentAStar_Solver singleAgentSolver, Integer maxGroupSize) {
+    public FreespaceConflictingAgentsSelector(PeriodicSelector periodicSelector, SingleAgentAStar_Solver singleAgentSolver, Integer maxGroupSize) {
+        super(periodicSelector);
         this.singleAgentSolver = Objects.requireNonNullElseGet(singleAgentSolver, SingleAgentAStar_Solver::new);
         this.maxGroupSize = Objects.requireNonNullElse(maxGroupSize, Integer.MAX_VALUE);
     }
 
-    public FreespaceConflictingAgentsSelector(){
-        this(null, null);
+    public FreespaceConflictingAgentsSelector(PeriodicSelector periodicSelector){
+        this(periodicSelector, null, null);
     }
 
     @Override
