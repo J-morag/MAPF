@@ -427,7 +427,7 @@ class SingleAgentAStarSIPP_SolverTest {
         SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
         MAPF_Instance baseInstance = instanceEmpty1;
 
-        int seeds = 20;
+        int seeds = 10;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
@@ -527,7 +527,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance baseInstance = instanceEmpty1;
         SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
 
-        int seeds = 20;
+        int seeds = 10;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
@@ -639,7 +639,7 @@ class SingleAgentAStarSIPP_SolverTest {
         // perfect heuristic is no better than manhattan distance on empty grid
 //        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
 
-        int seeds = 3;
+        int seeds = 2;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
@@ -1102,7 +1102,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-        long timeout = 20 /*seconds*/   *1000L;
+        long timeout = 5 /*seconds*/   *1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;

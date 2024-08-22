@@ -17,6 +17,7 @@ import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -44,7 +45,7 @@ public class PerformanceBenchmarkTest {
     @Test
     public void CBSStressTest() {
         I_Solver solver = new CBSBuilder().createCBS_Solver();
-        long timeout = 1000 * 60;
+        long timeout = 1000 * 30;
         int numAgents = 30;
         stressTest(solver, timeout, numAgents, false);
     }
@@ -53,7 +54,7 @@ public class PerformanceBenchmarkTest {
     public void CBS_SIPPStressTest() {
         CBS_Solver solver = new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).createCBS_Solver();
         solver.name = "CBS_SIPP";
-        long timeout = 1000 * 60;
+        long timeout = 1000 * 30;
         int numAgents = 30;
         stressTest(solver, timeout, numAgents, false);
     }
@@ -96,7 +97,15 @@ public class PerformanceBenchmarkTest {
     public void PIBTStressTest() {
         I_Solver solver = new PIBT_Solver(null, null, null);
         long timeout = 1000 * 30;
-        int numAgents = 200;
+        int numAgents = 500;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
+    public void LaCAMStressTest() {
+        I_Solver solver = new LaCAM_Solver();
+        long timeout = 1000 * 30;
+        int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);
     }
 

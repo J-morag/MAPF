@@ -48,7 +48,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @NotNull
     private RunParameters getDefaultRunParameters() {
-        return new RunParametersBuilder().setTimeout(3L * 1000).setInstanceReport(instanceReport).createRP();
+        return new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP();
     }
 
     @Test
