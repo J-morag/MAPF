@@ -21,6 +21,8 @@ import java.util.Random;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Agents.agent53to15;
+import static BasicMAPF.TestConstants.Coordiantes.coor34;
+import static BasicMAPF.TestConstants.Coordiantes.coor43;
 import static BasicMAPF.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,7 +60,7 @@ class UnmodifiableConstraintSetTest {
                 I_ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < mapDim; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, mapDim);

@@ -29,11 +29,15 @@ public class ConstraintSet implements I_ConstraintSet {
     /**
      * If set to true, agents who share the same goal may occupy their goal vertex at the same time.
      */
-    public boolean sharedGoals;
+    private boolean sharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not constrain agents with the same source
      */
-    public boolean sharedSources;
+    private boolean sharedSources;
+    /**
+     * The effects of constraints that happen at a time greater than this value will be ignored.
+     */
+    private int lastTimeToConsiderConstraints = Integer.MAX_VALUE;
 
     public ConstraintSet() {
         this(null, null);
@@ -59,11 +63,6 @@ public class ConstraintSet implements I_ConstraintSet {
 
 
     /*  = Set Interface =  */
-
-    //removed, because the size of getLocationConstraintsTimeSorted field isn't the number of constraints in the set. if we need this, add size field to class.
-//    public int size() {
-//        return getLocationConstraintsTimeSorted.size();
-//    }
 
     @Override
     public Map<I_Location, ArrayList<Constraint>> getLocationConstraintsTimeSorted() {
@@ -93,6 +92,16 @@ public class ConstraintSet implements I_ConstraintSet {
     @Override
     public void setSharedSources(boolean sharedSources) {
         this.sharedSources = sharedSources;
+    }
+
+    @Override
+    public int getLastTimeToConsiderConstraints() {
+        return lastTimeToConsiderConstraints;
+    }
+
+    @Override
+    public void setLastTimeToConsiderConstraints(int lastTimeToConsiderConstraints) {
+
     }
 
     @Override
@@ -228,6 +237,10 @@ public class ConstraintSet implements I_ConstraintSet {
 
     @Override
     public boolean rejects(Move move){
+        if (move.timeNow > lastTimeToConsiderConstraints){
+            return false;
+        }
+
         List<Constraint> constraintsAtLocation;
         if ((constraintsAtLocation = locationConstraintsTimeSorted.get(move.currLocation)) != null){
             // binary search for the constraint at the move's time
@@ -253,7 +266,7 @@ public class ConstraintSet implements I_ConstraintSet {
             }
         }
         if (goalConstraints.containsKey(move.currLocation)){
-            return sharedGoals ?  goalConstraints.get(move.currLocation).rejectsWithSharedGoals(move) : goalConstraints.get(move.currLocation).rejects(move);
+            return sharedGoals ? goalConstraints.get(move.currLocation).rejectsWithSharedGoals(move) : goalConstraints.get(move.currLocation).rejects(move);
         }
         return false;
     }
@@ -268,15 +281,13 @@ public class ConstraintSet implements I_ConstraintSet {
      * indefinitely starting after move's time, checks if there is a {@link Constraint} that would reject it eventually.
      *
      * @param finalMove                 a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the agent's goal is occupied indefinitely.
-     *                                  Which should not happen if agents aren't allowed to have the same target.
      * @return the *last* time when a constraint would eventually reject a "stay" move at the given move's location;
      * Specifically, would return {@link Integer#MAX_VALUE} if there is an infinite (target/goal) constraint on the location (not checked unless checkOtherAgentsLastMoves is true);
      * -1 if never rejected.
      */
     @Override
-    public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
-        return firstOrLastRejectionTime(finalMove, checkOtherAgentsLastMoves, false);
+    public int lastRejectionTime(Move finalMove){
+        return firstOrLastRejectionTime(finalMove, false);
     }
 
     /**
@@ -287,16 +298,18 @@ public class ConstraintSet implements I_ConstraintSet {
      * <p>
      *
      * @param finalMove                 a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the agent's goal is occupied indefinitely.
-     *                                  Which should not happen if agents aren't allowed to have the same target.
      * @return the *first* time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
      */
     @Override
-    public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves){
-        return firstOrLastRejectionTime(finalMove, checkOtherAgentsLastMoves, true);
+    public int firstRejectionTime(Move finalMove){
+        return firstOrLastRejectionTime(finalMove, true);
     }
 
-    protected int firstOrLastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves, boolean first){
+    protected int firstOrLastRejectionTime(Move finalMove, boolean first){
+        if (finalMove.timeNow > lastTimeToConsiderConstraints){
+            return -1;
+        }
+
         int rejectionTime = first ? Integer.MAX_VALUE : -1;
 
         ArrayList<Constraint> constraintsSortedByTime = locationConstraintsTimeSorted.get(finalMove.currLocation);
@@ -328,16 +341,12 @@ public class ConstraintSet implements I_ConstraintSet {
             }
         }
 
-        // Unless explicitly requested, #goalConstraints is irrelevant, since in classic MAPF targets are unique.
-        // So, there won't be two agents trying to end their plan at the same location.
-        // Additionally, if there are shared goals then it's not a conflict
-        if (checkOtherAgentsLastMoves && !sharedGoals){
-            // TODO faster implementation. Probably with TreeSet.ceiling() and sorting keys by primary=location secondary=time
-            for (I_Location loc : goalConstraints.keySet()){
-                if (loc.equals(finalMove.currLocation)){ // any two constraints that are infinite in time will eventually conflict
-                    GoalConstraint constraint = this.goalConstraints.get(loc);
+        GoalConstraint constraint = this.goalConstraints.get(finalMove.currLocation); // any two constraints that are infinite in time will eventually conflict
+        if (constraint != null){ // in classic MAPF, agents can't share goals, so this should be false anyway. But we need to check it for TMAPF
+            if (!sharedGoals || !constraint.location.getCoordinate().equals(finalMove.agent.target) || !constraint.responsibleAgent.target.equals(finalMove.agent.target)){
+                if (constraint.time <= lastTimeToConsiderConstraints){ // already made sure that move time is smaller
                     if (first) rejectionTime = Math.min(rejectionTime, Math.max(constraint.time, finalMove.timeNow));
-                    else return Integer.MAX_VALUE; // it rejects to infinity
+                    else return lastTimeToConsiderConstraints; // it rejects to infinity. (return here to avoid interpreting MAX_VALUE as no-conflict at the end)
                 }
             }
         }
@@ -346,8 +355,8 @@ public class ConstraintSet implements I_ConstraintSet {
     }
 
     @Override
-    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return firstRejectionTime(finalMove, checkOtherAgentsLastMoves) == -1;
+    public boolean acceptsForever(Move finalMove) {
+        return firstRejectionTime(finalMove) == -1;
     }
 
     @Override
@@ -366,19 +375,6 @@ public class ConstraintSet implements I_ConstraintSet {
             result &= this.accepts(move);
         }
         return result;
-    }
-
-    @Override
-    public void trimToTimeRange(int minTime, int maxTimeExclusive){
-        for (ArrayList<Constraint> constraintsAtLocation : locationConstraintsTimeSorted.values()){
-            // two binary searches?
-            constraintsAtLocation.removeIf(constraint -> constraint.time < minTime || constraint.time >= maxTimeExclusive);
-        }
-        for (GoalConstraint goalConstraint : goalConstraints.values()){
-            if (goalConstraint.time >= maxTimeExclusive){ // todo what to do about goal constraints smaller than minTime?
-                goalConstraints.remove(goalConstraint.location);
-            }
-        }
     }
 
     @Override
@@ -424,7 +420,7 @@ public class ConstraintSet implements I_ConstraintSet {
     }
 
     static Constraint goalConstraintForMove(Move move) {
-        return new GoalConstraint(move.timeNow, move.currLocation);
+        return new GoalConstraint(move.timeNow, move.currLocation, move.agent);
     }
 
     @Override

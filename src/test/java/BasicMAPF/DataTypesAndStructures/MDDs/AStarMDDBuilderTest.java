@@ -23,8 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import static BasicMAPF.TestConstants.Agents.agent12to33;
-import static BasicMAPF.TestConstants.Agents.agent33to12;
+import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestConstants.Maps.mapEmpty;
@@ -625,7 +624,7 @@ class AStarMDDBuilderTest {
                 map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
         MDD mdd;
         ConstraintSet constraints = new ConstraintSet();
-        constraints.add(new GoalConstraint(agent, 1, map.getMapLocation(coor22)));
+        constraints.add(new GoalConstraint(agent, 1, map.getMapLocation(coor22), new Agent(1000, coor34, coor34)));
 //        constraints.add(new Constraint(agent, 2, map.getMapLocation(coor23)));
 
         mdd = builder.searchToFirstSolution(constraints);
@@ -646,7 +645,7 @@ class AStarMDDBuilderTest {
                 map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
         MDD mdd;
         ConstraintSet constraints = new ConstraintSet();
-        constraints.add(new GoalConstraint(agent, 1, map.getMapLocation(coor22)));
+        constraints.add(new GoalConstraint(agent, 1, map.getMapLocation(coor22), new Agent(1000, coor34, coor34)));
         constraints.add(new Constraint(agent, 2, map.getMapLocation(coor23)));
 
         mdd = builder.searchToFirstSolution(constraints);
@@ -668,7 +667,7 @@ class AStarMDDBuilderTest {
         MDD mdd;
         ConstraintSet constraints = new ConstraintSet();
 //        constraints.add(new GoalConstraint(agent, 1, map.getMapLocation(coor22)));
-        constraints.add(new GoalConstraint(agent, 1, map.getMapLocation(coor23)));
+        constraints.add(new GoalConstraint(agent, 1, map.getMapLocation(coor23), new Agent(1000, coor34, coor34)));
 
         mdd = builder.searchToFirstSolution(constraints);
         System.out.println("mdd: " + mdd);
@@ -688,8 +687,8 @@ class AStarMDDBuilderTest {
                 map.getMapLocation(agent.source), map.getMapLocation(agent.target), agent, heuristic);
         MDD mdd;
         ConstraintSet constraints = new ConstraintSet();
-        constraints.add(new GoalConstraint(agent, 0, map.getMapLocation(coor22)));
-        constraints.add(new GoalConstraint(agent, 0, map.getMapLocation(coor23)));
+        constraints.add(new GoalConstraint(agent, 0, map.getMapLocation(coor22), new Agent(1000, coor34, coor34)));
+        constraints.add(new GoalConstraint(agent, 0, map.getMapLocation(coor23), new Agent(1000, coor34, coor34)));
 
         mdd = builder.searchToFirstSolution(constraints);
         System.out.println("mdd: " + mdd);
@@ -996,7 +995,7 @@ class AStarMDDBuilderTest {
         MDD mdd;
         ConstraintSet constraints = new ConstraintSet();
 
-        constraints.add(new GoalConstraint(agent, 6, map.getMapLocation(coor35)));
+        constraints.add(new GoalConstraint(agent, 6, map.getMapLocation(coor35), new Agent(1000, coor34, coor34)));
 
         constraints.add(new Constraint(agent, 10, map.getMapLocation(coor24)));
         constraints.add(new Constraint(agent, 9, map.getMapLocation(coor44)));
@@ -1049,7 +1048,7 @@ class AStarMDDBuilderTest {
         constraints.add(new Constraint(agent, 1, map.getMapLocation(coor13)));
         constraints.add(new Constraint(agent, 1, map.getMapLocation(coor22)));
 
-        constraints.add(new GoalConstraint(agent, 6, map.getMapLocation(coor35)));
+        constraints.add(new GoalConstraint(agent, 6, map.getMapLocation(coor35), new Agent(1000, coor34, coor34)));
 
         constraints.add(new Constraint(agent, 10, map.getMapLocation(coor24)));
         constraints.add(new Constraint(agent, 9, map.getMapLocation(coor44)));
@@ -1106,7 +1105,7 @@ class AStarMDDBuilderTest {
                 ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < 5; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
