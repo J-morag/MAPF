@@ -156,6 +156,7 @@ public class TestUtils {
         // load the pre-made benchmark
         try {
             long timeout = timeoutSeconds * 1000L;
+            long softTimeout = Math.min(500L, timeout);
             Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
             int numSolved = 0;
             int numFailed = 0;
@@ -172,7 +173,8 @@ public class TestUtils {
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
                 report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
 
-                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
+                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setSoftTimeout(softTimeout)
+                        .setInstanceReport(report).createRP();
 
                 //solve
                 System.out.println("---------- solving "  + instance.name + " ----------");
@@ -228,7 +230,8 @@ public class TestUtils {
             }
 
             System.out.println("--- TOTALS: ---");
-            System.out.println("timeout for each (seconds): " + (timeout/1000));
+            System.out.println("timeout for each (seconds): " + ((float)timeout/1000));
+            System.out.println("soft timeout for each (seconds): " + ((float)softTimeout/1000));
             System.out.println("solved: " + numSolved);
             System.out.println("failed: " + numFailed);
             System.out.println("valid: " + numValid);
