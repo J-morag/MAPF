@@ -1,14 +1,28 @@
 package Environment.RunManagers;
 
+import BasicMAPF.CostFunctions.I_SolutionCostFunction;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
+import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
+import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
+import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSHeuristicDefault;
+import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSHeuristicSIPP;
+import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PriorityConstrainedSearch;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
+import TransientMAPF.TransientMAPFSettings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
