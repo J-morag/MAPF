@@ -156,7 +156,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
     @Override
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
-        this.initialConstraints = Objects.requireNonNullElseGet(runParameters.constraints, ConstraintSet::new);
+        this.initialConstraints = runParameters.constraints == null ? new ConstraintSet() : runParameters.constraints;
         this.currentConstraints = new ConstraintSet();
         this.currentConstraints.setSharedSources(this.sharedSources);
         this.currentConstraints.setSharedGoals(this.sharedGoals);
@@ -241,7 +241,10 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
             // verify solution (find conflicts)
             I_ConflictManager cat = getConflictManagerFor(node);
-            node.setSelectedConflict(cat.selectConflict());
+            A_Conflict conflict = cat.selectConflict();
+            // relies on that we always select the minimal time conflict
+            conflict = conflict != null && RHCR_Horizon != null && conflict.time > RHCR_Horizon ? null : conflict;
+            node.setSelectedConflict(conflict);
 
             if(isGoal(node)){
                 return node;

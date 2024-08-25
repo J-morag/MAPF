@@ -8,6 +8,7 @@ import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
@@ -348,6 +349,247 @@ class CBS_SolverTest {
         System.out.println(solvedNormal);
         System.out.println(solvedCBSt);
     }
+
+    /* Lifelong */
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+
+        Solution solved_h1 = CBS_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = CBS_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = CBS_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = CBS_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = CBS_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+
+        Solution solved_h1 = CBS_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = CBS_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = CBS_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = CBS_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = CBS_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(7, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+//    @Test
+//    void worksWithRHCRHorizon_instanceCircle1_andInitialConstraints(){ todo
+//        MAPF_Instance testInstance = instanceCircle1;
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor22)));
+//        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor14)));
+//        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor24)));
+//        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor32)));
+//        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor24)));
+//        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h2);
+//        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h3);
+//        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h4);
+//        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_hinf);
+//        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+//    }
+//
+//    @Test
+//    void worksWithRHCRHorizon_instanceSmallMaze_andInitialConstraints(){
+//        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor00)));
+//        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor00)));
+//        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h2);
+//        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h3);
+//        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h4);
+//        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_hinf);
+//        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(10, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+//    }
+//
+//    @Test
+//    void worksWithRHCRHorizon_instanceCircle1_andInitialGoalConstraints(){
+//        MAPF_Instance testInstance = instanceCircle1;
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor32), new Agent(1000, coor34, coor34)));
+//        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34))); // inf lock started before agent needs to pass there at time 3
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h2);
+//        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        // at time 3, should ignore the infinite lock on (2,4) that starts at time 2
+//        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h3);
+//        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        // at time 4, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+//        assertEquals(6, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h4);
+//        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        // at time 5, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+//        assertEquals(7, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_hinf);
+//        // should fail because of infinite lock on (2,4) that starts at time 2
+//        assertNull(solved_hinf);
+//    }
+//
+//    @Test
+//    void worksWithRHCRHorizon_instanceSmallMaze_andInitialGoalConstraints(){
+//        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new GoalConstraint(null, 1, testInstance.map.getMapLocation(coor10), new Agent(1000, coor34, coor34)));
+////        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34)));
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(2, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h2);
+//        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h3);
+//        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h4);
+//        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_hinf);
+//        assertNull(solved_hinf); // (1,0) is taken infinitely so one agent can't finish
+//    }
 
     @Test
     void worksWithRHCR(){
