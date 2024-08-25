@@ -31,6 +31,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 
 import java.util.*;
 
+import static LifelongMAPF.LifelongUtils.horizonAsAbsoluteTime;
 import static com.google.common.math.IntMath.factorial;
 
 /**
@@ -195,24 +196,15 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         super.init(instance, parameters);
 
         this.agents = new ArrayList<>(instance.agents);
-
         this.problemStartTime = parameters.problemStartTime;
 
-        if (parameters.constraints != null){
-            if (this.RHCR_Horizon != null){
-                // todo warning or info if actually cutting constraints here?
-                this.constraints = new ConstraintSet(parameters.constraints, horizonAsAbsoluteTime(this.problemStartTime, this.RHCR_Horizon));
-            }
-            else {
-                this.constraints = new ConstraintSet(parameters.constraints);
-            }
+        this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        if (this.RHCR_Horizon != null){
+            this.constraints.setLastTimeToConsiderConstraints(horizonAsAbsoluteTime(this.problemStartTime, this.RHCR_Horizon));
         }
-        else{
-            this.constraints = new ConstraintSet();
-        }
-
         this.constraints.setSharedGoals(this.sharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
+
         this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
@@ -490,16 +482,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     }
 
     private void addPlanToConstraints(ConstraintSet currentConstraints, SingleAgentPlan planForAgent) {
-        if (this.RHCR_Horizon == null){
-            currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
-        }
-        else {
-            currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent, horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon)));
-        }
-    }
-
-    public static int horizonAsAbsoluteTime(int problemStartTime, int horizon) {
-        return problemStartTime + horizon >= problemStartTime ? problemStartTime + horizon : Integer.MAX_VALUE;
+        currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
     }
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, int agentIndexInCurrentOrdering,

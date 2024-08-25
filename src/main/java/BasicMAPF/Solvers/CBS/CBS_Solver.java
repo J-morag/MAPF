@@ -34,6 +34,8 @@ import LifelongMAPF.I_LifelongCompatibleSolver;
 
 import java.util.*;
 
+import static LifelongMAPF.LifelongUtils.horizonAsAbsoluteTime;
+
 /**
  * The Conflict Based Search (CBS) Multi Agent Path Finding (MAPF) algorithm.
  */
@@ -158,6 +160,9 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.currentConstraints = new ConstraintSet();
         this.currentConstraints.setSharedSources(this.sharedSources);
         this.currentConstraints.setSharedGoals(this.sharedGoals);
+        if (this.RHCR_Horizon != null){
+            this.currentConstraints.setLastTimeToConsiderConstraints(horizonAsAbsoluteTime(runParameters.problemStartTime, this.RHCR_Horizon));
+        }
         this.generatedNodes = 0;
         this.expandedNodes = 0;
         this.instance = instance;

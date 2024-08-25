@@ -715,8 +715,6 @@ public class LifelongSimulationSolver extends A_Solver {
                                                                RemovableConflictAvoidanceTableWithContestedGoals cat) {
         // protect the plans of agents not included in the subset
         ConstraintSet constraints = this.initialConstraints != null ? new ConstraintSet(this.initialConstraints): new ConstraintSet();
-        constraints.sharedSources = true;
-        constraints.sharedGoals = true;
         nextPlansForNotSelectedAgents.forEach(plan -> constraints.addAll(constraints.allConstraintsForPlan(plan)));
 
         SingleAgentGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;

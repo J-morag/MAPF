@@ -144,11 +144,6 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     }
 
     @Override
-    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan, int horizon) {
-        return constraintSet.allConstraintsForPlan(singleAgentPlan, horizon);
-    }
-
-    @Override
     public List<Constraint> allConstraintsForSolution(Solution solution) {
         return constraintSet.allConstraintsForSolution(solution);
     }

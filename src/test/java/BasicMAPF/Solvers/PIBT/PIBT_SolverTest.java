@@ -49,7 +49,7 @@ public class PIBT_SolverTest {
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
     private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
 
-    I_Solver PIBTt_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, TransientMAPFSettings.defaultTransientMAPF);
+    I_Solver PIBTt_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, TransientMAPFSettings.defaultTransientMAPF, false);
     I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null, false);
 
     long timeout = 10*1000;

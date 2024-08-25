@@ -128,17 +128,7 @@ public interface I_ConstraintSet {
      * @param singleAgentPlan a plan to get constraints for.
      * @return all constraints to protect the plan.
      */
-    default List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan){
-        return allConstraintsForPlan(singleAgentPlan, Integer.MAX_VALUE);
-    }
-
-    /**
-     * Creates constraints to protect a {@link SingleAgentPlan plan}.
-     *
-     * @param singleAgentPlan a plan to get constraints for.
-     * @return all constraints to protect the plan.
-     */
-    List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan, int horizonTime);
+    List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan);
 
     /**
      * Creates constraints to protect a {@link Solution}.

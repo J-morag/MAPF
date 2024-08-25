@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.horizonAsAbsoluteTime;
+import static LifelongMAPF.LifelongUtils.horizonAsAbsoluteTime;
 
 /**
  * Implements Large Neighborhood Search for MAPF.
@@ -157,8 +157,12 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.agents = new ArrayList<>(instance.agents);
         this.problemStartTime = parameters.problemStartTime;
         this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        // todo do we really need to set these in the constraints? we use constraints to initialize subsolvers' solution, but they have their own settings regarding these, that will override this.
         this.constraints.setSharedGoals(this.sharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
+        if (this.RHCR_Horizon != null){
+            this.constraints.setLastTimeToConsiderConstraints(horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon));
+        }
         this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         this.completedDestroyAndRepairIterations = 0;
 
