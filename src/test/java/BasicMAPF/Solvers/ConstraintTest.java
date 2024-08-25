@@ -5,13 +5,20 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Maps.mapCircle;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConstraintTest {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     void acceptsForVertexConflict() {

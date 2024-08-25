@@ -1,7 +1,10 @@
 package Environment.IO_Package;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
@@ -13,6 +16,11 @@ public class IO_ManagerTest {
 
 
     static final String testResources_path = IO_Manager.testResources_Directory;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
 
     /***    ReaderTest   ***/
