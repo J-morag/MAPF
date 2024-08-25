@@ -1,6 +1,12 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
+import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -222,12 +228,12 @@ class PrioritisedPlanningSolverTest {
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
 
-        Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000000000L).setInstanceReport(instanceReport).createRP());
+        Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
         assertEquals(4, solvedNormal.makespan());
 
-        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000000000L).setInstanceReport(instanceReport).createRP());
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
@@ -397,6 +403,354 @@ class PrioritisedPlanningSolverTest {
             System.out.println("testing " + testInstance.name);
             Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
             assertNull(solution);
+        }
+    }
+
+    /* Lifelong */
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = PrP_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = PrP_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = PrP_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = PrP_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = PrP_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = PrP_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = PrP_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = PrP_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(9, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_reverseAgents(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent00to10, agent30to00});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = PrP_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = PrP_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = PrP_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = PrP_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(1, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(1, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(1, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(1, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(7, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1_andInitialConstraints(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor22)));
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor14)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor24)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor32)));
+        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor24)));
+        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(4, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(7, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        assertEquals(4, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(8, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_andInitialConstraints(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor00)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor00)));
+        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(10, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_reverseAgents_andInitialConstraints(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent00to10, agent30to00});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor10)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor10)));
+        constraints.add(new Constraint(null, 6, testInstance.map.getMapLocation(coor01)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+        System.out.println(solved_h1);
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(8, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1_andInitialGoalConstraints(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor32), new Agent(1000, coor34, coor34)));
+        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34))); // inf lock started before agent needs to pass there at time 3
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        // at time 3, should ignore the infinite lock on (2,4) that starts at time 2
+        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        // at time 4, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+        assertEquals(6, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        // at time 5, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+        assertEquals(7, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        // should fail because of infinite lock on (2,4) that starts at time 2
+        assertNull(solved_hinf);
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_andInitialGoalConstraints(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new GoalConstraint(null, 1, testInstance.map.getMapLocation(coor10), new Agent(1000, coor34, coor34)));
+//        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(2, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertNull(solved_hinf); // (1,0) is taken infinitely so one agent can't finish
+    }
+
+    @Test
+    void worksWithRHCR_shotgunTest(){
+        Integer[] rhcrHorizons = new Integer[]{1, 2, 3, 7, null, Integer.MAX_VALUE};
+        for (Integer rhcrHorizon : rhcrHorizons){
+            System.out.printf("testing with RHCR horizon %d\n", rhcrHorizon);
+            I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, rhcrHorizon, null);
+            for (MAPF_Instance instance : new MAPF_Instance[]{instanceEmpty1, instanceEmpty2, instanceEmptyEasy,
+                    instanceEmptyHarder, instanceCircle1, instanceCircle2, instanceSmallMaze, instanceStartAdjacentGoAround}){
+                System.out.println("testing " + instance.name);
+                Solution solution = solver.solve(instance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setTimeout(2000).createRP());
+                if (solution != null){
+                    for (SingleAgentPlan plan : solution){
+                        for (SingleAgentPlan otherPlan : solution){
+                            if (plan != otherPlan){
+                                A_Conflict firstConf = plan.firstConflict(otherPlan);
+                                assertTrue(firstConf == null || firstConf.time > rhcrHorizon);
+                            }
+                        }
+                    }
+                }
+                else {
+                    System.out.println("warning: no solution found.");
+                }
+            }
         }
     }
 

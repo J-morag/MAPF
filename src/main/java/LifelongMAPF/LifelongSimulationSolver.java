@@ -174,10 +174,6 @@ public class LifelongSimulationSolver extends A_Solver {
         this.destinationsActiveAgents = new HashMap<>();
 
         this.finishedAgents = new HashSet<>();
-        if (this.initialConstraints != null){
-            this.initialConstraints.setSharedSources(true);
-            this.initialConstraints.setSharedGoals(true);
-        }
         this.cachingDistanceTableHeuristic = new CachingDistanceTableHeuristic(1, instance.agents.size());
         this.cachingDistanceTableHeuristic.setCurrentMap(instance.map);
         if (parameters instanceof LifelongRunParameters lrp){

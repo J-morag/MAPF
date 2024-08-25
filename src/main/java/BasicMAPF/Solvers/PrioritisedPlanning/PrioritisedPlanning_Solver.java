@@ -198,7 +198,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.agents = new ArrayList<>(instance.agents);
         this.problemStartTime = parameters.problemStartTime;
 
-        this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        this.constraints = parameters.constraints == null ? new ConstraintSet(): new ConstraintSet(parameters.constraints);
         if (this.RHCR_Horizon != null){
             this.constraints.setLastTimeToConsiderConstraints(horizonAsAbsoluteTime(this.problemStartTime, this.RHCR_Horizon));
         }

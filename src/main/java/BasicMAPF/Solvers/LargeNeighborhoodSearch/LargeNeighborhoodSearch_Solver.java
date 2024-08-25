@@ -156,7 +156,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
 
         this.agents = new ArrayList<>(instance.agents);
         this.problemStartTime = parameters.problemStartTime;
-        this.constraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        this.constraints = parameters.constraints == null ? new ConstraintSet(): new ConstraintSet(parameters.constraints);
         // todo do we really need to set these in the constraints? we use constraints to initialize subsolvers' solution, but they have their own settings regarding these, that will override this.
         this.constraints.setSharedGoals(this.sharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
