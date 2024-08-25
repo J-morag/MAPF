@@ -52,6 +52,7 @@ public class ConstraintSet implements I_ConstraintSet {
         if(toCopy == null) {throw new IllegalArgumentException();}
         this.sharedGoals = toCopy.isSharedGoals();
         this.sharedSources = toCopy.isSharedSources();
+        this.lastTimeToConsiderConstraints = toCopy.getLastTimeToConsiderConstraints();
         this.addAll(toCopy);
         this.lastConstraintTime = toCopy.getLastConstraintStartTime();
     }
@@ -101,7 +102,7 @@ public class ConstraintSet implements I_ConstraintSet {
 
     @Override
     public void setLastTimeToConsiderConstraints(int lastTimeToConsiderConstraints) {
-
+        this.lastTimeToConsiderConstraints = lastTimeToConsiderConstraints;
     }
 
     @Override
@@ -111,7 +112,9 @@ public class ConstraintSet implements I_ConstraintSet {
 
     @Override
     public int getLastConstraintStartTime(){
-        return this.lastConstraintTime;
+        return lastTimeToConsiderConstraints < Integer.MAX_VALUE && !this.goalConstraints.isEmpty() ?
+                Math.max(this.lastConstraintTime, this.lastTimeToConsiderConstraints) :
+                this.lastConstraintTime;
     }
 
     public void add(Constraint constraint){
@@ -315,11 +318,23 @@ public class ConstraintSet implements I_ConstraintSet {
         ArrayList<Constraint> constraintsSortedByTime = locationConstraintsTimeSorted.get(finalMove.currLocation);
         if (constraintsSortedByTime != null){
             if (first){
-                // todo skip to finalMove.time with binary search
-                for (Constraint constraint : constraintsSortedByTime){
-                    if (constraint.time >= finalMove.timeNow){
+                // skip to finalMove.time with binary search
+                int index = Collections.binarySearch(constraintsSortedByTime, getDummyConstraint(finalMove), Comparator.comparingInt(c -> c.time));
+                if (index>= 0){
+                    while (index > 0 && constraintsSortedByTime.get(index - 1).time == finalMove.timeNow)
+                        index--;
+                }
+                else{
+                    index = -index - 1;
+                }
+                for (; index < constraintsSortedByTime.size(); index++) {
+                    Constraint constraint = constraintsSortedByTime.get(index);
+                    if (constraint.time > lastTimeToConsiderConstraints){
+                        break;
+                    }
+                    if (constraint.time >= finalMove.timeNow) {
                         // todo dummy move to save object creations?
-                        if (constraint.rejects(new Move(finalMove.agent, constraint.time, finalMove.currLocation, finalMove.currLocation))){
+                        if (constraint.rejects(new Move(finalMove.agent, constraint.time, finalMove.currLocation, finalMove.currLocation))) {
                             rejectionTime = constraint.time;
                             break;
                         }
@@ -329,6 +344,9 @@ public class ConstraintSet implements I_ConstraintSet {
             else { // last
                 for (int i = constraintsSortedByTime.size() - 1; i >= 0; i--){
                     Constraint constraint = constraintsSortedByTime.get(i);
+                    if (constraint.time > lastTimeToConsiderConstraints){
+                        continue;
+                    }
                     if (constraint.time < finalMove.timeNow){
                         break;
                     }
