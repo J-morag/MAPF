@@ -177,7 +177,7 @@ public class LaCAM_SolverTest {
     @Test
     void treeShapedMapTest() {
         MAPF_Instance testInstance = instanceTreeShapedMap;
-        I_Solver pibt = new PIBT_Solver( null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -192,7 +192,7 @@ public class LaCAM_SolverTest {
     @Test
     void goalsInCornersMapTest() {
         MAPF_Instance testInstance = instanceCornersShapedMap;
-        I_Solver pibt = new PIBT_Solver( null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -207,7 +207,7 @@ public class LaCAM_SolverTest {
     @Test
     void tunnelShapedMapTest() {
         MAPF_Instance testInstance = instanceTunnelShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -222,7 +222,7 @@ public class LaCAM_SolverTest {
     @Test
     void stringShapedMapTest() {
         MAPF_Instance testInstance = instanceStringShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -269,7 +269,7 @@ public class LaCAM_SolverTest {
         I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
         String nameLaCAM = LaCAMSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, null, null);
         String namePIBT = PIBT_Solver.name();
 
         TestUtils.comparativeTest(PIBT_Solver, namePIBT, false, LaCAMSolver, nameLaCAM,
