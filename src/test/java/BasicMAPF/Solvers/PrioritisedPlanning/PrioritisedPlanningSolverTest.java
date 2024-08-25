@@ -286,7 +286,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void TestingBenchmark(){
-        TestUtils.TestingBenchmark(ppSolver, 5, false, true);
+        TestUtils.TestingBenchmark(ppSolver, 5, false, false);
     }
 
     @Test
