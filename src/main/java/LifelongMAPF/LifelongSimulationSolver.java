@@ -124,9 +124,6 @@ public class LifelongSimulationSolver extends A_Solver {
         if(offlineSolver == null) {
             throw new IllegalArgumentException("offlineSolver is mandatory");
         }
-        if (!offlineSolver.sharedGoals()){
-            throw new IllegalArgumentException("offline solver should have shared goals");
-        }
         this.offlineSolver = offlineSolver;
         this.congestionMultiplier = congestionMultiplier;
         this.partialSolutionsStrategy = Objects.requireNonNullElseGet(partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
