@@ -50,7 +50,7 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
 
     @Override
     public void setLastTimeToConsiderConstraints(int lastTimeToConsiderConstraints) {
-        constraintSet.setLastTimeToConsiderConstraints(lastTimeToConsiderConstraints);
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
     }
 
     @Override
