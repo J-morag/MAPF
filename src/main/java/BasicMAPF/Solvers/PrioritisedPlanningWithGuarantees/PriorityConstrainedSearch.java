@@ -346,7 +346,7 @@ public class PriorityConstrainedSearch extends A_Solver {
         }
         // target constraint
         res.add(new GoalConstraint(null, positivelyConstrainedHighPriorityMDD.getDepth()+1 // assumes depth := time, starts after reaching target
-                , positivelyConstrainedHighPriorityMDD.getGoal().getLocation()));
+                , positivelyConstrainedHighPriorityMDD.getGoal().getLocation(), positivelyConstrainedHighPriorityMDD.getAgent()));
         return res;
     }
 

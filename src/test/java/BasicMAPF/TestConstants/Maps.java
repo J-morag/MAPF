@@ -136,6 +136,11 @@ public class Maps {
     };
     public static final I_ExplicitMap mapConnector = MapFactory.newSimple4Connected2D_GraphMap(map_2D_connector);
 
+    public static final Enum_MapLocationType[][] map_2D_corridor = {
+            {e, e, e, e, e, e}
+    };
+    public static final I_ExplicitMap mapCorridor = MapFactory.newSimple4Connected2D_GraphMap(map_2D_corridor);
+
 
     public static final I_ExplicitMap transientExampleMap = createTransientExampleGraphMap();
 

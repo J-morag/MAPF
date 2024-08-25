@@ -13,7 +13,9 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,6 +31,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests by comparing solutions when using CBS with and without corridor reasoning.
  */
 class CorridorConflictManagerTest {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     private MAPF_Instance instanceHFromPaper = new MAPF_Instance("instanceHFromPaper", mapHLong,
             new Agent[]{agent30to33, agent13to10});

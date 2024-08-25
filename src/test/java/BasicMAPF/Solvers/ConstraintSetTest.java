@@ -8,6 +8,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Maps.mapCircle;
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,6 +18,11 @@ class ConstraintSetTest {
     private ConstraintSet setOfBadConstraints;
     private ConstraintSet setOfGoodConstraints;
     private ConstraintSet setWithDifferentAgentsAndPrevlocationsForSameTimeAndLocation;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
