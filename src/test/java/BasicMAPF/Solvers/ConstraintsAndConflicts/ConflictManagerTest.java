@@ -10,7 +10,10 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.MinTimeConfl
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.RemovableConflictManager;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
@@ -18,6 +21,11 @@ import static BasicMAPF.TestConstants.Maps.*;
 
 
 public class ConflictManagerTest {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     public void goalConflict(){

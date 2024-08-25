@@ -8,7 +8,9 @@ import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import Environment.Metrics.InstanceReport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Agents.agent04to00;
 import static BasicMAPF.TestConstants.Maps.*;
@@ -22,6 +24,11 @@ import java.util.Map;
 public class DistanceTableAStarHeuristicTest {
 
     I_Map map = mapH;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     /*   = Equals Maps =    */
     private boolean equalsAllAgentMap(Map<I_Location, Map<I_Location, Integer>> expectedValues, Map<I_Location, Map<I_Location, Integer>> actualValues){

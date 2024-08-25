@@ -1,7 +1,9 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts;
 
 import BasicMAPF.Instances.Agent;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Agents.agent33to12;
 import static BasicMAPF.TestConstants.Agents.agent53to05;
@@ -11,6 +13,11 @@ import static BasicMAPF.TestConstants.Maps.mapEmpty;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SwappingConflictTest {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     void testEquals() {
