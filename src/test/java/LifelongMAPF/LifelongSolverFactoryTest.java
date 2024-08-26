@@ -5,7 +5,9 @@ import BasicMAPF.Solvers.I_Solver;
 import Environment.IO_Package.IO_Manager;
 import LifelongMAPF.LifelongRunManagers.LifelongGenericRunManager;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -20,6 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * Will only fail if an exception is thrown while running any of the solvers or an invalid solution is returned.
  */
 class LifelongSolverFactoryTest {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     void testLifelongSolverFactorySolversWithInstancesFromTestResources() {

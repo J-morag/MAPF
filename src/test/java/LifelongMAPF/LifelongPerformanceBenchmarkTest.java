@@ -13,7 +13,9 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import org.json.JSONArray;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -29,6 +31,11 @@ public class LifelongPerformanceBenchmarkTest {
     public static final long TIMEOUT = 1000 * 500;
     public static final String PATH = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory,
             "MovingAIWarehouseMaps"});
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     public void StressTest() {

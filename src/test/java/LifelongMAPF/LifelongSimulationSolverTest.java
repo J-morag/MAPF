@@ -25,10 +25,7 @@ import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.FailPolicies.AvoidFailPolicy;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import TransientMAPF.TransientMAPFSettings;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,6 +70,11 @@ class LifelongSimulationSolverTest {
     I_Solver modern1 = LifelongSolversFactory.LH1_Approach10ASFP_Cap18_Timeout1p5();
 
     InstanceReport instanceReport;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
