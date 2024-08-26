@@ -137,6 +137,9 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
             throw new IllegalArgumentException("RHCR_Horizon must be positive");
         }
         this.RHCR_Horizon = RHCR_Horizon;
+        if (Config.WARNING >= 1 && this.RHCR_Horizon != null && RHCR_Horizon < Integer.MAX_VALUE){
+            System.err.println("Warning: CBS is set to use RHCR with a horizon of " + RHCR_Horizon + ". RHCR in CBS is only partially supported and my lead to unexpected behaviour.");
+        }
 
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
