@@ -25,6 +25,7 @@ public class LifelongTestUtils {
         // TODO can never guarantee a full solution now - an agent at its last destination will prevent others from ever reaching it (if they have it as one of their destinations)...
         //  handle this somehow... currently using a  very crude alternative of seeing that some progress was made
 //        assertTrue(new Solution(solution).solves(instance, true, false)); // solves (is full solution)
+        System.out.println("Throughput: " + ((LifelongSolution)solution).throughputAtT(100));
         assertTrue(((LifelongSolution)solution).throughputAtT(100) >= instance.agents.size());
         System.out.println("Throughput: " + ((LifelongSolution)solution).throughputAtT(100));
     }

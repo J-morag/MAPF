@@ -20,14 +20,14 @@ import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.FreespaceConflictingAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
+import LifelongMAPF.FailPolicies.*;
 import LifelongMAPF.FailPolicies.AStarFailPolicies.Avoid1ASFP;
-import LifelongMAPF.FailPolicies.FailPolicy;
-import LifelongMAPF.FailPolicies.AvoidFailPolicy;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.*;
 
 import static BasicMAPF.TestConstants.Coordiantes.*;
+import static LifelongMAPF.LifelongRunManagers.LifelongSolversFactory.terminateFailPolicySolver;
 import static org.junit.jupiter.api.Assertions.*;
 import static LifelongMAPF.LifelongTestUtils.*;
 import static LifelongMAPF.LifelongTestConstants.*;
@@ -1487,45 +1487,22 @@ class LifelongSimulationSolverTest {
         isFullSolution(solved, testInstance);
     }
 
-//    @Test
-//    void worksWithPrPT_andPlanningPeriod() {
-//        I_Solver PrPT = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
-//                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new Avoid1ASFP()), null, new SSTCostFunction(),
-//                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
-//                        false, false, true, null, null),
-//                null, new DeepPartialSolutionsStrategy(), new AvoidFailPolicy(true), 1);
-//
-//
-//        I_Solver PrP = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
-//                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new Avoid1ASFP()), null, new SOCCostFunction(),
-//                        new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
-//                        true, false, false, null, null),
-//                null, new DeepPartialSolutionsStrategy(), new AvoidFailPolicy(true), 1);
-//
-//
-//        Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
-//        Enum_MapLocationType w = Enum_MapLocationType.WALL;
-//        Enum_MapLocationType[][] map_2D_empty_with_wall = {
-//                {e, e, e, e, e, e},
-//                {e, e, e, w, e, e},
-//                {e, e, e, w, e, e},
-//                {e, e, e, w, e, e},
-//                {e, e, e, e, e, e},
-//                {e, e, e, e, e, e},
-//        };
-//        I_ExplicitMap map_empty_with_wall = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty_with_wall);
-//        Agent agentXMoving = new LifelongAgent(new Agent(1, coor32, coor10, 1), new I_Coordinate[]{coor32, coor11, coor10});
-//        Agent agentYMoving = new LifelongAgent(new Agent(0, coor10, coor42, 1), new I_Coordinate[]{coor10, coor12, coor42});
-//        Agent agentXMoving2 = new LifelongAgent(new Agent(2, coor43, coor10, 1), new I_Coordinate[]{coor43, coor02, coor10});
-//        MAPF_Instance testInstance = new MAPF_Instance("testInstance", map_empty_with_wall, new Agent[]{agentYMoving, agentXMoving, agentXMoving2});
-//
-//        Solution solvedNormal = PrP.solve(testInstance, new RunParameters(10 * 1000L, null, instanceReport, null));
-//        assertTrue(solvedNormal.solves(testInstance));
-//
-//        Solution solvedPrPT = PrPT.solve(testInstance, new RunParameters(10 * 1000L, null, instanceReport, null));
-//        assertTrue(solvedPrPT.solves(testInstance));
-//        System.out.println(solvedPrPT);
-//        assertTrue(((LifelongSolution)solvedNormal).throughputAtT(7) < ((LifelongSolution)solvedPrPT).throughputAtT(7));
-//    }
+    @Test
+    void testNoneFailPolicyShouldReturnNullSolution1() {
+        I_Solver solver = terminateFailPolicySolver();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
+        Solution solved = solver.solve(instanceUnsolvable, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
+        Metrics.removeReport(instanceReport);
+        assertNull(solved);
+    }
+
+    @Test
+    void testNoneFailPolicyShouldReturnNullSolution2() {
+        I_Solver solver = terminateFailPolicySolver();
+        InstanceReport instanceReport = Metrics.newInstanceReport();
+        Solution solved = solver.solve(instanceSmallMazeDenser, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
+        Metrics.removeReport(instanceReport);
+        assertNull(solved);
+    }
 
 }

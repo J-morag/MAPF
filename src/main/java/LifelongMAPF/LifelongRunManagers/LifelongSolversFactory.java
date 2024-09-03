@@ -1172,4 +1172,18 @@ public class LifelongSolversFactory {
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }
+
+    public static I_Solver terminateFailPolicySolver(){
+        int replanningPeriod = 5;
+        I_SingleAgentFailPolicy fp = new TerminateFailPolicy();
+        Integer RHCRHorizon = null;
+        I_AStarFailPolicy asfpf = new Avoid1ASFP();
+        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+                new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(asfpf), null, null,
+                        new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.randomRestarts),
+                        false, false, null, RHCRHorizon, null),
+                null, new DisallowedPartialSolutionsStrategy(), fp, replanningPeriod, null);
+        solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
+        return solver;
+    }
 }
