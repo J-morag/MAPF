@@ -313,8 +313,8 @@ class PrioritisedPlanningSolverTest {
                 null, new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null);
         String nameExperimental = competitorSolver.name();
 
-        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, competitorSolver,
-                nameExperimental, false, new int[]{100}, 10, 0);
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, false, false, new int[]{100}, 10, 0);
     }
 
     @Test
@@ -327,8 +327,8 @@ class PrioritisedPlanningSolverTest {
                 null, new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 10, RestartsStrategy.RestartsKind.AStarRestarts), null, null, null);
         String nameExperimental = "AStar Restarts";
 
-        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, competitorSolver,
-                nameExperimental, false, new int[]{100}, 10, 0);
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, false, false, new int[]{100}, 10, 0);
     }
 
 
@@ -342,8 +342,8 @@ class PrioritisedPlanningSolverTest {
                 null, new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 5, RestartsStrategy.RestartsKind.AStarRestarts), null, null, null);
         String nameExperimental = "AStar Restarts";
 
-        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, competitorSolver,
-                nameExperimental, false, new int[]{100}, 10, 0);
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, false, false, new int[]{100}, 10, 0);
     }
 
     @Test
