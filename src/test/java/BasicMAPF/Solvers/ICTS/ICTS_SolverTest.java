@@ -110,8 +110,8 @@ class ICTS_SolverTest {
         I_Solver icts = new ICTS_Solver();
         String nameExperimental = "ICTS";
 
-        TestUtils.comparativeTest(cbs, nameBaseline, true, icts, nameExperimental,
-                true, new int[]{10}, 10, 0);
+        TestUtils.comparativeTest(cbs, nameBaseline, true, false, icts, nameExperimental,
+                true, false, new int[]{10}, 10, 0);
     }
 
 }
