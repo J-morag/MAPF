@@ -10,6 +10,12 @@ import org.jetbrains.annotations.Nullable;
 public class TerminateFailPolicy implements I_SingleAgentFailPolicy {
     @Override
     public @NotNull SingleAgentPlan getFailPolicyPlan(int farthestCommittedTime, Agent a, I_Location agentLocation, @Nullable I_ConflictAvoidanceTable softConstraints) {
-        throw new RuntimeException("This FailPolicy should not be used to get paths. It marks terminating in the event of a failure.");
+        throw new TerminateFailPolicyMisuseException("This FailPolicy should not be used to get paths. It marks terminating in the event of a failure.");
+    }
+
+    public class TerminateFailPolicyMisuseException extends RuntimeException {
+        public TerminateFailPolicyMisuseException(String message) {
+            super(message);
+        }
     }
 }

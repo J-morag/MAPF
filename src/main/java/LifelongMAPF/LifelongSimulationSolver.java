@@ -20,7 +20,6 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSolutionsStrategy;
-import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
@@ -38,6 +37,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static BasicMAPF.DataTypesAndStructures.Timeout.getCurrentTimeMS_NSAccuracy;
+import static Environment.Config.INFO;
+import static Environment.Config.DEBUG;
 
 /**
  * Simulates a lifelong environment for a lifelong compatible solver to run in.
@@ -50,7 +51,6 @@ public class LifelongSimulationSolver extends A_Solver {
 
     /* static fields */
     private static final StayFailPolicy STAY_ONCE_FAIL_POLICY = new StayFailPolicy();
-    private static final int DEBUG = 1;
 
     /* fields related to instance */
     /**
@@ -283,7 +283,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 }
                 digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
                 if (subgroupSolution == null && SAFailPolicy instanceof TerminateFailPolicy){
-                    if (Config.INFO >= 1){
+                    if (INFO >= 1){
                         System.out.println("No solution found at time " + farthestCommittedTime + " and fail policy is TerminateFailPolicy. Terminating.");
                     }
                     return null;
@@ -297,7 +297,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 numFailedAgentsAfterPlanner = failedAgents.size();
                 sumAttemptedAgentsThatFailed += numFailedAgentsAfterPlanner;
 
-                if (DEBUG >= 3){
+                if (INFO >= 3){
                     System.out.printf("timestep %d, solution after planner: %s%n",farthestCommittedTime, latestSolution);
                 }
                 if (!enforceKSafetyBetweenPlanningIterations){
@@ -316,11 +316,11 @@ public class LifelongSimulationSolver extends A_Solver {
 
             sumFailedAgentsAfterPolicy += failedAgents.size();
 
-            if (DEBUG >= 1){
+            if (INFO >= 1){
                 if (! selectedTimelyOfflineAgentsSubset.isEmpty()){
                     printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexOneBasedInPlanner);
                 }
-                if (DEBUG >= 3){
+                if (INFO >= 3){
                     System.out.println(latestSolution);
                 }
             }
@@ -374,7 +374,7 @@ public class LifelongSimulationSolver extends A_Solver {
         System.out.printf("/%1$3s", numFailedAgents);
         System.out.printf(", destinations achieved (prev iter.) %d [avg_thr %.2f]",
                 this.numDestinationsAchieved, (farthestCommittedTime > 0 ? (float)(numDestinationsAchieved) / farthestCommittedTime : 0));
-        if (DEBUG >= 1 && DEBUG < 3){
+        if (INFO >= 1 && INFO < 3){
             System.out.print('\r');
         }
         if (reachedIndexOneBasedInPlanner != null && reachedIndexOneBasedInPlanner > selectedTimelyOfflineAgentsSubset){
@@ -455,7 +455,15 @@ public class LifelongSimulationSolver extends A_Solver {
                                           @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
                                           I_SingleAgentFailPolicy SAFailPolicy){
         MutableInt iterations = new MutableInt(0);
-        Solution solutionWithoutConflicts = FailPolicy.getKSafeSolution(detectConflictsHorizon, solutionThatMayContainConflicts, farthestCommittedTime, failedAgents, cat, SAFailPolicy, iterations);
+
+        Solution solutionWithoutConflicts;
+        try {
+            solutionWithoutConflicts = FailPolicy.getKSafeSolution(detectConflictsHorizon, solutionThatMayContainConflicts, farthestCommittedTime, failedAgents, cat, SAFailPolicy, iterations);
+        }
+        catch (TerminateFailPolicy.TerminateFailPolicyMisuseException e){
+            throw new RuntimeException("\nWhen using TerminateFailPolicy, the sub-solver should either return null, or a solution " +
+                    "that is safe for the duration of the planning frequency. Are you returning partial solutions despite using TerminateFailPolicy?");
+        }
 
         this.sumFailPolicyIterations += iterations.intValue();
         this.countFailPolicyLoops++;

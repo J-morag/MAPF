@@ -52,6 +52,7 @@ class LifelongSolverFactoryTest {
                     solvers.add((I_Solver) res);
                 }
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 fail("Failed to invoke method " + method.getName() + " in LifelongSolversFactory \n" + Arrays.toString(e.getStackTrace()));
             }
         }
