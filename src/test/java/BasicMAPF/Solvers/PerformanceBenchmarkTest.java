@@ -84,7 +84,7 @@ public class PerformanceBenchmarkTest {
     @Test
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 9, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 100;
