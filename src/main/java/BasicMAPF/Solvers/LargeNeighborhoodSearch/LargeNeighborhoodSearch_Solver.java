@@ -96,12 +96,12 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.randomRestarts, null),
                 sharedGoals, sharedSources, this.transientMAPFSettings));
         this.iterationsSolver = Objects.requireNonNullElseGet(iterationsSolver,
                 // PP with just one attempt
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.none, null),
                 sharedGoals, sharedSources, this.transientMAPFSettings));
 
         this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
