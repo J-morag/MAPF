@@ -55,7 +55,7 @@ public class GenericRunManager extends A_RunManager {
         super.solvers.add(new CBSBuilder().createCBS_Solver());
 
         PrioritisedPlanning_Solver pp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 0, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null, null, null);
         pp.name = "PP-no-restarts";
         super.solvers.add(pp);

@@ -159,13 +159,13 @@ class PrioritisedPlanningSolverTest {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
         long timeout = 10*1000;
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null, null);
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.deterministicRescheduling, null), null, null, null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.deterministicRescheduling, null), null, null, null, null, null);
         solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         // should be able to solve in one of the restarts
         assertNotNull(solved);
@@ -195,7 +195,7 @@ class PrioritisedPlanningSolverTest {
         long hardTimeout = 5L * 1000;
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 200000, RestartsStrategy.reorderingStrategy.none, false), null, null, null, null, null, null, null);
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 200000, RestartsStrategy.reorderingStrategy.none, false), null, null, null, null, null);
         Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
         System.out.println(solved);
@@ -331,7 +331,7 @@ class PrioritisedPlanningSolverTest {
         String nameBaseline = baselineSolver.name();
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null);
+                null, new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null, null);
         String nameExperimental = competitorSolver.name();
 
         TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
@@ -356,7 +356,7 @@ class PrioritisedPlanningSolverTest {
     @Test
     void comparativeTestHasAStarRestartsVsOrderRandomRestarts(){
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 6, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null);
+                null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 6, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null, null);
         String nameBaseline = "Random Restarts";
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,

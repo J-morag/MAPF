@@ -41,29 +41,29 @@ class LifelongSimulationSolverTest {
     I_Solver freespaceConflictingAgentsOptimal = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(new PeriodicSelector(1)),
             new CBSBuilder().setSharedGoals(true).setSharedSources(false).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), null, null, null);
     I_Solver replanSingle = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.none, null), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
     I_Solver allAgentsPrPr = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 30, RestartsStrategy.reorderingStrategy.none, null), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
     I_Solver mandatoryAgentsPrPr = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 30, RestartsStrategy.reorderingStrategy.none, null), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
     I_Solver freespaceConflictingAgentsPrPr = new LifelongSimulationSolver(null, new FreespaceConflictingAgentsSelector(new PeriodicSelector(1)),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 30, RestartsStrategy.reorderingStrategy.none, null), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver allAgentsLNS = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(1)),
             new LNSBuilder().setSharedGoals(true).setSharedSources(false).createLNS(), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver baselineRHCR_w20_p5 = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(5)),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, 20, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 30, RestartsStrategy.reorderingStrategy.none, null), true, false, null, 20, null), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver mandatoryAgentsPrPrDeepPartial = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(),
-            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 30), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
+            new PrioritisedPlanning_Solver(null, null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 30, RestartsStrategy.reorderingStrategy.none, null), true, false, null, null, null), null, new WidePartialSolutionsStrategy(), null, null, null);
 
     I_Solver stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP =
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP();
     
     I_Solver lotsAndPrPT_h1 = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
                     new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new Avoid1ASFP()), null, null,
-                            new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 100, RestartsStrategy.RestartsKind.randomRestarts),
+                            new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 100, RestartsStrategy.reorderingStrategy.randomRestarts, null),
                             true, false, TransientMAPFSettings.defaultTransientMAPF, 10, new FailPolicy(1, new AvoidFailPolicy(true))),
                     null, new DeepPartialSolutionsStrategy(), new AvoidFailPolicy(true), 1, null);
 

@@ -323,7 +323,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         bestSolutionCost - solutionCostFunction.solutionCost(solution)
                         : Float.POSITIVE_INFINITY;
                 // solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, i, instance, currentConstraints, maxCost, solution, this.restartsStrategy.randomizeAStar, reorderingStrategy);
+                SingleAgentPlan planForAgent = solveSubproblem(agent, i, instance, currentConstraints, maxCost, solution, this.restartsStrategy.randomizeAStar);
 
                 if (planForAgent == null || ! planForAgent.containsTarget()) {
                     if (planForAgent != null)
@@ -377,6 +377,13 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         break;
                     }
 
+                    if (// TODO alreadyFoundFullSolution that takes into account that some plans may be fail plans?
+                            this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, i, true, bestSolution != null))
+                    {
+                        break;
+                    }
+                }
+                else {
                     // if the lower bound on the cost of the solution is already higher than the best solution, we can stop
                     int newPlanCost = singleAgentGAndH.cost(planForAgent);
                     currentCost += newPlanCost;
@@ -390,14 +397,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         solution = null;
                         break;
                     }
-
-                    if (// TODO alreadyFoundFullSolution that takes into account that some plans may be fail plans?
-                            this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null))
-                    {
-                        break;
-                    }
-                }
-                else {
                     savePlanToSolutionConstraintsAndCongestion(solution, currentConstraints, planForAgent);
                 }
             }
@@ -495,9 +494,9 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     }
 
     private Solution chooseBestSolution(Solution bestSolution, Solution solution, Set<Agent> failedAgents) {
-        if (failedAgents.size() == 0 &&
+        if (failedAgents.isEmpty() &&
                 (bestSolution == null ||
-                        (solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)))){
+                        (solution != null && solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)))){
             bestSolution = solution;
             super.runtimeToFirstSolution = (int) Timeout.elapsedMSSince_NSAccuracy(super.startTime);
         }
@@ -522,11 +521,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, int agentIndexInCurrentOrdering,
                                               MAPF_Instance fullInstance, ConstraintSet constraints,
-                                              float maxCost, Solution solutionSoFar, boolean randomizeAStar, RestartsStrategy.RestartsKind currentRestartsKind) {
+                                              float maxCost, Solution solutionSoFar, boolean randomizeAStar) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar, randomizeAStar, currentRestartsKind, agentIndexInCurrentOrdering);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar, randomizeAStar, agentIndexInCurrentOrdering);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -549,8 +548,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport,
                                                     ConstraintSet constraints, float maxCost, Solution solutionSoFar,
-                                                    boolean randomizeAStar,
-                                                    RestartsStrategy.RestartsKind currentRestartsKind, int agentIndexInCurrentOrdering) {
+                                                    boolean randomizeAStar, int agentIndexInCurrentOrdering) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         int numRemainingAgentsIncludingCurrent = this.agents.size() - agentIndexInCurrentOrdering;
         long allocatedTime = dynamicAStarTimeAllocation ? (long) ((timeLeftToTimeout / numRemainingAgentsIncludingCurrent) * aStarTimeAllocationFactor)
