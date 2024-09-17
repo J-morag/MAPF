@@ -76,7 +76,8 @@ public class RestartsStrategy {
 
     @Override
     public String toString() {
-        return  "min. " + minAttempts + " attempts" + (hasInitial() ? " + " + initialRestarts + " initial reorderings": "") +
-                (hasContingency() ? " + " + contingencyRestarts + " contingency reorderings" : "");
+        return  (minAttempts < Integer.MAX_VALUE ? "min. " + minAttempts + " attempts" : "")
+                + (hasInitial() ? initialRestarts + " initial reorderings ": "")
+                + (hasContingency() ? contingencyRestarts + " contingency reorderings" : "");
     }
 }

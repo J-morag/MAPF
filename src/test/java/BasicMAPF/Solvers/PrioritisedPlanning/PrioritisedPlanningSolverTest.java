@@ -172,7 +172,7 @@ class PrioritisedPlanningSolverTest {
     void ObeysSoftTimeout(){
         MAPF_Instance testInstance = instanceEmptyHarder;
         InstanceReport instanceReport = Metrics.newInstanceReport();
-        long softTimeout = 100L;
+        long softTimeout = 10L;
         long hardTimeout = 5L * 1000;
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
@@ -183,7 +183,8 @@ class PrioritisedPlanningSolverTest {
         assertTrue(solved.solves(testInstance));
         int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
         System.out.println("runtime: " + runtime);
-        assertTrue(runtime >= softTimeout && runtime < hardTimeout);
+        assertTrue(runtime >= softTimeout);
+        assertTrue(runtime < hardTimeout);
 
         Metrics.removeReport(instanceReport);
     }

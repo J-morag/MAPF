@@ -129,7 +129,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
 
-        super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "randomized ": "") + this.lowLevelSolver.name() + ")" +
+        super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
 
@@ -217,6 +217,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     protected Solution solvePrioritisedPlanning(MAPF_Instance instance, I_ConstraintSet initialConstraints) {
         Solution bestSolution = null;
+        int bestSolutionCost = Integer.MAX_VALUE;
         int numPossibleOrderings = factorial(this.agents.size());
         Set<List<Agent>> attemptedOrderings = new HashSet<>();
         attemptedOrderings.add(new ArrayList<>(agents));
@@ -229,14 +230,20 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             Solution solution = new Solution();
             ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
             Agent agentWeFailedOn = null;
+            // get a heuristic per agent according to the current order
+            int[] h = agents.stream().mapToInt(agent -> singleAgentGAndH.getHToTargetFromLocation(agent.target, instance.map.getMapLocation(agent.source))).toArray();
+            int naiveLowerBound = Arrays.stream(h).sum();
+            int currentH = naiveLowerBound;
+            int currentCost = 0;
 
             // solve for each agent while avoiding the plans of previous agents (standard PrP)
-            for (Agent agent : agents) {
+            for (int i = 0; i < agents.size(); i++) {
+                Agent agent = agents.get(i);
                 if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
 
-                // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration. // TODO add heuristic
+                // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration. // TODO add heuristic here too (or only here?)
                 float maxCost = bestSolution != null ?
-                        solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
+                        bestSolutionCost - solutionCostFunction.solutionCost(solution)
                         : Float.POSITIVE_INFINITY;
                 // solve the subproblem for one agent
                 SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints, maxCost, solution, this.restartsStrategy.randomizeAStar);
@@ -250,6 +257,21 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 //save the plan for this agent
                 solution.putPlan(planForAgent);
 
+                // if the lower bound on the cost of the solution is already higher than the best solution, we can stop
+                int newPlanCost = singleAgentGAndH.cost(planForAgent);
+                currentCost += newPlanCost;
+                currentH -= h[i];
+                if (bestSolution != null && currentCost + currentH >= bestSolutionCost) {
+                    if (Config.INFO >= 2){
+                        System.out.println("PrP: Stopping attempt early after " + (i+1) + " agents planned, due to lower bound. Solution cost: "
+                                + currentCost + " solution h: " + currentH + " (lower bound = " + (currentCost+currentH) + ")"
+                                + ", best cost: " + bestSolutionCost);
+                    }
+                    solution = null;
+                    break;
+                }
+
+
                 //add constraints to prevent the next agents from conflicting with the new plan
                 currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
             }
@@ -257,14 +279,20 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             /* = random/deterministic restarts = */
 
             if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
-            bestSolution = rememberBestSolution(bestSolution, solution);
+            bestSolution = chooseBestSolution(bestSolution, solution);
+            bestSolutionCost = bestSolution != null ? this.solutionCostFunction.solutionCost(bestSolution) : bestSolutionCost;
 
             // report the completed attempt
             reportCompletedAttempt(attemptNumber, bestSolution);
 
-
             if (attemptedOrderings.size() == numPossibleOrderings && !restartsStrategy.randomizeAStar){
                 break; // exhausted all possible orderings
+            }
+            else if (bestSolutionCost == naiveLowerBound){
+                if (Config.INFO >= 2){
+                    System.out.println("PrP: Stopping early due to finding optimal solution");
+                }
+                break; // found optimal solution
             }
 
             if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.minAttempts){
@@ -308,7 +336,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     private void reportCompletedAttempt(int attemptNumber, Solution bestSolution) {
-        if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.minAttempts){
+        if (attemptNumber <= restartsStrategy.minAttempts){
             if (reportIndvAttempts){
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
                 this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
@@ -320,12 +348,19 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         }
     }
 
-    private Solution rememberBestSolution(Solution bestSolution, Solution solution) {
+    private Solution chooseBestSolution(Solution bestSolution, Solution solution) {
         if (bestSolution == null){
             bestSolution = solution;
             super.runtimeToFirstSolution = (int) Timeout.elapsedMSSince_NSAccuracy(super.startTime);
+            if (Config.INFO >= 2){
+                Integer completedInitialAttempts = instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR);
+                System.out.println("PrP: Found first solution, with cost " + solutionCostFunction.solutionCost(solution) + " at attempt " + (completedInitialAttempts == null ? 1 : completedInitialAttempts));
+            }
         }
         else if (solution != null && solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)){
+            if (Config.INFO >= 2){
+                System.out.println("PrP: Found new best solution, with cost " + solutionCostFunction.solutionCost(solution) + " at attempt " + instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
+            }
             bestSolution = solution;
         }
         return bestSolution;
