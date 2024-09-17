@@ -14,7 +14,6 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
-import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
@@ -85,7 +84,7 @@ public class PerformanceBenchmarkTest {
     @Test
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 9, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 100;

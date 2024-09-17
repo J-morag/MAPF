@@ -1,6 +1,5 @@
 package BasicMAPF.Solvers.PIBT;
 
-import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
@@ -11,7 +10,6 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
@@ -191,8 +189,8 @@ public class PIBT_SolverTest {
         I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null, false);
         String namePIBT = PIBT_Solver.name();
 
-        TestUtils.comparativeTest(PrPSolver, namePrP, false, PIBT_Solver, namePIBT,
-                false, new int[]{100}, 10, 0);
+        TestUtils.comparativeTest(PrPSolver, namePrP, false, false, PIBT_Solver, namePIBT,
+                false, false, new int[]{100}, 10, 0);
     }
 
 

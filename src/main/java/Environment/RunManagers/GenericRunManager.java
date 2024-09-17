@@ -50,7 +50,7 @@ public class GenericRunManager extends A_RunManager {
 //            return;
 //        }
 //        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
-//                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+//                new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.randomRestarts, null),
 //                null, null, null, null, null));
         super.solvers.add(new CBSBuilder().createCBS_Solver());
 

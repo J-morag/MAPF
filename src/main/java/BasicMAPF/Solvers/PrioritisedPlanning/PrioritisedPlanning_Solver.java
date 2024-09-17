@@ -68,8 +68,12 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /*  = Fields related to the run =  */
 
     private I_ConstraintSet constraints;
-
-    private Random random;
+    private Random orderingsRNG;
+    private Random singleAgentSolverRNG;
+    /**
+     * optional heuristic function to use in the low level solver.
+     */
+    private SingleAgentGAndH singleAgentGAndH;
     private Set<Agent> failedAgents;
     private RemovableConflictAvoidanceTableWithContestedGoals initialConflictAvoidanceTable;
     int maxReachedIndexOneBased;
@@ -94,10 +98,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * The cost function to evaluate solutions with.
      */
     private final I_SolutionCostFunction solutionCostFunction;
-    /**
-     * optional heuristic function to use in the low level solver.
-     */
-    private SingleAgentGAndH singleAgentGAndH;
 
     /**
      * if agents share goals, they will not conflict at their goal.
@@ -170,7 +170,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
 
-        super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + this.lowLevelSolver.name() + ")" +
+        super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
@@ -205,7 +205,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.constraints.setSharedGoals(this.sharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
 
-        this.random = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
+        this.orderingsRNG = new Random(42);
+        this.singleAgentSolverRNG = Objects.requireNonNullElseGet(parameters.randomNumberGenerator, () -> new Random(42));
         // if we were given a comparator for agents, sort the agents according to this priority order.
         if (this.agentComparator != null){
             this.agents.sort(this.agentComparator);
@@ -288,40 +289,48 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         Solution bestPartialSolution = new Solution();
         int bestPartialSolutionSingleAgentSuccesses = 0;
         Set<Agent> bestPartialSolutionFailedAgents = new HashSet<>();
+        int bestSolutionCost = Integer.MAX_VALUE;
         int numPossibleOrderings = factorial(this.agents.size());
-        Set<List<Agent>> attemptedOrderings = new HashSet<>(); // TODO prefix tree memoization?
+        Set<List<Agent>> attemptedOrderings = new HashSet<>();
         attemptedOrderings.add(new ArrayList<>(agents));
         Set<List<Agent>> deterministicOrderings = new HashSet<>();
         deterministicOrderings.add(new ArrayList<>(agents));
-        RestartsStrategy.RestartsKind restartsKind = RestartsStrategy.RestartsKind.none;
-        int attemptNumber = 0;
-        // if using random restarts, try more than once and randomize between them
+        RestartsStrategy.reorderingStrategy reorderingStrategy = null;
+        int attemptNumber = 1;
+        // if using any sort of restarts, try more than once
         for (;;attemptNumber++) {
             Solution solution = new Solution();
             ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
+            Agent agentWeFailedOn = null;
+            // get a heuristic per agent according to the current order
+            int[] h = agents.stream().mapToInt(agent -> singleAgentGAndH.getHToTargetFromLocation(agent.target, instance.map.getMapLocation(agent.source))).toArray();
+            int naiveLowerBound = Arrays.stream(h).sum();
+            int currentH = naiveLowerBound;
+            int currentCost = 0;
             RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals(this.initialConflictAvoidanceTable);
             Set<Agent> failedAgents = new HashSet<>();
             Agent firstFailedAgent = null;
             MutableInt failPolicyIterations = new MutableInt(0);
-            //solve for each agent while avoiding the plans of previous agents (standard PrP)
-            for (int agentIndex = 0; agentIndex < agents.size(); agentIndex++){
-                Agent agent = agents.get(agentIndex);
-                if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
-                maxReachedIndexOneBased = Math.max(maxReachedIndexOneBased, agentIndex + 1);
 
-                // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration.
+            // solve for each agent while avoiding the plans of previous agents (standard PrP)
+            for (int i = 0; i < agents.size(); i++) {
+                Agent agent = agents.get(i);
+                if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
+                maxReachedIndexOneBased = Math.max(maxReachedIndexOneBased, i + 1);
+
+                // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration. // TODO add heuristic here too (or only here?)
                 float maxCost = bestSolution != null ?
-                        solutionCostFunction.solutionCost(bestSolution) - solutionCostFunction.solutionCost(solution)
+                        bestSolutionCost - solutionCostFunction.solutionCost(solution)
                         : Float.POSITIVE_INFINITY;
-                //solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, agentIndex, instance, currentConstraints, maxCost, solution, restartsKind);
+                // solve the subproblem for one agent
+                SingleAgentPlan planForAgent = solveSubproblem(agent, i, instance, currentConstraints, maxCost, solution, this.restartsStrategy.randomizeAStar, reorderingStrategy);
 
                 if (planForAgent == null || ! planForAgent.containsTarget()) {
                     if (planForAgent != null)
                         singleAgentFPsTriggered++;
                     failedAgents.add(agent);
                     if (firstFailedAgent == null) firstFailedAgent = agent;
-                    if (! this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null)) {
+                    if (! this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, i, true, bestSolution != null)) {
                         int numFailedAgentsBeforeFailPolicy = failedAgents.size();
 
                         SingleAgentPlan initialFailPlan = planForAgent != null ? planForAgent : // So we got a partial plan from A*
@@ -351,7 +360,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         }
                     }
 
-                    int successfulAgents = agentIndex + 1 - failedAgents.size();
+                    int successfulAgents = i + 1 - failedAgents.size();
 
                     if (this.partialSolutionsStrategy.allowed() &&
                             (successfulAgents > bestPartialSolutionSingleAgentSuccesses ||
@@ -368,8 +377,22 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                         break;
                     }
 
+                    // if the lower bound on the cost of the solution is already higher than the best solution, we can stop
+                    int newPlanCost = singleAgentGAndH.cost(planForAgent);
+                    currentCost += newPlanCost;
+                    currentH -= h[i];
+                    if (bestSolution != null && currentCost + currentH >= bestSolutionCost) {
+                        if (Config.INFO >= 2){
+                            System.out.println("PrP: Stopping attempt early after " + (i+1) + " agents planned, due to lower bound. Solution cost: "
+                                    + currentCost + " solution h: " + currentH + " (lower bound = " + (currentCost+currentH) + ")"
+                                    + ", best cost: " + bestSolutionCost);
+                        }
+                        solution = null;
+                        break;
+                    }
+
                     if (// TODO alreadyFoundFullSolution that takes into account that some plans may be fail plans?
-                        this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null))
+                            this.partialSolutionsStrategy.moveToNextPrPIteration(instance, attemptNumber, solution, agent, agentIndex, true, bestSolution != null))
                     {
                         break;
                     }
@@ -382,55 +405,45 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             /* = random/deterministic restarts = */
 
             if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
-            if (failedAgents.size() == 0 &&
-                    (bestSolution == null ||
-                            (solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)))){
-                bestSolution = solution;
-                super.runtimeToFirstSolution = (int) Timeout.elapsedMSSince_NSAccuracy(super.startTime);
-            }
+            bestSolution = chooseBestSolution(bestSolution, solution, failedAgents);
+            bestSolutionCost = bestSolution != null ? this.solutionCostFunction.solutionCost(bestSolution) : bestSolutionCost;
 
             // report the completed attempt
-            this.instanceReport.putIntegerValue("fail policy iterations", failPolicyIterations.intValue());
-            if (restartsStrategy.hasInitial() && attemptNumber <= restartsStrategy.numInitialRestarts){
-                if (reportIndvAttempts){
-                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
-                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
-                    this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " failed agents", failedAgents.size());
-                }
-                this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, attemptNumber + 1);
-            }
-            else if (attemptNumber > restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, attemptNumber - restartsStrategy.numInitialRestarts);
-            }
+            reportCompletedAttempt(attemptNumber, bestSolution);
 
-
-            if (attemptedOrderings.size() == numPossibleOrderings){ // so with AStarRestarts this won't increase
+            if (attemptedOrderings.size() == numPossibleOrderings && !restartsStrategy.randomizeAStar){
                 break; // exhausted all possible orderings
             }
+            else if (bestSolutionCost == naiveLowerBound){
+                if (Config.INFO >= 2){
+                    System.out.println("PrP: Stopping early due to finding optimal solution");
+                }
+                break; // found optimal solution
+            }
 
-            if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.numInitialRestarts){
-                restartsKind = restartsStrategy.initialRestarts;
+            if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.minAttempts){
+                reorderingStrategy = restartsStrategy.initialRestarts;
             }
-            else if (bestSolution == null && attemptNumber >= restartsStrategy.numInitialRestarts && restartsStrategy.hasContingency()){
-                restartsKind = restartsStrategy.contingencyRestarts;
+            else if (bestSolution == null && attemptNumber >= restartsStrategy.minAttempts && restartsStrategy.hasContingency()){
+                reorderingStrategy = restartsStrategy.contingencyRestarts;
             }
-            else {
+            else if (!restartsStrategy.randomizeAStar){
                 break;
             }
 
-            if (restartsKind == RestartsStrategy.RestartsKind.randomRestarts){
-                do { // do not repeat orderings
-                    Collections.shuffle(this.agents, this.random);
+            if (reorderingStrategy == RestartsStrategy.reorderingStrategy.randomRestarts){
+                do { // do not repeat orderings unless A* is randomized
+                    Collections.shuffle(this.agents, this.orderingsRNG);
                 }
-                while (attemptedOrderings.contains(this.agents) || deterministicOrderings.contains(this.agents));
+                while (!restartsStrategy.randomizeAStar && (attemptedOrderings.contains(this.agents) || deterministicOrderings.contains(this.agents)) );
 
                 attemptedOrderings.add(new ArrayList<>(this.agents));
             }
-            else if (restartsKind == RestartsStrategy.RestartsKind.deterministicRescheduling){
+            else if (reorderingStrategy == RestartsStrategy.reorderingStrategy.deterministicRescheduling){
                 if ( ! failedAgents.isEmpty()){
                     this.agents.remove(firstFailedAgent);
                     this.agents.add(0, firstFailedAgent);
-                    if (deterministicOrderings.contains(this.agents)){
+                    if (!restartsStrategy.randomizeAStar && deterministicOrderings.contains(this.agents)){
                         break; // deterministic ordering can end up in a loop - terminates if repeats itself
                     }
 
@@ -442,8 +455,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                     break;
                 }
             }
-            // else if (restartsKind == RestartsStrategy.RestartsKind.AStarRestarts)
-            // do nothing - the next iteration will be the same ordering and randomization will happen inside AStar
+            // else: don't re-order. if the single agent solver is deterministic, nothing will change
         }
         instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, bestSolution == null ? 0: 1);
         if (DEBUG >= 2){
@@ -469,6 +481,29 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         addPlanToCongestionMap(plan);
     }
 
+    private void reportCompletedAttempt(int attemptNumber, Solution bestSolution) {
+        if (attemptNumber <= restartsStrategy.minAttempts){
+            if (reportIndvAttempts){
+                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+            }
+            this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, attemptNumber);
+        }
+        else if (attemptNumber > restartsStrategy.minAttempts && restartsStrategy.hasContingency()){
+            this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, attemptNumber - restartsStrategy.minAttempts);
+        }
+    }
+
+    private Solution chooseBestSolution(Solution bestSolution, Solution solution, Set<Agent> failedAgents) {
+        if (failedAgents.size() == 0 &&
+                (bestSolution == null ||
+                        (solutionCostFunction.solutionCost(solution) < solutionCostFunction.solutionCost(bestSolution)))){
+            bestSolution = solution;
+            super.runtimeToFirstSolution = (int) Timeout.elapsedMSSince_NSAccuracy(super.startTime);
+        }
+        return bestSolution;
+    }
+
     private Solution finalizeSolution(Solution bestSolution) {
         return (transientMAPFSettings.isTransientMAPF() && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
@@ -487,11 +522,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     protected SingleAgentPlan solveSubproblem(Agent currentAgent, int agentIndexInCurrentOrdering,
                                               MAPF_Instance fullInstance, ConstraintSet constraints,
-                                              float maxCost, Solution solutionSoFar, RestartsStrategy.RestartsKind currentRestartsKind){
+                                              float maxCost, Solution solutionSoFar, boolean randomizeAStar, RestartsStrategy.RestartsKind currentRestartsKind) {
         //create a sub-problem
         MAPF_Instance subproblem = fullInstance.getSubproblemFor(currentAgent);
         InstanceReport subproblemReport = initSubproblemReport(fullInstance);
-        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar, currentRestartsKind, agentIndexInCurrentOrdering);
+        RunParameters subproblemParameters = getSubproblemParameters(subproblem, subproblemReport, constraints, maxCost, solutionSoFar, randomizeAStar, currentRestartsKind, agentIndexInCurrentOrdering);
 
         //solve sub-problem
         Solution singleAgentSolution = this.lowLevelSolver.solve(subproblem, subproblemParameters);
@@ -514,6 +549,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
     protected RunParameters getSubproblemParameters(MAPF_Instance subproblem, InstanceReport subproblemReport,
                                                     ConstraintSet constraints, float maxCost, Solution solutionSoFar,
+                                                    boolean randomizeAStar,
                                                     RestartsStrategy.RestartsKind currentRestartsKind, int agentIndexInCurrentOrdering) {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         int numRemainingAgentsIncludingCurrent = this.agents.size() - agentIndexInCurrentOrdering;
@@ -524,8 +560,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
                 setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH)
                 .setExistingSolution(new Solution(solutionSoFar))  // should probably work without copying, but just to be safe
                 .createRP());
-        if (currentRestartsKind == RestartsStrategy.RestartsKind.AStarRestarts){
-            params.randomNumberGenerator = this.random;
+        if (randomizeAStar){
+            params.randomNumberGenerator = this.singleAgentSolverRNG;
         }
         params.fBudget = maxCost;
         params.problemStartTime = this.problemStartTime;
@@ -581,6 +617,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         this.agents = null;
         this.instanceReport = null;
         this.singleAgentGAndH = null;
+        this.orderingsRNG = null;
+        this.singleAgentSolverRNG = null;
     }
 
     /*  = interfaces =  */

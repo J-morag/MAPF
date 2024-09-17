@@ -114,7 +114,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.randomRestarts, null),
                 this.sharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
         // verify horizon of self and initial
         if (Config.WARNING >= 1 && this.initialSolver instanceof PrioritisedPlanning_Solver ppInitialSolver && !Objects.equals(ppInitialSolver.RHCR_Horizon, this.RHCR_Horizon)){
@@ -123,7 +123,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.iterationsSolver = Objects.requireNonNullElseGet(iterationsSolver,
                 // PP with just one attempt
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.none, null),
                 this.sharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
         // verify horizon of self and iteration
         if (Config.WARNING >= 1 && this.iterationsSolver instanceof PrioritisedPlanning_Solver ppIterationsSolver && !Objects.equals(ppIterationsSolver.RHCR_Horizon, this.RHCR_Horizon)){
