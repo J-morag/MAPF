@@ -76,8 +76,22 @@ public class RestartsStrategy {
 
     @Override
     public String toString() {
-        return  (minAttempts < Integer.MAX_VALUE ? "min. " + minAttempts + " attempts" : "")
-                + (hasInitial() ? initialRestarts + " initial reorderings ": "")
-                + (hasContingency() ? contingencyRestarts + " contingency reorderings" : "");
+        StringBuilder sb = new StringBuilder();
+        if (minAttempts < Integer.MAX_VALUE){
+            sb.append("min. ").append(minAttempts).append(" attempts");
+        }
+        if (hasInitial()){
+            if (!sb.isEmpty()){
+                sb.append(", ");
+            }
+            sb.append("initial reorderings: ").append(initialRestarts);
+        }
+        if (hasContingency()){
+            if (!sb.isEmpty()){
+                sb.append(", ");
+            }
+            sb.append("contingency reorderings: ").append(contingencyRestarts);
+        }
+        return sb.toString();
     }
 }

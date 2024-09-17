@@ -102,7 +102,7 @@ jobs:
 
       - env:
           SOLVER:
-            PrP (AStar) + min. 10 attempts + randomRestarts initial reorderings
+            "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts"
         name: Store benchmark result - ${{ env.SOLVER }}
         uses: benchmark-action/github-action-benchmark@v1
         with:
