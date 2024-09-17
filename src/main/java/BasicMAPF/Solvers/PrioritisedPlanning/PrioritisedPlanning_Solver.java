@@ -349,7 +349,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     }
 
     private Solution chooseBestSolution(Solution bestSolution, Solution solution) {
-        if (bestSolution == null){
+        if (bestSolution == null && solution != null){
             bestSolution = solution;
             super.runtimeToFirstSolution = (int) Timeout.elapsedMSSince_NSAccuracy(super.startTime);
             if (Config.INFO >= 2){

@@ -1,9 +1,13 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
+import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.TestUtils;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
@@ -170,19 +174,29 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void ObeysSoftTimeout(){
-        MAPF_Instance testInstance = instanceEmptyHarder;
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances", "MovingAI_Instances", });
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{30}, null);
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(), properties);
+        InstanceManager.InstancePath instancePath = new InstanceManager.Moving_AI_Path(
+                IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances", "maze-32-32-2.map"}),
+                        IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances", "maze-32-32-2-even-1.scen"})
+                        );
+        MAPF_Instance testInstance = instanceManager.getSpecificInstance(instancePath);
+
         InstanceReport instanceReport = Metrics.newInstanceReport();
-        long softTimeout = 10L;
+        long softTimeout = 100L;
         long hardTimeout = 5L * 1000;
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 20000, RestartsStrategy.reorderingStrategy.none, null), null, null, null);
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 200000, RestartsStrategy.reorderingStrategy.none, false), null, null, null);
         Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
+        System.out.println("completed initial attempts: " + instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
         int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-        System.out.println("runtime: " + runtime);
+        System.out.println("runtime: " + runtime + "ms");
         assertTrue(runtime >= softTimeout);
         assertTrue(runtime < hardTimeout);
 
