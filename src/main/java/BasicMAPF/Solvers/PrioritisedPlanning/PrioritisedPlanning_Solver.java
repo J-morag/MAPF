@@ -222,7 +222,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         attemptedOrderings.add(new ArrayList<>(agents));
         Set<List<Agent>> deterministicOrderings = new HashSet<>();
         deterministicOrderings.add(new ArrayList<>(agents));
-        RestartsStrategy.reorderingStrategy reorderingStrategy;
+        RestartsStrategy.reorderingStrategy reorderingStrategy = null;
 
         // if using any sort of restarts, try more than once
         for (int attemptNumber = 1 ; ; attemptNumber++) {
@@ -273,7 +273,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             else if (bestSolution == null && attemptNumber >= restartsStrategy.minAttempts && restartsStrategy.hasContingency()){
                 reorderingStrategy = restartsStrategy.contingencyRestarts;
             }
-            else {
+            else if (!restartsStrategy.randomizeAStar){
                 break;
             }
 
