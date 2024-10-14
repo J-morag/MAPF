@@ -21,7 +21,7 @@ import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import Environment.Config.*;
+
 import java.util.*;
 
 /**
@@ -65,7 +65,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * at the end of the algorithm this HashMap represent the final solution.
      */
     private HashMap<Agent, SingleAgentPlan> agentPlans;
-    private int timeStamp;
+    private int timeStep;
 
     /**
      * The cost function to evaluate solutions with.
@@ -82,8 +82,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * Agent's plans build only from this timestamp.
      */
     public Integer problemStartTime;
-
-    private static final int DEBUG = 0;
 
     /**
      * Set who saves lists of agent's locations - configurations, as lists.
@@ -112,21 +110,21 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
 
     /**
+     * Default constructor.
+     */
+    public PIBT_Solver() {
+        this(null, null, null, null);
+    }
+
+    /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, TransientMAPFSettings transientMAPFSettings, Boolean returnPartialSolutions) {
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions, TransientMAPFSettings transientMAPFSettings) {
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         super.name = "PIBT" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
-    }
-
-    /**
-     * Default constructor.
-     */
-    public PIBT_Solver() {
-        this(null, null, null, null);
     }
 
     @Override
@@ -136,12 +134,12 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.currentLocations = new HashMap<>();
         this.priorities = new HashMap<>();
         this.agentPlans = new HashMap<>();
-        this.timeStamp = parameters.problemStartTime;
+        this.timeStep = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
-        this.goalConfiguration = new HashMap<>();
         this.agentCantMoveOrStay = false;
         this.allAgentsReachedGoal = false;
+        this.goalConfiguration = new HashMap<>();
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -167,13 +165,15 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         // each iteration of the while represents timestamp
         while (!(finished())) {
 
+            this.timeStep++;
+
             // loop detection
             ArrayList<I_Location> currentConfiguration = new ArrayList<>(instance.agents.size());
             for (Agent agent : instance.agents) {
                 currentConfiguration.add(this.currentLocations.get(agent));
             }
             if (this.configurations.contains(currentConfiguration) && !this.allAgentsReachedGoal) {
-                if (Config.DEBUG >= 1){
+                if (Config.DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
                 return partialOrNoSolution();
@@ -185,7 +185,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             if (checkTimeout()) {
                 return partialOrNoSolution();
             }
-            this.timeStamp++;
+
 
             // init agents that have not reached their goal
             this.unhandledAgents = new HashSet<>();
@@ -227,7 +227,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 SingleAgentPlan plan = entry.getValue();
                 if (plan.size() == 0) {
                     // if agent didn't make a move, add a move to stay in current location
-                    plan.addMove(new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent)));
+                    plan.addMove(new Move(agent, this.timeStep, this.currentLocations.get(agent), this.currentLocations.get(agent)));
                     numberOfNotMovingAgents++;
                 }
                 solution.putPlan(plan);
@@ -265,19 +265,34 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         //  2. move to the node where the higher priority agent is
 
         candidates.add(this.currentLocations.get(current)); // 1
-        if (higherPriorityAgent != null) {
+
+
+        if (higherPriorityAgent != null && needToCheckConflicts()) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
 
         // remove all taken nodes by higher priorities agents
-        candidates.removeAll(this.takenNodes);
+        if (needToCheckConflicts()) {
+            candidates.removeAll(this.takenNodes);
+        }
+
 
         while (!candidates.isEmpty()) {
             I_Location best = findBest(candidates, current);
             this.takenNodes.add(best);
 
+            if (!needToCheckConflicts()) {
+                if (addNewMoveToAgent(current, best)) {
+                    return true;
+                }
+                else {
+                    candidates.remove(best);
+                    continue;
+                }
+            }
+
             // best is taken
-            if (this.currentLocations.containsValue(best) && needToCheckConflicts()) {
+            if (this.currentLocations.containsValue(best)) {
                 Agent optional = null;
                 for (Agent agent: this.currentLocations.keySet()) {
                     if (this.currentLocations.get(agent) == best) {
@@ -291,14 +306,22 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                         // add new move to the agent's plan - the best is to stay in current node
                         if (addNewMoveToAgent(current, this.currentLocations.get(current))){
                             return true;
-                        };
+                        }
+                        else {
+                            candidates.remove(best);
+                            continue;
+                        }
                     }
 
                     else if (solvePIBT(optional, current) && canMove(current)) {
                         // add new move to the agent's plan - change location
                         if (addNewMoveToAgent(current, best)) {
                             return true;
-                        };
+                        }
+                        else {
+                            candidates.remove(best);
+                            continue;
+                        }
                     }
                     else {
                         // priority inheritance didn't work, remove best and try next candidate
@@ -312,7 +335,11 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 // add new move to the agent's plan - change location
                 if (addNewMoveToAgent(current, best)) {
                     return true;
-                };
+                }
+                else {
+                    candidates.remove(best);
+                    continue;
+                }
             }
             candidates.remove(best);
         }
@@ -336,7 +363,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
     /**
      * helper function.
-     * update priority of each agent in current time step using instance.
+     * update priority of each agent in current timestamp using instance.
      */
     private void updatePriorities() {
         for (Agent agent : this.priorities.keySet()) {
@@ -430,8 +457,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
         // TMAPF
         if (this.transientMAPFSettings.isTransientMAPF()) {
-            for (Double priority : this.priorities.values()) {
-                if (priority != -1.0) {
+            for (Agent agent : this.priorities.keySet()) {
+                if (this.priorities.get(agent) != -1.0) {
                     return false;
                 }
             }
@@ -440,19 +467,19 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         // regular MAPF
         else {
             for (Agent agent : this.agentPlans.keySet()) {
-                if (!(this.currentLocations.get(agent).equals(this.goalConfiguration.get(agent)))) {
+                if (!this.currentLocations.get(agent).equals(this.goalConfiguration.get(agent))) {
                     return false;
                 }
             }
         }
 
+        // all agents' priorities are -1, all agents reached goals
         this.allAgentsReachedGoal = true;
         for (Agent agent : this.priorities.keySet()) {
             if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove()) != -1) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -463,7 +490,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private boolean canMove(Agent agent) {
         SingleAgentPlan agentPlan = this.agentPlans.get(agent);
-        return agentPlan.size() == 0 || agentPlan.getEndTime() < this.timeStamp;
+        return agentPlan.size() == 0 || agentPlan.getEndTime() < this.timeStep;
     }
 
     /**
@@ -473,8 +500,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean : true if the move added successfully, false otherwise.
      */
     private boolean addNewMoveToAgent(Agent current, I_Location newLocation) {
-        Move move = new Move(current, this.timeStamp, this.currentLocations.get(current), newLocation);
-        if (this.constraints.accepts(move)) {
+        Move move = new Move(current, this.timeStep, this.currentLocations.get(current), newLocation);
+        if (!needToCheckConflicts() || this.constraints.accepts(move)) {
             this.agentPlans.get(current).addMove(move);
             this.currentLocations.put(current, newLocation);
             return true;
@@ -488,8 +515,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean: true if conflicts needs to be checked, otherwise return false.
      */
     private boolean needToCheckConflicts() {
-        if (this.timeStamp != 0) {
-            return this.RHCR_Horizon >= this.timeStamp;
+        if (this.timeStep != 0) {
+            return this.RHCR_Horizon >= this.timeStep - this.problemStartTime;
         }
         return true;
     }
@@ -501,13 +528,10 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     @NotNull
     private Solution finalSolution() {
-        this.timeStamp++;
+        this.timeStep++;
         Solution solution = transientMAPFSettings.isTransientMAPF() ? new TransientMAPFSolution() : new Solution();
 
         for (Agent agent : agentPlans.keySet()) {
-            while (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove()) != -1) {
-                solvePIBT(agent, null);
-            }
             solution.putPlan(this.agentPlans.get(agent));
         }
 
@@ -563,6 +587,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
     @Override
     public boolean sharedGoals() {
-        return true; // todo when this gets the option to be non-transient, return this.isTransient
+        return true;
     }
 }

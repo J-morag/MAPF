@@ -19,7 +19,7 @@ public class HighLevelNode {
     public HashMap<Agent, Boolean> reachedGoalsMap;
     public int timeStep;
 
-    public HighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent) {
+    public HighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent, int timeStep) {
         this.configuration = configuration;
         this.tree = new LinkedList<>();
         this.tree.add(root);
@@ -35,7 +35,7 @@ public class HighLevelNode {
                 this.reachedGoalsMap.put(agent, false);
             }
             // update time step
-            this.timeStep = 1;
+            this.timeStep = timeStep;
         }
         else {
             this.reachedGoalsMap = new HashMap<>(parent.reachedGoalsMap);

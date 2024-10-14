@@ -1,17 +1,26 @@
 package BasicMAPF.Solvers.LaCAM;
 
 import BasicMAPF.CostFunctions.SumServiceTimes;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
+import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
+import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import TransientMAPF.TransientMAPFSettings;
@@ -20,10 +29,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Map;
+
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
+import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class LaCAM_SolverTest {
 
@@ -39,8 +56,6 @@ public class LaCAM_SolverTest {
     private final MAPF_Instance instanceAgentsInterruptsEachOther = new MAPF_Instance("instanceAgentsInterruptsEachOther", mapWithPocket, new Agent[]{agent43to53, agent55to34});
     private final MAPF_Instance instanceStartAdjacentGoAround = new MAPF_Instance("instanceStartAdjacentGoAround", mapSmallMaze, new Agent[]{agent33to35, agent34to32});
     private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
-
-    // the next 6 instances from article about LaCAM
     private final MAPF_Instance instanceTreeShapedMap = new MAPF_Instance("instanceTreeShapedMap", mapTree, new Agent[]{agent31to01, agent11to31, agent01to11});
     private final MAPF_Instance instanceCornersShapedMap = new MAPF_Instance("instanceTreeShapedMap", mapCorners, new Agent[]{agent00to44, agent10to34, agent34to10, agent44to00});
 
@@ -51,8 +66,8 @@ public class LaCAM_SolverTest {
 
     private final MAPF_Instance instanceConnectorShapedMap = new MAPF_Instance("instanceConnectorShapedMap", mapConnector, new Agent[]{agent00to65, agent65to00, agent10to33, agent55to32, agent01to44, agent64to22});
 
-    I_Solver LaCAM_Solver = new LaCAM_Solver(null, TransientMAPFSettings.defaultRegularMAPF);
-    I_Solver LaCAMSt_Solver = new LaCAM_Solver(null, TransientMAPFSettings.defaultTransientMAPF);
+    I_Solver LaCAM_Solver = new LaCAM_Solver(null, TransientMAPFSettings.defaultRegularMAPF, null, null, null);
+    I_Solver LaCAMSt_Solver = new LaCAM_Solver(null, TransientMAPFSettings.defaultTransientMAPF, null, null, null);
 
     long timeout = 10*1000;
 
@@ -81,7 +96,6 @@ public class LaCAM_SolverTest {
         assertTrue(solved.solves(testInstance));
     }
 
-
     @Test
     void emptyMapValidityWithEasyConstraint() {
         MAPF_Instance testInstance = instanceEmptyEasy;
@@ -100,7 +114,6 @@ public class LaCAM_SolverTest {
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
     }
-
 
     @Test
     void exampleTestLaCAMStar() {
@@ -177,108 +190,99 @@ public class LaCAM_SolverTest {
     @Test
     void treeShapedMapTest() {
         MAPF_Instance testInstance = instanceTreeShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null, null, false);
+        I_Solver pibt = new PIBT_Solver(null, null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        System.out.println(solvedLaCAM);
         assertTrue(solvedLaCAM.solves(testInstance));
+        System.out.println("Solved LaCAM, SOC: " + solvedLaCAM.sumIndividualCosts());
+        System.out.println(solvedLaCAM);
 
-        Solution solvedStar = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        assertTrue(solvedStar.solves(testInstance));
-        System.out.println(solvedStar);
+        Solution solvedLaCAMt = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+        System.out.println("Solved LaCAMt, SOC: " + solvedLaCAMt.sumIndividualCosts());
+        System.out.println(solvedLaCAMt);
     }
 
     @Test
     void goalsInCornersMapTest() {
         MAPF_Instance testInstance = instanceCornersShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null, null, false);
-        Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println("Solved LaCAM, SOC: " + solvedLaCAM.sumIndividualCosts());
         System.out.println(solvedLaCAM);
         assertTrue(solvedLaCAM.solves(testInstance));
 
-        Solution solvedStar = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        assertTrue(solvedStar.solves(testInstance));
-        System.out.println(solvedStar);
+        Solution solvedLaCAMt = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+        System.out.println("Solved LaCAMt, SOC: " + solvedLaCAMt.sumIndividualCosts());
+        System.out.println(solvedLaCAMt);
     }
 
     @Test
     void tunnelShapedMapTest() {
         MAPF_Instance testInstance = instanceTunnelShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null, null, false);
+        I_Solver pibt = new PIBT_Solver(null, null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println("Solved LaCAM, SOC: " + solvedLaCAM.sumIndividualCosts());
         System.out.println(solvedLaCAM);
         assertTrue(solvedLaCAM.solves(testInstance));
 
-        Solution solvedStar = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        assertTrue(solvedStar.solves(testInstance));
-        System.out.println(solvedStar);
+        Solution solvedLaCAMt = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+        System.out.println("Solved LaCAMt, SOC: " + solvedLaCAMt.sumIndividualCosts());
+        System.out.println(solvedLaCAMt);
     }
 
     @Test
     void stringShapedMapTest() {
         MAPF_Instance testInstance = instanceStringShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null, null, false);
+        I_Solver pibt = new PIBT_Solver(null, null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println("Solved LaCAM, SOC: " + solvedLaCAM.sumIndividualCosts());
         System.out.println(solvedLaCAM);
         assertTrue(solvedLaCAM.solves(testInstance));
 
-        Solution solvedStar = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        assertTrue(solvedStar.solves(testInstance));
-        System.out.println(solvedStar);
+        Solution solvedLaCAMt = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+        System.out.println("Solved LaCAMt, SOC: " + solvedLaCAMt.sumIndividualCosts());
+        System.out.println(solvedLaCAMt);
     }
 
     @Test
     void loopChainShapedMapTest() {
         MAPF_Instance testInstance = instanceLoopChainShapedMap;
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println("Solved LaCAM, SOC: " + solvedLaCAM.sumIndividualCosts());
         System.out.println(solvedLaCAM);
         assertTrue(solvedLaCAM.solves(testInstance));
 
-        Solution solvedStar = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        assertTrue(solvedStar.solves(testInstance));
-        System.out.println(solvedStar);
+        Solution solvedLaCAMt = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+        System.out.println("Solved LaCAMt, SOC: " + solvedLaCAMt.sumIndividualCosts());
+        System.out.println(solvedLaCAMt);
     }
 
     @Test
     void connectorShapedMapTest() {
         MAPF_Instance testInstance = instanceConnectorShapedMap;
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println("Solved LaCAM, SOC: " + solvedLaCAM.sumIndividualCosts());
         System.out.println(solvedLaCAM);
         assertTrue(solvedLaCAM.solves(testInstance));
 
-        Solution solvedStar = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
-        assertTrue(solvedStar.solves(testInstance));
-        System.out.println(solvedStar);
-    }
-
-
-    @Test
-    void TestingBenchmark(){
-        TestUtils.TestingBenchmark(LaCAM_Solver, 5, false, false);
-    }
-
-    @Test
-    void compareBetweenPIBTAndLaCAMTest(){
-        I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
-        String nameLaCAM = LaCAMSolver.name();
-
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null, false);
-        String namePIBT = PIBT_Solver.name();
-
-        TestUtils.comparativeTest(PIBT_Solver, namePIBT, false, false, LaCAMSolver, nameLaCAM,
-                false, false, new int[]{100}, 5, 0);
+        Solution solvedLaCAMt = LaCAMSt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+        System.out.println("Solved LaCAMt, SOC: " + solvedLaCAMt.sumIndividualCosts());
+        System.out.println(solvedLaCAMt);
     }
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFSettings.defaultTransientMAPF, null, null, null);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -295,7 +299,7 @@ public class LaCAM_SolverTest {
 
     @Test
     void transientExample() {
-        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFSettings.defaultTransientMAPF, null, null, null);
         Agent agent1 = new Agent(0, coor10, coor13, 1);
         Agent agent2 = new Agent(1, coor11, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
@@ -311,14 +315,31 @@ public class LaCAM_SolverTest {
     }
 
     @Test
-    void compareBetweenLaCAMStarAndLaCAMTest(){
-        I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
+    void TestingBenchmark(){
+        TestUtils.TestingBenchmark(LaCAM_Solver, 5, false, false);
+    }
+
+    @Test
+    void compareBetweenLaCAMAndPIBTTest(){
+        I_Solver LaCAMSolver = new LaCAM_Solver();
         String nameLaCAM = LaCAMSolver.name();
 
-        I_Solver LaCAMStar_Solver = new LaCAMStar_Solver(null, null);
-        String nameLaCAMStar = LaCAMStar_Solver.name();
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null, null);
+        String namePIBT = PIBT_Solver.name();
 
-        TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, false, LaCAMStar_Solver, nameLaCAMStar,
-                false, true, new int[]{100}, 10, 0);
+        TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, false, PIBT_Solver, namePIBT,
+                false, false, new int[]{100}, 10, 0);
+    }
+
+    @Test
+    void compareBetweenLaCAMAndLaCAMStarTest(){
+        I_Solver LaCAMSolver = new LaCAM_Solver();
+        String nameLaCAM = LaCAMSolver.name();
+
+        I_Solver LaCAMStarSolver = new LaCAMStar_Solver();
+        String nameLaCAMStar = LaCAMStarSolver.name();
+
+        TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, false, LaCAMStarSolver, nameLaCAMStar,
+                false, false, new int[]{100}, 10, 0);
     }
 }

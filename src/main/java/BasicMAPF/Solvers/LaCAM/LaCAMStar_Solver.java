@@ -23,6 +23,7 @@ public class LaCAMStar_Solver extends A_Solver {
      * LaCAM instance - composition.
      */
     private LaCAM_Solver lacamSolver;
+
     public HighLevelNodeStar N_Goal;
 
     /**
@@ -31,7 +32,7 @@ public class LaCAMStar_Solver extends A_Solver {
      * @param transientMAPFSettings indicates whether to solve transient-MAPF.
      */
     public LaCAMStar_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
-        this.lacamSolver = new LaCAM_Solver(solutionCostFunction, transientMAPFSettings);
+        this.lacamSolver = new LaCAM_Solver(solutionCostFunction, transientMAPFSettings, null, null, null);
         super.name = "LaCAMStar" + (this.lacamSolver.transientMAPFSettings.isTransientMAPF() ? "t" : "");
     }
 
@@ -52,10 +53,9 @@ public class LaCAMStar_Solver extends A_Solver {
         HashMap<Agent, I_Location> initialConfiguration = new HashMap<>();
         for (Agent agent : instance.agents) {
             initialConfiguration.put(agent, instance.map.getMapLocation(agent.source));
-            this.lacamSolver.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
             this.lacamSolver.agents.put(agent.iD, agent);
         }
-        LowLevelNode C_init = this.lacamSolver.initNewLowLevelNode();
+        LowLevelNode C_init = this.lacamSolver.initLowLevelRoot();
         HashMap<Agent, Float> priorities = initPriorities(initialConfiguration);
         ArrayList<Agent> order = sortByPriority(priorities);
         HighLevelNode N_init = initNewHighLevelNode(initialConfiguration, C_init, order, priorities,  null, 0, calcHValue(initialConfiguration, null));
@@ -114,7 +114,6 @@ public class LaCAMStar_Solver extends A_Solver {
 
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
-                    totalLowLevelNodesExpanded++;
                     N.tree.add(C_new);
                 }
             }
@@ -173,7 +172,7 @@ public class LaCAMStar_Solver extends A_Solver {
             else {
                 HashMap<Agent, Float> newPriorities = updatePriorities(N, newConfiguration);
                 ArrayList<Agent> newOrder = sortByPriority(newPriorities);
-                HighLevelNodeStar N_new = new HighLevelNodeStar(newConfiguration, C_init, newOrder, newPriorities, N, N.g + getEdgeCost(N, newConfiguration), calcHValue(newConfiguration, N));
+                HighLevelNodeStar N_new = new HighLevelNodeStar(newConfiguration, C_init, newOrder, newPriorities, N, N.g + getEdgeCost(N, newConfiguration), calcHValue(newConfiguration, N), N.timeStep);
                 for (Map.Entry<Agent, Boolean> entry : N_new.reachedGoalsMap.entrySet()) {
                     Agent agent = entry.getKey();
                     Boolean reachedGoal = entry.getValue();
@@ -181,7 +180,6 @@ public class LaCAMStar_Solver extends A_Solver {
                         N_new.reachedGoalsMap.put(agent, true);
                     }
                 }
-                expandedNodes++;
                 this.lacamSolver.explored.put(newConfiguration, N_new);
                 if (N_Goal == null || N_new.f < N_Goal.f) this.lacamSolver.open.push(N_new);
             }
@@ -202,8 +200,7 @@ public class LaCAMStar_Solver extends A_Solver {
      * The function initialize new high-level node and increase a high-level node counter.
      */
     protected HighLevelNode initNewHighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent, float g, float h) {
-        HighLevelNode N_init = new HighLevelNodeStar(configuration, root, order, priorities, (HighLevelNodeStar) parent, g, h);
-        expandedNodes++;
+        HighLevelNode N_init = new HighLevelNodeStar(configuration, root, order, priorities, (HighLevelNodeStar) parent, g, h, this.lacamSolver.timeStep);
         return N_init;
     }
 
@@ -238,14 +235,14 @@ public class LaCAMStar_Solver extends A_Solver {
         float cost = 0;
         if (this.lacamSolver.transientMAPFSettings.isTransientMAPF() && parent != null) {
             for (Agent agent : currentConfiguration.keySet()) {
-                if (currentConfiguration.get(agent) != this.lacamSolver.goalConfiguration.get(agent) && !parent.reachedGoalsMap.get(agent)) {
-                    cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.goalConfiguration.get(agent).getCoordinate(), currentConfiguration.get(agent));
+                if (currentConfiguration.get(agent) != this.lacamSolver.getAgentsTarget(agent) && !parent.reachedGoalsMap.get(agent)) {
+                    cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.getAgentsTarget(agent).getCoordinate(), currentConfiguration.get(agent));
                 }
             }
         }
         else {
             for (Agent agent : currentConfiguration.keySet()) {
-                cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.goalConfiguration.get(agent).getCoordinate(), currentConfiguration.get(agent));
+                cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.getAgentsTarget(agent).getCoordinate(), currentConfiguration.get(agent));
             }
         }
         return cost;
@@ -264,7 +261,7 @@ public class LaCAMStar_Solver extends A_Solver {
         if (this.lacamSolver.transientMAPFSettings.isTransientMAPF()) {
             for (Agent agent : configuration_from.keySet()) {
                 // if the next location of an agent is NOT its goal and the agent did not visit its goal
-                if (configuration_to.get(agent) != this.lacamSolver.goalConfiguration.get(agent) && !HNode_from.reachedGoalsMap.get(agent)) {
+                if (configuration_to.get(agent) != this.lacamSolver.getAgentsTarget(agent) && !HNode_from.reachedGoalsMap.get(agent)) {
                     cost++;
                 }
             }
@@ -272,7 +269,7 @@ public class LaCAMStar_Solver extends A_Solver {
         else {
             for (Agent agent : configuration_from.keySet()) {
                 // if the location of an agent in both current and next configuration is NOT goal location
-                if (configuration_from.get(agent) != this.lacamSolver.goalConfiguration.get(agent) || configuration_to.get(agent) != this.lacamSolver.goalConfiguration.get(agent)) {
+                if (configuration_from.get(agent) != this.lacamSolver.getAgentsTarget(agent) || configuration_to.get(agent) != this.lacamSolver.getAgentsTarget(agent)) {
                     cost++;
                 }
             }
@@ -347,14 +344,21 @@ public class LaCAMStar_Solver extends A_Solver {
     }
 
     @Override
+    protected void releaseMemory() {
+        this.lacamSolver.releaseMemory();
+        super.releaseMemory();
+        N_Goal = null;
+    }
+
+    @Override
     protected void writeMetricsToReport(Solution solution) {
-        // messy, but since both use the same instance report, this is a workaround to handle both of them counting separately
+        super.writeMetricsToReport(solution);
+
         this.lacamSolver.writeMetricsToReport(solution);
         this.expandedNodes += instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
         this.generatedNodes += instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
         this.totalLowLevelNodesGenerated += instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
         this.totalLowLevelNodesExpanded += instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-        super.writeMetricsToReport(solution);
 
         instanceReport.putIntegerValue("# of failed config", this.lacamSolver.failedToFindConfigCounter);
         instanceReport.putFloatValue("Time in config", (float) this.lacamSolver.totalTimeFindConfigurations);
@@ -362,11 +366,5 @@ public class LaCAMStar_Solver extends A_Solver {
             instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, this.lacamSolver.solutionCostFunction.solutionCost(solution));
             instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, this.lacamSolver.solutionCostFunction.name());
         }
-    }
-
-    @Override
-    protected void releaseMemory() {
-        this.lacamSolver.releaseMemory();
-        super.releaseMemory();
     }
 }

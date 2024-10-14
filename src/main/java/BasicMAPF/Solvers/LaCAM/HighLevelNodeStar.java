@@ -13,8 +13,8 @@ public class HighLevelNodeStar extends HighLevelNode {
     public float h;
     public float f;
 
-    public HighLevelNodeStar(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNodeStar parent, float g, float h) {
-        super(configuration, root, order, priorities, parent);
+    public HighLevelNodeStar(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNodeStar parent, float g, float h, int timeStep) {
+        super(configuration, root, order, priorities, parent, timeStep);
         this.parent = parent;
         if (parent != null) {
             parent.neighbors.add(this);

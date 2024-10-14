@@ -69,7 +69,7 @@ jobs:
 
       - env:
           SOLVER:
-            PIBT_AllAgentSelector
+            PIBT_h10
         name: Store benchmark result - ${{ env.SOLVER }}
         uses: benchmark-action/github-action-benchmark@v1
         with:
