@@ -78,17 +78,10 @@ public class LaCAM_Solver extends A_Solver {
      * @param solutionCostFunction how to calculate the cost of a solution
      * @param transientMAPFSettings indicates whether to solve transient-MAPF.
      */
-    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
+    LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
-    }
-
-    /**
-     * Default constructor.
-     */
-    public LaCAM_Solver() {
-        this(null, null);
     }
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
