@@ -121,7 +121,13 @@ public abstract class A_RunManager {
                     MakespanServiceTime.NAME,
                     MakespanServiceTime.NAME,
                     InstanceReport.StandardFields.expandedNodes,
+                    InstanceReport.StandardFields.expansionRate,
                     InstanceReport.StandardFields.generatedNodes,
+                    InstanceReport.StandardFields.generationRate,
+                    InstanceReport.StandardFields.expandedNodesLowLevel,
+                    InstanceReport.StandardFields.expansionRateLowLevel,
+                    InstanceReport.StandardFields.generatedNodesLowLevel,
+                    InstanceReport.StandardFields.generationRateLowLevel,
                     InstanceReport.StandardFields.startDateTime,
                     InstanceReport.StandardFields.processorInfo,
             });
