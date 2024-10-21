@@ -60,7 +60,9 @@ public class InstanceReport {
         public final static String solution = "Solution";
         public final static String skipped = "Skipped";
         public final static String expansionRate = "Expansion Per Sec";
+        public final static String expansionRateLowLevel = "Expansion Per Sec (Low Level)";
         public final static String generationRate = "Generation Per Sec";
+        public final static String generationRateLowLevel = "Generation Per Sec (Low Level)";
         public static final String sumFreespaceCosts = "sumFreespaceCosts";
     }
 
