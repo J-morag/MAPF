@@ -489,12 +489,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
      * For sorting the open list.
      */
     private static class TieBreakingForLessConflictsAndHigherG implements Comparator<AStarState>{
-
-        private static final Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
-
         @Override
         public int compare(AStarState o1, AStarState o2) {
-            if(Math.abs(o1.getF() - o2.getF()) < 0.1){ // floats are equal
+            float fCompared = o1.getF() - o2.getF();
+            if(Math.abs(fCompared) < 0.1){ // floats are equal
                 // if f() value is equal, we consider the state with less conflicts to be better.
                 if(o1.conflicts == o2.conflicts){
                     // if equal in conflicts, we break ties for higher g. Therefore, we want to return a negative
@@ -513,7 +511,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 }
             }
             else {
-                return fComparator.compare(o1, o2);
+                return fCompared > 0 ? 1 : -1;
             }
         }
     }
@@ -538,7 +536,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 else{
                     return o1.conflicts - o2.conflicts; // less conflicts is better
                 }
-
             }
             else {
                 return o1.g - o2.g; //lower g is better
