@@ -144,11 +144,11 @@ public abstract class A_Solver implements I_Solver{
         else{
             instanceReport.putIntegerValue(InstanceReport.StandardFields.solved, 0);
         }
-        instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.totalLowLevelNodesGenerated);
-        instanceReport.putFloatValue(InstanceReport.StandardFields.generationRateLowLevel,(float) this.totalLowLevelNodesGenerated / ((float) (elapsedTime) / 1000f));
-        instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.totalLowLevelNodesExpanded);
-        instanceReport.putFloatValue(InstanceReport.StandardFields.expansionRateLowLevel, (float) this.totalLowLevelNodesExpanded / ((float) (elapsedTime) / 1000f));
         instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS, this.totalLowLevelTimeMS);
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.totalLowLevelNodesGenerated);
+        instanceReport.putFloatValue(InstanceReport.StandardFields.generationRateLowLevel,(float) this.totalLowLevelNodesGenerated / ((float) (this.totalLowLevelTimeMS) / 1000f));
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.totalLowLevelNodesExpanded);
+        instanceReport.putFloatValue(InstanceReport.StandardFields.expansionRateLowLevel, (float) this.totalLowLevelNodesExpanded / ((float) (this.totalLowLevelTimeMS) / 1000f));
         instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls, this.totalLowLevelCalls);
     }
 
