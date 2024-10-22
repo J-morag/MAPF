@@ -7,13 +7,14 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.A_Solver;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
@@ -35,14 +36,18 @@ public class LaCAM_Solver extends A_Solver {
     protected HashMap<HashMap<Agent, I_Location>, HighLevelNode> explored;
 
     /**
-     * heuristic to use in the low level search to find the closest nodes to an agent's goal
+     * HashMap to manage configurations that the algorithm already saw.
+     * This map is used when the solver need to handle constraints, so time step is included in the configuration.
+     * For each configuration, we can save several High level nodes, each one with different time step.
      */
-    protected DistanceTableSingleAgentHeuristic heuristic;
+    protected HashMap<HashMap<Agent, I_Location>, List<HighLevelNode>> exploredWithExternalConstraints;
+
+    protected boolean needToHandleConstraints;
 
     /**
-     * Map saving for each agent its goal location, representing the goal configuration.
+     * heuristic to use in the low level search to find the closest nodes to an agent's goal
      */
-    protected HashMap<Agent, I_Location> goalConfiguration;
+    protected SingleAgentGAndH heuristic;
 
     /**
      * Map saving for each ID its agent as object.
@@ -58,20 +63,14 @@ public class LaCAM_Solver extends A_Solver {
      * variable indicates whether the solution returned by the algorithm is transient.
      */
     protected final TransientMAPFSettings transientMAPFSettings;
-
-    protected I_ConstraintSet solverConstraints;
+    protected I_ConstraintSet constraintsSet;
 
     protected MAPF_Instance instance;
     protected int failedToFindConfigCounter;
     protected long totalTimeFindConfigurations;
-
     protected HashMap<Agent, I_Location> occupiedNowConfig;
     protected HashMap<Agent, I_Location> occupiedNextConfig;
-
-    protected ConstraintSet instanceConstraints;
-
     protected int improveVisitsCounter;
-
     protected int timeStep;
     /**
      * Constructor.
@@ -86,34 +85,30 @@ public class LaCAM_Solver extends A_Solver {
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
-        this.solverConstraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        this.constraintsSet = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.open = new Stack<>();
+        this.needToHandleConstraints = !this.constraintsSet.isEmpty();
         this.explored = new HashMap<>();
-        this.goalConfiguration = new HashMap<>();
+        if (!this.constraintsSet.isEmpty()) {
+            this.exploredWithExternalConstraints = new HashMap<>();
+        }
         this.agents = new HashMap<>();
         this.failedToFindConfigCounter = 0;
         this.totalTimeFindConfigurations = 0;
         this.instance = instance;
         this.occupiedNowConfig = new HashMap<>();
         this.occupiedNextConfig = new HashMap<>();
-        this.instanceConstraints = null;
         this.timeStep = parameters.problemStartTime + 1;
         this.improveVisitsCounter = 0;
 
         // distance between every vertex in the graph to each agent's goal
-        if (parameters.singleAgentGAndH instanceof DistanceTableSingleAgentHeuristic) {
-            this.heuristic = (DistanceTableSingleAgentHeuristic) parameters.singleAgentGAndH;
-        }
-        else {
-            this.heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, instance.map);
-        }
+        this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
     }
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
         HashMap<Agent, I_Location> initialConfiguration = new HashMap<>();
         for (Agent agent : instance.agents) {
             initialConfiguration.put(agent, instance.map.getMapLocation(agent.source));
-            this.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
             this.agents.put(agent.iD, agent);
         }
         LowLevelNode C_init = initNewLowLevelNode();
@@ -121,7 +116,19 @@ public class LaCAM_Solver extends A_Solver {
         ArrayList<Agent> order = sortByPriority(priorities);
         HighLevelNode N_init = initNewHighLevelNode(initialConfiguration, C_init,order, priorities, null);
         this.open.push(N_init);
-        this.explored.put(initialConfiguration, N_init);
+
+        if (this.needToHandleConstraints) {
+            List<HighLevelNode> nodesList = this.exploredWithExternalConstraints.get(initialConfiguration);
+            if (nodesList == null) {
+                nodesList = new ArrayList<>();
+                this.exploredWithExternalConstraints.put(initialConfiguration, nodesList);
+            }
+            nodesList.add(N_init);
+            this.explored.put(initialConfiguration, N_init);
+        }
+        else {
+            this.explored.put(initialConfiguration, N_init);
+        }
 
         while (!this.open.empty() && !checkTimeout()) {
             HighLevelNode N = this.open.peek();
@@ -187,7 +194,21 @@ public class LaCAM_Solver extends A_Solver {
                 continue;
             }
 
-            HighLevelNode reInsertionNode = this.explored.get(newConfiguration);
+            HighLevelNode reInsertionNode = null;
+            if (this.needToHandleConstraints) {
+                List<HighLevelNode> nodesWithSameLocations = this.exploredWithExternalConstraints.get(newConfiguration);
+                if (nodesWithSameLocations != null) {
+                    for (HighLevelNode node : nodesWithSameLocations) {
+                        if (node.timeStep == this.timeStep) {
+                            reInsertionNode = node;
+                        }
+                    }
+                }
+            }
+            else {
+                reInsertionNode = this.explored.get(newConfiguration);
+            }
+
             if (!this.transientMAPFSettings.isTransientMAPF()) {
                 if (reInsertionNode != null) {
                     // re-insertion of already seen configuration
@@ -253,7 +274,19 @@ public class LaCAM_Solver extends A_Solver {
         }
         this.expandedNodes++;
         this.open.push(N_new);
-        this.explored.put(newConfiguration, N_new);
+
+        if (this.needToHandleConstraints) {
+            List<HighLevelNode> nodesList = this.exploredWithExternalConstraints.get(newConfiguration);
+            if (nodesList == null) {
+                nodesList = new ArrayList<>();
+                this.exploredWithExternalConstraints.put(newConfiguration, nodesList);
+            }
+            nodesList.add(N_new);
+            this.explored.put(newConfiguration, N_new);
+        }
+        else {
+            this.explored.put(newConfiguration, N_new);
+        }
     }
 
     /**
@@ -286,8 +319,7 @@ public class LaCAM_Solver extends A_Solver {
             for (Map.Entry<Agent, I_Location> entry : configuration.entrySet()) {
                 Agent currentAgent = entry.getKey();
                 I_Location currentLocation = entry.getValue();
-                I_Location goalLocation = this.goalConfiguration.get(currentAgent);
-                if (!(currentLocation.equals(goalLocation))) {
+                if (!(currentLocation.equals(getAgentsTarget(currentAgent)))) {
                     return false;
                 }
             }
@@ -295,6 +327,16 @@ public class LaCAM_Solver extends A_Solver {
         else {
             for (Boolean reachedGoal : N.reachedGoalsMap.values()) {
                 if (!reachedGoal) {
+                    return false;
+                }
+            }
+        }
+
+        // final check - if all agents can stay at their current locations for infinite time
+        if (this.needToHandleConstraints) {
+            for (Agent agent : this.instance.agents) {
+                Move finalMove = getNewMove(agent, this.occupiedNextConfig.get(agent), this.occupiedNowConfig.get(agent));
+                if (this.constraintsSet.lastRejectionTime(finalMove) != -1) {
                     return false;
                 }
             }
@@ -442,10 +484,17 @@ public class LaCAM_Solver extends A_Solver {
             this.occupiedNowConfig.put(agent, agentLocation);
         }
 
-        this.instanceConstraints = new ConstraintSet(this.solverConstraints);
         // bottom of low level tree - each agent have a constraint
         // exactly one configuration is possible
         if (C.depth == this.instance.agents.size()) {
+
+            // check that low-level do not conflict with problem constraints.
+            if (this.needToHandleConstraints) {
+                Move newMove = getNewMove(C.who, C.where, this.occupiedNowConfig.get(C.who));
+                if (!this.constraintsSet.accepts(newMove)) {
+                    return null;
+                }
+            }
             while (C.parent != null) {
                 this.occupiedNextConfig.put(C.who, C.where);
                 C = C.parent;
@@ -474,10 +523,15 @@ public class LaCAM_Solver extends A_Solver {
                         return null; // Swap conflict detected!
                     }
                 }
-                Constraint swapConstraint = new Constraint(1, C.where, N.configuration.get(C.who));
-                this.instanceConstraints.add(swapConstraint);
-                Constraint locationConstraint = new Constraint(1, C.where);
-                this.instanceConstraints.add(locationConstraint);
+
+                // check that low-level does not conflict with problem constraints.
+                if (this.needToHandleConstraints) {
+                    Move newMove = getNewMove(C.who, nextLocation, currentLocation);
+                    if (!this.constraintsSet.accepts(newMove)) {
+                        return null;
+                    }
+                }
+
                 this.occupiedNextConfig.put(C.who, C.where);
                 C = C.parent;
             }
@@ -536,6 +590,13 @@ public class LaCAM_Solver extends A_Solver {
                     if (nextLocation.equals(otherAgentLocation)) {
                         // same agent, needs to stay in current location
                         if (otherAgent.equals(currentAgent)) {
+                            // check that the move does not conflict with problem constraints.
+                            if (this.needToHandleConstraints) {
+                                Move newMove = getNewMove(currentAgent, nextLocation, currentLocation);
+                                if (!this.constraintsSet.accepts(newMove)) {
+                                    break;
+                                }
+                            }
                             this.occupiedNextConfig.put(currentAgent, nextLocation);
                             return true;
                         }
@@ -549,9 +610,11 @@ public class LaCAM_Solver extends A_Solver {
             if (occupyingAgent != null && this.occupiedNextConfig.get(occupyingAgent) != null && this.occupiedNextConfig.get(occupyingAgent).equals(currentLocation)) continue;
 
             // check constraints
-            Move newMove = new Move(currentAgent, this.timeStep, currentLocation, nextLocation);
-            if (!this.instanceConstraints.accepts(newMove)) {
-                continue;
+            if (this.needToHandleConstraints) {
+                Move newMove = getNewMove(currentAgent, nextLocation, currentLocation);
+                if (!this.constraintsSet.accepts(newMove)) {
+                    continue;
+                }
             }
 
             // reserve next location
@@ -570,6 +633,15 @@ public class LaCAM_Solver extends A_Solver {
         }
         this.occupiedNextConfig.put(currentAgent, currentLocation);
         return false;
+    }
+
+    @NotNull
+    private Move getNewMove(Agent currentAgent, I_Location nextLocation, I_Location currentLocation) {
+        return new Move(currentAgent, this.timeStep, currentLocation, nextLocation);
+    }
+
+    public I_Location getAgentsTarget(Agent agent) {
+        return this.instance.map.getMapLocation(agent.target);
     }
 
     /**
@@ -598,8 +670,12 @@ public class LaCAM_Solver extends A_Solver {
         super.releaseMemory();
         this.open = null;
         this.explored = null;
+        this.exploredWithExternalConstraints = null;
         this.heuristic = null;
-        this.goalConfiguration = null;
         this.agents = null;
+        this.constraintsSet = null;
+        this.instance = null;
+        this.occupiedNowConfig = null;
+        this.occupiedNextConfig = null;
     }
 }

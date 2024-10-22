@@ -52,7 +52,6 @@ public class LaCAMStar_Solver extends A_Solver {
         HashMap<Agent, I_Location> initialConfiguration = new HashMap<>();
         for (Agent agent : instance.agents) {
             initialConfiguration.put(agent, instance.map.getMapLocation(agent.source));
-            this.lacamSolver.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
             this.lacamSolver.agents.put(agent.iD, agent);
         }
         LowLevelNode C_init = this.lacamSolver.initNewLowLevelNode();
@@ -238,14 +237,14 @@ public class LaCAMStar_Solver extends A_Solver {
         float cost = 0;
         if (this.lacamSolver.transientMAPFSettings.isTransientMAPF() && parent != null) {
             for (Agent agent : currentConfiguration.keySet()) {
-                if (currentConfiguration.get(agent) != this.lacamSolver.goalConfiguration.get(agent) && !parent.reachedGoalsMap.get(agent)) {
-                    cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.goalConfiguration.get(agent).getCoordinate(), currentConfiguration.get(agent));
+                if (currentConfiguration.get(agent) != this.lacamSolver.getAgentsTarget(agent) && !parent.reachedGoalsMap.get(agent)) {
+                    cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.getAgentsTarget(agent).getCoordinate(), currentConfiguration.get(agent));
                 }
             }
         }
         else {
             for (Agent agent : currentConfiguration.keySet()) {
-                cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.goalConfiguration.get(agent).getCoordinate(), currentConfiguration.get(agent));
+                cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.getAgentsTarget(agent).getCoordinate(), currentConfiguration.get(agent));
             }
         }
         return cost;
@@ -264,7 +263,7 @@ public class LaCAMStar_Solver extends A_Solver {
         if (this.lacamSolver.transientMAPFSettings.isTransientMAPF()) {
             for (Agent agent : configuration_from.keySet()) {
                 // if the next location of an agent is NOT its goal and the agent did not visit its goal
-                if (configuration_to.get(agent) != this.lacamSolver.goalConfiguration.get(agent) && !HNode_from.reachedGoalsMap.get(agent)) {
+                if (configuration_to.get(agent) != this.lacamSolver.getAgentsTarget(agent) && !HNode_from.reachedGoalsMap.get(agent)) {
                     cost++;
                 }
             }
@@ -272,7 +271,7 @@ public class LaCAMStar_Solver extends A_Solver {
         else {
             for (Agent agent : configuration_from.keySet()) {
                 // if the location of an agent in both current and next configuration is NOT goal location
-                if (configuration_from.get(agent) != this.lacamSolver.goalConfiguration.get(agent) || configuration_to.get(agent) != this.lacamSolver.goalConfiguration.get(agent)) {
+                if (configuration_from.get(agent) != this.lacamSolver.getAgentsTarget(agent) || configuration_to.get(agent) != this.lacamSolver.getAgentsTarget(agent)) {
                     cost++;
                 }
             }
