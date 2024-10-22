@@ -48,6 +48,7 @@ public class LaCAM_SolverTest {
 
     private final MAPF_Instance exampleInstance = new MAPF_Instance("exampleInstance", mapTwoWallsSmall, new Agent[]{agent00to02, agent02to00});
     private final MAPF_Instance instanceEmptyEasy = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent04to00});
+    private final MAPF_Instance instanceEmptyThreeAgents = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent04to00, agent21to43});
     private final MAPF_Instance instanceEmptyHarder = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
             {agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, agent00to10, agent55to34, agent34to32, agent31to14, agent40to02});
 
@@ -99,8 +100,6 @@ public class LaCAM_SolverTest {
     @Test
     void emptyMapValidityWithEasyConstraint() {
         MAPF_Instance testInstance = instanceEmptyEasy;
-        I_Coordinate coor13 = new Coordinate_2D(1,3);
-        I_Coordinate coor02 = new Coordinate_2D(0,2);
         Constraint constraint1 = new Constraint(agent33to12, 2, mapEmpty.getMapLocation(coor13));
         Constraint constraint2 = new Constraint(agent04to00, 2, mapEmpty.getMapLocation(coor02));
         Constraint constraint3 = new Constraint(agent33to12, 4, mapEmpty.getMapLocation(coor12));
@@ -110,6 +109,21 @@ public class LaCAM_SolverTest {
         constraints.add(constraint2);
         constraints.add(constraint3);
         constraints.add(constraint4);
+        Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved);
+        assertTrue(solved.solves(testInstance));
+    }
+
+    @Test
+    void emptyMapValidityWithInfiniteAndRegularConstraints() {
+        MAPF_Instance testInstance = instanceEmptyThreeAgents;
+        Constraint constraint1 = new Constraint(agent33to12, 1, mapEmpty.getMapLocation(coor23));
+        Constraint constraint2 = new Constraint(agent04to00, 4, mapEmpty.getMapLocation(coor00));
+        Constraint constraint3 = new Constraint(agent21to43, 12, mapEmpty.getMapLocation(coor43));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraint1);
+        constraints.add(constraint2);
+        constraints.add(constraint3);
         Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));

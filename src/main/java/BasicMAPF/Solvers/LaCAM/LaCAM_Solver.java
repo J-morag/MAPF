@@ -76,7 +76,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
      */
     private final boolean returnPartialSolutions;
 
-    protected I_ConstraintSet solverConstraints;
+    protected I_ConstraintSet constraintsSet;
 
     protected MAPF_Instance instance;
 
@@ -85,8 +85,6 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
 
     protected HashMap<Agent, I_Location> occupiedNowConfig;
     protected HashMap<Agent, I_Location> occupiedNextConfig;
-
-    protected ConstraintSet instanceConstraints;
 
     protected int improveVisitsCounter;
 
@@ -130,11 +128,11 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
-        this.solverConstraints = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+        this.constraintsSet = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
         this.open = new Stack<>();
-        this.needToHandleConstraints = !this.solverConstraints.isEmpty();
+        this.needToHandleConstraints = !this.constraintsSet.isEmpty();
         this.explored = new HashMap<>();
-        if (!this.solverConstraints.isEmpty()) {
+        if (!this.constraintsSet.isEmpty()) {
             this.exploredWithExternalConstraints = new HashMap<>();
         }
         this.agents = new HashMap<>();
@@ -143,7 +141,6 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         this.instance = instance;
         this.occupiedNowConfig = new HashMap<>();
         this.occupiedNextConfig = new HashMap<>();
-        this.instanceConstraints = null;
         this.timeStep = parameters.problemStartTime + 1;
         this.problemStartTime = parameters.problemStartTime + 1;
         this.improveVisitsCounter = 0;
@@ -420,10 +417,12 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         }
 
         // final check - if all agents can stay at their current locations for infinite time
-        for (Agent agent : this.instance.agents) {
-            Move finalMove = getNewMove(agent, this.occupiedNextConfig.get(agent), this.occupiedNowConfig.get(agent));
-            if (this.instanceConstraints.lastRejectionTime(finalMove) != -1) {
-                return false;
+        if (this.needToHandleConstraints) {
+            for (Agent agent : this.instance.agents) {
+                Move finalMove = getNewMove(agent, this.occupiedNextConfig.get(agent), this.occupiedNowConfig.get(agent));
+                if (this.constraintsSet.lastRejectionTime(finalMove) != -1) {
+                    return false;
+                }
             }
         }
         return true;
@@ -587,18 +586,18 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
             this.occupiedNowConfig.put(agent, agentLocation);
         }
 
-        this.instanceConstraints = new ConstraintSet(this.solverConstraints);
         // bottom of low level tree - each agent have a constraint
         // exactly one configuration is possible
         if (C.depth == this.instance.agents.size()) {
             while (C.parent != null) {
 
                 // check that low-level do not conflict with problem constraints.
-                Move newMove = getNewMove(C.who, C.where, this.occupiedNowConfig.get(C.who));
-                if (needToCheckConflicts() && !this.instanceConstraints.accepts(newMove)) {
-                    return null;
+                if (needToCheckConflicts() && this.needToHandleConstraints) {
+                    Move newMove = getNewMove(C.who, C.where, this.occupiedNowConfig.get(C.who));
+                    if (!this.constraintsSet.accepts(newMove)) {
+                        return null;
+                    }
                 }
-
                 this.occupiedNextConfig.put(C.who, C.where);
                 C = C.parent;
             }
@@ -628,9 +627,11 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
                 }
 
                 // check that low-level do not conflict with problem constraints.
-                Move newMove = getNewMove(C.who, nextLocation, currentLocation);
-                if (needToCheckConflicts() && !this.instanceConstraints.accepts(newMove)) {
-                    return null;
+                if (needToCheckConflicts() && this.needToHandleConstraints) {
+                    Move newMove = getNewMove(C.who, nextLocation, currentLocation);
+                    if (!this.constraintsSet.accepts(newMove)) {
+                        return null;
+                    }
                 }
                 this.occupiedNextConfig.put(C.who, C.where);
                 C = C.parent;
@@ -709,11 +710,12 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
                     if (nextLocation.equals(otherAgentLocation)) {
                         // same agent, needs to stay in current location
                         if (otherAgent.equals(currentAgent)) {
-
-                            // check that low-level do not conflict with problem conflicts.
-                            Move newMove = getNewMove(currentAgent, nextLocation, currentLocation);
-                            if (needToCheckConflicts() && (!this.instanceConstraints.accepts(newMove)) || this.instanceConstraints.lastRejectionTime(newMove) != -1) {
-                                break;
+                            // check that low-level do not conflict with problem constraints.
+                            if (needToCheckConflicts() && this.needToHandleConstraints) {
+                                Move newMove = getNewMove(currentAgent, nextLocation, currentLocation);
+                                if ((!this.constraintsSet.accepts(newMove)) || this.constraintsSet.lastRejectionTime(newMove) != -1) {
+                                    break;
+                                }
                             }
                             this.occupiedNextConfig.put(currentAgent, nextLocation);
                             return true;
@@ -729,9 +731,11 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
                     && this.occupiedNextConfig.get(occupyingAgent).equals(currentLocation)) continue;
 
             // check constraints
-            Move newMove = getNewMove(currentAgent, nextLocation, currentLocation);
-            if (needToCheckConflicts() && !this.instanceConstraints.accepts(newMove)) {
-                continue;
+            if (needToCheckConflicts() && this.needToHandleConstraints) {
+                Move newMove = getNewMove(currentAgent, nextLocation, currentLocation);
+                if (!this.constraintsSet.accepts(newMove)) {
+                    continue;
+                }
             }
 
             // reserve next location
@@ -744,11 +748,16 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
             if (!this.occupiedNextConfig.containsKey(occupyingAgent) && !solvePIBT(occupyingAgent, currentAgent)) {
                 continue;
             }
-
             // success to plan next one step
             return true;
         }
-
+        // stay in current location if no other option available
+        if (needToCheckConflicts() && this.needToHandleConstraints) {
+            Move newMove = getNewMove(currentAgent, this.occupiedNowConfig.get(currentAgent), this.occupiedNowConfig.get(currentAgent));
+            if (this.constraintsSet.accepts(newMove)) {
+                this.occupiedNextConfig.put(currentAgent, currentLocation);
+            }
+        }
         return false;
     }
 
@@ -792,7 +801,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         this.exploredWithExternalConstraints = null;
         this.heuristic = null;
         this.agents = null;
-        this.solverConstraints = null;
+        this.constraintsSet = null;
         this.instance = null;
         this.occupiedNowConfig = null;
         this.occupiedNextConfig = null;
