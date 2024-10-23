@@ -53,6 +53,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     protected int problemStartTime;
     protected int expandedNodes;
     private int generatedNodes;
+    private int numRegeneratedNodes;
     /**
      * Maximum allowed f value ({@link SingleAgentPlan} cost). Will stop and return null if proved that it cannot be found.
      */
@@ -135,6 +136,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         this.expandedNodes = 0;
         this.generatedNodes = 0;
+        this.numRegeneratedNodes = 0;
     }
 
     /*  = A* algorithm =  */
@@ -302,6 +304,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         if(instanceReport != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.expandedNodes);
             instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.generatedNodes);
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.regeneratedNodesLowLevel, this.numRegeneratedNodes);
         }
     }
 
@@ -391,7 +394,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         protected void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
             // decide which state to keep, seeing as how they are both equal and in open.
-            openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
+            AStarState dropped = openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
+            if (dropped == existingState){
+                SingleAgentAStar_Solver.this.numRegeneratedNodes++;
+            }
         }
 
         /**
