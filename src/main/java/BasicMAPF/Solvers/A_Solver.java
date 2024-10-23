@@ -31,6 +31,7 @@ public abstract class A_Solver implements I_Solver{
     protected long endTime;
     protected boolean abortedForTimeout;
     protected int totalLowLevelNodesGenerated;
+    protected int totalLowLevelNodesRegenerated;
     protected int totalLowLevelNodesExpanded;
     protected int totalLowLevelTimeMS;
     protected int totalLowLevelCalls;
@@ -87,6 +88,7 @@ public abstract class A_Solver implements I_Solver{
         this.generatedNodes = 0;
 
         this.totalLowLevelNodesGenerated = 0;
+        this.totalLowLevelNodesRegenerated = 0;
         this.totalLowLevelNodesExpanded = 0;
         this.totalLowLevelTimeMS = 0;
         this.totalLowLevelCalls = 0;
@@ -105,6 +107,8 @@ public abstract class A_Solver implements I_Solver{
     protected void digestSubproblemReport(InstanceReport subproblemReport) {
         Integer statesGenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
         this.totalLowLevelNodesGenerated += statesGenerated==null ? 0 : statesGenerated;
+        Integer statesRegenerated = subproblemReport.getIntegerValue(InstanceReport.StandardFields.regeneratedNodesLowLevel);
+        this.totalLowLevelNodesRegenerated += statesRegenerated==null ? 0 : statesRegenerated;
         Integer statesExpanded = subproblemReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
         this.totalLowLevelNodesExpanded += statesExpanded==null ? 0 : statesExpanded;
         Integer totalLowLevelTimeMS = subproblemReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
@@ -147,6 +151,7 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS, this.totalLowLevelTimeMS);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.totalLowLevelNodesGenerated);
         instanceReport.putFloatValue(InstanceReport.StandardFields.generationRateLowLevel,(float) this.totalLowLevelNodesGenerated / ((float) (this.totalLowLevelTimeMS) / 1000f));
+        instanceReport.putIntegerValue(InstanceReport.StandardFields.regeneratedNodesLowLevel, this.totalLowLevelNodesRegenerated);
         instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.totalLowLevelNodesExpanded);
         instanceReport.putFloatValue(InstanceReport.StandardFields.expansionRateLowLevel, (float) this.totalLowLevelNodesExpanded / ((float) (this.totalLowLevelTimeMS) / 1000f));
         instanceReport.putIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls, this.totalLowLevelCalls);
