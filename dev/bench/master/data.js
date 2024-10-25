@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729835954322,
+  "lastUpdate": 1729835955406,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -13652,6 +13652,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 449.35294,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b6955b88594350f9a76feb69067d3f5bab0c4467",
+          "message": "Shorten tests and add LaCAM to benchmark (#94)\n\n* add LaCAM to the performance benchmark\r\n\r\n* shorten unit tests",
+          "timestamp": "2024-10-25T16:23:47+11:00",
+          "tree_id": "8ef3d9b6bda9c7fc0a4969af43fe78a8621facf3",
+          "url": "https://github.com/J-morag/MAPF/commit/b6955b88594350f9a76feb69067d3f5bab0c4467"
+        },
+        "date": 1729835955126,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 5,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 71487.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 1580,
             "unit": "Milliseconds"
           },
           {
