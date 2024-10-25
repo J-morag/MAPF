@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729829924872,
+  "lastUpdate": 1729829926683,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -16192,6 +16192,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 1030.3059,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 396247.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aa3bc8038cdc38941bfdd9ee2a68ae483cd122c3",
+          "message": "v0.02.0 (#92)\n\n* add PCS tie breaking for smaller MDDs\r\n* Canonize testing benchmark and comparative diverse test functions\r\n* add Config static class\r\n* add debug and info to command line args\r\n* remove I_SolutionCostFunction.addCommonCostsToReport from CBS\r\n* Add support for new instance format with arbitrary graphs\r\n* performance: instant location lookup in GraphBasedGridMap\r\n* return GenericRunManager to default solvers (prioritized planning and CBS)\r\n* change PriorityConstrainedSearch to use PCSCompTieBreakSmallerMDDs by default\r\n* Fix comparative test averages reporting\r\n* add RunParametersBuilder copy function\r\n* consolidate more reporting and metrics in A_Solver\r\n* workaround for LaCAMStar_Solver nodes counting\r\n* fix typos in InstanceReport.StandardFields \r\n* switch CBS_Solver to using the builder pattern",
+          "timestamp": "2024-10-25T14:35:26+11:00",
+          "tree_id": "b5b37e5baaf04f28c252f20a69d2e671539b6674",
+          "url": "https://github.com/J-morag/MAPF/commit/aa3bc8038cdc38941bfdd9ee2a68ae483cd122c3"
+        },
+        "date": 1729829926034,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 964.61176,
             "unit": "Milliseconds"
           },
           {
