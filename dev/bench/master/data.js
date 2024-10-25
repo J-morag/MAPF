@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729842419171,
+  "lastUpdate": 1729842420417,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -25671,6 +25671,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
             "value": 6042508.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "900fe56557dc22da59e34cb82ff035d09a0834c6",
+          "message": "v0.06.0 (#96)\n\n* Add low level expansion/generation rate, and add all rates to A_RunManager output (\"log\" files)\r\n\r\n* add generation and expansion rates for low-level\r\n\r\n* simplify (and optimize?) TieBreakingForLessConflictsAndHigherG\r\n\r\n* lacam constraints support\r\n\r\n* Add regenerated nodes metric. Low level only.\r\n\r\n* simplify Move.equals",
+          "timestamp": "2024-10-25T18:05:03+11:00",
+          "tree_id": "53b2eddd6ea90c050d365e76f97eb20a65817f1b",
+          "url": "https://github.com/J-morag/MAPF/commit/900fe56557dc22da59e34cb82ff035d09a0834c6"
+        },
+        "date": 1729842420023,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 11606.353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 10186.647,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 6082884,
             "unit": "Expansions"
           }
         ]
