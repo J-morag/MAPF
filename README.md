@@ -28,6 +28,7 @@ The default instance format is from the [MovingAI benchmark](https://movingai.co
 Modify the `Main.java` file to run your experiment. Examples are provided in the `ExampleMain.java` file.
 
 ## News
+* 2024-10-25: Added Config class, support for loading arbitrary graphs instance format. Added various small performance and usability improvements/fixes.
 * 2024-07: Added LaCAM algorithm
 * 2024-04: Added PCS algorithm
   
