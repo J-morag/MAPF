@@ -6,14 +6,12 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public interface I_ConstraintSet {
 
-    Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet();
+    Map<I_Location, ArrayList<Constraint>> getLocationConstraintsTimeSorted();
+
     Map<I_Location, GoalConstraint> getGoalConstraints();
 
     boolean isSharedGoals();
@@ -30,8 +28,6 @@ public interface I_ConstraintSet {
      * @return the time of the last constraint. If it is a goal constraint (infinite), return the time when it starts
      */
     int getLastConstraintStartTime();
-
-    void add(Set<Constraint> constraintSet, Constraint constraint);
 
     void add(Constraint constraint);
 
@@ -133,15 +129,6 @@ public interface I_ConstraintSet {
      * @param maxTime the maximum time (exclusive).
      */
     void trimToTimeRange(int minTime, int maxTime);
-
-    /**
-     * Find the last time when the agent is prevented from being at its goal.
-     *
-     * @param target the agent's target.
-     * @param agent  the agent.
-     * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
-     */
-    int lastRejectAt(I_Location target, Agent agent);
 
     /**
      * Creates constraints to protect a {@link SingleAgentPlan plan}.

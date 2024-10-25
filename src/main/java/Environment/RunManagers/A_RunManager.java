@@ -1,5 +1,9 @@
 package Environment.RunManagers;
 
+import BasicMAPF.CostFunctions.Makespan;
+import BasicMAPF.CostFunctions.MakespanServiceTime;
+import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.I_Solver;
@@ -99,16 +103,25 @@ public abstract class A_RunManager {
         // output (only the following fields) to csv while running
         try {
             Metrics.setHeader(new String[]{
+                    InstanceReport.StandardFields.solver,
                     InstanceReport.StandardFields.experimentName,
                     InstanceReport.StandardFields.mapName,
                     InstanceReport.StandardFields.instanceName,
                     InstanceReport.StandardFields.numAgents,
-                    InstanceReport.StandardFields.solver,
+                    InstanceReport.StandardFields.elapsedTimeMS,
+                    InstanceReport.StandardFields.timeoutThresholdMS,
                     InstanceReport.StandardFields.solved,
                     InstanceReport.StandardFields.valid,
-                    InstanceReport.StandardFields.elapsedTimeMS,
-                    InstanceReport.StandardFields.solutionCost,
                     InstanceReport.StandardFields.solution,
+                    InstanceReport.StandardFields.solutionCost,
+                    InstanceReport.StandardFields.solutionCostFunction,
+                    SumOfCosts.NAME,
+                    Makespan.NAME,
+                    SumServiceTimes.NAME,
+                    MakespanServiceTime.NAME,
+                    MakespanServiceTime.NAME,
+                    InstanceReport.StandardFields.expandedNodes,
+                    InstanceReport.StandardFields.generatedNodes,
                     InstanceReport.StandardFields.startDateTime,
                     InstanceReport.StandardFields.processorInfo,
             });

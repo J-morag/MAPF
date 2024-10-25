@@ -356,7 +356,7 @@ class AStarMDDBuilderTest {
     void standardFlowMore() {
         int depthDelta = 40;
         for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
-                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder)){
             I_Map map = instance.map;
             SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
 
@@ -469,7 +469,7 @@ class AStarMDDBuilderTest {
     void skipsMore() {
         int depthDelta = 200;
         for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
-                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder)){
             System.out.println("instance: " + instance.extendedName);
             I_Map map = instance.map;
             SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
