@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729835955406,
+  "lastUpdate": 1729835956793,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -24749,6 +24749,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "Priority Constrained Search - Average Expansions Low Level",
             "value": 1893533.4,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "LaCAM Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b6955b88594350f9a76feb69067d3f5bab0c4467",
+          "message": "Shorten tests and add LaCAM to benchmark (#94)\n\n* add LaCAM to the performance benchmark\r\n\r\n* shorten unit tests",
+          "timestamp": "2024-10-25T16:23:47+11:00",
+          "tree_id": "8ef3d9b6bda9c7fc0a4969af43fe78a8621facf3",
+          "url": "https://github.com/J-morag/MAPF/commit/b6955b88594350f9a76feb69067d3f5bab0c4467"
+        },
+        "date": 1729835956523,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "LaCAM - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "LaCAM - Average Cost",
+            "value": 52888.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "LaCAM - Average Runtime",
+            "value": 6209,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LaCAM - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LaCAM - Average Expansions High Level",
+            "value": 2494.4119,
+            "unit": "Expansions"
+          },
+          {
+            "name": "LaCAM - Average Expansions Low Level",
+            "value": 541226.5,
             "unit": "Expansions"
           }
         ]
