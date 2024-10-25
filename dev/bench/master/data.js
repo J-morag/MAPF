@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729829916486,
+  "lastUpdate": 1729829918061,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -6643,6 +6643,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 41282.234,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aa3bc8038cdc38941bfdd9ee2a68ae483cd122c3",
+          "message": "v0.02.0 (#92)\n\n* add PCS tie breaking for smaller MDDs\r\n* Canonize testing benchmark and comparative diverse test functions\r\n* add Config static class\r\n* add debug and info to command line args\r\n* remove I_SolutionCostFunction.addCommonCostsToReport from CBS\r\n* Add support for new instance format with arbitrary graphs\r\n* performance: instant location lookup in GraphBasedGridMap\r\n* return GenericRunManager to default solvers (prioritized planning and CBS)\r\n* change PriorityConstrainedSearch to use PCSCompTieBreakSmallerMDDs by default\r\n* Fix comparative test averages reporting\r\n* add RunParametersBuilder copy function\r\n* consolidate more reporting and metrics in A_Solver\r\n* workaround for LaCAMStar_Solver nodes counting\r\n* fix typos in InstanceReport.StandardFields \r\n* switch CBS_Solver to using the builder pattern",
+          "timestamp": "2024-10-25T14:35:26+11:00",
+          "tree_id": "b5b37e5baaf04f28c252f20a69d2e671539b6674",
+          "url": "https://github.com/J-morag/MAPF/commit/aa3bc8038cdc38941bfdd9ee2a68ae483cd122c3"
+        },
+        "date": 1729829917404,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 12,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4351.4,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 22023,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 10851.765,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 41291.94,
             "unit": "Expansions"
           }
         ]
