@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729840024222,
+  "lastUpdate": 1729840025479,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -25019,6 +25019,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "Priority Constrained Search - Average Expansions Low Level",
             "value": 1893533.4,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee62693dcaf48ff590d2b39e27c1d286031e43ff",
+          "message": "v0.05.0 (#95)\n\n* ConstraintSet fix sharedGoals and add lastTimeToConsiderConstraints\r\n\r\n* remove completely unnecessary iteration over ConstraintSet.goalConstraints\r\n\r\n* ConstraintSet improve sharedGoals implementation and prepare ignoreConstraintsAfterTime field\r\n\r\n* fix shared goals check (was ruining TMAPF)\r\n\r\n* implement lastTimeToConsiderConstraints\r\n\r\n* Add non transient pibt\r\n\r\n* print test names when they start\r\n\r\n* don't expect to solve all in PrioritisedPlanningSolverTest.TestingBenchmark\r\n\r\n* implement setLastTimeToConsiderConstraints\r\n\r\n* add completeness verification to comparative test\r\n\r\n* refactor and clean PrioritisedPlanning_Solver and RestartsStrategy\r\n\r\n* fix PPR*\r\n\r\n* add checking H in PrP to stop attempts earlier when possible\r\n\r\n* fix tests and PrP's time to first solution (PrP) reporting",
+          "timestamp": "2024-10-25T17:25:13+11:00",
+          "tree_id": "d05e6c67a62d003a8af4135cbd0c2ada2422e832",
+          "url": "https://github.com/J-morag/MAPF/commit/ee62693dcaf48ff590d2b39e27c1d286031e43ff"
+        },
+        "date": 1729840025064,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Priority Constrained Search - Fails",
+            "value": 5,
+            "unit": "Instances"
+          },
+          {
+            "name": "Priority Constrained Search - Average Cost",
+            "value": 1857.6666,
+            "unit": "SOC"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime",
+            "value": 11262,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions High Level",
+            "value": 11196.177,
+            "unit": "Expansions"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions Low Level",
+            "value": 1864452.5,
             "unit": "Expansions"
           }
         ]
