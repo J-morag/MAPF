@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729834031359,
+  "lastUpdate": 1729834032387,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -16732,6 +16732,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 964.41174,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 396247.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fffa078b8122ee04426101195b51728d235eef06",
+          "message": "v0.03.0 (#93)\n\n* remove uses of test instance with shared target\r\n\r\n* remove unused run managers\r\n\r\n* fix \"arbitrary graph\" example instances\r\n\r\n* add important fields to \"log\" results header\r\n\r\n* Improve ConstraintSet lastRejectionTime performance \r\n\r\n* reduce ConstraintSet to use just the new locationConstraintsTimeSorted data structure \r\nAlso includes two related bug fixes:\r\n1. ConstraintSet.trimToTimeRange was ignoring goal constraints.\r\n1.1. Made it clear that maxTime is exclusive\r\n2. SingleAgentAStarSIPP_Solver was examining the regular constraints when creating the safe intervals, where it should have been using goal constraints! Probably still worked only because of checking constraints again in the AStar loop.\r\n\r\n* add warning for combining shared goals and TMAPF",
+          "timestamp": "2024-10-25T15:44:51+11:00",
+          "tree_id": "adeee23c824b2cef28d70f99298f3184c78a2541",
+          "url": "https://github.com/J-morag/MAPF/commit/fffa078b8122ee04426101195b51728d235eef06"
+        },
+        "date": 1729834032083,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 286.1647,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 824.2941,
             "unit": "Milliseconds"
           },
           {
