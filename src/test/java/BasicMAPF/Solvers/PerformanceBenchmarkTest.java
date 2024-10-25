@@ -27,7 +27,9 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -40,6 +42,11 @@ import static BasicMAPF.TestUtils.addRandomConstraints;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PerformanceBenchmarkTest {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     public void CBSStressTest() {
@@ -77,7 +84,7 @@ public class PerformanceBenchmarkTest {
     @Test
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 9, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 100;
@@ -94,7 +101,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void PIBTStressTest() {
-        I_Solver solver = new PIBT_Solver(null, null);
+        I_Solver solver = new PIBT_Solver(null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);

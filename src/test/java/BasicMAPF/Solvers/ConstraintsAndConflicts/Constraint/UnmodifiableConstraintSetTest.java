@@ -13,7 +13,9 @@ import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.MapFactory;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +23,17 @@ import java.util.Random;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Agents.agent53to15;
+import static BasicMAPF.TestConstants.Coordiantes.coor34;
+import static BasicMAPF.TestConstants.Coordiantes.coor43;
 import static BasicMAPF.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UnmodifiableConstraintSetTest {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     void AStarAndSIPPLargeNumberOfConstraintsWithInfiniteConstraintsBig(){
@@ -58,7 +67,7 @@ class UnmodifiableConstraintSetTest {
                 I_ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < mapDim; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, mapDim);

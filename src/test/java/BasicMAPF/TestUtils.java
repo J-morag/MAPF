@@ -280,8 +280,8 @@ public class TestUtils {
      * This contains diverse instances, comparing the performance of two algorithms.
      */
     public static void comparativeTest(I_Solver baselineSolver, String nameBaseline, boolean isOptimalBaseline,
-                                I_Solver competitorSolver, String nameExperimental, boolean isOptimalExperimental,
-                                int[] agentNums, int timeoutSeconds, int rerunsWithShuffledAgents){
+                                       boolean isCompleteBaseline, I_Solver competitorSolver, String nameExperimental, boolean isOptimalExperimental,
+                                       boolean isCompleteExperimental, int[] agentNums, int timeoutSeconds, int rerunsWithShuffledAgents){
         Metrics.clearAll();
         boolean useAsserts = true;
 
@@ -296,8 +296,8 @@ public class TestUtils {
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int solvedByBoth = 0;
-        int runtimeBaseline = 0;
-        int runtimeExperimental = 0;
+        int sumRuntimeBaseline = 0;
+        int sumRuntimeExperimental = 0;
         int sumCostBaseline = 0;
         int sumCostExperimental = 0;
         int sumHighLevelExpandedBaselineOnAll = 0;
@@ -400,10 +400,35 @@ public class TestUtils {
                 System.out.print(nameExperimental + " expanded nodes: " + highLevelExpandedExperimental + " ; ");
                 System.out.printf(nameExperimental + " expansion rate: %.2f\n", highLevelExpansionRateExperimental);
 
+                int runtimeBaseline = reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                int runtimeExperimental = reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+
+                if (isCompleteBaseline && !baselineSolved){
+                    if (runtimeBaseline < timeout){
+                        System.out.println(nameBaseline + " is complete and proved " + instance.extendedName + " unsolvable in " + runtimeBaseline + "ms");
+                        if (experimentalSolved){
+                            System.out.println("but " + nameExperimental + " solved it!");
+                            if (useAsserts)
+                                assertFalse(experimentalSolved);
+                        }
+                    }
+
+                }
+                if (isCompleteExperimental && !experimentalSolved){
+                    if (runtimeExperimental < timeout){
+                        System.out.println(nameExperimental + " is complete and proved " + instance.extendedName + " unsolvable in " + runtimeExperimental + "ms");
+                        if (baselineSolved){
+                            System.out.println("but " + nameBaseline + " solved it!");
+                            if (useAsserts)
+                                assertFalse(baselineSolved);
+                        }
+                    }
+                }
+
                 if(solutionBaseline != null && solutionExperimental != null){
                     // runtimes
-                    runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-                    runtimeExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+                    sumRuntimeBaseline += runtimeBaseline;
+                    sumRuntimeExperimental += runtimeExperimental;
                     reportBaseline.putIntegerValue("Runtime Delta",
                             reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
                                     - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
@@ -458,7 +483,7 @@ public class TestUtils {
         }
 
         outputResults(timeout, nameBaseline, nameExperimental, solvedByBaseline, solvedByExperimental,
-                sumHighLevelExpandedExperimentalOnAll, runtimeBaseline, runtimeExperimental, sumCostBaseline,
+                sumHighLevelExpandedExperimentalOnAll, sumRuntimeBaseline, sumRuntimeExperimental, sumCostBaseline,
                 sumCostExperimental, sumHighLevelExpandedExperimentalOnSolved, sumHighLevelExpandedBaselineOnAll,
                 sumHighLevelExpandedBaselineOnSolved, sumHighLevelExpansionRateOnSolvedBaseline,
                 sumHighLevelExpansionRateOnSolvedExperimental, solvedByBoth);

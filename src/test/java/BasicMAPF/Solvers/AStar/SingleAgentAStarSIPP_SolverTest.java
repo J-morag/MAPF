@@ -23,10 +23,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -77,6 +74,11 @@ class SingleAgentAStarSIPP_SolverTest {
     I_Solver sipp = new SingleAgentAStarSIPP_Solver();
 
     InstanceReport instanceReport;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
@@ -235,7 +237,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 1, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 1, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -286,7 +288,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 2, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 2, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -311,7 +313,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 3, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 3, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -443,7 +445,7 @@ class SingleAgentAStarSIPP_SolverTest {
                 ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < 5; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
@@ -543,7 +545,7 @@ class SingleAgentAStarSIPP_SolverTest {
                 ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < 5; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
@@ -655,7 +657,7 @@ class SingleAgentAStarSIPP_SolverTest {
                 ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < mapDim; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, mapDim);

@@ -7,6 +7,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import Environment.Metrics.InstanceReport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +49,11 @@ class SingleAgentPlanTest {
     private SingleAgentPlan emptyPlanAgent1;
     private SingleAgentPlan existingPlanAgent1;
     private SingleAgentPlan existingPlanAgent2;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {

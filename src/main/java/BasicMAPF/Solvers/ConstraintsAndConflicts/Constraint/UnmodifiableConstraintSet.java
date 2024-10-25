@@ -3,7 +3,6 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +46,16 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     @Override
     public void setSharedSources(boolean sharedSources) {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
+    }
+
+    @Override
+    public void setLastTimeToConsiderConstraints(int lastTimeToConsiderConstraints) {
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
+    }
+
+    @Override
+    public int getLastTimeToConsiderConstraints() {
+        return constraintSet.getLastTimeToConsiderConstraints();
     }
 
     @Override
@@ -105,18 +114,18 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     }
 
     @Override
-    public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.lastRejectionTime(finalMove, checkOtherAgentsLastMoves);
+    public int lastRejectionTime(Move finalMove) {
+        return constraintSet.lastRejectionTime(finalMove);
     }
 
     @Override
-    public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.firstRejectionTime(finalMove, checkOtherAgentsLastMoves);
+    public int firstRejectionTime(Move finalMove) {
+        return constraintSet.firstRejectionTime(finalMove);
     }
 
     @Override
-    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.acceptsForever(finalMove, checkOtherAgentsLastMoves);
+    public boolean acceptsForever(Move finalMove) {
+        return constraintSet.acceptsForever(finalMove);
     }
 
     @Override
@@ -127,11 +136,6 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     @Override
     public boolean acceptsAll(Collection<? extends Move> moves) {
         return constraintSet.acceptsAll(moves);
-    }
-
-    @Override
-    public void trimToTimeRange(int minTime, int maxTime) {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
     }
 
     @Override

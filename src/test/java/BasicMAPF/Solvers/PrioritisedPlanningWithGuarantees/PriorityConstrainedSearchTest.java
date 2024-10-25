@@ -2,28 +2,14 @@ package BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees;
 
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.TestUtils;
-import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.*;
+import org.junit.jupiter.api.*;
 
 import static BasicMAPF.TestConstants.Agents.agent43to53;
 import static BasicMAPF.TestConstants.Agents.agent55to34;
@@ -32,7 +18,6 @@ import static BasicMAPF.TestConstants.Coordiantes.coor33;
 import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestConstants.Maps.mapCircle;
 import static BasicMAPF.TestConstants.Maps.mapWithPocket;
-import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PriorityConstrainedSearchTest {
@@ -42,6 +27,11 @@ class PriorityConstrainedSearchTest {
     I_Solver PCSSolver = new PCSBuilder().createPCS();
 
     InstanceReport instanceReport;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
@@ -147,8 +137,8 @@ class PriorityConstrainedSearchTest {
 
         I_Solver competitorSolver = PCSSolver;
         String nameExperimental = competitorSolver.name();
-        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, competitorSolver,
-                nameExperimental, true, new int[]{15}, 3, 4);
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, true, true, new int[]{15}, 3, 4);
     }
 
     @Test
@@ -158,8 +148,8 @@ class PriorityConstrainedSearchTest {
 
         I_Solver competitorSolver = new PCSBuilder().setPCSHeuristic(new PCSHeuristicSIPP()).createPCS();
         String nameExperimental = "PCSSIPP";
-        TestUtils.comparativeTest(baselineSolver, nameBaseline, true, competitorSolver,
-                nameExperimental, true, new int[]{15}, 3, 1);
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, true, true, competitorSolver,
+                nameExperimental, true, true, new int[]{15}, 3, 1);
     }
 
 }

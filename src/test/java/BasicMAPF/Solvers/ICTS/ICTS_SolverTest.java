@@ -16,6 +16,7 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Instances.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,8 +30,8 @@ class ICTS_SolverTest {
     I_Solver ictsSolver = new ICTS_Solver();
 
     @BeforeEach
-    void setUp() {
-
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
     }
 
     void validate(Solution solution, int numAgents, int optimalSOC, int optimalMakespan, MAPF_Instance instance){
@@ -109,8 +110,8 @@ class ICTS_SolverTest {
         I_Solver icts = new ICTS_Solver();
         String nameExperimental = "ICTS";
 
-        TestUtils.comparativeTest(cbs, nameBaseline, true, icts, nameExperimental,
-                true, new int[]{10}, 10, 0);
+        TestUtils.comparativeTest(cbs, nameBaseline, true, false, icts, nameExperimental,
+                true, false, new int[]{10}, 10, 0);
     }
 
 }

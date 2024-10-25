@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
@@ -36,4 +37,12 @@ public interface SingleAgentGAndH {
      * @return whether this is a consistent heuristic
      */
     boolean isConsistent();
+
+    default int cost(SingleAgentPlan planForAgent){
+        int res = 0;
+        for (Move move : planForAgent) {
+            res += cost(move);
+        }
+        return res;
+    }
 }

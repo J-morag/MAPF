@@ -15,11 +15,14 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static BasicMAPF.TestConstants.Agents.*;
+import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordiantes.coor12;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Instances.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +34,10 @@ public class PIBT_SolverTest {
     private final MAPF_Instance instanceAgentsInterruptsEachOther = new MAPF_Instance("instanceAgentsInterruptsEachOther", mapWithPocket, new Agent[]{agent43to53, agent55to34});
 
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
-    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+    private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
+
+    I_Solver PIBTt_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, TransientMAPFSettings.defaultTransientMAPF);
+    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null);
 
     long timeout = 10*1000;
 
@@ -51,7 +57,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -64,7 +70,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapAgentsWithTheSameGoal() {
         MAPF_Instance testInstance = instanceEmptySameTarget;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -72,12 +78,15 @@ public class PIBT_SolverTest {
         assertEquals(8, solved.sumIndividualCosts());
         assertEquals(4, solved.makespan());
         assertEquals(5 , solved.sumServiceTimes());
+
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertNull(solvedByPIBT);
     }
 
     @Test
     void emptyMapValidityTest2() {
         MAPF_Instance testInstance = instanceEmpty2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -90,7 +99,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapHarderValidityTest1() {
         MAPF_Instance testInstance = instanceEmptyHarder;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -99,7 +108,7 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -112,21 +121,25 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBTt);
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        assertEquals(14, solvedByPIBTt.sumIndividualCosts());
+        assertEquals(7, solvedByPIBTt.makespan());
+        assertEquals(10 , solvedByPIBTt.sumServiceTimes());
 
-        System.out.println(solved);
-        assertTrue(solved.solves(testInstance));
-
-        assertEquals(14, solved.sumIndividualCosts());
-        assertEquals(7, solved.makespan());
-        assertEquals(10 , solved.sumServiceTimes());
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBT);
+        assertTrue(solvedByPIBT.solves(testInstance));
+        assertEquals(18, solvedByPIBT.sumIndividualCosts());
+        assertEquals(11, solvedByPIBT.makespan());
     }
 
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = Metrics.newInstanceReport();
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
         System.out.println(solved);
@@ -136,20 +149,24 @@ public class PIBT_SolverTest {
     @Test
     void instanceAgentsInterruptsEachOtherTest() {
         MAPF_Instance testInstance = instanceAgentsInterruptsEachOther;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBTt);
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        assertEquals(10, solvedByPIBTt.sumIndividualCosts());
+        assertEquals(5, solvedByPIBTt.makespan());
+        assertEquals(6 , solvedByPIBTt.sumServiceTimes());
 
-        System.out.println(solved);
-        assertTrue(solved.solves(testInstance));
-
-        assertEquals(10, solved.sumIndividualCosts());
-        assertEquals(5, solved.makespan());
-        assertEquals(6 , solved.sumServiceTimes());
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBT);
+        assertTrue(solvedByPIBT.solves(testInstance));
+        assertEquals(12, solvedByPIBT.sumIndividualCosts());
+        assertEquals(7, solvedByPIBT.makespan());
     }
 
 
     @Test
     void TestingBenchmark(){
-        TestUtils.TestingBenchmark(PIBT_Solver, 5, false, false);
+        TestUtils.TestingBenchmark(PIBTt_Solver, 5, false, false);
     }
 
     @Test
@@ -158,18 +175,18 @@ public class PIBT_SolverTest {
                 null, new RestartsStrategy(), null, null, null);
         String namePrP = PrPSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null);
         String namePIBT = PIBT_Solver.name();
 
-        TestUtils.comparativeTest(PrPSolver, namePrP, false, PIBT_Solver, namePIBT,
-                false, new int[]{100}, 10, 0);
+        TestUtils.comparativeTest(PrPSolver, namePrP, false, false, PIBT_Solver, namePIBT,
+                false, false, new int[]{100}, 10, 0);
     }
 
 
     @Test
     void unsolvableMultipleInheritanceTest() {
         MAPF_Instance testInstance = instanceMultipleInheritance;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         assertNull(solved);
     }
@@ -177,7 +194,7 @@ public class PIBT_SolverTest {
     @Test
     void unsolvableLoopDetection() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         assertNull(solved);
     }
@@ -192,7 +209,7 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
         constraints.add(constraint2);
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
@@ -213,7 +230,7 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -227,18 +244,23 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapValidityInfiniteConstraintTest() {
         MAPF_Instance testInstance = instanceEmpty;
-
         I_Coordinate coor02 = new Coordinate_2D(1,2);
         Constraint constraint1 = new Constraint(agent33to12, 10, mapEmpty.getMapLocation(coor02));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-        System.out.println(solved);
-        assertTrue(solved.solves(testInstance));
-        assertEquals(27, solved.sumIndividualCosts());
-        assertEquals(8, solved.makespan());
-        assertEquals(22 , solved.sumServiceTimes());
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBTt);
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        assertEquals(29, solvedByPIBTt.sumIndividualCosts());
+        assertEquals(10, solvedByPIBTt.makespan());
+        assertEquals(22 , solvedByPIBTt.sumServiceTimes());
+
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBT);
+        assertTrue(solvedByPIBT.solves(testInstance));
+        assertEquals(30, solvedByPIBT.sumIndividualCosts());
+        assertEquals(11, solvedByPIBT.makespan());
     }
 
     @Test
@@ -253,20 +275,45 @@ public class PIBT_SolverTest {
         constraints.add(constraint1);
         constraints.add(constraint2);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
-        assertEquals(16, solved.sumIndividualCosts());
-        assertEquals(8, solved.makespan());
+        assertEquals(20, solved.sumIndividualCosts());
+        assertEquals(10, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
     }
-    private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
+
     @Test
     void agentsNeedToSwapReturnNullTest() {
         MAPF_Instance testInstance = instanceAgentsNeedsToSwapLocations;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solved);
+    }
+
+    @Test
+    void transientExample() {
+        Agent agent1 = new Agent(0, coor10, coor13, 1);
+        Agent agent2 = new Agent(1, coor11, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
+
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        System.out.println(solvedByPIBTt);
+    }
+
+    @Test
+    void corridorSolvedOnlyByTransient() {
+        Agent agent1 = new Agent(0, coor00, coor03, 1);
+        Agent agent2 = new Agent(1, coor01, coor02, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapCorridor, new Agent[]{agent1, agent2});
+
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        System.out.println(solvedByPIBTt);
+
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertNull(solvedByPIBT);
     }
 }

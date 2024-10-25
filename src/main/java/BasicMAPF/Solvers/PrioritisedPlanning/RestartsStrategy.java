@@ -10,65 +10,64 @@ import java.util.Objects;
  */
 public class RestartsStrategy {
 
-    public enum RestartsKind{
-        randomRestarts, deterministicRescheduling, AStarRestarts, none
+    public enum reorderingStrategy {
+        randomRestarts, deterministicRescheduling, none
     }
 
     /**
      * How to perform restarts in the initial phase.
      */
-    public final RestartsKind initialRestarts;
+    public final reorderingStrategy initialRestarts;
 
     /**
-     * How many random restarts to perform initially. Will reorder the agents and re-plan this many times. will return the best solution found.
-     * Total number of initial runs will be this + 1, or less if a timeout occurs (may still return a valid solution when that happens).
+     * positive. Will try to do at least this number of attempts, unless interrupted.
      */
-    public final int numInitialRestarts;
+    public final int minAttempts;
 
     /**
      * How to perform restarts in the contingency that no solution is found in the initial phase.
      */
-    public final RestartsKind contingencyRestarts;
+    public final reorderingStrategy contingencyRestarts;
 
     /**
-     * @param initialRestarts how to do initial restarts
-     * @param numInitialRestarts non negative
-     * @param contingencyRestarts how to do restarts if no solution found
+     * Whether to randomize the A* search.
      */
-    public RestartsStrategy(RestartsKind initialRestarts, Integer numInitialRestarts, RestartsKind contingencyRestarts) {
-        if (numInitialRestarts != null && numInitialRestarts < 0){
-            throw new IllegalArgumentException("numInitialRestarts must be non negative.");
+    public final boolean randomizeAStar;
+
+    /**
+     * @param initialRestarts     how to do initial restarts
+     * @param minAttempts non-negative. Will try to do at least this number of attempts, unless interrupted.
+     * @param contingencyRestarts how to do restarts if no solution found
+     * @param randomizeAStar whether to randomize the A* search.
+     */
+    public RestartsStrategy(reorderingStrategy initialRestarts, Integer minAttempts, reorderingStrategy contingencyRestarts, Boolean randomizeAStar) {
+        if (minAttempts != null && minAttempts < 1){
+            throw new IllegalArgumentException("minAttempts must be non negative.");
         }
 
-        this.initialRestarts = Objects.requireNonNullElse(initialRestarts, RestartsKind.none);
-        this.numInitialRestarts = Objects.requireNonNullElse(numInitialRestarts, 0);
-        this.contingencyRestarts = Objects.requireNonNullElse(contingencyRestarts, RestartsKind.none);
+        this.initialRestarts = Objects.requireNonNullElse(initialRestarts, reorderingStrategy.none);
+        this.minAttempts = Objects.requireNonNullElse(minAttempts, 1);
+        this.contingencyRestarts = Objects.requireNonNullElse(contingencyRestarts, reorderingStrategy.none);
+        this.randomizeAStar = Objects.requireNonNullElse(randomizeAStar, false);
 
-        if ((this.initialRestarts == RestartsKind.none && this.numInitialRestarts > 0) ||
-                (this.initialRestarts != RestartsKind.none && this.numInitialRestarts == 0)){
+        if ((this.initialRestarts == reorderingStrategy.none && !this.randomizeAStar && this.minAttempts > 1 ) ||
+                ( (this.initialRestarts != reorderingStrategy.none || this.randomizeAStar) && this.minAttempts == 1)){
             throw new IllegalArgumentException("initial restarts kind and number must make sense together.");
         }
 
     }
-    /**
-     * @param initialRestarts how to do initial restarts
-     * @param numInitialRestarts non negative
-     */
-    public RestartsStrategy(RestartsKind initialRestarts, Integer numInitialRestarts) {
-        this(initialRestarts, numInitialRestarts, null);
-    }
 
     public RestartsStrategy() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
     public boolean hasInitial(){
         // also enough to check just one because constructor enforces they make sense.
-        return this.numInitialRestarts > 0 && this.initialRestarts != RestartsKind.none;
+        return this.minAttempts > 1 && this.initialRestarts != reorderingStrategy.none;
     }
 
     public boolean hasContingency(){
-        return this.contingencyRestarts != RestartsKind.none;
+        return this.contingencyRestarts != reorderingStrategy.none;
     }
 
     public boolean isNoRestarts(){
@@ -77,9 +76,22 @@ public class RestartsStrategy {
 
     @Override
     public String toString() {
-        return  initialRestarts +
-                " x" + numInitialRestarts +
-                (contingencyRestarts != RestartsKind.none ? " + " + contingencyRestarts : "")
-                ;
+        StringBuilder sb = new StringBuilder();
+        if (minAttempts < Integer.MAX_VALUE){
+            sb.append("min. ").append(minAttempts).append(" attempts");
+        }
+        if (hasInitial()){
+            if (!sb.isEmpty()){
+                sb.append(", ");
+            }
+            sb.append("initial reorderings: ").append(initialRestarts);
+        }
+        if (hasContingency()){
+            if (!sb.isEmpty()){
+                sb.append(", ");
+            }
+            sb.append("contingency reorderings: ").append(contingencyRestarts);
+        }
+        return sb.toString();
     }
 }

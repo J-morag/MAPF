@@ -3,6 +3,7 @@ package Environment.Metrics;
 import Environment.IO_Package.IO_Manager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +15,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 class MetricsTest {
 
     private static final String outputFile = IO_Manager.buildPath(new String[]{   IO_Manager.testResources_Directory, "S_MetricsTest.csv"});
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {

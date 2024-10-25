@@ -18,6 +18,8 @@ import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
@@ -55,6 +57,11 @@ public class LaCAM_SolverTest {
     long timeout = 10*1000;
 
     InstanceReport instanceReport;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
@@ -170,7 +177,7 @@ public class LaCAM_SolverTest {
     @Test
     void treeShapedMapTest() {
         MAPF_Instance testInstance = instanceTreeShapedMap;
-        I_Solver pibt = new PIBT_Solver( null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -185,7 +192,7 @@ public class LaCAM_SolverTest {
     @Test
     void goalsInCornersMapTest() {
         MAPF_Instance testInstance = instanceCornersShapedMap;
-        I_Solver pibt = new PIBT_Solver( null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -200,7 +207,7 @@ public class LaCAM_SolverTest {
     @Test
     void tunnelShapedMapTest() {
         MAPF_Instance testInstance = instanceTunnelShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -215,7 +222,7 @@ public class LaCAM_SolverTest {
     @Test
     void stringShapedMapTest() {
         MAPF_Instance testInstance = instanceStringShapedMap;
-        I_Solver pibt = new PIBT_Solver(null, null);
+        I_Solver pibt = new PIBT_Solver(null, null, null);
         Solution solvedPIBT = pibt.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         assertNull(solvedPIBT);
         Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -262,11 +269,11 @@ public class LaCAM_SolverTest {
         I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
         String nameLaCAM = LaCAMSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, null, null);
         String namePIBT = PIBT_Solver.name();
 
-        TestUtils.comparativeTest(PIBT_Solver, namePIBT, false, LaCAMSolver, nameLaCAM,
-                false, new int[]{100}, 5, 0);
+        TestUtils.comparativeTest(PIBT_Solver, namePIBT, false, false, LaCAMSolver, nameLaCAM,
+                false, false, new int[]{100}, 5, 0);
     }
 
     @Test
@@ -311,7 +318,7 @@ public class LaCAM_SolverTest {
         I_Solver LaCAMStar_Solver = new LaCAMStar_Solver(null, null);
         String nameLaCAMStar = LaCAMStar_Solver.name();
 
-        TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, LaCAMStar_Solver, nameLaCAMStar,
-                false, new int[]{100}, 10, 0);
+        TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, false, LaCAMStar_Solver, nameLaCAMStar,
+                false, true, new int[]{100}, 10, 0);
     }
 }

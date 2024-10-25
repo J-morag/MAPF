@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.util.*;
 
@@ -74,6 +75,11 @@ class SingleAgentAStar_SolverTest {
     @BeforeEach
     void setUp() {
         instanceReport = Metrics.newInstanceReport();
+    }
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
     }
 
     @AfterEach
@@ -229,7 +235,7 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 1, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 1, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -280,7 +286,7 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 2, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 2, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -305,7 +311,7 @@ class SingleAgentAStar_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 3, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 3, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();

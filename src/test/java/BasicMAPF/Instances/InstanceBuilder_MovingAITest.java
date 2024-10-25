@@ -4,7 +4,10 @@ import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.MapDimensions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +16,11 @@ import java.util.List;
 public class InstanceBuilder_MovingAITest {
 
     InstanceBuilder_MovingAI instanceBuilder_movingAI = new InstanceBuilder_MovingAI();
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
 
     @Test
