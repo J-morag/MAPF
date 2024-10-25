@@ -46,20 +46,12 @@ public class Move {
         return this.timeNow + ":" + this.prevLocation.getCoordinate() + "->" + this.currLocation.getCoordinate();
     }
 
-    /**
-     * Ignores the {@link #agent} field.
-     */
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Move move)) return false;
 
-        Move move = (Move) o;
-
-        if (timeNow != move.timeNow) return false;
-        if (!prevLocation.equals(move.prevLocation)) return false;
-        return currLocation.equals(move.currLocation);
-
+        return timeNow == move.timeNow && prevLocation.equals(move.prevLocation) && currLocation.equals(move.currLocation);
     }
 
     /**

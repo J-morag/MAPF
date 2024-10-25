@@ -31,6 +31,8 @@ public class LaCAM_SolverTest {
 
     private final MAPF_Instance exampleInstance = new MAPF_Instance("exampleInstance", mapTwoWallsSmall, new Agent[]{agent00to02, agent02to00});
     private final MAPF_Instance instanceEmptyEasy = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent04to00});
+
+    private final MAPF_Instance instanceEmptyThreeAgents = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent33to12, agent04to00, agent21to43});
     private final MAPF_Instance instanceEmptyHarder = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]
             {agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, agent00to10, agent55to34, agent34to32, agent31to14, agent40to02});
 
@@ -85,8 +87,6 @@ public class LaCAM_SolverTest {
     @Test
     void emptyMapValidityWithEasyConstraint() {
         MAPF_Instance testInstance = instanceEmptyEasy;
-        I_Coordinate coor13 = new Coordinate_2D(1,3);
-        I_Coordinate coor02 = new Coordinate_2D(0,2);
         Constraint constraint1 = new Constraint(agent33to12, 2, mapEmpty.getMapLocation(coor13));
         Constraint constraint2 = new Constraint(agent04to00, 2, mapEmpty.getMapLocation(coor02));
         Constraint constraint3 = new Constraint(agent33to12, 4, mapEmpty.getMapLocation(coor12));
@@ -101,6 +101,20 @@ public class LaCAM_SolverTest {
         assertTrue(solved.solves(testInstance));
     }
 
+    @Test
+    void emptyMapValidityWithInfiniteAndRegularConstraints() {
+        MAPF_Instance testInstance = instanceEmptyThreeAgents;
+        Constraint constraint1 = new Constraint(agent33to12, 1, mapEmpty.getMapLocation(coor23));
+        Constraint constraint2 = new Constraint(agent04to00, 4, mapEmpty.getMapLocation(coor00));
+        Constraint constraint3 = new Constraint(agent21to43, 12, mapEmpty.getMapLocation(coor43));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraint1);
+        constraints.add(constraint2);
+        constraints.add(constraint3);
+        Solution solved = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solved);
+        assertTrue(solved.solves(testInstance));
+    }
 
     @Test
     void exampleTestLaCAMStar() {
@@ -266,7 +280,7 @@ public class LaCAM_SolverTest {
 
     @Test
     void compareBetweenPIBTAndLaCAMTest(){
-        I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
+        I_Solver LaCAMSolver = new LaCAMBuilder().createLaCAM();
         String nameLaCAM = LaCAMSolver.name();
 
         I_Solver PIBT_Solver = new PIBT_Solver(null, null, null);
@@ -278,7 +292,7 @@ public class LaCAM_SolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver LaCAMt = new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLaCAM();
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -295,7 +309,7 @@ public class LaCAM_SolverTest {
 
     @Test
     void transientExample() {
-        I_Solver LaCAMt = new LaCAM_Solver(new SumServiceTimes(),  TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver LaCAMt = new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLaCAM();
         Agent agent1 = new Agent(0, coor10, coor13, 1);
         Agent agent2 = new Agent(1, coor11, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
@@ -312,7 +326,7 @@ public class LaCAM_SolverTest {
 
     @Test
     void compareBetweenLaCAMStarAndLaCAMTest(){
-        I_Solver LaCAMSolver = new LaCAM_Solver(null, null);
+        I_Solver LaCAMSolver = new LaCAMBuilder().createLaCAM();
         String nameLaCAM = LaCAMSolver.name();
 
         I_Solver LaCAMStar_Solver = new LaCAMStar_Solver(null, null);

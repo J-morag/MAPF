@@ -79,4 +79,5 @@ public class Agents {
     public final static Agent agent02to30 = new Agent(serialID++, coor02, coor30);
     public final static Agent agent04to30 = new Agent(serialID++, coor04, coor30);
     public final static Agent agent43to32 = new Agent(serialID++, coor43, coor32);
+    public final static Agent agent21to43 = new Agent(serialID++, coor21, coor43);
 }

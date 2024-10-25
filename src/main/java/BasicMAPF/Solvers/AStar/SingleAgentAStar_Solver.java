@@ -53,6 +53,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     protected int problemStartTime;
     protected int expandedNodes;
     private int generatedNodes;
+    private int numRegeneratedNodes;
     /**
      * Maximum allowed f value ({@link SingleAgentPlan} cost). Will stop and return null if proved that it cannot be found.
      */
@@ -135,6 +136,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         this.expandedNodes = 0;
         this.generatedNodes = 0;
+        this.numRegeneratedNodes = 0;
     }
 
     /*  = A* algorithm =  */
@@ -302,6 +304,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         if(instanceReport != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.expandedNodes);
             instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.generatedNodes);
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.regeneratedNodesLowLevel, this.numRegeneratedNodes);
         }
     }
 
@@ -391,7 +394,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         protected void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
             // decide which state to keep, seeing as how they are both equal and in open.
-            openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
+            AStarState dropped = openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
+            if (dropped == existingState){
+                SingleAgentAStar_Solver.this.numRegeneratedNodes++;
+            }
         }
 
         /**
@@ -489,12 +495,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
      * For sorting the open list.
      */
     private static class TieBreakingForLessConflictsAndHigherG implements Comparator<AStarState>{
-
-        private static final Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
-
         @Override
         public int compare(AStarState o1, AStarState o2) {
-            if(Math.abs(o1.getF() - o2.getF()) < 0.1){ // floats are equal
+            float fCompared = o1.getF() - o2.getF();
+            if(Math.abs(fCompared) < 0.1){ // floats are equal
                 // if f() value is equal, we consider the state with less conflicts to be better.
                 if(o1.conflicts == o2.conflicts){
                     // if equal in conflicts, we break ties for higher g. Therefore, we want to return a negative
@@ -513,7 +517,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 }
             }
             else {
-                return fComparator.compare(o1, o2);
+                return fCompared > 0 ? 1 : -1;
             }
         }
     }
@@ -538,7 +542,6 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 else{
                     return o1.conflicts - o2.conflicts; // less conflicts is better
                 }
-
             }
             else {
                 return o1.g - o2.g; //lower g is better
