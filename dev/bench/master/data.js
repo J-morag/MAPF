@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729840033722,
+  "lastUpdate": 1729842415414,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3563,6 +3563,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 2762858,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "900fe56557dc22da59e34cb82ff035d09a0834c6",
+          "message": "v0.06.0 (#96)\n\n* Add low level expansion/generation rate, and add all rates to A_RunManager output (\"log\" files)\r\n\r\n* add generation and expansion rates for low-level\r\n\r\n* simplify (and optimize?) TieBreakingForLessConflictsAndHigherG\r\n\r\n* lacam constraints support\r\n\r\n* Add regenerated nodes metric. Low level only.\r\n\r\n* simplify Move.equals",
+          "timestamp": "2024-10-25T18:05:03+11:00",
+          "tree_id": "53b2eddd6ea90c050d365e76f97eb20a65817f1b",
+          "url": "https://github.com/J-morag/MAPF/commit/900fe56557dc22da59e34cb82ff035d09a0834c6"
+        },
+        "date": 1729842414290,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 10,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3893.2856,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 18665.588,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 3469.8235,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 6167.4707,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 2736691,
             "unit": "Expansions"
           }
         ]
