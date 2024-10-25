@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729829921398,
+  "lastUpdate": 1729829923196,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -9831,6 +9831,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 13936262,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aa3bc8038cdc38941bfdd9ee2a68ae483cd122c3",
+          "message": "v0.02.0 (#92)\n\n* add PCS tie breaking for smaller MDDs\r\n* Canonize testing benchmark and comparative diverse test functions\r\n* add Config static class\r\n* add debug and info to command line args\r\n* remove I_SolutionCostFunction.addCommonCostsToReport from CBS\r\n* Add support for new instance format with arbitrary graphs\r\n* performance: instant location lookup in GraphBasedGridMap\r\n* return GenericRunManager to default solvers (prioritized planning and CBS)\r\n* change PriorityConstrainedSearch to use PCSCompTieBreakSmallerMDDs by default\r\n* Fix comparative test averages reporting\r\n* add RunParametersBuilder copy function\r\n* consolidate more reporting and metrics in A_Solver\r\n* workaround for LaCAMStar_Solver nodes counting\r\n* fix typos in InstanceReport.StandardFields \r\n* switch CBS_Solver to using the builder pattern",
+          "timestamp": "2024-10-25T14:35:26+11:00",
+          "tree_id": "b5b37e5baaf04f28c252f20a69d2e671539b6674",
+          "url": "https://github.com/J-morag/MAPF/commit/aa3bc8038cdc38941bfdd9ee2a68ae483cd122c3"
+        },
+        "date": 1729829922554,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 8719.267,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30003.176,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 28779.883,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 12093971,
             "unit": "Expansions"
           }
         ]
