@@ -3,16 +3,10 @@ package Environment.RunManagers;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSHeuristicDefault;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSHeuristicSIPP;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PriorityConstrainedSearch;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
@@ -50,37 +44,15 @@ public class GenericRunManager extends A_RunManager {
     @Override
     void setSolvers() {
         // TODO modular solvers?
-//        if (solversOverride != null){
-//            super.solvers = solversOverride;
-//            return;
-//        }
-//        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
-//                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
-//                null, null, null));
+        if (solversOverride != null){
+            super.solvers = solversOverride;
+            return;
+        }
+        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.randomRestarts),
+                null, null, null));
 
-        super.solvers.add(new CBS_Solver());
-
-        PrioritisedPlanning_Solver pp = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.none, 0, RestartsStrategy.RestartsKind.none),
-                null, null, null);
-        pp.name = "PP-no-restarts";
-        super.solvers.add(pp);
-
-        PrioritisedPlanning_Solver ppRandomAStar = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.AStarRestarts, 10000000, RestartsStrategy.RestartsKind.none),
-                null, null, null);
-        ppRandomAStar.name = "PP-rand-AStar";
-        super.solvers.add(ppRandomAStar);
-
-        PriorityConstrainedSearch pcs = new PCSBuilder().setUseSimpleMDDCache(true).setMDDCacheDepthDeltaMax(1)
-                .setUsePartialGeneration(true).setPCSHeuristic(new PCSHeuristicDefault()).createPCS();
-        pcs.name = "PCS";
-        super.solvers.add(pcs);
-
-        PriorityConstrainedSearch PCS_SIPPH = new PCSBuilder().setUseSimpleMDDCache(true).setMDDCacheDepthDeltaMax(1)
-                .setUsePartialGeneration(true).setPCSHeuristic(new PCSHeuristicSIPP()).createPCS();
-        PCS_SIPPH.name = "PCS_SIPPH";
-        super.solvers.add(PCS_SIPPH);
+        super.solvers.add(new CBSBuilder().createCBS_Solver());
     }
 
     public void overrideSolvers(@NotNull List<I_Solver> solvers){

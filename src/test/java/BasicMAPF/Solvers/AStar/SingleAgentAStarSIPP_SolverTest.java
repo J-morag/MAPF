@@ -8,7 +8,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
@@ -1086,15 +1086,13 @@ class SingleAgentAStarSIPP_SolverTest {
     }
 
     @Test
-    void comparativeDiverseTest(){
+    void comparativeTest(){
         Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver regularCBS = new CBS_Solver(null, null, null,
-                null, null, false, null, null, null);
+        I_Solver regularCBS = new CBSBuilder().setUseCorridorReasoning(false).createCBS_Solver();
         String nameBaseline = "regularCBS";
-        I_Solver singleAgentSippCBS = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null, null,
-                null, null, false, null, null, null);
+        I_Solver singleAgentSippCBS = new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).setUseCorridorReasoning(false).createCBS_Solver();
         String nameExperimental = "singleAgentSippCBS";
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
@@ -1115,7 +1113,7 @@ class SingleAgentAStarSIPP_SolverTest {
             // run baseline (without the improvement)
             //build report
             InstanceReport reportBaseline = Metrics.newInstanceReport();
-            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, "regularCBS");
@@ -1128,7 +1126,7 @@ class SingleAgentAStarSIPP_SolverTest {
             // run experimentl (with the improvement)
             //build report
             InstanceReport reportExperimental = Metrics.newInstanceReport();
-            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, "singleAgentSippCBS");

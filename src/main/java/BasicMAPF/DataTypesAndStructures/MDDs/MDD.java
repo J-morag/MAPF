@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.SwappingConflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.VertexConflict;
+import Environment.Config;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,9 +18,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class MDD {
-    private static final int DEBUG = 1;
     private MDDNode start;
     private MDDNode goal;
+    private int numNodes;
     /**
      * Allows random access to MDD levels. The first index is the depth.
      * The second index is sorted on the natural ordering of the nodes.
@@ -35,6 +36,8 @@ public class MDD {
     public MDD(@NotNull MDDNode start, @NotNull MDDNode goal){
         this.start = start;
         this.goal = goal;
+        initializeUpToLevel(getDepth());
+        this.numNodes = levels.stream().mapToInt(List::size).sum();
         verifyIntegrity(null, null);
     }
 
@@ -92,6 +95,7 @@ public class MDD {
         else {
             this.start = newMDDStartNode;
             this.goal = goalCopy;
+            this.numNodes = collectedNodes.size();
         }
 
         verifyIntegrity(constraints, null);
@@ -105,7 +109,7 @@ public class MDD {
     }
 
     /**
-     * Copy (deep) with constraint.
+     * Copy with constraint.
      */
     public MDD shallowCopyWithConstraint(@NotNull Constraint constraint, boolean isPositiveConstraint) {
         if (!isPositiveConstraint){
@@ -128,7 +132,7 @@ public class MDD {
             int constraintStartDepth = constraint.prevLocation != null ? constraint.time-1 : constraint.time; // assumes depth := time
             MDDNode constraintStartNodeCopy = constraint.prevLocation != null ?
                     new MDDNode(constraint.prevLocation, constraintStartDepth, constraint.agent) : constraintEndNodeShallowCopy;
-            if (DEBUG >= 2 && Collections.binarySearch(getLevel(constraintStartDepth), constraintStartNodeCopy) < 0){
+            if (Config.DEBUG >= 2 && Collections.binarySearch(getLevel(constraintStartDepth), constraintStartNodeCopy) < 0){
                 throw new IllegalStateException("constraintStartNodeCopy" + constraintStartNodeCopy + " not found in level " + constraintStartDepth + " of " + this);
             }
 
@@ -209,11 +213,13 @@ public class MDD {
             }
             currentLevel.addAll(previousLevel.values());
         }
-        this.start = currentLevel.poll();
 
+        this.start = currentLevel.poll();
         if (this.start.getDepth() != 0){
             throw new IllegalStateException("MDD start node has depth " + this.start.getDepth() + " instead of 0");
         }
+
+        this.numNodes = mddNodesToSearchNodes.size();
     }
 
     public MDDNode getStart() {
@@ -418,7 +424,7 @@ public class MDD {
     }
 
     public void verifyIntegrity(@Nullable I_ConstraintSet negativeConstraints, @Nullable Constraint positiveConstraint) {
-        if (DEBUG >= 2 && getDepth() != -1){
+        if (Config.DEBUG >= 2 && getDepth() != -1){
             for (int i = 0; i < getDepth(); i++) {
                 List<MDDNode> level = getLevel(i);
                 for (MDDNode node : level) {
@@ -434,7 +440,7 @@ public class MDD {
                     if (! plan.getLastMove().currLocation.equals(this.getGoal().getLocation())){
                         throw new IllegalStateException("MDD goal is " + this.getGoal().getLocation() + " but plan for agent " + getAgent() + " ends at " + plan.getLastMove().currLocation + ": " + this);
                     }
-                    if (DEBUG >= 3){
+                    if (Config.DEBUG >= 3){
                         // all neighbors are in the next level
                         for (MDDNode neighbor : node.getNeighbors()) {
                             if (Collections.binarySearch(getLevel(i+1), neighbor) < 0){
@@ -517,5 +523,9 @@ public class MDD {
             }
         }
         return ! constraintsRejectStayingAtTargetForever(constraints, goal);
+    }
+
+    public int numNodes() {
+        return numNodes;
     }
 }

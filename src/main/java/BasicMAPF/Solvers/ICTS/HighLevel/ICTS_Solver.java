@@ -39,10 +39,6 @@ public class ICTS_Solver extends A_Solver {
     public boolean copyMddsBeforeEnhancedPruning = true;
     private AgentFilterPredicate agentFilterPredicate = new AgentFilterPredicate();
 
-    private int expandedHighLevelNodes;
-    private int generatedHighLevelNodes;
-    // these count the number of nodes expanded/generated when building MDDs, merged MDDs, and searching merged MDD search space.
-
     public ICTS_Solver(ICT_NodeComparator comparator, I_MDDSearcherFactory searcherFactory, I_MergedMDDSolver mergedMDDSolver,
                        PruningStrategy pruningStrategy, I_MergedMDDCreator mergedMDDCreator) {
         this.comparator = Objects.requireNonNullElseGet(comparator, ICT_NodeSumOfCostsComparator::new);
@@ -65,8 +61,6 @@ public class ICTS_Solver extends A_Solver {
         // We don't need both contents of open and closed list, since when we expand we always get nodes not in closed.
         // We only need to make sure we don't pop a closed node from open, and contents of open makes sure of that.
 //        closedList = createClosedList();
-        expandedHighLevelNodes = 0;
-        generatedHighLevelNodes = 0;
         heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
         this.mddManager = new MDDManager(searcherFactory, super.getTimeout(), heuristic);
         this.instance = instance;
@@ -87,7 +81,7 @@ public class ICTS_Solver extends A_Solver {
 
         while (!openList.isEmpty() && !checkTimeout()) {
             ICT_Node current = pollFromOpen();
-            expandedHighLevelNodes++;
+            expandedNodes++;
             // we want copies of agent MDDs if we use enhanced pruning, because we would like to trim them as part of the pruning
             Map<Agent, MDD> agentMdds = getMDDs(instance, current);
             if (agentMdds == null) {
@@ -217,9 +211,6 @@ public class ICTS_Solver extends A_Solver {
         super.writeMetricsToReport(solution);
         super.totalLowLevelNodesExpanded += mddManager.getExpandedNodesNum();
         super.totalLowLevelNodesGenerated += mddManager.getGeneratedNodesNum();
-        super.instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodes, this.generatedHighLevelNodes);
-        super.instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodes, this.expandedHighLevelNodes);
-        super.instanceReport.putStringValue(InstanceReport.StandardFields.solver, name());
         if(solution != null){
             super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
@@ -261,7 +252,7 @@ public class ICTS_Solver extends A_Solver {
 
     private void addToOpen(ICT_Node node) {
         if (!contentOfOpen.contains(node)) {
-            generatedHighLevelNodes++;
+            generatedNodes++;
             openList.add(node);
             contentOfOpen.add(node);
         }

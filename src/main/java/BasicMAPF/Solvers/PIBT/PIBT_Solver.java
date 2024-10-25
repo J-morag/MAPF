@@ -14,6 +14,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuris
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.NotNull;
@@ -80,8 +81,6 @@ public class PIBT_Solver extends A_Solver {
      */
     public Integer problemStartTime;
 
-    private static final int DEBUG = 0;
-
     /**
      * Set who saves lists of agent's locations - configurations, as lists.
      * The use of this set is to detect loops.
@@ -142,7 +141,7 @@ public class PIBT_Solver extends A_Solver {
                 currentConfiguration.add(this.currentLocations.get(agent));
             }
             if (this.configurations.contains(currentConfiguration)) {
-                if (DEBUG >= 2){
+                if (Config.DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
                 return null;
@@ -434,6 +433,15 @@ public class PIBT_Solver extends A_Solver {
     }
 
     @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        if(solution != null){
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
+            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+        }
+    }
+
+    @Override
     protected void releaseMemory() {
         super.releaseMemory();
         this.agentPlans = null;
@@ -442,14 +450,5 @@ public class PIBT_Solver extends A_Solver {
         this.priorities = null;
         this.takenNodes = null;
         this.unhandledAgents = null;
-    }
-
-    @Override
-    protected void writeMetricsToReport(Solution solution) {
-        super.writeMetricsToReport(solution);
-        if(solution != null){
-            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
-            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-        }
     }
 }

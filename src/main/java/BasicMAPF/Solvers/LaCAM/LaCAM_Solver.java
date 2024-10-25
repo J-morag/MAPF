@@ -62,10 +62,6 @@ public class LaCAM_Solver extends A_Solver {
     protected I_ConstraintSet solverConstraints;
 
     protected MAPF_Instance instance;
-
-    protected int highLevelNodesCounter;
-
-    protected int lowLevelNodesCounter;
     protected int failedToFindConfigCounter;
     protected long totalTimeFindConfigurations;
 
@@ -102,8 +98,6 @@ public class LaCAM_Solver extends A_Solver {
         this.explored = new HashMap<>();
         this.goalConfiguration = new HashMap<>();
         this.agents = new HashMap<>();
-        this.highLevelNodesCounter = 0;
-        this.lowLevelNodesCounter = 0;
         this.failedToFindConfigCounter = 0;
         this.totalTimeFindConfigurations = 0;
         this.instance = instance;
@@ -183,7 +177,7 @@ public class LaCAM_Solver extends A_Solver {
 
                 for (I_Location location : locations) {
                     LowLevelNode C_new = new LowLevelNode(C, chosenAgent, location);
-                    this.lowLevelNodesCounter++;
+                    this.totalLowLevelNodesExpanded++;
                     N.tree.add(C_new);
                 }
             }
@@ -264,7 +258,7 @@ public class LaCAM_Solver extends A_Solver {
                 N_new.reachedGoalsMap.put(agent, true);
             }
         }
-        this.highLevelNodesCounter++;
+        this.expandedNodes++;
         this.open.push(N_new);
         this.explored.put(newConfiguration, N_new);
     }
@@ -275,7 +269,7 @@ public class LaCAM_Solver extends A_Solver {
      */
     protected LowLevelNode initNewLowLevelNode() {
         LowLevelNode C_init = new LowLevelNode(null, null, null);
-        this.lowLevelNodesCounter++;
+        this.totalLowLevelNodesExpanded++;
         return C_init;
     }
 
@@ -285,7 +279,7 @@ public class LaCAM_Solver extends A_Solver {
      */
     protected HighLevelNode initNewHighLevelNode(HashMap<Agent, I_Location> configuration, LowLevelNode root,ArrayList<Agent> order, HashMap<Agent, Float> priorities, HighLevelNode parent) {
         HighLevelNode N_init = new HighLevelNode(configuration, root, order, priorities, parent);
-        this.highLevelNodesCounter++;
+        this.expandedNodes++;
         return N_init;
     }
 
@@ -595,6 +589,18 @@ public class LaCAM_Solver extends A_Solver {
     }
 
     @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        instanceReport.putIntegerValue("# failed configs", this.failedToFindConfigCounter);
+        instanceReport.putFloatValue("Time in configs", (float) this.totalTimeFindConfigurations);
+        instanceReport.putIntegerValue("# of improve visits", this.improveVisitsCounter);
+        if(solution != null){
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
+            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+        }
+    }
+
+    @Override
     protected void releaseMemory() {
         super.releaseMemory();
         this.open = null;
@@ -602,19 +608,5 @@ public class LaCAM_Solver extends A_Solver {
         this.heuristic = null;
         this.goalConfiguration = null;
         this.agents = null;
-    }
-
-    @Override
-    protected void writeMetricsToReport(Solution solution) {
-        super.writeMetricsToReport(solution);
-        instanceReport.putIntegerValue("Expanded Nodes (High Level)", this.highLevelNodesCounter);
-        instanceReport.putIntegerValue("Expanded Nodes (Low Level)", this.lowLevelNodesCounter);
-        instanceReport.putIntegerValue("# of failed config", this.failedToFindConfigCounter);
-        instanceReport.putFloatValue("Time in config", (float) this.totalTimeFindConfigurations);
-        instanceReport.putIntegerValue("# of improve visits", this.improveVisitsCounter);
-        if(solution != null){
-            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
-            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-        }
     }
 }
