@@ -111,10 +111,6 @@ public class LifelongSimulationSolver extends A_Solver {
     private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
     private final Integer selectionLookaheadLength;
-    private int totalAStarNodesGenerated;
-    private int totalAStarNodesExpanded;
-    private int totalAStarRuntimeMS;
-    private int totalAStarCalls;
     private int totalAgentsWaitedForDestinationCapacity;
     private int totalFailPlansInterrupted;
 
@@ -187,10 +183,6 @@ public class LifelongSimulationSolver extends A_Solver {
             this.maxTimeSteps = tmpForDefaults.maxTimeSteps;
         }
         this.partialSolutionsStrategy.resetState(this.random);
-        totalAStarNodesGenerated = 0;
-        totalAStarNodesExpanded = 0;
-        totalAStarRuntimeMS = 0;
-        totalAStarCalls = 0;
         totalAgentsWaitedForDestinationCapacity = 0;
         totalFailPlansInterrupted = 0;
     }
@@ -782,24 +774,12 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     protected void digestSubproblemReport(InstanceReport subproblemInstanceReport, MAPF_Instance timelyOfflineProblem) {
-        if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof CBS_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
-            Integer AStarNodesGenerated = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
-            this.totalAStarNodesGenerated += AStarNodesGenerated == null ? 0 : AStarNodesGenerated;
-            Integer AStarNodesExpanded = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-            this.totalAStarNodesExpanded += AStarNodesExpanded == null ? 0 : AStarNodesExpanded;
-            Integer AStarRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
-            this.totalAStarRuntimeMS += AStarRuntime == null ? 0 : AStarRuntime;
-            Integer AStarCalls = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls);
-            this.totalAStarCalls += AStarCalls == null ? 0 : AStarCalls;
-        }
+        super.digestSubproblemReport(subproblemInstanceReport);
 
-        Integer offlineSolverRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-        super.totalLowLevelTimeMS += offlineSolverRuntime == null ? 0 : offlineSolverRuntime;
         Integer offlineSolverGeneratedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
-        super.totalLowLevelNodesGenerated += offlineSolverGeneratedNodes == null ? 0 : offlineSolverGeneratedNodes;
+        super.generatedNodes += offlineSolverGeneratedNodes == null ? 0 : offlineSolverGeneratedNodes;
         Integer offlineSolverExpandedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
-        super.totalLowLevelNodesExpanded += offlineSolverExpandedNodes == null ? 0 : offlineSolverExpandedNodes;
-        super.totalLowLevelCalls++;
+        super.expandedNodes += offlineSolverExpandedNodes == null ? 0 : offlineSolverExpandedNodes;
 
         if (this.offlineSolver instanceof  PrioritisedPlanning_Solver){
             int numAgents = timelyOfflineProblem.agents.size();
@@ -854,12 +834,6 @@ public class LifelongSimulationSolver extends A_Solver {
                     (float) (sumIterationsOver100Agents / numSamplesOver100Agents));
             super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", numSamplesOver200Agents == 0 ? 0 :
                     (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
-        }
-        if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof CBS_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
-            super.instanceReport.putIntegerValue("totalAStarNodesGenerated", this.totalAStarNodesGenerated);
-            super.instanceReport.putIntegerValue("totalAStarNodesExpanded", this.totalAStarNodesExpanded);
-            super.instanceReport.putIntegerValue("totalAStarRuntimeMS", this.totalAStarRuntimeMS);
-            super.instanceReport.putIntegerValue("totalAStarCalls", this.totalAStarCalls);
         }
 
         LifelongSolution lifelongSolution = ((LifelongSolution)solution);
