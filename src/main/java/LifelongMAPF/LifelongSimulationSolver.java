@@ -89,6 +89,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private float avgReachedIndexInPlanningFractionMetric;
     private List<int[]> numAgentsAndNumIterationsMetric;
     private int numPlanningIterations;
+    private int totalOfflineSolverRuntimeMS;
     private CachingDistanceTableHeuristic cachingDistanceTableHeuristic;
     private int numDestinationsAchieved;
     /**
@@ -157,6 +158,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.avgFailedAgentsAfterPolicyMetric = 0;
         this.numAgentsAndNumIterationsMetric = new ArrayList<>();
         this.numPlanningIterations = 0;
+        this.totalOfflineSolverRuntimeMS = 0;
         this.numDestinationsAchieved = 0;
 
         this.agentsActiveDestinationStartTimes = new HashMap<>();
@@ -774,12 +776,21 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     protected void digestSubproblemReport(InstanceReport subproblemInstanceReport, MAPF_Instance timelyOfflineProblem) {
-        super.digestSubproblemReport(subproblemInstanceReport);
+        Integer statesGenerated = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
+        super.totalLowLevelNodesGenerated += statesGenerated==null ? 0 : statesGenerated;
+        Integer statesExpanded = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+        super.totalLowLevelNodesExpanded += statesExpanded==null ? 0 : statesExpanded;
+        Integer totalLowLevelTimeMS = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+        super.totalLowLevelTimeMS += totalLowLevelTimeMS==null ? 0 : totalLowLevelTimeMS;
+        Integer lowLevelCalls = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls);
+        super.totalLowLevelCalls += lowLevelCalls==null ? 0 : lowLevelCalls;
 
         Integer offlineSolverGeneratedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
         super.generatedNodes += offlineSolverGeneratedNodes == null ? 0 : offlineSolverGeneratedNodes;
         Integer offlineSolverExpandedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
         super.expandedNodes += offlineSolverExpandedNodes == null ? 0 : offlineSolverExpandedNodes;
+        int offlineSolverRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        this.totalOfflineSolverRuntimeMS += offlineSolverRuntime;
 
         if (this.offlineSolver instanceof  PrioritisedPlanning_Solver){
             int numAgents = timelyOfflineProblem.agents.size();
@@ -798,6 +809,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
         super.instanceReport.putIntegerValue("reachedTimestepInPlanning", this.reachedTimestepInPlanning);
         super.instanceReport.putIntegerValue("numPlanningIterations", this.numPlanningIterations);
+        super.instanceReport.putIntegerValue("totalOfflineSolverRuntimeMS", this.totalOfflineSolverRuntimeMS);
         super.instanceReport.putFloatValue("avgGroupSize", this.avgGroupSizeMetric);
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPlanning", this.avgFailedAgentsAfterPlanningMetric);
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPolicy", this.avgFailedAgentsAfterPolicyMetric);
