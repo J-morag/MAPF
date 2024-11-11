@@ -39,8 +39,8 @@ public class LifelongPerformanceBenchmarkTest {
 
     @Test
     public void StressTest() {
-        runStressTestWithSolver(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5());
-        runStressTestWithSolver(LifelongSolversFactory.Avoid5ASFP_Cap18_Timeout1p5());
+//        runStressTestWithSolver(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5());
+//        runStressTestWithSolver(LifelongSolversFactory.Avoid5ASFP_Cap18_Timeout1p5());
         runStressTestWithSolver(LifelongSolversFactory.PIBT_h10());
     }
 
@@ -53,7 +53,7 @@ public class LifelongPerformanceBenchmarkTest {
         int countSolved = 0;
         int countFailed = 0;
         int runtime = 0;
-        int runtimeLowLevel = 0;
+        int runtimeOfflineSolverLevel = 0;
         int expansionsHighLevel = 0;
         int expansionsLowLevel = 0;
         int sumThroughput = 0;
@@ -90,7 +90,7 @@ public class LifelongPerformanceBenchmarkTest {
                 // runtimes
                 runtime += report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
                 System.out.println(nameSolver + " runtime: " + report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
-                runtimeLowLevel += report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+                runtimeOfflineSolverLevel += report.getIntegerValue("totalOfflineSolverRuntimeMS");
                 System.out.println(nameSolver + " runtime low level: " + report.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS));
 
                 // expansions
@@ -114,7 +114,7 @@ public class LifelongPerformanceBenchmarkTest {
 
         long timeoutS = TIMEOUT/1000;
         float avgRuntime = runtime/(float)countSolved;
-        float avgRuntimeLowLevel = runtimeLowLevel/(float)countSolved;
+        float avgRuntimeLowLevel = runtimeOfflineSolverLevel/(float)countSolved;
         float avgExpansionsHighLevel = expansionsHighLevel/(float)countSolved;
         float avgExpansionsLowLevel = expansionsLowLevel/(float)countSolved;
         float avgThroughput = sumThroughput/(float)countSolved;
@@ -125,7 +125,7 @@ public class LifelongPerformanceBenchmarkTest {
         System.out.println("totals (solved instances) :");
         System.out.println(nameSolver + " avg. throughputAtT300: " + avgThroughput);
         System.out.println(nameSolver + " avg. time (ms): " + avgRuntime);
-        System.out.println(nameSolver + " avg. time low level  (ms): " + avgRuntimeLowLevel);
+        System.out.println(nameSolver + " avg. time offline solver  (ms): " + avgRuntimeLowLevel);
         System.out.println(nameSolver + " avg. expansions high level: " + avgExpansionsHighLevel);
         System.out.println(nameSolver + " avg. expansions low level: " + avgExpansionsLowLevel);
 
@@ -144,9 +144,9 @@ public class LifelongPerformanceBenchmarkTest {
         JSONArray jsonArray = new JSONArray();
 
         // Create JSON objects for each benchmark metric
-        addMetric(jsonArray, nameSolver, "Average Throughput", "Throughput @ T=200", avgThroughput);
+        addMetric(jsonArray, nameSolver, "Average Throughput", "Throughput @ T=300", avgThroughput);
         addMetric(jsonArray, nameSolver, "Average Runtime (Reciprocal)", "1 / Milliseconds", 1.0f / avgRuntime);
-        addMetric(jsonArray, nameSolver, "Average Runtime Low Level  (Reciprocal)", "1 / Milliseconds", 1.0f / avgRuntimeLowLevel);
+        addMetric(jsonArray, nameSolver, "Average Runtime Offline Solver (Reciprocal)", "1 / Milliseconds", 1.0f / avgRuntimeLowLevel);
 
         // Writing the JSON array to a file
         System.out.println("Writing results to JSON file: " + outPath);
