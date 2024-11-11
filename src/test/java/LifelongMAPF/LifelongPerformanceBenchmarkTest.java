@@ -39,8 +39,8 @@ public class LifelongPerformanceBenchmarkTest {
 
     @Test
     public void StressTest() {
-//        runStressTestWithSolver(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5());
-//        runStressTestWithSolver(LifelongSolversFactory.Avoid5ASFP_Cap18_Timeout1p5());
+        runStressTestWithSolver(LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5());
+        runStressTestWithSolver(LifelongSolversFactory.Avoid5ASFP_Cap18_Timeout1p5());
         runStressTestWithSolver(LifelongSolversFactory.PIBT_h10());
     }
 
