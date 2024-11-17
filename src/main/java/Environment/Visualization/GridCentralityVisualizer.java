@@ -1,9 +1,8 @@
 package Environment.Visualization;
 
+import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.MillimetricCoordinate_2D;
-import BasicMAPF.Instances.Maps.I_ExplicitMap;
-import BasicMAPF.Instances.Maps.I_GridMap;
-import BasicMAPF.Instances.Maps.I_Location;
+import TransientMAPF.SeparatingVerticesFinder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jgrapht.alg.interfaces.VertexScoringAlgorithm;
@@ -93,6 +92,15 @@ public class GridCentralityVisualizer {
             if (map instanceof I_GridMap)
                 visualizeCentrality((I_GridMap) map, locationCentrality, title);
             else visualizeCentralityMillimetricCoordinate(map, locationCentrality, title);
+        }
+        if (map instanceof  I_GridMap gridMap){
+            Set<I_Location> separatingVertices = SeparatingVerticesFinder.findSeparatingVertices(gridMap);
+            // set to map
+            Map<I_Location, Double> locationSeparating = new HashMap<>();
+            for (I_Location location : gridMap.getAllLocations()) {
+                locationSeparating.put(location, separatingVertices.contains(location) ? 1.0 : 0.0);
+            }
+            visualizeCentrality(gridMap, locationSeparating, "%s Separating Vertices".formatted(mapName));
         }
     }
 }

@@ -124,6 +124,9 @@ public class CBS_Solver extends A_Solver {
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            throw new IllegalArgumentException("CBS does not support transient with separating vertices.");
+        }
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
@@ -377,7 +380,7 @@ public class CBS_Solver extends A_Solver {
 
             // TMAPF goal condition
             if (transientMAPFSettings.isTransientMAPF()){
-                if (transientMAPFSettings.useBlacklist()) {
+                if (transientMAPFSettings.avoidOtherAgentsTargets()) {
                     Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
                     for (Agent agentToBlack : this.instance.agents) {
                         if (!agent.equals(agentToBlack)) {

@@ -5,6 +5,7 @@ import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
@@ -12,6 +13,7 @@ import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
+import TransientMAPF.SeparatingVerticesFinder;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +73,10 @@ public class LaCAM_Solver extends A_Solver {
     protected HashMap<Agent, I_Location> occupiedNowConfig;
     protected HashMap<Agent, I_Location> occupiedNextConfig;
     protected int improveVisitsCounter;
+    protected Set<I_Location> separatingVerticesSet;
+    protected Comparator<I_Location> separatingVerticesComparator;
     protected int timeStep;
+    protected HashMap<Agent, Boolean> currentAgentsReachedGoalsMap;
     /**
      * Constructor.
      * @param solutionCostFunction how to calculate the cost of a solution
@@ -80,7 +85,7 @@ public class LaCAM_Solver extends A_Solver {
     LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
-        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
+        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
@@ -100,7 +105,21 @@ public class LaCAM_Solver extends A_Solver {
         this.occupiedNextConfig = new HashMap<>();
         this.timeStep = parameters.problemStartTime + 1;
         this.improveVisitsCounter = 0;
-
+        this.currentAgentsReachedGoalsMap = null;
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            if (parameters.separatingVertices != null) {
+                this.separatingVerticesSet = parameters.separatingVertices;
+            }
+            else {
+                if (this.instance.map instanceof I_ExplicitMap) {
+                    this.separatingVerticesSet = SeparatingVerticesFinder.findSeparatingVertices((I_ExplicitMap) this.instance.map);
+                }
+                else {
+                    throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
+                }
+            }
+            this.separatingVerticesComparator = TransientMAPFSettings.createSeparatingVerticesComparator(this.separatingVerticesSet);
+        }
         // distance between every vertex in the graph to each agent's goal
         this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
     }
@@ -538,8 +557,9 @@ public class LaCAM_Solver extends A_Solver {
         }
 
         this.timeStep = N.timeStep;
+        this.currentAgentsReachedGoalsMap = N.reachedGoalsMap;
         for (Agent agent : N.order) {
-            if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chose for agent or agent have a constraint
+            if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chosen for agent or agent has a constraint
             if (!solvePIBT(agent, null)) {
                 return null;
             }
@@ -575,6 +595,11 @@ public class LaCAM_Solver extends A_Solver {
         candidates.sort((loc1, loc2) ->
                 Double.compare(this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + random.nextFloat(),
                         this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + random.nextFloat()));
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices() && this.currentAgentsReachedGoalsMap.get(currentAgent)) {
+            // sort candidates so that all SV vertices are at the end of the list
+            candidates.sort(this.separatingVerticesComparator);
+        }
 
         for (I_Location nextLocation : candidates) {
 
@@ -677,5 +702,6 @@ public class LaCAM_Solver extends A_Solver {
         this.instance = null;
         this.occupiedNowConfig = null;
         this.occupiedNextConfig = null;
+        this.separatingVerticesSet = null;
     }
 }
