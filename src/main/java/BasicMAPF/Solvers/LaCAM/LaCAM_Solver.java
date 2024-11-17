@@ -758,6 +758,9 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
                 this.occupiedNextConfig.put(currentAgent, currentLocation);
             }
         }
+        else {
+            this.occupiedNextConfig.put(currentAgent, currentLocation);
+        }
         return false;
     }
 

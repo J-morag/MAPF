@@ -49,6 +49,46 @@ public class Maps {
     };
     public static final I_ExplicitMap mapSmallMaze = MapFactory.newSimple4Connected2D_GraphMap(map_2D_smallMaze);
 
+    public static final Enum_MapLocationType[][] map_2D_narrow_corridor_six_on_six = {
+            {e, e, e, e, e, e},
+            {e, w, w, w, w, e},
+            {e, w, w, w, w, e},
+            {e, w, w, w, w, e},
+            {e, w, w, w, w, e},
+            {e, e, e, e, e, e},
+    };
+    public static final I_ExplicitMap mapNarrowCorridorSixOnSix = MapFactory.newSimple4Connected2D_GraphMap(map_2D_narrow_corridor_six_on_six);
+
+
+    public static final Enum_MapLocationType[][] map_2D_narrow_corridor_four_on_six = {
+            {e, e, e, e, e, e},
+            {e, w, w, w, w, e},
+            {e, w, w, w, w, e},
+            {e, e, e, e, e, e},
+    };
+    public static final I_ExplicitMap mapNarrowCorridorFourOnSix = MapFactory.newSimple4Connected2D_GraphMap(map_2D_narrow_corridor_four_on_six);
+
+//    public static final Enum_MapLocationType[][] map_2D_narrow_corridor_ex2 = {
+//            {e, e, e, e, e, e, e, e},
+//            {e, w, w, w, w, w, w, e},
+//            {e, w, w, w, w, w, w, e},
+//            {e, e, e, e, e, e, e, e},
+//    };
+//    public static final I_ExplicitMap mapNarrowCorridor_ex2 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_narrow_corridor_ex2);
+
+    public static final Enum_MapLocationType[][] map_2D_ex1_optimal_planning_yields_low_throughput = {
+            {e, e, e, e, e, e},
+            {e, w, w, w, w, e},
+            {e, w, w, w, w, e},
+            {e, e, e, e, e, e},
+    };
+    public static final I_ExplicitMap ex1_optimal_planning_yields_low_throughput = MapFactory.newSimple4Connected2D_GraphMap(map_2D_ex1_optimal_planning_yields_low_throughput);
+
+    public static final Enum_MapLocationType[][] map_2D_ex2_planning_for_MAPF_is_incomplete_or_inefficient = {
+            {e, e, e, e, e}
+    };
+    public static final I_ExplicitMap ex2_planning_for_MAPF_is_incomplete_or_inefficient = MapFactory.newSimple4Connected2D_GraphMap(map_2D_ex2_planning_for_MAPF_is_incomplete_or_inefficient);
+
     public static final Enum_MapLocationType[][] map_2D_H = {
             { e, w, w, e},
             { e, e, e, e},

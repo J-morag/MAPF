@@ -17,6 +17,8 @@ import BasicMAPF.Solvers.I_Solver;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import LifelongMAPF.LifelongRunParameters;
+import LifelongMAPF.LifelongSolution;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -542,4 +544,74 @@ public class TestUtils {
             fail();
         }
     }
+
+//    public static void solveAndPrintSolutionReportForMultipleSolversInLifelong(List<I_Solver> solvers, List<String> solverNames, MAPF_Instance testInstance, List<LifelongRunParameters> parameters) {
+//        System.out.printf("%-10s | %-16s | %-15s | %-20s | %-18s | %-18s | %-20s | %-15s | %-20s%n",
+//                "Method", "High Level Nodes", "Low Level Nodes", "Low Level Time (ms)", "SOC", "SST", "Throughput at T=500", "Elapsed Time (ms)", "Offline Solver Time (ms)");
+//        System.out.println("-------------------------------------------------------------------------------------------------" +
+//                "--------------------------------------------------------------------------");
+//        for (int i = 0; i < solvers.size(); i++) {
+//            Solution solution = solvers.get(i).solve(testInstance, parameters.get(i));
+//            LifelongSolution lifelongSolution = (LifelongSolution) solution;
+//            System.out.printf("%-10s | %-16s | %-15s | %-20s | %-18s | %-18s | %-20s | %-15s | %-20s%n",
+//                    solverNames.get(i),
+//                    parameters.get(i).instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes),
+//                    parameters.get(i).instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel),
+//                    parameters.get(i).instanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS),
+//                    solution != null ? solution.sumIndividualCosts() : "N/A",
+//                    solution != null ? solution.sumServiceTimes() : "N/A",
+//                    solution != null ? lifelongSolution.throughputAtT(500) : "N/A",
+//                    parameters.get(i).instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS),
+//                    parameters.get(i).instanceReport.getIntegerValue("totalOfflineSolverRuntimeMS"));
+//        }
+//    }
+
+    public static void solveAndPrintSolutionReportForMultipleSolversInLifelongGeneric(List<I_Solver> solvers, List<String> solverNames, MAPF_Instance testInstance, List<LifelongRunParameters> parameters, List<String> fields) {
+        List<Integer> columnWidths = new ArrayList<>();
+        columnWidths.add(10); // "Method" column width
+        for (String field : fields) {
+            int fieldWidth = Math.max(field.length(), 15);
+            columnWidths.add(fieldWidth);
+        }
+
+        System.out.printf("%-" + columnWidths.get(0) + "s", "Method");
+        for (int j = 0; j < fields.size(); j++) {
+            System.out.printf(" | %-" + columnWidths.get(j + 1) + "s", fields.get(j));
+        }
+        System.out.println();
+
+        for (int width : columnWidths) {
+            System.out.print("-".repeat(width + 3));
+        }
+        System.out.println();
+
+        for (int i = 0; i < solvers.size(); i++) {
+            Solution solution = solvers.get(i).solve(testInstance, parameters.get(i));
+            LifelongSolution lifelongSolution = (LifelongSolution) solution;
+            System.out.printf("%-" + columnWidths.get(0) + "s", solverNames.get(i));
+
+            for (int j = 0; j < fields.size(); j++) {
+                String field = fields.get(j);
+                Object value;
+                if (field.equalsIgnoreCase("SOC") && solution != null) {
+                    value = solution.sumIndividualCosts();
+                } else if (field.equalsIgnoreCase("SST") && solution != null) {
+                    value = solution.sumServiceTimes();
+                } else if (field.startsWith("throughputAt") && lifelongSolution != null) {
+                    try {
+                        String number = field.replaceAll("[^0-9]", "");
+                        int throughputAt = Integer.parseInt(number);
+                        value = lifelongSolution.throughputAtT(throughputAt);
+                    }
+                    catch (Exception e) { value = null; }
+
+                } else {
+                    value = parameters.get(i).instanceReport.getIntegerValue(field);
+                }
+                System.out.printf(" | %-" + columnWidths.get(j + 1) + "s", value != null ? value : "N/A");
+            }
+            System.out.println();
+        }
+    }
+
 }

@@ -1,26 +1,15 @@
 package BasicMAPF.Solvers.LaCAM;
 
 import BasicMAPF.CostFunctions.SumServiceTimes;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
-import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import TransientMAPF.TransientMAPFSettings;
@@ -29,16 +18,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Map;
-
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
-import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -355,5 +337,18 @@ public class LaCAM_SolverTest {
 
         TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, false, LaCAMStarSolver, nameLaCAMStar,
                 false, false, new int[]{100}, 10, 0);
+    }
+
+    @Test
+    void testTransientOneAgentNeedToClearPathTest() {
+        MAPF_Instance testInstance = new MAPF_Instance("agent need to clear path" , mapNarrowCorridorSixOnSix, new Agent[]{agent20to54, agent30to53});
+        I_Solver LaCAM = new LaCAM_Solver();
+        I_Solver LaCAMt = new LaCAM_Solver(null, TransientMAPFSettings.defaultTransientMAPF, null, null, null);
+
+        Solution solved_LaCAM = LaCAM.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_LaCAMt = LaCAMt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_LaCAM);
+        System.out.println(solved_LaCAMt);
     }
 }

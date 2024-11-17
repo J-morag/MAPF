@@ -1211,9 +1211,9 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 10;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, null, TransientMAPFSettings.defaultTransientMAPF);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, false, TransientMAPFSettings.defaultTransientMAPF);
 
-        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, null, fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
@@ -1225,8 +1225,8 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 10;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        LaCAM_Solver lacam = new LaCAM_Solver(null, null, RHCRHorizon, null, null);
-        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+        LaCAM_Solver lacam = new LaCAM_Solver(null, null, RHCRHorizon, true, null);
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 lacam, null, null, fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
@@ -1238,8 +1238,8 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 10;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        LaCAM_Solver lacam = new LaCAM_Solver(null, TransientMAPFSettings.defaultTransientMAPF, RHCRHorizon, null, null);
-        A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
+        LaCAM_Solver lacam = new LaCAM_Solver(null, TransientMAPFSettings.defaultTransientMAPF, RHCRHorizon, true, null);
+        A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 lacam, null, null, fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
@@ -1260,7 +1260,7 @@ public class LifelongSolversFactory {
 
         LargeNeighborhoodSearch_Solver lns = new LNSBuilder().setRHCR_Horizon(RHCRHorizon).setInitialSolver(initialSolver).setIterationsSolver(iterationsSolver).createLNS();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
-                lns, null, new DisallowedPartialSolutionsStrategy(), fp, null, null);
+                lns, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1282,7 +1282,7 @@ public class LifelongSolversFactory {
         LargeNeighborhoodSearch_Solver lns = new LNSBuilder().setRHCR_Horizon(RHCRHorizon).setInitialSolver(initialSolver).setIterationsSolver(iterationsSolver).
                 setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).setSolutionCostFunction(new SumServiceTimes()).createLNS();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
-                lns, null, new DisallowedPartialSolutionsStrategy(), fp, null, null);
+                lns, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1298,7 +1298,7 @@ public class LifelongSolversFactory {
                 null, null, null, RHCRHorizon, null);
 
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
-                prp, null, new DisallowedPartialSolutionsStrategy(), fp, null, null);
+                prp, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1314,7 +1314,7 @@ public class LifelongSolversFactory {
                 null, null, TransientMAPFSettings.defaultTransientMAPF, RHCRHorizon, null);
 
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
-                prp, null, new DisallowedPartialSolutionsStrategy(), fp, null, null);
+                prp, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1327,7 +1327,7 @@ public class LifelongSolversFactory {
         I_AStarFailPolicy asfpf = new GoASFP(5);
         CBS_Solver cbs = new CBSBuilder().setSharedGoals(true).setRHCR_Horizon(RHCRHorizon).createCBS_Solver();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
-                cbs, null, new DisallowedPartialSolutionsStrategy(), fp, null, null);
+                cbs, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }
@@ -1340,7 +1340,7 @@ public class LifelongSolversFactory {
         I_AStarFailPolicy asfpf = new GoASFP(5);
         CBS_Solver cbs = new CBSBuilder().setRHCR_Horizon(RHCRHorizon).setTransientMAPFSettings(new TransientMAPFSettings(true, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
-                cbs, null, new DisallowedPartialSolutionsStrategy(), fp, null, null);
+                cbs, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
         return solver;
     }

@@ -1,19 +1,25 @@
 package LifelongMAPF;
 
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
+import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.WidePartialSolutionsStrategy;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import LifelongMAPF.AgentSelectors.AllAgentsSelector;
@@ -26,7 +32,12 @@ import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Maps.ex1_optimal_planning_yields_low_throughput;
+import static BasicMAPF.TestConstants.Maps.ex2_planning_for_MAPF_is_incomplete_or_inefficient;
 import static LifelongMAPF.LifelongRunManagers.LifelongSolversFactory.terminateFailPolicySolver;
 import static org.junit.jupiter.api.Assertions.*;
 import static LifelongMAPF.LifelongTestUtils.*;
@@ -1503,6 +1514,95 @@ class LifelongSimulationSolverTest {
         Solution solved = solver.solve(instanceSmallMazeDenser, new RunParametersBuilder().setTimeout(DEFAULT_TIMEOUT).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
         assertNull(solved);
+    }
+
+    @Test
+    void TestMultipleSolversWithTransientBehaviorNarrowCorridor() {
+        I_Coordinate start1 = coor00;
+        I_Coordinate goal1 = coor03;
+        I_Coordinate start2 = coor01;
+        I_Coordinate goal2 = coor02;
+
+        I_Coordinate[] repeatedPathAgent1 = new I_Coordinate[1000];
+        I_Coordinate[] repeatedPathAgent2 = new I_Coordinate[1000];
+        for (int i = 0; i < repeatedPathAgent1.length; i++) {
+            repeatedPathAgent1[i] = (i % 2 == 0) ? start1 : goal1;
+            repeatedPathAgent2[i] = (i % 2 == 0) ? start2 : goal2;
+        }
+
+        MAPF_Instance testInstance = new MAPF_Instance("agent need to clear path" , ex2_planning_for_MAPF_is_incomplete_or_inefficient, new Agent[]{
+                new LifelongAgent(new Agent(1, start1, goal1), repeatedPathAgent1),
+                new LifelongAgent(new Agent(2, start2, goal2), repeatedPathAgent2)
+        });
+
+        int replanningPeriod = 1;
+        List<String> solverNames = Arrays.asList("PIBT", "CBS", "CBSt", "PrP", "PrPt", "LaCAM", "LaCAMt");
+        List<I_Solver> solvers = Arrays.asList(
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PIBT_Solver(null, null, null, TransientMAPFSettings.defaultTransientMAPF), null, null, null, null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(), null, null, new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(new SumServiceTimes(), TransientMAPFSettings.defaultTransientMAPF, null, null, null), null, null, new TerminateFailPolicy(), null, null)
+        );
+
+        List<LifelongRunParameters> parameters = Arrays.asList(
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500)
+        );
+        TestUtils.solveAndPrintSolutionReportForMultipleSolversInLifelongGeneric(solvers, solverNames, testInstance, parameters,
+                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAt500", "totalOfflineSolverRuntimeMS"));
+
+    }
+
+    @Test
+    void TestMultipleSolversWithTransientBehavior() {
+        I_Coordinate start1 = coor31;
+        I_Coordinate goal1 = coor33;
+        I_Coordinate start2 = coor34;
+        I_Coordinate goal2 = coor32;
+
+        I_Coordinate[] repeatedPathAgent1 = new I_Coordinate[1000];
+        I_Coordinate[] repeatedPathAgent2 = new I_Coordinate[1000];
+        for (int i = 0; i < repeatedPathAgent1.length; i++) {
+            repeatedPathAgent1[i] = (i % 2 == 0) ? start1 : goal1;
+            repeatedPathAgent2[i] = (i % 2 == 0) ? start2 : goal2;
+        }
+
+        MAPF_Instance testInstance = new MAPF_Instance("agent need to clear path" , ex1_optimal_planning_yields_low_throughput, new Agent[]{
+                new LifelongAgent(new Agent(1, start1, goal1), repeatedPathAgent1),
+                new LifelongAgent(new Agent(2, start2, goal2), repeatedPathAgent2)
+        });
+
+        int replanningPeriod = 1;
+        List<String> solverNames = Arrays.asList("PIBT", "CBS", "CBSt", "PrP", "PrPt", "LaCAM", "LaCAMt");
+        List<I_Solver> solvers = Arrays.asList(
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PIBT_Solver(null, null, null, TransientMAPFSettings.defaultTransientMAPF), null, null, null, null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(), null, null, new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(new SumServiceTimes(), TransientMAPFSettings.defaultTransientMAPF, null, null, null), null, null, new TerminateFailPolicy(), null, null)
+        );
+
+        List<LifelongRunParameters> parameters = Arrays.asList(
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500)
+        );
+        TestUtils.solveAndPrintSolutionReportForMultipleSolversInLifelongGeneric(solvers, solverNames, testInstance, parameters,
+                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAt500", "totalOfflineSolverRuntimeMS"));
     }
 
 }
