@@ -56,7 +56,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     /**
      * if agents share goals, they will not conflict at their goal.
      */
-    private final boolean sharedGoals;
+    private final boolean ignoresStayAtSharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not conflict
      */
@@ -89,7 +89,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * @param solutionCostFunction how to calculate the cost of a solution
      * @param destroyHeuristics    list of {@link I_DestroyHeuristic}. If size is 1, use just that heuristic,
      *                             otherwise use Adaptive LNS with all the heuristics.
-     * @param sharedGoals          if agents share goals, they will not conflict at their goal.
+     * @param ignoresStayAtSharedGoals          if agents share goals, they will not conflict at their goal.
      * @param sharedSources        if agents share goals, they will not conflict at their source until they move.
      * @param reactionFactor       how quickly ALNS adapts to which heuristic is more successful. default = 0.01 .
      * @param neighborhoodSize     What size neighborhoods to select.
@@ -101,21 +101,21 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      *
      */
     LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
-                                   Boolean sharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
+                                   Boolean ignoresStayAtSharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
                                    I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFSettings transientMAPFSettings,
                                    @Nullable Integer RHCR_horizon) {
 
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = RHCR_horizon;
-        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
 
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.randomRestarts, null),
-                this.sharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
+                this.ignoresStayAtSharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
         // verify horizon of self and initial
         if (Config.WARNING >= 1 && this.initialSolver instanceof PrioritisedPlanning_Solver ppInitialSolver && !Objects.equals(ppInitialSolver.RHCR_Horizon, this.RHCR_Horizon)){
             System.err.println("WARNING: RHCR horizon of LargeNeighborhoodSearch_Solver and initial solver do not match.");
@@ -124,7 +124,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
                 // PP with just one attempt
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
                 new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.none, null),
-                this.sharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
+                this.ignoresStayAtSharedGoals, this.sharedSources, this.transientMAPFSettings, this.RHCR_Horizon, null));
         // verify horizon of self and iteration
         if (Config.WARNING >= 1 && this.iterationsSolver instanceof PrioritisedPlanning_Solver ppIterationsSolver && !Objects.equals(ppIterationsSolver.RHCR_Horizon, this.RHCR_Horizon)){
             System.err.println("WARNING: RHCR horizon of LargeNeighborhoodSearch_Solver and iterations solver do not match.");
@@ -138,8 +138,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
         super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
-        if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
-            System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
+        if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
+            System.err.println("Warning: " + this.name + " ignores shared goals and is set to transient MAPF. Ignoring shared goals is unnecessary if transient.");
         }
     }
 
@@ -158,7 +158,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         this.problemStartTime = parameters.problemStartTime;
         this.constraints = parameters.constraints == null ? new ConstraintSet(): new ConstraintSet(parameters.constraints);
         // todo do we really need to set these in the constraints? we use constraints to initialize subsolvers' solution, but they have their own settings regarding these, that will override this.
-        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedGoals(this.ignoresStayAtSharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
         if (this.RHCR_Horizon != null){
             this.constraints.setLastTimeToConsiderConstraints(horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon));
@@ -375,12 +375,17 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     }
 
     @Override
-    public boolean sharedSources() {
+    public boolean ignoresStayAtSharedSources() {
         return this.sharedSources;
     }
 
     @Override
-    public boolean sharedGoals() {
-        return this.transientMAPFSettings.isTransientMAPF() || this.sharedGoals;
+    public boolean ignoresStayAtSharedGoals() {
+        return this.ignoresStayAtSharedGoals;
+    }
+
+    @Override
+    public boolean handlesSharedTargets() {
+        return this.transientMAPFSettings.isTransientMAPF();
     }
 }

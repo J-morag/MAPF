@@ -116,7 +116,7 @@ class LargeNeighborhoodSearch_SolverTest {
     }
 
     @Test
-    void sharedGoals(){
+    void ignoresStayAtSharedGoals(){
         LargeNeighborhoodSearch_Solver solverWithSharedGoals = new LNSBuilder().setSharedGoals(true).createLNS();
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,

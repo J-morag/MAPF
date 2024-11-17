@@ -226,7 +226,7 @@ class CBS_SolverTest {
     }
 
     @Test
-    void sharedGoals(){
+    void ignoresStayAtSharedGoals(){
         CBS_Solver cbsSolverSharedGoals = new CBSBuilder().setSharedGoals(true).createCBS_Solver();
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,

@@ -96,7 +96,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
     /**
      * if true, agents can have shared goals, so they can stay at their goal together (only last move onwards).
      */
-    public final boolean sharedGoals;
+    public final boolean ignoresStayAtSharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not conflict 
      */
@@ -120,8 +120,8 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      * @param useCorridorReasoning whether to use corridor reasoning.
      */
     CBS_Solver(@Nullable I_Solver lowLevelSolver, @Nullable I_OpenList<CBS_Node> openList, @Nullable OpenListManagementMode openListManagementMode,
-                      @Nullable I_SolutionCostFunction costFunction, @Nullable Comparator<? super CBS_Node> cbsNodeComparator, @Nullable Boolean useCorridorReasoning,
-                      @Nullable Boolean sharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings, Integer RHCR_Horizon) {
+               @Nullable I_SolutionCostFunction costFunction, @Nullable Comparator<? super CBS_Node> cbsNodeComparator, @Nullable Boolean useCorridorReasoning,
+               @Nullable Boolean ignoresStayAtSharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings, Integer RHCR_Horizon) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -130,7 +130,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         // if a specific cost function is not provided, use standard SOC (Sum of Individual Costs)
         this.costFunction = Objects.requireNonNullElseGet(costFunction, SumOfCosts::new);
         this.CBSNodeComparator = cbsNodeComparator != null ? cbsNodeComparator : new CBSNodeComparatorForcedTotalOrdering();
-        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         if (RHCR_Horizon != null && RHCR_Horizon <= 0){
@@ -142,8 +142,8 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         }
 
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
-        if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
-            System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
+        if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
+            System.err.println("Warning: " + this.name + " ignores shared goals and is set to transient MAPF. Ignoring shared goals is unnecessary if transient.");
         }
     }
 
@@ -162,7 +162,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.initialConstraints = runParameters.constraints == null ? new ConstraintSet() : runParameters.constraints;
         this.currentConstraints = new ConstraintSet();
         this.currentConstraints.setSharedSources(this.sharedSources);
-        this.currentConstraints.setSharedGoals(this.sharedGoals);
+        this.currentConstraints.setSharedGoals(this.ignoresStayAtSharedGoals);
         if (this.RHCR_Horizon != null){
             this.currentConstraints.setLastTimeToConsiderConstraints(horizonAsAbsoluteTime(runParameters.problemStartTime, this.RHCR_Horizon));
         }
@@ -269,7 +269,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
     private I_ConflictManager getConflictManagerFor(CBS_Node node) {
         I_ConflictManager cat = this.corridorReasoning ?
                 new CorridorConflictManager(buildConstraintSet(node,null), this.instance) :
-                new ConflictManager(null, this.sharedGoals, this.sharedSources);
+                new ConflictManager(null, this.ignoresStayAtSharedGoals, this.sharedSources);
         for (SingleAgentPlan plan :
                 node.getSolution()) {
             cat.addPlan(RHCR_Horizon != null ? plan.getPrefix(Math.min(RHCR_Horizon, plan.size())) : plan);
@@ -419,7 +419,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
             }
 
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
-            cat.sharedGoals = this.sharedGoals;
+            cat.sharedGoals = this.ignoresStayAtSharedGoals;
             cat.sharedSources = this.sharedSources;
             astarSubproblemParameters.conflictAvoidanceTable = cat;
             subproblemParametes = astarSubproblemParameters;
@@ -474,13 +474,18 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
     /*  = interfaces =  */
 
     @Override
-    public boolean sharedSources() {
+    public boolean ignoresStayAtSharedSources() {
         return this.sharedSources;
     }
 
     @Override
-    public boolean sharedGoals() {
-        return this.transientMAPFSettings.isTransientMAPF() || this.sharedGoals;
+    public boolean ignoresStayAtSharedGoals() {
+        return this.ignoresStayAtSharedGoals;
+    }
+
+    @Override
+    public boolean handlesSharedTargets() {
+        return this.transientMAPFSettings.isTransientMAPF();
     }
 
     /*  = internal classes and interfaces =  */

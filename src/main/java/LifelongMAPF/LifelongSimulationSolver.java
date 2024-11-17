@@ -10,7 +10,6 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -130,7 +129,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
         if (this.SAFailPolicy instanceof TerminateFailPolicy && this.partialSolutionsStrategy.allowed()){
             throw new IllegalArgumentException("TerminateFailPolicy is not compatible with partial solutions");
-        } else if (this.SAFailPolicy instanceof TerminateFailPolicy && this.offlineSolver.sharedGoals()){
+        } else if (this.SAFailPolicy instanceof TerminateFailPolicy && this.offlineSolver.ignoresStayAtSharedGoals()){
             throw new IllegalArgumentException("TerminateFailPolicy is not compatible with shared goals");
         }
         if (selectionLookaheadLength != null && selectionLookaheadLength < 1) {

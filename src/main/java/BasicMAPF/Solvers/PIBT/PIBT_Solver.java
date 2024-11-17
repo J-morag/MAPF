@@ -581,12 +581,17 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     }
 
     @Override
-    public boolean sharedSources() {
+    public boolean ignoresStayAtSharedSources() {
         return false;
     }
 
     @Override
-    public boolean sharedGoals() {
-        return true;
+    public boolean ignoresStayAtSharedGoals() {
+        return false;
+    }
+
+    @Override
+    public boolean handlesSharedTargets() {
+        return this.transientMAPFSettings.isTransientMAPF();
     }
 }

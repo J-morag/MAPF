@@ -102,7 +102,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /**
      * if agents share goals, they will not conflict at their goal.
      */
-    public boolean sharedGoals;
+    public boolean ignoresStayAtSharedGoals;
     /**
      * If true, agents staying at their source (since the start) will not conflict
      */
@@ -149,19 +149,19 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * @param agentComparator            How to sort the agents. This sort determines their priority. High priority first.
      * @param solutionCostFunction       A cost function to evaluate solutions with. Only used when using random restarts.
      * @param restartsStrategy           how to do restarts.
-     * @param sharedGoals                if agents share goals, they will not conflict at their goal.
-     * @param transientMAPFBehaviour     if true will use be Transient MAPF
+     * @param ignoresStayAtSharedGoals                if agents share goals, they will not conflict at their goal.
+     * @param transientMAPFSettings     if true will use be Transient MAPF
      * @param failPolicy                 how to handle single agent failures while solving
      */
     public PrioritisedPlanning_Solver(I_Solver lowLevelSolver, Comparator<Agent> agentComparator,
                                       I_SolutionCostFunction solutionCostFunction, RestartsStrategy restartsStrategy,
-                                      Boolean sharedGoals, Boolean sharedSources,  TransientMAPFSettings transientMAPFSettings,
+                                      Boolean ignoresStayAtSharedGoals, Boolean sharedSources, TransientMAPFSettings transientMAPFSettings,
                                       Integer RHCR_Horizon, FailPolicy failPolicy) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.agentComparator = agentComparator;
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.restartsStrategy = Objects.requireNonNullElseGet(restartsStrategy, RestartsStrategy::new);
-        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.RHCR_Horizon = RHCR_Horizon;
@@ -172,8 +172,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
 
         super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
-        if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
-            System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
+        if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
+            System.err.println("Warning: " + this.name + " ignores shared goals and is set to transient MAPF. Ignoring shared goals is unnecessary if transient.");
         }
     }
 
@@ -202,7 +202,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if (this.RHCR_Horizon != null){
             this.constraints.setLastTimeToConsiderConstraints(horizonAsAbsoluteTime(this.problemStartTime, this.RHCR_Horizon));
         }
-        this.constraints.setSharedGoals(this.sharedGoals);
+        this.constraints.setSharedGoals(this.ignoresStayAtSharedGoals);
         this.constraints.setSharedSources(this.sharedSources);
 
         this.orderingsRNG = new Random(42);
@@ -622,12 +622,17 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     /*  = interfaces =  */
 
     @Override
-    public boolean sharedSources() {
+    public boolean ignoresStayAtSharedSources() {
         return this.sharedSources;
     }
 
     @Override
-    public boolean sharedGoals() {
-        return this.transientMAPFSettings.isTransientMAPF() || this.sharedGoals;
+    public boolean ignoresStayAtSharedGoals() {
+        return this.ignoresStayAtSharedGoals;
+    }
+
+    @Override
+    public boolean handlesSharedTargets() {
+        return this.transientMAPFSettings.isTransientMAPF();
     }
 }

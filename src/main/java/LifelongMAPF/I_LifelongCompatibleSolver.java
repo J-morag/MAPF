@@ -7,6 +7,7 @@ import BasicMAPF.Solvers.I_Solver;
  * An implementing solver should not ignore the {@link BasicMAPF.DataTypesAndStructures.RunParameters#problemStartTime} field.
  */
 public interface I_LifelongCompatibleSolver extends I_Solver {
-    boolean sharedSources();
-    boolean sharedGoals();
+    boolean ignoresStayAtSharedSources();
+    boolean ignoresStayAtSharedGoals();
+    boolean handlesSharedTargets();
 }

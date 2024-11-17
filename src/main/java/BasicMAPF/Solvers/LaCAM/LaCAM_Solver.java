@@ -101,7 +101,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
     /**
      * if agents share goals, they will not conflict at their goal.
      */
-    public boolean sharedGoals;
+    public boolean ignoresStayAtSharedGoals;
 
 
     /**
@@ -110,11 +110,11 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
      * @param transientMAPFSettings indicates whether to solve transient-MAPF.
      * @param RHCR_Horizon How far forward in time to consider conflicts, relevant for RHCR.
      */
-    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings, Integer RHCR_Horizon, Boolean returnPartialSolutions, Boolean sharedGoals) {
+    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings, Integer RHCR_Horizon, Boolean returnPartialSolutions, Boolean ignoresStayAtSharedGoals) {
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
-        this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
+        this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);;
         super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.returnPartialSolutions ? "_partial" : "");
     }
@@ -681,7 +681,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
 
             // vertex conflict
             if (needToCheckConflicts() && this.occupiedNextConfig.containsValue(nextLocation)) {
-                if (this.sharedGoals && nextLocation.getCoordinate().equals(currentAgent.target)) {
+                if (this.ignoresStayAtSharedGoals && nextLocation.getCoordinate().equals(currentAgent.target)) {
                     boolean conflictsWithAgentWithDifferentTarget = false;
                     for (Map.Entry<Agent, I_Location> entry : this.occupiedNextConfig.entrySet()) {
                         if (entry.getValue().equals(nextLocation)) {
@@ -820,12 +820,17 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
     }
 
     @Override
-    public boolean sharedSources() {
+    public boolean ignoresStayAtSharedSources() {
         return false;
     }
 
     @Override
-    public boolean sharedGoals() {
-        return this.transientMAPFSettings.isTransientMAPF() || this.sharedGoals;
+    public boolean ignoresStayAtSharedGoals() {
+        return this.ignoresStayAtSharedGoals;
+    }
+
+    @Override
+    public boolean handlesSharedTargets() {
+        return this.transientMAPFSettings.isTransientMAPF();
     }
 }
