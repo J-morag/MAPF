@@ -656,7 +656,16 @@ public class LaCAM_Solver extends A_Solver {
             // success to plan next one step
             return true;
         }
-        this.occupiedNextConfig.put(currentAgent, currentLocation);
+        // stay in current location if no other option available
+        if (this.needToHandleConstraints) {
+            Move newMove = getNewMove(currentAgent, this.occupiedNowConfig.get(currentAgent), this.occupiedNowConfig.get(currentAgent));
+            if (this.constraintsSet.accepts(newMove)) {
+                this.occupiedNextConfig.put(currentAgent, currentLocation);
+            }
+        }
+        else {
+            this.occupiedNextConfig.put(currentAgent, currentLocation);
+        }
         return false;
     }
 
