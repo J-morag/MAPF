@@ -542,4 +542,39 @@ public class TestUtils {
             fail();
         }
     }
+
+    public static void solveAndPrintSolutionReportForMultipleSolvers(List<I_Solver> solvers, List<String> solverNames, MAPF_Instance testInstance, List<RunParameters> parameters, List<String> fields) {
+        List<Integer> columnWidths = new ArrayList<>();
+        columnWidths.add(10); // "Method" column width
+        for (String field : fields) {
+            int fieldWidth = Math.max(field.length(), 15);
+            columnWidths.add(fieldWidth);
+        }
+        System.out.printf("%-" + columnWidths.get(0) + "s", "Method");
+        for (int j = 0; j < fields.size(); j++) {
+            System.out.printf(" | %-" + columnWidths.get(j + 1) + "s", fields.get(j));
+        }
+        System.out.println();
+        for (int width : columnWidths) {
+            System.out.print("-".repeat(width + 3));
+        }
+        System.out.println();
+        for (int i = 0; i < solvers.size(); i++) {
+            Solution solution = solvers.get(i).solve(testInstance, parameters.get(i));
+            System.out.printf("%-" + columnWidths.get(0) + "s", solverNames.get(i));
+            for (int j = 0; j < fields.size(); j++) {
+                String field = fields.get(j);
+                Object value;
+                if (field.equalsIgnoreCase("SOC") && solution != null) {
+                    value = solution.sumIndividualCosts();
+                } else if (field.equalsIgnoreCase("SST") && solution != null) {
+                    value = solution.sumServiceTimes();
+                } else {
+                    value = parameters.get(i).instanceReport.getIntegerValue(field);
+                }
+                System.out.printf(" | %-" + columnWidths.get(j + 1) + "s", value != null ? value : "N/A");
+            }
+            System.out.println();
+        }
+    }
 }
