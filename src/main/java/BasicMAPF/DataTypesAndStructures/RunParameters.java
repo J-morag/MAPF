@@ -1,6 +1,7 @@
 package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
@@ -10,6 +11,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
+import java.util.Set;
 
 /**
  * A set of parameters for a {@link I_Solver solver} to use when solving an {@link BasicMAPF.Instances.MAPF_Instance instance}.
@@ -61,6 +63,14 @@ public class RunParameters {
      * optional heuristic function to use in the single agent solver.
      */
     public final SingleAgentGAndH singleAgentGAndH;
+
+    /**
+     * Set of separating vertices for a given map.
+     * Separating vertices are vertices in a graph whose removal increases the number of connected componenets in a graph,
+     * effectively disconneccting it.
+     */
+    public final Set<I_Location> separatingVertices;
+
     /**
      * Start time of the problem. {@link Solution solutions} and {@link SingleAgentPlan plans} start at this time.
      * Not real-time.
@@ -87,7 +97,7 @@ public class RunParameters {
      * Intentionally package-private constructor.
      * Use {@link RunParametersBuilder} to create a {@link RunParameters} object.
      */
-    RunParameters(long timeout, I_ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, SingleAgentGAndH singleAgentGAndH, int problemStartTime, @Nullable Random randomNumberGenerator, Agent[] priorityOrder) {
+    RunParameters(long timeout, I_ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, SingleAgentGAndH singleAgentGAndH, int problemStartTime, @Nullable Random randomNumberGenerator, Agent[] priorityOrder, Set<I_Location> separatingVertices) {
         this.timeout = timeout;
         this.softTimeout = softTimeout;
         if (this.softTimeout > this.timeout){
@@ -100,10 +110,11 @@ public class RunParameters {
         this.problemStartTime = problemStartTime;
         this.randomNumberGenerator = randomNumberGenerator;
         this.priorityOrder = priorityOrder;
+        this.separatingVertices = separatingVertices;
     }
 
     public RunParameters(RunParameters runParameters) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.singleAgentGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator, runParameters.priorityOrder);
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.singleAgentGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator, runParameters.priorityOrder, runParameters.separatingVertices);
     }
 
 }

@@ -16,6 +16,7 @@ import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
 import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
@@ -109,7 +110,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void LaCAMStressTest() {
-        I_Solver solver = new LaCAM_Solver();
+        I_Solver solver = new LaCAMBuilder().createLaCAM();
         long timeout = 1000 * 30;
         int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);

@@ -564,7 +564,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         params.fBudget = maxCost;
         params.problemStartTime = this.problemStartTime;
         if (transientMAPFSettings.isTransientMAPF()) {
-            if (transientMAPFSettings.useBlacklist()) {
+            if (transientMAPFSettings.avoidOtherAgentsTargets()) {
                 Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
                 for (Agent agent : this.agents) {
                     if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)) {

@@ -32,7 +32,7 @@ public class LaCAMStar_Solver extends A_Solver {
      * @param transientMAPFSettings indicates whether to solve transient-MAPF.
      */
     public LaCAMStar_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
-        this.lacamSolver = new LaCAM_Solver(solutionCostFunction, transientMAPFSettings, null, null, null);
+        this.lacamSolver = new LaCAMBuilder().setSolutionCostFunction(solutionCostFunction).setTransientMAPFBehaviour(transientMAPFSettings).createLaCAM();
         super.name = "LaCAMStar" + (this.lacamSolver.transientMAPFSettings.isTransientMAPF() ? "t" : "");
     }
 
@@ -353,7 +353,6 @@ public class LaCAMStar_Solver extends A_Solver {
     @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
-
         this.lacamSolver.writeMetricsToReport(solution);
         this.expandedNodes += instanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
         this.generatedNodes += instanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);

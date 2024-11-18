@@ -6,6 +6,7 @@ import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
 import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
@@ -1211,7 +1212,7 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 10;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, false, TransientMAPFSettings.defaultTransientMAPF);
+        PIBT_Solver pibt = new PIBT_Solver(null, RHCRHorizon, true, TransientMAPFSettings.defaultTransientMAPF);
 
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 pibt, null, null, fp, null, null);
@@ -1225,7 +1226,7 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 10;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        LaCAM_Solver lacam = new LaCAM_Solver(null, null, RHCRHorizon, true, null);
+        LaCAM_Solver lacam = new LaCAMBuilder().setRHCRHorizon(RHCRHorizon).setReturnPartialSolutions(true).setReturnPartialSolutions(true).createLaCAM();
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 lacam, null, null, fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -1238,7 +1239,7 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 10;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        LaCAM_Solver lacam = new LaCAM_Solver(null, TransientMAPFSettings.defaultTransientMAPF, RHCRHorizon, true, null);
+        LaCAM_Solver lacam = new LaCAMBuilder().setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).setRHCRHorizon(RHCRHorizon).setReturnPartialSolutions(true).createLaCAM();
         A_Solver solver = new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)),
                 lacam, null, null, fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -1338,7 +1339,7 @@ public class LifelongSolversFactory {
         Integer RHCRHorizon = 10;
         int targetsCapacity = 18;
         I_AStarFailPolicy asfpf = new GoASFP(5);
-        CBS_Solver cbs = new CBSBuilder().setRHCR_Horizon(RHCRHorizon).setTransientMAPFSettings(new TransientMAPFSettings(true, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver();
+        CBS_Solver cbs = new CBSBuilder().setRHCR_Horizon(RHCRHorizon).setTransientMAPFSettings(new TransientMAPFSettings(true, false, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver();
         A_Solver solver = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)),
                 cbs, null, new DeepPartialSolutionsStrategy(), fp, null, null);
         solver.name = new Object() {}.getClass().getEnclosingMethod().getName();

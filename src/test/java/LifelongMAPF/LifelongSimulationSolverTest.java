@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
 import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
@@ -1543,8 +1544,8 @@ class LifelongSimulationSolverTest {
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(), null, null, new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(new SumServiceTimes(), TransientMAPFSettings.defaultTransientMAPF, null, null, null), null, null, new TerminateFailPolicy(), null, null)
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().createLaCAM(), null, null, new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLaCAM(),null, null, new TerminateFailPolicy(), null, null)
         );
 
         List<LifelongRunParameters> parameters = Arrays.asList(
@@ -1588,8 +1589,8 @@ class LifelongSimulationSolverTest {
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(), null, null, new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAM_Solver(new SumServiceTimes(), TransientMAPFSettings.defaultTransientMAPF, null, null, null), null, null, new TerminateFailPolicy(), null, null)
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().createLaCAM(), null, null, new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLaCAM(),null, null, new TerminateFailPolicy(), null, null)
         );
 
         List<LifelongRunParameters> parameters = Arrays.asList(

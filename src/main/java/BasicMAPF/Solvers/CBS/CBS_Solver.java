@@ -133,6 +133,9 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            throw new IllegalArgumentException("CBS does not support transient with separating vertices.");
+        }
         if (RHCR_Horizon != null && RHCR_Horizon <= 0){
             throw new IllegalArgumentException("RHCR_Horizon must be positive");
         }
@@ -404,7 +407,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
             // TMAPF goal condition
             if (transientMAPFSettings.isTransientMAPF()){
-                if (transientMAPFSettings.useBlacklist()) {
+                if (transientMAPFSettings.avoidOtherAgentsTargets()) {
                     Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
                     for (Agent agentToBlack : this.instance.agents) {
                         if (!agent.equals(agentToBlack)) {

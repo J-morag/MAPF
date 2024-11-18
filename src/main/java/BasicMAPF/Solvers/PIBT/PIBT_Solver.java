@@ -8,12 +8,14 @@ import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import TransientMAPF.SeparatingVerticesFinder;
 import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import LifelongMAPF.I_LifelongCompatibleSolver;
@@ -107,6 +109,9 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
     private boolean agentCantMoveOrStay;
     private boolean allAgentsReachedGoal;
+    private Set<I_Location> separatingVerticesSet;
+    private Comparator<I_Location> separatingVerticesComparator;
+    private MAPF_Instance instance;
 
 
     /**
@@ -124,7 +129,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
-        super.name = "PIBT" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
+        super.name = "PIBT" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
     @Override
@@ -140,6 +145,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.agentCantMoveOrStay = false;
         this.allAgentsReachedGoal = false;
         this.goalConfiguration = new HashMap<>();
+        this.instance = instance;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -150,6 +156,21 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
             // init goal configuration
             this.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
+        }
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            if (parameters.separatingVertices != null) {
+                this.separatingVerticesSet = parameters.separatingVertices;
+            }
+            else {
+                if (this.instance.map instanceof I_ExplicitMap) {
+                    this.separatingVerticesSet = SeparatingVerticesFinder.findSeparatingVertices((I_ExplicitMap) this.instance.map);
+                }
+                else {
+                    throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
+                }
+            }
+            this.separatingVerticesComparator = TransientMAPFSettings.createSeparatingVerticesComparator(this.separatingVerticesSet);
         }
 
         // distance between every vertex in the graph to each agent's goal
@@ -266,7 +287,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
         candidates.add(this.currentLocations.get(current)); // 1
 
-
         if (higherPriorityAgent != null && needToCheckConflicts()) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
@@ -276,6 +296,11 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             candidates.removeAll(this.takenNodes);
         }
 
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices() && this.priorities.get(current) == -1) {
+            // sort candidates so that all SV vertices are at the end of the list
+            candidates.sort(this.separatingVerticesComparator);
+        }
 
         while (!candidates.isEmpty()) {
             I_Location best = findBest(candidates, current);
@@ -363,7 +388,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
     /**
      * helper function.
-     * update priority of each agent in current timestamp using instance.
+     * update priority of each agent in current time step using instance.
      */
     private void updatePriorities() {
         for (Agent agent : this.priorities.keySet()) {
@@ -576,6 +601,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.priorities = null;
         this.takenNodes = null;
         this.unhandledAgents = null;
+        this.separatingVerticesSet = null;
         this.constraints = null;
         this.configurations = null;
     }

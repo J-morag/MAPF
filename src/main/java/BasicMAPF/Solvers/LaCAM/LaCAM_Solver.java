@@ -5,6 +5,7 @@ import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
@@ -12,6 +13,7 @@ import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
+import TransientMAPF.SeparatingVerticesFinder;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
@@ -82,13 +84,13 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
 
     protected int failedToFindConfigCounter;
     protected long totalTimeFindConfigurations;
-
     protected HashMap<Agent, I_Location> occupiedNowConfig;
     protected HashMap<Agent, I_Location> occupiedNextConfig;
-
     protected int improveVisitsCounter;
-
+    protected Set<I_Location> separatingVerticesSet;
+    protected Comparator<I_Location> separatingVerticesComparator;
     protected int timeStep;
+    protected HashMap<Agent, Boolean> currentAgentsReachedGoalsMap;
     private int problemStartTime;
 
     private HighLevelNode bestNodeForPartialSolution;
@@ -110,13 +112,13 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
      * @param transientMAPFSettings indicates whether to solve transient-MAPF.
      * @param RHCR_Horizon How far forward in time to consider conflicts, relevant for RHCR.
      */
-    public LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings, Integer RHCR_Horizon, Boolean returnPartialSolutions, Boolean ignoresStayAtSharedGoals) {
+    LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings, Integer RHCR_Horizon, Boolean returnPartialSolutions, Boolean ignoresStayAtSharedGoals) {
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
         this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);;
-        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.returnPartialSolutions ? "_partial" : "");
+        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
     /**
@@ -146,10 +148,23 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         this.improveVisitsCounter = 0;
         this.bestNodeForPartialSolution = null;
         this.bestNodeForPartialSolutionNumberOfGoals = 0;
-
+        this.currentAgentsReachedGoalsMap = null;
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            if (parameters.separatingVertices != null) {
+                this.separatingVerticesSet = parameters.separatingVertices;
+            }
+            else {
+                if (this.instance.map instanceof I_ExplicitMap) {
+                    this.separatingVerticesSet = SeparatingVerticesFinder.findSeparatingVertices((I_ExplicitMap) this.instance.map);
+                }
+                else {
+                    throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
+                }
+            }
+            this.separatingVerticesComparator = TransientMAPFSettings.createSeparatingVerticesComparator(this.separatingVerticesSet);
+        }
         // distance between every vertex in the graph to each agent's goal
         this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
-
     }
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
@@ -639,8 +654,9 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         }
 
         this.timeStep = N.timeStep;
+        this.currentAgentsReachedGoalsMap = N.reachedGoalsMap;
         for (Agent agent : N.order) {
-            if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chose for agent or agent have a constraint
+            if (this.occupiedNextConfig.containsKey(agent)) continue; // move already chosen for agent or agent has a constraint
             if (!solvePIBT(agent, null)) {
                 return null;
             }
@@ -676,6 +692,11 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         candidates.sort((loc1, loc2) ->
                 Double.compare(this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + random.nextFloat(),
                         this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + random.nextFloat()));
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices() && this.currentAgentsReachedGoalsMap.get(currentAgent)) {
+            // sort candidates so that all SV vertices are at the end of the list
+            candidates.sort(this.separatingVerticesComparator);
+        }
 
         for (I_Location nextLocation : candidates) {
 
@@ -797,6 +818,18 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
     }
 
     @Override
+    protected void writeMetricsToReport(Solution solution) {
+        super.writeMetricsToReport(solution);
+        instanceReport.putIntegerValue("# of failed config", this.failedToFindConfigCounter);
+        instanceReport.putFloatValue("Time in config", (float) this.totalTimeFindConfigurations);
+        instanceReport.putIntegerValue("# of improve visits", this.improveVisitsCounter);
+        if(solution != null){
+            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
+            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
+        }
+    }
+
+    @Override
     protected void releaseMemory() {
         super.releaseMemory();
         this.open = null;
@@ -808,18 +841,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         this.instance = null;
         this.occupiedNowConfig = null;
         this.occupiedNextConfig = null;
-    }
-
-    @Override
-    protected void writeMetricsToReport(Solution solution) {
-        super.writeMetricsToReport(solution);
-        instanceReport.putIntegerValue("# of failed config", this.failedToFindConfigCounter);
-        instanceReport.putFloatValue("Time in config", (float) this.totalTimeFindConfigurations);
-        instanceReport.putIntegerValue("# of improve visits", this.improveVisitsCounter);
-        if(solution != null){
-            instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solutionCostFunction.solutionCost(solution));
-            instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, solutionCostFunction.name());
-        }
+        this.separatingVerticesSet = null;
     }
 
     @Override
@@ -836,4 +858,5 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
     public boolean handlesSharedTargets() {
         return this.transientMAPFSettings.isTransientMAPF();
     }
+
 }

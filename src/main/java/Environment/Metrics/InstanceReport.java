@@ -44,6 +44,7 @@ public class InstanceReport {
         public final static String expandedNodesLowLevel = "Expanded Nodes (Low Level)";
         public final static String expandedNodes = "Expanded Nodes (High Level)";
         public final static String generatedNodesLowLevel = "Generated Nodes (Low Level)";
+        public final static String regeneratedNodesLowLevel = "Regenerated Nodes (Low Level)";
         public final static String generatedNodes = "Generated Nodes (High Level)";
         public final static String startDateTime = "Start Date";
         public final static String endDateTime = "End Date";
@@ -60,7 +61,9 @@ public class InstanceReport {
         public final static String solution = "Solution";
         public final static String skipped = "Skipped";
         public final static String expansionRate = "Expansion Per Sec";
+        public final static String expansionRateLowLevel = "Expansion Per Sec (Low Level)";
         public final static String generationRate = "Generation Per Sec";
+        public final static String generationRateLowLevel = "Generation Per Sec (Low Level)";
         public static final String sumFreespaceCosts = "sumFreespaceCosts";
     }
 
