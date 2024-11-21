@@ -20,6 +20,7 @@ import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import TransientMAPF.TransientMAPFUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -164,7 +165,7 @@ public class PIBT_Solver extends A_Solver {
                     throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
                 }
             }
-            this.separatingVerticesComparator = TransientMAPFSettings.createSeparatingVerticesComparator(this.separatingVerticesSet);
+            this.separatingVerticesComparator = TransientMAPFUtils.createSeparatingVerticesComparator(this.separatingVerticesSet);
         }
 
         // distance between every vertex in the graph to each agent's goal
