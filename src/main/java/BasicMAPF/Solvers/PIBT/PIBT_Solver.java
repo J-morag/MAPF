@@ -21,6 +21,7 @@ import Environment.Metrics.InstanceReport;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import TransientMAPF.TransientMAPFUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -170,7 +171,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                     throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
                 }
             }
-            this.separatingVerticesComparator = TransientMAPFSettings.createSeparatingVerticesComparator(this.separatingVerticesSet);
+            this.separatingVerticesComparator = TransientMAPFUtils.createSeparatingVerticesComparator(this.separatingVerticesSet);
         }
 
         // distance between every vertex in the graph to each agent's goal
@@ -296,6 +297,11 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             candidates.removeAll(this.takenNodes);
         }
 
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices() && this.priorities.get(current) == -1) {
+            // sort candidates so that all SV vertices are at the end of the list
+            candidates.sort(this.separatingVerticesComparator);
+        }
 
         if (this.transientMAPFSettings.avoidSeparatingVertices() && this.priorities.get(current) == -1) {
             // sort candidates so that all SV vertices are at the end of the list

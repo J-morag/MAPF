@@ -6,7 +6,6 @@ import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
 import Environment.Config;
@@ -21,10 +20,10 @@ import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.PartialSo
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import TransientMAPF.TransientMAPFUtils;
 import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import org.apache.commons.lang.mutable.MutableInt;
@@ -121,6 +120,8 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     public boolean dynamicAStarTimeAllocation = false;
     public float aStarTimeAllocationFactor = 1.0f;
 
+    private Set<I_Coordinate> separatingVerticesSet;
+
 
     /*  = Constructors =  */
 
@@ -169,7 +170,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
-
         super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
         if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
@@ -250,6 +250,10 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         }
 
         this.partialSolutionsStrategy = Objects.requireNonNullElseGet(this.partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            this.separatingVerticesSet = TransientMAPFUtils.createSeparatingVerticesSetOfCoordinates(instance, parameters);
+        }
     }
 
     private void reorderAgentsByPriority(Agent[] requestedOrder) {
@@ -564,17 +568,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         params.fBudget = maxCost;
         params.problemStartTime = this.problemStartTime;
         if (transientMAPFSettings.isTransientMAPF()) {
-            if (transientMAPFSettings.avoidOtherAgentsTargets()) {
-                Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
-                for (Agent agent : this.agents) {
-                    if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)) {
-                        targetsOfAgentsThatHaventPlannedYet.add(agent.target);
-                    }
-                }
-                params.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
-            } else {
-                params.goalCondition = new VisitedTargetAStarGoalCondition();
-            }
+            params.goalCondition = TransientMAPFUtils.createLowLevelGoalConditionForTransientMAPF(transientMAPFSettings, separatingVerticesSet, agents, subproblem.agents.get(0), solutionSoFar);
         }
         params.useFailPolicy = allocatedTime < timeLeftToTimeout;
         return params;

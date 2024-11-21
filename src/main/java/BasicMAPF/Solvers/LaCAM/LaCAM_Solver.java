@@ -17,6 +17,8 @@ import TransientMAPF.SeparatingVerticesFinder;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import TransientMAPF.TransientMAPFUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
@@ -161,7 +163,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
                     throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
                 }
             }
-            this.separatingVerticesComparator = TransientMAPFSettings.createSeparatingVerticesComparator(this.separatingVerticesSet);
+            this.separatingVerticesComparator = TransientMAPFUtils.createSeparatingVerticesComparator(this.separatingVerticesSet);
         }
         // distance between every vertex in the graph to each agent's goal
         this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
@@ -604,6 +606,14 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         // bottom of low level tree - each agent have a constraint
         // exactly one configuration is possible
         if (C.depth == this.instance.agents.size()) {
+
+            // check that low-level do not conflict with problem constraints.
+            if (this.needToHandleConstraints) {
+                Move newMove = getNewMove(C.who, C.where, this.occupiedNowConfig.get(C.who));
+                if (!this.constraintsSet.accepts(newMove)) {
+                    return null;
+                }
+            }
             while (C.parent != null) {
 
                 // check that low-level do not conflict with problem constraints.
@@ -773,7 +783,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
             return true;
         }
         // stay in current location if no other option available
-        if (needToCheckConflicts() && this.needToHandleConstraints) {
+        if (this.needToHandleConstraints) {
             Move newMove = getNewMove(currentAgent, this.occupiedNowConfig.get(currentAgent), this.occupiedNowConfig.get(currentAgent));
             if (this.constraintsSet.accepts(newMove)) {
                 this.occupiedNextConfig.put(currentAgent, currentLocation);

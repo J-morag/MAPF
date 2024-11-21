@@ -9,8 +9,6 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
@@ -29,6 +27,7 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import TransientMAPF.TransientMAPFUtils;
 import org.jetbrains.annotations.Nullable;
 import LifelongMAPF.I_LifelongCompatibleSolver;
 
@@ -102,6 +101,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      */
     public final boolean sharedSources;
     private final TransientMAPFSettings transientMAPFSettings;
+    private Set<I_Coordinate> separatingVerticesSet;
     /**
      * How far forward in time to consider conflicts. Beyond than this time conflicts will be ignored.
      */
@@ -143,7 +143,6 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         if (Config.WARNING >= 1 && this.RHCR_Horizon != null && RHCR_Horizon < Integer.MAX_VALUE){
             System.err.println("Warning: CBS is set to use RHCR with a horizon of " + RHCR_Horizon + ". RHCR in CBS is only partially supported and my lead to unexpected behaviour.");
         }
-
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
         if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " ignores shared goals and is set to transient MAPF. Ignoring shared goals is unnecessary if transient.");
@@ -188,6 +187,10 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
             if (this.singleAgentGAndH != null && this.costFunction instanceof SumServiceTimes){
                 this.singleAgentGAndH = new ServiceTimeGAndH(this.singleAgentGAndH);
             }
+        }
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            this.separatingVerticesSet = TransientMAPFUtils.createSeparatingVerticesSetOfCoordinates(instance, runParameters);
         }
     }
 
@@ -406,19 +409,8 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
 
             // TMAPF goal condition
-            if (transientMAPFSettings.isTransientMAPF()){
-                if (transientMAPFSettings.avoidOtherAgentsTargets()) {
-                    Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
-                    for (Agent agentToBlack : this.instance.agents) {
-                        if (!agent.equals(agentToBlack)) {
-                            targetsOfAgentsThatHaventPlannedYet.add(agentToBlack.target);
-                        }
-                    }
-                    astarSubproblemParameters.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
-                }
-                else {
-                    astarSubproblemParameters.goalCondition = new VisitedTargetAStarGoalCondition();
-                }
+            if (transientMAPFSettings.isTransientMAPF()) {
+                astarSubproblemParameters.goalCondition = TransientMAPFUtils.createLowLevelGoalConditionForTransientMAPF(transientMAPFSettings, separatingVerticesSet, instance.agents, agent, null);
             }
 
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);

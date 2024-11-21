@@ -28,6 +28,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
@@ -348,6 +351,25 @@ class CBS_SolverTest {
 
         System.out.println(solvedNormal);
         System.out.println(solvedCBSt);
+    }
+
+    @Test
+    void TestCBSWithTransientBehaviorNarrowCorridor() {
+        MAPF_Instance testInstance = new MAPF_Instance("agent needs to clear path" , mapNarrowCorridor, new Agent[]{
+                new Agent(1, coor00, coor03),
+                new Agent(2, coor01, coor02)
+        });
+        List<String> solverNames = Arrays.asList("CBS", "CBSt");
+        List<I_Solver> solvers = Arrays.asList(
+                new CBSBuilder().createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver()
+        );
+        List<RunParameters> parameters = Arrays.asList(
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP()
+        );
+        TestUtils.solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
+                Arrays.asList( "Solved", "SOC", "SST", "Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)"));
     }
 
     /* Lifelong */

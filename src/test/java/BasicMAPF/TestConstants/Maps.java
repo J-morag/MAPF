@@ -121,6 +121,12 @@ public class Maps {
     public static final I_ExplicitMap randomArbitraryGraphMap4 = createRandomStronglyConnectedGraphMap(45, 2, 1, true);
     public static final I_ExplicitMap randomArbitraryGraphMap5 = createRandomStronglyConnectedGraphMap(46, 20, 1, true);
 
+
+    public static final Enum_MapLocationType[][] map_2D_narrowCorridor = {
+            {e, e, e, e, e}
+    };
+    public static final I_ExplicitMap mapNarrowCorridor = MapFactory.newSimple4Connected2D_GraphMap(map_2D_narrowCorridor);
+
     public static final Enum_MapLocationType[][] map_2D_tree = {
             {w, e, w},
             {w, e, e},
