@@ -303,11 +303,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             candidates.sort(this.separatingVerticesComparator);
         }
 
-        if (this.transientMAPFSettings.avoidSeparatingVertices() && this.priorities.get(current) == -1) {
-            // sort candidates so that all SV vertices are at the end of the list
-            candidates.sort(this.separatingVerticesComparator);
-        }
-
         while (!candidates.isEmpty()) {
             I_Location best = findBest(candidates, current);
             this.takenNodes.add(best);

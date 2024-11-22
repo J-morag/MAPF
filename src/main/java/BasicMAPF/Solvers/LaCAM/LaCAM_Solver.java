@@ -19,7 +19,6 @@ import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 import TransientMAPF.TransientMAPFUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
@@ -606,8 +605,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
         // bottom of low level tree - each agent have a constraint
         // exactly one configuration is possible
         if (C.depth == this.instance.agents.size()) {
-
-            // check that low-level do not conflict with problem constraints.
+            // check that move does not conflict with problem constraints.
             if (this.needToHandleConstraints) {
                 Move newMove = getNewMove(C.who, C.where, this.occupiedNowConfig.get(C.who));
                 if (!this.constraintsSet.accepts(newMove)) {
@@ -783,7 +781,7 @@ public class LaCAM_Solver extends A_Solver implements I_LifelongCompatibleSolver
             return true;
         }
         // stay in current location if no other option available
-        if (this.needToHandleConstraints) {
+        if (needToCheckConflicts() && this.needToHandleConstraints) {
             Move newMove = getNewMove(currentAgent, this.occupiedNowConfig.get(currentAgent), this.occupiedNowConfig.get(currentAgent));
             if (this.constraintsSet.accepts(newMove)) {
                 this.occupiedNextConfig.put(currentAgent, currentLocation);
