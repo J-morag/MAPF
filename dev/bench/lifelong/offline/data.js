@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1732525519723,
+  "lastUpdate": 1732525520828,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -8119,6 +8119,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "Priority Constrained Search - Average Expansions Low Level",
             "value": 1916826,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "de66feb599e9d5cb08a1720eab057dbbb8049f9d",
+          "message": "Lifelong_v0.06.0 (#98)",
+          "timestamp": "2024-11-25T10:23:04+02:00",
+          "tree_id": "c7467ec5443555de81715683896886e71fc5d24f",
+          "url": "https://github.com/J-morag/MAPF/commit/de66feb599e9d5cb08a1720eab057dbbb8049f9d"
+        },
+        "date": 1732525520445,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 10543,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 11329.647,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 9930,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 6248488,
             "unit": "Expansions"
           }
         ]
