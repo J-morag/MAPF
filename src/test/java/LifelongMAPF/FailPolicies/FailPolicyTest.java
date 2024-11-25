@@ -3,7 +3,9 @@ package LifelongMAPF.FailPolicies;
 import BasicMAPF.Solvers.I_Solver;
 import LifelongMAPF.LifelongRunManagers.LifelongSolversFactory;
 import LifelongMAPF.LifelongTestInstances;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 class FailPolicyTest {
 
@@ -12,6 +14,11 @@ class FailPolicyTest {
 
     I_Solver complexWithAvoid =
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5IntegratedAvoid();
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     void simpleWithAvoid(){

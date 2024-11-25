@@ -3,7 +3,6 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,10 +18,9 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
         this.constraintSet = toCopy;
     }
 
-
     @Override
-    public Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet() {
-        return constraintSet.getEntrySet();
+    public Map<I_Location, ArrayList<Constraint>> getLocationConstraintsTimeSorted() {
+        return this.constraintSet.getLocationConstraintsTimeSorted();
     }
 
     @Override
@@ -51,6 +49,16 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     }
 
     @Override
+    public void setLastTimeToConsiderConstraints(int lastTimeToConsiderConstraints) {
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
+    }
+
+    @Override
+    public int getLastTimeToConsiderConstraints() {
+        return constraintSet.getLastTimeToConsiderConstraints();
+    }
+
+    @Override
     public boolean isEmpty() {
         return constraintSet.isEmpty();
     }
@@ -58,11 +66,6 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     @Override
     public int getLastConstraintStartTime() {
         return constraintSet.getLastConstraintStartTime();
-    }
-
-    @Override
-    public void add(Set<Constraint> constraintSet, Constraint constraint) {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
     }
 
     @Override
@@ -111,18 +114,18 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     }
 
     @Override
-    public int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.lastRejectionTime(finalMove, checkOtherAgentsLastMoves);
+    public int lastRejectionTime(Move finalMove) {
+        return constraintSet.lastRejectionTime(finalMove);
     }
 
     @Override
-    public int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.firstRejectionTime(finalMove, checkOtherAgentsLastMoves);
+    public int firstRejectionTime(Move finalMove) {
+        return constraintSet.firstRejectionTime(finalMove);
     }
 
     @Override
-    public boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves) {
-        return constraintSet.acceptsForever(finalMove, checkOtherAgentsLastMoves);
+    public boolean acceptsForever(Move finalMove) {
+        return constraintSet.acceptsForever(finalMove);
     }
 
     @Override
@@ -136,23 +139,8 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     }
 
     @Override
-    public void trimToTimeRange(int minTime, int maxTime) {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
-    }
-
-    @Override
-    public int lastRejectAt(I_Location target, Agent agent) {
-        return constraintSet.lastRejectAt(target, agent);
-    }
-
-    @Override
     public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan) {
         return constraintSet.allConstraintsForPlan(singleAgentPlan);
-    }
-
-    @Override
-    public List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan, int horizon) {
-        return constraintSet.allConstraintsForPlan(singleAgentPlan, horizon);
     }
 
     @Override

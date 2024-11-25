@@ -20,11 +20,6 @@ public abstract class A_LifelongAgentSelector implements I_LifelongAgentSelector
         this.periodicSelector = Objects.requireNonNullElseGet(periodicSelector, () -> new PeriodicSelector(1));
     }
 
-    protected A_LifelongAgentSelector() {
-        this(null);
-    }
-
-
     @Override
     public boolean timeToPlan(int farthestCommittedTime) {
         return periodicSelector.timeMeetsOrExceedsPeriod(farthestCommittedTime);

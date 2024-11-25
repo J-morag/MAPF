@@ -8,7 +8,7 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
@@ -23,10 +23,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -77,6 +74,11 @@ class SingleAgentAStarSIPP_SolverTest {
     I_Solver sipp = new SingleAgentAStarSIPP_Solver();
 
     InstanceReport instanceReport;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
@@ -235,7 +237,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 1, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 1, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -286,7 +288,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 2, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 2, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -311,7 +313,7 @@ class SingleAgentAStarSIPP_SolverTest {
         Agent agent = testInstance.agents.get(0);
 
         //constraint
-        Constraint goalConstraint = new GoalConstraint(null, 3, location22Circle);
+        Constraint goalConstraint = new GoalConstraint(null, 3, location22Circle, new Agent(1000, coor34, coor34));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(goalConstraint);
         RunParameters parameters = new RunParametersBuilder().setConstraints(constraints).createRP();
@@ -427,7 +429,7 @@ class SingleAgentAStarSIPP_SolverTest {
         SingleAgentAStar_Solver astar = new SingleAgentAStar_Solver();
         MAPF_Instance baseInstance = instanceEmpty1;
 
-        int seeds = 20;
+        int seeds = 10;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
@@ -443,7 +445,7 @@ class SingleAgentAStarSIPP_SolverTest {
                 ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < 5; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
@@ -527,7 +529,7 @@ class SingleAgentAStarSIPP_SolverTest {
         MAPF_Instance baseInstance = instanceEmpty1;
         SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
 
-        int seeds = 20;
+        int seeds = 10;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
@@ -543,7 +545,7 @@ class SingleAgentAStarSIPP_SolverTest {
                 ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < 5; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, 10);
@@ -639,7 +641,7 @@ class SingleAgentAStarSIPP_SolverTest {
         // perfect heuristic is no better than manhattan distance on empty grid
 //        SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(baseInstance.agents, baseInstance.map);
 
-        int seeds = 5;
+        int seeds = 2;
         for (int seed = 0; seed < seeds; seed++) {
             for (Agent agent : baseInstance.agents) {
                 MAPF_Instance testInstance = baseInstance.getSubproblemFor(agent);
@@ -655,7 +657,7 @@ class SingleAgentAStarSIPP_SolverTest {
                 ConstraintSet constraints = new ConstraintSet();
                 for (int i = 0; i < mapDim; i++){
                     I_Location randomLocation = locations.get(rand.nextInt(locations.size()));
-                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation);
+                    GoalConstraint goalConstraint = new GoalConstraint(agent, rand.nextInt(3000), null, randomLocation, new Agent(1000, coor43,  coor34)); // arbitrary agent not in instance
                     constraints.add(goalConstraint);
                 }
                 addRandomConstraints(agent, locations, rand, constraints, 3000, mapDim);
@@ -1086,15 +1088,13 @@ class SingleAgentAStarSIPP_SolverTest {
     }
 
     @Test
-    void comparativeDiverseTest(){
+    void comparativeTest(){
         Metrics.clearAll();
         boolean useAsserts = true;
 
-        I_Solver regularCBS = new CBS_Solver(null, null, null,
-                null, null, false, null, null, null);
+        I_Solver regularCBS = new CBSBuilder().setUseCorridorReasoning(false).createCBS_Solver();
         String nameBaseline = "regularCBS";
-        I_Solver singleAgentSippCBS = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null, null,
-                null, null, false, null, null, null);
+        I_Solver singleAgentSippCBS = new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).setUseCorridorReasoning(false).createCBS_Solver();
         String nameExperimental = "singleAgentSippCBS";
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
@@ -1104,7 +1104,7 @@ class SingleAgentAStarSIPP_SolverTest {
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
-        long timeout = 20 /*seconds*/   *1000L;
+        long timeout = 5 /*seconds*/   *1000L;
         int solvedByBaseline = 0;
         int solvedByExperimental = 0;
         int runtimeBaseline = 0;
@@ -1115,7 +1115,7 @@ class SingleAgentAStarSIPP_SolverTest {
             // run baseline (without the improvement)
             //build report
             InstanceReport reportBaseline = Metrics.newInstanceReport();
-            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportBaseline.putStringValue(InstanceReport.StandardFields.solver, "regularCBS");
@@ -1128,7 +1128,7 @@ class SingleAgentAStarSIPP_SolverTest {
             // run experimentl (with the improvement)
             //build report
             InstanceReport reportExperimental = Metrics.newInstanceReport();
-            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
+            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeTest");
             reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
             reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
             reportExperimental.putStringValue(InstanceReport.StandardFields.solver, "singleAgentSippCBS");

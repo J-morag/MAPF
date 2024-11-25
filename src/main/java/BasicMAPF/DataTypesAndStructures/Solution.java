@@ -144,7 +144,8 @@ public class Solution implements Iterable<SingleAgentPlan>{
      */
     public boolean solves(MAPF_Instance instance, boolean sharedGoals, boolean sharedSources){
         // check that the solution is conflict free
-        if (!isValidSolution(sharedGoals, sharedSources))
+        A_Conflict conflict = firstConflict(sharedGoals, sharedSources);
+        if (conflict != null)
             return false;
         // check that the solution covers all agents and no other agents
         if (!this.agentPlans.keySet().containsAll(instance.agents) || !instance.agents.containsAll(this.agentPlans.keySet()))

@@ -346,6 +346,22 @@ public class SingleAgentPlan implements Iterable<Move> {
         return null;
     }
 
+    /**
+     * Returns a new plan that is a prefix of this plan. The new plan will have the same agent as this plan.
+     * @param firstNMoves the number of moves from this plan to include in the new plan. Must be positive and at most
+     *                    the size of this plan.
+     * @return a new plan that is a prefix of this plan.
+     */
+    public SingleAgentPlan getPrefix(int firstNMoves) {
+        if (firstNMoves <= 0) {
+            throw new IllegalArgumentException("firstNMoves must be positive. got: " + firstNMoves + " for plan: " + this);
+        }
+        if (firstNMoves > this.size()) {
+            throw new IllegalArgumentException("firstNMoves must be at most the size of the plan. got: " + firstNMoves + " for plan: " + this);
+        }
+        return new SingleAgentPlan(this.agent, this.moves.subList(0, firstNMoves));
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

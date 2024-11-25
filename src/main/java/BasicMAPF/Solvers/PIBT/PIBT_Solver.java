@@ -8,20 +8,29 @@ import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import TransientMAPF.SeparatingVerticesFinder;
+import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import LifelongMAPF.I_LifelongCompatibleSolver;
+import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import TransientMAPF.TransientMAPFUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * Priority Inheritance with Backtracking (PIBT) algorithm.
+ * Okumura, Keisuke, et al. "Priority inheritance with backtracking for iterative multi-agent path finding." Artificial Intelligence 310 (2022).
+ */
 public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver {
 
     /**
@@ -59,7 +68,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * at the end of the algorithm this HashMap represent the final solution.
      */
     private HashMap<Agent, SingleAgentPlan> agentPlans;
-    private int timeStamp;
+    private int timeStep;
 
     /**
      * The cost function to evaluate solutions with.
@@ -77,8 +86,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     public Integer problemStartTime;
 
-    private static final int DEBUG = 0;
-
     /**
      * Set who saves lists of agent's locations - configurations, as lists.
      * The use of this set is to detect loops.
@@ -91,18 +98,39 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private final boolean returnPartialSolutions;
 
+    /**
+     * variable indicates whether the solution returned by the algorithm is transient.
+     */
+    private final TransientMAPFSettings transientMAPFSettings;
+
+    /**
+     * Map saving for each agent its goal location, representing the goal configuration.
+     */
+    private HashMap<Agent, I_Location> goalConfiguration;
+
     private boolean agentCantMoveOrStay;
     private boolean allAgentsReachedGoal;
+    private Set<I_Location> separatingVerticesSet;
+    private Comparator<I_Location> separatingVerticesComparator;
+    private MAPF_Instance instance;
 
+
+    /**
+     * Default constructor.
+     */
+    public PIBT_Solver() {
+        this(null, null, null, null);
+    }
 
     /**
      * constructor.
      */
-    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions) {
-        super.name = "PIBT";
+    public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, Boolean returnPartialSolutions, TransientMAPFSettings transientMAPFSettings) {
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         this.returnPartialSolutions = Objects.requireNonNullElse(returnPartialSolutions, false);
+        this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        super.name = "PIBT" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
     @Override
@@ -112,11 +140,13 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         this.currentLocations = new HashMap<>();
         this.priorities = new HashMap<>();
         this.agentPlans = new HashMap<>();
-        this.timeStamp = parameters.problemStartTime;
+        this.timeStep = parameters.problemStartTime;
         this.problemStartTime = parameters.problemStartTime;
         this.configurations = new HashSet<>();
         this.agentCantMoveOrStay = false;
         this.allAgentsReachedGoal = false;
+        this.goalConfiguration = new HashMap<>();
+        this.instance = instance;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -124,13 +154,31 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
             // init agents plans
             this.agentPlans.put(agent, new SingleAgentPlan(agent, new ArrayList<Move>()));
+
+            // init goal configuration
+            this.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
         }
 
-        // init agent's priority to unique number
-        initPriority(instance);
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            if (parameters.separatingVertices != null) {
+                this.separatingVerticesSet = parameters.separatingVertices;
+            }
+            else {
+                if (this.instance.map instanceof I_ExplicitMap) {
+                    this.separatingVerticesSet = SeparatingVerticesFinder.findSeparatingVertices((I_ExplicitMap) this.instance.map);
+                }
+                else {
+                    throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
+                }
+            }
+            this.separatingVerticesComparator = TransientMAPFUtils.createSeparatingVerticesComparator(this.separatingVerticesSet);
+        }
 
         // distance between every vertex in the graph to each agent's goal
         this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
+
+        // init agent's priority to unique number
+        initPriority(instance);
     }
 
 
@@ -139,13 +187,15 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         // each iteration of the while represents timestamp
         while (!(finished())) {
 
+            this.timeStep++;
+
             // loop detection
             ArrayList<I_Location> currentConfiguration = new ArrayList<>(instance.agents.size());
             for (Agent agent : instance.agents) {
                 currentConfiguration.add(this.currentLocations.get(agent));
             }
             if (this.configurations.contains(currentConfiguration) && !this.allAgentsReachedGoal) {
-                if (DEBUG >= 2){
+                if (Config.DEBUG >= 2){
                     System.out.println("LOOP DETECTED");
                 }
                 return partialOrNoSolution();
@@ -157,7 +207,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
             if (checkTimeout()) {
                 return partialOrNoSolution();
             }
-            this.timeStamp++;
+
 
             // init agents that have not reached their goal
             this.unhandledAgents = new HashSet<>();
@@ -177,7 +227,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                     return partialOrNoSolution();
                 }
             }
-            updatePriorities(instance);
+            updatePriorities();
         }
 
         return finalSolution();
@@ -199,7 +249,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 SingleAgentPlan plan = entry.getValue();
                 if (plan.size() == 0) {
                     // if agent didn't make a move, add a move to stay in current location
-                    plan.addMove(new Move(agent, this.timeStamp, this.currentLocations.get(agent), this.currentLocations.get(agent)));
+                    plan.addMove(new Move(agent, this.timeStep, this.currentLocations.get(agent), this.currentLocations.get(agent)));
                     numberOfNotMovingAgents++;
                 }
                 solution.putPlan(plan);
@@ -237,19 +287,38 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
         //  2. move to the node where the higher priority agent is
 
         candidates.add(this.currentLocations.get(current)); // 1
-        if (higherPriorityAgent != null) {
+
+        if (higherPriorityAgent != null && needToCheckConflicts()) {
             candidates.remove(this.currentLocations.get(higherPriorityAgent)); // 2
         }
 
         // remove all taken nodes by higher priorities agents
-        candidates.removeAll(this.takenNodes);
+        if (needToCheckConflicts()) {
+            candidates.removeAll(this.takenNodes);
+        }
+
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices() && this.priorities.get(current) == -1) {
+            // sort candidates so that all SV vertices are at the end of the list
+            candidates.sort(this.separatingVerticesComparator);
+        }
 
         while (!candidates.isEmpty()) {
             I_Location best = findBest(candidates, current);
             this.takenNodes.add(best);
 
+            if (!needToCheckConflicts()) {
+                if (addNewMoveToAgent(current, best)) {
+                    return true;
+                }
+                else {
+                    candidates.remove(best);
+                    continue;
+                }
+            }
+
             // best is taken
-            if (this.currentLocations.containsValue(best) && needToCheckConflicts()) {
+            if (this.currentLocations.containsValue(best)) {
                 Agent optional = null;
                 for (Agent agent: this.currentLocations.keySet()) {
                     if (this.currentLocations.get(agent) == best) {
@@ -263,14 +332,22 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                         // add new move to the agent's plan - the best is to stay in current node
                         if (addNewMoveToAgent(current, this.currentLocations.get(current))){
                             return true;
-                        };
+                        }
+                        else {
+                            candidates.remove(best);
+                            continue;
+                        }
                     }
 
                     else if (solvePIBT(optional, current) && canMove(current)) {
                         // add new move to the agent's plan - change location
                         if (addNewMoveToAgent(current, best)) {
                             return true;
-                        };
+                        }
+                        else {
+                            candidates.remove(best);
+                            continue;
+                        }
                     }
                     else {
                         // priority inheritance didn't work, remove best and try next candidate
@@ -284,7 +361,11 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
                 // add new move to the agent's plan - change location
                 if (addNewMoveToAgent(current, best)) {
                     return true;
-                };
+                }
+                else {
+                    candidates.remove(best);
+                    continue;
+                }
             }
             candidates.remove(best);
         }
@@ -308,19 +389,22 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
 
     /**
      * helper function.
-     * update priority of each agent in current timestamp using instance.
+     * update priority of each agent in current time step using instance.
      */
-    private void updatePriorities(MAPF_Instance instance) {
+    private void updatePriorities() {
         for (Agent agent : this.priorities.keySet()) {
             double currentPriority = this.priorities.get(agent);
-            // agent reached its target
-            if (this.agentPlans.get(agent).containsTarget()) {
+            boolean agentHasReachedTarget = this.transientMAPFSettings.isTransientMAPF()
+                    ? this.agentPlans.get(agent).containsTarget()
+                    : this.agentPlans.get(agent).getLastMove().currLocation.equals(this.goalConfiguration.get(agent));
+
+            // Update priorities based on whether the agent has reached its target
+            if (agentHasReachedTarget) {
                 if (currentPriority != -1.0) {
                     this.configurations = new HashSet<>();
                 }
                 this.priorities.put(agent, -1.0);
-            }
-            else {
+            } else {
                 this.priorities.put(agent, currentPriority + 1);
             }
         }
@@ -396,15 +480,29 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean indicates if all agents reached their goal.
      */
     private boolean finished() {
-        for (Agent agent : this.priorities.keySet()) {
-            if (this.priorities.get(agent) != -1.0) {
-                return false;
+
+        // TMAPF
+        if (this.transientMAPFSettings.isTransientMAPF()) {
+            for (Agent agent : this.priorities.keySet()) {
+                if (this.priorities.get(agent) != -1.0) {
+                    return false;
+                }
             }
         }
+
+        // regular MAPF
+        else {
+            for (Agent agent : this.agentPlans.keySet()) {
+                if (!this.currentLocations.get(agent).equals(this.goalConfiguration.get(agent))) {
+                    return false;
+                }
+            }
+        }
+
         // all agents' priorities are -1, all agents reached goals
         this.allAgentsReachedGoal = true;
         for (Agent agent : this.priorities.keySet()) {
-            if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove(),true) != -1) {
+            if (this.constraints.firstRejectionTime(this.agentPlans.get(agent).getLastMove()) != -1) {
                 return false;
             }
         }
@@ -418,7 +516,7 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     private boolean canMove(Agent agent) {
         SingleAgentPlan agentPlan = this.agentPlans.get(agent);
-        return agentPlan.size() == 0 || agentPlan.getEndTime() < this.timeStamp;
+        return agentPlan.size() == 0 || agentPlan.getEndTime() < this.timeStep;
     }
 
     /**
@@ -428,8 +526,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean : true if the move added successfully, false otherwise.
      */
     private boolean addNewMoveToAgent(Agent current, I_Location newLocation) {
-        Move move = new Move(current, this.timeStamp, this.currentLocations.get(current), newLocation);
-        if (this.constraints.accepts(move)) {
+        Move move = new Move(current, this.timeStep, this.currentLocations.get(current), newLocation);
+        if (!needToCheckConflicts() || this.constraints.accepts(move)) {
             this.agentPlans.get(current).addMove(move);
             this.currentLocations.put(current, newLocation);
             return true;
@@ -443,8 +541,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      * @return boolean: true if conflicts needs to be checked, otherwise return false.
      */
     private boolean needToCheckConflicts() {
-        if (this.timeStamp != 0) {
-            return this.RHCR_Horizon >= this.timeStamp;
+        if (this.timeStep != 0) {
+            return this.RHCR_Horizon >= this.timeStep - this.problemStartTime;
         }
         return true;
     }
@@ -456,8 +554,8 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
      */
     @NotNull
     private Solution finalSolution() {
-        this.timeStamp++;
-        Solution solution = new TransientMAPFSolution();
+        this.timeStep++;
+        Solution solution = transientMAPFSettings.isTransientMAPF() ? new TransientMAPFSolution() : new Solution();
 
         for (Agent agent : agentPlans.keySet()) {
             solution.putPlan(this.agentPlans.get(agent));
@@ -487,19 +585,6 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     }
 
     @Override
-    protected void releaseMemory() {
-        super.releaseMemory();
-        this.agentPlans = null;
-        this.heuristic = null;
-        this.currentLocations = null;
-        this.priorities = null;
-        this.takenNodes = null;
-        this.unhandledAgents = null;
-        this.constraints = null;
-        this.configurations = null;
-    }
-
-    @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         if(solution != null){
@@ -509,12 +594,31 @@ public class PIBT_Solver extends A_Solver implements I_LifelongCompatibleSolver 
     }
 
     @Override
-    public boolean sharedSources() {
+    protected void releaseMemory() {
+        super.releaseMemory();
+        this.agentPlans = null;
+        this.heuristic = null;
+        this.currentLocations = null;
+        this.priorities = null;
+        this.takenNodes = null;
+        this.unhandledAgents = null;
+        this.separatingVerticesSet = null;
+        this.constraints = null;
+        this.configurations = null;
+    }
+
+    @Override
+    public boolean ignoresStayAtSharedSources() {
         return false;
     }
 
     @Override
-    public boolean sharedGoals() {
-        return true;
+    public boolean ignoresStayAtSharedGoals() {
+        return false;
+    }
+
+    @Override
+    public boolean handlesSharedTargets() {
+        return this.transientMAPFSettings.isTransientMAPF();
     }
 }

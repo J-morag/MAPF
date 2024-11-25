@@ -1,28 +1,35 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import Environment.IO_Package.IO_Manager;
-import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
+import BasicMAPF.TestUtils;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.*;
-import java.text.DateFormat;
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.COMPLETED_CONTINGENCY_ATTEMPTS_STR;
 import static BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver.COMPLETED_INITIAL_ATTEMPTS_STR;
@@ -30,7 +37,6 @@ import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Instances.*;
-import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PrioritisedPlanningSolverTest {
@@ -41,6 +47,11 @@ class PrioritisedPlanningSolverTest {
 
 
     InstanceReport instanceReport;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
@@ -113,7 +124,7 @@ class PrioritisedPlanningSolverTest {
     void failsBeforeTimeoutWithRandomInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent00to10, agent10to00, agent55to34, agent43to53});
         PrioritisedPlanning_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null, null);
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 3, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null, null);
         solver.reportIndvAttempts = true;
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -133,7 +144,7 @@ class PrioritisedPlanningSolverTest {
     void failsBeforeTimeoutWithDeterministicInitialAndContingency() {
         MAPF_Instance testInstance = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent55to34, agent43to53, agent00to10, agent10to00});
         PrioritisedPlanning_Solver solver = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null, null, null);
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.deterministicRescheduling, 3, RestartsStrategy.reorderingStrategy.deterministicRescheduling, null), null, null, null, null, null);
         solver.reportIndvAttempts = true;
         long timeout = 10*1000;
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
@@ -154,13 +165,13 @@ class PrioritisedPlanningSolverTest {
         MAPF_Instance testInstance = instanceUnsolvableBecauseOrderWithInfiniteWait;
         long timeout = 10*1000;
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null, null);
         Solution solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         // should be able to solve in one of the restarts
         assertNotNull(solved);
 
         solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.deterministicRescheduling), null, null, null, null, null);
+                new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.deterministicRescheduling, null), null, null, null, null, null);
         solved = solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         // should be able to solve in one of the restarts
         assertNotNull(solved);
@@ -175,20 +186,31 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void ObeysSoftTimeout(){
-        MAPF_Instance testInstance = instanceEmptyHarder;
+        String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
+                "Instances", "MovingAI_Instances", });
+        InstanceProperties properties = new InstanceProperties(null, -1, new int[]{30}, null);
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(), properties);
+        InstanceManager.InstancePath instancePath = new InstanceManager.Moving_AI_Path(
+                IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances", "maze-32-32-2.map"}),
+                        IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances", "maze-32-32-2-even-1.scen"})
+                        );
+        MAPF_Instance testInstance = instanceManager.getSpecificInstance(instancePath);
+
         InstanceReport instanceReport = Metrics.newInstanceReport();
         long softTimeout = 100L;
         long hardTimeout = 5L * 1000;
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 10000, RestartsStrategy.RestartsKind.none), null, null, null, null, null);
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 200000, RestartsStrategy.reorderingStrategy.none, false), null, null, null, null, null);
         Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
+        System.out.println("completed initial attempts: " + instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
         int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-        System.out.println("runtime: " + runtime);
-        assertTrue(runtime >= softTimeout && runtime < hardTimeout);
+        System.out.println("runtime: " + runtime + "ms");
+        assertTrue(runtime >= softTimeout);
+        assertTrue(runtime < hardTimeout);
 
         Metrics.removeReport(instanceReport);
     }
@@ -222,17 +244,17 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF, null, null);
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, TransientMAPFSettings.defaultTransientMAPF, null, null);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
 
-        Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        Solution solvedNormal = ppSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
         assertEquals(4 + 4, solvedNormal.sumIndividualCosts());
         assertEquals(4, solvedNormal.makespan());
 
-        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        Solution solvedPrPT = PrPT.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         assertTrue(solvedPrPT.solves(testInstance));
         assertEquals(4 + 3, solvedPrPT.sumIndividualCosts()); // normal SOC function
         assertEquals(4 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
@@ -243,14 +265,14 @@ class PrioritisedPlanningSolverTest {
     @Test
     void worksWithTMAPFAndRandomRestarts() {
         I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, TransientMAPFBehaviour.transientMAPF, null, null);
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 2, RestartsStrategy.reorderingStrategy.none, null),
+                null, null, TransientMAPFSettings.defaultTransientMAPF, null, null);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
 
         I_Solver ppSolverWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 2, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null, null, null);
         Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
@@ -269,14 +291,14 @@ class PrioritisedPlanningSolverTest {
     @Test
     void worksWithTMAPFAndBlacklistAndRandomRestarts() {
         I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
-                null, null, TransientMAPFBehaviour.transientMAPFWithBlacklist, null, null);
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 2, RestartsStrategy.reorderingStrategy.none, null),
+                null, null, TransientMAPFSettings.defaultTransientMAPF, null, null);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentYMoving, agentXMoving});
 
         I_Solver ppSolverWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 1),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 2, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null, null, null);
         Solution solvedNormal = ppSolverWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertTrue(solvedNormal.solves(testInstance));
@@ -291,500 +313,64 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void TestingBenchmark(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
-        I_Solver solver = ppSolver;
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
-
-        MAPF_Instance instance = null;
-        // load the pre-made benchmark
-        try {
-            long timeout = 5 /*seconds*/
-                    *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
-            int numSolved = 0;
-            int numFailed = 0;
-            int numValid = 0;
-            int numOptimal = 0;
-            int numValidSuboptimal = 0;
-            int numInvalidOptimal = 0;
-            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-            while ((instance = instanceManager.getNextInstance()) != null) {
-//                if (!instance.name.equals("Instance-32-20-20-0")){
-//                    continue;
-//                }
-
-                //build report
-                InstanceReport report = Metrics.newInstanceReport();
-                report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
-                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-                report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
-
-                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
-
-                //solve
-                System.out.println("---------- solving "  + instance.name + " ----------");
-                Solution solution = solver.solve(instance, runParameters);
-
-                // validate
-                Map<String, String> benchmarkForInstance = benchmarks.get(instance.name);
-                if(benchmarkForInstance == null){
-                    System.out.println("can't find benchmark for " + instance.name);
-                    continue;
-                }
-
-                boolean solved = solution != null;
-                System.out.println("Solved?: " + (solved ? "yes" : "no"));
-//                if (useAsserts) assertNotNull(solution);
-                if (solved) numSolved++;
-                else numFailed++;
-
-                if(solution != null){
-                    boolean valid = solution.solves(instance);
-                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                    if (useAsserts) assertTrue(valid);
-
-                    int optimalCost = Integer.parseInt(benchmarkForInstance.get("Plan Cost"));
-                    int costWeGot = solution.sumIndividualCosts();
-                    boolean optimal = optimalCost==costWeGot;
-                    System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
-                            ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
-                    report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-
-                    report.putIntegerValue("Runtime Delta",
-                            report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
-
-                    if(valid) numValid++;
-                    if(optimal) numOptimal++;
-                    if(valid && !optimal) numValidSuboptimal++;
-                    if(!valid && optimal) numInvalidOptimal++;
-                }
-            }
-
-            System.out.println("--- TOTALS: ---");
-            System.out.println("timeout for each (seconds): " + (timeout/1000));
-            System.out.println("solved: " + numSolved);
-            System.out.println("failed: " + numFailed);
-            System.out.println("valid: " + numValid);
-            System.out.println("optimal: " + numOptimal);
-            System.out.println("valid but not optimal: " + numValidSuboptimal);
-            System.out.println("not valid but optimal: " + numInvalidOptimal);
-
-            //save results
-            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-            File directory = new File(resultsOutputDir);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-            try {
-                Metrics.exportCSV(new FileOutputStream(updatedPath),
-                        new String[]{
-                                InstanceReport.StandardFields.instanceName,
-                                InstanceReport.StandardFields.numAgents,
-                                InstanceReport.StandardFields.timeoutThresholdMS,
-                                InstanceReport.StandardFields.solved,
-                                InstanceReport.StandardFields.elapsedTimeMS,
-                                "Runtime Delta",
-                                InstanceReport.StandardFields.solutionCost,
-                                "Cost Delta",
-                                InstanceReport.StandardFields.totalLowLevelTimeMS,
-                                InstanceReport.StandardFields.generatedNodes,
-                                InstanceReport.StandardFields.expandedNodes,
-                                InstanceReport.StandardFields.generatedNodesLowLevel,
-                                InstanceReport.StandardFields.expandedNodesLowLevel});
-            } catch (IOException e) {
-                e.printStackTrace();
-                fail();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            fail();
-        }
-
+        TestUtils.TestingBenchmark(ppSolver, 5, false, false);
     }
 
     @Test
     void TestingBenchmarkWInitialRandomRestarts(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 2), null, null, null, null, null);
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
-
-        MAPF_Instance instance = null;
-        // load the pre-made benchmark
-        try {
-            long timeout = 5 /*seconds*/
-                    *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
-            int numSolved = 0;
-            int numFailed = 0;
-            int numValid = 0;
-            int numOptimal = 0;
-            int numValidSuboptimal = 0;
-            int numInvalidOptimal = 0;
-            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-            while ((instance = instanceManager.getNextInstance()) != null) {
-//                if (!instance.name.equals("brc202d-10-8")){
-//                    continue;
-//                }
-
-                //build report
-                InstanceReport report = Metrics.newInstanceReport();
-                report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
-                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-                report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
-
-                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
-
-                //solve
-                System.out.println("---------- solving "  + instance.name + " ----------");
-                Solution solution = solver.solve(instance, runParameters);
-
-                // validate
-                Map<String, String> benchmarkForInstance = benchmarks.get(instance.name);
-                if(benchmarkForInstance == null){
-                    System.out.println("can't find benchmark for " + instance.name);
-                    continue;
-                }
-
-                boolean solved = solution != null;
-                System.out.println("Solved?: " + (solved ? "yes" : "no"));
-//                if (useAsserts) assertNotNull(solution);
-                if (solved) numSolved++;
-                else numFailed++;
-
-                if(solution != null){
-                    boolean valid = solution.solves(instance);
-                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                    if (useAsserts) assertTrue(valid);
-
-                    int optimalCost = Integer.parseInt(benchmarkForInstance.get("Plan Cost"));
-                    int costWeGot = solution.sumIndividualCosts();
-                    boolean optimal = optimalCost==costWeGot;
-                    System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
-                            ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
-                    report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-
-                    report.putIntegerValue("Runtime Delta",
-                            report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
-
-                    if(valid) numValid++;
-                    if(optimal) numOptimal++;
-                    if(valid && !optimal) numValidSuboptimal++;
-                    if(!valid && optimal) numInvalidOptimal++;
-                }
-            }
-
-            System.out.println("--- TOTALS: ---");
-            System.out.println("timeout for each (seconds): " + (timeout/1000));
-            System.out.println("solved: " + numSolved);
-            System.out.println("failed: " + numFailed);
-            System.out.println("valid: " + numValid);
-            System.out.println("optimal: " + numOptimal);
-            System.out.println("valid but not optimal: " + numValidSuboptimal);
-            System.out.println("not valid but optimal: " + numInvalidOptimal);
-
-            //save results
-            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-            File directory = new File(resultsOutputDir);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-            try {
-                Metrics.exportCSV(new FileOutputStream(updatedPath),
-                        new String[]{
-                                InstanceReport.StandardFields.instanceName,
-                                InstanceReport.StandardFields.numAgents,
-                                InstanceReport.StandardFields.timeoutThresholdMS,
-                                InstanceReport.StandardFields.solved,
-                                InstanceReport.StandardFields.elapsedTimeMS,
-                                "Runtime Delta",
-                                InstanceReport.StandardFields.solutionCost,
-                                "Cost Delta",
-                                InstanceReport.StandardFields.totalLowLevelTimeMS,
-                                InstanceReport.StandardFields.generatedNodes,
-                                InstanceReport.StandardFields.expandedNodes,
-                                InstanceReport.StandardFields.generatedNodesLowLevel,
-                                InstanceReport.StandardFields.expandedNodesLowLevel});
-            } catch (IOException e) {
-                e.printStackTrace();
-                fail();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            fail();
-        }
-
+                null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 3, RestartsStrategy.reorderingStrategy.none, null), null, null, null, null , null);
+        TestUtils.TestingBenchmark(solver, 5, false, false);
     }
 
     @Test
     void TestingBenchmarkWInitialDeterministicRestarts(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.deterministicRescheduling, 2), null, null, null, null, null);
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
-
-        MAPF_Instance instance = null;
-        // load the pre-made benchmark
-        try {
-            long timeout = 5 /*seconds*/
-                    *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
-            int numSolved = 0;
-            int numFailed = 0;
-            int numValid = 0;
-            int numOptimal = 0;
-            int numValidSuboptimal = 0;
-            int numInvalidOptimal = 0;
-            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-            while ((instance = instanceManager.getNextInstance()) != null) {
-//                if (!instance.name.equals("brc202d-10-8")){
-//                    continue;
-//                }
-
-                //build report
-                InstanceReport report = Metrics.newInstanceReport();
-                report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
-                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-                report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
-
-                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
-
-                //solve
-                System.out.println("---------- solving "  + instance.name + " ----------");
-                Solution solution = solver.solve(instance, runParameters);
-
-                // validate
-                Map<String, String> benchmarkForInstance = benchmarks.get(instance.name);
-                if(benchmarkForInstance == null){
-                    System.out.println("can't find benchmark for " + instance.name);
-                    continue;
-                }
-
-                boolean solved = solution != null;
-                System.out.println("Solved?: " + (solved ? "yes" : "no"));
-//                if (useAsserts) assertNotNull(solution);
-                if (solved) numSolved++;
-                else numFailed++;
-
-                if(solution != null){
-                    boolean valid = solution.solves(instance);
-                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                    if (useAsserts) assertTrue(valid);
-
-                    int optimalCost = Integer.parseInt(benchmarkForInstance.get("Plan Cost"));
-                    int costWeGot = solution.sumIndividualCosts();
-                    boolean optimal = optimalCost==costWeGot;
-                    System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
-                            ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
-                    report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-
-                    report.putIntegerValue("Runtime Delta",
-                            report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
-
-                    if(valid) numValid++;
-                    if(optimal) numOptimal++;
-                    if(valid && !optimal) numValidSuboptimal++;
-                    if(!valid && optimal) numInvalidOptimal++;
-                }
-            }
-
-            System.out.println("--- TOTALS: ---");
-            System.out.println("timeout for each (seconds): " + (timeout/1000));
-            System.out.println("solved: " + numSolved);
-            System.out.println("failed: " + numFailed);
-            System.out.println("valid: " + numValid);
-            System.out.println("optimal: " + numOptimal);
-            System.out.println("valid but not optimal: " + numValidSuboptimal);
-            System.out.println("not valid but optimal: " + numInvalidOptimal);
-
-            //save results
-            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-            File directory = new File(resultsOutputDir);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-            try {
-                Metrics.exportCSV(new FileOutputStream(updatedPath),
-                        new String[]{
-                                InstanceReport.StandardFields.instanceName,
-                                InstanceReport.StandardFields.numAgents,
-                                InstanceReport.StandardFields.timeoutThresholdMS,
-                                InstanceReport.StandardFields.solved,
-                                InstanceReport.StandardFields.elapsedTimeMS,
-                                "Runtime Delta",
-                                InstanceReport.StandardFields.solutionCost,
-                                "Cost Delta",
-                                InstanceReport.StandardFields.totalLowLevelTimeMS,
-                                InstanceReport.StandardFields.generatedNodes,
-                                InstanceReport.StandardFields.expandedNodes,
-                                InstanceReport.StandardFields.generatedNodesLowLevel,
-                                InstanceReport.StandardFields.expandedNodesLowLevel});
-            } catch (IOException e) {
-                e.printStackTrace();
-                fail();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            fail();
-        }
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.deterministicRescheduling, 3, RestartsStrategy.reorderingStrategy.none, null), null, null, null, null, null);
+        TestUtils.TestingBenchmark(solver, 5, false, false);
     }
 
-    /**
-     * This contains diverse instances, comparing the performance of two algorithms.
-     */
     @Test
-    void comparativeDiverseTestHasContingencyVsNoContingency(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
+    void comparativeTestHasContingencyVsNoContingency(){
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(), null, null, null, null, null);
         String nameBaseline = baselineSolver.name();
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
-                null, new RestartsStrategy(null, null, RestartsStrategy.RestartsKind.randomRestarts), null, null, null, null, null);
+                null, new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null, null);
         String nameExperimental = competitorSolver.name();
 
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "ComparativeDiverseTestSet"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
-                new InstanceProperties(null, -1d, new int[]{100}));
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, false, false, new int[]{100}, 10, 0);
+    }
 
-        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
-        MAPF_Instance instance = null;
-//        long timeout = 60 /*seconds*/   *1000L;
-        long timeout = 10 /*seconds*/   *1000L;
-        int solvedByBaseline = 0;
-        int solvedByExperimental = 0;
-        int runtimeBaseline = 0;
-        int runtimeExperimental = 0;
-        while ((instance = instanceManager.getNextInstance()) != null) {
-            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
+    @Test
+    void comparativeTestHasAStarRestartsVsNoRestarts(){
+        I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
+                null, new RestartsStrategy(), null, null, null, null, null);
+        String nameBaseline = "No Restarts";
 
-            // run baseline (without the improvement)
-            //build report
-            InstanceReport reportBaseline = Metrics.newInstanceReport();
-            reportBaseline.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
-            reportBaseline.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-            reportBaseline.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-            reportBaseline.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+        I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
+                null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 11, RestartsStrategy.reorderingStrategy.none, true), null, null, null, null, null);
+        String nameExperimental = "AStar Restarts";
 
-            RunParameters runParametersBaseline = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportBaseline).createRP();
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, false, false, new int[]{100}, 10, 0);
+    }
 
-            //solve
-            Solution solutionBaseline = baselineSolver.solve(instance, runParametersBaseline);
 
-            // run experiment (with the improvement)
-            //build report
-            InstanceReport reportExperimental = Metrics.newInstanceReport();
-            reportExperimental.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
-            reportExperimental.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-            reportExperimental.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-            reportExperimental.putStringValue(InstanceReport.StandardFields.solver, nameBaseline);
+    @Test
+    void comparativeTestHasAStarRestartsVsOrderRandomRestarts(){
+        I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
+                null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 6, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null, null, null);
+        String nameBaseline = "Random Restarts";
 
-            RunParameters runParametersExperimental = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportExperimental).createRP();
+        I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
+                null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 6, RestartsStrategy.reorderingStrategy.none, true), null, null, null, null, null);
+        String nameExperimental = "AStar Restarts";
 
-            //solve
-            Solution solutionExperimental = competitorSolver.solve(instance, runParametersExperimental);
-
-            // compare
-
-            boolean baselineSolved = solutionBaseline != null;
-            solvedByBaseline += baselineSolved ? 1 : 0;
-            boolean experimentalSolved = solutionExperimental != null;
-            solvedByExperimental += experimentalSolved ? 1 : 0;
-            System.out.println(nameBaseline + " Solved?: " + (baselineSolved ? "yes" : "no") +
-                    " ; " + nameExperimental + " solved?: " + (experimentalSolved ? "yes" : "no"));
-
-            if(solutionBaseline != null){
-                boolean valid = solutionBaseline.solves(instance);
-                System.out.print(nameBaseline + " Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
-            }
-
-            if(solutionExperimental != null){
-                boolean valid = solutionExperimental.solves(instance);
-                System.out.println(" " + nameExperimental + " Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
-            }
-            else System.out.println();
-
-            if(solutionBaseline != null && solutionExperimental != null){
-                // runtimes
-                runtimeBaseline += reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-                runtimeExperimental += reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-                reportBaseline.putIntegerValue("Runtime Delta",
-                        reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
-                                - reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
-            }
-        }
-
-        System.out.println("--- TOTALS: ---");
-        System.out.println("timeout for each (seconds): " + (timeout/1000));
-        System.out.println(nameBaseline + " solved: " + solvedByBaseline);
-        System.out.println(nameExperimental + " solved: " + solvedByExperimental);
-        System.out.println("runtime totals (instances where both solved) :");
-        System.out.println(nameBaseline + " time: " + runtimeBaseline);
-        System.out.println(nameExperimental + " time: " + runtimeExperimental);
-
-        //save results
-        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-        File directory = new File(resultsOutputDir);
-        if (! directory.exists()){
-            directory.mkdir();
-        }
-        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-        try {
-            Metrics.exportCSV(new FileOutputStream(updatedPath),
-                    new String[]{
-                            InstanceReport.StandardFields.instanceName,
-                            InstanceReport.StandardFields.solver,
-                            InstanceReport.StandardFields.numAgents,
-                            InstanceReport.StandardFields.timeoutThresholdMS,
-                            InstanceReport.StandardFields.solved,
-                            InstanceReport.StandardFields.elapsedTimeMS,
-                            "Runtime Delta",
-                            InstanceReport.StandardFields.solutionCost,
-                            "Cost Delta",
-                            InstanceReport.StandardFields.totalLowLevelTimeMS,
-                            InstanceReport.StandardFields.generatedNodes,
-                            InstanceReport.StandardFields.expandedNodes,
-                            InstanceReport.StandardFields.generatedNodesLowLevel,
-                            InstanceReport.StandardFields.expandedNodesLowLevel});
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail();
-        }
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, false, false, new int[]{100}, 10, 0);
     }
 
     @Test
@@ -838,6 +424,354 @@ class PrioritisedPlanningSolverTest {
             System.out.println("testing " + testInstance.name);
             Solution solution = ppSolverSharedGoals.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
             assertNull(solution);
+        }
+    }
+
+    /* Lifelong */
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = PrP_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = PrP_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = PrP_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = PrP_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = PrP_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = PrP_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = PrP_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = PrP_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(9, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_reverseAgents(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent00to10, agent30to00});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = PrP_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = PrP_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = PrP_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = PrP_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(1, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(1, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(1, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(1, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(7, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1_andInitialConstraints(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor22)));
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor14)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor24)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor32)));
+        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor24)));
+        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(4, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(7, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        assertEquals(4, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(8, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_andInitialConstraints(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor00)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor00)));
+        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(10, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_reverseAgents_andInitialConstraints(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent00to10, agent30to00});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor10)));
+        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor10)));
+        constraints.add(new Constraint(null, 6, testInstance.map.getMapLocation(coor01)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+        System.out.println(solved_h1);
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(8, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1_andInitialGoalConstraints(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor32), new Agent(1000, coor34, coor34)));
+        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34))); // inf lock started before agent needs to pass there at time 3
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        // at time 3, should ignore the infinite lock on (2,4) that starts at time 2
+        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        // at time 4, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+        assertEquals(6, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        // at time 5, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+        assertEquals(7, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        // should fail because of infinite lock on (2,4) that starts at time 2
+        assertNull(solved_hinf);
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze_andInitialGoalConstraints(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver PrP_h1 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 1, null);
+        I_Solver PrP_h2 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 2, null);
+        I_Solver PrP_h3 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 3, null);
+        I_Solver PrP_h4 = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, 4, null);
+        I_Solver PrP_hinf = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, null, null);
+
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new GoalConstraint(null, 1, testInstance.map.getMapLocation(coor10), new Agent(1000, coor34, coor34)));
+//        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34)));
+        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+
+        Solution solved_h1 = PrP_h1.solve(testInstance, parameters);
+        Solution solved_h2 = PrP_h2.solve(testInstance, parameters);
+        Solution solved_h3 = PrP_h3.solve(testInstance, parameters);
+        Solution solved_h4 = PrP_h4.solve(testInstance, parameters);
+        Solution solved_hinf = PrP_hinf.solve(testInstance, parameters);
+
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(2, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertNull(solved_hinf); // (1,0) is taken infinitely so one agent can't finish
+    }
+
+    @Test
+    void worksWithRHCR_shotgunTest(){
+        Integer[] rhcrHorizons = new Integer[]{1, 2, 3, 7, null, Integer.MAX_VALUE};
+        for (Integer rhcrHorizon : rhcrHorizons){
+            System.out.printf("testing with RHCR horizon %d\n", rhcrHorizon);
+            I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, null, null, null, null, rhcrHorizon, null);
+            for (MAPF_Instance instance : new MAPF_Instance[]{instanceEmpty1, instanceEmpty2, instanceEmptyEasy,
+                    instanceEmptyHarder, instanceCircle1, instanceCircle2, instanceSmallMaze, instanceStartAdjacentGoAround}){
+                System.out.println("testing " + instance.name);
+                Solution solution = solver.solve(instance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setTimeout(2000).createRP());
+                if (solution != null){
+                    for (SingleAgentPlan plan : solution){
+                        for (SingleAgentPlan otherPlan : solution){
+                            if (plan != otherPlan){
+                                A_Conflict firstConf = plan.firstConflict(otherPlan);
+                                assertTrue(firstConf == null || firstConf.time > rhcrHorizon);
+                            }
+                        }
+                    }
+                }
+                else {
+                    System.out.println("warning: no solution found.");
+                }
+            }
         }
     }
 

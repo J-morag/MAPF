@@ -1,12 +1,12 @@
 package Environment.RunManagers;
 
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.Maps.MapDimensions;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
 
 public class TestingBenchmarkRunManager extends A_RunManager {
 
@@ -20,7 +20,7 @@ public class TestingBenchmarkRunManager extends A_RunManager {
 
     @Override
     public void setSolvers() {
-        this.solvers.add( new CBS_Solver());
+        this.solvers.add(new CBSBuilder().createCBS_Solver());
     }
 
     @Override

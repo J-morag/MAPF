@@ -5,6 +5,7 @@ import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +18,9 @@ class MapFactoryTest {
     private final Enum_MapLocationType w = Enum_MapLocationType.WALL;
 
     @BeforeEach
-    void setUp() {
-
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
     }
-
     /*  = Tests on Sample 2D Maps =  */
 
     private Enum_MapLocationType[][] map_2D_1Location_middle = {

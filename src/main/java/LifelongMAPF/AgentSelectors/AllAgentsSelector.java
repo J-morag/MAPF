@@ -19,9 +19,6 @@ public class AllAgentsSelector extends A_LifelongAgentSelector{
         super(periodicSelector);
     }
 
-    public AllAgentsSelector() {
-    }
-
     @Override
     protected Set<Agent> selectAgents(MAPF_Instance lifelongInstance, @NotNull Solution currentSolutionStartingFromCurrentTime, Map<LifelongAgent, Agent> lifelongAgentsToTimelyOfflineAgents, List<LifelongAgent> agentsWaitingToStart, Map<LifelongAgent, WaypointsGenerator> agentsWaypointsGenerators, Map<LifelongAgent, I_Coordinate> agentsActiveDestination, Set<Agent> failedAgents) {
         return new HashSet<>(lifelongInstance.agents);

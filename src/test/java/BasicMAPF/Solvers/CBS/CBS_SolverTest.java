@@ -3,10 +3,13 @@ package BasicMAPF.Solvers.CBS;
 import BasicMAPF.CostFunctions.SOCWithPriorities;
 import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
+import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -19,20 +22,19 @@ import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-import java.io.*;
-import java.text.DateFormat;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Instances.*;
-import static BasicMAPF.TestUtils.readResultsCSV;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CBS_SolverTest {
@@ -41,10 +43,15 @@ class CBS_SolverTest {
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
-    I_Solver cbsSolver = new CBS_Solver();
+    I_Solver cbsSolver = new CBSBuilder().createCBS_Solver();
 
 
     InstanceReport instanceReport;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     void setUp() {
@@ -150,8 +157,7 @@ class CBS_SolverTest {
 
     @Test
     void cbsWithPriorities() {
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null, null);
+        I_Solver solver = new CBSBuilder().setCostFunction(new SOCWithPriorities()).createCBS_Solver();
         InstanceReport instanceReport = new InstanceReport();
 
         Agent agent0 = new Agent(0, coor33, coor12, 10);
@@ -185,8 +191,7 @@ class CBS_SolverTest {
     void cbsWithPrioritiesUsingBuilder() {
         boolean useAsserts = true;
 
-        I_Solver solver = new CBS_Solver(null, null, null,
-                new SOCWithPriorities(), null, null, null, null, null);
+        I_Solver solver = new CBSBuilder().setCostFunction(new SOCWithPriorities()).createCBS_Solver();
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
         InstanceManager instanceManager = new InstanceManager(path,
@@ -220,133 +225,12 @@ class CBS_SolverTest {
 
     @Test
     void TestingBenchmark(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
-        I_Solver solver = cbsSolver;
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
-
-        MAPF_Instance instance = null;
-        // load the pre-made benchmark
-        try {
-            long timeout = 300 /*seconds*/
-                    *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
-            int numSolved = 0;
-            int numFailed = 0;
-            int numValid = 0;
-            int numOptimal = 0;
-            int numValidSuboptimal = 0;
-            int numInvalidOptimal = 0;
-            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-            while ((instance = instanceManager.getNextInstance()) != null) {
-
-                //build report
-                InstanceReport report = Metrics.newInstanceReport();
-                report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
-                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-                report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
-
-                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
-
-                //solve
-                System.out.println("---------- solving "  + instance.name + " ----------");
-                Solution solution = solver.solve(instance, runParameters);
-
-                // validate
-                Map<String, String> benchmarkForInstance = benchmarks.get(instance.name);
-                if(benchmarkForInstance == null){
-                    System.out.println("can't find benchmark for " + instance.name);
-                    continue;
-                }
-
-                boolean solved = solution != null;
-                System.out.println("Solved?: " + (solved ? "yes" : "no"));
-                if (useAsserts) assertNotNull(solution);
-                if (solved) numSolved++;
-                else numFailed++;
-
-                if(solution != null){
-                    boolean valid = solution.solves(instance);
-                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                    if (useAsserts) assertTrue(valid);
-
-                    int optimalCost = Integer.parseInt(benchmarkForInstance.get("Plan Cost"));
-                    int costWeGot = solution.sumIndividualCosts();
-                    boolean optimal = optimalCost==costWeGot;
-                    System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
-                            ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
-                    report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-                    if (useAsserts) assertEquals(optimalCost, costWeGot);
-
-                    System.out.printf("Time(ms): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
-                    System.out.printf("Expanded nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodes));
-                    System.out.printf("Generated nodes: %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodes));
-                    System.out.printf("Expanded nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel));
-                    System.out.printf("Generated nodes (low level): %,d%n", report.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel));
-
-                    report.putIntegerValue("Runtime Delta",
-                            report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
-
-                    if(valid) numValid++;
-                    if(optimal) numOptimal++;
-                    if(valid && !optimal) numValidSuboptimal++;
-                    if(!valid && optimal) numInvalidOptimal++;
-                }
-            }
-
-            System.out.println("--- TOTALS: ---");
-            System.out.println("timeout for each (seconds): " + (timeout/1000));
-            System.out.println("solved: " + numSolved);
-            System.out.println("failed: " + numFailed);
-            System.out.println("valid: " + numValid);
-            System.out.println("optimal: " + numOptimal);
-            System.out.println("valid but not optimal: " + numValidSuboptimal);
-            System.out.println("not valid but optimal: " + numInvalidOptimal);
-
-            //save results
-            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-            File directory = new File(resultsOutputDir);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-            try {
-                Metrics.exportCSV(new FileOutputStream(updatedPath),
-                        new String[]{
-                                InstanceReport.StandardFields.instanceName,
-                                InstanceReport.StandardFields.numAgents,
-                                InstanceReport.StandardFields.timeoutThresholdMS,
-                                InstanceReport.StandardFields.solved,
-                                InstanceReport.StandardFields.elapsedTimeMS,
-                                "Runtime Delta",
-                                InstanceReport.StandardFields.solutionCost,
-                                "Cost Delta",
-                                InstanceReport.StandardFields.totalLowLevelTimeMS,
-                                InstanceReport.StandardFields.generatedNodes,
-                                InstanceReport.StandardFields.expandedNodes,
-                                InstanceReport.StandardFields.generatedNodesLowLevel,
-                                InstanceReport.StandardFields.expandedNodesLowLevel});
-            } catch (IOException e) {
-                e.printStackTrace();
-                fail();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            fail();
-        }
+        TestUtils.TestingBenchmark(cbsSolver, 300, true, true);
     }
 
     @Test
-    void sharedGoals(){
-        CBS_Solver cbsSolverSharedGoals = new CBS_Solver(null, null, null,
-                null, null, null, true, null, null);
+    void ignoresStayAtSharedGoals(){
+        CBS_Solver cbsSolverSharedGoals = new CBSBuilder().setSharedGoals(true).createCBS_Solver();
 
         MAPF_Instance instanceEmptyPlusSharedGoal1 = new MAPF_Instance("instanceEmptyPlusSharedGoal1", mapEmpty,
                 new Agent[]{agent33to12, agent12to33, agent53to05, agent43to11, agent04to00, new Agent(20, coor14, coor05)});
@@ -422,7 +306,7 @@ class CBS_SolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, null, null, null, null, null, TransientMAPFBehaviour.transientMAPF);
+        I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -446,7 +330,7 @@ class CBS_SolverTest {
 
     @Test
     void transientExample() {
-        I_Solver CBSt = new CBS_Solver(null, null, null, new SumServiceTimes(), null, null, null, null, TransientMAPFBehaviour.transientMAPFsstWithBlacklist);
+        I_Solver CBSt = new CBSBuilder().setCostFunction(new SumServiceTimes()).setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
         Agent agent1 = new Agent(0, coor10, coor13, 1);
         Agent agent2 = new Agent(1, coor11, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
@@ -467,5 +351,292 @@ class CBS_SolverTest {
 
         System.out.println(solvedNormal);
         System.out.println(solvedCBSt);
+    }
+
+    @Test
+    void TestCBSWithTransientBehaviorNarrowCorridor() {
+        MAPF_Instance testInstance = new MAPF_Instance("agent needs to clear path" , mapNarrowCorridor, new Agent[]{
+                new Agent(1, coor00, coor03),
+                new Agent(2, coor01, coor02)
+        });
+        List<String> solverNames = Arrays.asList("CBS", "CBSt");
+        List<I_Solver> solvers = Arrays.asList(
+                new CBSBuilder().createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver()
+        );
+        List<RunParameters> parameters = Arrays.asList(
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP()
+        );
+        TestUtils.solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
+                Arrays.asList( "Solved", "SOC", "SST", "Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)"));
+    }
+
+    /* Lifelong */
+
+    @Test
+    void worksWithRHCRHorizon_instanceCircle1(){
+        MAPF_Instance testInstance = instanceCircle1;
+
+        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+
+        Solution solved_h1 = CBS_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = CBS_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = CBS_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = CBS_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = CBS_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h3);
+        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_h4);
+        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+        System.out.println(solved_hinf);
+        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+    @Test
+    void worksWithRHCRHorizon_instanceSmallMaze(){
+        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+
+        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+
+        Solution solved_h1 = CBS_h1.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h2 = CBS_h2.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h3 = CBS_h3.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_h4 = CBS_h4.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+        Solution solved_hinf = CBS_hinf.solve(testInstance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP());
+
+        System.out.println(solved_h1);
+        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h2);
+        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h3);
+        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_h4);
+        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+
+        System.out.println(solved_hinf);
+        assertEquals(7, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+        assertEquals(1, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+    }
+
+//    @Test
+//    void worksWithRHCRHorizon_instanceCircle1_andInitialConstraints(){ todo
+//        MAPF_Instance testInstance = instanceCircle1;
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor22)));
+//        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor14)));
+//        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor24)));
+//        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor32)));
+//        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor24)));
+//        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h2);
+//        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h3);
+//        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h4);
+//        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_hinf);
+//        assertEquals(3, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+//    }
+//
+//    @Test
+//    void worksWithRHCRHorizon_instanceSmallMaze_andInitialConstraints(){
+//        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new Constraint(null, 2, testInstance.map.getMapLocation(coor00)));
+//        constraints.add(new Constraint(null, 4, testInstance.map.getMapLocation(coor00)));
+//        constraints.add(new Constraint(null, 5, testInstance.map.getMapLocation(coor32)));
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(1, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h2);
+//        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h3);
+//        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h4);
+//        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_hinf);
+//        assertEquals(5, solved_hinf.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(10, solved_hinf.getPlanFor(testInstance.agents.get(1)).getCost());
+//    }
+//
+//    @Test
+//    void worksWithRHCRHorizon_instanceCircle1_andInitialGoalConstraints(){
+//        MAPF_Instance testInstance = instanceCircle1;
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor32), new Agent(1000, coor34, coor34)));
+//        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34))); // inf lock started before agent needs to pass there at time 3
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h2);
+//        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        // at time 3, should ignore the infinite lock on (2,4) that starts at time 2
+//        assertEquals(5, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h3);
+//        assertEquals(3, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        // at time 4, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+//        assertEquals(6, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_h4);
+//        assertEquals(3, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        // at time 5, should ignore the infinite lock on (2,4) that starts at time 2, and the lock on (3,2) that starts at time 2, but is blocked anyway because the other agent is keeping (1,2) until time 4
+//        assertEquals(7, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//        System.out.println(solved_hinf);
+//        // should fail because of infinite lock on (2,4) that starts at time 2
+//        assertNull(solved_hinf);
+//    }
+//
+//    @Test
+//    void worksWithRHCRHorizon_instanceSmallMaze_andInitialGoalConstraints(){
+//        MAPF_Instance testInstance = new MAPF_Instance("small maze new agents" , mapSmallMaze, new Agent[]{agent30to00, agent00to10});
+//
+//        I_Solver CBS_h1 = new CBSBuilder().setRHCR_Horizon(1).createCBS_Solver();
+//        I_Solver CBS_h2 = new CBSBuilder().setRHCR_Horizon(2).createCBS_Solver();
+//        I_Solver CBS_h3 = new CBSBuilder().setRHCR_Horizon(3).createCBS_Solver();
+//        I_Solver CBS_h4 = new CBSBuilder().setRHCR_Horizon(4).createCBS_Solver();
+//        I_Solver CBS_hinf = new CBSBuilder().createCBS_Solver();
+//
+//        ConstraintSet constraints = new ConstraintSet();
+//        constraints.add(new GoalConstraint(null, 1, testInstance.map.getMapLocation(coor10), new Agent(1000, coor34, coor34)));
+////        constraints.add(new GoalConstraint(null, 2, testInstance.map.getMapLocation(coor24), new Agent(1000, coor34, coor34)));
+//        RunParameters parameters = new RunParametersBuilder().setInstanceReport(new InstanceReport()).setConstraints(constraints).createRP();
+//
+//        Solution solved_h1 = CBS_h1.solve(testInstance, parameters);
+//        Solution solved_h2 = CBS_h2.solve(testInstance, parameters);
+//        Solution solved_h3 = CBS_h3.solve(testInstance, parameters);
+//        Solution solved_h4 = CBS_h4.solve(testInstance, parameters);
+//        Solution solved_hinf = CBS_hinf.solve(testInstance, parameters);
+//
+//
+//        System.out.println(solved_h1);
+//        assertEquals(3, solved_h1.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(2, solved_h1.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h2);
+//        assertEquals(4, solved_h2.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(3, solved_h2.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h3);
+//        assertEquals(5, solved_h3.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(4, solved_h3.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_h4);
+//        assertEquals(6, solved_h4.getPlanFor(testInstance.agents.get(0)).getCost());
+//        assertEquals(5, solved_h4.getPlanFor(testInstance.agents.get(1)).getCost());
+//
+//        System.out.println(solved_hinf);
+//        assertNull(solved_hinf); // (1,0) is taken infinitely so one agent can't finish
+//    }
+
+    @Test
+    void worksWithRHCR(){
+        Integer[] rhcrHorizons = new Integer[]{1, 2, 3, 7, null, Integer.MAX_VALUE};
+        for (Integer rhcrHorizon : rhcrHorizons){
+            System.out.printf("testing with RHCR horizon %d\n", rhcrHorizon);
+            I_Solver solver = new CBS_Solver(null, null, null, null, null, null, null, null, null, rhcrHorizon);
+            for (MAPF_Instance instance : new MAPF_Instance[]{instanceEmpty1, instanceEmpty2, instanceEmptyEasy,
+                    instanceEmptyHarder, instanceCircle1, instanceCircle2, instanceSmallMaze, instanceStartAdjacentGoAround}){
+                System.out.println("testing " + instance.name);
+                Solution solution = solver.solve(instance, new RunParametersBuilder().setInstanceReport(new InstanceReport()).setTimeout(2000).createRP());
+                if (solution != null){
+                    for (SingleAgentPlan plan : solution){
+                        for (SingleAgentPlan otherPlan : solution){
+                            if (plan != otherPlan){
+                                A_Conflict firstConf = plan.firstConflict(otherPlan);
+                                assertTrue(firstConf == null || firstConf.time > rhcrHorizon);
+                            }
+                        }
+                    }
+                }
+                else {
+                    System.out.println("warning: no solution found.");
+                }
+            }
+        }
     }
 }

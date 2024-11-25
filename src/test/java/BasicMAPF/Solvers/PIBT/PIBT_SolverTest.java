@@ -1,13 +1,8 @@
 package BasicMAPF.Solvers.PIBT;
 
-import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
@@ -17,22 +12,19 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import Environment.IO_Package.IO_Manager;
+import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Map;
-
 import static BasicMAPF.TestConstants.Agents.*;
+import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordiantes.coor12;
 import static BasicMAPF.TestConstants.Maps.*;
-import static BasicMAPF.TestUtils.readResultsCSV;
+import static BasicMAPF.TestConstants.Instances.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -53,7 +45,10 @@ public class PIBT_SolverTest {
     private final MAPF_Instance instanceEmpty3 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent10to00, agent04to00});
 
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
-    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
+    private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
+
+    I_Solver PIBTt_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null, TransientMAPFSettings.defaultTransientMAPF);
+    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null, TransientMAPFSettings.defaultRegularMAPF);
 
     long timeout = 10*1000;
 
@@ -73,7 +68,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapValidityTest1() {
         MAPF_Instance testInstance = instanceEmpty1;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -85,8 +80,8 @@ public class PIBT_SolverTest {
 
     @Test
     void emptyMapAgentsWithTheSameGoal() {
-        MAPF_Instance testInstance = instanceEmpty3;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        MAPF_Instance testInstance = instanceEmptySameTarget;
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -94,12 +89,15 @@ public class PIBT_SolverTest {
         assertEquals(8, solved.sumIndividualCosts());
         assertEquals(4, solved.makespan());
         assertEquals(5 , solved.sumServiceTimes());
+
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertNull(solvedByPIBT);
     }
 
     @Test
     void emptyMapValidityTest2() {
         MAPF_Instance testInstance = instanceEmpty2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -112,7 +110,7 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapHarderValidityTest1() {
         MAPF_Instance testInstance = instanceEmptyHarder;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -121,7 +119,7 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest1() {
         MAPF_Instance testInstance = instanceCircle1;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -134,21 +132,25 @@ public class PIBT_SolverTest {
     @Test
     void circleMapValidityTest2() {
         MAPF_Instance testInstance = instanceCircle2;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBTt);
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        assertEquals(14, solvedByPIBTt.sumIndividualCosts());
+        assertEquals(7, solvedByPIBTt.makespan());
+        assertEquals(10 , solvedByPIBTt.sumServiceTimes());
 
-        System.out.println(solved);
-        assertTrue(solved.solves(testInstance));
-
-        assertEquals(14, solved.sumIndividualCosts());
-        assertEquals(7, solved.makespan());
-        assertEquals(10 , solved.sumServiceTimes());
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBT);
+        assertTrue(solvedByPIBT.solves(testInstance));
+        assertEquals(18, solvedByPIBT.sumIndividualCosts());
+        assertEquals(11, solvedByPIBT.makespan());
     }
 
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
         InstanceReport instanceReport = Metrics.newInstanceReport();
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
         Metrics.removeReport(instanceReport);
 
         System.out.println(solved);
@@ -158,274 +160,44 @@ public class PIBT_SolverTest {
     @Test
     void instanceAgentsInterruptsEachOtherTest() {
         MAPF_Instance testInstance = instanceAgentsInterruptsEachOther;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBTt);
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        assertEquals(10, solvedByPIBTt.sumIndividualCosts());
+        assertEquals(5, solvedByPIBTt.makespan());
+        assertEquals(6 , solvedByPIBTt.sumServiceTimes());
 
-        System.out.println(solved);
-        assertTrue(solved.solves(testInstance));
-
-        assertEquals(10, solved.sumIndividualCosts());
-        assertEquals(5, solved.makespan());
-        assertEquals(6 , solved.sumServiceTimes());
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBT);
+        assertTrue(solvedByPIBT.solves(testInstance));
+        assertEquals(12, solvedByPIBT.sumIndividualCosts());
+        assertEquals(7, solvedByPIBT.makespan());
     }
 
 
     @Test
     void TestingBenchmark(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
-        I_Solver solver = PIBT_Solver;
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
-
-        MAPF_Instance instance = null;
-        // load the pre-made benchmark
-        try {
-            long timeout = 5 /*seconds*/
-                    *1000L;
-            Map<String, Map<String, String>> benchmarks = readResultsCSV(path + "/Results.csv");
-            int numSolved = 0;
-            int numFailed = 0;
-            int numValid = 0;
-            int numOptimal = 0;
-            int numValidSuboptimal = 0;
-            int numInvalidOptimal = 0;
-            // run all benchmark instances. this code is mostly copied from Environment.Experiment.
-            while ((instance = instanceManager.getNextInstance()) != null) {
-
-                //build report
-                InstanceReport report = Metrics.newInstanceReport();
-                report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
-                report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-                report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
-
-                RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
-
-                //solve
-                System.out.println("---------- solving "  + instance.name + " ----------");
-                Solution solution = solver.solve(instance, runParameters);
-
-                // validate
-                Map<String, String> benchmarkForInstance = benchmarks.get(instance.name);
-                if(benchmarkForInstance == null){
-                    System.out.println("can't find benchmark for " + instance.name);
-                    continue;
-                }
-
-                boolean solved = solution != null;
-                System.out.println("Solved?: " + (solved ? "yes" : "no"));
-//                if (useAsserts) assertNotNull(solution);
-                if (solved) numSolved++;
-                else numFailed++;
-
-                if(solution != null){
-                    boolean valid = solution.solves(instance);
-                    System.out.println("Valid?: " + (valid ? "yes" : "no"));
-                    if (useAsserts) assertTrue(valid);
-
-                    int optimalCost = Integer.parseInt(benchmarkForInstance.get("Plan Cost"));
-                    int costWeGot = solution.sumIndividualCosts();
-                    boolean optimal = optimalCost==costWeGot;
-                    System.out.println("cost is " + (optimal ? "optimal (" + costWeGot +")" :
-                            ("not optimal (" + costWeGot + " instead of " + optimalCost + ")")));
-                    report.putIntegerValue("Cost Delta", costWeGot - optimalCost);
-
-                    report.putIntegerValue("Runtime Delta",
-                            report.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS) - (int)Float.parseFloat(benchmarkForInstance.get("Plan time")));
-
-                    if(valid) numValid++;
-                    if(optimal) numOptimal++;
-                    if(valid && !optimal) numValidSuboptimal++;
-                    if(!valid && optimal) numInvalidOptimal++;
-                }
-            }
-
-            System.out.println("--- TOTALS: ---");
-            System.out.println("timeout for each (seconds): " + (timeout/1000));
-            System.out.println("solved: " + numSolved);
-            System.out.println("failed: " + numFailed);
-            System.out.println("valid: " + numValid);
-            System.out.println("optimal: " + numOptimal);
-            System.out.println("valid but not optimal: " + numValidSuboptimal);
-            System.out.println("not valid but optimal: " + numInvalidOptimal);
-
-            //save results
-            DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-            String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-            File directory = new File(resultsOutputDir);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-            String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-            try {
-                Metrics.exportCSV(new FileOutputStream(updatedPath),
-                        new String[]{
-                                InstanceReport.StandardFields.instanceName,
-                                InstanceReport.StandardFields.numAgents,
-                                InstanceReport.StandardFields.timeoutThresholdMS,
-                                InstanceReport.StandardFields.solved,
-                                InstanceReport.StandardFields.elapsedTimeMS,
-                                "Runtime Delta",
-                                InstanceReport.StandardFields.solutionCost,
-                                "Cost Delta",
-                                InstanceReport.StandardFields.totalLowLevelTimeMS,
-                                InstanceReport.StandardFields.generatedNodes,
-                                InstanceReport.StandardFields.expandedNodes,
-                                InstanceReport.StandardFields.generatedNodesLowLevel,
-                                InstanceReport.StandardFields.expandedNodesLowLevel});
-            } catch (IOException e) {
-                e.printStackTrace();
-                fail();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            fail();
-        }
+        TestUtils.TestingBenchmark(PIBTt_Solver, 5, false, false);
     }
 
     @Test
     void compareBetweenPrPAndPIBTTest(){
-        Metrics.clearAll();
-        boolean useAsserts = true;
-
         I_Solver PrPSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(), null, null, null, null, null);
         String namePrP = PrPSolver.name();
 
-        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, false);
+        I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null, null);
         String namePIBT = PIBT_Solver.name();
 
-        String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
-                "ComparativeDiverseTestSet"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
-                new InstanceProperties(null, -1d, new int[]{100}));
-
-        // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
-        MAPF_Instance instance = null;
-//        long timeout = 60 /*seconds*/   *1000L;
-        long timeout = 10 /*seconds*/   *1000L;
-        int solvedByPrP = 0;
-        int solvedByPIBT = 0;
-        int runtimePrP = 0;
-        int runtimePIBT = 0;
-        float sumCostPrP = 0;
-        int sumCostPIBT = 0;
-        while ((instance = instanceManager.getNextInstance()) != null) {
-            System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
-
-            // run PrP
-            //build report
-            InstanceReport reportPrP = Metrics.newInstanceReport();
-            reportPrP.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
-            reportPrP.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-            reportPrP.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-            reportPrP.putStringValue(InstanceReport.StandardFields.solver, namePrP);
-
-            RunParameters runParametersPrP = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportPrP).createRP();
-
-            //solve
-            Solution solutionPrP = PrPSolver.solve(instance, runParametersPrP);
-
-            // run PIBT
-            //build report
-            InstanceReport reportPIBT = Metrics.newInstanceReport();
-            reportPIBT.putStringValue(InstanceReport.StandardFields.experimentName, "comparativeDiverseTest");
-            reportPIBT.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
-            reportPIBT.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-            reportPIBT.putStringValue(InstanceReport.StandardFields.solver, namePIBT);
-
-            RunParameters runParametersPIBT = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportPIBT).createRP();
-
-            //solve
-            Solution solutionPIBT = PIBT_Solver.solve(instance, runParametersPIBT);
-
-            // compare
-
-            boolean PrPSolved = solutionPrP != null;
-            solvedByPrP += PrPSolved ? 1 : 0;
-            boolean PIBTSolved = solutionPIBT != null;
-            solvedByPIBT += PIBTSolved ? 1 : 0;
-            System.out.println(namePrP + " Solved?: " + (PrPSolved ? "yes" : "no") +
-                    " ; " + namePIBT + " solved?: " + (PIBTSolved ? "yes" : "no"));
-
-            if(solutionPrP != null){
-                boolean valid = solutionPrP.solves(instance);
-                System.out.print(namePrP + " Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
-            }
-
-            if(solutionPIBT != null){
-                boolean valid = solutionPIBT.solves(instance);
-                System.out.println(" " + namePIBT + " Valid?: " + (valid ? "yes" : "no"));
-                if (useAsserts) assertTrue(valid);
-            }
-            else System.out.println();
-
-            if(solutionPrP != null && solutionPIBT != null){
-                // runtimes
-                runtimePrP += reportPrP.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-                runtimePIBT += reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-                reportPrP.putIntegerValue("Runtime Delta",
-                        reportPIBT.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS)
-                                - reportPrP.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS));
-                 // cost
-                sumCostPrP += solutionPrP.sumIndividualCosts();
-                sumCostPIBT += solutionPIBT.sumIndividualCosts();
-            }
-        }
-
-        System.out.println("--- TOTALS: ---");
-        System.out.println("timeout for each (seconds): " + (timeout/1000));
-        System.out.println(namePrP + " solved: " + solvedByPrP);
-        System.out.println(namePIBT + " solved: " + solvedByPIBT);
-        System.out.println("runtime totals (instances where both solved) :");
-        System.out.println(namePrP + " time: " + runtimePrP);
-        System.out.println(namePIBT + " time: " + runtimePIBT);
-        System.out.println(namePrP + " avg. cost: " + sumCostPrP);
-        System.out.println(namePIBT + " avg. cost: " + sumCostPIBT);
-
-        //save results
-        DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
-        String resultsOutputDir = IO_Manager.buildPath(new String[]{   System.getProperty("user.home"), "MAPF_Tests"});
-        File directory = new File(resultsOutputDir);
-        if (! directory.exists()){
-            directory.mkdir();
-        }
-        String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir, 
-                "res_ " + this.getClass().getSimpleName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() + 
-                        "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
-        try {
-            Metrics.exportCSV(new FileOutputStream(updatedPath),
-                    new String[]{
-                            InstanceReport.StandardFields.instanceName,
-                            InstanceReport.StandardFields.solver,
-                            InstanceReport.StandardFields.numAgents,
-                            InstanceReport.StandardFields.timeoutThresholdMS,
-                            InstanceReport.StandardFields.solved,
-                            InstanceReport.StandardFields.elapsedTimeMS,
-                            "Runtime Delta",
-                            InstanceReport.StandardFields.solutionCost,
-                            "Cost Delta",
-                            InstanceReport.StandardFields.totalLowLevelTimeMS,
-                            InstanceReport.StandardFields.generatedNodes,
-                            InstanceReport.StandardFields.expandedNodes,
-                            InstanceReport.StandardFields.generatedNodesLowLevel,
-                            InstanceReport.StandardFields.expandedNodesLowLevel});
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail();
-        }
+        TestUtils.comparativeTest(PrPSolver, namePrP, false, false, PIBT_Solver, namePIBT,
+                false, false, new int[]{100}, 10, 0);
     }
 
 
     @Test
     void unsolvableMultipleInheritanceTest() {
         MAPF_Instance testInstance = instanceMultipleInheritance;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         assertNull(solved);
     }
@@ -433,7 +205,7 @@ public class PIBT_SolverTest {
     @Test
     void unsolvableLoopDetection() {
         MAPF_Instance testInstance = instanceUnsolvable;
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
 
         assertNull(solved);
     }
@@ -448,7 +220,7 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
         constraints.add(constraint2);
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
 
@@ -469,7 +241,7 @@ public class PIBT_SolverTest {
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -483,18 +255,23 @@ public class PIBT_SolverTest {
     @Test
     void emptyMapValidityInfiniteConstraintTest() {
         MAPF_Instance testInstance = instanceEmpty1;
-
         I_Coordinate coor02 = new Coordinate_2D(1,2);
         Constraint constraint1 = new Constraint(agent33to12, 10, mapEmpty.getMapLocation(coor02));
         ConstraintSet constraints = new ConstraintSet();
         constraints.add(constraint1);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
-        System.out.println(solved);
-        assertTrue(solved.solves(testInstance));
-        assertEquals(29, solved.sumIndividualCosts());
-        assertEquals(10, solved.makespan());
-        assertEquals(22 , solved.sumServiceTimes());
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBTt);
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        assertEquals(29, solvedByPIBTt.sumIndividualCosts());
+        assertEquals(10, solvedByPIBTt.makespan());
+        assertEquals(22 , solvedByPIBTt.sumServiceTimes());
+
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        System.out.println(solvedByPIBT);
+        assertTrue(solvedByPIBT.solves(testInstance));
+        assertEquals(30, solvedByPIBT.sumIndividualCosts());
+        assertEquals(11, solvedByPIBT.makespan());
     }
 
     @Test
@@ -509,7 +286,7 @@ public class PIBT_SolverTest {
         constraints.add(constraint1);
         constraints.add(constraint2);
 
-        Solution solved = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setConstraints(constraints).setInstanceReport(instanceReport).createRP());
 
         System.out.println(solved);
         assertTrue(solved.solves(testInstance));
@@ -517,5 +294,37 @@ public class PIBT_SolverTest {
         assertEquals(20, solved.sumIndividualCosts());
         assertEquals(10, solved.makespan());
         assertEquals(10 , solved.sumServiceTimes());
+    }
+
+    @Test
+    void agentsNeedToSwapReturnNullTest() {
+        MAPF_Instance testInstance = instanceAgentsNeedsToSwapLocations;
+        Solution solved = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+        assertNull(solved);
+    }
+
+    @Test
+    void transientExample() {
+        Agent agent1 = new Agent(0, coor10, coor13, 1);
+        Agent agent2 = new Agent(1, coor11, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", transientExampleMap, new Agent[]{agent1, agent2});
+
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        System.out.println(solvedByPIBTt);
+    }
+
+    @Test
+    void corridorSolvedOnlyByTransient() {
+        Agent agent1 = new Agent(0, coor00, coor03, 1);
+        Agent agent2 = new Agent(1, coor01, coor02, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapCorridor, new Agent[]{agent1, agent2});
+
+        Solution solvedByPIBTt = PIBTt_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedByPIBTt.solves(testInstance));
+        System.out.println(solvedByPIBTt);
+
+        Solution solvedByPIBT = PIBT_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertNull(solvedByPIBT);
     }
 }

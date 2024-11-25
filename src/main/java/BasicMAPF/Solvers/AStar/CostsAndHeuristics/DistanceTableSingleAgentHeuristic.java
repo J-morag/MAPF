@@ -152,12 +152,12 @@ public class DistanceTableSingleAgentHeuristic implements SingleAgentGAndH {
     }
 
     @Override
-    public float getH(SingleAgentAStar_Solver.AStarState state) {
+    public float getH(SingleAgentAStar_Solver.@NotNull AStarState state) {
         return getHToTargetFromLocation(state.getMove().agent.target, state.getMove().currLocation);
     }
 
     @Override
-    public int getHToTargetFromLocation(I_Coordinate target, I_Location currLocation) {
+    public int getHToTargetFromLocation(@NotNull I_Coordinate target, @NotNull I_Location currLocation) {
         Map<I_Location, Integer> relevantDictionary = this.distanceDictionaries.get(map.getMapLocation(target));
         Integer h = relevantDictionary.get(currLocation);
         if (h != null){

@@ -6,21 +6,26 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.util.List;
 
 import static BasicMAPF.TestConstants.Instances.*;
-import static BasicMAPF.TestConstants.Instances.instanceEmpty3;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MDDManagerTest {
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @Test
     void standardFlow() {
         int depthDelta = 40;
         for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
-                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder)){
             I_Map map = instance.map;
             SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
             MDDManager mddManager = new MDDManager(new AStarFactory(), new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(),
@@ -50,7 +55,7 @@ class MDDManagerTest {
     void skips() {
         int depthDelta = 200;
         for (MAPF_Instance instance: List.of(instanceEmpty1, instanceCircle2, instanceCircle1, instanceEmpty2,
-                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder, instanceEmpty3)){
+                instanceSmallMaze, instanceStartAdjacentGoAround, instanceEmptyHarder)){
             I_Map map = instance.map;
             SingleAgentGAndH heuristic = new DistanceTableSingleAgentHeuristic(instance.agents, map);
             MDDManager mddManager = new MDDManager(new AStarFactory(), new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(),

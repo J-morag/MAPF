@@ -3,6 +3,8 @@ package Environment.IO_Package;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReaderTest {
@@ -11,6 +13,10 @@ public class ReaderTest {
     private final String[] linesToRead = IO_ManagerTest.linesToRead;
     private final String filePath = IO_ManagerTest.fileToReadPath;
 
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
 
     @BeforeEach
     public void before(){

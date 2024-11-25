@@ -10,7 +10,6 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -25,6 +24,7 @@ import LifelongMAPF.AgentSelectors.I_LifelongAgentSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
 import LifelongMAPF.FailPolicies.FailPolicy;
 import LifelongMAPF.FailPolicies.I_SingleAgentFailPolicy;
+import LifelongMAPF.FailPolicies.TerminateFailPolicy;
 import LifelongMAPF.FailPolicies.StayFailPolicy;
 import LifelongMAPF.Triggers.I_LifelongPlanningTrigger;
 import LifelongMAPF.WaypointGenerators.WaypointsGenerator;
@@ -36,6 +36,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static BasicMAPF.DataTypesAndStructures.Timeout.getCurrentTimeMS_NSAccuracy;
+import static Environment.Config.INFO;
+import static Environment.Config.DEBUG;
 
 /**
  * Simulates a lifelong environment for a lifelong compatible solver to run in.
@@ -48,13 +50,12 @@ public class LifelongSimulationSolver extends A_Solver {
 
     /* static fields */
     private static final StayFailPolicy STAY_ONCE_FAIL_POLICY = new StayFailPolicy();
-    private static final int DEBUG = 1;
 
     /* fields related to instance */
     /**
      * An offline solver to use for solving online problems.
      */
-    protected final I_Solver offlineSolver;
+    protected final I_LifelongCompatibleSolver offlineSolver;
     private final I_LifelongAgentSelector agentSelector;
     private final Double congestionMultiplier;
     private final PartialSolutionsStrategy partialSolutionsStrategy;
@@ -87,6 +88,7 @@ public class LifelongSimulationSolver extends A_Solver {
     private float avgReachedIndexInPlanningFractionMetric;
     private List<int[]> numAgentsAndNumIterationsMetric;
     private int numPlanningIterations;
+    private int totalOfflineSolverRuntimeMS;
     private CachingDistanceTableHeuristic cachingDistanceTableHeuristic;
     private int numDestinationsAchieved;
     /**
@@ -109,24 +111,14 @@ public class LifelongSimulationSolver extends A_Solver {
     private int maxFailPolicyIterations;
     Set<LifelongAgent> finishedAgents;
     private final Integer selectionLookaheadLength;
-    private int totalAStarNodesGenerated;
-    private int totalAStarNodesExpanded;
-    private int totalAStarRuntimeMS;
-    private int totalAStarCalls;
     private int totalAgentsWaitedForDestinationCapacity;
     private int totalFailPlansInterrupted;
 
     public LifelongSimulationSolver(I_LifelongPlanningTrigger planningTrigger, I_LifelongAgentSelector agentSelector,
-                                    I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
+                                    @NotNull I_LifelongCompatibleSolver offlineSolver, @Nullable Double congestionMultiplier,
                                     @Nullable PartialSolutionsStrategy partialSolutionsStrategy,
                                     @Nullable I_SingleAgentFailPolicy singleAgentFailPolicy, @Nullable Integer selectionLookaheadLength,
                                     Integer destinationsReservationsCapacity) {
-        if(offlineSolver == null) {
-            throw new IllegalArgumentException("offlineSolver is mandatory");
-        }
-        if (!offlineSolver.sharedGoals()){
-            throw new IllegalArgumentException("offline solver should have shared goals");
-        }
         this.offlineSolver = offlineSolver;
         this.congestionMultiplier = congestionMultiplier;
         this.partialSolutionsStrategy = Objects.requireNonNullElseGet(partialSolutionsStrategy, DisallowedPartialSolutionsStrategy::new);
@@ -135,6 +127,11 @@ public class LifelongSimulationSolver extends A_Solver {
         this.failPolicyKSafety = agentSelector.getPlanningFrequency();
         this.name = "Lifelong_" + offlineSolver.name();
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
+        if (this.SAFailPolicy instanceof TerminateFailPolicy && this.partialSolutionsStrategy.allowed()){
+            throw new IllegalArgumentException("TerminateFailPolicy is not compatible with partial solutions");
+        } else if (this.SAFailPolicy instanceof TerminateFailPolicy && this.offlineSolver.ignoresStayAtSharedGoals()){
+            throw new IllegalArgumentException("TerminateFailPolicy is not compatible with shared goals");
+        }
         if (selectionLookaheadLength != null && selectionLookaheadLength < 1) {
             throw new IllegalArgumentException("selectionLookaheadLength must be at least 1 (or null for default value of 1)." +
                     " Given value: " + selectionLookaheadLength);
@@ -160,6 +157,7 @@ public class LifelongSimulationSolver extends A_Solver {
         this.avgFailedAgentsAfterPolicyMetric = 0;
         this.numAgentsAndNumIterationsMetric = new ArrayList<>();
         this.numPlanningIterations = 0;
+        this.totalOfflineSolverRuntimeMS = 0;
         this.numDestinationsAchieved = 0;
 
         this.agentsActiveDestinationStartTimes = new HashMap<>();
@@ -174,10 +172,6 @@ public class LifelongSimulationSolver extends A_Solver {
         this.destinationsActiveAgents = new HashMap<>();
 
         this.finishedAgents = new HashSet<>();
-        if (this.initialConstraints != null){
-            this.initialConstraints.setSharedSources(true);
-            this.initialConstraints.setSharedGoals(true);
-        }
         this.cachingDistanceTableHeuristic = new CachingDistanceTableHeuristic(1, instance.agents.size());
         this.cachingDistanceTableHeuristic.setCurrentMap(instance.map);
         if (parameters instanceof LifelongRunParameters lrp){
@@ -190,10 +184,6 @@ public class LifelongSimulationSolver extends A_Solver {
             this.maxTimeSteps = tmpForDefaults.maxTimeSteps;
         }
         this.partialSolutionsStrategy.resetState(this.random);
-        totalAStarNodesGenerated = 0;
-        totalAStarNodesExpanded = 0;
-        totalAStarRuntimeMS = 0;
-        totalAStarCalls = 0;
         totalAgentsWaitedForDestinationCapacity = 0;
         totalFailPlansInterrupted = 0;
     }
@@ -285,6 +275,12 @@ public class LifelongSimulationSolver extends A_Solver {
                     checkSolutionStartTimes(subgroupSolution, farthestCommittedTime);
                 }
                 digestSubproblemReport(timelyOfflineProblemRunParameters.instanceReport, timelyOfflineProblem);
+                if (subgroupSolution == null && SAFailPolicy instanceof TerminateFailPolicy){
+                    if (INFO >= 1){
+                        System.out.println("No solution found at time " + farthestCommittedTime + " and fail policy is TerminateFailPolicy. Terminating.");
+                    }
+                    return null;
+                }
 
                 if (offlineSolver instanceof PrioritisedPlanning_Solver){
                     reachedIndexOneBasedInPlanner = timelyOfflineProblemRunParameters.instanceReport.getIntegerValue(PrioritisedPlanning_Solver.maxReachedIndexOneBasedBeforeTimeoutString);
@@ -294,7 +290,7 @@ public class LifelongSimulationSolver extends A_Solver {
                 numFailedAgentsAfterPlanner = failedAgents.size();
                 sumAttemptedAgentsThatFailed += numFailedAgentsAfterPlanner;
 
-                if (DEBUG >= 3){
+                if (INFO >= 3){
                     System.out.printf("timestep %d, solution after planner: %s%n",farthestCommittedTime, latestSolution);
                 }
                 if (!enforceKSafetyBetweenPlanningIterations){
@@ -313,11 +309,11 @@ public class LifelongSimulationSolver extends A_Solver {
 
             sumFailedAgentsAfterPolicy += failedAgents.size();
 
-            if (DEBUG >= 1){
+            if (INFO >= 1){
                 if (! selectedTimelyOfflineAgentsSubset.isEmpty()){
                     printProgressAndStats(farthestCommittedTime, selectedTimelyOfflineAgentsSubset.size(), numFailedAgentsAfterPlanner, failedAgents.size(), reachedIndexOneBasedInPlanner);
                 }
-                if (DEBUG >= 3){
+                if (INFO >= 3){
                     System.out.println(latestSolution);
                 }
             }
@@ -371,7 +367,7 @@ public class LifelongSimulationSolver extends A_Solver {
         System.out.printf("/%1$3s", numFailedAgents);
         System.out.printf(", destinations achieved (prev iter.) %d [avg_thr %.2f]",
                 this.numDestinationsAchieved, (farthestCommittedTime > 0 ? (float)(numDestinationsAchieved) / farthestCommittedTime : 0));
-        if (DEBUG >= 1 && DEBUG < 3){
+        if (INFO >= 1 && INFO < 3){
             System.out.print('\r');
         }
         if (reachedIndexOneBasedInPlanner != null && reachedIndexOneBasedInPlanner > selectedTimelyOfflineAgentsSubset){
@@ -452,7 +448,15 @@ public class LifelongSimulationSolver extends A_Solver {
                                           @NotNull RemovableConflictAvoidanceTableWithContestedGoals cat,
                                           I_SingleAgentFailPolicy SAFailPolicy){
         MutableInt iterations = new MutableInt(0);
-        Solution solutionWithoutConflicts = FailPolicy.getKSafeSolution(detectConflictsHorizon, solutionThatMayContainConflicts, farthestCommittedTime, failedAgents, cat, SAFailPolicy, iterations);
+
+        Solution solutionWithoutConflicts;
+        try {
+            solutionWithoutConflicts = FailPolicy.getKSafeSolution(detectConflictsHorizon, solutionThatMayContainConflicts, farthestCommittedTime, failedAgents, cat, SAFailPolicy, iterations);
+        }
+        catch (TerminateFailPolicy.TerminateFailPolicyMisuseException e){
+            throw new RuntimeException("\nWhen using TerminateFailPolicy, the sub-solver should either return null, or a solution " +
+                    "that is safe for the duration of the planning frequency. Are you returning partial solutions despite using TerminateFailPolicy?");
+        }
 
         this.sumFailPolicyIterations += iterations.intValue();
         this.countFailPolicyLoops++;
@@ -715,8 +719,6 @@ public class LifelongSimulationSolver extends A_Solver {
                                                                RemovableConflictAvoidanceTableWithContestedGoals cat) {
         // protect the plans of agents not included in the subset
         ConstraintSet constraints = this.initialConstraints != null ? new ConstraintSet(this.initialConstraints): new ConstraintSet();
-        constraints.sharedSources = true;
-        constraints.sharedGoals = true;
         nextPlansForNotSelectedAgents.forEach(plan -> constraints.addAll(constraints.allConstraintsForPlan(plan)));
 
         SingleAgentGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;
@@ -773,24 +775,21 @@ public class LifelongSimulationSolver extends A_Solver {
     }
 
     protected void digestSubproblemReport(InstanceReport subproblemInstanceReport, MAPF_Instance timelyOfflineProblem) {
-        if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof CBS_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
-            Integer AStarNodesGenerated = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
-            this.totalAStarNodesGenerated += AStarNodesGenerated == null ? 0 : AStarNodesGenerated;
-            Integer AStarNodesExpanded = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
-            this.totalAStarNodesExpanded += AStarNodesExpanded == null ? 0 : AStarNodesExpanded;
-            Integer AStarRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
-            this.totalAStarRuntimeMS += AStarRuntime == null ? 0 : AStarRuntime;
-            Integer AStarCalls = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls);
-            this.totalAStarCalls += AStarCalls == null ? 0 : AStarCalls;
-        }
+        Integer statesGenerated = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel);
+        super.totalLowLevelNodesGenerated += statesGenerated==null ? 0 : statesGenerated;
+        Integer statesExpanded = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
+        super.totalLowLevelNodesExpanded += statesExpanded==null ? 0 : statesExpanded;
+        Integer totalLowLevelTimeMS = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelTimeMS);
+        super.totalLowLevelTimeMS += totalLowLevelTimeMS==null ? 0 : totalLowLevelTimeMS;
+        Integer lowLevelCalls = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.totalLowLevelCalls);
+        super.totalLowLevelCalls += lowLevelCalls==null ? 0 : lowLevelCalls;
 
-        Integer offlineSolverRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
-        super.totalLowLevelTimeMS += offlineSolverRuntime == null ? 0 : offlineSolverRuntime;
         Integer offlineSolverGeneratedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
-        super.totalLowLevelNodesGenerated += offlineSolverGeneratedNodes == null ? 0 : offlineSolverGeneratedNodes;
+        super.generatedNodes += offlineSolverGeneratedNodes == null ? 0 : offlineSolverGeneratedNodes;
         Integer offlineSolverExpandedNodes = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
-        super.totalLowLevelNodesExpanded += offlineSolverExpandedNodes == null ? 0 : offlineSolverExpandedNodes;
-        super.totalLowLevelCalls++;
+        super.expandedNodes += offlineSolverExpandedNodes == null ? 0 : offlineSolverExpandedNodes;
+        int offlineSolverRuntime = subproblemInstanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
+        this.totalOfflineSolverRuntimeMS += offlineSolverRuntime;
 
         if (this.offlineSolver instanceof  PrioritisedPlanning_Solver){
             int numAgents = timelyOfflineProblem.agents.size();
@@ -809,6 +808,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
         super.instanceReport.putIntegerValue("reachedTimestepInPlanning", this.reachedTimestepInPlanning);
         super.instanceReport.putIntegerValue("numPlanningIterations", this.numPlanningIterations);
+        super.instanceReport.putIntegerValue("totalOfflineSolverRuntimeMS", this.totalOfflineSolverRuntimeMS);
         super.instanceReport.putFloatValue("avgGroupSize", this.avgGroupSizeMetric);
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPlanning", this.avgFailedAgentsAfterPlanningMetric);
         super.instanceReport.putFloatValue("avgFailedAgentsAfterPolicy", this.avgFailedAgentsAfterPolicyMetric);
@@ -846,32 +846,29 @@ public class LifelongSimulationSolver extends A_Solver {
             super.instanceReport.putFloatValue("averageNumAttemptsOver200Agents", numSamplesOver200Agents == 0 ? 0 :
                     (float) (sumIterationsOver200Agents / numSamplesOver200Agents));
         }
-        if (offlineSolver instanceof PrioritisedPlanning_Solver || offlineSolver instanceof CBS_Solver || offlineSolver instanceof LargeNeighborhoodSearch_Solver){
-            super.instanceReport.putIntegerValue("totalAStarNodesGenerated", this.totalAStarNodesGenerated);
-            super.instanceReport.putIntegerValue("totalAStarNodesExpanded", this.totalAStarNodesExpanded);
-            super.instanceReport.putIntegerValue("totalAStarRuntimeMS", this.totalAStarRuntimeMS);
-            super.instanceReport.putIntegerValue("totalAStarCalls", this.totalAStarCalls);
-        }
 
         LifelongSolution lifelongSolution = ((LifelongSolution)solution);
-        super.instanceReport.putStringValue("waypointTimes", lifelongSolution.agentsWaypointArrivalTimes());
+        if (lifelongSolution != null){
+            super.instanceReport.putStringValue("waypointTimes", lifelongSolution.agentsWaypointArrivalTimes());
 
-        super.instanceReport.putIntegerValue("SOC", lifelongSolution.sumIndividualCosts());
-        super.instanceReport.putIntegerValue("makespan", lifelongSolution.makespan());
-        super.instanceReport.putIntegerValue("throughputAtT25", lifelongSolution.throughputAtT(25));
-        super.instanceReport.putIntegerValue("throughputAtT50", lifelongSolution.throughputAtT(50));
-        super.instanceReport.putIntegerValue("throughputAtT75", lifelongSolution.throughputAtT(75));
-        super.instanceReport.putIntegerValue("throughputAtT100", lifelongSolution.throughputAtT(100));
-        super.instanceReport.putIntegerValue("throughputAtT150", lifelongSolution.throughputAtT(150));
-        super.instanceReport.putIntegerValue("throughputAtT200", lifelongSolution.throughputAtT(200));
-        super.instanceReport.putIntegerValue("throughputAtT250", lifelongSolution.throughputAtT(250));
-        super.instanceReport.putIntegerValue("throughputAtT300", lifelongSolution.throughputAtT(300));
-        super.instanceReport.putIntegerValue("throughputAtT400", lifelongSolution.throughputAtT(400));
-        super.instanceReport.putIntegerValue("throughputAtT500", lifelongSolution.throughputAtT(500));
-        super.instanceReport.putIntegerValue("maxFailPolicyIterations", this.maxFailPolicyIterations);
+            super.instanceReport.putIntegerValue("SOC", lifelongSolution.sumIndividualCosts());
+            super.instanceReport.putIntegerValue("makespan", lifelongSolution.makespan());
+            super.instanceReport.putIntegerValue("throughputAtT25", lifelongSolution.throughputAtT(25));
+            super.instanceReport.putIntegerValue("throughputAtT50", lifelongSolution.throughputAtT(50));
+            super.instanceReport.putIntegerValue("throughputAtT75", lifelongSolution.throughputAtT(75));
+            super.instanceReport.putIntegerValue("throughputAtT100", lifelongSolution.throughputAtT(100));
+            super.instanceReport.putIntegerValue("throughputAtT150", lifelongSolution.throughputAtT(150));
+            super.instanceReport.putIntegerValue("throughputAtT200", lifelongSolution.throughputAtT(200));
+            super.instanceReport.putIntegerValue("throughputAtT250", lifelongSolution.throughputAtT(250));
+            super.instanceReport.putIntegerValue("throughputAtT300", lifelongSolution.throughputAtT(300));
+            super.instanceReport.putIntegerValue("throughputAtT400", lifelongSolution.throughputAtT(400));
+            super.instanceReport.putIntegerValue("throughputAtT500", lifelongSolution.throughputAtT(500));
+            super.instanceReport.putIntegerValue("maxFailPolicyIterations", this.maxFailPolicyIterations);
 
-        super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
-        super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
+            super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
+            super.instanceReport.putFloatValue("averageIndividualThroughput", lifelongSolution.averageIndividualThroughput());
+        }
+
         super.instanceReport.putFloatValue("avgFailPolicyIterations", this.sumFailPolicyIterations / (float)this.countFailPolicyLoops);
         super.instanceReport.putFloatValue("avgSingleAgentFPsTriggered", this.sumSingleAgentFPsTriggered / (float)this.countFailPolicyLoops);
     }

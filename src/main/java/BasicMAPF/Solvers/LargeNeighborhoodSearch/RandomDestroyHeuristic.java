@@ -13,7 +13,7 @@ import java.util.Random;
 public class RandomDestroyHeuristic implements I_DestroyHeuristic{
 
     @Override
-    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map) {
+    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map, int maxTimeToConsider) {
         List<Agent> shuffledAgentsList = new ArrayList<>(currentSolution.size());
         for (SingleAgentPlan plan :
                 currentSolution) {

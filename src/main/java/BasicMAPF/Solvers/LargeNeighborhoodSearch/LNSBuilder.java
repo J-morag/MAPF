@@ -2,7 +2,7 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.Solvers.I_Solver;
-import TransientMAPF.TransientMAPFBehaviour;
+import TransientMAPF.TransientMAPFSettings;
 
 import java.util.List;
 
@@ -15,7 +15,8 @@ public class LNSBuilder {
     private Integer neighborhoodSize = null;
     private I_Solver initialSolver;
     private I_Solver iterationsSolver;
-    private TransientMAPFBehaviour transientMAPFBehaviour = null;
+    private TransientMAPFSettings transientMAPFSettings = null;
+    private Integer RHCR_Horizon;
 
     public LNSBuilder setSolutionCostFunction(I_SolutionCostFunction solutionCostFunction) {
         this.solutionCostFunction = solutionCostFunction;
@@ -47,8 +48,8 @@ public class LNSBuilder {
         return this;
     }
 
-    public LNSBuilder setTransientMAPFBehaviour(TransientMAPFBehaviour transientMAPFBehaviour) {
-        this.transientMAPFBehaviour = transientMAPFBehaviour;
+    public LNSBuilder setTransientMAPFBehaviour(TransientMAPFSettings transientMAPFSettings) {
+        this.transientMAPFSettings = transientMAPFSettings;
         return this;
     }
 
@@ -62,7 +63,12 @@ public class LNSBuilder {
         return this;
     }
 
+    public LNSBuilder setRHCR_Horizon(Integer RHCR_Horizon) {
+        this.RHCR_Horizon = RHCR_Horizon;
+        return this;
+    }
+
     public LargeNeighborhoodSearch_Solver createLNS() {
-        return new LargeNeighborhoodSearch_Solver(solutionCostFunction, destroyHeuristics, sharedGoals, sharedSources, reactionFactor, neighborhoodSize, initialSolver, iterationsSolver, transientMAPFBehaviour);
+        return new LargeNeighborhoodSearch_Solver(solutionCostFunction, destroyHeuristics, sharedGoals, sharedSources, reactionFactor, neighborhoodSize, initialSolver, iterationsSolver, transientMAPFSettings, RHCR_Horizon);
     }
 }

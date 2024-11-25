@@ -39,11 +39,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
     public final I_AStarFailPolicy failPolicy;
     private boolean useFailPolicy;
     protected I_ConstraintSet constraints;
-    protected SingleAgentGAndH gAndH;
     protected final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
     protected final Set<AStarState> closed = new HashSet<>();
     protected Agent agent;
-
     protected I_Map map;
     protected SingleAgentPlan existingPlan;
     protected Solution existingSolution;
@@ -51,12 +49,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
     public I_AStarGoalCondition goalCondition;
+    protected SingleAgentGAndH gAndH;
+    private PseudoRandomUniformSamplingIntNoRepeat randomIDGenerator;
     /**
      * Not real-world time. The problem's start time.
      */
     protected int problemStartTime;
     protected int expandedNodes;
     private int generatedNodes;
+    private int numRegeneratedNodes;
     /**
      * Maximum allowed f value ({@link SingleAgentPlan} cost). Will stop and return null if proved that it cannot be found.
      */
@@ -143,6 +144,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
             throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
         }
 
+        // todo should make this more explicit. Getting an rng might not necessarily mean that we want to use it like this.
+        this.randomIDGenerator = runParameters.randomNumberGenerator == null ? null:
+                new PseudoRandomUniformSamplingIntNoRepeat(runParameters.randomNumberGenerator);
+
         if(runParameters instanceof RunParameters_SAAStar parameters){
             this.fBudget = parameters.fBudget;
         }
@@ -152,6 +157,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         this.expandedNodes = 0;
         this.generatedNodes = 0;
+        this.numRegeneratedNodes = 0;
     }
 
     /*  = A* algorithm =  */
@@ -173,6 +179,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         AStarState currentState;
         int lastRejectionTime = 0;
+        Map<I_Location, Integer> lastRejectionTimes = new HashMap<>(); // todo ArrayMap?
 
         while ((currentState = openList.poll()) != null){ //dequeu in the while condition
             if(checkTimeout()) {return getFailPlan();}
@@ -184,14 +191,18 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if (isGoalState(currentState)){
                 // check to see if a rejecting constraint on the goal's location exists at some point in the future,
                 // which would mean we can't finish the plan there and stay forever
-                // TODO improve the data structure so that it can answer this query quickly, then we won't need to cache locally.
-                //  Also, this doesn't support multiple possible goal locations. But I guess nothing really does.
-                if (lastRejectionTime == 0 || // uninitialized
-                        goalCondition instanceof VisitedTargetAStarGoalCondition) { // for PIBT style (Transient MAPF) paths. May try to stop forever to different locations so caching is more complicated. todo improve caching for this case?
-                    lastRejectionTime = agentsStayAtGoal ?
-                            constraints.lastRejectionTime(currentState.move,
-                                    goalCondition instanceof VisitedTargetAStarGoalCondition) // kinda messy. For PIBT style (Transient MAPF) paths
-                            : -1;
+
+                if (!agentsStayAtGoal){
+                    lastRejectionTime = -1;
+                }
+                // For Transient MAPF paths. May try to stop forever to different locations so caching is more complicated.
+                else if (goalCondition instanceof VisitedTargetAStarGoalCondition){
+                    Move currentMove = currentState.move;
+                    lastRejectionTime = lastRejectionTimes.computeIfAbsent(currentState.move.currLocation,
+                            k -> constraints.lastRejectionTime(currentMove));
+                }
+                else if (lastRejectionTime == 0) { // (classic MAPF) uninitialized (caching the result)
+                    lastRejectionTime = constraints.lastRejectionTime(currentState.move);
                 }
 
                 if(lastRejectionTime < currentState.move.timeNow){ // no rejections
@@ -327,6 +338,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         if(instanceReport != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel, this.expandedNodes);
             instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel, this.generatedNodes);
+            instanceReport.putIntegerValue(InstanceReport.StandardFields.regeneratedNodesLowLevel, this.numRegeneratedNodes);
         }
     }
 
@@ -334,6 +346,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         super.releaseMemory();
         this.constraints = null;
         this.gAndH = null;
+        this.randomIDGenerator = null;
         this.instanceReport = null;
         this.openList.clear();
         this.closed.clear();
@@ -353,6 +366,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
         return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move, false);
     }
 
+    private int getID() {
+        return this.randomIDGenerator == null ? SingleAgentAStar_Solver.this.generatedNodes - 1: randomIDGenerator.next();
+    }
+
     /*  = inner classes =  */
 
     public class AStarState implements Comparable<AStarState>{
@@ -361,9 +378,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * Needed to enforce total ordering on nodes, which is needed to make node expansions fully deterministic. That
          * is to say, if all tie breaking methods still result in equality, tie break for using serialID.
          */
-        private final int serialID = SingleAgentAStar_Solver.this.generatedNodes++; // take and increment
+        private final int id = getID();
         public final Move move;
-        private final AStarState prev;
+        protected final AStarState prev;
         protected final int g;
         protected final float h;
         /**
@@ -373,6 +390,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         public final boolean visitedTarget;
 
         public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean visitedTarget) {
+            SingleAgentAStar_Solver.this.generatedNodes++;
             this.move = move;
             this.prev = prevState;
             this.g = g;
@@ -410,7 +428,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         protected void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
             // decide which state to keep, seeing as how they are both equal and in open.
-            openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
+            AStarState dropped = openList.keepOne(existingState, newState, SingleAgentAStar_Solver.equalStatesDiscriminator);
+            if (dropped == existingState){
+                SingleAgentAStar_Solver.this.numRegeneratedNodes++;
+            }
         }
 
         /**
@@ -420,13 +441,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * @return the existingPlan after updating it with the plan that this state represents.
          */
         public SingleAgentPlan backTracePlan(SingleAgentPlan existingPlan) {
-            List<Move> moves = new ArrayList<>();
-            AStarState currentState = this;
-            while (currentState != null){
-                moves.add(currentState.move);
-                currentState = currentState.prev;
-            }
-            Collections.reverse(moves); //reorder moves because they were reversed
+            List<Move> moves = getOrderedMoves();
 
             // patch move times in case we had moves that don't progress time, because they were after last constraint time
             for (int i = 1; i < moves.size(); i++) {
@@ -441,6 +456,18 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if(existingPlan.size() > 0) {moves.remove(0);}
             existingPlan.addMoves(moves);
             return existingPlan;
+        }
+
+        @NotNull
+        protected List<Move> getOrderedMoves() {
+            List<Move> moves = new ArrayList<>();
+            AStarState currentState = this;
+            while (currentState != null){
+                moves.add(currentState.move);
+                currentState = currentState.prev;
+            }
+            Collections.reverse(moves); //reorder moves because they were reversed
+            return moves;
         }
 
 
@@ -474,7 +501,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         @Override
         public String toString() {
             return "AStarState{" +
-                    "serialID=" + serialID +
+                    "id=" + id +
                     ", g=" + g +
                     ", h=" + h +
                     ", conflicts=" + conflicts +
@@ -502,19 +529,17 @@ public class SingleAgentAStar_Solver extends A_Solver {
      * For sorting the open list.
      */
     private static class TieBreakingForLessConflictsAndHigherG implements Comparator<AStarState>{
-
-        private static final Comparator<AStarState> fComparator = Comparator.comparing(AStarState::getF);
-
         @Override
         public int compare(AStarState o1, AStarState o2) {
-            if(Math.abs(o1.getF() - o2.getF()) < 0.1){ // floats are equal
+            float fCompared = o1.getF() - o2.getF();
+            if(Math.abs(fCompared) < 0.1){ // floats are equal
                 // if f() value is equal, we consider the state with less conflicts to be better.
                 if(o1.conflicts == o2.conflicts){
                     // if equal in conflicts, we break ties for higher g. Therefore, we want to return a negative
                     // integer if o1.g is bigger than o2.g
                     if (o2.g == o1.g){
                         // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to force a total ordering and remain deterministic
-                        return o1.serialID - o2.serialID;
+                        return o1.id - o2.id;
 
                     }
                     else {
@@ -526,7 +551,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 }
             }
             else {
-                return fComparator.compare(o1, o2);
+                return fCompared > 0 ? 1 : -1;
             }
         }
     }
@@ -546,12 +571,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 // if G() value is equal, we consider the state with less conflicts to be better.
                 if(o1.conflicts == o2.conflicts){
                     // If still equal, we tie break for smaller ID (older nodes) (arbitrary) to remain deterministic
-                    return o1.serialID - o2.serialID;
+                    return o1.id - o2.id;
                 }
                 else{
                     return o1.conflicts - o2.conflicts; // less conflicts is better
                 }
-
             }
             else {
                 return o1.g - o2.g; //lower g is better

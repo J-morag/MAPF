@@ -1,7 +1,5 @@
-import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
+import BasicMAPF.Instances.InstanceBuilders.*;
+import Environment.Config;
 import Environment.RunManagers.*;
 import Environment.Visualization.I_VisualizeSolution;
 import Environment.Visualization.GridSolutionVisualizer;
@@ -13,6 +11,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import static BasicMAPF.Solvers.A_Solver.getProcessorInfo;
+import static Environment.Experiment.DEFAULT_TIMEOUT_EACH;
 import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 
 
@@ -21,11 +20,15 @@ public class Main {
     public static final String STR_MOVING_AI = "MovingAI";
     protected static final String STR_BGU = "BGU";
     public static final String STR_WAREHOUSE = "Warehouse";
+    public static final String STR_ARBITRARY = "ArbitraryGraph";
     public static final String STR_INSTANCES_DIR = "instancesDir";
     public static final String STR_INSTANCES_REGEX = "instancesRegex";
     private static final String STR_RESULTS_DIR_OPTION = "resultsOutputDir";
     private static final String STR_RESULTS_FILE_PREFIX = "resultsFilePrefix";
     private static final String STR_TIMEOUT_EACH = "timeoutEach";
+    private static final String STR_DEBUG_LEVEL = "debugLevel";
+    private static final String STR_INFO_LEVEL = "infoLevel";
+    private static final String STR_WARNING_LEVEL = "warningLevel";
 
     public static void main(String[] args) {
         CLIMain(args);
@@ -60,6 +63,9 @@ public class Main {
             String resultsOutputDir = null;
             String optResultsFilePrefix = null;
             Integer timeoutEach = null;
+            int debugLevel;
+            int infoLevel;
+            int warningLevel;
             Long minResponseTime;
             Integer maxTimeSteps;
 
@@ -151,6 +157,7 @@ public class Main {
                     case STR_MOVING_AI -> instanceBuilder = new InstanceBuilder_MovingAI(lifelong);
                     case STR_BGU -> instanceBuilder = new InstanceBuilder_BGU();
                     case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, lifelong, forceBiDiEdges);
+                    case STR_ARBITRARY -> instanceBuilder = new InstanceBuilder_ArbitraryGraph();
                     default -> {
                         System.out.printf("Unrecognized instance format: %s\n", optInstancesFormat);
                         System.exit(0);
@@ -187,6 +194,45 @@ public class Main {
                 }
                 catch (NumberFormatException e){
                     System.out.printf("%s should be an integer, got %s\n", STR_TIMEOUT_EACH, optTimeoutEach);
+                    System.exit(0);
+                }
+            }
+
+            if (cmd.hasOption(STR_DEBUG_LEVEL)) {
+                String optDebugLevel = cmd.getOptionValue(STR_DEBUG_LEVEL);
+                System.out.println("Debug Level: " + optDebugLevel);
+                try {
+                    debugLevel = Integer.parseInt(optDebugLevel);
+                    Config.DEBUG = debugLevel;
+                }
+                catch (NumberFormatException e){
+                    System.out.printf("%s should be an integer, got %s\n", STR_DEBUG_LEVEL, optDebugLevel);
+                    System.exit(0);
+                }
+            }
+
+            if (cmd.hasOption(STR_INFO_LEVEL)) {
+                String optInfoLevel = cmd.getOptionValue(STR_INFO_LEVEL);
+                System.out.println("Info Level: " + optInfoLevel);
+                try {
+                    infoLevel = Integer.parseInt(optInfoLevel);
+                    Config.INFO = infoLevel;
+                }
+                catch (NumberFormatException e){
+                    System.out.printf("%s should be an integer, got %s\n", STR_INFO_LEVEL, optInfoLevel);
+                    System.exit(0);
+                }
+            }
+
+            if (cmd.hasOption(STR_WARNING_LEVEL)) {
+                String optWarningLevel = cmd.getOptionValue(STR_WARNING_LEVEL);
+                System.out.println("Warning Level: " + optWarningLevel);
+                try {
+                    warningLevel = Integer.parseInt(optWarningLevel);
+                    Config.WARNING = warningLevel;
+                }
+                catch (NumberFormatException e){
+                    System.out.printf("%s should be an integer, got %s\n", STR_WARNING_LEVEL, optWarningLevel);
                     System.exit(0);
                 }
             }
@@ -287,7 +333,7 @@ public class Main {
                 .argName("responseTime")
                 .hasArg()
                 .required(false)
-                .desc("Set the minimum response time per time step for the solver. Optional.")
+                .desc("Set the minimum response time (ms) per planning iteration for the solver. Optional. Default is 1000ms.")
                 .build();
         options.addOption(responseTimeOption);
 
@@ -304,7 +350,7 @@ public class Main {
                 .hasArg()
                 .required(false)
                 .desc(String.format("Set the format of the instances. " +
-                        "Supports %s format (https://movingai.com/benchmarks/formats.html) and %s format.", STR_MOVING_AI, STR_BGU)
+                        "Supports %s format (https://movingai.com/benchmarks/formats.html), %s format, and %s format.", STR_MOVING_AI, STR_BGU, STR_ARBITRARY)
                         + " Optional (default is " + STR_MOVING_AI + ").")
                 .build();
         options.addOption(InstancesFormatOption);
@@ -323,9 +369,33 @@ public class Main {
                 .argName(STR_TIMEOUT_EACH)
                 .hasArg()
                 .required(false)
-                .desc("Set the timeout for each instance. Integer in milliseconds. Optional. Default is 300000 (5 minutes).")
+                .desc("Set the timeout for each instance. Integer in milliseconds. Optional. Default is " + DEFAULT_TIMEOUT_EACH + "ms.")
                 .build();
         options.addOption(timeoutEachOption);
+
+        Option debugLevelOption = Option.builder("d").longOpt(STR_DEBUG_LEVEL)
+                .argName(STR_DEBUG_LEVEL)
+                .hasArg()
+                .required(false)
+                .desc("Set the debug level. Integer. Optional. Default is 1 (light and simple checks that can run during experiments). Use 2 for heavy checks for when debugging code. 3 For extreme checks.")
+                .build();
+        options.addOption(debugLevelOption);
+
+        Option infoLevelOption = Option.builder("i").longOpt(STR_INFO_LEVEL)
+                .argName(STR_INFO_LEVEL)
+                .hasArg()
+                .required(false)
+                .desc("Set the info level. Integer. Optional. Default is 1.")
+                .build();
+        options.addOption(infoLevelOption);
+
+        Option warningLevelOption = Option.builder("w").longOpt(STR_WARNING_LEVEL)
+                .argName(STR_WARNING_LEVEL)
+                .hasArg()
+                .required(false)
+                .desc("Set the warning level. Integer. Optional. Default is 1.")
+                .build();
+        options.addOption(warningLevelOption);
     }
 
     private static void printEnv() {

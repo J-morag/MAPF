@@ -6,14 +6,12 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public interface I_ConstraintSet {
 
-    Set<Map.Entry<I_ConstraintGroupingKey, Set<Constraint>>> getEntrySet();
+    Map<I_Location, ArrayList<Constraint>> getLocationConstraintsTimeSorted();
+
     Map<I_Location, GoalConstraint> getGoalConstraints();
 
     boolean isSharedGoals();
@@ -24,14 +22,16 @@ public interface I_ConstraintSet {
 
     void setSharedSources(boolean sharedSources);
 
+    int getLastTimeToConsiderConstraints();
+
+    void setLastTimeToConsiderConstraints(int lastTimeToConsiderConstraints);
+
     boolean isEmpty();
 
     /**
      * @return the time of the last constraint. If it is a goal constraint (infinite), return the time when it starts
      */
     int getLastConstraintStartTime();
-
-    void add(Set<Constraint> constraintSet, Constraint constraint);
 
     void add(Constraint constraint);
 
@@ -72,13 +72,11 @@ public interface I_ConstraintSet {
      * indefinitely starting after move's time, checks if there is a {@link Constraint} that would reject it eventually.
      *
      * @param finalMove                 a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the agent's goal is occupied indefinitely.
-     *                                  Which should not happen if agents aren't allowed to have the same target.
      * @return the *last* time when a constraint would eventually reject a "stay" move at the given move's location;
      * Specifically, would return {@link Integer#MAX_VALUE} if there is an infinite (target/goal) constraint on the location (not checked unless checkOtherAgentsLastMoves is true);
      * -1 if never rejected.
      */
-    int lastRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves);
+    int lastRejectionTime(Move finalMove);
 
     /**
      * Given a {@link Move} which an {@link Agent agent} makes to occupy a {@link I_Location location}
@@ -87,19 +85,17 @@ public interface I_ConstraintSet {
      * In other words, we simulate this set being given an infinite number of "stay" moves after the given move.
      *
      * @param finalMove                 a move to occupy a location indefinitely.
-     * @param checkOtherAgentsLastMoves if true, also check if the agent's goal is occupied indefinitely.
-     *                                  Which should not happen if agents aren't allowed to have the same target.
      * @return the *first* time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
      */
-    int firstRejectionTime(Move finalMove, boolean checkOtherAgentsLastMoves);
+    int firstRejectionTime(Move finalMove);
 
     /**
-     * The opposite of {@link #firstRejectionTime(Move, boolean)}.
+     * The opposite of {@link #firstRejectionTime(Move)}.
      *
      * @param finalMove a move to occupy a location indefinitely.
      * @return true if no constraint would eventually reject a "stay" move at the given move's location.
      */
-    boolean acceptsForever(Move finalMove, boolean checkOtherAgentsLastMoves);
+    boolean acceptsForever(Move finalMove);
 
     /**
      * Returns true iff any of the {@link Constraint}s that were {@link #add(Constraint) added} to this set conflict with
@@ -110,7 +106,7 @@ public interface I_ConstraintSet {
      * @param moves a {@link Collection} of {@link Move}s to check if the are ejected or not.
      * @return true iff all of the given {@link Move}s conflict with any of the {@link Constraint}s that were
      * {@link #add(Constraint) added} to this set.
-     * @see #acceptsForever(Move, boolean)
+     * @see #acceptsForever(Move)
      */
     boolean rejectsAll(Collection<? extends Move> moves);
 
@@ -122,44 +118,17 @@ public interface I_ConstraintSet {
      *
      * @param moves
      * @return the opposite of {@link #rejectsAll(Collection)}.
-     * @see #acceptsForever(Move, boolean)
+     * @see #acceptsForever(Move)
      */
     boolean acceptsAll(Collection<? extends Move> moves);
 
     /**
-     * Removes constraints for times that are not in the given range.
-     *
-     * @param minTime the minimum time (inclusive).
-     * @param maxTime the maximum time (exclusive).
-     */
-    void trimToTimeRange(int minTime, int maxTime);
-
-    /**
-     * Find the last time when the agent is prevented from being at its goal.
-     *
-     * @param target the agent's target.
-     * @param agent  the agent.
-     * @return the first time when a constraint would eventually reject a "stay" move at the given move's location; -1 if never rejected.
-     */
-    int lastRejectAt(I_Location target, Agent agent);
-
-    /**
      * Creates constraints to protect a {@link SingleAgentPlan plan}.
      *
      * @param singleAgentPlan a plan to get constraints for.
      * @return all constraints to protect the plan.
      */
-    default List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan){
-        return allConstraintsForPlan(singleAgentPlan, Integer.MAX_VALUE);
-    }
-
-    /**
-     * Creates constraints to protect a {@link SingleAgentPlan plan}.
-     *
-     * @param singleAgentPlan a plan to get constraints for.
-     * @return all constraints to protect the plan.
-     */
-    List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan, int horizonTime);
+    List<Constraint> allConstraintsForPlan(SingleAgentPlan singleAgentPlan);
 
     /**
      * Creates constraints to protect a {@link Solution}.

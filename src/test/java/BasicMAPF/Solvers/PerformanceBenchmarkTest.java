@@ -12,19 +12,25 @@ import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -38,19 +44,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PerformanceBenchmarkTest {
 
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
+    }
+
     @Test
     public void CBSStressTest() {
-        I_Solver solver = new CBS_Solver();
-        long timeout = 1000 * 60;
+        I_Solver solver = new CBSBuilder().createCBS_Solver();
+        long timeout = 1000 * 30;
         int numAgents = 30;
         stressTest(solver, timeout, numAgents, false);
     }
 
     @Test
     public void CBS_SIPPStressTest() {
-        CBS_Solver solver = new CBS_Solver(new SingleAgentAStarSIPP_Solver(), null, null, null, null, null, null, null, null);
+        CBS_Solver solver = new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).createCBS_Solver();
         solver.name = "CBS_SIPP";
-        long timeout = 1000 * 60;
+        long timeout = 1000 * 30;
         int numAgents = 30;
         stressTest(solver, timeout, numAgents, false);
     }
@@ -64,9 +75,17 @@ public class PerformanceBenchmarkTest {
     }
 
     @Test
+    public void PCSStressTest() {
+        I_Solver solver = new PCSBuilder().createPCS();
+        long timeout = 1000 * 30;
+        int numAgents = 20;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
     public void PrioritisedPlanningStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
-                new RestartsStrategy(RestartsStrategy.RestartsKind.randomRestarts, 9, RestartsStrategy.RestartsKind.none),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 100;
@@ -83,9 +102,17 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void PIBTStressTest() {
-        I_Solver solver = new PIBT_Solver(null, null, null);
+        I_Solver solver = new PIBT_Solver(null, null, null, null);
         long timeout = 1000 * 30;
-        int numAgents = 200;
+        int numAgents = 500;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
+    public void LaCAMStressTest() {
+        I_Solver solver = new LaCAMBuilder().createLaCAM();
+        long timeout = 1000 * 30;
+        int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);
     }
 

@@ -1,5 +1,6 @@
 package Environment.RunManagers;
 
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -8,7 +9,6 @@ import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.Maps.MapDimensions;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 
 
@@ -22,7 +22,7 @@ public class RunManagerSimpleExample extends A_RunManager {
     @Override
     public void setSolvers() {
         this.solvers.add(new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver()));
-        this.solvers.add(new CBS_Solver());
+        this.solvers.add(new CBSBuilder().createCBS_Solver());
     }
 
     /*  = Set Experiments =  */
