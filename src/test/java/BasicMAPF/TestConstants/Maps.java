@@ -87,6 +87,13 @@ public class Maps {
     };
     public static final I_ExplicitMap mapNarrowCorridor = MapFactory.newSimple4Connected2D_GraphMap(map_2D_narrowCorridor);
 
+    public static final Enum_MapLocationType[][] map_2D_narrowCorridorWithRoomOnTheRight = {
+            {w, w, w, w, w, e, e},
+            {e, e, e, e, e, e, e},
+            {w, w, w, w, w, e, e}
+    };
+    public static final I_ExplicitMap mapNarrowCorridorWithRoom = MapFactory.newSimple4Connected2D_GraphMap(map_2D_narrowCorridorWithRoomOnTheRight);
+
     public static final Enum_MapLocationType[][] map_2D_tree = {
             {w, e, w},
             {w, e, e},

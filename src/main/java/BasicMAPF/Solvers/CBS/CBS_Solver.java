@@ -28,6 +28,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
 import TransientMAPF.TransientMAPFUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -231,6 +232,12 @@ public class CBS_Solver extends A_Solver {
                 return node;
             }
             else {
+                if (this.transientMAPFSettings.resolveAfterGoalConflictsLocally()) {
+                    if (tryResolveConflictsLocally(node)) {
+                        openList.add(node);
+                        continue;
+                    };
+                }
                 expandNode(node);
             }
         }
@@ -415,6 +422,53 @@ public class CBS_Solver extends A_Solver {
             openList.clear();
         }
     }
+
+    /**
+     * The function checks if the conflict in the CBS node happens after one of the agents reached its target.
+     * If so, try to resolve it using the function {@link #resolveConflict(Agent, Agent, CBS_Node)}
+     * @param node - CBS node containing a conflict to resolve.
+     * @return true if the conflict was resolved, false otherwise.
+     */
+    private boolean tryResolveConflictsLocally(CBS_Node node) {
+        // check if the conflict occurs after one agent reached its target
+        Agent agent1 = node.selectedConflict.agent1;
+        Agent agent2 = node.selectedConflict.agent2;
+        int conflictTime = node.selectedConflict.time;
+        int agent1VisitedTargetTime = node.solution.getPlanFor(agent1).firstVisitToTargetTime();
+        int agent2VisitedTargetTime = node.solution.getPlanFor(agent2).firstVisitToTargetTime();
+
+        // If the conflict occurs after one of the agents reached its target, try to resolve the conflict locally
+        boolean conflictResolved = false;
+        if (agent1VisitedTargetTime < conflictTime) {
+            conflictResolved = resolveConflict(agent1, agent2, node);
+        }
+        if (agent2VisitedTargetTime < conflictTime) {
+            conflictResolved = resolveConflict(agent2, agent1, node);
+        }
+        return conflictResolved;
+    }
+
+
+    /**
+     * Try to resolve a conflict locally. If succeeded, the solution in the CBS node is replaced with the new solution.
+     * @param resolvingAgent is the agent that reached its target, and needs to move to allow the other agent to move.
+     * @param otherAgent is the agent that does not change its plan.
+     * @param node - CBS node contains the current solution.
+     * @return True if the conflict is resolved and successfully replaced in node, false otherwise.
+     */
+    private boolean resolveConflict(Agent resolvingAgent, Agent otherAgent, CBS_Node node) {
+        ConstraintSet allConstraints = new ConstraintSet(this.currentConstraints);
+        allConstraints.addAll(allConstraints.allConstraintsForPlan(node.solution.getPlanFor(otherAgent)));
+        Solution newSolution = solveSubproblem(resolvingAgent, node.solution, allConstraints);
+        if (newSolution == null) {
+            return false;
+        }
+        else {
+            node.solution = newSolution;
+            return true;
+        }
+    }
+
 
     /*  = wind down =  */
 

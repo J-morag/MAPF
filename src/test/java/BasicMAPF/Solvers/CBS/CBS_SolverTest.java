@@ -19,6 +19,7 @@ import Environment.Metrics.Metrics;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import Environment.Visualization.GridSolutionVisualizer;
 import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -362,6 +363,30 @@ class CBS_SolverTest {
                 new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver()
         );
         List<RunParameters> parameters = Arrays.asList(
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP()
+        );
+        TestUtils.solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
+                Arrays.asList( "Solved", "SOC", "SST", "Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)"));
+    }
+
+    @Test
+    void TestNarrowCorridorWithRoomOnTheSideUsingSeparatingVerticesAndResolveConflictsLocally() {
+        MAPF_Instance testInstance = new MAPF_Instance("Narrow corridor with room on the right side" , mapNarrowCorridorWithRoom, new Agent[]{
+                new Agent(1, coor10, coor13),
+                new Agent(2, coor11, coor12)
+        });
+
+        List<String> solverNames = Arrays.asList("CBS", "CBSt", "CBSt_blacklist", "CBSt_locally");
+        List<I_Solver> solvers = Arrays.asList(
+                new CBSBuilder().createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, false)).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, true, true, false)).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, true)).createCBS_Solver()
+        );
+        List<RunParameters> parameters = Arrays.asList(
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
                 new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
                 new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP()
         );
