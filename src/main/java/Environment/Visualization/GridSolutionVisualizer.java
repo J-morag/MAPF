@@ -6,10 +6,8 @@ import BasicMAPF.Instances.Maps.I_GridMap;
 import BasicMAPF.DataTypesAndStructures.Solution;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class GridSolutionVisualizer {
 
@@ -22,42 +20,53 @@ public class GridSolutionVisualizer {
         List<Integer> finishedGoals = new ArrayList<>();
         Set<Agent> sumFinishedAgents = new HashSet<>();
 
-        // Generate distinct colors for each agent, avoiding black, white, and green
-        List<Color> agentColors = new ArrayList<>();
-        for (int i = 0; i < instance.agents.size(); i++) {
-            float hue = (float) i / instance.agents.size();
-            if (hue > 0.25 && hue < 0.45) { // Avoid hues that correspond to green
-                hue += 0.2; // Shift hue to avoid green range
-            }
-            hue %= 1.0; // Wrap around if necessary
-            agentColors.add(Color.getHSBColor(hue, 0.8f, 0.8f)); // High saturation and brightness for vivid colors
+        // Determine the range of Agent IDs
+        int minId = instance.agents.stream().mapToInt(agent -> agent.iD).min().orElse(0);
+        int maxId = instance.agents.stream().mapToInt(agent -> agent.iD).max().orElse(0);
+        int idRange = Math.max(1, maxId - minId); // Prevent division by zero
+
+        // Map Agent IDs to colors (warmest to coldest)
+        Map<Integer, Color> agentColorMap = new HashMap<>();
+        for (Agent agent : instance.agents) {
+            float normalizedId = (float) (agent.iD - minId) / idRange; // Normalize ID to [0, 1]
+            float hue = 0.67f * (1 - normalizedId); // Map to hue range [0.67 (blue), 0 (red)]
+            agentColorMap.put(agent.iD, Color.getHSBColor(hue, 0.8f, 0.8f)); // Vivid colors
         }
 
         // Iterate until and including the final time step
-        for (int time = 0; time <= solution.endTime(); time++) { // Changed condition to <=
+        for (int time = 0; time <= solution.endTime(); time++) {
             Color[][] grid = new Color[map.getWidth()][map.getHeight()];
             paintObstaclesAndFreeCells(map, grid);
 
-            for (int i = 0; i < instance.agents.size(); i++) {
-                Agent agent = instance.agents.get(i);
+            for (Agent agent : instance.agents) {
                 int[] xy = map.getXY(solution.getAgentLocation(agent, time));
                 if (map.isObstacle(xy)) {
                     throw new IllegalArgumentException(String.format("Agent %s is on an obstacle", agent));
                 }
                 boolean atGoal = solution.getPlanFor(agent).getEndTime() <= time;
                 if (atGoal) {
-                    grid[xy[0]][xy[1]] = Color.GREEN; // Goal color
+                    // Get the agent's original color
+                    Color originalColor = agentColorMap.get(agent.iD);
+
+                    // Convert RGB to HSB
+                    float[] hsbValues = Color.RGBtoHSB(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), null);
+
+                    // Reduce saturation by 50% (or clamp to minimum 0.1 to avoid fully greyscale)
+                    float dimmedSaturation = Math.max(0.1f, hsbValues[1] * 0.5f);
+
+                    // Create a new color with lowered saturation
+                    grid[xy[0]][xy[1]] = Color.getHSBColor(hsbValues[0], dimmedSaturation, hsbValues[2]);
                     sumFinishedAgents.add(agent);
                 } else {
-                    grid[xy[0]][xy[1]] = agentColors.get(i); // Unique agent color
+                    grid[xy[0]][xy[1]] = agentColorMap.get(agent.iD); // Assign color based on ID
                 }
+
             }
             grids.add(grid);
             finishedGoals.add(sumFinishedAgents.size());
         }
         GridVisualizer.visualize(grids, finishedGoals, 250, title);
     }
-
 
     static void paintObstaclesAndFreeCells(I_GridMap map, Color[][] grid) {
         for (int y = 0; y < map.getHeight(); y++) {
