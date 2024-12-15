@@ -29,7 +29,7 @@ public class GridSolutionVisualizer {
         Map<Integer, Color> agentColorMap = new HashMap<>();
         for (Agent agent : instance.agents) {
             float normalizedId = (float) (agent.iD - minId) / idRange; // Normalize ID to [0, 1]
-            float hue = 0.67f * (1 - normalizedId); // Map to hue range [0.67 (blue), 0 (red)]
+            float hue = 0.67f * normalizedId; // Map to hue range [0 (red), 0.67 (blue)]
             agentColorMap.put(agent.iD, Color.getHSBColor(hue, 0.8f, 0.8f)); // Vivid colors
         }
 
