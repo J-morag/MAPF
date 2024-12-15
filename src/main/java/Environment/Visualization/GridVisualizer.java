@@ -104,11 +104,13 @@ public class GridVisualizer extends JPanel {
         Color[][] grid = grids.get(currentIndex);
         int rows = grid.length;
         int cols = grid[0].length;
+
+        // Fix the transposition by correctly mapping row and column
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 Color color = grid[row][col];
-                g.setColor(color);
-                g.fillRect(col * this.cellSize, row * this.cellSize, this.cellSize, this.cellSize);
+                g.setColor(color != null ? color : Color.WHITE); // Default to white for null cells
+                g.fillRect(row * this.cellSize, col * this.cellSize, this.cellSize, this.cellSize); // Note the switch
             }
         }
     }
