@@ -14,9 +14,11 @@ public class GridVisualizer extends JPanel {
     public static final int GRID_MAX_WIDTH_PIXELS = 1000;
     public static final int GRID_MAX_HEIGHT_PIXELS = 1000;
 
-    private int cellSize;
     private final List<Color[][]> grids;
     private final List<Integer> finishedGoals;
+    private final int gridWidth;
+    private final int gridHeight;
+    private int cellSize;
     private int iterationTime;
     private int currentIndex;
     private Timer timer;
@@ -41,11 +43,15 @@ public class GridVisualizer extends JPanel {
         // Update the pause/play button to reflect the paused state
         pausePlayButton.setText("Play");
 
+        // grid dimensions
+        this.gridWidth = grids.get(0).length; // x dimension / width / horizontal
+        this.gridHeight = grids.get(0)[0].length; // y dimension / height / vertical
+
         // Calculate the cell size based on grid dimensions
-        this.cellSize = Math.min(GRID_MAX_WIDTH_PIXELS / grids.get(0)[0].length, GRID_MAX_HEIGHT_PIXELS / grids.get(0).length);
+        this.cellSize = Math.min(GRID_MAX_WIDTH_PIXELS / this.gridWidth, GRID_MAX_HEIGHT_PIXELS / this.gridHeight);
         this.cellSize = Math.min(this.cellSize, DEFAULT_CELL_SIZE);
         this.cellSize = Math.max(this.cellSize, MIN_CELL_SIZE);
-        setPreferredSize(new Dimension(grids.get(0).length * this.cellSize, grids.get(0)[0].length * this.cellSize + 20)); // Add vertical space
+        setPreferredSize(new Dimension(this.gridWidth * this.cellSize, this.gridHeight * this.cellSize + 20)); // Add vertical space
 
     }
 
@@ -104,11 +110,11 @@ public class GridVisualizer extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Color[][] grid = grids.get(currentIndex);
-        for (int row = 0; row < grid.length; row++) {
-            for (int col = 0; col < grid[row].length; col++) {
-                Color color = grid[row][col];
+        for (int column = 0; column < this.gridWidth; column++) {
+            for (int row = 0; row < this.gridHeight; row++) {
+                Color color = grid[column][row];
                 g.setColor(color != null ? color : Color.WHITE); // Default to white
-                g.fillRect(row * cellSize, col * cellSize, cellSize, cellSize); // Transposed rendering
+                g.fillRect(column * cellSize, row * cellSize, cellSize, cellSize);
             }
         }
     }
