@@ -117,10 +117,13 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @return A new child AStarSIPPState based on the provided parameters.
      */
     private AStarSIPPState generateChildState(Move move, AStarSIPPState state, Interval interval, boolean init) {
+        // todo can we have a more accurate counting of conflicts? right now only counts the number of conflicts in the move into the interval.
+        //  maybe we can add the number of conflicts in the interval itself once we know the next move? And what to do about the first state?
         if (init) {
             return new AStarSIPPState(move, null, getG(null, move), 0, interval, visitedTarget(null, isMoveToTarget(move)));
         }
-        return new AStarSIPPState(move, state, getG(state, move), state.conflicts + numConflicts(move), interval, visitedTarget(state, isMoveToTarget(move)));
+        return new AStarSIPPState(move, state, getG(state, move), state.conflicts + numConflicts(move, false) // todo IsALastMove handling for TMAPF support
+                , interval, visitedTarget(state, isMoveToTarget(move)));
     }
 
     /**

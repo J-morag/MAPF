@@ -371,7 +371,7 @@ class CBS_SolverTest {
     }
 
     @Test
-    void TestNarrowCorridorWithRoomOnTheSideUsingSeparatingVerticesAndResolveConflictsLocally() {
+    void TestNarrowCorridorWithRoomOnTheSideTMAPFUsingSeparatingVerticesAndResolveConflictsLocally() {
         MAPF_Instance testInstance = new MAPF_Instance("Narrow corridor with room on the right side" , mapNarrowCorridorWithRoom, new Agent[]{
                 new Agent(1, coor10, coor13),
                 new Agent(2, coor11, coor12)
@@ -393,4 +393,5 @@ class CBS_SolverTest {
         TestUtils.solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
                 Arrays.asList( "Solved", "SOC", "SST", "Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)"));
     }
+
 }

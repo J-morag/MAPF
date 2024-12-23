@@ -9,6 +9,8 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
@@ -390,9 +392,20 @@ public class CBS_Solver extends A_Solver {
                 astarSubproblemParameters.goalCondition = TransientMAPFUtils.createLowLevelGoalConditionForTransientMAPF(transientMAPFSettings, separatingVerticesSet, instance.agents, agent, null);
             }
 
-            SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
-            cat.sharedGoals = this.sharedGoals;
-            cat.sharedSources = this.sharedSources;
+            I_ConflictAvoidanceTable cat;
+            if (this.transientMAPFSettings.isTransientMAPF()){
+                // Use RemovableConflictAvoidanceTableWithContestedGoals for TMAPF in CBS, because it correctly counts the number of conflicts after a target is reached.
+                if (this.sharedGoals || this.sharedSources){
+                    // should be verified earlier, but just in case
+                    throw new UnsupportedOperationException("Shared goals and shared sources are not supported in TMAPF");
+                }
+                cat = new RemovableConflictAvoidanceTableWithContestedGoals(currentSolution, agent);
+            }
+            else{
+                cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
+                ((SingleUseConflictAvoidanceTable)cat).sharedGoals = this.sharedGoals;
+                ((SingleUseConflictAvoidanceTable)cat).sharedSources = this.sharedSources;
+            }
             astarSubproblemParameters.conflictAvoidanceTable = cat;
             subproblemParametes = astarSubproblemParameters;
         }

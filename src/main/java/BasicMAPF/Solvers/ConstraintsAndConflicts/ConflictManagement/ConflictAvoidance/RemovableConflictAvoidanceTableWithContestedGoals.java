@@ -32,7 +32,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
      * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them..
      */
     private Map<I_Location, List<AgentAtGoal>> goalOccupancies;
-    private Map<I_Location, ArrayList<Move>> regularOccupanciesSorted;
+    private Map<I_Location, ArrayList<Move>> regularOccupanciesSorted; // todo merge with regular occupancies?
     private static final MoveTimeComparator MOVE_TIME_COMPARATOR = new MoveTimeComparator();
 
     /**
@@ -120,10 +120,15 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
             if (sortedMovesAtLocation != null && !sortedMovesAtLocation.isEmpty()){
                 // use binary search to count how many occupancies exist after the move
                 int timeIndex = Collections.binarySearch(sortedMovesAtLocation, move, MOVE_TIME_COMPARATOR);
-                if (timeIndex >= 0){ // time is in the list
+                if (timeIndex >= 0){ // the time is in the list
+                    // find the largest index of moves with the same time
+                    while (timeIndex < sortedMovesAtLocation.size() - 1 && sortedMovesAtLocation.get(timeIndex + 1).timeNow == move.timeNow){
+                        timeIndex++;
+                    }
                     numConflicts += sortedMovesAtLocation.size() - timeIndex - 1;
+
                 }
-                if (timeIndex < 0){
+                else { // timeIndex < 0
                     int numSmallerOrEqualElements = -timeIndex - 1;
                     numConflicts += sortedMovesAtLocation.size() - numSmallerOrEqualElements;
                 }
@@ -271,11 +276,11 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
             }
         }
 
-        // look for conflicts where this a goal move and the other agent is not a goal move
+        // look for conflicts where this is a goal move, and the other agent is not a goal move
         if (isALastMove){
             ArrayList<Move> sortedMovesAtLocation = regularOccupanciesSorted.get(move.currLocation);
             if (sortedMovesAtLocation != null && !sortedMovesAtLocation.isEmpty()){
-                // use binary search to find occupancies exist after the move
+                // use binary search to find occupancies that exist after the move
                 int timeIndex = Collections.binarySearch(sortedMovesAtLocation, move, MOVE_TIME_COMPARATOR);
                 if (timeIndex < 0){
                     timeIndex = -timeIndex - 1;
@@ -286,6 +291,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
                         break;
                     }
                     if (otherMove.timeNow == move.timeNow){
+                        // there may be multiple moves with the same time, so keep scanning until we increase time by at least 1
                         continue;
                     }
                     else if (earliestGoalConflict == -1 || otherMove.timeNow < earliestGoalConflict){

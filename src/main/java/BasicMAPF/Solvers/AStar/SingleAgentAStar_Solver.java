@@ -96,7 +96,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
         if(runParameters instanceof RunParameters_SAAStar parameters
-                && ((RunParameters_SAAStar) runParameters).conflictAvoidanceTable != null){
+                && parameters.conflictAvoidanceTable != null){
             this.conflictAvoidanceTable = parameters.conflictAvoidanceTable;
         }
         // else keep the value that it has already been initialised with (above)
@@ -262,8 +262,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // move not prohibited by existing constraint
             if (constraints.accepts(possibleMove)) {
                 AStarState child = new AStarState(possibleMove, state, getG(state, possibleMove),
-                        state.conflicts + numConflicts(possibleMove), visitedTarget(state, isMoveToTarget(possibleMove)));
+                        state.conflicts + numConflicts(possibleMove, false), visitedTarget(state, isMoveToTarget(possibleMove)));
                 addToOpenList(child);
+//                if (this.goalCondition instanceof VisitedTargetAStarGoalCondition && child.visitedTarget && this.conflictAvoidanceTable != null){
+//                    // any location is now a possible goal, and we must check how many conflicts will happen if we stay
+//                    // there forever, which is different from the number of conflicts if we just pass through.
+//                    AStarState lastMoveCandidateChild = new AStarState(possibleMove, state, getG(state, possibleMove),
+//                            state.conflicts + numConflicts(possibleMove, true), visitedTarget(state, isMoveToTarget(possibleMove)));
+//                    addToOpenList(lastMoveCandidateChild); // todo also modify goal check and state definition to include isLastMove - otherwise will always falsely prefer the version without the conflicts
+//                }
             }
         }
     }
@@ -326,10 +333,16 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.goalCondition = null;
     }
 
-    protected int numConflicts(Move move){
-        // TODO to support tie breaking by num conflicts, may have to create duplicate nodes after reaching a goal,
-        //  one as a last move and one as an intermediate move, because they would have a different number of conflicts.
-        return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move, false);
+    /**
+     * the number of conflicts that the given move would generate.
+     * @param move the move to check for conflicts.
+     * @param isALastMove True if the move is intended as the last move in a plan, meaning that the agent will stay at the
+     *                    location indefinitely. Irrelevant in classic MAPF, because these conflicts are used only for
+     *                    tie-breaking (soft constraints), and each agent can only end at its unique target.
+     * @return the number of conflicts that the given move would generate.
+     */
+    protected int numConflicts(Move move, boolean isALastMove){
+        return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move, isALastMove);
     }
 
     private int getID() {
@@ -355,6 +368,14 @@ public class SingleAgentAStar_Solver extends A_Solver {
         protected final int conflicts;
         public final boolean visitedTarget;
 
+        /**
+         * Create a new A* state.
+         * @param move the move that this state represents.
+         * @param prevState the state that this state is coming from.
+         * @param g the cost of this state (cumulative).
+         * @param conflicts the number of conflicts (cumulative) with soft constraints that this state has.
+         * @param visitedTarget whether the agent has visited its target location - either now or in the past.
+         */
         public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean visitedTarget) {
             SingleAgentAStar_Solver.this.generatedNodes++;
             this.move = move;
