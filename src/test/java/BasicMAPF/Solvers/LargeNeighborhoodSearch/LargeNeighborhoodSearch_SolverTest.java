@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -169,7 +170,8 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPF() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, false, false, false)).createLNS();
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, false, false, false))
+                .setSolutionCostFunction(new SumServiceTimes()).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);
@@ -192,7 +194,8 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPFAndBlacklist() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false, false)).createLNS();
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false, false))
+                .setSolutionCostFunction(new SumServiceTimes()).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);

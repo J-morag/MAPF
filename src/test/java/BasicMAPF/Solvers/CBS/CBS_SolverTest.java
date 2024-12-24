@@ -304,7 +304,7 @@ class CBS_SolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
+        I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver();
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -380,9 +380,9 @@ class CBS_SolverTest {
         List<String> solverNames = Arrays.asList("CBS", "CBSt", "CBSt_blacklist", "CBSt_locally");
         List<I_Solver> solvers = Arrays.asList(
                 new CBSBuilder().createCBS_Solver(),
-                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, false)).createCBS_Solver(),
-                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, true, true, false)).createCBS_Solver(),
-                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, true)).createCBS_Solver()
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, true, true, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, true)).setCostFunction(new SumServiceTimes()).createCBS_Solver()
         );
         List<RunParameters> parameters = Arrays.asList(
                 new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),

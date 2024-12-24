@@ -7,6 +7,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
@@ -117,10 +118,12 @@ public class SingleAgentAStar_Solver extends A_Solver {
         else{
             this.goalCondition = new AtTargetAStarGoalCondition(this.targetCoor);
         }
-
         this.gAndH = Objects.requireNonNullElseGet(runParameters.singleAgentGAndH, () -> new UnitCostsAndManhattanDistance(this.targetCoor));
         if (! this.gAndH.isConsistent()){
             throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
+        }
+        if (this.goalCondition instanceof VisitedTargetAStarGoalCondition ^ this.gAndH instanceof ServiceTimeGAndH){
+            throw new IllegalArgumentException("VisitedTargetAStarGoalCondition requires a ServiceTimeGAndH heuristic and vice versa.");
         }
 
         // todo should make this more explicit. Getting an rng might not necessarily mean that we want to use it like this.
@@ -167,14 +170,16 @@ public class SingleAgentAStar_Solver extends A_Solver {
             closed.add(currentState);
 
             // nicetohave - change to early goal test
-            if (isGoalState(currentState)){
+            if (isGoalState(currentState)
+                    && (!(goalCondition instanceof VisitedTargetAStarGoalCondition) || this.conflictAvoidanceTable == null || currentState.isALastMove)) // TMAPF
+            {
                 // check to see if a rejecting constraint on the goal's location exists at some point in the future,
                 // which would mean we can't finish the plan there and stay forever
 
                 if (!agentsStayAtGoal){
                     lastRejectionTime = -1;
                 }
-                // For Transient MAPF paths. May try to stop forever to different locations so caching is more complicated.
+                // For Transient MAPF paths. May try to stop forever in different locations, so caching is more complicated.
                 else if (goalCondition instanceof VisitedTargetAStarGoalCondition){
                     Move currentMove = currentState.move;
                     lastRejectionTime = lastRejectionTimes.computeIfAbsent(currentState.move.currLocation,
@@ -212,7 +217,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // We assume that we cannot change the existing plan, so if it is rejected by constraints, we can't initialise OPEN.
             if(constraints.rejects(lastExistingMove)) {return false;}
 
-            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, 0, visitedTarget(null, existingPlan.containsTarget())));
+            generate(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, visitedTarget(null, existingPlan.containsTarget()));
         }
         else { // the existing plan is empty (no existing plan)
 
@@ -229,8 +234,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     possibleMove.isStayAtSource = true;
                 }
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    AStarState rootState = new AStarState(possibleMove, null, getG(null, possibleMove), 0, visitedTarget(null, isMoveToTarget(possibleMove)));
-                    openList.add(rootState);
+                    generate(possibleMove, null, getG(null, possibleMove), visitedTarget(null, isMoveToTarget(possibleMove)));
                 }
             }
 
@@ -261,17 +265,23 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
             // move not prohibited by existing constraint
             if (constraints.accepts(possibleMove)) {
-                AStarState child = new AStarState(possibleMove, state, getG(state, possibleMove),
-                        state.conflicts + numConflicts(possibleMove, false), visitedTarget(state, isMoveToTarget(possibleMove)));
-                addToOpenList(child);
-//                if (this.goalCondition instanceof VisitedTargetAStarGoalCondition && child.visitedTarget && this.conflictAvoidanceTable != null){
-//                    // any location is now a possible goal, and we must check how many conflicts will happen if we stay
-//                    // there forever, which is different from the number of conflicts if we just pass through.
-//                    AStarState lastMoveCandidateChild = new AStarState(possibleMove, state, getG(state, possibleMove),
-//                            state.conflicts + numConflicts(possibleMove, true), visitedTarget(state, isMoveToTarget(possibleMove)));
-//                    addToOpenList(lastMoveCandidateChild); // todo also modify goal check and state definition to include isLastMove - otherwise will always falsely prefer the version without the conflicts
-//                }
+                generate(possibleMove, state, getG(state, possibleMove), visitedTarget(state, isMoveToTarget(possibleMove)));
             }
+        }
+    }
+
+    protected void generate(Move move, AStarState prevState, int g, boolean visitedTarget) {
+        AStarState newNode = new AStarState(move, prevState, g,
+                (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, false),
+                visitedTarget, false);
+        addToOpenList(newNode);
+        if (this.goalCondition instanceof VisitedTargetAStarGoalCondition && visitedTarget && this.conflictAvoidanceTable != null){
+            // any location is now a possible goal, and we must check how many conflicts will happen if we stay
+            // there forever, which is different from the number of conflicts if we just pass through.
+            AStarState lastMoveCandidateChild = new AStarState(move, prevState, g,
+                    (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, true),
+                    visitedTarget, true);
+            addToOpenList(lastMoveCandidateChild);
         }
     }
 
@@ -337,7 +347,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
      * the number of conflicts that the given move would generate.
      * @param move the move to check for conflicts.
      * @param isALastMove True if the move is intended as the last move in a plan, meaning that the agent will stay at the
-     *                    location indefinitely. Irrelevant in classic MAPF, because these conflicts are used only for
+     *                    location indefinitely. For TMAPF. Irrelevant in classic MAPF, because these conflicts are used only for
      *                    tie-breaking (soft constraints), and each agent can only end at its unique target.
      * @return the number of conflicts that the given move would generate.
      */
@@ -367,22 +377,26 @@ public class SingleAgentAStar_Solver extends A_Solver {
          */
         protected final int conflicts;
         public final boolean visitedTarget;
+        public final boolean isALastMove;
 
         /**
          * Create a new A* state.
-         * @param move the move that this state represents.
-         * @param prevState the state that this state is coming from.
-         * @param g the cost of this state (cumulative).
-         * @param conflicts the number of conflicts (cumulative) with soft constraints that this state has.
+         * @param move          the move that this state represents.
+         * @param prevState     the state that this state is coming from.
+         * @param g             the cost of this state (cumulative).
+         * @param conflicts     the number of conflicts (cumulative) with soft constraints that this state has.
          * @param visitedTarget whether the agent has visited its target location - either now or in the past.
+         * @param isALastMove  whether this move is the last move of the agent, meaning the agent is set to stay there forever.
+         *                     For TMAPF. Irrelevant in classic MAPF, because only the target vertex is considered for last move.
          */
-        public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean visitedTarget) {
+        public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean visitedTarget, boolean isALastMove) {
             SingleAgentAStar_Solver.this.generatedNodes++;
             this.move = move;
             this.prev = prevState;
             this.g = g;
             this.conflicts = conflicts;
             this.visitedTarget = visitedTarget;
+            this.isALastMove = isALastMove;
 
             // must call this last, since it needs some other fields to be initialized already.
             this.h = calcH();
@@ -469,6 +483,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if (!(o instanceof AStarState that)) return false;
             if (move.timeNow != that.move.timeNow) return false;
             if (visitedTarget != that.visitedTarget) return false;
+            if (isALastMove != that.isALastMove) return false;
             return move.currLocation.equals(that.move.currLocation);
         }
 
@@ -477,6 +492,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             int result = move.currLocation.hashCode();
             result = 31 * result + move.timeNow;
             result = 31 * result + (visitedTarget ? 1 : 0);
+            result = 31 * result + (isALastMove ? 1 : 0);
             return result;
         }
 

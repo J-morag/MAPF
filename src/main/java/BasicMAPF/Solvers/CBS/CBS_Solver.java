@@ -130,6 +130,9 @@ public class CBS_Solver extends A_Solver {
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
+        if (this.costFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+            throw new IllegalArgumentException("CBS Solver: cost function and transient MAPF settings are mismatched: " + this.costFunction + " " + this.transientMAPFSettings);
+        }
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
     }
 
@@ -162,7 +165,7 @@ public class CBS_Solver extends A_Solver {
             if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
                 ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
             }
-            if (this.singleAgentGAndH != null && this.costFunction instanceof SumServiceTimes){
+            if (this.singleAgentGAndH != null && this.costFunction instanceof SumServiceTimes){ // for TMAPF
                 this.singleAgentGAndH = new ServiceTimeGAndH(this.singleAgentGAndH);
             }
         }
