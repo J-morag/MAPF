@@ -32,11 +32,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     private final Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
-
-    public boolean agentsStayAtGoal;
+    private final Comparator<AStarState> stateComparator;
+    public boolean agentsStayAtGoal = true;
 
     protected I_ConstraintSet constraints;
-    protected final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
+    protected I_OpenList<AStarState> openList;
     protected final Set<AStarState> closed = new HashSet<>();
     protected Agent agent;
     protected I_Map map;
@@ -62,15 +62,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     public SingleAgentAStar_Solver() {this(null);}
 
-    public SingleAgentAStar_Solver(Boolean agentsStayAtGoal) {
+    public SingleAgentAStar_Solver(Comparator<AStarState> stateComparator) {
         super.name = "AStar";
-        this.agentsStayAtGoal = Objects.requireNonNullElse(agentsStayAtGoal, true);
+        this.stateComparator = Objects.requireNonNullElse(stateComparator, new TieBreakingForLessConflictsAndHigherG());
     }
     /*  = set up =  */
 
     protected void init(MAPF_Instance instance, RunParameters runParameters){
         super.init(instance, runParameters);
-
+        this.openList = new OpenListTree<>(stateComparator);
         this.constraints = runParameters.constraints == null ? new ConstraintSet(): runParameters.constraints;
         this.agent = instance.agents.get(0);
         this.map = instance.map;
@@ -498,7 +498,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
         @Override
         public int compareTo(@NotNull AStarState o) {
-            return stateFComparator.compare(this, o);
+            return stateComparator.compare(this, o);
         }
 
         @Override
