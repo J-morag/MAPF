@@ -9,6 +9,7 @@ import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
+import BasicMAPF.DataTypesAndStructures.TimeInterval;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -320,9 +321,9 @@ public class PriorityConstrainedSearch extends A_Solver {
 
     @Nullable
     private int[] getHarr(ArrayList<MDD> MDDs, ConstraintSet updatedConstraints) {
-        Map<I_Location, List<SingleAgentAStarSIPP_Solver.Interval>> safeIntervalsByLocation = null;
+        Map<I_Location, List<TimeInterval>> safeIntervalsByLocation = null;
         if (pcsHeuristic instanceof PCSHeuristicSIPP){
-            safeIntervalsByLocation = SingleAgentAStarSIPP_Solver.vertexConstraintsToSafeTimeIntervals(updatedConstraints, null, this.currentMap);
+            safeIntervalsByLocation = updatedConstraints.vertexConstraintsToSafeTimeIntervals(null, this.currentMap);
         }
         return pcsHeuristic.getH(priorityOrderedAgents, MDDs.size(), updatedConstraints, currentInstance, singleAgentHeuristic, safeIntervalsByLocation);
     }

@@ -1,33 +1,30 @@
 package BasicMAPF.Solvers.AStar;
 
-import BasicMAPF.DataTypesAndStructures.ArrayMap;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.Instances.Agent;
+import BasicMAPF.DataTypesAndStructures.TimeInterval;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
-import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.*;
-import Environment.Config;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * Safe Interval Path Planning (SIPP) implementation of the A* algorithm for single-agent pathfinding.
+ * <p>
+ *     Based on the paper:
+ *     <i>Phillips, Mike, and Maxim Likhachev. "Sipp: Safe interval path planning for dynamic environments." 2011 IEEE international conference on robotics and automation. IEEE, 2011.</i>
+ */
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
+    private static final List<TimeInterval> DEFAULT_SINGLETON_LIST_OF_INF_INTERVAL = Collections.singletonList(TimeInterval.DEFAULT_INTERVAL);
 
-    private Map<I_Location, List<Interval>> safeIntervalsByLocation;
+    private Map<I_Location, List<TimeInterval>> safeIntervalsByLocation;
 
     public SingleAgentAStarSIPP_Solver() {
         super();
         super.name = "SIPP";
-    }
-
-    public record Interval(int start, int end) {
-        public static final Interval DEFAULT_INTERVAL = new Interval(0, Integer.MAX_VALUE);
     }
 
     @Override
@@ -36,7 +33,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         if (runParameters instanceof RunParameters_SAAStarSIPP parameters && parameters.safeIntervalsByLocation != null) {
             this.safeIntervalsByLocation = parameters.safeIntervalsByLocation;
         } else {
-            this.safeIntervalsByLocation = vertexConstraintsToSafeTimeIntervals(this.constraints, this.agent, this.map);
+            this.safeIntervalsByLocation = this.constraints.vertexConstraintsToSafeTimeIntervals(this.agent, this.map);
         }
 
         if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
@@ -46,7 +43,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
     @Override
     protected boolean initOpen() {
-        // if the existing plan isn't empty, we start from the last move of the existing plan.
+        // if the existing plan isn't empty, we start() from the last move of the existing plan.
         if (existingPlan.size() > 0) {
             Move lastExistingMove = existingPlan.moveAt(existingPlan.getEndTime());
             // We assume that we cannot change the existing plan, so if it is rejected by constraints, we can't initialise OPEN.
@@ -57,10 +54,10 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             int existingPlanTotalCost = existingPlan.getCost();
 
             // Find the time interval for the last move
-            List<Interval> intervals = getIntervalsForLocation(lastExistingMove.currLocation);
-            Interval lastMoveInterval = null;
-            for (Interval interval : intervals) {
-                if (interval.start <= lastExistingMove.timeNow && interval.end >= lastExistingMove.timeNow) {
+            List<TimeInterval> intervals = getIntervalsForLocation(lastExistingMove.currLocation);
+            TimeInterval lastMoveInterval = null;
+            for (TimeInterval interval : intervals) {
+                if (interval.start() <= lastExistingMove.timeNow && interval.end() >= lastExistingMove.timeNow) {
                     lastMoveInterval = interval;
                     break;
                 }
@@ -85,8 +82,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         return !openList.isEmpty();
     }
 
-    private List<Interval> getIntervalsForLocation(I_Location location) {
-        return safeIntervalsByLocation.computeIfAbsent(location, k -> Collections.singletonList(Interval.DEFAULT_INTERVAL));
+    private List<TimeInterval> getIntervalsForLocation(I_Location location) {
+        return safeIntervalsByLocation.getOrDefault(location, DEFAULT_SINGLETON_LIST_OF_INF_INTERVAL);
     }
 
     // todo override SingleAgentAStar_Solver.generate() and use that instead of directly using AStarSIPPState::new and addToOpenList
@@ -118,7 +115,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @param init     Flag indicating if this is an initial state or not.
      * @return A new child AStarSIPPState based on the provided parameters.
      */
-    private AStarSIPPState generateChildState(Move move, AStarSIPPState state, Interval interval, boolean init) {
+    private AStarSIPPState generateChildState(Move move, AStarSIPPState state, TimeInterval interval, boolean init) {
         // todo can we have a more accurate counting of conflicts? right now only counts the number of conflicts in the move into the interval.
         //  maybe we can add the number of conflicts in the interval itself once we know the next move? And what to do about the first state?
         if (init) {
@@ -140,19 +137,19 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         I_Location currLocation = possibleMove.currLocation;
 
         // Retrieve safe intervals for the current location
-        List<Interval> safeIntervalsCurrLocation = getIntervalsForLocation(currLocation);
+        List<TimeInterval> safeIntervalsCurrLocation = getIntervalsForLocation(currLocation);
         int nextMoveStartTime = possibleMove.timeNow;
 
-        Interval prevLocationRelevantInterval = init ? getIntervalsForLocation(prevLocation).get(0) : state.timeInterval;
+        TimeInterval prevLocationRelevantInterval = init ? getIntervalsForLocation(prevLocation).get(0) : state.timeInterval;
 
         // Iterate through the intervals of the current location
-        for (Interval currInterval : safeIntervalsCurrLocation) {
-            if (currInterval.end >= nextMoveStartTime) {
-                if ((currInterval.start <= nextMoveStartTime)) {
+        for (TimeInterval currInterval : safeIntervalsCurrLocation) {
+            if (currInterval.end() >= nextMoveStartTime) {
+                if ((currInterval.start() <= nextMoveStartTime)) {
                     moveIntoSafeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
                     continue;
                 }
-                if (prevLocationRelevantInterval.end >= currInterval.start - 1) {
+                if (prevLocationRelevantInterval.end() >= currInterval.start() - 1) {
                     moveIntoSafeInterval(state, possibleMove, init, prevLocation, currLocation, prevLocationRelevantInterval, currInterval);
                 }
             }
@@ -171,22 +168,22 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @param currInterval               The current interval being considered.
      */
     private void moveIntoSafeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation,
-                                      I_Location currLocation, Interval prevLocationRelevantInterval, Interval currInterval) {
+                                      I_Location currLocation, TimeInterval prevLocationRelevantInterval, TimeInterval currInterval) {
         AStarSIPPState child = state;
         int possibleMoveTime;
         boolean afterLastConstraint;
         Move samePossibleMove = null;
 
         // If the move is accepted and is within the current interval, create a child state and add to the open list
-        if ((constraints.accepts(possibleMove)) && (possibleMove.timeNow >= currInterval.start)) {
+        if ((constraints.accepts(possibleMove)) && (possibleMove.timeNow >= currInterval.start())) {
             child = generateChildState(possibleMove, state, currInterval, init);
             addToOpenList(child);
             return;
         }
 
-        // Reset the move to start from the previous location
+        // Reset the move to start() from the previous location
         possibleMove = new Move(child.move.agent, possibleMove.timeNow, prevLocation, prevLocation);
-        while (possibleMove.timeNow <= prevLocationRelevantInterval.end) {
+        while (possibleMove.timeNow <= prevLocationRelevantInterval.end()) {
             if (!constraints.accepts(possibleMove)) return;
 
             // Generate child state based on the possible move
@@ -199,7 +196,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             possibleMoveTime = !afterLastConstraint ? possibleMove.timeNow + 1 : child.move.timeNow;
 
             // If the move time is within or right before the current interval, create the move and check constraints
-            if (possibleMove.timeNow >= currInterval.start - 1) {
+            if (possibleMove.timeNow >= currInterval.start() - 1) {
                 possibleMove = new Move(child.move.agent, possibleMoveTime, prevLocation, currLocation);
                 if (constraints.accepts(possibleMove)) {
                     child = generateChildState(possibleMove, child, currInterval, false);
@@ -215,82 +212,10 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
     }
 
-    /**
-     * @param agent if null, will only consider vertex constraints that are not agent-specific
-     * @param map
-     * @return the safe intervals for each location
-     */
-    public static Map<I_Location, List<Interval>> vertexConstraintsToSafeTimeIntervals(I_ConstraintSet constraints, @Nullable Agent agent, I_Map map) {
-        /*
-          Originally constraints are by location and time. For the SIPP algorithm,
-          we convert the constraints into time intervals by location
-         */
-        Map<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
-
-        for (Map.Entry<I_Location, ArrayList<Constraint>> entry : constraints.getLocationConstraintsTimeSorted().entrySet()) {
-            for (Constraint constraint : entry.getValue()) {
-                // skip constraints that are not vertex constraints
-                if ((constraint.getPrevLocation() == null) && (constraint.agent == null || constraint.agent.equals(agent))){
-                    List<Integer> timesList = timeIntervals.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
-                    timesList.add(constraint.time);
-                }
-            }
-        }
-
-        Map<I_Location, List<Interval>> intervalMap = map instanceof I_ExplicitMap explicitMap ?
-                new ArrayMap<>(explicitMap.getNumMapLocations()) : new HashMap<>();
-        for (I_Location location : timeIntervals.keySet()) {
-            List<Integer> timestamps = timeIntervals.get(location);
-
-            // Convert the timestamps to intervals
-            ArrayList<Interval> intervals = timestampsToSafeIntervals(timestamps);
-
-            // Update the output map with the intervals for the current location
-            intervalMap.put(location, intervals);
-        }
-
-        for (GoalConstraint goalConstraint : constraints.getGoalConstraints().values()) {
-            // handle goal constraints by trimming from the last safe interval the range [goalTime, inf]
-            List<Interval> locationIntervals = intervalMap.computeIfAbsent(goalConstraint.location, k -> new ArrayList<>());
-            Interval lastInterval = locationIntervals.isEmpty() ? Interval.DEFAULT_INTERVAL :
-                    locationIntervals.remove(locationIntervals.size() - 1);
-            if (Config.DEBUG >= 1 && lastInterval.end < Integer.MAX_VALUE) {
-                throw new IllegalStateException("Last interval should end at infinity because there is at most one goal" +
-                        " constraint pe location: " + lastInterval);
-            }
-            locationIntervals.add(new Interval(lastInterval.start, goalConstraint.time - 1));
-        }
-        return intervalMap;
-    }
-
-    private static ArrayList<Interval> timestampsToSafeIntervals(List<Integer> timestamps) {
-        // Sort timestamps in ascending order
-        Collections.sort(timestamps);
-
-        ArrayList<Interval> safeIntervals = new ArrayList<>();
-
-        // Add the first interval if it starts from more than 0
-        if (timestamps.get(0) > 0) {
-            safeIntervals.add(new Interval(0, timestamps.get(0) - 1));
-        }
-
-        // Iterate through timestamps to find safe intervals
-        for (int i = 1; i < timestamps.size(); i++) {
-            if (timestamps.get(i) > timestamps.get(i - 1) + 1) {
-                safeIntervals.add(new Interval(timestamps.get(i - 1) + 1, timestamps.get(i) - 1));
-            }
-        }
-
-        // Add the last interval extending to positive infinity
-        safeIntervals.add(new Interval(timestamps.get(timestamps.size() - 1) + 1, Integer.MAX_VALUE));
-
-        return safeIntervals;
-    }
-
     public class AStarSIPPState extends AStarState {
-        private final Interval timeInterval;
+        private final TimeInterval timeInterval;
 
-        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, Interval timeInterval, boolean visitedTarget) {
+        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget) {
             super(move, prev, g, conflicts, visitedTarget, false); // todo add support for isALastMove for TMAPF
             this.timeInterval = timeInterval;
         }
@@ -300,7 +225,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             if (this == o) return true;
             if (!(o instanceof AStarSIPPState that)) return false;
 
-            if (timeInterval.start != that.timeInterval.start) return false;
+            if (timeInterval.start() != that.timeInterval.start()) return false;
             assert move != null;
             assert that.move != null;
             return move.currLocation.equals(that.move.currLocation);
@@ -310,7 +235,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         public int hashCode() {
             assert move != null;
             int result = move.currLocation.hashCode();
-            result = 31 * result + this.timeInterval.start;
+            result = 31 * result + this.timeInterval.start();
             return result;
         }
 

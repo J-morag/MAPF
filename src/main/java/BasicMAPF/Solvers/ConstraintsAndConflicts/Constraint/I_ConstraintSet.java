@@ -3,8 +3,12 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.TimeInterval;
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Instances.Maps.I_Map;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -50,6 +54,17 @@ public interface I_ConstraintSet {
     void removeAll(Collection<? extends Constraint> constraints);
 
     void clear();
+
+    /**
+     * Converts the constraints to safe intervals for each location. Used by the SIPP algorithm.
+     * Does not address edge constraints, only vertex constraints.
+     * @param agent If null, uses only constraints that are not agent-specific, else uses only constraints that are specific to this agent.
+     * @param map the map to which the constraints apply.
+     *            Only needed to know if the map is an {@link I_ExplicitMap}, for the purpose for data structure optimization.
+     *            Can be null.
+     * @return the safe intervals for each location where vertex constraints apply. Otherwise, the location is not in the map.
+     */
+    Map<I_Location, List<TimeInterval>> vertexConstraintsToSafeTimeIntervals(@Nullable Agent agent, @Nullable I_Map map);
 
     /**
      * @param move

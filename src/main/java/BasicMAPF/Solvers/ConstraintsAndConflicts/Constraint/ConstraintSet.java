@@ -2,7 +2,12 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Instances.Maps.I_Map;
+import BasicMAPF.DataTypesAndStructures.TimeInterval;
+import Environment.Config;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -273,6 +278,85 @@ public class ConstraintSet implements I_ConstraintSet {
         }
         return false;
     }
+
+    /* Safe intervals (for SIPP support) */
+
+    /**
+     * Converts the constraints to safe intervals for each location. Used by the SIPP algorithm.
+     * Does not address edge constraints, only vertex constraints.
+     * todo - make this more lazy, by calculating the intervals on the fly, as locations are actually queried.
+     * todo - make cache the intervals (only if called) for the null agent case, while still allowing constraints to be added or removed?
+     * @param agent If null, uses only constraints that are not agent-specific, else uses only constraints that are specific to this agent.
+     * @param map the map to which the constraints apply.
+     *            Only needed to know if the map is an {@link I_ExplicitMap}, for the purpose for data structure optimization.
+     *            Can be null.
+     * @return the safe intervals for each location where vertex constraints apply. Otherwise, the location is not in the map.
+     */
+    @Override
+    public Map<I_Location, List<TimeInterval>> vertexConstraintsToSafeTimeIntervals(@Nullable Agent agent, @Nullable I_Map map) {
+        Map<I_Location, ArrayList<Integer>> timeIntervals = new HashMap<>();
+
+        for (Map.Entry<I_Location, ArrayList<Constraint>> entry : this.locationConstraintsTimeSorted.entrySet()) {
+            for (Constraint constraint : entry.getValue()) {
+                // skip constraints that are not vertex constraints
+                if ((constraint.getPrevLocation() == null) && (constraint.agent == null || constraint.agent.equals(agent))){
+                    List<Integer> timesList = timeIntervals.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
+                    timesList.add(constraint.time);
+                }
+            }
+        }
+
+        Map<I_Location, List<TimeInterval>> intervalMap = map instanceof I_ExplicitMap explicitMap ?
+                new ArrayMap<>(explicitMap.getNumMapLocations()) : new HashMap<>();
+        for (I_Location location : timeIntervals.keySet()) {
+            List<Integer> timesteps = timeIntervals.get(location);
+
+            // Convert the timesteps to intervals
+            ArrayList<TimeInterval> intervals = timestepsToSafeIntervals(timesteps);
+
+            // Update the output map with the intervals for the current location
+            intervalMap.put(location, intervals);
+        }
+
+        for (GoalConstraint goalConstraint : this.goalConstraints.values()) {
+            // handle goal constraints by trimming from the last safe interval the range [goalTime, inf]
+            List<TimeInterval> locationIntervals = intervalMap.computeIfAbsent(goalConstraint.location, k -> new ArrayList<>());
+            TimeInterval lastInterval = locationIntervals.isEmpty() ? TimeInterval.DEFAULT_INTERVAL :
+                    locationIntervals.remove(locationIntervals.size() - 1);
+            if (Config.DEBUG >= 1 && lastInterval.end() < Integer.MAX_VALUE) {
+                throw new IllegalStateException("Last interval should end at infinity because there is at most one goal" +
+                        " constraint pe location: " + lastInterval);
+            }
+            locationIntervals.add(new TimeInterval(lastInterval.start(), goalConstraint.time - 1));
+        }
+        return intervalMap;
+    }
+
+    private static ArrayList<TimeInterval> timestepsToSafeIntervals(List<Integer> timestamps) {
+        // Sort timestamps in ascending order
+        Collections.sort(timestamps);
+
+        ArrayList<TimeInterval> safeIntervals = new ArrayList<>();
+
+        // Add the first interval if it starts from more than 0
+        if (timestamps.get(0) > 0) {
+            safeIntervals.add(new TimeInterval(0, timestamps.get(0) - 1));
+        }
+
+        // Iterate through timestamps to find safe intervals
+        for (int i = 1; i < timestamps.size(); i++) {
+            if (timestamps.get(i) > timestamps.get(i - 1) + 1) {
+                safeIntervals.add(new TimeInterval(timestamps.get(i - 1) + 1, timestamps.get(i) - 1));
+            }
+        }
+
+        // Add the last interval extending to positive infinity
+        safeIntervals.add(new TimeInterval(timestamps.get(timestamps.size() - 1) + 1, Integer.MAX_VALUE));
+
+        return safeIntervals;
+    }
+
+    /* Querying */
 
     private Constraint getDummyConstraint(Move move) {
         // todo create a permanent dummy to avoid too many object creations?
