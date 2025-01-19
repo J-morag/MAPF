@@ -1099,8 +1099,7 @@ class SingleAgentAStarSIPP_SolverTest {
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
-//                new InstanceProperties(null, -1d, new int[]{5, 10, 15, 20, 25}));
-                new InstanceProperties(null, -1d, new int[]{5, 10, 15}));
+                new InstanceProperties(null, -1d, new int[]{25}));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;

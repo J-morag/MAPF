@@ -108,8 +108,8 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     }
 
     @Override
-    public Map<I_Location, List<TimeInterval>> vertexConstraintsToSafeTimeIntervals(@Nullable Agent agent, @Nullable I_Map map) {
-        return constraintSet.vertexConstraintsToSafeTimeIntervals(agent, map);
+    public Map<I_Location, List<TimeInterval>> vertexConstraintsToSortedSafeTimeIntervals(@Nullable Agent agent, @Nullable I_Map map) {
+        return constraintSet.vertexConstraintsToSortedSafeTimeIntervals(agent, map);
     }
 
     @Override

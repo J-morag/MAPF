@@ -63,8 +63,9 @@ public interface I_ConstraintSet {
      *            Only needed to know if the map is an {@link I_ExplicitMap}, for the purpose for data structure optimization.
      *            Can be null.
      * @return the safe intervals for each location where vertex constraints apply. Otherwise, the location is not in the map.
+     *       The intervals are sorted by time.
      */
-    Map<I_Location, List<TimeInterval>> vertexConstraintsToSafeTimeIntervals(@Nullable Agent agent, @Nullable I_Map map);
+    Map<I_Location, List<TimeInterval>> vertexConstraintsToSortedSafeTimeIntervals(@Nullable Agent agent, @Nullable I_Map map);
 
     /**
      * @param move
