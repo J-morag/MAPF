@@ -37,7 +37,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     protected I_ConstraintSet constraints;
     protected I_OpenList<AStarState> openList;
-    protected final Set<AStarState> closed = new HashSet<>();
+    protected Set<AStarState> closed;
     protected Agent agent;
     protected I_Map map;
     protected SingleAgentPlan existingPlan;
@@ -71,6 +71,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     protected void init(MAPF_Instance instance, RunParameters runParameters){
         super.init(instance, runParameters);
         this.openList = new OpenListTree<>(stateComparator);
+        this.closed = new HashSet<>();
         this.constraints = runParameters.constraints == null ? new ConstraintSet(): runParameters.constraints;
         this.agent = instance.agents.get(0);
         this.map = instance.map;
@@ -331,8 +332,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.gAndH = null;
         this.randomIDGenerator = null;
         this.instanceReport = null;
-        this.openList.clear();
-        this.closed.clear();
+        this.openList = null;
+        this.closed = null;
         this.agent = null;
         this.map = null;
         this.existingSolution = null;
