@@ -40,6 +40,20 @@ public class OpenListTree<E> implements I_OpenList<E> {
         this.comparator = null;
     }
 
+    /**
+     * Constructor that uses the given map as the base for the open list.
+     * The map will be used as the backing map - this means that the map will be modified by this open list,
+     * and the map should not be modified externally!
+     * @param comparator the comparator to use for the tree set.
+     * @param backingMap the map to use as the backing map.
+     */
+    public OpenListTree(Comparator<? super E> comparator, Map<E,E> backingMap) {
+        this.map = backingMap;
+        this.queue = new TreeSet<>(comparator);
+        this.queue.addAll(backingMap.keySet());
+        this.comparator = comparator;
+    }
+
     /*  = interface implementation =  */
 
     @Override

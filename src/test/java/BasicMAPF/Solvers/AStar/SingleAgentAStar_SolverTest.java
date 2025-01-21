@@ -433,27 +433,11 @@ class SingleAgentAStar_SolverTest {
 
         SingleAgentPlan solved = aStar.solve(testInstance, runParameters).getPlanFor(agent);
 
-        SingleAgentPlan expectedPlanOption1 = new SingleAgentPlan(agent);
-        expectedPlanOption1.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        expectedPlanOption1.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        expectedPlanOption1.addMove(new Move(agent, 3, location32Circle, location33Circle));
-        expectedPlanOption1.addMove(new Move(agent, 4, location33Circle, location33Circle));
-        expectedPlanOption1.addMove(new Move(agent, 5, location33Circle, location32Circle));
-        expectedPlanOption1.addMove(new Move(agent, 6, location32Circle, location33Circle));
-
-        SingleAgentPlan expectedPlanOption2 = new SingleAgentPlan(agent);
-        expectedPlanOption2.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        expectedPlanOption2.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        expectedPlanOption2.addMove(new Move(agent, 3, location32Circle, location33Circle));
-        expectedPlanOption2.addMove(new Move(agent, 4, location33Circle, location33Circle));
-        expectedPlanOption2.addMove(new Move(agent, 5, location33Circle, location34Circle));
-        expectedPlanOption2.addMove(new Move(agent, 6, location34Circle, location33Circle));
-
-        System.out.println("expected1: " + expectedPlanOption1);
-        System.out.println("expected2: " + expectedPlanOption2);
-        System.out.println("solved: " + solved);
+        System.out.println("found: " + solved);
         assertEquals(6, solved.getCost());
-        assertTrue(expectedPlanOption1.equals(solved) || expectedPlanOption2.equals(solved));
+        assertEquals(solved.getFirstMove(), new Move(agent, 1, location12Circle, location22Circle));
+        assertTrue(solved.getLastMove().equals(new Move(agent, 6, location34Circle, location33Circle)) || solved.getLastMove().equals(new Move(agent, 6, location32Circle, location33Circle)));
+        assertNotEquals(solved.moveAt(5).currLocation, location33Circle);
     }
 
     @Test

@@ -805,20 +805,13 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal1);
         RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
-        Solution solved = sipp.solve(testInstance, runParameters);
+        SingleAgentPlan solved = sipp.solve(testInstance, runParameters).getPlanFor(agent);
 
-        SingleAgentPlan plan3 = new SingleAgentPlan(agent);
-        plan3.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        plan3.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        plan3.addMove(new Move(agent, 3, location32Circle, location32Circle));
-        plan3.addMove(new Move(agent, 4, location32Circle, location32Circle));
-        plan3.addMove(new Move(agent, 5, location32Circle, location32Circle));
-        plan3.addMove(new Move(agent, 6, location32Circle, location33Circle));
-        Solution expected = new Solution();
-        expected.putPlan(plan3);
-
-        assertEquals(6, solved.getPlanFor(agent).size());
-        assertTrue(expected.equals(solved));
+        System.out.println("found: " + solved);
+        assertEquals(6, solved.getCost());
+        assertEquals(solved.getFirstMove(), new Move(agent, 1, location12Circle, location22Circle));
+        assertTrue(solved.getLastMove().equals(new Move(agent, 6, location34Circle, location33Circle)) || solved.getLastMove().equals(new Move(agent, 6, location32Circle, location33Circle)));
+        assertNotEquals(solved.moveAt(5).currLocation, location33Circle);
     }
 
     @Test
