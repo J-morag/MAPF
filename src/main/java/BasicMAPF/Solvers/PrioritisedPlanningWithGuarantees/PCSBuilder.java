@@ -7,7 +7,7 @@ import java.util.Comparator;
 
 public class PCSBuilder {
     private I_OpenList<PCSNode> openList;
-    private Comparator<? super PCSNode> nodeComparator;
+    private Comparator<PCSNode> nodeComparator;
     private I_MDDSearcherFactory mddSearcherFactory;
     private Boolean useSimpleMDDCache;
     private Integer MDDCacheDepthDeltaMax;
@@ -19,7 +19,7 @@ public class PCSBuilder {
         return this;
     }
 
-    public PCSBuilder setNodeComparator(Comparator<? super PCSNode> nodeComparator) {
+    public PCSBuilder setNodeComparator(Comparator<PCSNode> nodeComparator) {
         this.nodeComparator = nodeComparator;
         return this;
     }

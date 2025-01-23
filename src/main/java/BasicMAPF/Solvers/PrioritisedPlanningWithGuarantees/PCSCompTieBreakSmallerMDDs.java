@@ -1,14 +1,14 @@
 package BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees;
 
-import java.util.Comparator;
+import BasicMAPF.DataTypesAndStructures.BucketingComparator;
 
-public class PCSCompTieBreakSmallerMDDs implements Comparator<PCSNode> {
+public class PCSCompTieBreakSmallerMDDs implements BucketingComparator<PCSNode> {
 
     public static final PCSCompTieBreakSmallerMDDs defaultInstance = new PCSCompTieBreakSmallerMDDs();
 
     @Override
     public int compare(PCSNode o1, PCSNode o2) {
-        int res = Integer.compare(o1.getF(), o2.getF());
+        int res = bucketCompare(o1, o2); // f
         if (res != 0){
             return res;
         }
@@ -21,5 +21,10 @@ public class PCSCompTieBreakSmallerMDDs implements Comparator<PCSNode> {
             return res;
         }
         return Integer.compare(o1.uniqueID(), o2.uniqueID());
+    }
+
+    @Override
+    public int getBucket(PCSNode pcsNode) {
+        return pcsNode.getF();
     }
 }
