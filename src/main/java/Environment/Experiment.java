@@ -86,7 +86,7 @@ public class Experiment {
         instanceReport.putStringValue(InstanceReport.StandardFields.mapName, instance.name);
         putMapStats(instanceReport, instance);
         putInstanceStats(instanceReport, instance);
-        instanceReport.putStringValue(InstanceReport.StandardFields.solver, solver.name());
+        instanceReport.putStringValue(InstanceReport.StandardFields.solver, solver.getName());
 
         return instanceReport;
     }
@@ -198,7 +198,7 @@ public class Experiment {
         String instanceName = instance.extendedName;
         int numAgents = instance.agents.size();
 
-        System.out.println("---------- solving " + instanceName + " with " + numAgents + " agents ---------- with solver " + solver.name());
+        System.out.println("---------- solving " + instanceName + " with " + numAgents + " agents ---------- with solver " + solver.getName());
         System.out.println("Start time: " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(System.currentTimeMillis()));
 
         Solution solution = solver.solve(instance, runParameters);
@@ -208,7 +208,7 @@ public class Experiment {
             validSolution = isValidSolutionForInstance(instance, solution);
             System.out.println("Solution is " + (validSolution ? "valid" : "invalid!!!"));
             if (!validSolution){ // print a warning
-                System.err.println("!+!+!+!+!+!+!+!+!+!\nSolver " + solver.name() + " produced an invalid solution!\nInstance: "
+                System.err.println("!+!+!+!+!+!+!+!+!+!\nSolver " + solver.getName() + " produced an invalid solution!\nInstance: "
                         + instanceName + "\n#agents: " + numAgents + "\n!+!+!+!+!+!+!+!+!+!");
             }
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
@@ -216,7 +216,7 @@ public class Experiment {
 
             if (visualizer != null) {
                 try {
-                    visualizer.visualizeSolution(instance, solution, solver.name() + " - " + instanceName);
+                    visualizer.visualizeSolution(instance, solution, solver.getName() + " - " + instanceName);
                 }
                 catch (IllegalArgumentException e){
                     System.err.println(e.getMessage());
@@ -269,6 +269,6 @@ public class Experiment {
     }
 
     protected String instanceAndSolverStringRepresentation(MAPF_Instance instance, I_Solver solver) {
-        return instance.extendedName + solver.name();
+        return instance.extendedName + solver.getName();
     }
 }

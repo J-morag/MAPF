@@ -133,10 +133,10 @@ class PriorityConstrainedSearchTest {
     @Test
     void comparativeTestVsPP(){
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStarSIPP_Solver());
-        String nameBaseline = baselineSolver.name();
+        String nameBaseline = baselineSolver.getName();
 
         I_Solver competitorSolver = PCSSolver;
-        String nameExperimental = competitorSolver.name();
+        String nameExperimental = competitorSolver.getName();
         TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
                 nameExperimental, true, true, new int[]{15}, 3, 4);
     }

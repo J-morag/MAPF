@@ -145,7 +145,7 @@ public class PerformanceBenchmarkTest {
     private static void stressTest(I_Solver solver, long timeout, int numAgents, boolean singleAgentSolver) {
         Metrics.clearAll();
 
-        String nameSolver = solver.name();
+        String nameSolver = solver.getName();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});

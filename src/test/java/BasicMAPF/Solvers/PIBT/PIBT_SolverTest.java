@@ -173,10 +173,10 @@ public class PIBT_SolverTest {
     void compareBetweenPrPAndPIBTTest(){
         I_Solver PrPSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(), null, null, null);
-        String namePrP = PrPSolver.name();
+        String namePrP = PrPSolver.getName();
 
         I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null);
-        String namePIBT = PIBT_Solver.name();
+        String namePIBT = PIBT_Solver.getName();
 
         TestUtils.comparativeTest(PrPSolver, namePrP, false, false, PIBT_Solver, namePIBT,
                 false, false, new int[]{100}, 10, 0);

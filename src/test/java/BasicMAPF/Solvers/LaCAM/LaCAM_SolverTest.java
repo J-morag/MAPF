@@ -281,10 +281,10 @@ public class LaCAM_SolverTest {
     @Test
     void compareBetweenPIBTAndLaCAMTest(){
         I_Solver LaCAMSolver = new LaCAMBuilder().createLaCAM();
-        String nameLaCAM = LaCAMSolver.name();
+        String nameLaCAM = LaCAMSolver.getName();
 
         I_Solver PIBT_Solver = new PIBT_Solver(null, null, null);
-        String namePIBT = PIBT_Solver.name();
+        String namePIBT = PIBT_Solver.getName();
 
         TestUtils.comparativeTest(PIBT_Solver, namePIBT, false, false, LaCAMSolver, nameLaCAM,
                 false, false, new int[]{100}, 5, 0);
@@ -327,10 +327,10 @@ public class LaCAM_SolverTest {
     @Test
     void compareBetweenLaCAMStarAndLaCAMTest(){
         I_Solver LaCAMSolver = new LaCAMBuilder().createLaCAM();
-        String nameLaCAM = LaCAMSolver.name();
+        String nameLaCAM = LaCAMSolver.getName();
 
         I_Solver LaCAMStar_Solver = new LaCAMStar_Solver(null, null);
-        String nameLaCAMStar = LaCAMStar_Solver.name();
+        String nameLaCAMStar = LaCAMStar_Solver.getName();
 
         TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, false, LaCAMStar_Solver, nameLaCAMStar,
                 false, true, new int[]{100}, 10, 0);

@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class GenericRunManager extends A_RunManager {
     public GenericRunManager(@NotNull String instancesDir, int[] agentNums, @NotNull I_InstanceBuilder instanceBuilder,
                              @NotNull String experimentName, boolean skipAfterFail, String instancesRegex,
                              String resultsOutputDir, String resultsFilePrefix, I_VisualizeSolution solutionVisualizer,
-                             Integer timeoutEach) {
+                             Integer timeoutEach, @Nullable List<I_Solver> solversOverride) {
         super(resultsOutputDir, solutionVisualizer);
         if (agentNums == null){
             throw new IllegalArgumentException("AgentNums can't be null");
@@ -40,6 +41,7 @@ public class GenericRunManager extends A_RunManager {
         this.instancesRegex = instancesRegex;
         this.resultsFilePrefix = resultsFilePrefix;
         this.timeoutEach = timeoutEach;
+        this.solversOverride = solversOverride;
     }
     @Override
     void setSolvers() {

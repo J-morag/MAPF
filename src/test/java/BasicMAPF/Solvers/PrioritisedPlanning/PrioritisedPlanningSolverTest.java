@@ -324,11 +324,11 @@ class PrioritisedPlanningSolverTest {
     void comparativeTestHasContingencyVsNoContingency(){
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(), null, null, null);
-        String nameBaseline = baselineSolver.name();
+        String nameBaseline = baselineSolver.getName();
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null);
-        String nameExperimental = competitorSolver.name();
+        String nameExperimental = competitorSolver.getName();
 
         TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
                 nameExperimental, false, false, new int[]{100}, 10, 0);

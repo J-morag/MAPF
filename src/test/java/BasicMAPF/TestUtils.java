@@ -171,7 +171,7 @@ public class TestUtils {
                 report.putStringValue(InstanceReport.StandardFields.experimentName, "TestingBenchmark");
                 report.putStringValue(InstanceReport.StandardFields.instanceName, instance.name);
                 report.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
-                report.putStringValue(InstanceReport.StandardFields.solver, solver.name());
+                report.putStringValue(InstanceReport.StandardFields.solver, solver.getName());
 
                 RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setSoftTimeout(softTimeout)
                         .setInstanceReport(report).createRP();
@@ -247,7 +247,7 @@ public class TestUtils {
                 directory.mkdir();
             }
             String updatedPath =  IO_Manager.buildPath(new String[]{ resultsOutputDir,
-                    "res_ " + solver.name() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
+                    "res_ " + solver.getName() + "_" + new Object(){}.getClass().getEnclosingMethod().getName() +
                             "_" + dateFormat.format(System.currentTimeMillis()) + ".csv"});
             try {
                 Metrics.exportCSV(new FileOutputStream(updatedPath),

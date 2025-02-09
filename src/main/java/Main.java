@@ -1,18 +1,21 @@
 import BasicMAPF.Instances.InstanceBuilders.*;
+import BasicMAPF.Solvers.I_Solver;
 import Environment.Config;
 import Environment.RunManagers.*;
 import Environment.Visualization.I_VisualizeSolution;
 import Environment.Visualization.GridSolutionVisualizer;
 import Environment.Visualization.MillimetricCoordinatesGraphSolutionVisualizer;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import org.apache.commons.cli.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static BasicMAPF.Solvers.A_Solver.getProcessorInfo;
 import static Environment.Experiment.DEFAULT_TIMEOUT_EACH;
 import static Environment.RunManagers.A_RunManager.verifyOutputPath;
-
 
 public class Main {
     public static final String STR_AGENT_NUMS = "agentNums";
@@ -37,19 +40,20 @@ public class Main {
         Options options = new Options();
         addOptions(options);
 
-        CommandLine cmd;
         CommandLineParser parser = new DefaultParser();
         HelpFormatter helper = new HelpFormatter();
 
-
-        if (args.length == 0){
-            System.out.println("No arguments were given. To run a built-in example, run ExampleMain.main(args).");
-            helper.printHelp("java -jar <jar name>", options, true);
+        // Check for help flag (or no arguments) before attempting to parse.
+        if (args.length == 0 || Arrays.asList(args).contains("-h") || Arrays.asList(args).contains("--help")) {
+            printHelpAndSolvers(helper, options);
+            return;
         }
 
         printEnv();
 
         try {
+            CommandLine cmd = parser.parse(options, args);
+
             String instancesDir;
             int[] agentNums = null;
             I_InstanceBuilder instanceBuilder = new InstanceBuilder_MovingAI();
@@ -64,17 +68,14 @@ public class Main {
             int debugLevel;
             int infoLevel;
             int warningLevel;
+            List<I_Solver> solversOverride = null;
 
-            // Parse arguments
-
-            cmd = parser.parse(options, args);
-
-            if(cmd.hasOption("s")) {
+            if (cmd.hasOption("skipAfterFail") || cmd.hasOption("k")) {
                 System.out.println("skipAfterFail set: Will skip trying more agents for the same instance and solver after failing.");
                 skipAfterFail = true;
             }
 
-            if(cmd.hasOption("bidi")) {
+            if (cmd.hasOption("bidi")) {
                 System.out.println("forceBiDiEdges set: Will force warehouse maps to have all bi-directional edges.");
                 forceBiDiEdges = true;
             }
@@ -88,19 +89,19 @@ public class Main {
             String optInstancesDir = cmd.getOptionValue(STR_INSTANCES_DIR);
             System.out.println("Instances Dir: " + optInstancesDir);
             instancesDir = optInstancesDir;
-            if (! new File(instancesDir).exists()){
-                System.err.printf("Could not locate the provided instances dir (%s)\n", instancesDir);
+            if (!new File(instancesDir).exists()){
+                System.err.printf("Could not locate the provided instances dir (%s)%n", instancesDir);
                 System.exit(0);
             }
 
-            if(cmd.hasOption("resDir")) {
+            if (cmd.hasOption("resDir")) {
                 String optResultsDir = cmd.getOptionValue(STR_RESULTS_DIR_OPTION);
                 System.out.println("Trying to set results dir to " + optResultsDir);
                 resultsOutputDir = optResultsDir;
                 verifyOutputPath(resultsOutputDir);
             }
 
-            if(cmd.hasOption("resPref")) {
+            if (cmd.hasOption("resPref")) {
                 optResultsFilePrefix = cmd.getOptionValue(STR_RESULTS_FILE_PREFIX);
             }
 
@@ -119,16 +120,16 @@ public class Main {
                     case STR_WAREHOUSE -> instanceBuilder = new InstanceBuilder_Warehouse(null, forceBiDiEdges);
                     case STR_ARBITRARY -> instanceBuilder = new InstanceBuilder_ArbitraryGraph();
                     default -> {
-                        System.out.printf("Unrecognized instance format: %s\n", optInstancesFormat);
+                        System.out.printf("Unrecognized instance format: %s%n", optInstancesFormat);
                         System.exit(0);
                     }
                 }
-                if ( ! (instanceBuilder instanceof InstanceBuilder_Warehouse) && forceBiDiEdges) {
+                if (!(instanceBuilder instanceof InstanceBuilder_Warehouse) && forceBiDiEdges) {
                     System.out.println("forceBiDiEdges set but instance format is not warehouse. Ignoring.");
                 }
             }
             else {
-                System.out.printf("Using default instance format %s\n", STR_MOVING_AI);
+                System.out.printf("Using default instance format %s%n", STR_MOVING_AI);
             }
 
             if (cmd.hasOption("v")) {
@@ -138,7 +139,7 @@ public class Main {
                 else if (instanceBuilder instanceof InstanceBuilder_Warehouse)
                     visualiser = MillimetricCoordinatesGraphSolutionVisualizer::visualizeSolution;
                 else {
-                    System.out.printf("No visualiser available for instance format %s.%n\n", instanceBuilder.getClass().getName());
+                    System.out.printf("No visualiser available for instance format %s.%n", instanceBuilder.getClass().getName());
                     System.exit(0);
                 }
             }
@@ -150,7 +151,7 @@ public class Main {
                     timeoutEach = Integer.parseInt(optTimeoutEach);
                 }
                 catch (NumberFormatException e){
-                    System.out.printf("%s should be an integer, got %s\n", STR_TIMEOUT_EACH, optTimeoutEach);
+                    System.out.printf("%s should be an integer, got %s%n", STR_TIMEOUT_EACH, optTimeoutEach);
                     System.exit(0);
                 }
             }
@@ -163,7 +164,7 @@ public class Main {
                     Config.DEBUG = debugLevel;
                 }
                 catch (NumberFormatException e){
-                    System.out.printf("%s should be an integer, got %s\n", STR_DEBUG_LEVEL, optDebugLevel);
+                    System.out.printf("%s should be an integer, got %s%n", STR_DEBUG_LEVEL, optDebugLevel);
                     System.exit(0);
                 }
             }
@@ -176,7 +177,7 @@ public class Main {
                     Config.INFO = infoLevel;
                 }
                 catch (NumberFormatException e){
-                    System.out.printf("%s should be an integer, got %s\n", STR_INFO_LEVEL, optInfoLevel);
+                    System.out.printf("%s should be an integer, got %s%n", STR_INFO_LEVEL, optInfoLevel);
                     System.exit(0);
                 }
             }
@@ -189,47 +190,81 @@ public class Main {
                     Config.WARNING = warningLevel;
                 }
                 catch (NumberFormatException e){
-                    System.out.printf("%s should be an integer, got %s\n", STR_WARNING_LEVEL, optWarningLevel);
+                    System.out.printf("%s should be an integer, got %s%n", STR_WARNING_LEVEL, optWarningLevel);
                     System.exit(0);
+                }
+            }
+
+            // Process solvers override option.
+            if (cmd.hasOption("solvers")) {
+                String[] solverNames = cmd.getOptionValues("solvers");
+                System.out.println("Solver override set with solvers: " + Arrays.toString(solverNames));
+                solversOverride = new ArrayList<>();
+                for (String name : solverNames) {
+                    solversOverride.add(CanonicalSolversFactory.createSolver(name));
                 }
             }
 
             String[] optAgents = cmd.getOptionValues(STR_AGENT_NUMS);
             System.out.println("Agent nums: " + Arrays.toString(optAgents));
-
             try {
                 agentNums = Arrays.stream(optAgents).mapToInt(Integer::parseInt).toArray();
             }
             catch (NumberFormatException e){
-                System.out.printf("%s should be an array of integers, got %s\n", STR_AGENT_NUMS, Arrays.toString(optAgents));
+                System.out.printf("%s should be an array of integers, got %s%n", STR_AGENT_NUMS, Arrays.toString(optAgents));
                 System.exit(0);
             }
 
             // Run!
-            new GenericRunManager(instancesDir, agentNums, instanceBuilder, experimentName, skipAfterFail, instancesRegex, resultsOutputDir, optResultsFilePrefix, visualiser, timeoutEach)
+            new GenericRunManager(
+                    instancesDir,
+                    agentNums,
+                    instanceBuilder,
+                    experimentName,
+                    skipAfterFail,
+                    instancesRegex,
+                    resultsOutputDir,
+                    optResultsFilePrefix,
+                    visualiser,
+                    timeoutEach,
+                    solversOverride)
                     .runAllExperiments();
 
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            helper.printHelp("Usage:", options, true);
+            printHelpAndSolvers(helper, options);
             System.exit(0);
         }
     }
 
+    // A single function to print the help message along with the list of available solvers.
+    private static void printHelpAndSolvers(HelpFormatter helper, Options options) {
+        helper.printHelp("java -jar <jar name>", options, true);
+        printAvailableSolvers();
+    }
+
+    private static void printAvailableSolvers() {
+        System.out.println("\nAvailable Solvers:");
+        for (String solverName : CanonicalSolversFactory.getSolverNames()) {
+            String description = CanonicalSolversFactory.getDescription(solverName);
+            System.out.printf("  %s: %s%n", solverName, description);
+        }
+    }
+
     private static void addOptions(Options options) {
-        Option helpOption = new Option("h", "help", false,"");
+        Option helpOption = new Option("h", "help", false, "Show help.");
         options.addOption(helpOption);
 
-        Option skipOption = new Option("s", "skipAfterFail", false,
-                "To skip attempting the same instance with the same solver, but with more agents, if we already failed with less agents.");
+        Option skipOption = new Option("k", "skipAfterFail", false,
+                "Skip attempting the same instance with the same solver, but with more agents, if we already failed with fewer agents.");
         options.addOption(skipOption);
 
         Option visualiseOption = new Option("v", "visualise", false,
-                "To visualise the solution.");
+                "Visualise the solution.");
         options.addOption(visualiseOption);
 
         Option forceBiDiEdgesOption = new Option("bidi", "forceBiDiEdges", false,
-                "To force warehouse maps to have all bi-directional edges.");
+                "Force warehouse maps to have all bi-directional edges.");
         options.addOption(forceBiDiEdgesOption);
 
         Option nameOption = Option.builder("n").longOpt("name")
@@ -244,7 +279,7 @@ public class Main {
                 .argName(STR_INSTANCES_DIR)
                 .hasArg()
                 .required(true)
-                .desc("Set the directory (path) where maps and instances are to be found. Required.")
+                .desc("Directory (path) where maps and instances are to be found. Required.")
                 .build();
         options.addOption(instancesDirOption);
 
@@ -252,7 +287,7 @@ public class Main {
                 .argName(STR_RESULTS_DIR_OPTION)
                 .hasArg()
                 .required(false)
-                .desc("The directory (path) where results will be saved. Will be created if it doesn't exist. Optional.")
+                .desc("Directory (path) where results will be saved. Will be created if it doesn't exist. Optional.")
                 .build();
         options.addOption(resultsDirOption);
 
@@ -260,7 +295,7 @@ public class Main {
                 .argName(STR_RESULTS_FILE_PREFIX)
                 .hasArg()
                 .required(false)
-                .desc("The prefix to give results file names. Optional.")
+                .desc("Prefix to give results file names. Optional.")
                 .build();
         options.addOption(resultsFileOption);
 
@@ -276,8 +311,9 @@ public class Main {
                 .argName("instancesFormat")
                 .hasArg()
                 .required(false)
-                .desc(String.format("Set the format of the instances. " +
-                        "Supports %s format (https://movingai.com/benchmarks/formats.html), %s format, and %s format.", STR_MOVING_AI, STR_BGU, STR_ARBITRARY)
+                .desc(String.format("Set the format of the instances. Supports %s format " +
+                                "(https://movingai.com/benchmarks/formats.html), %s format, and %s format.",
+                        STR_MOVING_AI, STR_BGU, STR_ARBITRARY)
                         + " Optional (default is " + STR_MOVING_AI + ").")
                 .build();
         options.addOption(InstancesFormatOption);
@@ -287,8 +323,8 @@ public class Main {
                 .hasArgs()
                 .required(true)
                 .valueSeparator(',')
-                .desc("Set the numbers of agents to try. Use ',' (comma) as a separator and no spaces." +
-                        " Will use the maximum available if an instance does not have enough agents. Required.")
+                .desc("Numbers of agents to try. Use ',' as a separator with no spaces. " +
+                        "Will use the maximum available if an instance does not have enough agents. Required.")
                 .build();
         options.addOption(agentNumsOption);
 
@@ -296,7 +332,7 @@ public class Main {
                 .argName(STR_TIMEOUT_EACH)
                 .hasArg()
                 .required(false)
-                .desc("Set the timeout for each instance. Integer in milliseconds. Optional. Default is " + DEFAULT_TIMEOUT_EACH + "ms.")
+                .desc("Timeout for each instance in milliseconds. Optional. Default is " + DEFAULT_TIMEOUT_EACH + "ms.")
                 .build();
         options.addOption(timeoutEachOption);
 
@@ -304,7 +340,7 @@ public class Main {
                 .argName(STR_DEBUG_LEVEL)
                 .hasArg()
                 .required(false)
-                .desc("Set the debug level. Integer. Optional. Default is 1 (light and simple checks that can run during experiments). Use 2 for heavy checks for when debugging code. 3 For extreme checks.")
+                .desc("Debug level (integer). Optional. Default is 1 (light checks). Use 2 for heavy debugging and 3 for extreme checks.")
                 .build();
         options.addOption(debugLevelOption);
 
@@ -312,7 +348,7 @@ public class Main {
                 .argName(STR_INFO_LEVEL)
                 .hasArg()
                 .required(false)
-                .desc("Set the info level. Integer. Optional. Default is 1.")
+                .desc("Info level (integer). Optional. Default is 1.")
                 .build();
         options.addOption(infoLevelOption);
 
@@ -320,17 +356,24 @@ public class Main {
                 .argName(STR_WARNING_LEVEL)
                 .hasArg()
                 .required(false)
-                .desc("Set the warning level. Integer. Optional. Default is 1.")
+                .desc("Warning level (integer). Optional. Default is 1.")
                 .build();
         options.addOption(warningLevelOption);
+
+        Option solversOption = Option.builder("s")
+                .longOpt("solvers")
+                .argName("solverNames")
+                .hasArgs()
+                .valueSeparator(',')
+                .required(false)
+                .desc("Comma separated list of solver names (as defined in CanonicalSolversFactory) to override default solvers. Optional.")
+                .build();
+        options.addOption(solversOption);
     }
 
     private static void printEnv() {
-        // Get maximum size of heap in bytes. The heap cannot grow beyond this size.// Any attempt will result in an OutOfMemoryException.
         long heapMaxSize = Runtime.getRuntime().maxMemory();
-        // get cpu name
         String cpuName = getProcessorInfo();
-
         System.out.println("CPU: " + cpuName +
                 "; cores (inc. virtual): " + Runtime.getRuntime().availableProcessors() +
                 "; max heap: " + formatSize(heapMaxSize));
@@ -339,7 +382,6 @@ public class Main {
     public static String formatSize(long v) {
         if (v < 1024) return v + " B";
         int z = (63 - Long.numberOfLeadingZeros(v)) / 10;
-        return String.format("%.1f %sB", (double)v / (1L << (z*10)), " KMGTPE".charAt(z));
+        return String.format("%.1f %sB", (double) v / (1L << (z * 10)), " KMGTPE".charAt(z));
     }
-
 }
