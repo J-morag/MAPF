@@ -73,8 +73,9 @@ public class PriorityConstrainedSearch extends A_Solver {
     PriorityConstrainedSearch(@Nullable I_OpenList<PCSNode> openList, @Nullable Comparator<PCSNode> nodeComparator,
                               @Nullable I_MDDSearcherFactory searcherFactory, @Nullable Boolean useSimpleMDDCache,
                               @Nullable Integer MDDCacheDepthDeltaMax, @Nullable Boolean usePartialGeneration, I_PCSHeuristic pcsHeuristic) {
-        this.nodeComparator = Objects.requireNonNullElse(nodeComparator, PCSCompTieBreakSmallerMDDs.defaultInstance);
-        this.openList = Objects.requireNonNullElseGet(openList, () -> this.nodeComparator instanceof BucketingComparator<PCSNode> bucketing ? new BucketingOpenList<>(bucketing) : new OpenListTree<>(this.nodeComparator));
+        this.nodeComparator = Objects.requireNonNullElse(nodeComparator, PCSCompTieBreakSmallerMDDs.DEFAULT_INSTANCE);
+        this.openList = Objects.requireNonNullElseGet(openList, () -> this.nodeComparator instanceof BucketingComparator<PCSNode> bucketing ?
+                new BucketingOpenList<>(bucketing) : new OpenListTree<>(this.nodeComparator));
         this.searcherFactory = Objects.requireNonNullElseGet(searcherFactory, AStarFactory::new);
 
         this.useSimpleMDDCache = Objects.requireNonNullElse(useSimpleMDDCache, true);

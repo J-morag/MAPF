@@ -10,6 +10,7 @@ import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
+import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSCompLexical;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -27,6 +28,7 @@ public class CanonicalSolversFactory {
     public final static String LACAM_NAME = "LACAM";
     public final static String LNS1_NAME = "LNS1";
     public final static String PCS_NAME = "PCS";
+    public final static String PCS_LEXICAL_NAME = "PCS_Lexical";
 
 
     // A map of solver names to their registrations.
@@ -115,6 +117,13 @@ public class CanonicalSolversFactory {
                 PCS_NAME,
                 "Priority Constrained Search",
                 () -> new PCSBuilder().createPCS()
+        ));
+
+        // Register a basic PCS solver with a Lexical cost function (OPEN list ordering).
+        regs.put(PCS_LEXICAL_NAME, new SolverRegistration<>(
+                PCS_LEXICAL_NAME,
+                "Priority Constrained Search with Lexical cost function",
+                () -> new PCSBuilder().setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPCS()
         ));
 
         registrations = Collections.unmodifiableMap(regs);

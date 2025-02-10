@@ -4,7 +4,7 @@ import BasicMAPF.DataTypesAndStructures.BucketingComparator;
 
 public class PCSCompTieBreakSmallerMDDs implements BucketingComparator<PCSNode> {
 
-    public static final PCSCompTieBreakSmallerMDDs defaultInstance = new PCSCompTieBreakSmallerMDDs();
+    public static final PCSCompTieBreakSmallerMDDs DEFAULT_INSTANCE = new PCSCompTieBreakSmallerMDDs();
 
     @Override
     public int compare(PCSNode o1, PCSNode o2) {
