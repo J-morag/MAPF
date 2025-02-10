@@ -67,7 +67,7 @@ class SingleAgentAStar_SolverTest {
     private MAPF_Instance instanceMaze3 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent43to53});
     private MAPF_Instance instanceMaze4 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent53to15});
 
-    I_Solver aStar = new SingleAgentAStar_Solver();
+    I_Solver aStar = CanonicalSolversFactory.createAStarSolver();
 
     InstanceReport instanceReport;
 

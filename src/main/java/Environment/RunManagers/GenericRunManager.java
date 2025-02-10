@@ -4,6 +4,7 @@ import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -50,11 +51,9 @@ public class GenericRunManager extends A_RunManager {
             super.solvers = solversOverride;
             return;
         }
-        super.solvers.add(new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.randomRestarts, null),
-                null, null, null));
+        super.solvers.add(CanonicalSolversFactory.createPPRRUntilFirstSolutionSolver());
 
-        super.solvers.add(new CBSBuilder().createCBS_Solver());
+        super.solvers.add(CanonicalSolversFactory.createCBSSolver());
     }
 
     public void overrideSolvers(@NotNull List<I_Solver> solvers){

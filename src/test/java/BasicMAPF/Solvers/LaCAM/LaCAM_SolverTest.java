@@ -5,8 +5,7 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
@@ -53,8 +52,8 @@ public class LaCAM_SolverTest {
 
     private final MAPF_Instance instanceConnectorShapedMap = new MAPF_Instance("instanceConnectorShapedMap", mapConnector, new Agent[]{agent00to65, agent65to00, agent10to33, agent55to32, agent01to44, agent64to22});
 
-    I_Solver LaCAM_Solver = new LaCAM_Solver(null, TransientMAPFSettings.defaultRegularMAPF);
-    I_Solver LaCAMSt_Solver = new LaCAM_Solver(null, TransientMAPFSettings.defaultTransientMAPF);
+    I_Solver LaCAM_Solver = CanonicalSolversFactory.createLaCAMSolver();
+    I_Solver LaCAMSt_Solver = CanonicalSolversFactory.createLaCAMtSolver();
 
     long timeout = 10*1000;
 

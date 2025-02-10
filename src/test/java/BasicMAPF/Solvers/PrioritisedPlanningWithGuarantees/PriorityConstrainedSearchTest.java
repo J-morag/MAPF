@@ -3,9 +3,8 @@ package BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -24,7 +23,7 @@ class PriorityConstrainedSearchTest {
 
     private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
 
-    I_Solver PCSSolver = new PCSBuilder().createPCS();
+    I_Solver PCSSolver = CanonicalSolversFactory.createPCSSolver();
 
     InstanceReport instanceReport;
 
@@ -132,7 +131,18 @@ class PriorityConstrainedSearchTest {
 
     @Test
     void comparativeTestVsPP(){
-        I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStarSIPP_Solver());
+        I_Solver baselineSolver = CanonicalSolversFactory.createPPSIPPSolver();
+        String nameBaseline = baselineSolver.getName();
+
+        I_Solver competitorSolver = PCSSolver;
+        String nameExperimental = competitorSolver.getName();
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
+                nameExperimental, true, true, new int[]{15}, 3, 4);
+    }
+
+    @Test
+    void comparativeTestVsPPRStar(){
+        I_Solver baselineSolver = CanonicalSolversFactory.createPPRStarAnytimeSolver();
         String nameBaseline = baselineSolver.getName();
 
         I_Solver competitorSolver = PCSSolver;

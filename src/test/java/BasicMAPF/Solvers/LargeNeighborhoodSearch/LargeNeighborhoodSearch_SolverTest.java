@@ -4,6 +4,7 @@ import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LargeNeighborhoodSearch_SolverTest {
 
-    I_Solver solver = new LNSBuilder().createLNS();
+    I_Solver solver = CanonicalSolversFactory.createLNS1Solver();
 
     InstanceReport instanceReport;
 
