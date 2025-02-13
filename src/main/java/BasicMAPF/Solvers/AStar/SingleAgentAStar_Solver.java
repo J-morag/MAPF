@@ -32,7 +32,7 @@ import java.util.*;
 public class SingleAgentAStar_Solver extends A_Solver {
 
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
-    private final Comparator<AStarState> stateComparator;
+    protected final Comparator<AStarState> stateComparator;
     public boolean agentsStayAtGoal = true;
 
     protected I_ConstraintSet constraints;
@@ -70,7 +70,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     protected void init(MAPF_Instance instance, RunParameters runParameters){
         super.init(instance, runParameters);
-        this.openList = stateComparator instanceof BucketingComparator<AStarState> bucketingComparator ? new BucketingOpenList<>(bucketingComparator) : new OpenListTree<>(stateComparator);
+        this.openList = createEmptyOpenList();
         this.closed = new HashSet<>();
         this.constraints = runParameters.constraints == null ? new ConstraintSet(): runParameters.constraints;
         this.agent = instance.agents.get(0);
@@ -141,6 +141,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.expandedNodes = 0;
         this.generatedNodes = 0;
         this.numRegeneratedNodes = 0;
+    }
+
+    protected @NotNull I_OpenList<AStarState> createEmptyOpenList() {
+        return stateComparator instanceof BucketingComparator<AStarState> bucketingComparator ? new BucketingOpenList<>(bucketingComparator) : new OpenListTree<>(stateComparator);
     }
 
     /*  = A* algorithm =  */

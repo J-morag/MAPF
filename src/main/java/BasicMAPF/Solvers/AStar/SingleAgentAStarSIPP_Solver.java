@@ -1,8 +1,6 @@
 package BasicMAPF.Solvers.AStar;
 
-import BasicMAPF.DataTypesAndStructures.Move;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.TimeInterval;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -39,6 +37,12 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
             throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
         }
+    }
+
+    @Override
+    protected @NotNull I_OpenList<AStarState> createEmptyOpenList() {
+        // todo - testing shows SIPP expands significantly more nodes with the bucketing open list, so disabled until I find why.
+        return new OpenListTree<>(super.stateComparator);
     }
 
     @Override
