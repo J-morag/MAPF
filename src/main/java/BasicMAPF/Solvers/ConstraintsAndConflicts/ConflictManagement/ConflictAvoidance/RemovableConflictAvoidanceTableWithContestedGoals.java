@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance;
 
+import BasicMAPF.DataTypesAndStructures.TimeInterval;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
@@ -29,7 +30,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     private final AgentAtGoal reusableAgentAtGoal = new AgentAtGoal(null, 0);
     Set<Agent> coveredAgents;
     /**
-     * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them..
+     * Contains all goal locations and maps them to the times from which they are occupied (indefinitely) and the agents that occupy them.
      */
     private Map<I_Location, List<AgentAtGoal>> goalOccupancies;
     private Map<I_Location, ArrayList<Move>> regularOccupanciesSorted; // todo merge with regular occupancies?
@@ -301,6 +302,117 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
             }
         }
         return earliestGoalConflict;
+    }
+
+    public Map<I_Location, List<AgentAtGoal>> getGoalOccupancies() {
+        return Collections.unmodifiableMap(goalOccupancies);
+    }
+
+    public Map<I_Location, ArrayList<Move>> getRegularOccupanciesSorted() {
+        return Collections.unmodifiableMap(regularOccupanciesSorted);
+    }
+
+    /**
+     * Converts a conflict avoidance table into a map of safe time intervals for each location,
+     * considering soft constraints such as vertex and target obstacles.
+     *
+     * @return A map where each location is associated with a list of safe time intervals.
+     * @throws IllegalArgumentException If the provided conflict avoidance table is not of the expected type.
+     */
+    public Map<I_Location, List<TimeInterval>> conflictAvoidanceTableToSafeTimeIntervals() {
+        // Output map for refined intervals considering soft constraints
+        Map<I_Location, List<TimeInterval>> refinedIntervalMap = new HashMap<>();
+
+        // Retrieve soft constraint data from the conflict avoidance table
+        Map<I_Location, List<AgentAtGoal>> goalOccupancies;
+        Map<I_Location, ArrayList<Move>> regularOccupanciesSorted;
+
+        goalOccupancies = this.getGoalOccupancies();
+        regularOccupanciesSorted = this.getRegularOccupanciesSorted();
+
+        Set<I_Location> allLocations = new HashSet<>(goalOccupancies.keySet());
+        allLocations.addAll(regularOccupanciesSorted.keySet());
+
+        // Process each location for soft constraints
+        for (I_Location location : allLocations) {
+            int goalTime = -1;
+            // Initialize list of safe intervals for the location
+
+            // Retrieve the soft constraints (vertex and target obstacles) for this location
+            List<Move> softVertexMoves = regularOccupanciesSorted.get(location);  // soft vertex obstacles
+            List<AgentAtGoal> softTargetMoves = goalOccupancies.get(location);  // soft target obstacles
+
+            Set<Integer> softConstraintTimeSteps = new HashSet<>();
+            if (softVertexMoves != null) {
+                for (Move move : softVertexMoves) {
+                    softConstraintTimeSteps.add(move.timeNow);
+                }
+            }
+            if (softTargetMoves != null) {
+                for (AgentAtGoal agentAtGoal : softTargetMoves) {
+                    softConstraintTimeSteps.add(agentAtGoal.time-1);
+                    goalTime = agentAtGoal.time-1;
+                }
+            }
+
+            // Convert the collected time steps into safe intervals
+            List<TimeInterval> safeIntervals = timeStepsToSafeIntervals(softConstraintTimeSteps, goalTime);
+
+            // Add the refined intervals to the output map
+            refinedIntervalMap.put(location, safeIntervals);
+        }
+        return refinedIntervalMap;
+    }
+
+    /**
+     * Converts a list of conflict timeSteps into a list of safe time intervals,
+     * ensuring that movements avoid conflicts and properly handle goal times.
+     *
+     * @param timeSteps A list of time steps where conflicts occur.
+     * @param goalTime The specific goal time that marks the end of valid movement periods.
+     * @return A list of {@code TimeInterval} objects representing safe movement intervals.
+     */
+    private List<TimeInterval> timeStepsToSafeIntervals(Set<Integer> timeSteps, int goalTime) {
+        if (timeSteps.isEmpty()) {
+            return List.of(new TimeInterval(0, Integer.MAX_VALUE)); // No conflicts, entire timeline is safe
+        }
+
+        List<Integer> sortedTimestamps = new ArrayList<>(timeSteps);
+        Collections.sort(sortedTimestamps);
+
+        List<TimeInterval> safeIntervals = new ArrayList<>();
+        int lastSafeStart = 0;
+
+        for (int i = 0; i < sortedTimestamps.size(); ) {
+            int startConflict = sortedTimestamps.get(i);
+            int endConflict = startConflict;
+
+            // Merge consecutive conflict times
+            while (i + 1 < sortedTimestamps.size() && sortedTimestamps.get(i + 1) == endConflict + 1) {
+                endConflict = sortedTimestamps.get(++i);
+            }
+
+            // Add safe interval before the conflict block
+            if (lastSafeStart < startConflict) {
+                safeIntervals.add(new TimeInterval(lastSafeStart, startConflict - 1));
+            }
+
+            // If conflict block includes the goal time, stop early
+            if (startConflict <= goalTime && goalTime <= endConflict) {
+                safeIntervals.add(new TimeInterval(startConflict, Integer.MAX_VALUE));
+                return safeIntervals;
+            }
+
+            // Add the merged conflict interval
+            safeIntervals.add(new TimeInterval(startConflict, endConflict));
+
+            lastSafeStart = endConflict + 1;
+            i++;
+        }
+
+        // Add final safe interval
+        safeIntervals.add(new TimeInterval(lastSafeStart, Integer.MAX_VALUE));
+        return safeIntervals;
     }
 
     private static class MoveTimeComparator implements Comparator<Move> {

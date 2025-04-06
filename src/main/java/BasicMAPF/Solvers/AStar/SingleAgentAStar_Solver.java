@@ -42,7 +42,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     protected I_Map map;
     protected SingleAgentPlan existingPlan;
     protected Solution existingSolution;
-    private I_ConflictAvoidanceTable conflictAvoidanceTable;
+    protected I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
     public I_AStarGoalCondition goalCondition;
@@ -175,12 +175,12 @@ public class SingleAgentAStar_Solver extends A_Solver {
             closed.add(currentState);
 
             // nicetohave - change to early goal test
-            if (isGoalState(currentState)
-                    && (!(goalCondition instanceof VisitedTargetAStarGoalCondition) || this.conflictAvoidanceTable == null || currentState.isALastMove)) // TMAPF
+            if ((this.conflictAvoidanceTable != null && currentState.isALastMove) // we split the state into a visit and a "stay forever" state
+                    || (this.conflictAvoidanceTable == null && isGoalState(currentState)) // didn't split, so check if this is a valid place to stay forever and finish
+            )
             {
                 // check to see if a rejecting constraint on the goal's location exists at some point in the future,
                 // which would mean we can't finish the plan there and stay forever
-
                 if (!agentsStayAtGoal){
                     lastRejectionTime = -1;
                 }
@@ -198,7 +198,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     // update this.existingPlan which is contained in this.existingSolution
                     currentState.backTracePlan(this.existingPlan);
                     return this.existingSolution; // the goal is good, and we can return the plan.
-                } else { // we are rejected from the goal location at some point in the future.
+                } else // we are rejected from the goal location at some point in the future.
+                    if (!(this.conflictAvoidanceTable != null && currentState.isALastMove)) { // expanding a "last move" is meaningless
                     expand(currentState);
                 }
             } else { //expand
@@ -254,7 +255,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
         List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(state.move.currLocation.outgoingEdges());
         // no point to do stay moves or search the time dimension after the time of last constraint.
         // this makes A* complete even when there are goal constraints (infinite constraints)
-        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintStartTime();
+        boolean afterLastConstraint = (state.move.timeNow > constraints.getLastConstraintStartTime()) && // after the time of last constraint (according to constraints set)
+                // if conflicts avoidance table exists, soft constraints should be supported too
+                (this.conflictAvoidanceTable == null || (state.move.timeNow > conflictAvoidanceTable.getLastOccupancyTime())); // after the time of last conflicts according to conflictAvoidanceTable
         if (!afterLastConstraint &&
                 !state.move.currLocation.getType().equals(Enum_MapLocationType.NO_STOP)) { // can't stay on NO_STOP
             neighborLocationsIncludingCurrent.add(state.move.currLocation);
@@ -280,13 +283,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, false),
                 visitedTarget, false);
         addToOpenList(newNode);
-        if (this.goalCondition instanceof VisitedTargetAStarGoalCondition && visitedTarget && this.conflictAvoidanceTable != null){
-            // any location is now a possible goal, and we must check how many conflicts will happen if we stay
+        if (this.conflictAvoidanceTable != null){
+            // assume this is a possible goal. We must check how many conflicts will happen if we stay
             // there forever, which is different from the number of conflicts if we just pass through.
             AStarState lastMoveCandidateChild = new AStarState(move, prevState, g,
                     (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, true),
                     visitedTarget, true);
-            addToOpenList(lastMoveCandidateChild);
+            if (goalCondition.isAGoal(lastMoveCandidateChild)){
+                addToOpenList(lastMoveCandidateChild);
+            }
         }
     }
 
@@ -372,7 +377,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * Needed to enforce total ordering on nodes, which is needed to make node expansions fully deterministic. That
          * is to say, if all tie breaking methods still result in equality, tie break for using serialID.
          */
-        private final int id = getID();
+        protected final int id = getID();
         public final Move move;
         protected final AStarState prev;
         protected final int g;
@@ -395,7 +400,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * @param isALastMove  whether this move is the last move of the agent, meaning the agent is set to stay there forever.
          *                     For TMAPF. Irrelevant in classic MAPF, because only the target vertex is considered for last move.
          */
-        public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean visitedTarget, boolean isALastMove) {
+        public AStarState(@NotNull Move move, AStarState prevState, int g, int conflicts, boolean visitedTarget, boolean isALastMove) {
             SingleAgentAStar_Solver.this.generatedNodes++;
             this.move = move;
             this.prev = prevState;
@@ -433,7 +438,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return f;
         }
 
-        private float calcH() {
+        protected float calcH() {
             return SingleAgentAStar_Solver.this.gAndH.getH(this);
         }
 
@@ -541,7 +546,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     /**
      * For sorting the open list.
      */
-    private static class TieBreakingForLessConflictsAndHigherG implements BucketingComparator<AStarState>{
+    public static class TieBreakingForLessConflictsAndHigherG implements BucketingComparator<AStarState>{
         @Override
         public int compare(AStarState o1, AStarState o2) {
             int fCompared = bucketCompare(o1, o2);

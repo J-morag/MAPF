@@ -3,6 +3,7 @@ package BasicMAPF.DataTypesAndStructures;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.Metrics.InstanceReport;
@@ -91,13 +92,15 @@ public class RunParameters {
      */
     public final Agent[] priorityOrder;
 
+    public I_ConflictAvoidanceTable conflictAvoidanceTable;
+
     /*  =Constructors=  */
 
     /**
      * Intentionally package-private constructor.
      * Use {@link RunParametersBuilder} to create a {@link RunParameters} object.
      */
-    RunParameters(long timeout, I_ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, SingleAgentGAndH singleAgentGAndH, int problemStartTime, @Nullable Random randomNumberGenerator, Agent[] priorityOrder, Set<I_Location> separatingVertices) {
+    RunParameters(long timeout, I_ConstraintSet constraints, InstanceReport instanceReport, Solution existingSolution, long softTimeout, SingleAgentGAndH singleAgentGAndH, int problemStartTime, @Nullable Random randomNumberGenerator, Agent[] priorityOrder, Set<I_Location> separatingVertices, I_ConflictAvoidanceTable conflictAvoidanceTable) {
         this.timeout = timeout;
         this.softTimeout = softTimeout;
         if (this.softTimeout > this.timeout){
@@ -111,10 +114,11 @@ public class RunParameters {
         this.randomNumberGenerator = randomNumberGenerator;
         this.priorityOrder = priorityOrder;
         this.separatingVertices = separatingVertices;
+        this.conflictAvoidanceTable = conflictAvoidanceTable;
     }
 
     public RunParameters(RunParameters runParameters) {
-        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.singleAgentGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator, runParameters.priorityOrder, runParameters.separatingVertices);
+        this(runParameters.timeout, runParameters.constraints, runParameters.instanceReport, runParameters.existingSolution, runParameters.softTimeout, runParameters.singleAgentGAndH, runParameters.problemStartTime, runParameters.randomNumberGenerator, runParameters.priorityOrder, runParameters.separatingVertices, runParameters.conflictAvoidanceTable);
     }
 
 }

@@ -87,7 +87,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
 
     private Set<I_Coordinate> separatingVerticesSet;
 
-
     /*  = Constructors =  */
 
     /**
@@ -167,7 +166,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
         if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
-            reorderAgentsByPriority(parameters.priorityOrder);
+            reorderAgentsByPriority(parameters.priorityOrder, this.agents);
         }
         
         // heuristic
@@ -191,14 +190,14 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         }
     }
 
-    private void reorderAgentsByPriority(Agent[] requestedOrder) {
-        HashSet<Agent> tmpAgents = new HashSet<>(this.agents);
-        this.agents.clear();
+    public static void reorderAgentsByPriority(Agent[] requestedOrder, List<Agent> agents) {
+        HashSet<Agent> tmpAgents = new HashSet<>(agents);
+        agents.clear();
 
         for (Agent orderedAgent: //add by order
                 requestedOrder) {
             if(tmpAgents.contains(orderedAgent)){
-                this.agents.add(orderedAgent);
+                agents.add(orderedAgent);
                 tmpAgents.remove(orderedAgent);
             }
         }
