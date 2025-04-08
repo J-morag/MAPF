@@ -144,7 +144,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
     }
 
     protected @NotNull I_OpenList<AStarState> createEmptyOpenList() {
-        return stateComparator instanceof BucketingComparator<AStarState> bucketingComparator ? new BucketingOpenList<>(bucketingComparator) : new OpenListTree<>(stateComparator);
+        return new OpenListTree<>(stateComparator);
     }
 
     /*  = A* algorithm =  */
