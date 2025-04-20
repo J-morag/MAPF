@@ -156,5 +156,18 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
     public int getLastOccupancyTime() {
         return this.lastOccupancyStartTime;
     }
-}
 
+    public int getNumberOfEdgeConflicts(Move move) {
+        TimeLocation from = reusableTimeLocation1.setTo(move.timeNow - 1, move.prevLocation);
+
+        TimeLocation to = reusableTimeLocation2.setTo(move.timeNow, move.currLocation);
+
+        // time locations of a move that would create a swapping conflict
+        TimeLocation reverseFrom = to;
+        reverseFrom.time -= 1;
+        TimeLocation reverseTo = from;
+        reverseTo.time += 1;
+
+        return getNumSwappingConflicts(reverseFrom, reverseTo);
+    }
+}
