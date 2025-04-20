@@ -4,11 +4,13 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ManualSingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SameAsParentSingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -87,9 +89,9 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     }
 
     @Override
-    protected AStarState createNewState(Move move, AStarState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
+    protected AStarState createNewState(Move move, AStarState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
         boolean isLastMove = move.currLocation.getCoordinate().equals(move.agent.target) && (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE);
-        return new AStarSIPPSState(move, (AStarSIPPState) prev, g, conflicts, timeInterval, visitedTarget, intervalID, false, isLastMove);
+        return new AStarSIPPSState(move, (AStarSIPPState) prev, g, super.gAndH, conflicts, timeInterval, visitedTarget, intervalID, false, isLastMove);
     }
 
     @Override
@@ -124,9 +126,9 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
             } else if (stateLow < q.timeInterval.end() && q.timeInterval.start() < stateHigh) {
                 // reset the end of the interval with the smaller start to the start of the other interval
                 if (stateLow < q.timeInterval.start()) {
-                    state = createNewState(state.move, state.prev, state.g, state.conflicts, new TimeInterval(stateLow, q.timeInterval.start()), state.visitedTarget, ((AStarSIPPSState) state).intervalID);
+                    state = createNewState(state.move, state.prev, state.g, new ManualSingleAgentGAndH(q.h), state.conflicts, new TimeInterval(stateLow, q.timeInterval.start()), state.visitedTarget, ((AStarSIPPSState) state).intervalID);
                 } else {
-                    AStarSIPPSState newQ = (AStarSIPPSState) createNewState(q.move, q.prev, q.g, q.conflicts, new TimeInterval(q.timeInterval.start(), stateLow), q.visitedTarget, q.intervalID);
+                    AStarSIPPSState newQ = (AStarSIPPSState) createNewState(q.move, q.prev, q.g, new ManualSingleAgentGAndH(q.h), q.conflicts, new TimeInterval(q.timeInterval.start(), stateLow), q.visitedTarget, q.intervalID);
 
                     // Remove old q from whichever set its in
                     boolean wasInOpen = this.openList.remove(q);
@@ -224,6 +226,11 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     }
 
     @Override
+    protected AStarState lightGenerateIntermediateChildState(Move move, AStarState state, TimeInterval interval, int intervalID) {
+        return createNewState(move, state, getG(state, move), SameAsParentSingleAgentGAndH.INSTANCE, state.conflicts, interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
+    }
+
+    @Override
     protected boolean computeAfterLastConstraintTime(AStarState child) {
         return (child.move.timeNow > constraints.getLastConstraintStartTime()) && // after the time of last constraint, according to constraints set
                 // if conflicts avoidance table exists, soft constraints should be supported too
@@ -238,10 +245,10 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
         int numberOfConflicts = this.conflictAvoidanceTable.numConflicts(possibleMove, false);
         if (numberOfConflicts != 0) {
             Move stayInSourceMove = new Move(agent, problemStartTime + 1, sourceLocation, sourceLocation);
-            AStarState rootState = createNewState(possibleMove, null, getG(null, stayInSourceMove), 0, null, visitedTarget(null, isMoveToTarget(stayInSourceMove)), 0);
+            AStarState rootState = createNewState(possibleMove, null, getG(null, stayInSourceMove), super.gAndH, 0, null, visitedTarget(null, isMoveToTarget(stayInSourceMove)), 0);
             moveToNeighborLocation(rootState, stayInSourceMove, true);
         }
-        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), numberOfConflicts, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
+        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), super.gAndH, numberOfConflicts, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
         moveToNeighborLocation(rootState, possibleMove, true);
     }
 
@@ -471,8 +478,8 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
 
         protected int intervalID;
         protected boolean isGoal;
-        public AStarSIPPSState(Move move, AStarSIPPState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID, boolean isGoal, boolean isLastMove) {
-            super(move, prev, g, conflicts, timeInterval, visitedTarget, isLastMove);
+        public AStarSIPPSState(Move move, AStarSIPPState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID, boolean isGoal, boolean isLastMove) {
+            super(move, prev, g, hFunction, conflicts, timeInterval, visitedTarget, isLastMove);
             this.intervalID = intervalID;
             this.isGoal = isGoal;
         }

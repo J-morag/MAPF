@@ -4,6 +4,8 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SameAsParentSingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,7 +73,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                     break;
                 }
             }
-            addToOpenList(createNewState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget()), 0));
+            addToOpenList(createNewState(lastExistingMove, null, existingPlanTotalCost, super.gAndH, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget()), 0));
 
         } else { // the existing plan is empty (no existing plan)
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
@@ -91,7 +93,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
     protected void addInitialNodesToOpen(I_Location destination, I_Location sourceLocation) {
         Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
-        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), 0, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
+        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), super.gAndH, 0, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
         moveToNeighborLocation(rootState, possibleMove, true);
     }
 
@@ -99,9 +101,9 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         return sortedSafeIntervalsByLocation.getOrDefault(location, DEFAULT_SINGLETON_LIST_OF_INF_INTERVAL);
     }
 
-    protected AStarState createNewState(Move move, AStarState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
+    protected AStarState createNewState(Move move, AStarState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
         boolean isLastMove = move.currLocation.getCoordinate().equals(move.agent.target) && (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE); // todo - this will have to go through goalCondition to be more generic and specifically to support TMAPF
-        return new AStarSIPPState(move, (AStarSIPPState) prev, g, conflicts, timeInterval, visitedTarget, isLastMove);
+        return new AStarSIPPState(move, (AStarSIPPState) prev, g, hFunction, conflicts, timeInterval, visitedTarget, isLastMove);
     }
 
     // todo override SingleAgentAStar_Solver.generate() and use that instead of directly using AStarSIPPState::new and addToOpenList
@@ -133,11 +135,15 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @return A new child AStarSIPPState based on the provided parameters.
      */
     protected AStarState generateChildState(Move move, AStarState state, TimeInterval interval, boolean init, int intervalID) {
-        // todo - I think we always have isALastMove as false in SIPP. So we don't count conflicts resulting from staying at target.
+        // todo - I think we always have isALastMove as false in SIPP. So we don't count conflicts resulting from staying at target. Probably need to split the state to include it
         if (init) {
-            return createNewState(move, null, getG(null, move), state.conflicts + numConflicts(move, false), interval, visitedTarget(null, isMoveToTarget(move)), intervalID);
+            return createNewState(move, null, getG(null, move), super.gAndH, state.conflicts + numConflicts(move, false), interval, visitedTarget(null, isMoveToTarget(move)), intervalID);
         }
-        return createNewState(move, state, getG(state, move), state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
+        return createNewState(move, state, getG(state, move), super.gAndH, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
+    }
+
+    protected AStarState lightGenerateIntermediateChildState(Move move, AStarState state, TimeInterval interval, int intervalID) {
+        return createNewState(move, state, getG(state, move), SameAsParentSingleAgentGAndH.INSTANCE, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
     }
 
     /**
@@ -249,7 +255,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                 child = generateChildState(possibleMove, child, prevLocationRelevantInterval, init, intervalID);
                 init = false;
             } else {
-                child = generateChildState(possibleMove, child, prevLocationRelevantInterval, false, intervalID);
+                child = lightGenerateIntermediateChildState(possibleMove, child, prevLocationRelevantInterval, intervalID);
             }
 
             afterLastConstraint = computeAfterLastConstraintTime(child);
@@ -279,8 +285,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     public class AStarSIPPState extends AStarState {
         protected final TimeInterval timeInterval;
 
-        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, boolean isLastMove) {
-            super(move, prev, g, conflicts, visitedTarget, isLastMove); 
+        public AStarSIPPState(Move move, AStarSIPPState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, boolean isLastMove) {
+            super(move, prev, g, hFunction, conflicts, visitedTarget, isLastMove);
             this.timeInterval = timeInterval;
         }
 
