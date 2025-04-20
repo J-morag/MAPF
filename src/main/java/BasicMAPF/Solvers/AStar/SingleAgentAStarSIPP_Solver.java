@@ -107,7 +107,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     // todo override SingleAgentAStar_Solver.generate() and use that instead of directly using AStarSIPPState::new and addToOpenList
 
     @Override
-    public void expand(@NotNull AStarState state) {
+    protected void expand(@NotNull AStarState state) {
         if (state.move.currLocation.getType() == Enum_MapLocationType.NO_STOP) {
             throw new RuntimeException("UnsupportedOperationException");
         }
@@ -133,8 +133,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @return A new child AStarSIPPState based on the provided parameters.
      */
     protected AStarState generateChildState(Move move, AStarState state, TimeInterval interval, boolean init, int intervalID) {
-        // todo can we have a more accurate counting of conflicts? right now only counts the number of conflicts in the move into the interval.
-        //  maybe we can add the number of conflicts in the interval itself once we know the next move? And what to do about the first state?
+        // todo - I think we always have isALastMove as false in SIPP. So we don't count conflicts resulting from staying at target.
         if (init) {
             return createNewState(move, null, getG(null, move), state.conflicts + numConflicts(move, false), interval, visitedTarget(null, isMoveToTarget(move)), intervalID);
         }

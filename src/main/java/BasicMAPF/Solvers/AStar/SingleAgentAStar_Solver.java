@@ -249,7 +249,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         return !openList.isEmpty();
     }
 
-    public void expand(@NotNull AStarState state) {
+    protected void expand(@NotNull AStarState state) {
         expandedNodes++;
         // can move to neighboring locations or stay put
         List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(state.move.currLocation.outgoingEdges());
@@ -283,15 +283,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, false),
                 visitedTarget, false);
         addToOpenList(newNode);
-        if (this.conflictAvoidanceTable != null){
-            // assume this is a possible goal. We must check how many conflicts will happen if we stay
+        if (this.conflictAvoidanceTable != null && goalCondition.isAGoal(move, visitedTarget)){
+            // This is a possible goal. We must check how many conflicts will happen if we stay
             // there forever, which is different from the number of conflicts if we just pass through.
             AStarState lastMoveCandidateChild = new AStarState(move, prevState, g,
                     (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, true),
                     visitedTarget, true);
-            if (goalCondition.isAGoal(lastMoveCandidateChild)){
-                addToOpenList(lastMoveCandidateChild);
-            }
+            addToOpenList(lastMoveCandidateChild);
         }
     }
 

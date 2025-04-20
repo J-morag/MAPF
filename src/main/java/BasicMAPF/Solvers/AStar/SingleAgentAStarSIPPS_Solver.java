@@ -179,7 +179,7 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     }
 
     @Override
-    public void expand(@NotNull AStarState state) {
+    protected void expand(@NotNull AStarState state) {
         if (!(state instanceof AStarSIPPSState)) {
             throw new RuntimeException("SIPPS solver works with states of type AStarSIPPSState, received: " + state.getClass().getSimpleName());
         }
