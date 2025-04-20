@@ -91,7 +91,7 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     @Override
     protected AStarState createNewState(Move move, AStarState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
         boolean isLastMove = move.currLocation.getCoordinate().equals(move.agent.target) && (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE);
-        return new AStarSIPPSState(move, (AStarSIPPState) prev, g, super.gAndH, conflicts, timeInterval, visitedTarget, intervalID, false, isLastMove);
+        return new AStarSIPPSState(move, (AStarSIPPState) prev, g, hFunction, conflicts, timeInterval, visitedTarget, intervalID, false, isLastMove);
     }
 
     @Override
