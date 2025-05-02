@@ -15,7 +15,7 @@ public class SameAsParentSingleAgentGAndH implements SingleAgentGAndH {
 
     @Override
     public float getH(SingleAgentAStar_Solver.@NotNull AStarState state) {
-        return state.h;
+        return state.getPrev().h;
     }
 
     @Override
