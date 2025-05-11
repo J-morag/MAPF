@@ -123,8 +123,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
         if (! this.gAndH.isConsistent()){
             throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
         }
-        if (this.goalCondition instanceof VisitedTargetAStarGoalCondition ^ this.gAndH instanceof ServiceTimeGAndH){
-            throw new IllegalArgumentException("VisitedTargetAStarGoalCondition requires a ServiceTimeGAndH heuristic and vice versa.");
+        if (this.goalCondition instanceof VisitedTargetAStarGoalCondition ^ this.gAndH.isTransient()){
+            throw new IllegalArgumentException("VisitedTargetAStarGoalCondition requires a transient heuristic and vice versa. Got a " +
+                    this.gAndH.getClass().getSimpleName() + " heuristic and a " + this.goalCondition.getClass().getSimpleName() + " goal condition.");
         }
 
         // todo should make this more explicit. Getting an rng might not necessarily mean that we want to use it like this.

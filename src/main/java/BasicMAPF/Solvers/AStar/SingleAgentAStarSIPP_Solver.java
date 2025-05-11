@@ -40,10 +40,6 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         } else {
             this.sortedSafeIntervalsByLocation = this.constraints.vertexConstraintsToSortedSafeTimeIntervals(this.agent, this.map);
         }
-
-        if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
-            throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
-        }
     }
 
     @Override
@@ -102,8 +98,21 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     }
 
     protected AStarState createNewState(Move move, AStarState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
-        boolean isLastMove = move.currLocation.getCoordinate().equals(move.agent.target) && (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE); // todo - this will have to go through goalCondition to be more generic and specifically to support TMAPF
+        boolean isLastMove = isLastMove(move, prev, timeInterval);
         return new AStarSIPPState(move, (AStarSIPPState) prev, g, hFunction, conflicts, timeInterval, visitedTarget, isLastMove);
+    }
+
+    protected boolean isLastMove(Move move, AStarState prev, TimeInterval timeInterval) {
+        boolean isLastMove = false;
+        if (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE) {
+            if (this.goalCondition instanceof VisitedTargetAStarGoalCondition && prev != null) {
+                isLastMove = prev.visitedTarget || move.currLocation.getCoordinate().equals(move.agent.target);
+            }
+            else {
+                isLastMove = move.currLocation.getCoordinate().equals(move.agent.target);
+            }
+        }
+        return isLastMove;
     }
 
     // todo override SingleAgentAStar_Solver.generate() and use that instead of directly using AStarSIPPState::new and addToOpenList
@@ -142,7 +151,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         return createNewState(move, state, getG(state, move), super.gAndH, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
     }
 
-    protected AStarState lightGenerateIntermediateChildState(Move move, AStarState state, TimeInterval interval, int intervalID) {
+    protected AStarState lightGenerateIntermediateChildState(Move move, AStarState state, TimeInterval interval, int intervalID, boolean first) {
         return createNewState(move, state, getG(state, move), SameAsParentSingleAgentGAndH.INSTANCE, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
     }
 
@@ -246,6 +255,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         }
 
         // Reset the move to start by waiting at the previous location
+        boolean first = true;
         possibleMove = new Move(child.move.agent, possibleMove.timeNow, prevLocation, prevLocation);
         while (possibleMove.timeNow <= prevLocationRelevantInterval.end()) {
             if (!constraints.accepts(possibleMove)) return;
@@ -255,7 +265,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                 child = generateChildState(possibleMove, child, prevLocationRelevantInterval, init, intervalID);
                 init = false;
             } else {
-                child = lightGenerateIntermediateChildState(possibleMove, child, prevLocationRelevantInterval, intervalID);
+                child = lightGenerateIntermediateChildState(possibleMove, child, prevLocationRelevantInterval, intervalID, first);
+                first = false;
             }
 
             afterLastConstraint = computeAfterLastConstraintTime(child);
@@ -296,6 +307,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             if (!(o instanceof AStarSIPPState that)) return false;
 
             if (timeInterval.start() != that.timeInterval.start()) return false;
+            if (visitedTarget != that.visitedTarget) return false;
+            if (isALastMove != that.isALastMove) return false;
             assert move != null;
             assert that.move != null;
             return move.currLocation.equals(that.move.currLocation);
@@ -306,6 +319,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             assert move != null;
             int result = move.currLocation.hashCode();
             result = 31 * result + this.timeInterval.start();
+            result = 31 * result + (visitedTarget ? 1 : 0);
+            result = 31 * result + (isALastMove ? 1 : 0);
             return result;
         }
 

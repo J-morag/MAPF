@@ -2,10 +2,14 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.ConflictsCount;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.I_Solver;
@@ -15,6 +19,7 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import TransientMAPF.TransientMAPFSettings;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +28,11 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.util.ArrayList;
 
+import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordiantes.coor02;
 import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestConstants.Instances.instanceUnsolvable;
+import static BasicMAPF.TestConstants.Maps.mapCorridor;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LargeNeighborhoodSearch2_SolverTest {
@@ -117,5 +125,22 @@ public class LargeNeighborhoodSearch2_SolverTest {
     @Test
     void TestingBenchmark(){
         TestUtils.TestingBenchmark(solver, 5, false, false);
+    }
+
+    @Test
+    void corridorSolvedOnlyByTransient() {
+        Agent agent1 = new Agent(0, coor00, coor03, 1);
+        Agent agent2 = new Agent(1, coor01, coor02, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapCorridor, new Agent[]{agent1, agent2});
+
+        I_Solver LNS2t = new LNSBuilder().setInitialSolver(new solutionsGeneratorForLNS2(null, TransientMAPFSettings.defaultTransientMAPF, null, null, null))
+                .setIterationsSolver(new solutionsGeneratorForLNS2(null, TransientMAPFSettings.defaultTransientMAPF, null, null, null))
+                .setSolutionCostFunction(new ConflictsCount(false, false)).setLNS2(true).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLNS();
+        Solution solveByLNS2t = LNS2t.solve(testInstance, new RunParametersBuilder().setAStarGAndH(new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(testInstance.agents, testInstance.map))).setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solveByLNS2t.solves(testInstance));
+        System.out.println(solveByLNS2t);
+
+        Solution solvedByLNS2 = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertNull(solvedByLNS2);
     }
 }

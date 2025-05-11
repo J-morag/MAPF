@@ -269,11 +269,11 @@ public class CanonicalSolversFactory {
     }
 
     public static PIBT_Solver createPIBTSolver() {
-        return new PIBT_Solver();
+        return new PIBT_Solver(null, null, TransientMAPFSettings.defaultRegularMAPF);
     }
 
     public static PIBT_Solver createPIBTtSolver() {
-        return new PIBT_Solver(null, null, TransientMAPFSettings.defaultTransientMAPF);
+        return new PIBT_Solver();
     }
 
     public static LaCAM_Solver createLaCAMSolver() {
