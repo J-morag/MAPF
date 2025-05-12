@@ -52,17 +52,6 @@ class SingleAgentAStarSIPPS_SolverTest {
     private I_Location location32Circle = mapCircle.getMapLocation(coor32);
     private I_Location location33Circle = mapCircle.getMapLocation(coor33);
     private I_Location location34Circle = mapCircle.getMapLocation(coor34);
-
-    private I_Location location23Circle = mapCircle.getMapLocation(coor23);
-
-    private I_Location location11 = mapCircle.getMapLocation(coor11);
-    private I_Location location43 = mapCircle.getMapLocation(coor43);
-    private I_Location location53 = mapCircle.getMapLocation(coor53);
-    private I_Location location05 = mapCircle.getMapLocation(coor05);
-
-    private I_Location location04 = mapCircle.getMapLocation(coor04);
-    private I_Location location00 = mapCircle.getMapLocation(coor00);
-
     private final I_Location location12 = mapCircle.getMapLocation(coor12);
     private final I_Location location22 = mapCircle.getMapLocation(coor22);
     private final I_Location location32 = mapCircle.getMapLocation(coor32);
@@ -71,16 +60,8 @@ class SingleAgentAStarSIPPS_SolverTest {
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent53to05});
-    private MAPF_Instance instanceEmpty2 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent43to11});
     private MAPF_Instance instance1stepSolution = im.getNextInstance();
     private MAPF_Instance instanceCircle1 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent33to12});
-    private MAPF_Instance instanceCircle2 = new MAPF_Instance("instanceCircle1", mapCircle, new Agent[]{agent12to33});
-    private MAPF_Instance instanceUnsolvable = new MAPF_Instance("instanceUnsolvable", mapWithPocket, new Agent[]{agent04to00});
-    private MAPF_Instance instanceMaze1 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent04to40});
-    private MAPF_Instance instanceMaze2 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent00to55});
-    private MAPF_Instance instanceMaze3 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent43to53});
-    private MAPF_Instance instanceMaze4 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent53to15});
-
     I_Solver sipps = new SingleAgentAStarSIPPS_Solver();
 
     InstanceReport instanceReport;
@@ -517,4 +498,56 @@ class SingleAgentAStarSIPPS_SolverTest {
     }
 
     private final SingleAgentGAndH unitCostAndNoHeuristic = new TestUtils.UnitCostAndNoHeuristic();
+
+    @Test
+    void oneMoveSolution() {
+        MAPF_Instance testInstance = instance1stepSolution;
+        Solution s = sipps.solve(testInstance, new RunParametersBuilder().createRP());
+
+        Map<Agent, SingleAgentPlan> plans = new HashMap<>();
+        SingleAgentPlan plan = new SingleAgentPlan(testInstance.agents.get(0));
+        I_Location location = testInstance.map.getMapLocation(new Coordinate_2D(4,5));
+        plan.addMove(new Move(testInstance.agents.get(0), 1, location, location));
+        plans.put(testInstance.agents.get(0), plan);
+        Solution expected = new Solution(plans);
+
+        assertEquals(s, expected);
+    }
+
+    @Test
+    void circleOptimalityWaitingBecauseOfConstraint1(){
+        MAPF_Instance testInstance = instanceCircle1;
+        Agent agent = testInstance.agents.get(0);
+
+        RemovableConflictAvoidanceTableWithContestedGoals cat = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent blockingAgent1 = new Agent(999, coor34, coor34);
+        Agent blockingAgent2 = new Agent(998, coor32, coor13);
+        SingleAgentPlan blockingPlan1 = new SingleAgentPlan(blockingAgent1);
+        SingleAgentPlan blockingPlan2 = new SingleAgentPlan(blockingAgent2);
+        blockingPlan1.addMove(new Move(blockingAgent1, 1, location34Circle, location34Circle));
+
+        blockingPlan2.addMove(new Move(blockingAgent2, 1, location32Circle, location32Circle));
+        blockingPlan2.addMove(new Move(blockingAgent2, 2, location32Circle, location22Circle));
+        blockingPlan2.addMove(new Move(blockingAgent2, 3, location22Circle, location12Circle));
+        blockingPlan2.addMove(new Move(blockingAgent2, 4, location12Circle, location13Circle));
+
+        cat.addPlan(blockingPlan1);
+        cat.addPlan(blockingPlan2);
+
+        RunParameters parameters = new RunParametersBuilder().setConflictAvoidanceTable(cat).createRP();
+        Solution solved = sipps.solve(testInstance, parameters);
+        System.out.println(solved);
+
+        SingleAgentPlan plan = new SingleAgentPlan(agent);
+        plan.addMove(new Move(agent, 1, location33Circle, location33Circle));
+        plan.addMove(new Move(agent, 2, location33Circle, location32Circle));
+        plan.addMove(new Move(agent, 3, location32Circle, location22Circle));
+        plan.addMove(new Move(agent, 4, location22Circle, location12Circle));
+        Solution expected = new Solution();
+        expected.putPlan(plan);
+
+        assertEquals(4, solved.getPlanFor(agent).size());
+        assertEquals(expected, solved);
+
+    }
 }
