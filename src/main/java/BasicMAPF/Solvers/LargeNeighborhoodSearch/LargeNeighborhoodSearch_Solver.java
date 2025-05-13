@@ -185,7 +185,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         if (this.subSolverHeuristic instanceof CachingDistanceTableHeuristic){
             ((CachingDistanceTableHeuristic)this.subSolverHeuristic).setCurrentMap(instance.map);
         }
-        if (this.solutionCostFunction instanceof SumServiceTimes){ // for TMAPF
+        if (this.solutionCostFunction instanceof SumServiceTimes || (this.LNS2 && this.transientMAPFSettings.isTransientMAPF())){ // for TMAPF
             this.subSolverHeuristic = new ServiceTimeGAndH(this.subSolverHeuristic);
         }
         if (this.LNS2) {
