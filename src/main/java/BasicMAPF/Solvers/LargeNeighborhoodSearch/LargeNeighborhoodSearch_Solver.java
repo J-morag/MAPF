@@ -68,7 +68,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict
      */
     private final boolean sharedSources;
-    private final TransientMAPFSettings transientMAPFSettings;
 
     /*  = Fields related to the run =  */
 
@@ -187,6 +186,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         }
         if (this.solutionCostFunction instanceof SumServiceTimes || (this.LNS2 && this.transientMAPFSettings.isTransientMAPF())){ // for TMAPF
             this.subSolverHeuristic = new ServiceTimeGAndH(this.subSolverHeuristic);
+        }
+        if (this.transientMAPFSettings.isTransientMAPF() ^ this.subSolverHeuristic.isTransient()){
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.subSolverHeuristic.getClass().getSimpleName() + " " + this.transientMAPFSettings);
         }
         if (this.LNS2) {
             this.cat = new RemovableConflictAvoidanceTableWithContestedGoals();

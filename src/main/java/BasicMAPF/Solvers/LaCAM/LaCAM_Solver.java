@@ -58,18 +58,11 @@ public class LaCAM_Solver extends A_Solver {
      * Map saving for each ID its agent as object.
      */
     protected HashMap<Integer, Agent> agents;
-
     /**
      * The cost function to evaluate solutions with.
      */
     protected final I_SolutionCostFunction solutionCostFunction;
-
-    /**
-     * variable indicates whether the solution returned by the algorithm is transient.
-     */
-    protected final TransientMAPFSettings transientMAPFSettings;
     protected I_ConstraintSet constraintsSet;
-
     protected MAPF_Instance instance;
     protected int failedToFindConfigCounter;
     protected long totalTimeFindConfigurations;

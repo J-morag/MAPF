@@ -82,7 +82,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    private final TransientMAPFSettings transientMAPFSettings;
     public boolean reportIndvAttempts = false;
 
     private Set<I_Coordinate> separatingVerticesSet;
@@ -185,6 +184,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             }
         }
 
+        //transient MAPF
+        if (this.transientMAPFSettings.isTransientMAPF() ^ this.singleAgentGAndH.isTransient()){
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.singleAgentGAndH.getClass().getSimpleName() + " " + this.transientMAPFSettings);
+        }
         if (this.transientMAPFSettings.avoidSeparatingVertices()) {
             this.separatingVerticesSet = TransientMAPFUtils.createSeparatingVerticesSetOfCoordinates(instance, parameters);
         }

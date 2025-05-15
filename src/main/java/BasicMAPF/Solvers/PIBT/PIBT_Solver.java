@@ -96,11 +96,6 @@ public class PIBT_Solver extends A_Solver {
     private Set<List<I_Location>> configurations;
 
     /**
-     * variable indicates whether the solution returned by the algorithm is transient.
-     */
-    private final TransientMAPFSettings transientMAPFSettings;
-
-    /**
      * Map saving for each agent its goal location, representing the goal configuration.
      */
     private HashMap<Agent, I_Location> goalConfiguration;
