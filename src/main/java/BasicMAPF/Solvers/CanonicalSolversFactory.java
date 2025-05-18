@@ -38,6 +38,7 @@ public class CanonicalSolversFactory {
     public final static String PP_DR_UNTIL_FIRST_SOLUTION_NAME = "PP_DR_UntilFirstSolution";
     public final static String PPRStar_ANYTIME_NAME = "PPRStar";
     public final static String CBS_NAME = "CBS";
+    public final static String CBS_SIPP_NAME = "CBS_SIPP";
     public final static String CBSt_NAME = "CBSt";
     public final static String ICTS_NAME = "ICTS";
     public final static String PIBT_NAME = "PIBT";
@@ -137,6 +138,12 @@ public class CanonicalSolversFactory {
                 CBS_NAME,
                 "Conflict Based Search",
                 CanonicalSolversFactory::createCBSSolver
+        ));
+
+        regs.put(CBS_SIPP_NAME, new SolverRegistration<>(
+                CBS_SIPP_NAME,
+                "Conflict Based Search using SIPP",
+                CanonicalSolversFactory::createCBS_SIPPSolver
         ));
 
         regs.put(CBSt_NAME, new SolverRegistration<>(
@@ -387,9 +394,15 @@ public class CanonicalSolversFactory {
     public static CBS_Solver createCBSSolver() {
         return new CBSBuilder().createCBS_Solver();
     }
+
+    public static CBS_Solver createCBS_SIPPSolver() {
+        return new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPPS_Solver()).createCBS_Solver();
+    }
+
     public static CBS_Solver createCBStSolver() {
         return new CBSBuilder().setCostFunction(new SumServiceTimes()).setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
     }
+
     public static ICTS_Solver createICTSSolver() {
         return new ICTS_Solver();
     }
