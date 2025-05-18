@@ -120,7 +120,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void PIBTStressTest() {
-        I_Solver solver = new PIBT_Solver(null, null, null);
+        I_Solver solver = CanonicalSolversFactory.createPIBTSolver();
         long timeout = 1000 * 30;
         int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);
