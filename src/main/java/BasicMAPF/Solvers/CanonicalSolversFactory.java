@@ -399,7 +399,7 @@ public class CanonicalSolversFactory {
     }
 
     public static PIBT_Solver createPIBTtSolver() {
-        return new PIBT_Solver();
+        return new PIBT_Solver(null, null, TransientMAPFSettings.defaultTransientMAPF);
     }
 
     public static LaCAM_Solver createLaCAMSolver() {
