@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747671677493,
+  "lastUpdate": 1747671678642,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -27401,6 +27401,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
             "value": 439312.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c21042cff21a499975c904785f5e3af5283c9be1",
+          "message": "v0.09.0 (#101)\n\n* Handle safe intervals generation in constraint set \n\n* add comparator to A* constructor\n\n* SIPP - improve clarity and performance\n\n* replace clearing with nulling for slightly better performance\n\n* Bucket queue open list \n\n* ArrayMap only check keys if `DEBUG >= 1`\n\n* PCS use BucketingOpenList\n\n* Canonical solvers in prog args \n\n* Lexical PCS cost function \n\n* Use CanonicalSolversFactory for basic solver versions in tests",
+          "timestamp": "2025-05-19T18:38:17+03:00",
+          "tree_id": "3a1483dfb02690ad65f671611e4048caf124fb4f",
+          "url": "https://github.com/J-morag/MAPF/commit/c21042cff21a499975c904785f5e3af5283c9be1"
+        },
+        "date": 1747671678242,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 9827.467,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 3225.1177,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 3066.8235,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 717661.06,
             "unit": "Expansions"
           }
         ]
