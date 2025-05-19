@@ -6,7 +6,6 @@ import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
 import Environment.Config;
@@ -18,10 +17,10 @@ import BasicMAPF.Solvers.AStar.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import TransientMAPF.TransientMAPFUtils;
 
 import java.util.*;
 
@@ -86,6 +85,8 @@ public class PrioritisedPlanning_Solver extends A_Solver {
     private final TransientMAPFSettings transientMAPFSettings;
     public boolean reportIndvAttempts = false;
 
+    private Set<I_Coordinate> separatingVerticesSet;
+
 
     /*  = Constructors =  */
 
@@ -128,7 +129,6 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
-
         super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }
@@ -180,6 +180,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             if (this.singleAgentGAndH != null && this.solutionCostFunction instanceof SumServiceTimes){
                 this.singleAgentGAndH = new ServiceTimeGAndH(this.singleAgentGAndH);
             }
+        }
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            this.separatingVerticesSet = TransientMAPFUtils.createSeparatingVerticesSetOfCoordinates(instance, parameters);
         }
     }
 
@@ -407,17 +411,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         }
         params.fBudget = maxCost;
         if (transientMAPFSettings.isTransientMAPF()) {
-            if (transientMAPFSettings.useBlacklist()) {
-                Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
-                for (Agent agent : this.agents) {
-                    if (!agent.equals(subproblem.agents.get(0)) && !solutionSoFar.contains(agent)) {
-                        targetsOfAgentsThatHaventPlannedYet.add(agent.target);
-                    }
-                }
-                params.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
-            } else {
-                params.goalCondition = new VisitedTargetAStarGoalCondition();
-            }
+            params.goalCondition = TransientMAPFUtils.createLowLevelGoalConditionForTransientMAPF(transientMAPFSettings, separatingVerticesSet, agents, subproblem.agents.get(0), solutionSoFar);
         }
         return params;
     }

@@ -8,19 +8,22 @@ import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import TransientMAPF.SeparatingVerticesFinder;
 import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import TransientMAPF.TransientMAPFUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import Environment.Config.*;
+
 import java.util.*;
 
 /**
@@ -102,6 +105,9 @@ public class PIBT_Solver extends A_Solver {
 
     private boolean agentCantMoveOrStay;
     private boolean allAgentsReachedGoal;
+    private Set<I_Location> separatingVerticesSet;
+    private Comparator<I_Location> separatingVerticesComparator;
+    private MAPF_Instance instance;
 
 
     /**
@@ -111,7 +117,7 @@ public class PIBT_Solver extends A_Solver {
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
-        super.name = "PIBT" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
+        super.name = "PIBT" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
     /**
@@ -134,6 +140,7 @@ public class PIBT_Solver extends A_Solver {
         this.goalConfiguration = new HashMap<>();
         this.agentCantMoveOrStay = false;
         this.allAgentsReachedGoal = false;
+        this.instance = instance;
 
         for (Agent agent : instance.agents) {
             // init location of each agent to his source location
@@ -144,6 +151,21 @@ public class PIBT_Solver extends A_Solver {
 
             // init goal configuration
             this.goalConfiguration.put(agent, instance.map.getMapLocation(agent.target));
+        }
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            if (parameters.separatingVertices != null) {
+                this.separatingVerticesSet = parameters.separatingVertices;
+            }
+            else {
+                if (this.instance.map instanceof I_ExplicitMap) {
+                    this.separatingVerticesSet = SeparatingVerticesFinder.findSeparatingVertices((I_ExplicitMap) this.instance.map);
+                }
+                else {
+                    throw new IllegalArgumentException("Transient using Separating Vertices only supported for I_ExplicitMap.");
+                }
+            }
+            this.separatingVerticesComparator = TransientMAPFUtils.createSeparatingVerticesComparator(this.separatingVerticesSet);
         }
 
         // distance between every vertex in the graph to each agent's goal
@@ -229,6 +251,11 @@ public class PIBT_Solver extends A_Solver {
 
         // remove all taken nodes by higher priorities agents
         candidates.removeAll(this.takenNodes);
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices() && this.priorities.get(current) == -1) {
+            // sort candidates so that all SV vertices are at the end of the list
+            candidates.sort(this.separatingVerticesComparator);
+        }
 
         while (!candidates.isEmpty()) {
             I_Location best = findBest(candidates, current);
@@ -498,5 +525,6 @@ public class PIBT_Solver extends A_Solver {
         this.priorities = null;
         this.takenNodes = null;
         this.unhandledAgents = null;
+        this.separatingVerticesSet = null;
     }
 }

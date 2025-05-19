@@ -9,8 +9,6 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
@@ -29,6 +27,8 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.*;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.TransientMAPFSolution;
+import TransientMAPF.TransientMAPFUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -97,6 +97,7 @@ public class CBS_Solver extends A_Solver {
     private final boolean sharedSources;
 
     private final TransientMAPFSettings transientMAPFSettings;
+    private Set<I_Coordinate> separatingVerticesSet;
 
     /*  = Constructors =  */
 
@@ -127,7 +128,6 @@ public class CBS_Solver extends A_Solver {
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
-
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
     }
 
@@ -163,6 +163,10 @@ public class CBS_Solver extends A_Solver {
             if (this.singleAgentGAndH != null && this.costFunction instanceof SumServiceTimes){
                 this.singleAgentGAndH = new ServiceTimeGAndH(this.singleAgentGAndH);
             }
+        }
+
+        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
+            this.separatingVerticesSet = TransientMAPFUtils.createSeparatingVerticesSetOfCoordinates(instance, runParameters);
         }
     }
 
@@ -228,6 +232,12 @@ public class CBS_Solver extends A_Solver {
                 return node;
             }
             else {
+                if (this.transientMAPFSettings.resolveAfterGoalConflictsLocally()) {
+                    if (tryResolveConflictsLocally(node)) {
+                        openList.add(node);
+                        continue;
+                    };
+                }
                 expandNode(node);
             }
         }
@@ -376,19 +386,8 @@ public class CBS_Solver extends A_Solver {
             RunParameters_SAAStar astarSubproblemParameters = new RunParameters_SAAStar(subproblemParametes);
 
             // TMAPF goal condition
-            if (transientMAPFSettings.isTransientMAPF()){
-                if (transientMAPFSettings.useBlacklist()) {
-                    Set<I_Coordinate> targetsOfAgentsThatHaventPlannedYet = new HashSet<>();
-                    for (Agent agentToBlack : this.instance.agents) {
-                        if (!agent.equals(agentToBlack)) {
-                            targetsOfAgentsThatHaventPlannedYet.add(agentToBlack.target);
-                        }
-                    }
-                    astarSubproblemParameters.goalCondition = new VisitedTargetAndBlacklistAStarGoalCondition(targetsOfAgentsThatHaventPlannedYet);
-                }
-                else {
-                    astarSubproblemParameters.goalCondition = new VisitedTargetAStarGoalCondition();
-                }
+            if (transientMAPFSettings.isTransientMAPF()) {
+                astarSubproblemParameters.goalCondition = TransientMAPFUtils.createLowLevelGoalConditionForTransientMAPF(transientMAPFSettings, separatingVerticesSet, instance.agents, agent, null);
             }
 
             SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
@@ -423,6 +422,53 @@ public class CBS_Solver extends A_Solver {
             openList.clear();
         }
     }
+
+    /**
+     * The function checks if the conflict in the CBS node happens after one of the agents reached its target.
+     * If so, try to resolve it using the function {@link #resolveConflict(Agent, Agent, CBS_Node)}
+     * @param node - CBS node containing a conflict to resolve.
+     * @return true if the conflict was resolved, false otherwise.
+     */
+    private boolean tryResolveConflictsLocally(CBS_Node node) {
+        // check if the conflict occurs after one agent reached its target
+        Agent agent1 = node.selectedConflict.agent1;
+        Agent agent2 = node.selectedConflict.agent2;
+        int conflictTime = node.selectedConflict.time;
+        int agent1VisitedTargetTime = node.solution.getPlanFor(agent1).firstVisitToTargetTime();
+        int agent2VisitedTargetTime = node.solution.getPlanFor(agent2).firstVisitToTargetTime();
+
+        // If the conflict occurs after one of the agents reached its target, try to resolve the conflict locally
+        boolean conflictResolved = false;
+        if (agent1VisitedTargetTime < conflictTime) {
+            conflictResolved = resolveConflict(agent1, agent2, node);
+        }
+        if (agent2VisitedTargetTime < conflictTime) {
+            conflictResolved = resolveConflict(agent2, agent1, node);
+        }
+        return conflictResolved;
+    }
+
+
+    /**
+     * Try to resolve a conflict locally. If succeeded, the solution in the CBS node is replaced with the new solution.
+     * @param resolvingAgent is the agent that reached its target, and needs to move to allow the other agent to move.
+     * @param otherAgent is the agent that does not change its plan.
+     * @param node - CBS node contains the current solution.
+     * @return True if the conflict is resolved and successfully replaced in node, false otherwise.
+     */
+    private boolean resolveConflict(Agent resolvingAgent, Agent otherAgent, CBS_Node node) {
+        ConstraintSet allConstraints = new ConstraintSet(this.currentConstraints);
+        allConstraints.addAll(allConstraints.allConstraintsForPlan(node.solution.getPlanFor(otherAgent)));
+        Solution newSolution = solveSubproblem(resolvingAgent, node.solution, allConstraints);
+        if (newSolution == null) {
+            return false;
+        }
+        else {
+            node.solution = newSolution;
+            return true;
+        }
+    }
+
 
     /*  = wind down =  */
 

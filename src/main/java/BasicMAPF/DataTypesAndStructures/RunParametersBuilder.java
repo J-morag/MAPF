@@ -1,11 +1,13 @@
 package BasicMAPF.DataTypesAndStructures;
 
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 
 import java.util.Random;
+import java.util.Set;
 
 public class RunParametersBuilder {
     private long timeout = 1000*60*5 /*5 minutes*/;
@@ -17,6 +19,7 @@ public class RunParametersBuilder {
     public int problemStartTime = 0;
     public Random randomNumberGenerator;
     public Agent[] priorityOrder;
+    public Set<I_Location> separatingVertices;
 
     public RunParametersBuilder copy(RunParameters rp) {
         this.timeout = rp.timeout;
@@ -28,6 +31,7 @@ public class RunParametersBuilder {
         this.problemStartTime = rp.problemStartTime;
         this.randomNumberGenerator = rp.randomNumberGenerator;
         this.priorityOrder = rp.priorityOrder;
+        this.separatingVertices = rp.separatingVertices;
         return this;
     }
 
@@ -104,7 +108,15 @@ public class RunParametersBuilder {
         return this;
     }
 
+    /**
+     * @see RunParameters#separatingVertices
+     */
+    public RunParametersBuilder setseparatingVertices(Set<I_Location> separatingVertices) {
+        this.separatingVertices = separatingVertices;
+        return this;
+    }
+
     public RunParameters createRP() {
-        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, singleAgentGAndH, problemStartTime, randomNumberGenerator, priorityOrder);
+        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, singleAgentGAndH, problemStartTime, randomNumberGenerator, priorityOrder, separatingVertices);
     }
 }
