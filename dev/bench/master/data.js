@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747665354596,
+  "lastUpdate": 1747665356398,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -7291,6 +7291,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 41188.41,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "54c89b1f45a03f68d752ab95bb1764a5a77789fe",
+          "message": "v0.07.0 (#99)\n\n* Transient seperating vertices\n\n* Add results printing function to test utils, with running example usi… \n\n* add SV support for PrPt and CBSt \n\n* add support for resolving conflicts locally in CBSt \n\n* improve GridSolutionVisualizer colors and fix missing last time step \n\n* Better colors in GridSolutionVisualizer:\n\n* improve GridVisualizer GUI and allow timestep step +- wrapping\n\n* improve GridVisualizer X/Y dimensions clarity",
+          "timestamp": "2025-05-19T16:54:24+03:00",
+          "tree_id": "009e114d127543b1697267ba69e4403aecf1cacf",
+          "url": "https://github.com/J-morag/MAPF/commit/54c89b1f45a03f68d752ab95bb1764a5a77789fe"
+        },
+        "date": 1747665355609,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 12,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4351.4,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 22027.941,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 10098.471,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 41209.234,
             "unit": "Expansions"
           }
         ]
