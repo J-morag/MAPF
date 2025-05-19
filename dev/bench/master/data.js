@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747678100379,
+  "lastUpdate": 1747678102063,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -22745,6 +22745,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 5771365.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "584f590bb27ad0519be222950a549307bee6c33f",
+          "message": "v.0.10.0 (#102)\n\n* testing shows SIPP expands significantly more nodes with the bucketing open list, so I disabled it in SIPP until I find out why this is happening\n\n* Mapf lns2\n\n* disable using BucketingOpenList in A*",
+          "timestamp": "2025-05-19T20:26:15+03:00",
+          "tree_id": "5c3ef5f36ca83e81a03300fb136bc2b1be916924",
+          "url": "https://github.com/J-morag/MAPF/commit/584f590bb27ad0519be222950a549307bee6c33f"
+        },
+        "date": 1747678101392,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 15121.235,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 4575.353,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 41400.883,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 4713956,
             "unit": "Expansions"
           }
         ]
