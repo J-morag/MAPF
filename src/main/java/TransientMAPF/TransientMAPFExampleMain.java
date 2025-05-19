@@ -43,7 +43,7 @@ public class TransientMAPFExampleMain {
 
             GenericRunManager genericRunManager = new GenericRunManager(instancesDir, agentNums, new InstanceBuilder_MovingAI(),
                     "TransientMAPFExampleMain", true, null, DEFAULT_RESULTS_OUTPUT_DIR,
-                    "PrP_vs_PrPT", null, timeoutEach);
+                    "PrP_vs_PrPT", null, timeoutEach, null);
 
             // optimizing for SOC
 

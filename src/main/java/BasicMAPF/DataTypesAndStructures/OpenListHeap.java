@@ -1,5 +1,7 @@
 package BasicMAPF.DataTypesAndStructures;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 /**
@@ -11,31 +13,39 @@ import java.util.*;
 public class OpenListHeap<E> implements I_OpenList<E> {
     private Queue<E> queue;
     private Map<E, E> map;
+    private final Comparator<? super E> comparator;
+    private final int initialCapacity;
 
     /*  = constructors like in PriorityQueue =  */
 
     public OpenListHeap() {
         this.queue = new PriorityQueue<>();
         this.map = new HashMap<>();
+        this.comparator = null;
+        this.initialCapacity = -1;
     }
 
     public OpenListHeap(int initialCapacity) {
         this(initialCapacity, null);
     }
 
-    public OpenListHeap(Comparator<? super E> comparator) {
+    public OpenListHeap(@NotNull Comparator<? super E> comparator) {
         this.queue = new PriorityQueue<>(comparator);
         this.map = new HashMap<>();
+        this.comparator = comparator;
+        this.initialCapacity = -1;
     }
 
     public OpenListHeap(int initialCapacity,
-                        Comparator<? super E> comparator) {
+                        @NotNull Comparator<? super E> comparator) {
         // Note: This restriction of at least one is not actually needed,
         // but continues for 1.5 compatibility
         if (initialCapacity < 1)
             throw new IllegalArgumentException();
         this.queue = new PriorityQueue<>(initialCapacity, comparator);
         this.map = new HashMap<>(initialCapacity);
+        this.comparator = comparator;
+        this.initialCapacity = initialCapacity;
     }
 
     public OpenListHeap(Collection<? extends E> c) {
@@ -44,6 +54,8 @@ public class OpenListHeap<E> implements I_OpenList<E> {
         for(E elem : c){
             this.map.put(elem, elem);
         }
+        this.comparator = null;
+        this.initialCapacity = -1;
     }
 
     /*  = interface implementation =  */
@@ -214,8 +226,19 @@ public class OpenListHeap<E> implements I_OpenList<E> {
 
     @Override
     public void clear() {
-        this.queue.clear();
-        this.map.clear();
+        if (comparator != null){
+            this.queue = new PriorityQueue<>(comparator);
+        }
+        else {
+            this.queue = new PriorityQueue<>();
+        }
+
+        if (initialCapacity > 0){
+            this.map = new HashMap<>(initialCapacity);
+        }
+        else {
+            this.map = new HashMap<>();
+        }
     }
 
     @Override

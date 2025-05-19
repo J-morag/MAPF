@@ -7,6 +7,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
@@ -15,7 +16,6 @@ import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +36,8 @@ public class PIBT_SolverTest {
     private final MAPF_Instance instanceMultipleInheritance = new MAPF_Instance("instanceMultipleInheritance", mapHLong, new Agent[]{agent00to13, agent10to33, agent20to00, agent21to00});
     private final MAPF_Instance instanceAgentsNeedsToSwapLocations = new MAPF_Instance("instanceAgentsNeedsToSwapLocations", mapWithPocket, new Agent[]{agent55to34, agent54to55});
 
-    I_Solver PIBTt_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, TransientMAPFSettings.defaultTransientMAPF);
-    I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null);
+    I_Solver PIBTt_Solver = CanonicalSolversFactory.createPIBTtSolver();
+    I_Solver PIBT_Solver = CanonicalSolversFactory.createPIBTSolver();
 
     long timeout = 10*1000;
 
@@ -173,10 +173,10 @@ public class PIBT_SolverTest {
     void compareBetweenPrPAndPIBTTest(){
         I_Solver PrPSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(), null, null, null);
-        String namePrP = PrPSolver.name();
+        String namePrP = PrPSolver.getName();
 
         I_Solver PIBT_Solver = new PIBT_Solver(null, Integer.MAX_VALUE, null);
-        String namePIBT = PIBT_Solver.name();
+        String namePIBT = PIBT_Solver.getName();
 
         TestUtils.comparativeTest(PrPSolver, namePrP, false, false, PIBT_Solver, namePIBT,
                 false, false, new int[]{100}, 10, 0);

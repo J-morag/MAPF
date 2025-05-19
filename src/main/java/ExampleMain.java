@@ -82,7 +82,7 @@ public class ExampleMain {
         System.out.println(solution.toString());
         outputResults();
 
-        GridSolutionVisualizer.visualizeSolution(instance, solution, solver.name() + " - " + instance.extendedName);
+        GridSolutionVisualizer.visualizeSolution(instance, solution, solver.getName() + " - " + instance.extendedName);
     }
 
     public static void runMultipleExperimentsExample(){
@@ -99,7 +99,7 @@ public class ExampleMain {
         GenericRunManager genericRunManager = new GenericRunManager(IO_Manager.buildPath( new String[]{
                 IO_Manager.resources_Directory,"Instances", "MovingAI_Instances"}), new int[]{10}, new InstanceBuilder_MovingAI(),
                 "GenericRunManagerExampleExperiment", true, "random-64-64-20-even-1.scen",
-                DEFAULT_RESULTS_OUTPUT_DIR, "genericRMExampleRes", null, null);
+                DEFAULT_RESULTS_OUTPUT_DIR, "genericRMExampleRes", null, null, null);
         genericRunManager.runAllExperiments();
     }
 

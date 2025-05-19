@@ -5,6 +5,7 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.TestUtils;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -32,7 +33,7 @@ class PrioritisedPlanningSolverTest {
 
     private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
 
-    I_Solver ppSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver());
+    I_Solver ppSolver = CanonicalSolversFactory.createPPSolver();
 
 
     InstanceReport instanceReport;
@@ -324,11 +325,11 @@ class PrioritisedPlanningSolverTest {
     void comparativeTestHasContingencyVsNoContingency(){
         I_Solver baselineSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(), null, null, null);
-        String nameBaseline = baselineSolver.name();
+        String nameBaseline = baselineSolver.getName();
 
         I_Solver competitorSolver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null,
                 null, new RestartsStrategy(null, null, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, null);
-        String nameExperimental = competitorSolver.name();
+        String nameExperimental = competitorSolver.getName();
 
         TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
                 nameExperimental, false, false, new int[]{100}, 10, 0);

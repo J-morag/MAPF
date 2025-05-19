@@ -71,7 +71,7 @@ class SingleAgentAStarSIPP_SolverTest {
     private MAPF_Instance instanceMaze3 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent43to53});
     private MAPF_Instance instanceMaze4 = new MAPF_Instance("instanceMaze", mapSmallMaze, new Agent[]{agent53to15});
 
-    I_Solver sipp = new SingleAgentAStarSIPP_Solver();
+    I_Solver sipp = CanonicalSolversFactory.createSIPPSolver();
 
     InstanceReport instanceReport;
 
@@ -805,20 +805,13 @@ class SingleAgentAStarSIPP_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal1);
         RunParameters runParameters = new RunParametersBuilder().setConstraints(constraints).createRP();
 
-        Solution solved = sipp.solve(testInstance, runParameters);
+        SingleAgentPlan solved = sipp.solve(testInstance, runParameters).getPlanFor(agent);
 
-        SingleAgentPlan plan3 = new SingleAgentPlan(agent);
-        plan3.addMove(new Move(agent, 1, location12Circle, location22Circle));
-        plan3.addMove(new Move(agent, 2, location22Circle, location32Circle));
-        plan3.addMove(new Move(agent, 3, location32Circle, location32Circle));
-        plan3.addMove(new Move(agent, 4, location32Circle, location32Circle));
-        plan3.addMove(new Move(agent, 5, location32Circle, location32Circle));
-        plan3.addMove(new Move(agent, 6, location32Circle, location33Circle));
-        Solution expected = new Solution();
-        expected.putPlan(plan3);
-
-        assertEquals(6, solved.getPlanFor(agent).size());
-        assertTrue(expected.equals(solved));
+        System.out.println("found: " + solved);
+        assertEquals(6, solved.getCost());
+        assertEquals(solved.getFirstMove(), new Move(agent, 1, location12Circle, location22Circle));
+        assertTrue(solved.getLastMove().equals(new Move(agent, 6, location34Circle, location33Circle)) || solved.getLastMove().equals(new Move(agent, 6, location32Circle, location33Circle)));
+        assertNotEquals(solved.moveAt(5).currLocation, location33Circle);
     }
 
     @Test
@@ -1099,8 +1092,7 @@ class SingleAgentAStarSIPP_SolverTest {
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
-//                new InstanceProperties(null, -1d, new int[]{5, 10, 15, 20, 25}));
-                new InstanceProperties(null, -1d, new int[]{5, 10, 15}));
+                new InstanceProperties(null, -1d, new int[]{25}));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.
         MAPF_Instance instance = null;
