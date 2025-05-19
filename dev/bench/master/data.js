@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747668209598,
+  "lastUpdate": 1747668211331,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -10965,6 +10965,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 15338797,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "413ea0221e99da6bdf750be8e1213f3b594efbc0",
+          "message": "v.0.08.0 (#100)\n\n* rename RemovableConflictAvoidance to RemovableConflictCounter for clarity\n\n* 1. Multiple bug fixes RemovableConflictAvoidanceTableWithContestedGoals leading to double counting of vertex conflicts.\n2. Tests for RemovableConflictAvoidanceTableWithContestedGoals\n3. SingleAgentAStar_Solver partial implementation of full tie-breaking for fewer conflicts in TMAPF context. Missing considering \"IsALastMove\" type states as separate and counting their conflicts.\n\n* 1. add TMAPF AStar Conflicts after target tie breaking support\n2. AStar: refactor generate function.\n3. AStar: Require VisitedTargetAStarGoalCondition if ServiceTimeGAndH and vice versa.\n4. CBS, LNS, PrP: Require SumServiceTimes if isTransientMAPF and vice versa.\n\n* add PrP with SIPP to performance benchmark, and add printing average expansions on solved instances only",
+          "timestamp": "2025-05-19T17:40:06+03:00",
+          "tree_id": "f390a39a876fe64429a4a4593fb96f1bafc7324d",
+          "url": "https://github.com/J-morag/MAPF/commit/413ea0221e99da6bdf750be8e1213f3b594efbc0"
+        },
+        "date": 1747668210605,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 9046.143,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30002.883,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 27929.176,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 13818198,
             "unit": "Expansions"
           }
         ]
