@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747668219226,
+  "lastUpdate": 1747671672744,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -3725,6 +3725,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 5825390.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c21042cff21a499975c904785f5e3af5283c9be1",
+          "message": "v0.09.0 (#101)\n\n* Handle safe intervals generation in constraint set \n\n* add comparator to A* constructor\n\n* SIPP - improve clarity and performance\n\n* replace clearing with nulling for slightly better performance\n\n* Bucket queue open list \n\n* ArrayMap only check keys if `DEBUG >= 1`\n\n* PCS use BucketingOpenList\n\n* Canonical solvers in prog args \n\n* Lexical PCS cost function \n\n* Use CanonicalSolversFactory for basic solver versions in tests",
+          "timestamp": "2025-05-19T18:38:17+03:00",
+          "tree_id": "3a1483dfb02690ad65f671611e4048caf124fb4f",
+          "url": "https://github.com/J-morag/MAPF/commit/c21042cff21a499975c904785f5e3af5283c9be1"
+        },
+        "date": 1747671671508,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3141.5557,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 16577,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 7595.1177,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 36949.293,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 6690363.5,
             "unit": "Expansions"
           }
         ]
