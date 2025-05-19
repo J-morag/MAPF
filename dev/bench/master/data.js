@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747671676254,
+  "lastUpdate": 1747671677493,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -27291,6 +27291,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
             "value": 5508423,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c21042cff21a499975c904785f5e3af5283c9be1",
+          "message": "v0.09.0 (#101)\n\n* Handle safe intervals generation in constraint set \n\n* add comparator to A* constructor\n\n* SIPP - improve clarity and performance\n\n* replace clearing with nulling for slightly better performance\n\n* Bucket queue open list \n\n* ArrayMap only check keys if `DEBUG >= 1`\n\n* PCS use BucketingOpenList\n\n* Canonical solvers in prog args \n\n* Lexical PCS cost function \n\n* Use CanonicalSolversFactory for basic solver versions in tests",
+          "timestamp": "2025-05-19T18:38:17+03:00",
+          "tree_id": "3a1483dfb02690ad65f671611e4048caf124fb4f",
+          "url": "https://github.com/J-morag/MAPF/commit/c21042cff21a499975c904785f5e3af5283c9be1"
+        },
+        "date": 1747671677079,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 2,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 9844.533,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 10315.941,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 10129.588,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 5441984,
             "unit": "Expansions"
           }
         ]
