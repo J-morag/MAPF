@@ -46,7 +46,6 @@ public class GenericRunManager extends A_RunManager {
     }
     @Override
     void setSolvers() {
-        // TODO modular solvers?
         if (solversOverride != null){
             super.solvers = solversOverride;
             return;

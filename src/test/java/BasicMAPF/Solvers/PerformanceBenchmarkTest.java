@@ -111,6 +111,14 @@ public class PerformanceBenchmarkTest {
     }
 
     @Test
+    public void LNS2StressTest() {
+        I_Solver solver = CanonicalSolversFactory.createLNS2Solver();
+        long timeout = 1000 * 3;
+        int numAgents = 200;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
     public void PIBTStressTest() {
         I_Solver solver = new PIBT_Solver(null, null, null);
         long timeout = 1000 * 30;

@@ -1,8 +1,6 @@
 package BasicMAPF.Solvers.AStar;
 
-import BasicMAPF.DataTypesAndStructures.Move;
-import BasicMAPF.DataTypesAndStructures.RunParameters;
-import BasicMAPF.DataTypesAndStructures.TimeInterval;
+import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
@@ -18,12 +16,17 @@ import java.util.*;
  *     <i>Phillips, Mike, and Maxim Likhachev. "Sipp: Safe interval path planning for dynamic environments." 2011 IEEE international conference on robotics and automation. IEEE, 2011.</i>
  */
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
-    private static final List<TimeInterval> DEFAULT_SINGLETON_LIST_OF_INF_INTERVAL = Collections.singletonList(TimeInterval.DEFAULT_INTERVAL);
+    protected static final List<TimeInterval> DEFAULT_SINGLETON_LIST_OF_INF_INTERVAL = Collections.singletonList(TimeInterval.DEFAULT_INTERVAL);
 
-    private Map<I_Location, List<TimeInterval>> sortedSafeIntervalsByLocation;
+    protected Map<I_Location, List<TimeInterval>> sortedSafeIntervalsByLocation;
 
     public SingleAgentAStarSIPP_Solver() {
         super();
+        super.name = "SIPP";
+    }
+
+    public SingleAgentAStarSIPP_Solver(Comparator<AStarState> stateComparator) {
+        super(stateComparator);
         super.name = "SIPP";
     }
 
@@ -39,6 +42,12 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
             throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
         }
+    }
+
+    @Override
+    protected @NotNull I_OpenList<AStarState> createEmptyOpenList() {
+        // todo - testing shows SIPP expands significantly more nodes with the bucketing open list, so disabled until I find why.
+        return new OpenListTree<>(super.stateComparator);
     }
 
     @Override
@@ -62,7 +71,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                     break;
                 }
             }
-            addToOpenList(new AStarSIPPState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget())));
+            addToOpenList(createNewState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget()), 0));
 
         } else { // the existing plan is empty (no existing plan)
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
@@ -73,24 +82,32 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             }
 
             for (I_Location destination : neighborLocations) {
-                Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
-                AStarSIPPState rootState = new AStarSIPPState(possibleMove, null, getG(null, possibleMove), 0, null, visitedTarget(null, isMoveToTarget(possibleMove)));
-                moveToNeighborLocation(rootState, possibleMove, true);
+                addInitialNodesToOpen(destination, sourceLocation);
             }
         }
         // if none of the root nodes was valid, OPEN will be empty, and thus uninitialised.
         return !openList.isEmpty();
     }
 
-    private List<TimeInterval> getIntervalsForLocation(I_Location location) {
+    protected void addInitialNodesToOpen(I_Location destination, I_Location sourceLocation) {
+        Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
+        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), 0, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
+        moveToNeighborLocation(rootState, possibleMove, true);
+    }
+
+    protected List<TimeInterval> getIntervalsForLocation(I_Location location) {
         return sortedSafeIntervalsByLocation.getOrDefault(location, DEFAULT_SINGLETON_LIST_OF_INF_INTERVAL);
+    }
+
+    protected AStarState createNewState(Move move, AStarState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
+        boolean isLastMove = move.currLocation.getCoordinate().equals(move.agent.target) && (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE); // todo - this will have to go through goalCondition to be more generic and specifically to support TMAPF
+        return new AStarSIPPState(move, (AStarSIPPState) prev, g, conflicts, timeInterval, visitedTarget, isLastMove);
     }
 
     // todo override SingleAgentAStar_Solver.generate() and use that instead of directly using AStarSIPPState::new and addToOpenList
 
     @Override
     public void expand(@NotNull AStarState state) {
-        assert state.move != null;
         if (state.move.currLocation.getType() == Enum_MapLocationType.NO_STOP) {
             throw new RuntimeException("UnsupportedOperationException");
         }
@@ -102,7 +119,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         for (I_Location destination : neighborLocations) {
             Move possibleMove = new Move(state.move.agent, !afterLastConstraint ? state.move.timeNow + 1 : state.move.timeNow,
                     state.move.currLocation, destination);
-            moveToNeighborLocation((AStarSIPPState) state, possibleMove, false);
+            moveToNeighborLocation(state, possibleMove, false);
         }
     }
 
@@ -115,14 +132,13 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @param init     Flag indicating if this is an initial state or not.
      * @return A new child AStarSIPPState based on the provided parameters.
      */
-    private AStarSIPPState generateChildState(Move move, AStarSIPPState state, TimeInterval interval, boolean init) {
+    protected AStarState generateChildState(Move move, AStarState state, TimeInterval interval, boolean init, int intervalID) {
         // todo can we have a more accurate counting of conflicts? right now only counts the number of conflicts in the move into the interval.
         //  maybe we can add the number of conflicts in the interval itself once we know the next move? And what to do about the first state?
         if (init) {
-            return new AStarSIPPState(move, null, getG(null, move), 0, interval, visitedTarget(null, isMoveToTarget(move)));
+            return createNewState(move, null, getG(null, move), state.conflicts + numConflicts(move, false), interval, visitedTarget(null, isMoveToTarget(move)), intervalID);
         }
-        return new AStarSIPPState(move, state, getG(state, move), state.conflicts + numConflicts(move, false) // todo IsALastMove handling for TMAPF support
-                , interval, visitedTarget(state, isMoveToTarget(move)));
+        return createNewState(move, state, getG(state, move), state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
     }
 
     /**
@@ -132,14 +148,15 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @param possibleMove The move to be checked.
      * @param init         Flag indicating if this is an initial state or not.
      */
-    private void moveToNeighborLocation(AStarSIPPState state, Move possibleMove, boolean init) {
+    protected void moveToNeighborLocation(AStarState state, Move possibleMove, boolean init) {
         I_Location prevLocation = possibleMove.prevLocation;
         I_Location neighborLocation = possibleMove.currLocation;
+        TimeInterval timeInterval = ((AStarSIPPState) state).timeInterval;
 
         // Retrieve safe intervals for the current location
         List<TimeInterval> sortedSafeIntervalsNeighborLocation = getIntervalsForLocation(neighborLocation);
         int earliestMoveTime = possibleMove.timeNow;
-        TimeInterval prevLocationRelevantInterval = init ? getIntervalsForLocation(prevLocation).get(0) : state.timeInterval;
+        TimeInterval prevLocationRelevantInterval = init ? getIntervalsForLocation(prevLocation).get(0) : timeInterval;
         int latestMoveTime = prevLocationRelevantInterval.end() == Integer.MAX_VALUE ? Integer.MAX_VALUE // integer overflow guard
                 : prevLocationRelevantInterval.end() + 1;
 
@@ -148,14 +165,14 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         for (int i = startIndex; i < sortedSafeIntervalsNeighborLocation.size(); i++) {
             TimeInterval interval = sortedSafeIntervalsNeighborLocation.get(i);
             if (earliestMoveTime <= interval.end() && latestMoveTime >= interval.start()) {
-                moveIntoSafeInterval(state, possibleMove, init, prevLocation, neighborLocation, prevLocationRelevantInterval, interval);
+                moveIntoSafeInterval(state, possibleMove, init, prevLocation, neighborLocation, prevLocationRelevantInterval, interval, i);
             } else if (latestMoveTime < interval.start()) { // no need to check later intervals
                 break;
             }
         }
     }
 
-    private int getSafeIntervalsListIterationStartIndex(List<TimeInterval> safeIntervalsCurrLocation, int nextMoveStartTime) {
+    protected int getSafeIntervalsListIterationStartIndex(List<TimeInterval> safeIntervalsCurrLocation, int nextMoveStartTime) {
         int startIndex = 0;
         // for larger lists of safe intervals, use binary search to find the first relevant interval quickly
         if (safeIntervalsCurrLocation.size() >= 10 && nextMoveStartTime > safeIntervalsCurrLocation.get(0).end()) {
@@ -169,50 +186,81 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         return startIndex;
     }
 
-    /**
-     * Moves into a safe interval, creating child states as necessary.
-     * TODO - This method needs to not generate the "wait" states between moves states. It shouldn't be done in SIPP.
-     * @param state                      The current state.
-     * @param possibleMove               The move to be checked.
-     * @param init                       Flag indicating if this is an initial state or not.
-     * @param prevLocation               The previous location from where the move starts.
-     * @param intervalLocation               The current/target location of the move.
-     * @param prevLocationRelevantInterval The relevant interval of the previous location.
-     * @param interval               The current interval being considered.
-     */
-    private void moveIntoSafeInterval(AStarSIPPState state, Move possibleMove, boolean init, I_Location prevLocation,
-                                      I_Location intervalLocation, TimeInterval prevLocationRelevantInterval, TimeInterval interval) {
-        AStarSIPPState child = state;
+    protected int getEarliestTransitionTimeWithoutBreakingHardConstraints(AStarState state, Move possibleMove, I_Location prevLocation, I_Location intervalLocation,
+                                                                          TimeInterval prevLocationRelevantInterval,
+                                                                          TimeInterval interval) {
+        int possibleMoveTime;
+        boolean afterLastConstraint;
+        Move samePossibleMove = null;
+
+        // If the move is accepted and is within the interval, return its time
+        if ((constraints.accepts(possibleMove)) && (possibleMove.timeNow >= interval.start())) {
+            return possibleMove.timeNow;
+        }
+
+        // Reset the move to start with waiting at the previous location
+        possibleMove = new Move(possibleMove.agent, possibleMove.timeNow, prevLocation, prevLocation);
+
+        while (possibleMove.timeNow <= prevLocationRelevantInterval.end() && possibleMove.timeNow <= interval.end()) {
+            if (!constraints.accepts(possibleMove)) return -1;
+
+            afterLastConstraint = computeAfterLastConstraintTime(state);
+            possibleMoveTime = !afterLastConstraint ? possibleMove.timeNow + 1 : state.move.timeNow;
+
+            // If the move time is within or right before the interval, check constraints
+            if (possibleMove.timeNow >= interval.start() - 1) {
+                possibleMove = new Move(possibleMove.agent, possibleMoveTime, prevLocation, intervalLocation);
+                if (constraints.accepts(possibleMove)) {
+                    return possibleMoveTime; // Found valid arrival time
+                }
+                if (possibleMove.equals(samePossibleMove)) return -1;
+                samePossibleMove = possibleMove;
+            }
+
+            // Update the move to increment the time for the same location
+            possibleMove = new Move(possibleMove.agent, possibleMoveTime, prevLocation, prevLocation);
+        }
+
+        return -1; // No valid move time found
+    }
+
+    protected void moveIntoSafeInterval(AStarState state, Move possibleMove, boolean init,
+                                           I_Location prevLocation, I_Location intervalLocation,
+                                           TimeInterval prevLocationRelevantInterval, TimeInterval interval,
+                                           int intervalID) {
+        AStarState child = state;
         int possibleMoveTime;
         boolean afterLastConstraint;
         Move samePossibleMove = null;
 
         // If the move is accepted and is within the current interval, create a child state and add to the open list
-        if ((constraints.accepts(possibleMove)) && (possibleMove.timeNow >= interval.start())) {
-            child = generateChildState(possibleMove, state, interval, init);
+        if (constraints.accepts(possibleMove) && possibleMove.timeNow >= interval.start()) {
+            child = generateChildState(possibleMove, state, interval, init, intervalID);
             addToOpenList(child);
             return;
         }
 
-        // Reset the move to start with waiting at the previous location
+        // Reset the move to start by waiting at the previous location
         possibleMove = new Move(child.move.agent, possibleMove.timeNow, prevLocation, prevLocation);
         while (possibleMove.timeNow <= prevLocationRelevantInterval.end()) {
             if (!constraints.accepts(possibleMove)) return;
 
             // Generate child state based on the possible move
             if (init) {
-                child = generateChildState(possibleMove, child, prevLocationRelevantInterval, init);
+                child = generateChildState(possibleMove, child, prevLocationRelevantInterval, init, intervalID);
                 init = false;
-            } else child = generateChildState(possibleMove, child, prevLocationRelevantInterval, false);
+            } else {
+                child = generateChildState(possibleMove, child, prevLocationRelevantInterval, false, intervalID);
+            }
 
-            afterLastConstraint = child.move.timeNow > constraints.getLastConstraintStartTime();
+            afterLastConstraint = computeAfterLastConstraintTime(child);
             possibleMoveTime = !afterLastConstraint ? possibleMove.timeNow + 1 : child.move.timeNow;
 
-            // If the move time is within or right before the current interval, create the move and check constraints
+            // If the move time is within or right before the current interval, check constraints
             if (possibleMove.timeNow >= interval.start() - 1) {
                 possibleMove = new Move(child.move.agent, possibleMoveTime, prevLocation, intervalLocation);
                 if (constraints.accepts(possibleMove)) {
-                    child = generateChildState(possibleMove, child, interval, false);
+                    child = generateChildState(possibleMove, child, interval, false, intervalID);
                     addToOpenList(child);
                     return;
                 }
@@ -220,16 +268,20 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                 samePossibleMove = possibleMove;
             }
 
-            // Update the move to increment the time for the same location
+            // Update the move to increment the time for waiting at the same location
             possibleMove = new Move(child.move.agent, possibleMoveTime, prevLocation, prevLocation);
         }
     }
 
-    public class AStarSIPPState extends AStarState {
-        private final TimeInterval timeInterval;
+    protected boolean computeAfterLastConstraintTime(AStarState child) {
+        return child.move.timeNow > constraints.getLastConstraintStartTime();
+    }
 
-        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget) {
-            super(move, prev, g, conflicts, visitedTarget, false); // todo add support for isALastMove for TMAPF
+    public class AStarSIPPState extends AStarState {
+        protected final TimeInterval timeInterval;
+
+        public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, boolean isLastMove) {
+            super(move, prev, g, conflicts, visitedTarget, isLastMove); 
             this.timeInterval = timeInterval;
         }
 
@@ -256,7 +308,6 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         protected @NotNull List<Move> getOrderedMoves() {
             // todo randomize the transition times
             return super.getOrderedMoves();
-
         }
     }
 }

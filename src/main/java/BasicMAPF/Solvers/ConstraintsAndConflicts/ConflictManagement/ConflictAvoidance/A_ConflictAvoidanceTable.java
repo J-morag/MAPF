@@ -41,6 +41,8 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
     public boolean sharedSources = false;
     public boolean removeOccupancyListsWhenEmptied;
 
+    public int lastOccupancyStartTime;
+
     /**
      * Constructor
      *
@@ -81,6 +83,7 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
             addOccupancy(to, move);
             if(move.timeNow == plan.getEndTime()){
                 addGoalOccupancy(move.currLocation, move);
+                this.lastOccupancyStartTime = Math.max(this.lastOccupancyStartTime, move.timeNow);
             }
         }
 
@@ -151,5 +154,9 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
     }
 
     abstract int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove);
+
+    public int getLastOccupancyTime() {
+        return this.lastOccupancyStartTime;
+    }
 }
 

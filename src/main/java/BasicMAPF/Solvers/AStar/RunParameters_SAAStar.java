@@ -6,7 +6,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 
 public class RunParameters_SAAStar extends RunParameters {
-    public I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
     public float fBudget = Float.POSITIVE_INFINITY;

@@ -1,5 +1,7 @@
 package BasicMAPF.Solvers;
 
+import BasicMAPF.CostFunctions.ConflictsCount;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPPS_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
@@ -9,6 +11,7 @@ import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
 import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.solutionsGeneratorForLNS2;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -36,10 +39,13 @@ public class CanonicalSolversFactory {
     public final static String LACAM_NAME = "LaCAM";
     public final static String LaCAMt_NAME = "LaCAMt";
     public final static String LNS1_NAME = "LNS1";
+    public final static String LNS2_NAME = "LNS2";
     public final static String PCS_NAME = "PCS";
     public final static String PCS_LEXICAL_NAME = "PCS_Lexical";
     public final static String ASTAR_NAME = "AStar";
     public final static String SIPP_NAME = "SIPP";
+    public final static String SIPPS_NAME = "SIPPS";
+
 
     // A map of solver names to their registrations.
     private static final Map<String, SolverRegistration<? extends I_Solver>> registrations;
@@ -131,6 +137,12 @@ public class CanonicalSolversFactory {
                 CanonicalSolversFactory::createLNS1Solver
         ));
 
+        regs.put(LNS2_NAME, new SolverRegistration<>(
+                LNS2_NAME,
+                "Large Neighborhood Search 2",
+                CanonicalSolversFactory::createLNS2Solver
+        ));
+
         regs.put(PCS_NAME, new SolverRegistration<>(
                 PCS_NAME,
                 "Priority Constrained Search",
@@ -153,6 +165,12 @@ public class CanonicalSolversFactory {
                 SIPP_NAME,
                 "SIPP",
                 CanonicalSolversFactory::createSIPPSolver
+        ));
+
+        regs.put(SIPPS_NAME, new SolverRegistration<>(
+                SIPPS_NAME,
+                "SIPPS",
+                CanonicalSolversFactory::createSIPPSSolver
         ));
 
         registrations = Collections.unmodifiableMap(regs);
@@ -270,6 +288,10 @@ public class CanonicalSolversFactory {
         return new LNSBuilder().createLNS();
     }
 
+    public static LargeNeighborhoodSearch_Solver createLNS2Solver() {
+        return new LNSBuilder().setInitialSolver(new solutionsGeneratorForLNS2()).setIterationsSolver(new solutionsGeneratorForLNS2()).setSolutionCostFunction(new ConflictsCount(false, false)).setLNS2(true).createLNS();
+    }
+
     public static PriorityConstrainedSearch createPCSSolver() {
         return new PCSBuilder().createPCS();
     }
@@ -284,6 +306,10 @@ public class CanonicalSolversFactory {
 
     public static SingleAgentAStarSIPP_Solver createSIPPSolver() {
         return new SingleAgentAStarSIPP_Solver();
+    }
+
+    public static SingleAgentAStarSIPP_Solver createSIPPSSolver() {
+        return new SingleAgentAStarSIPPS_Solver();
     }
 
     /**
