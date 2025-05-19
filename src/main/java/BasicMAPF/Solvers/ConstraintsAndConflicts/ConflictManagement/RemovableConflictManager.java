@@ -14,7 +14,7 @@ public class RemovableConflictManager implements I_ConflictManager{
 
 
     /*  = Data structures =   */
-    public final RemovableConflictAvoidance removableConflictAvoidance;
+    public final RemovableConflictCounter removableConflictCounter;
     public final TimeLocationTables timeLocationTables;
     private final Map<Agent, SingleAgentPlan> agent_plan; // maps from Agent to Agent's plan
 
@@ -31,7 +31,7 @@ public class RemovableConflictManager implements I_ConflictManager{
          If we want to make this more generic, we should scrap ConflictSelectionStrategy and instead make this field
          an instance of some new class, thus combining storage and selection of conflicts. @Jonathan Morag 28/10/2019
          */
-        this.removableConflictAvoidance = new RemovableConflictAvoidance();
+        this.removableConflictCounter = new RemovableConflictCounter();
         this.timeLocationTables = new TimeLocationTables();
         this.agent_plan = new HashMap<>();
 
@@ -49,7 +49,7 @@ public class RemovableConflictManager implements I_ConflictManager{
      */
     public RemovableConflictManager(RemovableConflictManager other){
 
-        this.removableConflictAvoidance = other.removableConflictAvoidance.copy();
+        this.removableConflictCounter = other.removableConflictCounter.copy();
         this.timeLocationTables = other.timeLocationTables.copy();
         this.agent_plan = new HashMap<>();
         for ( Map.Entry<Agent,SingleAgentPlan> agentPlanFromOther: other.agent_plan.entrySet()){
@@ -61,7 +61,7 @@ public class RemovableConflictManager implements I_ConflictManager{
 
     public RemovableConflictManager(ConflictManager conflictManager){
 
-        this.removableConflictAvoidance = new RemovableConflictAvoidance(conflictManager.getAllConflicts());
+        this.removableConflictCounter = new RemovableConflictCounter(conflictManager.getAllConflicts());
 
 
         this.timeLocationTables = conflictManager.timeLocationTables.copy();
@@ -100,7 +100,7 @@ public class RemovableConflictManager implements I_ConflictManager{
         /*  = Remove methods =  */
         SingleAgentPlan previousPlan = this.agent_plan.get(singleAgentPlan.agent);
         this.removeAgentPreviousPlan(previousPlan);
-        this.removableConflictAvoidance.removeAgentConflicts(singleAgentPlan.agent);
+        this.removableConflictCounter.removeAgentConflicts(singleAgentPlan.agent);
 
         /*  = Add methods =  */
         this.addAgentNewPlan(singleAgentPlan);
@@ -115,7 +115,7 @@ public class RemovableConflictManager implements I_ConflictManager{
 
     /**
      * = Adds =
-     * 2. All {@link A_Conflict} for every other {@link Agent} that it conflicts with to {@link #removableConflictAvoidance}
+     * 2. All {@link A_Conflict} for every other {@link Agent} that it conflicts with to {@link #removableConflictCounter}
      * 3. All of plan's {@link TimeLocation} to {@link #timeLocationTables}
      * 4. All Conflicts regarding the goal of {@link SingleAgentPlan}
      * @param singleAgentPlan - {@inheritDoc}
@@ -234,7 +234,7 @@ public class RemovableConflictManager implements I_ConflictManager{
      * Looks for {@link SwappingConflict}
      * If {@link SwappingConflict} is found:
      *      1. Create two {@link SwappingConflict} for both direction.
-     *      2. Add conflicts to both agents in {@link #removableConflictAvoidance}
+     *      2. Add conflicts to both agents in {@link #removableConflictCounter}
      * @param time - The move's time.
      * @param singleAgentPlan - {@inheritDoc}
      */
@@ -274,11 +274,11 @@ public class RemovableConflictManager implements I_ConflictManager{
 
 
                 // Add conflicts to both of the agents
-                this.removableConflictAvoidance.addConflictToAgent(singleAgentPlan.agent, swappingConflict_addedAgentFirst);
-                this.removableConflictAvoidance.addConflictToAgent(agentMovingToPrevPosition, swappingConflict_addedAgentFirst);
+                this.removableConflictCounter.addConflictToAgent(singleAgentPlan.agent, swappingConflict_addedAgentFirst);
+                this.removableConflictCounter.addConflictToAgent(agentMovingToPrevPosition, swappingConflict_addedAgentFirst);
 
-                this.removableConflictAvoidance.addConflictToAgent(singleAgentPlan.agent, swappingConflict_addedAgentSecond);
-                this.removableConflictAvoidance.addConflictToAgent(agentMovingToPrevPosition, swappingConflict_addedAgentSecond);
+                this.removableConflictCounter.addConflictToAgent(singleAgentPlan.agent, swappingConflict_addedAgentSecond);
+                this.removableConflictCounter.addConflictToAgent(agentMovingToPrevPosition, swappingConflict_addedAgentSecond);
             }
         }
     }
@@ -304,8 +304,8 @@ public class RemovableConflictManager implements I_ConflictManager{
             VertexConflict vertexConflict = new VertexConflict(agent,agentConflictsWith,timeLocation);
 
             // Add conflict to both of the agents
-            this.removableConflictAvoidance.addConflictToAgent(agent, vertexConflict);
-            this.removableConflictAvoidance.addConflictToAgent(agentConflictsWith, vertexConflict);
+            this.removableConflictCounter.addConflictToAgent(agent, vertexConflict);
+            this.removableConflictCounter.addConflictToAgent(agentConflictsWith, vertexConflict);
         }
     }
 
@@ -374,7 +374,7 @@ public class RemovableConflictManager implements I_ConflictManager{
 
     @Override
     public A_Conflict selectConflict() {
-        return conflictSelectionStrategy.selectConflict(this.removableConflictAvoidance.getAllConflicts());
+        return conflictSelectionStrategy.selectConflict(this.removableConflictCounter.getAllConflicts());
     }
 
 

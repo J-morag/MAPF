@@ -3,10 +3,12 @@ package BasicMAPF.Solvers.AStar;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
@@ -22,10 +24,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.*;
 
 import java.util.*;
 
@@ -527,6 +526,8 @@ class SingleAgentAStar_SolverTest {
         assertEquals(expected, solved);
     }
 
+    /* Test TMAPF support */
+
     @Test
     void findsTMAPFPlanUnderConstraintsUsingTMAPFGoalCondition() {
         MAPF_Instance testInstance = instanceEmpty1;
@@ -539,7 +540,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoal2);
         constraints.add(constraintAtTimeAfterReachingGoal3);
 
-        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
         runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
@@ -565,7 +566,7 @@ class SingleAgentAStar_SolverTest {
         constraints.add(constraintAtTimeAfterReachingGoalAroundGoal1);
         constraints.add(constraintAtTimeAfterReachingGoalAroundGoal2);
 
-        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).createRP());
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
         runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
 
         Solution solved1 = aStar.solve(testInstance, runParameters);
@@ -575,6 +576,489 @@ class SingleAgentAStar_SolverTest {
         // but the surrounding locations also have constraints in the future, so has to take 2 steps
         assertEquals(9, solved1.getPlanFor(agent).size());
     }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetVertexConflict1() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor15)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor15))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor04, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetVertexConflict2() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor04)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor04))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor15, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetEdgeConflict1() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor04)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor05))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor15, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetEdgeConflict2() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor15)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor05))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // Has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor04, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictOtherAgentArrivesFirst1() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor15))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor04, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictOtherAgentArrivesFirst2() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor04))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor15, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictThisAgentArrivesFirst1() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor04)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor03)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor03), instanceEmpty1.map.getMapLocation(coor02)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor02), instanceEmpty1.map.getMapLocation(coor03)),
+                new Move(otherAgent, 9, instanceEmpty1.map.getMapLocation(coor03), instanceEmpty1.map.getMapLocation(coor04)),
+                new Move(otherAgent, 10, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor05))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor15, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictThisAgentArrivesFirst2() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor15)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor25)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor25), instanceEmpty1.map.getMapLocation(coor35)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor35), instanceEmpty1.map.getMapLocation(coor25)),
+                new Move(otherAgent, 9, instanceEmpty1.map.getMapLocation(coor25), instanceEmpty1.map.getMapLocation(coor15)),
+                new Move(otherAgent, 10, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor05))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor04, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictSimultaneousArrival1() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor15)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor25)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor25), instanceEmpty1.map.getMapLocation(coor35)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor35), instanceEmpty1.map.getMapLocation(coor25)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor25), instanceEmpty1.map.getMapLocation(coor15)),
+                new Move(otherAgent, 9, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor25))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor04, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictSimultaneousArrival2() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor04)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor03)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor03), instanceEmpty1.map.getMapLocation(coor02)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor02), instanceEmpty1.map.getMapLocation(coor03)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor03), instanceEmpty1.map.getMapLocation(coor04)),
+                new Move(otherAgent, 9, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor03))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor15, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictSimultaneousArrivalAndStay1() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor15)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor25)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor25), instanceEmpty1.map.getMapLocation(coor35)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor35), instanceEmpty1.map.getMapLocation(coor25)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor25), instanceEmpty1.map.getMapLocation(coor15))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor04, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    @Test
+    void testHandlesTMAPFWithTieBreakingForLessConflictsAtChosenTargetTargetConflictSimultaneousArrivalAndStay2() {
+        MAPF_Instance testInstance = instanceEmpty1;
+        Agent agent = testInstance.agents.get(0);
+
+        // hard constraint on target immediately after the earliest possible arrival time
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,8, null, instanceEmpty1.map.getMapLocation(coor05));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        // soft constraints on locations around the target
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent otherAgent = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(otherAgent);
+        planToAvoid.addMoves(List.of(
+                new Move(otherAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(otherAgent, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor04)),
+                new Move(otherAgent, 5, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor03)),
+                new Move(otherAgent, 6, instanceEmpty1.map.getMapLocation(coor03), instanceEmpty1.map.getMapLocation(coor02)),
+                new Move(otherAgent, 7, instanceEmpty1.map.getMapLocation(coor02), instanceEmpty1.map.getMapLocation(coor03)),
+                new Move(otherAgent, 8, instanceEmpty1.map.getMapLocation(coor03), instanceEmpty1.map.getMapLocation(coor04))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.conflictAvoidanceTable = conflictAvoidanceTable;
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+        System.out.println(planToAvoid);
+
+        // has to visit goal at some point, and then can finish the plan anywhere else. So plan length is Manhattan Distance + 1
+        assertEquals(8, solved1.getPlanFor(agent).size());
+        // should prefer to avoid the conflict with the other agent
+        assertEquals(coor15, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
+    }
+
+    /* Test against other search implementations */
 
     @Test
     void optimalVsUCS1(){

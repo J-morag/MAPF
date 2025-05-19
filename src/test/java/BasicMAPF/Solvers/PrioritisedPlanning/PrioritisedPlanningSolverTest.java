@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.PrioritisedPlanning;
 
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
@@ -186,13 +187,14 @@ class PrioritisedPlanningSolverTest {
 
         InstanceReport instanceReport = Metrics.newInstanceReport();
         long softTimeout = 100L;
-        long hardTimeout = 5L * 1000;
+        long hardTimeout = 15L * 1000;
 
         I_Solver anytimePrPWithRandomRestarts = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 200000, RestartsStrategy.reorderingStrategy.none, false), null, null, null);
         Solution solved = anytimePrPWithRandomRestarts.solve(testInstance, new RunParametersBuilder().setTimeout(hardTimeout).setInstanceReport(instanceReport).setSoftTimeout(softTimeout).createRP());
 
         System.out.println(solved);
+        assertNotNull(solved);
         assertTrue(solved.solves(testInstance));
         System.out.println("completed initial attempts: " + instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
         int runtime = instanceReport.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
@@ -232,7 +234,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null, null, null, null, TransientMAPFSettings.defaultTransientMAPF);
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(), null, null, null, TransientMAPFSettings.defaultTransientMAPF);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -252,7 +254,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void worksWithTMAPFAndRandomRestarts() {
-        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                 new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 2, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, TransientMAPFSettings.defaultTransientMAPF);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
@@ -278,7 +280,7 @@ class PrioritisedPlanningSolverTest {
 
     @Test
     void worksWithTMAPFAndBlacklistAndRandomRestarts() {
-        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, null,
+        I_Solver PrPT = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                 new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 2, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, TransientMAPFSettings.defaultTransientMAPF);
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);

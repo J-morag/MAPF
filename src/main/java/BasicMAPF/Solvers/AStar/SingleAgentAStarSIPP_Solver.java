@@ -65,7 +65,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                     break;
                 }
             }
-            openList.add(new AStarSIPPState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget())));
+            addToOpenList(new AStarSIPPState(lastExistingMove, null, existingPlanTotalCost, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget())));
 
         } else { // the existing plan is empty (no existing plan)
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
@@ -88,6 +88,8 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     private List<Interval> getIntervalsForLocation(I_Location location) {
         return safeIntervalsByLocation.computeIfAbsent(location, k -> Collections.singletonList(Interval.DEFAULT_INTERVAL));
     }
+
+    // todo override SingleAgentAStar_Solver.generate() and use that instead of directly using AStarSIPPState::new and addToOpenList
 
     @Override
     public void expand(@NotNull AStarState state) {
@@ -117,10 +119,13 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
      * @return A new child AStarSIPPState based on the provided parameters.
      */
     private AStarSIPPState generateChildState(Move move, AStarSIPPState state, Interval interval, boolean init) {
+        // todo can we have a more accurate counting of conflicts? right now only counts the number of conflicts in the move into the interval.
+        //  maybe we can add the number of conflicts in the interval itself once we know the next move? And what to do about the first state?
         if (init) {
             return new AStarSIPPState(move, null, getG(null, move), 0, interval, visitedTarget(null, isMoveToTarget(move)));
         }
-        return new AStarSIPPState(move, state, getG(state, move), state.conflicts + numConflicts(move), interval, visitedTarget(state, isMoveToTarget(move)));
+        return new AStarSIPPState(move, state, getG(state, move), state.conflicts + numConflicts(move, false) // todo IsALastMove handling for TMAPF support
+                , interval, visitedTarget(state, isMoveToTarget(move)));
     }
 
     /**
@@ -286,12 +291,12 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         private final Interval timeInterval;
 
         public AStarSIPPState(Move move, AStarSIPPState prev, int g, int conflicts, Interval timeInterval, boolean visitedTarget) {
-            super(move, prev, g, conflicts, visitedTarget);
+            super(move, prev, g, conflicts, visitedTarget, false); // todo add support for isALastMove for TMAPF
             this.timeInterval = timeInterval;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(Object o) { // todo visited target to support TMAPF. Maybe just get from super and expend? Also, what about visited target in the comparator?
             if (this == o) return true;
             if (!(o instanceof AStarSIPPState that)) return false;
 

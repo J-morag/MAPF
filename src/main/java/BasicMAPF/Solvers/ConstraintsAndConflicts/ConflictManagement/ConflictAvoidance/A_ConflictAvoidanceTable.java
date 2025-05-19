@@ -69,10 +69,15 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
     }
 
     public void addPlan(SingleAgentPlan plan){
+        if (plan.size() == 0){
+            return;
+        }
+
+        // necessary for detecting edge conflicts on first move
+        addOccupancy(new TimeLocation(0, plan.getFirstMove().prevLocation), plan.getFirstMove());
+
         for (Move move : plan){
-            TimeLocation from = new TimeLocation(move.timeNow - 1, move.prevLocation);
             TimeLocation to = new TimeLocation(move.timeNow, move.currLocation);
-            addOccupancy(from, move);
             addOccupancy(to, move);
             if(move.timeNow == plan.getEndTime()){
                 addGoalOccupancy(move.currLocation, move);
@@ -120,8 +125,8 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
         if(regularOccupancies.containsKey(reverseFrom) && regularOccupancies.containsKey(reverseTo)){
             // so there are occupancies at the times + locations of interest, now check if they are from a move from
             // reverseFrom to reverseTo
-            for(Move fromMove : regularOccupancies.get(reverseFrom)){
-                if (fromMove.currLocation.equals(reverseTo.location)){
+            for(Move fromMove : regularOccupancies.get(reverseTo)){
+                if (fromMove.prevLocation.equals(reverseFrom.location)){
                     numSwappingConflicts++;
                 }
             }

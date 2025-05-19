@@ -129,6 +129,10 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         if (Config.WARNING >= 1 && this.sharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
+        if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+            throw new IllegalArgumentException("PrP Solver: cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction + " " + this.transientMAPFSettings);
+        }
+
         super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.name() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
     }

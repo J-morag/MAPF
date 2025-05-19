@@ -2,13 +2,16 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -92,6 +95,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
 
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
+        if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+            throw new IllegalArgumentException("LNS Solver: cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction + " " + this.transientMAPFSettings);
+        }
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
@@ -144,6 +150,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         this.subSolverHeuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
         if (this.subSolverHeuristic instanceof CachingDistanceTableHeuristic){
             ((CachingDistanceTableHeuristic)this.subSolverHeuristic).setCurrentMap(instance.map);
+        }
+        if (this.solutionCostFunction instanceof SumServiceTimes){ // for TMAPF
+            this.subSolverHeuristic = new ServiceTimeGAndH(this.subSolverHeuristic);
         }
     }
 
@@ -286,7 +295,8 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
-        return new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
+        return new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints)
+                .setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0])).createRP();
     }
 
     /*  = wind down =  */
