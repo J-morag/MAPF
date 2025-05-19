@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747678103732,
+  "lastUpdate": 1747678105371,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -27179,6 +27179,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "Priority Constrained Search - Average Expansions Low Level",
             "value": 1850558.9,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "584f590bb27ad0519be222950a549307bee6c33f",
+          "message": "v.0.10.0 (#102)\n\n* testing shows SIPP expands significantly more nodes with the bucketing open list, so I disabled it in SIPP until I find out why this is happening\n\n* Mapf lns2\n\n* disable using BucketingOpenList in A*",
+          "timestamp": "2025-05-19T20:26:15+03:00",
+          "tree_id": "5c3ef5f36ca83e81a03300fb136bc2b1be916924",
+          "url": "https://github.com/J-morag/MAPF/commit/584f590bb27ad0519be222950a549307bee6c33f"
+        },
+        "date": 1747678104681,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Priority Constrained Search - Fails",
+            "value": 5,
+            "unit": "Instances"
+          },
+          {
+            "name": "Priority Constrained Search - Average Cost",
+            "value": 1857.6666,
+            "unit": "SOC"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime",
+            "value": 11392.529,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions High Level",
+            "value": 12100.706,
+            "unit": "Expansions"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions Low Level",
+            "value": 1854571.1,
             "unit": "Expansions"
           }
         ]
