@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747665361425,
+  "lastUpdate": 1747665363155,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -14300,6 +14300,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 25375.941,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "54c89b1f45a03f68d752ab95bb1764a5a77789fe",
+          "message": "v0.07.0 (#99)\n\n* Transient seperating vertices\n\n* Add results printing function to test utils, with running example usi… \n\n* add SV support for PrPt and CBSt \n\n* add support for resolving conflicts locally in CBSt \n\n* improve GridSolutionVisualizer colors and fix missing last time step \n\n* Better colors in GridSolutionVisualizer:\n\n* improve GridVisualizer GUI and allow timestep step +- wrapping\n\n* improve GridVisualizer X/Y dimensions clarity",
+          "timestamp": "2025-05-19T16:54:24+03:00",
+          "tree_id": "009e114d127543b1697267ba69e4403aecf1cacf",
+          "url": "https://github.com/J-morag/MAPF/commit/54c89b1f45a03f68d752ab95bb1764a5a77789fe"
+        },
+        "date": 1747665362451,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 15,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 158915.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 25430.824,
             "unit": "Milliseconds"
           },
           {
