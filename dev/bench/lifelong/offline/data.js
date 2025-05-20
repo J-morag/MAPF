@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747739875431,
+  "lastUpdate": 1747739876845,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -8497,6 +8497,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "Priority Constrained Search - Average Expansions Low Level",
             "value": 1916826,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8f7683ed9e3852c1115160f8bcf7bf19625db239",
+          "message": "v0.12.0 (#105)",
+          "timestamp": "2025-05-20T12:39:03+03:00",
+          "tree_id": "8d8294f8312ec40b988c368b786ad17761b75d20",
+          "url": "https://github.com/J-morag/MAPF/commit/8f7683ed9e3852c1115160f8bcf7bf19625db239"
+        },
+        "date": 1747739876545,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Priority Constrained Search - Fails",
+            "value": 16,
+            "unit": "Instances"
+          },
+          {
+            "name": "Priority Constrained Search - Average Cost",
+            "value": 2173.4119,
+            "unit": "SOC"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime",
+            "value": 16038.424,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions High Level",
+            "value": 6499.485,
+            "unit": "Expansions"
+          },
+          {
+            "name": "Priority Constrained Search - Average Expansions Low Level",
+            "value": 3620216.2,
             "unit": "Expansions"
           }
         ]
