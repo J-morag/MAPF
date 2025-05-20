@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747728028107,
+  "lastUpdate": 1747728029279,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -11613,6 +11613,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 14203597,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "69342d2acfbc0a54edea9a884a8e34220593af5e",
+          "message": "v.0.12.0 (#104)\n\n* Add TMAPF GAndH validations to LaCAM_Solver and PIBT_Solver :\n1. Add TMAPF GAndH validations to LaCAM_Solver and PIBT_Solver .\n2. Initialize solution cost functions and GAndH automatically according to TMAPF/MAPF by default.\n\n* fix bug in insert nodes to OPEN in SIPP\n\n* add transient algorithms to CanonicalSolversFactory, and other algorithms such as PIE and LNS1 with SIPP\n\n* add getTransientMAPFSettings to I_Solver\n\n* bugfix missing swapping conflict in RemovableConflictAvoidanceTableWithContestedGoals\n\n* fix PIBT CanonicalSolversFactory initialization\n\n* PIBT init from CanononicalSovlerFactory in PerformanceBenchmarkTest\n\n* CBS_SIPP in CanonicalSolversFactory",
+          "timestamp": "2025-05-20T09:20:08+03:00",
+          "tree_id": "f10e1afc06203a27a671c27faa4f1644bfc4cb3d",
+          "url": "https://github.com/J-morag/MAPF/commit/69342d2acfbc0a54edea9a884a8e34220593af5e"
+        },
+        "date": 1747728028865,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 11309.76,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30007.092,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 27377.273,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 14538939,
             "unit": "Expansions"
           }
         ]
