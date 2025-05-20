@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747734666433,
+  "lastUpdate": 1747734667490,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5 Benchmark": [
@@ -3170,6 +3170,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT_h10 - Average Runtime Offline Solver (Reciprocal)",
             "value": 0.000027245233,
+            "unit": "1 / Milliseconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8f7683ed9e3852c1115160f8bcf7bf19625db239",
+          "message": "v0.12.0 (#105)",
+          "timestamp": "2025-05-20T12:39:03+03:00",
+          "tree_id": "8d8294f8312ec40b988c368b786ad17761b75d20",
+          "url": "https://github.com/J-morag/MAPF/commit/8f7683ed9e3852c1115160f8bcf7bf19625db239"
+        },
+        "date": 1747734667136,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT_h10 - Average Throughput",
+            "value": 1636.3334,
+            "unit": "Throughput @ T=300"
+          },
+          {
+            "name": "PIBT_h10 - Average Runtime (Reciprocal)",
+            "value": 0.000023890296,
+            "unit": "1 / Milliseconds"
+          },
+          {
+            "name": "PIBT_h10 - Average Runtime Offline Solver (Reciprocal)",
+            "value": 0.000027343822,
             "unit": "1 / Milliseconds"
           }
         ]
