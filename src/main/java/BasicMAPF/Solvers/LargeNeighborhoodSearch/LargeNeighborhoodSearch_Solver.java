@@ -7,6 +7,8 @@ import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
@@ -17,8 +19,10 @@ import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Config;
@@ -77,6 +81,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
     private RemovableConflictAvoidanceTableWithContestedGoals cat;
 
     private final boolean LNS2;
+
     /*  = Constructors =  */
 
     /**
@@ -106,7 +111,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
         if (this.LNS2 && !(this.solutionCostFunction instanceof ConflictsCount)) {
             throw new IllegalArgumentException("LNS2 needs to have conflict count as the solution cost function, got:  " + this.solutionCostFunction);
         }
-        if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+        if (!this.LNS2 && this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
             throw new IllegalArgumentException("LNS Solver: cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction + " " + this.transientMAPFSettings);
         }
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
@@ -151,8 +156,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
 
-        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.LNS2 ? "2" : "") + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + this.destroyHeuristics.get(0).getClass().getSimpleName() : "");
-    }
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + (this.initialSolver instanceof LaCAM_Solver ? "PIE" : "LNS") + (this.LNS2 ? "2" : "") + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + this.destroyHeuristics.get(0).getClass().getSimpleName() : "");    }
 
     /*  = initialization =  */
 

@@ -17,4 +17,6 @@ public interface I_ConflictAvoidanceTable {
     int numConflicts(Move move, boolean isALastMove);
 
     int getLastOccupancyTime();
+
+    int getNumberOfEdgeConflicts(Move move);
 }

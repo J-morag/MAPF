@@ -4,11 +4,12 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ManualSingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SIPPSHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SameAsParentSingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.DataStructures.AgentAtGoal;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,17 +25,12 @@ import java.util.*;
  */
 public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
 
-    private Map<I_Location, List<AgentAtGoal>> softGoalOccupancies;
-
-    private int lowerBoundOnTravelTime; // TODO - implement heuristic
-
     /**
      * Maps each AStarSIPPSState to a set of identical states currently in the open list.
      * This allows for O(1) lookup instead of iterating over the open list.
      * It's used to speed up operations like addToOpen by quickly identifying existing equivalent nodes.
      */
     private Map<AStarSIPPSState, HashSet<AStarSIPPSState>> identicalNodesMap;
-
 
 
     public SingleAgentAStarSIPPS_Solver() {
@@ -63,34 +59,31 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
             }
             this.conflictAvoidanceTable = Objects.requireNonNullElseGet(runParameters.conflictAvoidanceTable, () -> createConflictAvoidanceTable(runParameters.existingSolution));
             safeSoftIntervalsByLocation = ((RemovableConflictAvoidanceTableWithContestedGoals) this.conflictAvoidanceTable).conflictAvoidanceTableToSafeTimeIntervals();
-            this.softGoalOccupancies = ((RemovableConflictAvoidanceTableWithContestedGoals) conflictAvoidanceTable).getGoalOccupancies();
         } else {
             this.conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
             safeSoftIntervalsByLocation = new HashMap<>();
-            this.softGoalOccupancies = new HashMap<>();
         }
         this.sortedSafeIntervalsByLocation = this.combineSafeIntervals(safeHardIntervalsByLocation, safeSoftIntervalsByLocation);
 
         List<TimeInterval> safeIntervalsForGoal = this.sortedSafeIntervalsByLocation.get(instance.map.getMapLocation(this.agent.target));
+        int lowerBoundOnTravelTime;
         if (safeIntervalsForGoal != null) {
             TimeInterval lastInterval = safeIntervalsForGoal.get(safeIntervalsForGoal.size()-1);
-            this.lowerBoundOnTravelTime = lastInterval.start();
+            lowerBoundOnTravelTime = lastInterval.start();
         }
         else {
-            this.lowerBoundOnTravelTime = 0;
+            lowerBoundOnTravelTime = 0;
         }
-
-        if (goalCondition instanceof VisitedTargetAStarGoalCondition) {
-            throw new IllegalArgumentException(goalCondition.getClass().getSimpleName() + " not currently supported in " + this.getClass().getSimpleName());
-        }
+        this.gAndH = new SIPPSHeuristic(super.gAndH, lowerBoundOnTravelTime);
         this.identicalNodesMap = new HashMap<>();
     }
 
     @Override
-    protected AStarState createNewState(Move move, AStarState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
-        boolean isLastMove = move.currLocation.getCoordinate().equals(move.agent.target) && (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE);
-        return new AStarSIPPSState(move, (AStarSIPPState) prev, g, conflicts, timeInterval, visitedTarget, intervalID, false, isLastMove);
+    protected AStarState createNewState(Move move, AStarState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID) {
+        boolean isLastMove = isLastMove(move, prev, timeInterval);
+        return new AStarSIPPSState(move, (AStarSIPPState) prev, g, hFunction, conflicts, timeInterval, visitedTarget, intervalID, isLastMove);
     }
+
 
     @Override
     protected void addToOpenList(@NotNull AStarState state) {
@@ -124,9 +117,9 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
             } else if (stateLow < q.timeInterval.end() && q.timeInterval.start() < stateHigh) {
                 // reset the end of the interval with the smaller start to the start of the other interval
                 if (stateLow < q.timeInterval.start()) {
-                    state = createNewState(state.move, state.prev, state.g, state.conflicts, new TimeInterval(stateLow, q.timeInterval.start()), state.visitedTarget, ((AStarSIPPSState) state).intervalID);
+                    state = createNewState(state.move, state.prev, state.g, new ManualSingleAgentGAndH(q.h), state.conflicts, new TimeInterval(stateLow, q.timeInterval.start()), state.visitedTarget, ((AStarSIPPSState) state).intervalID);
                 } else {
-                    AStarSIPPSState newQ = (AStarSIPPSState) createNewState(q.move, q.prev, q.g, q.conflicts, new TimeInterval(q.timeInterval.start(), stateLow), q.visitedTarget, q.intervalID);
+                    AStarSIPPSState newQ = (AStarSIPPSState) createNewState(q.move, q.prev, q.g, new ManualSingleAgentGAndH(q.h), q.conflicts, new TimeInterval(q.timeInterval.start(), stateLow), q.visitedTarget, q.intervalID);
 
                     // Remove old q from whichever set its in
                     boolean wasInOpen = this.openList.remove(q);
@@ -179,7 +172,7 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     }
 
     @Override
-    public void expand(@NotNull AStarState state) {
+    protected void expand(@NotNull AStarState state) {
         if (!(state instanceof AStarSIPPSState)) {
             throw new RuntimeException("SIPPS solver works with states of type AStarSIPPSState, received: " + state.getClass().getSimpleName());
         }
@@ -224,6 +217,15 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     }
 
     @Override
+    protected AStarState lightGenerateIntermediateChildState(Move move, AStarState state, TimeInterval interval, int intervalID, boolean first) {
+        return createNewState(move, state, getG(state, move), SameAsParentSingleAgentGAndH.INSTANCE,
+                // if the previous state in the chain added conflicts then we are inside a soft conflicts interval, and should count conflicts every time we stay in place.
+                // todo - add support for counting vertex conflicts in a range, to do so once, more efficiently, rather than one by one.
+                state.conflicts + (first || (state.prev == null && state.conflicts > 0) || (state.prev != null && state.prev.conflicts < state.conflicts) ? numConflicts(move, false) : 0),
+                interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
+    }
+
+    @Override
     protected boolean computeAfterLastConstraintTime(AStarState child) {
         return (child.move.timeNow > constraints.getLastConstraintStartTime()) && // after the time of last constraint, according to constraints set
                 // if conflicts avoidance table exists, soft constraints should be supported too
@@ -238,10 +240,10 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
         int numberOfConflicts = this.conflictAvoidanceTable.numConflicts(possibleMove, false);
         if (numberOfConflicts != 0) {
             Move stayInSourceMove = new Move(agent, problemStartTime + 1, sourceLocation, sourceLocation);
-            AStarState rootState = createNewState(possibleMove, null, getG(null, stayInSourceMove), 0, null, visitedTarget(null, isMoveToTarget(stayInSourceMove)), 0);
+            AStarState rootState = createNewState(possibleMove, null, getG(null, stayInSourceMove), super.gAndH, 0, null, visitedTarget(null, isMoveToTarget(stayInSourceMove)), 0);
             moveToNeighborLocation(rootState, stayInSourceMove, true);
         }
-        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), numberOfConflicts, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
+        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), super.gAndH, numberOfConflicts, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
         moveToNeighborLocation(rootState, possibleMove, true);
     }
 
@@ -255,8 +257,8 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
      * @return A list of (index, time interval) pairs representing reachable intervals.
      */
     private List<Pair<Integer, TimeInterval>> createReachableIntervalsMap(I_Location location, AStarState state) {
-        int stateLow = ((AStarSIPPState) state).timeInterval.start();
-        int stateHigh = ((AStarSIPPState) state).timeInterval.end();
+        int stateLow = ((AStarSIPPState) state).timeInterval.start() + 1;
+        int stateHigh = ((AStarSIPPState) state).timeInterval.end() == Integer.MAX_VALUE ? Integer.MAX_VALUE : ((AStarSIPPState) state).timeInterval.end() + 1;
 
         // store all reachable vertex-index pairs from vertex state.location at a time step within interval [stateLow+1, stateHigh+1)
         List<Pair<Integer, TimeInterval>> reachableIntervals = new ArrayList<>();
@@ -267,7 +269,7 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
         for (int i = startIndex; i < safeIntervalsForLocation.size(); i++) {
             TimeInterval interval = safeIntervalsForLocation.get(i);
             // intervals overlap
-            if (interval.start() <= stateHigh && interval.end() >= stateLow + 1  && state.move.timeNow < interval.end()) { //  && state.move.timeNow < interval.end()
+            if (interval.start() <= stateHigh && interval.end() >= stateLow && state.move.timeNow < interval.end()) { //  && state.move.timeNow < interval.end()
                 reachableIntervals.add(Pair.of(intervalIDsCounter, interval));
             }
             else if (stateHigh < interval.start()) {
@@ -311,20 +313,12 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
         // Iterate over time steps in the given interval
         for (int i_t = startTime; i_t <= interval.end(); i_t++) {
             if (i_t < 0) break;
-
-            // Check goal occupancy conflicts
-            int finalI_t = i_t;
-            if (this.softGoalOccupancies.containsKey(possibleMove.currLocation) &&
-                    this.softGoalOccupancies.get(possibleMove.currLocation).stream()
-                            .anyMatch(agentAtGoal -> agentAtGoal.time <= finalI_t)) {
-                return -1;
-            }
-
             // Create a move at the current time step
             Move moveAtTime = new Move(possibleMove.agent, i_t, possibleMove.prevLocation, possibleMove.currLocation);
-            // Check if the move is free from soft constraints
-            if (this.conflictAvoidanceTable.numConflicts(moveAtTime, false) == 0) {
-                return i_t; // Found the earliest valid time
+
+            // Check if the move is free from soft edge conflicts
+            if (this.conflictAvoidanceTable.getNumberOfEdgeConflicts(moveAtTime) == 0) {
+                return i_t;
             }
         }
         return -1; // No valid time found
@@ -428,7 +422,6 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     protected void releaseMemory() {
         super.releaseMemory();
         this.conflictAvoidanceTable = null;
-        this.softGoalOccupancies = null;
         this.identicalNodesMap = null;
     }
 
@@ -469,12 +462,10 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
 
     public class AStarSIPPSState extends AStarSIPPState {
 
-        protected int intervalID;
-        protected boolean isGoal;
-        public AStarSIPPSState(Move move, AStarSIPPState prev, int g, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID, boolean isGoal, boolean isLastMove) {
-            super(move, prev, g, conflicts, timeInterval, visitedTarget, isLastMove);
+        protected final int intervalID;
+        public AStarSIPPSState(Move move, AStarSIPPState prev, int g, SingleAgentGAndH hFunction, int conflicts, TimeInterval timeInterval, boolean visitedTarget, int intervalID, boolean isLastMove) {
+            super(move, prev, g, hFunction, conflicts, timeInterval, visitedTarget, isLastMove);
             this.intervalID = intervalID;
-            this.isGoal = isGoal;
         }
 
         @Override
@@ -482,7 +473,9 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
             if (this == o) return true;
             if (!(o instanceof AStarSIPPSState)) return false;
             AStarSIPPSState that = (AStarSIPPSState) o;
-            return intervalID == that.intervalID && move.currLocation.equals(that.move.currLocation) && isGoal == that.isGoal;
+            if (visitedTarget != that.visitedTarget) return false;
+            if (isALastMove != that.isALastMove) return false;
+            return intervalID == that.intervalID && move.currLocation.equals(that.move.currLocation);
         }
 
         @Override
@@ -490,18 +483,9 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
             assert move != null;
             int result = move.currLocation.hashCode();
             result = 31 * result + intervalID;
-            result = 31 * result + (isGoal ? 1 : 0);
+            result = 31 * result + (isALastMove ? 1 : 0);
+            result = 31 * result + (visitedTarget ? 1 : 0);
             return result;
         }
-
-// TODO - examine the heuristic including lowerBoundOnTravelTime
-//        @Override
-//        protected float calcH() {
-//            float hVal = SingleAgentAStarSIPPS_Solver.this.gAndH.getH(this);
-//            if (this.conflicts == 0) {
-//                return Math.max(hVal, SingleAgentAStarSIPPS_Solver.this.lowerBoundOnTravelTime - this.g);
-//            }
-//            return hVal;
-//        }
     }
 }

@@ -52,9 +52,6 @@ public class solutionsGeneratorForLNS2 extends A_Solver {
     private RemovableConflictAvoidanceTableWithContestedGoals cat;
     private List<Agent> agents;
 
-    private ArrayList<SingleAgentPlan> plannedPlans;
-
-
     public solutionsGeneratorForLNS2(@Nullable I_Solver lowLevelSolver, @Nullable TransientMAPFSettings transientMAPFSettings, @Nullable Boolean sharedGoals,
                                      @Nullable Boolean sharedSources, @Nullable I_SolutionCostFunction costFunction) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStarSIPPS_Solver::new);
@@ -110,7 +107,6 @@ public class solutionsGeneratorForLNS2 extends A_Solver {
         if(runParameters.priorityOrder != null && runParameters.priorityOrder.length > 0) {
             PrioritisedPlanning_Solver.reorderAgentsByPriority(runParameters.priorityOrder, this.agents);
         }
-        this.plannedPlans = new ArrayList<>();
     }
 
     /**
@@ -121,15 +117,19 @@ public class solutionsGeneratorForLNS2 extends A_Solver {
      */
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
+        ArrayList<SingleAgentPlan> plannedPlans = new ArrayList<>();
         Solution solution = transientMAPFSettings.isTransientMAPF() ? new TransientMAPFSolution() : new Solution();
         I_ConstraintSet initialConstraints = Objects.requireNonNullElseGet(parameters.constraints, ConstraintSet::new);
         for (Agent agent : this.agents) {
             if (checkTimeout()) {
+                for (SingleAgentPlan planToRemoveFromCat : plannedPlans) {
+                    this.cat.removePlan(planToRemoveFromCat);
+                }
                 return null;
             }
             solution = solveSubProblem(agent, solution, initialConstraints);
             if (solution == null) {
-                for (SingleAgentPlan planToRemoveFromCat : this.plannedPlans) {
+                for (SingleAgentPlan planToRemoveFromCat : plannedPlans) {
                     this.cat.removePlan(planToRemoveFromCat);
                 }
                 return null;
@@ -137,7 +137,7 @@ public class solutionsGeneratorForLNS2 extends A_Solver {
             SingleAgentPlan newPlan = solution.getPlanFor(agent);
             if (newPlan.size() != 0){
                 this.cat.addPlan(newPlan);
-                this.plannedPlans.add(newPlan);
+                plannedPlans.add(newPlan);
             }
         }
         return solution;
@@ -190,9 +190,8 @@ public class solutionsGeneratorForLNS2 extends A_Solver {
         super.releaseMemory();
         this.instance = null;
         this.singleAgentGAndH = null;
-        this.plannedPlans = null;
         this.separatingVerticesSet = null;
-        this.cat = null; // TODO - maybe remove?
+        this.cat = null;
         this.agents = null;
     }
 }

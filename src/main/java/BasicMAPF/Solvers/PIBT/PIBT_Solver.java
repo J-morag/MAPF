@@ -124,7 +124,7 @@ public class PIBT_Solver extends A_Solver {
      * Default constructor.
      */
     public PIBT_Solver() {
-        this(null, null, null);
+        this(null, null, TransientMAPFSettings.defaultTransientMAPF);
     }
 
     @Override
