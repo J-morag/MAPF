@@ -396,7 +396,7 @@ public class CanonicalSolversFactory {
     }
 
     public static CBS_Solver createCBS_SIPPSolver() {
-        return new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPPS_Solver()).createCBS_Solver();
+        return new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).createCBS_Solver();
     }
 
     public static CBS_Solver createCBStSolver() {
