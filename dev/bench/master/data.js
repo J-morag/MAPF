@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747720695807,
+  "lastUpdate": 1747720697981,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -11451,6 +11451,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 17318076,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6a36001f2b0443f23777fb6b21014037fa9ce809",
+          "message": "v.0.11.0 (#103)\n\n* improve A_ConflictAvoidanceTable numConflicts performance \n\n* Avoid unnecessary state generations for goal check in SingleAgentAStar_Solver. Only relevant where we have a conflict avoidance table.\n\n* reduce the overhead of SIPP intermediate wait state generation \n\n* Add more instances to comparative test and performance benchmark\n\n* Edge conflicts in I_ConflictAvoidanceTable",
+          "timestamp": "2025-05-20T07:19:49+03:00",
+          "tree_id": "8d00148ac8a1e0c3621ad88d3264dd6151d9bc59",
+          "url": "https://github.com/J-morag/MAPF/commit/6a36001f2b0443f23777fb6b21014037fa9ce809"
+        },
+        "date": 1747720697297,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 11311.12,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30004.818,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 27446.363,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 14203597,
             "unit": "Expansions"
           }
         ]
