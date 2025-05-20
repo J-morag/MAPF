@@ -1,13 +1,10 @@
 package BasicMAPF.Instances.InstanceBuilders;
 
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import Environment.IO_Package.Enum_IO;
 import Environment.IO_Package.IO_Manager;
 import Environment.IO_Package.Reader;
-import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.*;
 import java.util.HashMap;
 import java.util.Stack;
@@ -61,7 +58,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
         this.priorities = priorities;
     }
 
-    private MAPF_Instance getInstance(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
+    private MAPF_Instance getInstance(String instanceName, InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties) {
 
         // Try to open file
         Reader reader=new Reader();
@@ -134,7 +131,7 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
     }
 
     @Override
-    public void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties){
+    public void prepareInstances(String instanceName, InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties){
 
         MAPF_Instance mapf_instance = this.getInstance(instanceName, instancePath, instanceProperties);
         if ( mapf_instance != null &&
@@ -269,8 +266,8 @@ public class InstanceBuilder_BGU implements I_InstanceBuilder {
 
 
     @Override
-    public InstanceManager.InstancePath[] getInstancesPaths(String directoryPath) {
-        InstanceManager.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
+    public InstanceManagerFromFileSystem.InstancePath[] getInstancesPaths(String directoryPath) {
+        InstanceManagerFromFileSystem.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
         return pathArray;
     }
 

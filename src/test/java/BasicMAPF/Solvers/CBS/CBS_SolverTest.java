@@ -4,19 +4,15 @@ import BasicMAPF.CostFunctions.SOCWithPriorities;
 import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
-import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -41,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CBS_SolverTest {
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
+    InstanceManager im = new InstanceManagerFromFileSystem(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     I_Solver cbsSolver = CanonicalSolversFactory.createCBSSolver();
@@ -195,7 +191,7 @@ class CBS_SolverTest {
         I_Solver solver = new CBSBuilder().setCostFunction(new SOCWithPriorities()).createCBS_Solver();
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path,
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path,
                 new InstanceBuilder_BGU(new Priorities(Priorities.PrioritiesPolicy.ROUND_ROBIN, new int[]{1, 3, 5})));
 
         MAPF_Instance instance = null;

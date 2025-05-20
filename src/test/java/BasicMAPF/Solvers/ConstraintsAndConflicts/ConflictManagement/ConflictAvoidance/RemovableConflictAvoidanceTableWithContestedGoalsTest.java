@@ -2,11 +2,8 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvo
 
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
-import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import Environment.IO_Package.IO_Manager;
 import org.junit.jupiter.api.Test;
@@ -298,7 +295,7 @@ class RemovableConflictAvoidanceTableWithContestedGoalsTest {
     void testFirstConflictTime_IdentifiesSwappingConflict_BetweenTwoPlans() {
         String path = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, "Instances", "MovingAI"});
         // use map empty-48-48, instance empty-48-48-even-5, agents 1 and 7
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(), new InstanceProperties(null, -1d, new int[]{10}));
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_MovingAI(), new InstanceProperties(null, -1d, new int[]{10}));
         MAPF_Instance instance;
         boolean foundInstance = false;
         while ((instance = instanceManager.getNextInstance()) != null) {

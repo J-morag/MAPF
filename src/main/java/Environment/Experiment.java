@@ -4,6 +4,7 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
@@ -27,9 +28,9 @@ import java.util.Objects;
 
 /**
  * Experiment class lets the user to specify the instances it needs for the experiment.
- * A_RunManager holds a list of Experiments, each Experiment receives Name and {@link InstanceManager}
- * {@link InstanceManager} receives a path to the instances' folder and a relevant parser {@link I_InstanceBuilder}
- * Optional, users can filter the instances in the folder by simply adding {@link BasicMAPF.Instances.InstanceProperties} to {@link InstanceManager}
+ * A_RunManager holds a list of Experiments, each Experiment receives Name and {@link InstanceManagerFromFileSystem}
+ * {@link InstanceManagerFromFileSystem} receives a path to the instances' folder and a relevant parser {@link I_InstanceBuilder}
+ * Optional, users can filter the instances in the folder by simply adding {@link BasicMAPF.Instances.InstanceProperties} to {@link InstanceManagerFromFileSystem}
  * Make sure that {@link #setReport(MAPF_Instance, I_Solver)} is defined as you want
  */
 public class Experiment {
@@ -137,7 +138,7 @@ public class Experiment {
             return true;
         }
 
-        instanceManager.resetPathIndex();
+        instanceManager.resetIndex();
         /*
          * Keeps a record of failed instances attempted by a solver, and the minimum number of agents attempted on that
          *  instance that produced a failure.

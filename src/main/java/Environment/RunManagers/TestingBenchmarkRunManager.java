@@ -1,5 +1,6 @@
 package Environment.RunManagers;
 
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
@@ -34,7 +35,7 @@ public class TestingBenchmarkRunManager extends A_RunManager {
     }
 
     private void addAllInstancesExperiment(){
-        InstanceManager instanceManager = new InstanceManager( this.path, new InstanceBuilder_BGU());
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem( this.path, new InstanceBuilder_BGU());
         this.experiments.add(new Experiment("All Instances in Test Benchmark", instanceManager));
     }
 
@@ -47,7 +48,7 @@ public class TestingBenchmarkRunManager extends A_RunManager {
                                                                 new int[]{5,10,15,20});
 
 
-        InstanceManager instanceManager = new InstanceManager( this.path, new InstanceBuilder_BGU(), properties);
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem( this.path, new InstanceBuilder_BGU(), properties);
         this.experiments.add(new Experiment("ExperimentInstance_32_20", instanceManager));
 
     }

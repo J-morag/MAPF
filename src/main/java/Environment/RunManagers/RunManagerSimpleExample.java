@@ -1,5 +1,6 @@
 package Environment.RunManagers;
 
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import Environment.Experiment;
 import Environment.IO_Package.IO_Manager;
@@ -45,7 +46,7 @@ public class RunManagerSimpleExample extends A_RunManager {
         int numOfInstances = 1;
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU(),properties);
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_BGU(),properties);
 
         /*  =   Add new experiment   =  */
         Experiment gridExperiment = new Experiment("Experiment_16_7", instanceManager,numOfInstances, 60 * 1000);
@@ -62,7 +63,7 @@ public class RunManagerSimpleExample extends A_RunManager {
 
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(), properties);
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_MovingAI(), properties);
 
         /*  =   Add new experiment   =  */
         Experiment gridExperiment = new Experiment("Experiment_8_Room", instanceManager);

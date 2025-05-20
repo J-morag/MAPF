@@ -1,7 +1,7 @@
 package BasicMAPF.Instances.InstanceBuilders;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.GraphMap;
@@ -31,7 +31,7 @@ public class ScenarioBuilder_WarehouseGenerative extends ScenarioBuilder_Warehou
     private List<String> destinationSubtypesCycle;
 
     @Override
-    public Agent[] getAgents(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map, boolean lifelong) {
+    public Agent[] getAgents(InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map, boolean lifelong) {
         readScenarioJson(moving_ai_path.scenarioPath);
         // TODO verify/make allLocations unique and deterministically ordered
         return getAgents(numOfNeededAgents, map.getAllLocations(), lifelong);

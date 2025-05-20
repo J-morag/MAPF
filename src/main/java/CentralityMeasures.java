@@ -1,7 +1,7 @@
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_Warehouse;
-import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.Maps.GraphMap;
 import Environment.IO_Package.IO_Manager;
@@ -99,10 +99,10 @@ public class CentralityMeasures {
         String mapPath = IO_Manager.buildPath( new String[]{mapDir, mapFileName});
         GraphMap graphMap;
         if (instanceBuilder instanceof InstanceBuilder_MovingAI instanceBuilderMovingAI){
-            graphMap = instanceBuilderMovingAI.getMap(new InstanceManager.Moving_AI_Path(mapPath, null), new InstanceProperties());
+            graphMap = instanceBuilderMovingAI.getMap(new InstanceManagerFromFileSystem.Moving_AI_Path(mapPath, null), new InstanceProperties());
             GridCentralityVisualizer.computeCentralitiesAndVisualize(graphMap, mapFileName);
         } else if (instanceBuilder instanceof InstanceBuilder_Warehouse instanceBuilderWarehouse){
-            graphMap = instanceBuilderWarehouse.getMap(new InstanceManager.Moving_AI_Path(mapPath, null), new InstanceProperties());
+            graphMap = instanceBuilderWarehouse.getMap(new InstanceManagerFromFileSystem.Moving_AI_Path(mapPath, null), new InstanceProperties());
             GridCentralityVisualizer.computeCentralitiesAndVisualize(graphMap, mapFileName);
         }
         else {

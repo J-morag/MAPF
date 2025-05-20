@@ -2,6 +2,7 @@ package LifelongMAPF.LifelongRunManagers;
 
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.InstanceProperties;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
@@ -59,7 +60,7 @@ public class LifelongGenericRunManager extends A_LifelongRunManager{
         InstanceProperties properties = new InstanceProperties(null, -1, agentNums, instancesRegex);
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(instancesDir, instanceBuilder, properties);
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(instancesDir, instanceBuilder, properties);
 
         /*  =   Add new experiment   =  */
         Experiment experiment = new LifleongExperiment(experimentName, instanceManager, null, timeoutEach, minResponseTime, maxTimeSteps);

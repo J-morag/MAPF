@@ -1,14 +1,11 @@
 package BasicMAPF.Instances.InstanceBuilders;
 
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import Environment.IO_Package.Enum_IO;
 import Environment.IO_Package.IO_Manager;
 import Environment.IO_Package.Reader;
-import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.*;
 import LifelongMAPF.LifelongAgent;
 
@@ -93,11 +90,11 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
     }
 
     @Override
-    public void prepareInstances(String mapName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
+    public void prepareInstances(String mapName, InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties) {
 
-        if (!(instancePath instanceof InstanceManager.Moving_AI_Path)) { return; }
+        if (!(instancePath instanceof InstanceManagerFromFileSystem.Moving_AI_Path)) { return; }
 
-        InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path) instancePath;
+        InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path = (InstanceManagerFromFileSystem.Moving_AI_Path) instancePath;
         if( instanceProperties == null ){ instanceProperties = new InstanceProperties(); }
 
 
@@ -150,7 +147,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         }
     }
 
-    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath){
+    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManagerFromFileSystem.Moving_AI_Path instancePath){
         String[] splitScenarioPath = instancePath.scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
         return new MAPF_Instance(instanceName, graphMap, agents, splitScenarioPath[splitScenarioPath.length-1]);
     }
@@ -211,7 +208,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
     // Returns agentLines from scenario file as a queue
-    private ArrayList<String> getAgentLines(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents) {
+    private ArrayList<String> getAgentLines(InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path, int numOfNeededAgents) {
 
         // Open scenario file
         Reader reader = new Reader();
@@ -238,7 +235,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         return agentsLines;
     }
 
-    public GraphMap getMap(InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties){
+    public GraphMap getMap(InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties){
         Reader reader = new Reader();
         Enum_IO enum_io = reader.openFile(instancePath.path);
         if( !enum_io.equals(Enum_IO.OPENED) ){ return null; /* couldn't open the file */ }
@@ -312,27 +309,27 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
     @Override
-    public InstanceManager.InstancePath[] getInstancesPaths(String directoryPath) {
-        InstanceManager.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
+    public InstanceManagerFromFileSystem.InstancePath[] getInstancesPaths(String directoryPath) {
+        InstanceManagerFromFileSystem.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
         if(pathArray == null){ return null; }
 
-        ArrayList<InstanceManager.InstancePath> list = new ArrayList<>();
+        ArrayList<InstanceManagerFromFileSystem.InstancePath> list = new ArrayList<>();
 
-        for (InstanceManager.InstancePath instancePath : pathArray ) {
+        for (InstanceManagerFromFileSystem.InstancePath instancePath : pathArray ) {
             if ( instancePath.path.endsWith(FILE_TYPE_MAP) ){
 
                 String[] splitPath = instancePath.path.split(Pattern.quote(IO_Manager.pathSeparator));
                 String mapPrefix = splitPath[splitPath.length-1].replace(FILE_TYPE_MAP, "");
-                for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
+                for (InstanceManagerFromFileSystem.InstancePath scenarioCandidate : pathArray ){
                     if(scenarioCandidate.path.split("-even")[0].split("-random")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO)){
-                        list.add( new InstanceManager.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
+                        list.add( new InstanceManagerFromFileSystem.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
                     }
 
                 }
             }
         }
 
-        pathArray = new InstanceManager.InstancePath[list.size()];
+        pathArray = new InstanceManagerFromFileSystem.InstancePath[list.size()];
         for (int i = 0; i < pathArray.length; i++) {
             pathArray[i] = list.get(i);
         }

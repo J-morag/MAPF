@@ -1,6 +1,7 @@
 package Environment.IO_Package;
 
-import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
+
 import java.io.File;
 import java.util.HashSet;
 
@@ -135,7 +136,7 @@ public class IO_Manager { // Singleton class
 
 
 
-    public static InstanceManager.InstancePath[] getFilesFromDirectory(String directoryPath){
+    public static InstanceManagerFromFileSystem.InstancePath[] getFilesFromDirectory(String directoryPath){
         /*  Return null in case of an error */
 
         if ( isDirectory( new File(directoryPath))){
@@ -146,11 +147,11 @@ public class IO_Manager { // Singleton class
                 return null;
             }
 
-            InstanceManager.InstancePath[] pathList = new InstanceManager.InstancePath[listOfFiles.length];
+            InstanceManagerFromFileSystem.InstancePath[] pathList = new InstanceManagerFromFileSystem.InstancePath[listOfFiles.length];
 
             for (int i = 0; i < listOfFiles.length ; i++) {
 
-                pathList[i] = new InstanceManager.InstancePath(listOfFiles[i].getPath());
+                pathList[i] = new InstanceManagerFromFileSystem.InstancePath(listOfFiles[i].getPath());
             }
 
             return pathList;

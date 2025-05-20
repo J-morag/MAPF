@@ -1,12 +1,9 @@
 package BasicMAPF;
 
 import BasicMAPF.DataTypesAndStructures.*;
-import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
@@ -17,8 +14,6 @@ import BasicMAPF.Solvers.I_Solver;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import LifelongMAPF.LifelongRunParameters;
-import LifelongMAPF.LifelongSolution;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -152,7 +147,7 @@ public class TestUtils {
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "TestingBenchmark"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_BGU());
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_BGU());
 
         MAPF_Instance instance;
         // load the pre-made benchmark
@@ -289,7 +284,7 @@ public class TestUtils {
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_MovingAI(),
                 new InstanceProperties(null, -1d, agentNums));
 
         // run all instances on both solvers. this code is mostly copied from Environment.Experiment.

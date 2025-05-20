@@ -2,13 +2,10 @@ package Environment.RunManagers;
 
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
-import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +64,7 @@ public class GenericRunManager extends A_RunManager {
         InstanceProperties properties = new InstanceProperties(null, -1, agentNums, instancesRegex);
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(instancesDir, instanceBuilder, properties);
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(instancesDir, instanceBuilder, properties);
 
         /*  =   Add new experiment   =  */
         Experiment experiment = new Experiment(experimentName, instanceManager, null, timeoutEach);

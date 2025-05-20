@@ -4,22 +4,14 @@ import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
-import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
-import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.MAPF_Instance;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -190,8 +182,8 @@ class PrioritisedPlanningSolverTest {
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
                 "Instances", "MovingAI_Instances", });
         InstanceProperties properties = new InstanceProperties(null, -1, new int[]{30}, null);
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(), properties);
-        InstanceManager.InstancePath instancePath = new InstanceManager.Moving_AI_Path(
+        InstanceManagerFromFileSystem instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_MovingAI(), properties);
+        InstanceManagerFromFileSystem.InstancePath instancePath = new InstanceManagerFromFileSystem.Moving_AI_Path(
                 IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances", "maze-32-32-2.map"}),
                         IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory, "Instances", "MovingAI_Instances", "maze-32-32-2-even-1.scen"})
                         );

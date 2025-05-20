@@ -5,6 +5,7 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.I_Solver;
@@ -47,7 +48,7 @@ public class LifelongPerformanceBenchmarkTest {
     private static void runStressTestWithSolver(I_Solver solver) {
         Metrics.clearAll();
         String nameSolver = solver.getName();
-        InstanceManager instanceManager = new InstanceManager(PATH, new InstanceBuilder_MovingAI(null, true),
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(PATH, new InstanceBuilder_MovingAI(null, true),
                 new InstanceProperties(null, -1d, new int[]{600}));
 
         int countSolved = 0;

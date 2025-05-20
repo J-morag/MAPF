@@ -30,7 +30,7 @@ public class InstanceBuilder_MovingAITest {
         String instanceName = IO_Manager.buildPath(new String[]{"Instances", "MovingAI", "Instance-16-0-7"});
         String expectedMapPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP});
         String expectedScenarioPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP + InstanceBuilder_MovingAI.FILE_TYPE_SCENARIO});
-        InstanceManager.Moving_AI_Path expectedMovingAiPath = new InstanceManager.Moving_AI_Path(expectedMapPath,expectedScenarioPath);
+        InstanceManagerFromFileSystem.Moving_AI_Path expectedMovingAiPath = new InstanceManagerFromFileSystem.Moving_AI_Path(expectedMapPath,expectedScenarioPath);
 
         InstanceProperties properties = new InstanceProperties(new MapDimensions(new int[]{16,16}),(float)-1, new int[]{5});
         this.instanceBuilder_movingAI.prepareInstances("Default name", expectedMovingAiPath, properties);
@@ -52,12 +52,12 @@ public class InstanceBuilder_MovingAITest {
         String instanceName = IO_Manager.buildPath(new String[]{"Instances", "MovingAI", "Instance-16-0-7"});
         String expectedMapPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP});
         String expectedScenarioPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP + InstanceBuilder_MovingAI.FILE_TYPE_SCENARIO});
-        InstanceManager.Moving_AI_Path expectedMovingAiPath = new InstanceManager.Moving_AI_Path(expectedMapPath,expectedScenarioPath);
+        InstanceManagerFromFileSystem.Moving_AI_Path expectedMovingAiPath = new InstanceManagerFromFileSystem.Moving_AI_Path(expectedMapPath,expectedScenarioPath);
 
-        InstanceManager.InstancePath[] instancePaths = instanceBuilder_movingAI.getInstancesPaths(IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory,"Instances", "MovingAI"}));
+        InstanceManagerFromFileSystem.InstancePath[] instancePaths = instanceBuilder_movingAI.getInstancesPaths(IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory,"Instances", "MovingAI"}));
 
-        for (InstanceManager.InstancePath path :instancePaths ) {
-            InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path) path;
+        for (InstanceManagerFromFileSystem.InstancePath path :instancePaths ) {
+            InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path = (InstanceManagerFromFileSystem.Moving_AI_Path) path;
             if (moving_ai_path.equals(expectedMovingAiPath)){
                 assertTrue(true); // Found the expected path
                 break;
@@ -115,7 +115,7 @@ public class InstanceBuilder_MovingAITest {
         String instanceName = IO_Manager.buildPath(new String[]{"Instances", "MovingAI", "8room_000"});
         String expectedMapPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP});
         String expectedScenarioPath = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, instanceName + InstanceBuilder_MovingAI.FILE_TYPE_MAP + InstanceBuilder_MovingAI.FILE_TYPE_SCENARIO});
-        InstanceManager.Moving_AI_Path expectedMovingAiPath = new InstanceManager.Moving_AI_Path(expectedMapPath,expectedScenarioPath);
+        InstanceManagerFromFileSystem.Moving_AI_Path expectedMovingAiPath = new InstanceManagerFromFileSystem.Moving_AI_Path(expectedMapPath,expectedScenarioPath);
 
         InstanceProperties properties = new InstanceProperties(new MapDimensions(new int[]{512,512}),(float)-1, new int[]{12,2});
         this.instanceBuilder_movingAI.reuseAgents = false;

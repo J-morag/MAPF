@@ -1,5 +1,5 @@
 package BasicMAPF.Instances.InstanceBuilders;
-import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import Environment.IO_Package.Reader;
@@ -14,10 +14,10 @@ import java.util.HashMap;
  */
 public interface I_InstanceBuilder {
     /*  Builds instances and saves it in a data structure, ready for future use */
-    void prepareInstances(String instanceName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties);
+    void prepareInstances(String instanceName, InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties);
 
     /*  Saves all paths in a data structure, ready for iterative use    */
-    InstanceManager.InstancePath[] getInstancesPaths(String directoryPath);
+    InstanceManagerFromFileSystem.InstancePath[] getInstancesPaths(String directoryPath);
 
     /*  Returns the next existing instance from the prepareInstances structure  */
     MAPF_Instance getNextExistingInstance();

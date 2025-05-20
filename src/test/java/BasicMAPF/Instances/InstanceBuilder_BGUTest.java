@@ -71,7 +71,7 @@ public class InstanceBuilder_BGUTest {
                                                                "Instances", "Instance-16-0-7-0"}
        );
 
-        InstanceManager.InstancePath instancePath_Instance_16_0_7 = new InstanceManager.InstancePath(path_16_0_7);
+        InstanceManagerFromFileSystem.InstancePath instancePath_Instance_16_0_7 = new InstanceManagerFromFileSystem.InstancePath(path_16_0_7);
 
 
         /*****  =Expected values=   *****/
@@ -174,7 +174,7 @@ public class InstanceBuilder_BGUTest {
                                     "Instances", "Instance-8-15-5-17 - hard one - cost 29 and some corridors"}
         );
 
-        InstanceManager.InstancePath instancePath_Instance_8_15_5 = new InstanceManager.InstancePath(path_8_15_5);
+        InstanceManagerFromFileSystem.InstancePath instancePath_Instance_8_15_5 = new InstanceManagerFromFileSystem.InstancePath(path_8_15_5);
 
 
         /*  Set properties  */
@@ -283,9 +283,9 @@ public class InstanceBuilder_BGUTest {
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "Instances", "Instance-8-15-5-17 - hard one - cost 29 and some corridors"}
         );
-        InstanceManager.InstancePath instancePath = new InstanceManager.InstancePath(path);
+        InstanceManagerFromFileSystem.InstancePath instancePath = new InstanceManagerFromFileSystem.InstancePath(path);
 
-        InstanceManager instanceManager = new InstanceManager(new InstanceBuilder_BGU());
+        InstanceManagerFromFileSystem instanceManager = new InstanceManagerFromFileSystem(new InstanceBuilder_BGU());
 
         MAPF_Instance instance = instanceManager.getSpecificInstance(instancePath);
         assertNotNull(instance);

@@ -1,11 +1,8 @@
 package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement;
 
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
-import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
@@ -76,7 +73,7 @@ class CorridorConflictManagerTest {
         String nameExperimental = "corridorCBS";
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_MovingAI(),
 //                new InstanceProperties(null, -1d, new int[]{5, 10, 15, 20, 25}));
                 new InstanceProperties(null, -1d, new int[]{5, 10, 15}));
 

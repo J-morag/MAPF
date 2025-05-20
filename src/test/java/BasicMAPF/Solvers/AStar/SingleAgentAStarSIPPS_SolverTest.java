@@ -1,24 +1,17 @@
 package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.DataTypesAndStructures.*;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
-import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -27,13 +20,8 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.util.*;
 
-import static BasicMAPF.Solvers.AStar.SingleAgentAStar_SolverTest.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
@@ -56,7 +44,7 @@ class SingleAgentAStarSIPPS_SolverTest {
     private final I_Location location22 = mapCircle.getMapLocation(coor22);
     private final I_Location location32 = mapCircle.getMapLocation(coor32);
 
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
+    InstanceManager im = new InstanceManagerFromFileSystem(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent53to05});

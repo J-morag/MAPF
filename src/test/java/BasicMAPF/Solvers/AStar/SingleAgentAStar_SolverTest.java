@@ -1,6 +1,7 @@
 package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.DataTypesAndStructures.*;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
@@ -12,11 +13,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoi
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.TestUtils;
 import Environment.IO_Package.IO_Manager;
-import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
@@ -53,7 +50,7 @@ class SingleAgentAStar_SolverTest {
     private I_Location location04 = mapCircle.getMapLocation(coor04);
     private I_Location location00 = mapCircle.getMapLocation(coor00);
 
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
+    InstanceManager im = new InstanceManagerFromFileSystem(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     private MAPF_Instance instanceEmpty1 = new MAPF_Instance("instanceEmpty", mapEmpty, new Agent[]{agent53to05});

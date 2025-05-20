@@ -1,13 +1,12 @@
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import BasicMAPF.Solvers.CBS.CBSBuilder;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -66,11 +65,11 @@ public class ExampleMain {
         /*  =   Set Path   =*/
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.resources_Directory,
                 "Instances", "BGU_Instances", "den520d-10-0"});
-        InstanceManager.InstancePath instancePath = new InstanceManager.InstancePath(path);
+        InstanceManagerFromFileSystem.InstancePath instancePath = new InstanceManagerFromFileSystem.InstancePath(path);
 
 
         /*  =   Set Instance Manager   =  */
-        InstanceManager instanceManager = new InstanceManager(null, new InstanceBuilder_BGU());
+        InstanceManagerFromFileSystem instanceManager = new InstanceManagerFromFileSystem(null, new InstanceBuilder_BGU());
 
         MAPF_Instance instance = A_RunManager.getInstanceFromPath(instanceManager, instancePath);
 

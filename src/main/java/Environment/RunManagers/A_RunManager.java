@@ -4,11 +4,7 @@ import BasicMAPF.CostFunctions.Makespan;
 import BasicMAPF.CostFunctions.MakespanServiceTime;
 import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.CostFunctions.SumServiceTimes;
-import BasicMAPF.CostFunctions.Makespan;
-import BasicMAPF.CostFunctions.MakespanServiceTime;
-import BasicMAPF.CostFunctions.SumOfCosts;
-import BasicMAPF.CostFunctions.SumServiceTimes;
-import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.I_Solver;
 import Environment.Experiment;
@@ -116,7 +112,7 @@ public abstract class A_RunManager {
         return allSolutionsValid;
     }
 
-    public static MAPF_Instance getInstanceFromPath(InstanceManager manager, InstanceManager.InstancePath absolutePath){
+    public static MAPF_Instance getInstanceFromPath(InstanceManagerFromFileSystem manager, InstanceManagerFromFileSystem.InstancePath absolutePath){
         return manager.getSpecificInstance(absolutePath);
     }
 

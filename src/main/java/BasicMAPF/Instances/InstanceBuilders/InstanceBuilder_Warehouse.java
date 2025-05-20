@@ -1,9 +1,6 @@
 package BasicMAPF.Instances.InstanceBuilders;
 
-import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.MillimetricCoordinate_2D;
@@ -54,10 +51,10 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     }
 
     @Override
-    public void prepareInstances(String mapName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
-        if (!(instancePath instanceof InstanceManager.Moving_AI_Path)) { return; }
+    public void prepareInstances(String mapName, InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties) {
+        if (!(instancePath instanceof InstanceManagerFromFileSystem.Moving_AI_Path)) { return; }
 
-        InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path) instancePath;
+        InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path = (InstanceManagerFromFileSystem.Moving_AI_Path) instancePath;
         if( instanceProperties == null ){ instanceProperties = new InstanceProperties(); }
 
 
@@ -72,7 +69,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         populateAgents(mapName, instanceProperties, moving_ai_path, graphMap, numOfAgentsFromProperties);
     }
 
-    public GraphMap getMap(InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties){
+    public GraphMap getMap(InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties){
         Map<Coordinate_2D, List<Coordinate_2D>> coordinatesAdjacencyLists = new HashMap<>();
         Map<Coordinate_2D, List<Integer>> coordinatesEdgeWeights = new HashMap<>();
         Map<Coordinate_2D, Enum_MapLocationType> coordinatesLocationType = new HashMap<>();
@@ -191,7 +188,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         }
     }
 
-    private JSONObject readJsonMapFile(InstanceManager.InstancePath instancePath) {
+    private JSONObject readJsonMapFile(InstanceManagerFromFileSystem.InstancePath instancePath) {
         JSONObject mapJobj;
         try {
             String mapStringJSON = Files.readString(Path.of(instancePath.path));
@@ -205,7 +202,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
     }
 
     private void populateAgents(@NotNull String instanceName, InstanceProperties instanceProperties,
-                                InstanceManager.Moving_AI_Path moving_ai_path, GraphMap graphMap, int[] numOfAgentsFromProperties) {
+                                InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path, GraphMap graphMap, int[] numOfAgentsFromProperties) {
         MAPF_Instance mapf_instance;
 
         Set<Coordinate_2D> canonicalCoordinates = new HashSet<>();
@@ -231,7 +228,7 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
         }
     }
 
-    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath){
+    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManagerFromFileSystem.Moving_AI_Path instancePath){
         String[] splitScenarioPath = instancePath.scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
         return new MAPF_Instance(instanceName, graphMap, agents, splitScenarioPath[splitScenarioPath.length-1]);
     }
@@ -268,32 +265,32 @@ public class InstanceBuilder_Warehouse implements I_InstanceBuilder{
 
 
     @Override
-    public InstanceManager.InstancePath[] getInstancesPaths(String directoryPath) {
-        InstanceManager.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
+    public InstanceManagerFromFileSystem.InstancePath[] getInstancesPaths(String directoryPath) {
+        InstanceManagerFromFileSystem.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
         if(pathArray == null){ return null; }
 
-        ArrayList<InstanceManager.InstancePath> list = new ArrayList<>();
+        ArrayList<InstanceManagerFromFileSystem.InstancePath> list = new ArrayList<>();
 
-        for (InstanceManager.InstancePath instancePath : pathArray ) {
+        for (InstanceManagerFromFileSystem.InstancePath instancePath : pathArray ) {
             if ( instancePath.path.endsWith(FILE_TYPE_MAP) ){
                 String[] splitPath = instancePath.path.split(Pattern.quote(IO_Manager.pathSeparator));
                 String mapPrefix = splitPath[splitPath.length-1].replace(FILE_TYPE_MAP, "");
-                for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
+                for (InstanceManagerFromFileSystem.InstancePath scenarioCandidate : pathArray ){
                     if(isRelevantScenarioFile(scenarioCandidate, mapPrefix)){
-                        list.add( new InstanceManager.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
+                        list.add( new InstanceManagerFromFileSystem.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
                     }
                 }
             }
         }
 
-        pathArray = new InstanceManager.InstancePath[list.size()];
+        pathArray = new InstanceManagerFromFileSystem.InstancePath[list.size()];
         for (int i = 0; i < pathArray.length; i++) {
             pathArray[i] = list.get(i);
         }
         return pathArray;
     }
 
-    private static boolean isRelevantScenarioFile(InstanceManager.InstancePath scenarioCandidate, String mapPrefix) {
+    private static boolean isRelevantScenarioFile(InstanceManagerFromFileSystem.InstancePath scenarioCandidate, String mapPrefix) {
         return scenarioCandidate.path.split("_scen")[0].endsWith(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO);
     }
 }

@@ -3,6 +3,7 @@ package BasicMAPF.Solvers.ICTS;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
 import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.MapDimensions;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ICTS_SolverTest {
 
     InstanceBuilder_BGU builder = new InstanceBuilder_BGU();
-    InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
+    InstanceManager im = new InstanceManagerFromFileSystem(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
     I_Solver ictsSolver = CanonicalSolversFactory.createICTSSolver();

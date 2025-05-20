@@ -1,9 +1,6 @@
 package BasicMAPF.Instances.InstanceBuilders;
 
-import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.Maps.Coordinates.CoordinateNamed;
 import BasicMAPF.Instances.Maps.*;
 import Environment.Config;
@@ -33,10 +30,10 @@ public class InstanceBuilder_ArbitraryGraph implements I_InstanceBuilder{
     /* = Instance Fields = */
 
     @Override
-    public void prepareInstances(String mapName, InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties) {
-        if (!(instancePath instanceof InstanceManager.Moving_AI_Path)) { return; }
+    public void prepareInstances(String mapName, InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties) {
+        if (!(instancePath instanceof InstanceManagerFromFileSystem.Moving_AI_Path)) { return; }
 
-        InstanceManager.Moving_AI_Path moving_ai_path = (InstanceManager.Moving_AI_Path) instancePath;
+        InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path = (InstanceManagerFromFileSystem.Moving_AI_Path) instancePath;
         if( instanceProperties == null ){ instanceProperties = new InstanceProperties(); }
 
         GraphMap graphMap = getMap(moving_ai_path, instanceProperties);
@@ -49,7 +46,7 @@ public class InstanceBuilder_ArbitraryGraph implements I_InstanceBuilder{
         populateAgents(mapName, instanceProperties, moving_ai_path, graphMap, numOfAgentsFromProperties);
     }
 
-    public GraphMap getMap(InstanceManager.InstancePath instancePath, InstanceProperties instanceProperties){
+    public GraphMap getMap(InstanceManagerFromFileSystem.InstancePath instancePath, InstanceProperties instanceProperties){
         Map<CoordinateNamed, List<CoordinateNamed>> coordinatesAdjacencyLists = new HashMap<>();
         Map<CoordinateNamed, List<Integer>> coordinatesEdgeWeights = new HashMap<>();
         Map<CoordinateNamed, Enum_MapLocationType> coordinatesLocationType = new HashMap<>();
@@ -113,7 +110,7 @@ public class InstanceBuilder_ArbitraryGraph implements I_InstanceBuilder{
     }
 
     private void populateAgents(@NotNull String instanceName, InstanceProperties instanceProperties,
-                                InstanceManager.Moving_AI_Path moving_ai_path, GraphMap graphMap, int[] numOfAgentsFromProperties) {
+                                InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path, GraphMap graphMap, int[] numOfAgentsFromProperties) {
         MAPF_Instance mapf_instance;
 
         HashMap<String, CoordinateNamed> canonicalCoordinates = new HashMap<>();
@@ -166,7 +163,7 @@ public class InstanceBuilder_ArbitraryGraph implements I_InstanceBuilder{
         return arrayOfAgents;
     }
 
-    private List<String> getAgentLines(InstanceManager.Moving_AI_Path movingAiPath, int numOfNeededAgents) {
+    private List<String> getAgentLines(InstanceManagerFromFileSystem.Moving_AI_Path movingAiPath, int numOfNeededAgents) {
         // Open scenario file
         Reader reader = new Reader();
         Enum_IO enum_io = reader.openFile(movingAiPath.scenarioPath);
@@ -188,7 +185,7 @@ public class InstanceBuilder_ArbitraryGraph implements I_InstanceBuilder{
         return agentsLines;
     }
 
-    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManager.Moving_AI_Path instancePath){
+    protected MAPF_Instance makeInstance(String instanceName, I_Map graphMap, Agent[] agents, InstanceManagerFromFileSystem.Moving_AI_Path instancePath){
         String[] splitScenarioPath = instancePath.scenarioPath.split(Pattern.quote(IO_Manager.pathSeparator));
         return new MAPF_Instance(instanceName, graphMap, agents, splitScenarioPath[splitScenarioPath.length-1]);
     }
@@ -207,32 +204,32 @@ public class InstanceBuilder_ArbitraryGraph implements I_InstanceBuilder{
     }
 
     @Override
-    public InstanceManager.InstancePath[] getInstancesPaths(String directoryPath) {
-        InstanceManager.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
+    public InstanceManagerFromFileSystem.InstancePath[] getInstancesPaths(String directoryPath) {
+        InstanceManagerFromFileSystem.InstancePath[] pathArray = IO_Manager.getFilesFromDirectory(directoryPath);
         if(pathArray == null){ return null; }
 
-        ArrayList<InstanceManager.InstancePath> list = new ArrayList<>();
+        ArrayList<InstanceManagerFromFileSystem.InstancePath> list = new ArrayList<>();
 
-        for (InstanceManager.InstancePath instancePath : pathArray ) {
+        for (InstanceManagerFromFileSystem.InstancePath instancePath : pathArray ) {
             if ( instancePath.path.endsWith(FILE_TYPE_MAP) ){
                 String[] splitPath = instancePath.path.split(Pattern.quote(IO_Manager.pathSeparator));
                 String mapPrefix = splitPath[splitPath.length-1].replace(FILE_TYPE_MAP, "");
-                for (InstanceManager.InstancePath scenarioCandidate : pathArray ){
+                for (InstanceManagerFromFileSystem.InstancePath scenarioCandidate : pathArray ){
                     if(isRelevantScenarioFile(scenarioCandidate, mapPrefix)){
-                        list.add( new InstanceManager.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
+                        list.add( new InstanceManagerFromFileSystem.Moving_AI_Path(instancePath.path, scenarioCandidate.path));
                     }
                 }
             }
         }
 
-        pathArray = new InstanceManager.InstancePath[list.size()];
+        pathArray = new InstanceManagerFromFileSystem.InstancePath[list.size()];
         for (int i = 0; i < pathArray.length; i++) {
             pathArray[i] = list.get(i);
         }
         return pathArray;
     }
 
-    private static boolean isRelevantScenarioFile(InstanceManager.InstancePath scenarioCandidate, String mapPrefix) {
+    private static boolean isRelevantScenarioFile(InstanceManagerFromFileSystem.InstancePath scenarioCandidate, String mapPrefix) {
         String[] splitPath = scenarioCandidate.path.split(Pattern.quote(IO_Manager.pathSeparator));
         return splitPath[splitPath.length-1].replace(FILE_TYPE_SCENARIO, "").equals(mapPrefix) && scenarioCandidate.path.endsWith(FILE_TYPE_SCENARIO);
     }

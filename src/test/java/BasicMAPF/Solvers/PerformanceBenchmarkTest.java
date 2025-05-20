@@ -3,11 +3,8 @@ package BasicMAPF.Solvers;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
-import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.*;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
@@ -18,7 +15,6 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
-import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
@@ -157,7 +153,7 @@ public class PerformanceBenchmarkTest {
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+        InstanceManager instanceManager = new InstanceManagerFromFileSystem(path, new InstanceBuilder_MovingAI(),
                 new InstanceProperties(null, -1d, new int[]{numAgents}));
 
         int countSolved = 0;

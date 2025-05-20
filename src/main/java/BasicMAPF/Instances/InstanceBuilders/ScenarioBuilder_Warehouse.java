@@ -1,7 +1,7 @@
 package BasicMAPF.Instances.InstanceBuilders;
 
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceManagerFromFileSystem;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.GraphMap;
 import Environment.IO_Package.Enum_IO;
@@ -18,13 +18,13 @@ public abstract class ScenarioBuilder_Warehouse {
     public static final int INDEX_XVALUE = 1;
     public static final int INDEX_YVALUE = 2;
 
-    public Agent[] getAgents(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map, boolean lifelong) {
+    public Agent[] getAgents(InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path, int numOfNeededAgents, Set<Coordinate_2D> canonicalCoordinates, GraphMap map, boolean lifelong) {
         ArrayList<ArrayList<String>> agentLinesList = getAgentLines(moving_ai_path, numOfNeededAgents);
         return getAgents(agentLinesList, numOfNeededAgents, canonicalCoordinates);
     }
 
     // Returns agentLines from scenario file as a queue. each entry is a list of lines (targets) for one agent.
-    private ArrayList<ArrayList<String>> getAgentLines(InstanceManager.Moving_AI_Path moving_ai_path, int numOfNeededAgents) {
+    private ArrayList<ArrayList<String>> getAgentLines(InstanceManagerFromFileSystem.Moving_AI_Path moving_ai_path, int numOfNeededAgents) {
 
         // Open scenario file
         Reader reader = new Reader();
