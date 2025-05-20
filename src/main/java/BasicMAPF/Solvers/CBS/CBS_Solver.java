@@ -97,8 +97,6 @@ public class CBS_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict 
      */
     private final boolean sharedSources;
-
-    private final TransientMAPFSettings transientMAPFSettings;
     private Set<I_Coordinate> separatingVerticesSet;
 
     /*  = Constructors =  */

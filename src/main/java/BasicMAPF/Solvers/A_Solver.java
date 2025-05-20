@@ -7,6 +7,7 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import TransientMAPF.TransientMAPFSettings;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ public abstract class A_Solver implements I_Solver{
     protected long softTimeout;
     protected InstanceReport instanceReport;
     protected boolean commitReport;
+    protected TransientMAPFSettings transientMAPFSettings = TransientMAPFSettings.defaultRegularMAPF;
 
     protected long startTime;
     protected long startDate;
@@ -234,5 +236,10 @@ public abstract class A_Solver implements I_Solver{
     public I_Solver setDescription(String description) {
         this.description = description;
         return this;
+    }
+
+    @Override
+    public TransientMAPFSettings getTransientMAPFSettings() {
+        return this.transientMAPFSettings;
     }
 }

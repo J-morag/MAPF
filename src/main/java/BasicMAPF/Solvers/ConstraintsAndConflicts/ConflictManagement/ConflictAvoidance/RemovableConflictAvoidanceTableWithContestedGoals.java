@@ -223,38 +223,6 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
         return firstGoalConflictTime; // only the goal conflicts can have a time greater than the move's time
     }
 
-    private Move getAMoveWithSwappingConflict(TimeLocation reverseFrom, TimeLocation reverseTo) {
-        if(regularOccupancies.containsKey(reverseFrom) && regularOccupancies.containsKey(reverseTo)){
-            // so there are occupancies at the times + locations of interest, now check if they are from a move from
-            // reverseFrom to reverseTo
-            for(Move fromMove : regularOccupancies.get(reverseFrom)){
-                if (fromMove.currLocation.equals(reverseTo.location)){
-                    return fromMove;
-                }
-            }
-        }
-        return null;
-    }
-
-    private Move getAMoveWithVertexConflictExcludingGoalConflicts(Move move, TimeLocation to) {
-        if(regularOccupancies.containsKey(to)){
-            if (sharedSources && move.isStayAtSource){
-                // conflicts excluding stay at source
-                for (Move otherMove : regularOccupancies.get(to)){
-                    if (!otherMove.isStayAtSource){
-                        return otherMove;
-                    }
-                }
-            }
-            else {
-                for (Move otherMove : regularOccupancies.get(to)) {
-                    return otherMove;
-                }
-            }
-        }
-        return null;
-    }
-
     private int getFirstGoalConflict(Move move, TimeLocation to, boolean isALastMove) {
         int earliestGoalConflict = -1;
 

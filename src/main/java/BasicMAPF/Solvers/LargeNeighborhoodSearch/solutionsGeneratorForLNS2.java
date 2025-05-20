@@ -41,7 +41,6 @@ import java.util.*;
  */
 public class solutionsGeneratorForLNS2 extends A_Solver {
 
-    private final TransientMAPFSettings transientMAPFSettings;
     private final I_Solver lowLevelSolver;
     private MAPF_Instance instance;
     private final boolean sharedGoals;
@@ -100,6 +99,9 @@ public class solutionsGeneratorForLNS2 extends A_Solver {
 
         if (this.transientMAPFSettings.avoidSeparatingVertices()) {
             this.separatingVerticesSet = TransientMAPFUtils.createSeparatingVerticesSetOfCoordinates(instance, runParameters);
+        }
+        if (this.transientMAPFSettings.isTransientMAPF() ^ this.singleAgentGAndH.isTransient()){
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.singleAgentGAndH.getClass().getSimpleName() + " " + this.transientMAPFSettings);
         }
 
         this.agents = new ArrayList<>(instance.agents);

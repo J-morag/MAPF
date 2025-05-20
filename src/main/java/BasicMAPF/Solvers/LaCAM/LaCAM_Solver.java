@@ -2,12 +2,14 @@ package BasicMAPF.Solvers.LaCAM;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.A_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -56,18 +58,11 @@ public class LaCAM_Solver extends A_Solver {
      * Map saving for each ID its agent as object.
      */
     protected HashMap<Integer, Agent> agents;
-
     /**
      * The cost function to evaluate solutions with.
      */
     protected final I_SolutionCostFunction solutionCostFunction;
-
-    /**
-     * variable indicates whether the solution returned by the algorithm is transient.
-     */
-    protected final TransientMAPFSettings transientMAPFSettings;
     protected I_ConstraintSet constraintsSet;
-
     protected MAPF_Instance instance;
     protected int failedToFindConfigCounter;
     protected long totalTimeFindConfigurations;
@@ -85,7 +80,10 @@ public class LaCAM_Solver extends A_Solver {
      */
     LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, () -> this.transientMAPFSettings.isTransientMAPF() ? new SumServiceTimes() : new SumOfCosts());
+        if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction.name() + " " + this.transientMAPFSettings);
+        }
         super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
@@ -122,7 +120,11 @@ public class LaCAM_Solver extends A_Solver {
             this.separatingVerticesComparator = TransientMAPFUtils.createSeparatingVerticesComparator(this.separatingVerticesSet);
         }
         // distance between every vertex in the graph to each agent's goal
-        this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
+        this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> this.transientMAPFSettings.isTransientMAPF() ?
+                new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(instance.agents, instance.map)) : new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
+        if (this.transientMAPFSettings.isTransientMAPF() ^ this.heuristic.isTransient()){
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.heuristic.getClass().getSimpleName() + " " + this.transientMAPFSettings);
+        }
     }
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {

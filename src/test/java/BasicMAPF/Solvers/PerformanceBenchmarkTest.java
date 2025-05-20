@@ -59,7 +59,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void CBS_SIPPStressTest() {
-        CBS_Solver solver = new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).createCBS_Solver();
+        CBS_Solver solver = CanonicalSolversFactory.createCBS_SIPPSolver();
         solver.name = "CBS_SIPP";
         long timeout = 1000 * 30;
         int numAgents = 30;
@@ -120,7 +120,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void PIBTStressTest() {
-        I_Solver solver = new PIBT_Solver(null, null, null);
+        I_Solver solver = CanonicalSolversFactory.createPIBTSolver();
         long timeout = 1000 * 30;
         int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);

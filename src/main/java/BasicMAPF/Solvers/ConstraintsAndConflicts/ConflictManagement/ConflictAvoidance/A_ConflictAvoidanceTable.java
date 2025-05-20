@@ -134,6 +134,16 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
         return numSwappingConflicts;
     }
 
+    protected Move getAMoveWithSwappingConflict(TimeLocation reverseFrom, TimeLocation reverseTo) {
+        for(Move fromMove : regularOccupancies.getOrDefault(reverseTo, Collections.emptyList())) {
+            // so there are moves at the time interest from reverseFrom. check if they are to reverseTo
+            if (fromMove.prevLocation.equals(reverseFrom.location)){
+                return fromMove;
+            }
+        }
+        return null;
+    }
+
     private int getNumVertexConflictsExcludingGoalConflicts(Move move, TimeLocation to) {
         int numVertexConflicts = 0;
         List<Move> occupanciesAtTimeLocation = regularOccupancies.getOrDefault(to, Collections.emptyList());
@@ -141,7 +151,7 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
             if (sharedSources && move.isStayAtSource){
                 // count conflicts excluding stay at source
                 for (Move otherMove : occupanciesAtTimeLocation){
-                    numVertexConflicts += otherMove.isStayAtSource ? 1 : 0; //will only be same source
+                    numVertexConflicts += otherMove.isStayAtSource ? 0 : 1;
                 }
             }
             else {
@@ -149,6 +159,24 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
             }
         }
         return numVertexConflicts;
+    }
+
+    protected Move getAMoveWithVertexConflictExcludingGoalConflicts(Move move, TimeLocation to) {
+        List<Move> occupanciesAtTimeLocation = regularOccupancies.getOrDefault(to, Collections.emptyList());
+        if(!occupanciesAtTimeLocation.isEmpty()){
+            if (sharedSources && move.isStayAtSource){
+                // count conflicts excluding stay at source
+                for (Move otherMove : occupanciesAtTimeLocation){
+                    if (!otherMove.isStayAtSource){
+                        return otherMove;
+                    }
+                }
+            }
+            else {
+                return occupanciesAtTimeLocation.get(0);
+            }
+        }
+        return null;
     }
 
     abstract int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove);

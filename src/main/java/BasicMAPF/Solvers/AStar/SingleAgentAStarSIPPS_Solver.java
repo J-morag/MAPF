@@ -232,22 +232,6 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
                 (this.conflictAvoidanceTable == null || (child.move.timeNow > conflictAvoidanceTable.getLastOccupancyTime())); // after the time of last conflicts, according to conflictAvoidanceTable
     }
 
-    @Override
-    protected void addInitialNodesToOpen(I_Location destination, I_Location sourceLocation) {
-        Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
-        // if there are conflicts at the first neighbor nodes, maybe staying in current location would be better
-        // todo - this is the correct way to initialize open, we should do the same in SIPP
-        int numberOfConflicts = this.conflictAvoidanceTable.numConflicts(possibleMove, false);
-        if (numberOfConflicts != 0) {
-            Move stayInSourceMove = new Move(agent, problemStartTime + 1, sourceLocation, sourceLocation);
-            AStarState rootState = createNewState(possibleMove, null, getG(null, stayInSourceMove), super.gAndH, 0, null, visitedTarget(null, isMoveToTarget(stayInSourceMove)), 0);
-            moveToNeighborLocation(rootState, stayInSourceMove, true);
-        }
-        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), super.gAndH, numberOfConflicts, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
-        moveToNeighborLocation(rootState, possibleMove, true);
-    }
-
-
     /**
      * Finds all reachable time intervals for a given location from the current state.
      * This method identifies safe intervals at `location` that overlap with the state's time interval

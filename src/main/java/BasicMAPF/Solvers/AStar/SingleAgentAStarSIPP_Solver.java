@@ -75,9 +75,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
 
             List<I_Location> neighborLocations = new ArrayList<>(sourceLocation.outgoingEdges());
-            if (Objects.equals(sourceLocation.getCoordinate(), this.targetCoor)) {
-                neighborLocations.add(sourceLocation);
-            }
+            neighborLocations.add(sourceLocation);
 
             for (I_Location destination : neighborLocations) {
                 addInitialNodesToOpen(destination, sourceLocation);
