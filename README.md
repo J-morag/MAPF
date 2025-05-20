@@ -1,8 +1,8 @@
 # MAPF - Multi-Agent Path Finding
 ## A Java implementation of several MAPF algorithms
 
-[![CI-tests](https://github.com/J-morag/MAPF_dev/actions/workflows/CI-tests.yml/badge.svg)](https://github.com/J-morag/MAPF_dev/actions/workflows/CI-tests.yml)
-&emsp;[Continuous Benchmark](https://j-morag.github.io/MAPF_dev/dev/bench/master/)
+[![CI-tests](https://github.com/J-morag/MAPF/actions/workflows/CI-tests.yml/badge.svg)](https://github.com/J-morag/MAPF_dev/actions/workflows/CI-tests.yml)
+&emsp;[Continuous Benchmark](https://j-morag.github.io/MAPF/dev/bench/master/)
 
 ## Getting Started
 ### Running the project using the CLI
