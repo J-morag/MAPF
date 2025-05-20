@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747739878185,
+  "lastUpdate": 1747739879570,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -8717,6 +8717,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "LaCAM - Average Expansions Low Level",
             "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8f7683ed9e3852c1115160f8bcf7bf19625db239",
+          "message": "v0.12.0 (#105)",
+          "timestamp": "2025-05-20T12:39:03+03:00",
+          "tree_id": "8d8294f8312ec40b988c368b786ad17761b75d20",
+          "url": "https://github.com/J-morag/MAPF/commit/8f7683ed9e3852c1115160f8bcf7bf19625db239"
+        },
+        "date": 1747739879239,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 21678.867,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 5731.273,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 5456.0605,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 627065.56,
             "unit": "Expansions"
           }
         ]
