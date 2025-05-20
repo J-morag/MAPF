@@ -1,5 +1,6 @@
 package BasicMAPF.DataTypesAndStructures;
 
+import Environment.Config;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -32,8 +33,11 @@ public class ArrayMap<K, V> implements Map<K, V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean containsKey(Object key) {
-        checkKey((K) key);
+        if (Config.DEBUG >= 1){
+            checkKey((K) key);
+        }
         return values[hash((K) key)] != null;
     }
 
@@ -48,14 +52,19 @@ public class ArrayMap<K, V> implements Map<K, V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V get(Object key) {
-        checkKey((K) key);
+        if (Config.DEBUG >= 1){
+            checkKey((K) key);
+        }
         return values[hash((K) key)];
     }
 
     @Override
     public V put(K key, V value) {
-        checkKey(key);
+        if (Config.DEBUG >= 1){
+            checkKey((K) key);
+        }
         int hash = hash(key);
         if (values[hash] == null) {
             size++;
@@ -66,8 +75,11 @@ public class ArrayMap<K, V> implements Map<K, V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V remove(Object key) {
-        checkKey((K) key);
+        if (Config.DEBUG >= 1){
+            checkKey((K) key);
+        }
         int hash = hash((K) key);
         V oldValue = values[hash];
         if (oldValue != null) {
@@ -110,7 +122,7 @@ public class ArrayMap<K, V> implements Map<K, V> {
     @Override
     public @NotNull Collection<V> values() {
         // return a list of all the non-null values
-        return  Arrays.stream(values).filter(value -> value != null).collect(Collectors.toList());
+        return  Arrays.stream(values).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Override

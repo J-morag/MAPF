@@ -7,10 +7,8 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import LifelongMAPF.LifelongSolution;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class GridSolutionVisualizer {
 
@@ -23,9 +21,25 @@ public class GridSolutionVisualizer {
         List<Integer> finishedGoals = new ArrayList<>();
         Set<Agent> sumFinishedGoals = new HashSet<>();
         int sumFinishedWaypoints = 0;
-        for (int time = 0; time < solution.endTime(); time++) {
+
+        // Determine the range of Agent IDs
+        int minId = instance.agents.stream().mapToInt(agent -> agent.iD).min().orElse(0);
+        int maxId = instance.agents.stream().mapToInt(agent -> agent.iD).max().orElse(0);
+        int idRange = Math.max(1, maxId - minId); // Prevent division by zero
+
+        // Map Agent IDs to colors (warmest to coldest)
+        Map<Integer, Color> agentColorMap = new HashMap<>();
+        for (Agent agent : instance.agents) {
+            float normalizedId = (float) (agent.iD - minId) / idRange; // Normalize ID to [0, 1]
+            float hue = 0.67f * normalizedId; // Map to hue range [0 (red), 0.67 (blue)]
+            agentColorMap.put(agent.iD, Color.getHSBColor(hue, 0.8f, 0.8f)); // Vivid colors
+        }
+
+        // Iterate until and including the final time step
+        for (int time = 0; time <= solution.endTime(); time++) {
             Color[][] grid = new Color[map.getWidth()][map.getHeight()];
             paintObstaclesAndFreeCells(map, grid);
+
             for (Agent agent : instance.agents) {
                 int[] xy = map.getXY(solution.getAgentLocation(agent, time));
                 if (map.isObstacle(xy)) {
@@ -41,17 +55,25 @@ public class GridSolutionVisualizer {
                         grid[xy[0]][xy[1]] = Color.RED;
                     }
                     else {
-                        grid[xy[0]][xy[1]] = Color.PINK;
+                        grid[xy[0]][xy[1]] = agentColorMap.get(agent.iD); // Assign color based on ID
                     }
                 }
                 else {
                     if (atLastLocationInPlan) {
-                        grid[xy[0]][xy[1]] = Color.GREEN;
+                        // Get the agent's original color
+                        Color originalColor = agentColorMap.get(agent.iD);
+                        // Convert RGB to HSB
+                        float[] hsbValues = Color.RGBtoHSB(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), null);
+                        // Reduce saturation by 50% (or clamp to minimum 0.1 to avoid fully greyscale)
+                        float dimmedSaturation = Math.max(0.1f, hsbValues[1] * 0.5f);
+                        // Create a new color with lowered saturation
+                        grid[xy[0]][xy[1]] = Color.getHSBColor(hsbValues[0], dimmedSaturation, hsbValues[2]);
                         sumFinishedGoals.add(agent);
                     } else {
-                        grid[xy[0]][xy[1]] = Color.PINK;
+                        grid[xy[0]][xy[1]] = agentColorMap.get(agent.iD); // Assign color based on ID
                     }
                 }
+
             }
             grids.add(grid);
             finishedGoals.add(solution instanceof LifelongSolution ? sumFinishedWaypoints: sumFinishedGoals.size());

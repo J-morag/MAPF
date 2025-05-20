@@ -9,6 +9,8 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
@@ -100,7 +102,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
      * If true, agents staying at their source (since the start) will not conflict 
      */
     public final boolean sharedSources;
-    private final TransientMAPFSettings transientMAPFSettings;
+
     private Set<I_Coordinate> separatingVerticesSet;
     /**
      * How far forward in time to consider conflicts. Beyond than this time conflicts will be ignored.
@@ -133,15 +135,15 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
         this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
-        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
-            throw new IllegalArgumentException("CBS does not support transient with separating vertices.");
-        }
         if (RHCR_Horizon != null && RHCR_Horizon <= 0){
             throw new IllegalArgumentException("RHCR_Horizon must be positive");
         }
         this.RHCR_Horizon = RHCR_Horizon;
         if (Config.WARNING >= 1 && this.RHCR_Horizon != null && RHCR_Horizon < Integer.MAX_VALUE){
-            System.err.println("Warning: CBS is set to use RHCR with a horizon of " + RHCR_Horizon + ". RHCR in CBS is only partially supported and my lead to unexpected behaviour.");
+            System.err.println("Warning: CBS is set to use RHCR with a horizon of " + RHCR_Horizon + ". RHCR in CBS is only partially supported and may lead to unexpected behaviour.");
+        }
+        if (this.costFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+            throw new IllegalArgumentException("CBS Solver: cost function and transient MAPF settings are mismatched: " + this.costFunction + " " + this.transientMAPFSettings);
         }
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
         if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
@@ -184,7 +186,7 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
             if (this.singleAgentGAndH instanceof CachingDistanceTableHeuristic){
                 ((CachingDistanceTableHeuristic)this.singleAgentGAndH).setCurrentMap(instance.map);
             }
-            if (this.singleAgentGAndH != null && this.costFunction instanceof SumServiceTimes){
+            if (this.singleAgentGAndH != null && this.costFunction instanceof SumServiceTimes){ // for TMAPF
                 this.singleAgentGAndH = new ServiceTimeGAndH(this.singleAgentGAndH);
             }
         }
@@ -259,6 +261,12 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
                 return node;
             }
             else {
+                if (this.transientMAPFSettings.resolveAfterGoalConflictsLocally()) {
+                    if (tryResolveConflictsLocally(node)) {
+                        openList.add(node);
+                        continue;
+                    };
+                }
                 expandNode(node);
             }
         }
@@ -413,9 +421,20 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
                 astarSubproblemParameters.goalCondition = TransientMAPFUtils.createLowLevelGoalConditionForTransientMAPF(transientMAPFSettings, separatingVerticesSet, instance.agents, agent, null);
             }
 
-            SingleUseConflictAvoidanceTable cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
-            cat.sharedGoals = this.ignoresStayAtSharedGoals;
-            cat.sharedSources = this.sharedSources;
+            I_ConflictAvoidanceTable cat;
+            if (this.transientMAPFSettings.isTransientMAPF()){
+                // Use RemovableConflictAvoidanceTableWithContestedGoals for TMAPF in CBS, because it correctly counts the number of conflicts after a target is reached.
+                if (this.ignoresStayAtSharedGoals || this.sharedSources){
+                    // should be verified earlier, but just in case
+                    throw new UnsupportedOperationException("Shared goals and shared sources are not supported in TMAPF");
+                }
+                cat = new RemovableConflictAvoidanceTableWithContestedGoals(currentSolution, agent);
+            }
+            else{
+                cat = new SingleUseConflictAvoidanceTable(currentSolution, agent);
+                ((SingleUseConflictAvoidanceTable)cat).sharedGoals = this.ignoresStayAtSharedGoals;
+                ((SingleUseConflictAvoidanceTable)cat).sharedSources = this.sharedSources;
+            }
             astarSubproblemParameters.conflictAvoidanceTable = cat;
             subproblemParametes = astarSubproblemParameters;
         }
@@ -445,6 +464,53 @@ public class CBS_Solver extends A_Solver implements I_LifelongCompatibleSolver {
             openList.clear();
         }
     }
+
+    /**
+     * The function checks if the conflict in the CBS node happens after one of the agents reached its target.
+     * If so, try to resolve it using the function {@link #resolveConflict(Agent, Agent, CBS_Node)}
+     * @param node - CBS node containing a conflict to resolve.
+     * @return true if the conflict was resolved, false otherwise.
+     */
+    private boolean tryResolveConflictsLocally(CBS_Node node) {
+        // check if the conflict occurs after one agent reached its target
+        Agent agent1 = node.selectedConflict.agent1;
+        Agent agent2 = node.selectedConflict.agent2;
+        int conflictTime = node.selectedConflict.time;
+        int agent1VisitedTargetTime = node.solution.getPlanFor(agent1).firstVisitToTargetTime();
+        int agent2VisitedTargetTime = node.solution.getPlanFor(agent2).firstVisitToTargetTime();
+
+        // If the conflict occurs after one of the agents reached its target, try to resolve the conflict locally
+        boolean conflictResolved = false;
+        if (agent1VisitedTargetTime < conflictTime) {
+            conflictResolved = resolveConflict(agent1, agent2, node);
+        }
+        if (agent2VisitedTargetTime < conflictTime) {
+            conflictResolved = resolveConflict(agent2, agent1, node);
+        }
+        return conflictResolved;
+    }
+
+
+    /**
+     * Try to resolve a conflict locally. If succeeded, the solution in the CBS node is replaced with the new solution.
+     * @param resolvingAgent is the agent that reached its target, and needs to move to allow the other agent to move.
+     * @param otherAgent is the agent that does not change its plan.
+     * @param node - CBS node contains the current solution.
+     * @return True if the conflict is resolved and successfully replaced in node, false otherwise.
+     */
+    private boolean resolveConflict(Agent resolvingAgent, Agent otherAgent, CBS_Node node) {
+        ConstraintSet allConstraints = new ConstraintSet(this.currentConstraints);
+        allConstraints.addAll(allConstraints.allConstraintsForPlan(node.solution.getPlanFor(otherAgent)));
+        Solution newSolution = solveSubproblem(resolvingAgent, node.solution, allConstraints);
+        if (newSolution == null) {
+            return false;
+        }
+        else {
+            node.solution = newSolution;
+            return true;
+        }
+    }
+
 
     /*  = wind down =  */
 

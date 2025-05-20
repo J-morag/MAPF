@@ -7,6 +7,7 @@ import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.MapDimensions;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -27,7 +28,7 @@ class ICTS_SolverTest {
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
-    I_Solver ictsSolver = new ICTS_Solver();
+    I_Solver ictsSolver = CanonicalSolversFactory.createICTSSolver();
 
     @BeforeEach
     void setUp(TestInfo testInfo) {

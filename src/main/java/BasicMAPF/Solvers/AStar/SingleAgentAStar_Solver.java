@@ -7,6 +7,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
@@ -16,6 +17,7 @@ import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -32,20 +34,19 @@ import java.util.*;
  */
 public class SingleAgentAStar_Solver extends A_Solver {
 
-    private final Comparator<AStarState> stateFComparator = new TieBreakingForLessConflictsAndHigherG();
     private static final Comparator<AStarState> equalStatesDiscriminator = new TieBreakingForLowerGAndLessConflicts();
-
-    public boolean agentsStayAtGoal;
+    protected final Comparator<AStarState> stateComparator;
+    public boolean agentsStayAtGoal = true;
     public final I_AStarFailPolicy failPolicy;
     private boolean useFailPolicy;
     protected I_ConstraintSet constraints;
-    protected final I_OpenList<AStarState> openList = new OpenListTree<>(stateFComparator);
-    protected final Set<AStarState> closed = new HashSet<>();
+    protected I_OpenList<AStarState> openList;
+    protected Set<AStarState> closed;
     protected Agent agent;
     protected I_Map map;
     protected SingleAgentPlan existingPlan;
     protected Solution existingSolution;
-    private I_ConflictAvoidanceTable conflictAvoidanceTable;
+    protected I_ConflictAvoidanceTable conflictAvoidanceTable;
     public I_Coordinate sourceCoor;
     public I_Coordinate targetCoor;
     public I_AStarGoalCondition goalCondition;
@@ -63,18 +64,23 @@ public class SingleAgentAStar_Solver extends A_Solver {
      */
     protected float fBudget;
 
-    public SingleAgentAStar_Solver() {this(null, null);}
+    public SingleAgentAStar_Solver() {this(null, null, null);}
 
     public SingleAgentAStar_Solver(@Nullable Boolean agentsStayAtGoal) {
-        this(agentsStayAtGoal, null);
+        this(null, agentsStayAtGoal, null);
+    }
+
+    public SingleAgentAStar_Solver(Comparator<AStarState> stateComparator) {
+        this(stateComparator, null, null);
     }
 
     public SingleAgentAStar_Solver(@Nullable I_AStarFailPolicy failPolicy) {
-        this(null, failPolicy);
+        this(null, null, failPolicy);
     }
 
-    public SingleAgentAStar_Solver(@Nullable Boolean agentsStayAtGoal, @Nullable I_AStarFailPolicy failPolicy) {
+    public SingleAgentAStar_Solver(Comparator<AStarState> stateComparator, @Nullable Boolean agentsStayAtGoal, @Nullable I_AStarFailPolicy failPolicy) {
         super.name = "AStar";
+        this.stateComparator = Objects.requireNonNullElse(stateComparator, new TieBreakingForLessConflictsAndHigherG());
         this.agentsStayAtGoal = Objects.requireNonNullElse(agentsStayAtGoal, true);
         this.failPolicy = failPolicy;
     }
@@ -83,7 +89,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     protected void init(MAPF_Instance instance, RunParameters runParameters){
         super.init(instance, runParameters);
-
+        this.openList = createEmptyOpenList();
+        this.closed = new HashSet<>();
         this.constraints = runParameters.constraints == null ? new ConstraintSet(): runParameters.constraints;
         this.agent = instance.agents.get(0);
         this.map = instance.map;
@@ -110,7 +117,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
         }
 
         if(runParameters instanceof RunParameters_SAAStar parameters
-                && ((RunParameters_SAAStar) runParameters).conflictAvoidanceTable != null){
+                && parameters.conflictAvoidanceTable != null){
             this.conflictAvoidanceTable = parameters.conflictAvoidanceTable;
         }
         // else keep the value that it has already been initialised with (above)
@@ -143,6 +150,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
         if (! this.gAndH.isConsistent()){
             throw new IllegalArgumentException("Support for inconsistent heuristics is not implemented.");
         }
+        if (this.goalCondition instanceof VisitedTargetAStarGoalCondition ^ this.gAndH.isTransient()){
+            throw new IllegalArgumentException("VisitedTargetAStarGoalCondition requires a transient heuristic and vice versa. Got a " +
+                    this.gAndH.getClass().getSimpleName() + " heuristic and a " + this.goalCondition.getClass().getSimpleName() + " goal condition.");
+        }
 
         // todo should make this more explicit. Getting an rng might not necessarily mean that we want to use it like this.
         this.randomIDGenerator = runParameters.randomNumberGenerator == null ? null:
@@ -158,6 +169,10 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.expandedNodes = 0;
         this.generatedNodes = 0;
         this.numRegeneratedNodes = 0;
+    }
+
+    protected @NotNull I_OpenList<AStarState> createEmptyOpenList() {
+        return new OpenListTree<>(stateComparator);
     }
 
     /*  = A* algorithm =  */
@@ -188,14 +203,16 @@ public class SingleAgentAStar_Solver extends A_Solver {
             closed.add(currentState);
 
             // nicetohave - change to early goal test
-            if (isGoalState(currentState)){
+            if ((this.conflictAvoidanceTable != null && currentState.isALastMove) // we split the state into a visit and a "stay forever" state
+                    || (this.conflictAvoidanceTable == null && isGoalState(currentState)) // didn't split, so check if this is a valid place to stay forever and finish
+            )
+            {
                 // check to see if a rejecting constraint on the goal's location exists at some point in the future,
                 // which would mean we can't finish the plan there and stay forever
-
                 if (!agentsStayAtGoal){
                     lastRejectionTime = -1;
                 }
-                // For Transient MAPF paths. May try to stop forever to different locations so caching is more complicated.
+                // For Transient MAPF paths. May try to stop forever in different locations, so caching is more complicated.
                 else if (goalCondition instanceof VisitedTargetAStarGoalCondition){
                     Move currentMove = currentState.move;
                     lastRejectionTime = lastRejectionTimes.computeIfAbsent(currentState.move.currLocation,
@@ -209,7 +226,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     // update this.existingPlan which is contained in this.existingSolution
                     currentState.backTracePlan(this.existingPlan);
                     return this.existingSolution; // the goal is good, and we can return the plan.
-                } else { // we are rejected from the goal location at some point in the future.
+                } else // we are rejected from the goal location at some point in the future.
+                    if (!(this.conflictAvoidanceTable != null && currentState.isALastMove)) { // expanding a "last move" is meaningless
                     expand(currentState);
                 }
             } else { //expand
@@ -246,7 +264,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // We assume that we cannot change the existing plan, so if it is rejected by constraints, we can't initialise OPEN.
             if(constraints.rejects(lastExistingMove)) {return false;}
 
-            openList.add(new AStarState(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, 0, visitedTarget(null, existingPlan.containsTarget())));
+            generate(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, visitedTarget(null, existingPlan.containsTarget()));
         }
         else { // the existing plan is empty (no existing plan)
 
@@ -263,8 +281,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     possibleMove.isStayAtSource = true;
                 }
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    AStarState rootState = new AStarState(possibleMove, null, getG(null, possibleMove), 0, visitedTarget(null, isMoveToTarget(possibleMove)));
-                    openList.add(rootState);
+                    generate(possibleMove, null, getG(null, possibleMove), visitedTarget(null, isMoveToTarget(possibleMove)));
                 }
             }
 
@@ -273,13 +290,15 @@ public class SingleAgentAStar_Solver extends A_Solver {
         return !openList.isEmpty();
     }
 
-    public void expand(@NotNull AStarState state) {
+    protected void expand(@NotNull AStarState state) {
         expandedNodes++;
         // can move to neighboring locations or stay put
         List<I_Location> neighborLocationsIncludingCurrent = new ArrayList<>(state.move.currLocation.outgoingEdges());
         // no point to do stay moves or search the time dimension after the time of last constraint.
         // this makes A* complete even when there are goal constraints (infinite constraints)
-        boolean afterLastConstraint = state.move.timeNow > constraints.getLastConstraintStartTime();
+        boolean afterLastConstraint = (state.move.timeNow > constraints.getLastConstraintStartTime()) && // after the time of last constraint (according to constraints set)
+                // if conflicts avoidance table exists, soft constraints should be supported too
+                (this.conflictAvoidanceTable == null || (state.move.timeNow > conflictAvoidanceTable.getLastOccupancyTime())); // after the time of last conflicts according to conflictAvoidanceTable
         if (!afterLastConstraint &&
                 !state.move.currLocation.getType().equals(Enum_MapLocationType.NO_STOP)) { // can't stay on NO_STOP
             neighborLocationsIncludingCurrent.add(state.move.currLocation);
@@ -295,10 +314,23 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
             // move not prohibited by existing constraint
             if (constraints.accepts(possibleMove)) {
-                AStarState child = new AStarState(possibleMove, state, getG(state, possibleMove),
-                        state.conflicts + numConflicts(possibleMove), visitedTarget(state, isMoveToTarget(possibleMove)));
-                addToOpenList(child);
+                generate(possibleMove, state, getG(state, possibleMove), visitedTarget(state, isMoveToTarget(possibleMove)));
             }
+        }
+    }
+
+    protected void generate(Move move, AStarState prevState, int g, boolean visitedTarget) {
+        AStarState newNode = new AStarState(move, prevState, g, this.gAndH,
+                (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, false),
+                visitedTarget, false);
+        addToOpenList(newNode);
+        if (this.conflictAvoidanceTable != null && goalCondition.isAGoal(move, visitedTarget)){
+            // This is a possible goal. We must check how many conflicts will happen if we stay
+            // there forever, which is different from the number of conflicts if we just pass through.
+            AStarState lastMoveCandidateChild = new AStarState(move, prevState, g, this.gAndH,
+                    (prevState == null ? 0 : prevState.conflicts) + numConflicts(move, true),
+                    visitedTarget, true);
+            addToOpenList(lastMoveCandidateChild);
         }
     }
 
@@ -348,8 +380,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.gAndH = null;
         this.randomIDGenerator = null;
         this.instanceReport = null;
-        this.openList.clear();
-        this.closed.clear();
+        this.openList = null;
+        this.closed = null;
         this.agent = null;
         this.map = null;
         this.existingSolution = null;
@@ -360,10 +392,16 @@ public class SingleAgentAStar_Solver extends A_Solver {
         this.goalCondition = null;
     }
 
-    protected int numConflicts(Move move){
-        // TODO to support tie breaking by num conflicts, may have to create duplicate nodes after reaching a goal,
-        //  one as a last move and one as an intermediate move, because they would have a different number of conflicts.
-        return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move, false);
+    /**
+     * the number of conflicts that the given move would generate.
+     * @param move the move to check for conflicts.
+     * @param isALastMove True if the move is intended as the last move in a plan, meaning that the agent will stay at the
+     *                    location indefinitely. For TMAPF. Irrelevant in classic MAPF, because these conflicts are used only for
+     *                    tie-breaking (soft constraints), and each agent can only end at its unique target.
+     * @return the number of conflicts that the given move would generate.
+     */
+    protected int numConflicts(Move move, boolean isALastMove){
+        return conflictAvoidanceTable == null ? 0 : conflictAvoidanceTable.numConflicts(move, isALastMove);
     }
 
     private int getID() {
@@ -378,27 +416,47 @@ public class SingleAgentAStar_Solver extends A_Solver {
          * Needed to enforce total ordering on nodes, which is needed to make node expansions fully deterministic. That
          * is to say, if all tie breaking methods still result in equality, tie break for using serialID.
          */
-        private final int id = getID();
+        protected final int id = getID();
         public final Move move;
         protected final AStarState prev;
         protected final int g;
-        protected final float h;
+        public final float h;
+        private final int f;
         /**
          * counts the number of conflicts generated by this node and all its ancestors.
          */
         protected final int conflicts;
         public final boolean visitedTarget;
+        public final boolean isALastMove;
 
-        public AStarState(Move move, AStarState prevState, int g, int conflicts, boolean visitedTarget) {
+        /**
+         * Create a new A* state.
+         * @param move          the move that this state represents.
+         * @param prevState     the state that this state is coming from.
+         * @param g             the cost of this state (cumulative).
+         * @param hFunction    the heuristic function to use for this state.
+         * @param conflicts     the number of conflicts (cumulative) with soft constraints that this state has.
+         * @param visitedTarget whether the agent has visited its target location - either now or in the past.
+         * @param isALastMove  whether this move is the last move of the agent, meaning the agent is set to stay there forever.
+         *                     For TMAPF. Irrelevant in classic MAPF, because only the target vertex is considered for last move.
+         */
+        public AStarState(@NotNull Move move, AStarState prevState, int g, SingleAgentGAndH hFunction, int conflicts, boolean visitedTarget, boolean isALastMove) {
             SingleAgentAStar_Solver.this.generatedNodes++;
             this.move = move;
             this.prev = prevState;
             this.g = g;
             this.conflicts = conflicts;
             this.visitedTarget = visitedTarget;
+            this.isALastMove = isALastMove;
 
             // must call this last, since it needs some other fields to be initialized already.
-            this.h = calcH();
+            // todo - should just change the interface to get the needed values rather than a partial instance of the class
+            this.h = hFunction.getH(this);
+
+            this.f = Math.round(this.g + this.h);
+            if (Config.DEBUG >= 2 && Math.abs(this.g + this.h - this.f) > 0.1){
+                throw new IllegalStateException("f value is not approximately an integer: " + this.f + " = " + this.g + " + " + this.h);
+            }
         }
 
         /*  = getters =  */
@@ -418,12 +476,8 @@ public class SingleAgentAStar_Solver extends A_Solver {
             return conflicts;
         }
 
-        public float getF(){
-            return g + h;
-        }
-
-        private float calcH() {
-            return SingleAgentAStar_Solver.this.gAndH.getH(this);
+        public int getF(){
+            return f;
         }
 
         protected void keepTheStateWithMinG(AStarState newState, AStarState existingState) {
@@ -482,6 +536,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             if (!(o instanceof AStarState that)) return false;
             if (move.timeNow != that.move.timeNow) return false;
             if (visitedTarget != that.visitedTarget) return false;
+            if (isALastMove != that.isALastMove) return false;
             return move.currLocation.equals(that.move.currLocation);
         }
 
@@ -490,12 +545,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
             int result = move.currLocation.hashCode();
             result = 31 * result + move.timeNow;
             result = 31 * result + (visitedTarget ? 1 : 0);
+            result = 31 * result + (isALastMove ? 1 : 0);
             return result;
         }
 
         @Override
         public int compareTo(@NotNull AStarState o) {
-            return stateFComparator.compare(this, o);
+            return stateComparator.compare(this, o);
         }
 
         @Override
@@ -528,11 +584,11 @@ public class SingleAgentAStar_Solver extends A_Solver {
     /**
      * For sorting the open list.
      */
-    private static class TieBreakingForLessConflictsAndHigherG implements Comparator<AStarState>{
+    public static class TieBreakingForLessConflictsAndHigherG implements BucketingComparator<AStarState>{
         @Override
         public int compare(AStarState o1, AStarState o2) {
-            float fCompared = o1.getF() - o2.getF();
-            if(Math.abs(fCompared) < 0.1){ // floats are equal
+            int fCompared = bucketCompare(o1, o2);
+            if(fCompared == 0){ // f is equal
                 // if f() value is equal, we consider the state with less conflicts to be better.
                 if(o1.conflicts == o2.conflicts){
                     // if equal in conflicts, we break ties for higher g. Therefore, we want to return a negative
@@ -551,8 +607,13 @@ public class SingleAgentAStar_Solver extends A_Solver {
                 }
             }
             else {
-                return fCompared > 0 ? 1 : -1;
+                return fCompared;
             }
+        }
+
+        @Override
+        public int getBucket(AStarState aStarState) {
+            return aStarState.getF();
         }
     }
 

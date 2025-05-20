@@ -1,5 +1,7 @@
 package BasicMAPF.DataTypesAndStructures;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 /**
@@ -13,17 +15,20 @@ import java.util.*;
 public class OpenListTree<E> implements I_OpenList<E> {
     private TreeSet<E> queue;
     private Map<E, E> map;
+    private final Comparator<? super E> comparator;
 
     /*  = constructors =  */
 
     public OpenListTree() {
         this.queue = new TreeSet<>();
         this.map = new HashMap<>();
+        this.comparator = null;
     }
 
-    public OpenListTree(Comparator<? super E> comparator) {
+    public OpenListTree(@NotNull Comparator<? super E> comparator) {
         this.queue = new TreeSet<>(comparator);
         this.map = new HashMap<>();
+        this.comparator = comparator;
     }
 
     public OpenListTree(Collection<? extends E> c) {
@@ -32,6 +37,21 @@ public class OpenListTree<E> implements I_OpenList<E> {
         for(E elem : c){
             this.map.put(elem, elem);
         }
+        this.comparator = null;
+    }
+
+    /**
+     * Constructor that uses the given map as the base for the open list.
+     * The map will be used as the backing map - this means that the map will be modified by this open list,
+     * and the map should not be modified externally!
+     * @param comparator the comparator to use for the tree set.
+     * @param backingMap the map to use as the backing map.
+     */
+    public OpenListTree(Comparator<? super E> comparator, Map<E,E> backingMap) {
+        this.map = backingMap;
+        this.queue = new TreeSet<>(comparator);
+        this.queue.addAll(backingMap.keySet());
+        this.comparator = comparator;
     }
 
     /*  = interface implementation =  */
@@ -206,8 +226,14 @@ public class OpenListTree<E> implements I_OpenList<E> {
 
     @Override
     public void clear() {
-        this.queue.clear();
-        this.map.clear();
+        if (comparator != null){
+            this.queue = new TreeSet<>(comparator);
+        }
+        else {
+            this.queue = new TreeSet<>();
+        }
+
+        this.map = new HashMap<>();
     }
 
     @Override

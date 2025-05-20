@@ -8,6 +8,7 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.RunParameters_SAAStarSIPP;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
+import BasicMAPF.DataTypesAndStructures.TimeInterval;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,7 @@ public class PCSHeuristicSIPP implements I_PCSHeuristic {
     @Override
     public int @Nullable [] getH(Agent[] priorityOrderedAgents, int numMDDsAlreadyInNode, @NotNull I_ConstraintSet constraints,
                                  MAPF_Instance currentInstance, SingleAgentGAndH singleAgentHeuristic,
-                                 @Nullable Map<I_Location, List<SingleAgentAStarSIPP_Solver.Interval>> safeIntervalsByLocation) {
+                                 @Nullable Map<I_Location, List<TimeInterval>> safeIntervalsByLocation) {
         int[] res = new int[priorityOrderedAgents.length - numMDDsAlreadyInNode];
         for (int i = numMDDsAlreadyInNode; i < priorityOrderedAgents.length; i++) {
             Agent agent = priorityOrderedAgents[i];

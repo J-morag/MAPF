@@ -3,8 +3,12 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.DataTypesAndStructures.TimeInterval;
+import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Instances.Maps.I_Map;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -101,6 +105,11 @@ public class UnmodifiableConstraintSet implements I_ConstraintSet {
     @Override
     public void clear() {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is immutable");
+    }
+
+    @Override
+    public Map<I_Location, List<TimeInterval>> vertexConstraintsToSortedSafeTimeIntervals(@Nullable Agent agent, @Nullable I_Map map) {
+        return constraintSet.vertexConstraintsToSortedSafeTimeIntervals(agent, map);
     }
 
     @Override

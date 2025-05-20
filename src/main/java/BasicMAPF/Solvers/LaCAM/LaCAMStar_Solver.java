@@ -33,7 +33,7 @@ public class LaCAMStar_Solver extends A_Solver {
      */
     public LaCAMStar_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
         this.lacamSolver = new LaCAMBuilder().setSolutionCostFunction(solutionCostFunction).setTransientMAPFBehaviour(transientMAPFSettings).createLaCAM();
-        super.name = "LaCAMStar" + (this.lacamSolver.transientMAPFSettings.isTransientMAPF() ? "t" : "");
+        super.name = "LaCAMStar" + (this.lacamSolver.getTransientMAPFSettings().isTransientMAPF() ? "t" : "");
     }
 
     /**
@@ -141,7 +141,7 @@ public class LaCAMStar_Solver extends A_Solver {
                     for (HighLevelNodeStar N_to : N_from.neighbors) {
                         float g = N_from.getG() + getEdgeCost(N_from, N_to.configuration);
                         if (g < N_to.getG()) {
-                            if (!this.lacamSolver.transientMAPFSettings.isTransientMAPF() || canUpdate(N_from, N_to)) {
+                            if (!this.lacamSolver.getTransientMAPFSettings().isTransientMAPF() || canUpdate(N_from, N_to)) {
                                 N_to.setG(g);
                                 N_to.setF(N_to.getG() + N_to.getH());
                                 N_to.parent = N_from;
@@ -233,7 +233,7 @@ public class LaCAMStar_Solver extends A_Solver {
      */
     private float calcHValue(HashMap<Agent, I_Location> currentConfiguration, HighLevelNodeStar parent) {
         float cost = 0;
-        if (this.lacamSolver.transientMAPFSettings.isTransientMAPF() && parent != null) {
+        if (this.lacamSolver.getTransientMAPFSettings().isTransientMAPF() && parent != null) {
             for (Agent agent : currentConfiguration.keySet()) {
                 if (currentConfiguration.get(agent) != this.lacamSolver.getAgentsTarget(agent) && !parent.reachedGoalsMap.get(agent)) {
                     cost += this.lacamSolver.heuristic.getHToTargetFromLocation(this.lacamSolver.getAgentsTarget(agent).getCoordinate(), currentConfiguration.get(agent));
@@ -258,7 +258,7 @@ public class LaCAMStar_Solver extends A_Solver {
     private int getEdgeCost(HighLevelNodeStar HNode_from, HashMap<Agent, I_Location> configuration_to) {
         int cost = 0;
         HashMap<Agent, I_Location> configuration_from = HNode_from.configuration;
-        if (this.lacamSolver.transientMAPFSettings.isTransientMAPF()) {
+        if (this.lacamSolver.getTransientMAPFSettings().isTransientMAPF()) {
             for (Agent agent : configuration_from.keySet()) {
                 // if the next location of an agent is NOT its goal and the agent did not visit its goal
                 if (configuration_to.get(agent) != this.lacamSolver.getAgentsTarget(agent) && !HNode_from.reachedGoalsMap.get(agent)) {

@@ -113,6 +113,27 @@ public class Solution implements Iterable<SingleAgentPlan>{
     }
 
     /**
+     * Counts vertex conflicts ({@link VertexConflict}) or swapping conflicts ({@link SwappingConflict}). Runtime is
+     * O( (n-1)*mTotal ) , where n = the number of {@link SingleAgentPlan plans}/{@link Agent agents} in this solution,
+     * and mTotal = the total number of moves in all plans together.
+     * @param sharedGoals if agents can share goals
+     * @param sharedSources if agents share the same source and so don't conflict if one of them has been staying there since the start
+     * @return the first conflict found, or null if there are no conflicts.
+     */
+    public int countConflicts(boolean sharedGoals, boolean sharedSources){
+        int totalNumberOfConflicts = 0;
+        List<SingleAgentPlan> allPlans = new ArrayList<>(agentPlans.values());
+        for (int i = 0; i < allPlans.size(); i++) {
+            SingleAgentPlan plan1 = allPlans.get(i);
+            for (int j = i+1; j < allPlans.size(); j++) {
+                SingleAgentPlan plan2 = allPlans.get(j);
+                totalNumberOfConflicts += plan1.countConflicts(plan2, sharedGoals, sharedSources);
+            }
+        }
+        return totalNumberOfConflicts;
+    }
+
+    /**
      * Validates that this solution is a valid solution for the given {@link MAPF_Instance}. Where
      * {@link #isValidSolution()} only validates that this solution is free of conflicts, {@link #solves(MAPF_Instance)}
      * also validates that:

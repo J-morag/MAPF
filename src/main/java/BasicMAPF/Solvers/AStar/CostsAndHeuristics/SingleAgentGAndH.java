@@ -45,4 +45,8 @@ public interface SingleAgentGAndH {
         }
         return res;
     }
+
+    default boolean isTransient() {
+        return false;
+    }
 }

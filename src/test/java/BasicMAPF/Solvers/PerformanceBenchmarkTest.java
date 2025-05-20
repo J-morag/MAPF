@@ -17,7 +17,6 @@ import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ICTS.HighLevel.ICTS_Solver;
 import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
-import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -43,6 +42,7 @@ import static BasicMAPF.TestUtils.addRandomConstraints;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PerformanceBenchmarkTest {
+    private static final boolean USE_ASSERTS = true;
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
@@ -59,7 +59,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void CBS_SIPPStressTest() {
-        CBS_Solver solver = new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).createCBS_Solver();
+        CBS_Solver solver = CanonicalSolversFactory.createCBS_SIPPSolver();
         solver.name = "CBS_SIPP";
         long timeout = 1000 * 30;
         int numAgents = 30;
@@ -83,8 +83,18 @@ public class PerformanceBenchmarkTest {
     }
 
     @Test
-    public void PrioritisedPlanningStressTest() {
+    public void PrioritisedPlanningAStarStressTest() {
         I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null,
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10, RestartsStrategy.reorderingStrategy.none, null),
+                null, null, null, null, null);
+        long timeout = 1000 * 30;
+        int numAgents = 100;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
+    public void PrioritisedPlanningSIPPStressTest() {
+        I_Solver solver = new PrioritisedPlanning_Solver(new SingleAgentAStarSIPP_Solver(), null, null,
                 new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10, RestartsStrategy.reorderingStrategy.none, null),
                 null, null, null, null, null);
         long timeout = 1000 * 30;
@@ -101,8 +111,16 @@ public class PerformanceBenchmarkTest {
     }
 
     @Test
+    public void LNS2StressTest() {
+        I_Solver solver = CanonicalSolversFactory.createLNS2Solver();
+        long timeout = 1000 * 3;
+        int numAgents = 200;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
     public void PIBTStressTest() {
-        I_Solver solver = new PIBT_Solver(null, null, null, null);
+        I_Solver solver = CanonicalSolversFactory.createPIBTSolver();
         long timeout = 1000 * 30;
         int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);
@@ -134,9 +152,8 @@ public class PerformanceBenchmarkTest {
     
     private static void stressTest(I_Solver solver, long timeout, int numAgents, boolean singleAgentSolver) {
         Metrics.clearAll();
-        boolean useAsserts = true;
 
-        String nameSolver = solver.name();
+        String nameSolver = solver.getName();
 
         String path = IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,
                 "ComparativeDiverseTestSet"});
@@ -148,7 +165,9 @@ public class PerformanceBenchmarkTest {
         int runtime = 0;
         int runtimeLowLevel = 0;
         int expansionsHighLevel = 0;
+        int expansionsHightLevelSolvedOnly = 0;
         int expansionsLowLevel = 0;
+        int expansionsLowLevelSolvedOnly = 0;
         int sumCost = 0;
 
         MAPF_Instance instance;
@@ -190,11 +209,14 @@ public class PerformanceBenchmarkTest {
                     if(solution != null){
                         boolean valid = solution.solves(subproblem);
                         System.out.println(nameSolver + " Valid?: " + (valid ? "yes" : "no"));
-                        if (useAsserts) assertTrue(valid);
+                        if (USE_ASSERTS) assertTrue(valid);
 
                         // cost
                         sumCost += solution.sumIndividualCosts();
                         System.out.println(nameSolver + " Cost: " + solution.sumIndividualCosts());
+
+                        // expansions
+                        expansionsLowLevelSolvedOnly += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
                     }
                     System.out.println();
                 }
@@ -230,11 +252,15 @@ public class PerformanceBenchmarkTest {
                 if(solution != null){
                     boolean valid = solution.solves(instance);
                     System.out.println(nameSolver + " Valid?: " + (valid ? "yes" : "no"));
-                    if (useAsserts) assertTrue(valid);
+                    if (USE_ASSERTS) assertTrue(valid);
 
                     // cost
                     sumCost += solution.sumIndividualCosts();
                     System.out.println(nameSolver + " Cost: " + solution.sumIndividualCosts());
+
+                    // expansions
+                    expansionsHightLevelSolvedOnly += report.getIntegerValue(InstanceReport.StandardFields.expandedNodes);
+                    expansionsLowLevelSolvedOnly += report.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel);
                 }
                 System.out.println();
             }
@@ -247,6 +273,8 @@ public class PerformanceBenchmarkTest {
         float avgExpansionsLowLevel = expansionsLowLevel/(float)(countSolved+countFailed);
 
         float avgCost = sumCost/(float)countSolved;
+        float avgExpansionsHighLevelSolvedOnly = expansionsHightLevelSolvedOnly/(float)countSolved;
+        float avgExpansionsLowLevelSolvedOnly = expansionsLowLevelSolvedOnly/(float)countSolved;
 
         System.out.println("--- TOTALS: ---");
         System.out.println("timeout for each (seconds): " + timeoutS);
@@ -258,6 +286,8 @@ public class PerformanceBenchmarkTest {
         System.out.println(nameSolver + " avg. expansions low level: " + avgExpansionsLowLevel);
         System.out.println("totals (solved instances) :");
         System.out.println(nameSolver + " avg. cost: " + avgCost);
+        System.out.println(nameSolver + " avg. expansions high level: " + avgExpansionsHighLevelSolvedOnly);
+        System.out.println(nameSolver + " avg. expansions low level: " + avgExpansionsLowLevelSolvedOnly);
 
         // save results (JSON)
 

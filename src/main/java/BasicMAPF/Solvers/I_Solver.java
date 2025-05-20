@@ -3,6 +3,7 @@ package BasicMAPF.Solvers;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.MAPF_Instance;
+import TransientMAPF.TransientMAPFSettings;
 
 /**
  * A class which implements {@link I_Solver} is called a solver.
@@ -30,8 +31,37 @@ public interface I_Solver {
     Solution solve(MAPF_Instance instance, RunParameters parameters);
 
     /**
-     * returns a uniquely identifying name for the solver.
-     * @return a uniquely identifying name for the solver.
+     * returns the name of the solver.
+     * @return the name of the solver.
      */
-    String name();
+    String getName();
+
+    /**
+     * sets the name of the solver.
+     * @param name the name of the solver.
+     * @return the solver.
+     */
+    I_Solver setName(String name);
+
+    /**
+     * returns a description of the solver.
+     * @return a description of the solver.
+     */
+    default String getDescription(){
+        return "";
+    }
+
+    /**
+     * sets the description of the solver.
+     * @param description the description of the solver.
+     * @return the solver.
+     */
+    I_Solver setDescription(String description);
+
+    /**
+     * returns the Transient MAPF (TMAPF) settings of the solver.
+     * @return the Transient MAPF (TMAPF) settings of the solver.
+     */
+    TransientMAPFSettings getTransientMAPFSettings();
+
 }

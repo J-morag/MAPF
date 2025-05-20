@@ -8,6 +8,7 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
@@ -74,7 +75,7 @@ class LifelongSimulationSolverTest {
             LifelongSolversFactory.stationaryAgentsPrPDeepPartialAvoidFPRHCR_w10_h03Lookahead5Avoid1ASFP();
     
     I_Solver lotsAndPrPT_h1 = new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(1)),
-                    new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new Avoid1ASFP()), null, null,
+                    new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(new Avoid1ASFP()), null, new SumServiceTimes(),
                             new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 100, RestartsStrategy.reorderingStrategy.randomRestarts, null),
                             true, false, TransientMAPFSettings.defaultTransientMAPF, 10, new FailPolicy(1, new AvoidFailPolicy(true))),
                     null, new DeepPartialSolutionsStrategy(), new AvoidFailPolicy(true), 1, null);
@@ -1584,7 +1585,7 @@ class LifelongSimulationSolverTest {
         int replanningPeriod = 1;
         List<String> solverNames = Arrays.asList("PIBT", "CBS", "CBSt", "PrP", "PrPt", "LaCAM", "LaCAMt");
         List<I_Solver> solvers = Arrays.asList(
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PIBT_Solver(null, null, null, TransientMAPFSettings.defaultTransientMAPF), null, null, null, null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), CanonicalSolversFactory.createPIBTtSolver(), null, null, null, null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),

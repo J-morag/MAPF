@@ -6,10 +6,7 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Solvers.*;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CongestionMap;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
@@ -125,7 +122,7 @@ public class LifelongSimulationSolver extends A_Solver {
 
         this.agentSelector = Objects.requireNonNullElseGet(agentSelector, StationaryAgentsSubsetSelector::new);
         this.failPolicyKSafety = agentSelector.getPlanningFrequency();
-        this.name = "Lifelong_" + offlineSolver.name();
+        this.name = "Lifelong_" + offlineSolver.getName();
         this.SAFailPolicy = Objects.requireNonNullElse(singleAgentFailPolicy, STAY_ONCE_FAIL_POLICY);
         if (this.SAFailPolicy instanceof TerminateFailPolicy && this.partialSolutionsStrategy.allowed()){
             throw new IllegalArgumentException("TerminateFailPolicy is not compatible with partial solutions");
@@ -722,6 +719,9 @@ public class LifelongSimulationSolver extends A_Solver {
         nextPlansForNotSelectedAgents.forEach(plan -> constraints.addAll(constraints.allConstraintsForPlan(plan)));
 
         SingleAgentGAndH costAndHeuristic = this.cachingDistanceTableHeuristic;
+        if (offlineSolver.getTransientMAPFSettings().isTransientMAPF()){
+            costAndHeuristic = new ServiceTimeGAndH(this.cachingDistanceTableHeuristic);
+        }
         if (congestionMultiplier != null && congestionMultiplier > 0){
             List<Agent> agents = new ArrayList<>(selectedTimelyOfflineAgentsSubset);
             costAndHeuristic = new DistanceTableSingleAgentHeuristic(agents, this.lifelongInstance.map, -1, new CongestionMap(nextPlansForNotSelectedAgents, congestionMultiplier));
@@ -863,6 +863,11 @@ public class LifelongSimulationSolver extends A_Solver {
             super.instanceReport.putIntegerValue("throughputAtT300", lifelongSolution.throughputAtT(300));
             super.instanceReport.putIntegerValue("throughputAtT400", lifelongSolution.throughputAtT(400));
             super.instanceReport.putIntegerValue("throughputAtT500", lifelongSolution.throughputAtT(500));
+            super.instanceReport.putIntegerValue("throughputAtT600", lifelongSolution.throughputAtT(600));
+            super.instanceReport.putIntegerValue("throughputAtT700", lifelongSolution.throughputAtT(700));
+            super.instanceReport.putIntegerValue("throughputAtT800", lifelongSolution.throughputAtT(800));
+            super.instanceReport.putIntegerValue("throughputAtT900", lifelongSolution.throughputAtT(900));
+            super.instanceReport.putIntegerValue("throughputAtT1000",lifelongSolution.throughputAtT(1000));
             super.instanceReport.putIntegerValue("maxFailPolicyIterations", this.maxFailPolicyIterations);
 
             super.instanceReport.putFloatValue("averageThroughput", lifelongSolution.averageThroughput());
