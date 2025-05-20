@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747720693460,
+  "lastUpdate": 1747720695807,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -28589,6 +28589,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
             "value": 439312.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6a36001f2b0443f23777fb6b21014037fa9ce809",
+          "message": "v.0.11.0 (#103)\n\n* improve A_ConflictAvoidanceTable numConflicts performance \n\n* Avoid unnecessary state generations for goal check in SingleAgentAStar_Solver. Only relevant where we have a conflict avoidance table.\n\n* reduce the overhead of SIPP intermediate wait state generation \n\n* Add more instances to comparative test and performance benchmark\n\n* Edge conflicts in I_ConflictAvoidanceTable",
+          "timestamp": "2025-05-20T07:19:49+03:00",
+          "tree_id": "8d00148ac8a1e0c3621ad88d3264dd6151d9bc59",
+          "url": "https://github.com/J-morag/MAPF/commit/6a36001f2b0443f23777fb6b21014037fa9ce809"
+        },
+        "date": 1747720695067,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 21678.867,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 5678,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 5430.606,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 628241,
             "unit": "Expansions"
           }
         ]
