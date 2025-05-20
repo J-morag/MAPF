@@ -6,6 +6,7 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
@@ -43,7 +44,7 @@ class CBS_SolverTest {
     InstanceManager im = new InstanceManager(IO_Manager.buildPath( new String[]{   IO_Manager.testResources_Directory,"Instances"}),
             new InstanceBuilder_BGU(), new InstanceProperties(new MapDimensions(new int[]{6,6}),0f,new int[]{1}));
 
-    I_Solver cbsSolver = new CBSBuilder().createCBS_Solver();
+    I_Solver cbsSolver = CanonicalSolversFactory.createCBSSolver();
 
 
     InstanceReport instanceReport;
@@ -306,7 +307,7 @@ class CBS_SolverTest {
 
     @Test
     void worksWithTMAPFPaths() {
-        I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).createCBS_Solver();
+        I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver();
         Agent agentXMoving = new Agent(0, coor42, coor02, 1);
         Agent agentYMoving = new Agent(1, coor10, coor12, 1);
         MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
@@ -371,6 +372,31 @@ class CBS_SolverTest {
         TestUtils.solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
                 Arrays.asList( "Solved", "SOC", "SST", "Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)"));
     }
+
+    @Test
+    void TestNarrowCorridorWithRoomOnTheSideTMAPFUsingSeparatingVerticesAndResolveConflictsLocally() {
+        MAPF_Instance testInstance = new MAPF_Instance("Narrow corridor with room on the right side" , mapNarrowCorridorWithRoom, new Agent[]{
+                new Agent(1, coor10, coor13),
+                new Agent(2, coor11, coor12)
+        });
+
+        List<String> solverNames = Arrays.asList("CBS", "CBSt", "CBSt_blacklist", "CBSt_locally");
+        List<I_Solver> solvers = Arrays.asList(
+                new CBSBuilder().createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, true, true, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, true)).setCostFunction(new SumServiceTimes()).createCBS_Solver()
+        );
+        List<RunParameters> parameters = Arrays.asList(
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),
+                new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP()
+        );
+        TestUtils.solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
+                Arrays.asList( "Solved", "SOC", "SST", "Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)"));
+    }
+
 
     /* Lifelong */
 

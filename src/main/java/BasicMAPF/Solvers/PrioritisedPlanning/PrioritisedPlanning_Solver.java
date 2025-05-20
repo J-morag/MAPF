@@ -106,7 +106,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
      * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    private final TransientMAPFSettings transientMAPFSettings;
     public boolean reportIndvAttempts = false;
     /**
      * How to approach partial solutions from the multi-agent perspective
@@ -121,7 +120,6 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
     public float aStarTimeAllocationFactor = 1.0f;
 
     private Set<I_Coordinate> separatingVerticesSet;
-
 
     /*  = Constructors =  */
 
@@ -170,7 +168,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         if (this.RHCR_Horizon != null && this.RHCR_Horizon < 1){
             throw new IllegalArgumentException("RHCR horizon must be >= 1");
         }
-        super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.name() + ")" +
+        if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+            throw new IllegalArgumentException("PrP Solver: cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction + " " + this.transientMAPFSettings);
+        }
+
+        super.name = "PrP" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + " (" + (this.restartsStrategy.randomizeAStar ? "rand. ": "") + this.lowLevelSolver.getName() + ")" +
                 (this.restartsStrategy.isNoRestarts() ? "" : " + " + this.restartsStrategy);
         if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " ignores shared goals and is set to transient MAPF. Ignoring shared goals is unnecessary if transient.");
@@ -213,7 +215,7 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
         if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
-            reorderAgentsByPriority(parameters.priorityOrder);
+            reorderAgentsByPriority(parameters.priorityOrder, this.agents);
         }
         this.failedAgents = new HashSet<>();
         this.initialConflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
@@ -237,6 +239,11 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
             }
         }
 
+        //transient MAPF
+        if (this.transientMAPFSettings.isTransientMAPF() ^ this.singleAgentGAndH.isTransient()){
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.singleAgentGAndH.getClass().getSimpleName() + " " + this.transientMAPFSettings);
+        }
+
         if(parameters instanceof RunParameters_PP parametersPP){
             this.partialSolutionsStrategy = parametersPP.partialSolutionsStrategy;
 
@@ -256,14 +263,14 @@ public class PrioritisedPlanning_Solver extends A_Solver implements I_LifelongCo
         }
     }
 
-    private void reorderAgentsByPriority(Agent[] requestedOrder) {
-        HashSet<Agent> tmpAgents = new HashSet<>(this.agents);
-        this.agents.clear();
+    public static void reorderAgentsByPriority(Agent[] requestedOrder, List<Agent> agents) {
+        HashSet<Agent> tmpAgents = new HashSet<>(agents);
+        agents.clear();
 
         for (Agent orderedAgent: //add by order
                 requestedOrder) {
             if(tmpAgents.contains(orderedAgent)){
-                this.agents.add(orderedAgent);
+                agents.add(orderedAgent);
                 tmpAgents.remove(orderedAgent);
             }
         }

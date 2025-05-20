@@ -46,7 +46,7 @@ public class LifelongPerformanceBenchmarkTest {
 
     private static void runStressTestWithSolver(I_Solver solver) {
         Metrics.clearAll();
-        String nameSolver = solver.name();
+        String nameSolver = solver.getName();
         InstanceManager instanceManager = new InstanceManager(PATH, new InstanceBuilder_MovingAI(null, true),
                 new InstanceProperties(null, -1d, new int[]{600}));
 

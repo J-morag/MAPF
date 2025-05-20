@@ -7,6 +7,7 @@ import BasicMAPF.DataTypesAndStructures.Timeout;
 import BasicMAPF.Instances.MAPF_Instance;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import TransientMAPF.TransientMAPFSettings;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ public abstract class A_Solver implements I_Solver{
     protected long softTimeout;
     protected InstanceReport instanceReport;
     protected boolean commitReport;
+    protected TransientMAPFSettings transientMAPFSettings = TransientMAPFSettings.defaultRegularMAPF;
 
     protected long startTime;
     protected long startDate;
@@ -36,6 +38,7 @@ public abstract class A_Solver implements I_Solver{
     protected int totalLowLevelTimeMS;
     protected int totalLowLevelCalls;
     public String name;
+    public String description;
     private final Timeout timeout = new Timeout(0); // todo initialize this properly and replace other fields
     protected int runtimeToFirstSolution;
     /**
@@ -122,7 +125,7 @@ public abstract class A_Solver implements I_Solver{
      * Writes metrics about the run and the solution to {@link #instanceReport}.
      */
     protected void writeMetricsToReport(Solution solution){
-        instanceReport.putStringValue(InstanceReport.StandardFields.solver, name());
+        instanceReport.putStringValue(InstanceReport.StandardFields.solver, getName());
         this.endTime = getCurrentTimeMS_NSAccuracy();
 
         instanceReport.putIntegerValue(InstanceReport.StandardFields.timeoutThresholdMS, (int) this.maximumRuntime);
@@ -214,7 +217,29 @@ public abstract class A_Solver implements I_Solver{
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return this.name;
+    }
+
+    @Override
+    public I_Solver setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
+
+    @Override
+    public I_Solver setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    @Override
+    public TransientMAPFSettings getTransientMAPFSettings() {
+        return this.transientMAPFSettings;
     }
 }

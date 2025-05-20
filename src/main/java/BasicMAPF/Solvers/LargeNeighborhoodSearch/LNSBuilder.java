@@ -16,6 +16,7 @@ public class LNSBuilder {
     private I_Solver initialSolver;
     private I_Solver iterationsSolver;
     private TransientMAPFSettings transientMAPFSettings = null;
+    private boolean LNS2;
     private Integer RHCR_Horizon;
 
     public LNSBuilder setSolutionCostFunction(I_SolutionCostFunction solutionCostFunction) {
@@ -63,12 +64,17 @@ public class LNSBuilder {
         return this;
     }
 
+    public LNSBuilder setLNS2(Boolean LNS2) {
+        this.LNS2 = LNS2;
+        return this;
+    }
+
     public LNSBuilder setRHCR_Horizon(Integer RHCR_Horizon) {
         this.RHCR_Horizon = RHCR_Horizon;
         return this;
     }
 
     public LargeNeighborhoodSearch_Solver createLNS() {
-        return new LargeNeighborhoodSearch_Solver(solutionCostFunction, destroyHeuristics, sharedGoals, sharedSources, reactionFactor, neighborhoodSize, initialSolver, iterationsSolver, transientMAPFSettings, RHCR_Horizon);
+        return new LargeNeighborhoodSearch_Solver(solutionCostFunction, destroyHeuristics, sharedGoals, sharedSources, reactionFactor, neighborhoodSize, initialSolver, iterationsSolver, transientMAPFSettings, LNS2, RHCR_Horizon);
     }
 }

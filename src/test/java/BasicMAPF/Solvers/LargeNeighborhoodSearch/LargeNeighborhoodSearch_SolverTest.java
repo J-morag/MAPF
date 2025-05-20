@@ -1,13 +1,21 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
+import BasicMAPF.CostFunctions.ConflictsCount;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -26,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LargeNeighborhoodSearch_SolverTest {
 
-    I_Solver solver = new LNSBuilder().createLNS();
+    I_Solver solver = CanonicalSolversFactory.createLNS1Solver();
 
     InstanceReport instanceReport;
 
@@ -171,7 +179,8 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPF() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, false, false)).createLNS();
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, false, false, false))
+                .setSolutionCostFunction(new SumServiceTimes()).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);
@@ -194,7 +203,8 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPFAndBlacklist() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false)).createLNS();
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false, false))
+                .setSolutionCostFunction(new SumServiceTimes()).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
         Agent agent3 = new Agent(2, coor30, coor32, 1);
@@ -213,6 +223,24 @@ class LargeNeighborhoodSearch_SolverTest {
         assertEquals(4 + 2 + 2, solvedPrPT.sumServiceTimes()); // TMAPF cost function
         assertEquals(4, solvedPrPT.makespan()); // makespan (normal)
         assertEquals(4, solvedPrPT.makespanServiceTime()); // makespan (TMAPF)
+    }
+
+    @Test
+    void corridorSolvedOnlyByTransientUsingSIPPStAsLowLevel() {
+        Agent agent1 = new Agent(0, coor00, coor03, 1);
+        Agent agent2 = new Agent(1, coor01, coor02, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapCorridor, new Agent[]{agent1, agent2});
+
+        PrioritisedPlanning_Solver initialSolverTransient = new PrioritisedPlanning_Solver(new SingleAgentAStarSIPP_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null);
+        PrioritisedPlanning_Solver iterationsSolverTransient = new PrioritisedPlanning_Solver(new SingleAgentAStarSIPP_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.none, 1, RestartsStrategy.reorderingStrategy.none, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null);
+        I_Solver LNS1tWithSIPPt = new LNSBuilder().setInitialSolver(initialSolverTransient).setIterationsSolver(iterationsSolverTransient).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).setSolutionCostFunction(new SumServiceTimes()).createLNS();
+
+        Solution solveByLNStWithSIPPt = LNS1tWithSIPPt.solve(testInstance, new RunParametersBuilder().setAStarGAndH(new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(testInstance.agents, testInstance.map))).setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solveByLNStWithSIPPt.solves(testInstance));
+        System.out.println(solveByLNStWithSIPPt);
+
+        Solution solvedByLNS = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertNull(solvedByLNS);
     }
 
     @Test

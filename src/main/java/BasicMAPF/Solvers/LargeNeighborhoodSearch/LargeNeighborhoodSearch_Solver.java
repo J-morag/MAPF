@@ -1,16 +1,28 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
+import BasicMAPF.CostFunctions.ConflictsCount;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.*;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.CachingDistanceTableHeuristic;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPPS_Solver;
+import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
+import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.RunParameters_PP;
@@ -61,7 +73,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      * If true, agents staying at their source (since the start) will not conflict
      */
     private final boolean sharedSources;
-    private final TransientMAPFSettings transientMAPFSettings;
 
     /*  = Fields related to the run =  */
 
@@ -71,6 +82,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     private int completedDestroyAndRepairIterations;
     private double[] destroyHeuristicsWeights;
     private double sumWeights;
+    private RemovableConflictAvoidanceTableWithContestedGoals cat;
+
+    private final boolean LNS2;
     /**
      * Start time of the problem. Not real-time.
      */
@@ -102,18 +116,23 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
      */
     LargeNeighborhoodSearch_Solver(I_SolutionCostFunction solutionCostFunction, List<I_DestroyHeuristic> destroyHeuristics,
                                    Boolean ignoresStayAtSharedGoals, Boolean sharedSources, Double reactionFactor, Integer neighborhoodSize,
-                                   I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFSettings transientMAPFSettings,
+                                   I_Solver initialSolver, I_Solver iterationsSolver, TransientMAPFSettings transientMAPFSettings, Boolean LNS2,
                                    @Nullable Integer RHCR_horizon) {
 
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        this.LNS2 = Objects.requireNonNullElse(LNS2, false);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
+        if (this.LNS2 && !(this.solutionCostFunction instanceof ConflictsCount)) {
+            throw new IllegalArgumentException("LNS2 needs to have conflict count as the solution cost function, got:  " + this.solutionCostFunction);
+        }
+        if (!this.LNS2 && this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
+            throw new IllegalArgumentException("LNS Solver: cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction + " " + this.transientMAPFSettings);
+        }
+
         this.RHCR_Horizon = RHCR_horizon;
         this.ignoresStayAtSharedGoals = Objects.requireNonNullElse(ignoresStayAtSharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
 
-        if (this.transientMAPFSettings.avoidSeparatingVertices()) {
-            throw new IllegalArgumentException("LNS does not support transient with separating vertices.");
-        }
         this.initialSolver = Objects.requireNonNullElseGet(initialSolver,
                 // PP with random restarts until an initial solution is found
                 () -> new PrioritisedPlanning_Solver(null, null, this.solutionCostFunction,
@@ -133,14 +152,33 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
             System.err.println("WARNING: RHCR horizon of LargeNeighborhoodSearch_Solver and iterations solver do not match.");
         }
 
-        this.destroyHeuristics = destroyHeuristics == null || destroyHeuristics.isEmpty() ?
-                List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic())
-                : new ArrayList<>(destroyHeuristics);
+        if (destroyHeuristics == null || destroyHeuristics.isEmpty()) {
+            if (this.LNS2) {
+                this.destroyHeuristics = List.of(new CollisionBasedDestroyHeuristic());
+            } else {
+                this.destroyHeuristics = List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic());
+            }
+        } else {
+            this.destroyHeuristics = destroyHeuristics;
+            // Validate heuristics
+            for (I_DestroyHeuristic heuristic : destroyHeuristics) {
+                if (this.LNS2) {
+                    if (!(heuristic instanceof FailureBasedDestroyHeuristic || heuristic instanceof CollisionBasedDestroyHeuristic || heuristic instanceof RandomDestroyHeuristic)) {
+                        throw new IllegalArgumentException("Invalid destroy heuristic for LNS2: " + heuristic.getClass().getSimpleName());
+                    }
+                }
+                else {
+                    if (!(heuristic instanceof MapBasedDestroyHeuristic || heuristic instanceof RandomDestroyHeuristic)) {
+                        throw new IllegalArgumentException("Invalid destroy heuristic for LNS1: " + heuristic.getClass().getSimpleName());
+                    }
+                }
+            }
+        }
 
         this.reactionFactor = Objects.requireNonNullElse(reactionFactor, 0.01);
         this.neighborhoodSize = Objects.requireNonNullElse(neighborhoodSize, 5);
 
-        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + "LNS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + destroyHeuristics.get(0).getClass().getSimpleName() : "");
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + (this.initialSolver instanceof LaCAM_Solver ? "PIE" : "LNS") + (this.LNS2 ? "2" : "") + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + this.destroyHeuristics.get(0).getClass().getSimpleName() : "");
         if (Config.WARNING >= 1 && this.ignoresStayAtSharedGoals && this.transientMAPFSettings.isTransientMAPF()){
             System.err.println("Warning: " + this.name + " ignores shared goals and is set to transient MAPF. Ignoring shared goals is unnecessary if transient.");
         }
@@ -180,6 +218,15 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         if (this.subSolverHeuristic instanceof CachingDistanceTableHeuristic){
             ((CachingDistanceTableHeuristic)this.subSolverHeuristic).setCurrentMap(instance.map);
         }
+        if (this.solutionCostFunction instanceof SumServiceTimes || (this.LNS2 && this.transientMAPFSettings.isTransientMAPF())){ // for TMAPF
+            this.subSolverHeuristic = new ServiceTimeGAndH(this.subSolverHeuristic);
+        }
+        if (this.transientMAPFSettings.isTransientMAPF() ^ this.subSolverHeuristic.isTransient()){
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.subSolverHeuristic.getClass().getSimpleName() + " " + this.transientMAPFSettings);
+        }
+        if (this.LNS2) {
+            this.cat = new RemovableConflictAvoidanceTableWithContestedGoals();
+        }
     }
 
     /*  = algorithm =  */
@@ -208,21 +255,28 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         }
 
         while (bestSolution != null && !checkTimeout() && !checkSoftTimeout()){ // anytime behaviour
+            if (this.LNS2 && bestSolution.firstConflict(this.ignoresStayAtSharedGoals, this.sharedSources) == null) {
+                break;
+            }
+
             // select neighborhood (destroy heuristic)
             int destroyHeuristicIndex = selectDestroyHeuristicIndex();
             I_DestroyHeuristic destroyHeuristic = this.destroyHeuristics.get(destroyHeuristicIndex);
             Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()-1), random, instance.map, horizonAsAbsoluteTime(problemStartTime, RHCR_Horizon == null ? Integer.MAX_VALUE : RHCR_Horizon)));
 
             // get solution without selected agents
-            Solution destroyedSolution = new Solution();
-            Solution oldSubsetSolution = new Solution();
-            for (SingleAgentPlan p:
-                    bestSolution) {
-                if (! agentsSubset.contains(p.agent)){
+            Solution destroyedSolution = new Solution(); // non-neighborhood
+            Solution oldSubsetSolution = new Solution(); // neighborhood
+            for (SingleAgentPlan p : bestSolution) {
+                if (!agentsSubset.contains(p.agent)){
                     destroyedSolution.putPlan(p);
                 }
                 else {
                     oldSubsetSolution.putPlan(p);
+                    // update conflict avoidance table according to selected neighborhood
+                    if (this.LNS2) {
+                        this.cat.removePlan(p);
+                    }
                 }
             }
 
@@ -235,11 +289,40 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
 
             updateDestroyHeuristicWeight(newSubsetSolution, oldSubsetSolution, destroyHeuristicIndex);
 
+            // LNS2
+            if (this.LNS2) {
+                if (newSubsetSolution == null) {
+                    for (SingleAgentPlan plan : oldSubsetSolution) {
+                        this.cat.addPlan(plan);
+                    }
+                }
+
+                if (newSubsetSolution != null) {
+                    Solution tmpSolutionToCheckSolutionCost = new Solution(destroyedSolution);
+                    for (SingleAgentPlan plan : newSubsetSolution) {
+                        tmpSolutionToCheckSolutionCost.putPlan(plan);
+                    }
+
+                    // the solution is better than the current bestSolution,
+                    if (solutionCostFunction.solutionCost(tmpSolutionToCheckSolutionCost) < solutionCostFunction.solutionCost(bestSolution)) {
+                        bestSolution = tmpSolutionToCheckSolutionCost;
+                    }
+
+                    // the solution is not better than the current bestSolution
+                    else {
+                        // replace the plans of the agents in the neighborhood to the old plans
+                        for (SingleAgentPlan plan : newSubsetSolution) {
+                            this.cat.removePlan(plan);
+                            this.cat.addPlan(oldSubsetSolution.getPlanFor(plan.agent));
+                        }
+                    }
+                }
+            }
+
+            // LNS1 - the solution is not null
             // if the new subset solution is better, join it with the rest of the solution and save that as current best
-            if (newSubsetSolution != null &&
-                    solutionCostFunction.solutionCost(newSubsetSolution) < solutionCostFunction.solutionCost(oldSubsetSolution)){
-                for (SingleAgentPlan p :
-                        newSubsetSolution) {
+            else if (newSubsetSolution != null && solutionCostFunction.solutionCost(newSubsetSolution) < solutionCostFunction.solutionCost(oldSubsetSolution)){
+                for (SingleAgentPlan p : newSubsetSolution) {
                     destroyedSolution.putPlan(p);
                 }
                 bestSolution = destroyedSolution;
@@ -250,6 +333,9 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
     }
 
     private Solution finalizeSolution(Solution bestSolution) {
+        if (this.LNS2 && (bestSolution == null || bestSolution.countConflicts(this.ignoresStayAtSharedGoals, this.sharedSources) != 0)) {
+            return null;
+        }
         return (transientMAPFSettings.isTransientMAPF() && bestSolution != null) ? new TransientMAPFSolution(bestSolution) : bestSolution;
     }
 
@@ -325,12 +411,14 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         // TODO shorter timeout?
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (Timeout.getCurrentTimeMS_NSAccuracy() - super.startTime), 0);
         ConstraintSet subproblemConstraints = new ConstraintSet(outsideConstraints);
-        subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
+        if (!(this.LNS2)) {
+            subproblemConstraints.addAll(outsideConstraints.allConstraintsForSolution(destroyedSolution));
+        }
         List<Agent> randomizedAgentsOrder = new ArrayList<>(agentsSubset);
         Collections.shuffle(randomizedAgentsOrder, random);
         RunParameters_PP runParameters_pp = new RunParameters_PP(new RunParametersBuilder().setTimeout(timeLeftToTimeout).setConstraints(subproblemConstraints).setInstanceReport(subproblemReport).setAStarGAndH(this.subSolverHeuristic).setPriorityOrder(randomizedAgentsOrder.toArray(new Agent[0]))
                 .setProblemStartTime(this.problemStartTime)
-                .createRP());
+                .setConflictAvoidanceTable(this.cat).createRP());
         if (this.runParameters instanceof RunParameters_PP runParameters_pp_parent){
             runParameters_pp.partialSolutionsStrategy = runParameters_pp_parent.partialSolutionsStrategy;
             runParameters_pp.failedAgents = runParameters_pp_parent.failedAgents;
@@ -341,7 +429,6 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
 
     /*  = wind down =  */
 
-    @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
         instanceReport.putIntegerValue("Neighborhood Size", neighborhoodSize);
@@ -374,6 +461,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver implements I_Lifelo
         }
         this.instanceReport = null;
         this.subSolverHeuristic = null;
+        this.cat = null;
         this.runParameters = null;
     }
 

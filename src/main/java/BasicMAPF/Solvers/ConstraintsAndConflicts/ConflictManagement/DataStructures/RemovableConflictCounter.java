@@ -8,16 +8,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class RemovableConflictAvoidance {
+public class RemovableConflictCounter {
 
 
     private final Map<Agent, Set<A_Conflict>> agent_conflicts; // maps from Agent to all related conflicts
 
-    public RemovableConflictAvoidance(){
+    public RemovableConflictCounter(){
         this.agent_conflicts = new HashMap<>();
     }
 
-    public RemovableConflictAvoidance(RemovableConflictAvoidance other){
+    public RemovableConflictCounter(RemovableConflictCounter other){
         this.agent_conflicts = new HashMap<>();
         for (Map.Entry<Agent,Set<A_Conflict>> agentConflictsFromOther: other.agent_conflicts.entrySet()){
             this.agent_conflicts.put(agentConflictsFromOther.getKey(), new HashSet<>(agentConflictsFromOther.getValue()));
@@ -25,7 +25,7 @@ public class RemovableConflictAvoidance {
     }
 
 
-    public RemovableConflictAvoidance(Set<A_Conflict> conflicts){
+    public RemovableConflictCounter(Set<A_Conflict> conflicts){
         this.agent_conflicts = new HashMap<>();
         for (A_Conflict conflict : conflicts) {
             this.agent_conflicts.computeIfAbsent(conflict.agent1, k-> new HashSet<>());
@@ -36,8 +36,8 @@ public class RemovableConflictAvoidance {
         }
     }
 
-    public RemovableConflictAvoidance copy(){
-        return new RemovableConflictAvoidance(this);
+    public RemovableConflictCounter copy(){
+        return new RemovableConflictCounter(this);
     }
 
 
