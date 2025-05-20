@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1747720702554,
+  "lastUpdate": 1747720704819,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -28153,6 +28153,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "LaCAM - Average Expansions Low Level",
             "value": 103588,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6a36001f2b0443f23777fb6b21014037fa9ce809",
+          "message": "v.0.11.0 (#103)\n\n* improve A_ConflictAvoidanceTable numConflicts performance \n\n* Avoid unnecessary state generations for goal check in SingleAgentAStar_Solver. Only relevant where we have a conflict avoidance table.\n\n* reduce the overhead of SIPP intermediate wait state generation \n\n* Add more instances to comparative test and performance benchmark\n\n* Edge conflicts in I_ConflictAvoidanceTable",
+          "timestamp": "2025-05-20T07:19:49+03:00",
+          "tree_id": "8d00148ac8a1e0c3621ad88d3264dd6151d9bc59",
+          "url": "https://github.com/J-morag/MAPF/commit/6a36001f2b0443f23777fb6b21014037fa9ce809"
+        },
+        "date": 1747720704111,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "LaCAM - Fails",
+            "value": 6,
+            "unit": "Instances"
+          },
+          {
+            "name": "LaCAM - Average Cost",
+            "value": 110420.78,
+            "unit": "SOC"
+          },
+          {
+            "name": "LaCAM - Average Runtime",
+            "value": 7029.3335,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LaCAM - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LaCAM - Average Expansions High Level",
+            "value": 1827.697,
+            "unit": "Expansions"
+          },
+          {
+            "name": "LaCAM - Average Expansions Low Level",
+            "value": 77370.18,
             "unit": "Expansions"
           }
         ]
