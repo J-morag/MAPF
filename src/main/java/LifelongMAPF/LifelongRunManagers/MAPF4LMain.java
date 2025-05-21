@@ -59,7 +59,7 @@ public class MAPF4LMain {
         System.out.println("\nRunning Case Study 3: Benchmark Maps with Shared Targets");
         if (verifyOutputPath(DEFAULT_RESULTS_OUTPUT_DIR)){
             String cwd = System.getProperty("user.dir");
-            String instancesDir = IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory,"Instances", "MAPF4L_benchmark_expr"});
+            String instancesDir = IO_Manager.buildPath( new String[]{cwd, "MAPF4L_benchmark_instances"});
             
             int[] agentNums = new int[]{100, 200, 300, 400, 500};
             int timeoutEach = 1000 * 60;
