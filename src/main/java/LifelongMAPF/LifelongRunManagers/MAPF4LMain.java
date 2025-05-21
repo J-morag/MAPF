@@ -21,6 +21,7 @@ import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
+import Environment.Config;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.RunManagers.GenericRunManager;
@@ -45,11 +46,15 @@ public class MAPF4LMain {
     public static void main(String[] args) {
         printIntro();
 
+        Config.INFO = 0;
+
         System.out.println("\nRunning Case Study 1: Narrow Corridor");
         multipleSolversWithTransientBehaviorNarrowCorridor();
 
         System.out.println("\nRunning Case Study 2: Circle");
         multipleSolversWithTransientBehaviorCircle();
+
+        Config.INFO = 1;
 
         System.out.println("\nRunning Case Study 3: Benchmark Maps with Shared Targets");
         if (verifyOutputPath(DEFAULT_RESULTS_OUTPUT_DIR)){
