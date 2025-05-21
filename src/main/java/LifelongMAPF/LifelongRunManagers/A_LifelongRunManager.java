@@ -13,6 +13,7 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
+import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DeepPartialSolutionsStrategy;
 import BasicMAPF.Solvers.PrioritisedPlanning.partialSolutionStrategies.DisallowedPartialSolutionsStrategy;
 import Environment.Experiment;
 import Environment.Metrics.Metrics;
@@ -21,6 +22,7 @@ import Environment.Visualization.I_VisualizeSolution;
 import LifelongMAPF.AgentSelectors.AllAgentsSelector;
 import LifelongMAPF.AgentSelectors.PeriodicSelector;
 import LifelongMAPF.AgentSelectors.StationaryAgentsSubsetSelector;
+import LifelongMAPF.FailPolicies.StayFailPolicy;
 import LifelongMAPF.FailPolicies.TerminateFailPolicy;
 import LifelongMAPF.LifelongSimulationSolver;
 import TransientMAPF.TransientMAPFSettings;
@@ -113,10 +115,10 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         int RHCR_horizon = 10;
         List<I_Solver> solvers = Arrays.asList(
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PIBT_Solver(null, RHCR_horizon, null, TransientMAPFSettings.defaultTransientMAPF), null, null, null, null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new LNSBuilder().setRHCR_Horizon(RHCR_horizon).createLNS(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new LNSBuilder().setRHCR_Horizon(RHCR_horizon).setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLNS(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, RHCR_horizon, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, RHCR_horizon, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null)
+                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new LNSBuilder().setRHCR_Horizon(RHCR_horizon).createLNS(), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new LNSBuilder().setRHCR_Horizon(RHCR_horizon).setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLNS(), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, RHCR_horizon, null), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, RHCR_horizon, null), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null)
         );
         return solvers;
     }
