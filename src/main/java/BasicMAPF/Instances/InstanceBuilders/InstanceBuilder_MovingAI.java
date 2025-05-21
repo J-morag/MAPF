@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
+    public int maxNumOfTargets;
 
     public static final MapDimensions.Enum_mapOrientation ENUMMAP_ORIENTATION = MapDimensions.Enum_mapOrientation.X_HORIZONTAL_Y_VERTICAL;
 
@@ -38,7 +39,7 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
 
 
     /*  =Default Values=    */
-    static private final int defaultNumOfAgents = 10;
+    protected static final int defaultNumOfAgents = 10;
     static private final int defaultNumOfBatches = 5;
     static private final int defaultNumOfAgentsInSingleBatch = 10;
 
@@ -112,6 +113,10 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
         ArrayList<I_Location> allEmptyMapCoordinates = new ArrayList<>(graphMap.getAllLocations());
         allEmptyMapCoordinates.removeIf(loc -> !loc.getType().equals(Enum_MapLocationType.EMPTY));
 
+        Random random = new Random(12345L); // for consistent results
+        Collections.shuffle(allEmptyMapCoordinates, random);
+        List<I_Location> firstLocations = allEmptyMapCoordinates.subList(0, maxNumOfTargets);
+
         for (int i = 0; i < numOfAgentsFromProperties.length; i++) {
 
             Agent[] agents = getAgents(agentLines,numOfAgentsFromProperties[i]);
@@ -130,7 +135,8 @@ public class InstanceBuilder_MovingAI implements I_InstanceBuilder {
                         while (waypoints[k] == null ||
                                 waypoints[k-1].equals(waypoints[k]) ||
                                 (k == waypoints.length - 2 && waypoints[k+1].equals(waypoints[k]))){
-                            waypoints[k] = allEmptyMapCoordinates.get(rnd.nextInt(allEmptyMapCoordinates.size())).getCoordinate();
+//                            waypoints[k] = allEmptyMapCoordinates.get(rnd.nextInt(allEmptyMapCoordinates.size())).getCoordinate();
+                            waypoints[k] = firstLocations.get(rnd.nextInt(firstLocations.size())).getCoordinate();
                         }
                     }
 

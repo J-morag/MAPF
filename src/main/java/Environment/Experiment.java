@@ -217,6 +217,11 @@ public class Experiment {
             instanceReport.putIntegerValue(InstanceReport.StandardFields.valid, validSolution ? 1 : 0);
             System.out.println("Sum of Individual Costs: " + getSolutionCost(solution));
 
+            Integer throughput = instanceReport.getIntegerValue("throughputAtT1000");
+            if (throughput != null) {
+                System.out.println("Throughput at T1000: " + throughput);
+            }
+
             if (visualizer != null) {
                 try {
                     visualizer.visualizeSolution(instance, solution, solver.getName() + " - " + instanceName);

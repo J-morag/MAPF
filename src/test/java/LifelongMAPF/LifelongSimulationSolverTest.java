@@ -1604,7 +1604,7 @@ class LifelongSimulationSolverTest {
                 new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500)
         );
         TestUtils.solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
-                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAt500", "totalOfflineSolverRuntimeMS"));
+                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAtT500", "totalOfflineSolverRuntimeMS"));
     }
 
 }

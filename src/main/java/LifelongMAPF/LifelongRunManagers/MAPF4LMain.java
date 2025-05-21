@@ -43,17 +43,31 @@ import static Environment.RunManagers.A_RunManager.verifyOutputPath;
 
 public class MAPF4LMain {
     public static void main(String[] args) {
+        printIntro();
+
+        System.out.println("\nRunning Case Study 1: Narrow Corridor");
+        multipleSolversWithTransientBehaviorNarrowCorridor();
+
+        System.out.println("\nRunning Case Study 2: Circle");
+        multipleSolversWithTransientBehaviorCircle();
+
+        System.out.println("\nRunning Case Study 3: Benchmark Maps with Shared Targets");
         if (verifyOutputPath(DEFAULT_RESULTS_OUTPUT_DIR)){
-            printIntro();
+            String cwd = System.getProperty("user.dir");
+            String instancesDir = IO_Manager.buildPath( new String[]{IO_Manager.resources_Directory,"Instances", "MAPF4L_benchmark_expr"});
+            
+            int[] agentNums = new int[]{100, 200, 300, 400, 500};
+            int timeoutEach = 1000 * 60;
+            long responseTime = 5000;
 
-            System.out.println("Running Case Study 1: Narrow Corridor");
-            multipleSolversWithTransientBehaviorNarrowCorridor();
-
-            System.out.println("Running Case Study 2: Circle");
-            multipleSolversWithTransientBehaviorCircle();
-
-            System.out.println("Running Case Study 3: Benchmark Maps with Shared Targets");
-
+            for (int numTargets : List.of(10, 20, 30, 40)) {
+                InstanceBuilder_MovingAI instanceBuilder = new InstanceBuilder_MovingAI(true);
+                instanceBuilder.maxNumOfTargets = numTargets;
+                LifelongGenericRunManager lifelongGenericRunManager = new LifelongGenericRunManager(instancesDir, agentNums, instanceBuilder,
+                        "MAPF4L_Dense_Targets_" + numTargets, true, null, DEFAULT_RESULTS_OUTPUT_DIR,
+                        "MAPF4L_Dense_Targets_" + numTargets, null, timeoutEach, responseTime, 1000);
+                lifelongGenericRunManager.runAllExperiments();
+            }
         }
         else {
             System.out.println("Output path " + DEFAULT_RESULTS_OUTPUT_DIR + " is not valid. Please check the path.");
@@ -95,30 +109,26 @@ public class MAPF4LMain {
                 new LifelongAgent(new Agent(2, start2, goal2), repeatedPathAgent2)
         });
 
+        List<String> solverNames = Arrays.asList("PIBT", "PrP", "PrPt");
+        long responseTime = 5000;
         int replanningPeriod = 1;
-        List<String> solverNames = Arrays.asList("PIBT", "CBS", "CBSt", "PrP", "PrPt", "LaCAM", "LaCAMt");
+        int RHCR_horizon = 10;
         List<I_Solver> solvers = Arrays.asList(
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PIBT_Solver(null, null, null, TransientMAPFSettings.defaultTransientMAPF), null, null, null, null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().createLaCAM(), null, null, new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLaCAM(),null, null, new TerminateFailPolicy(), null, null)
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PIBT_Solver(null, RHCR_horizon, null, TransientMAPFSettings.defaultTransientMAPF), null, null, null, null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, RHCR_horizon, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, RHCR_horizon, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null)
         );
 
         List<RunParameters> parameters = Arrays.asList(
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500)
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500)
         );
 
         solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, corridorInstance, parameters,
-                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAt500", "totalOfflineSolverRuntimeMS"));
+                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAtT500", "totalOfflineSolverRuntimeMS"));
 
     }
 
@@ -145,30 +155,27 @@ public class MAPF4LMain {
                 new LifelongAgent(new Agent(2, start2, goal2), repeatedPathAgent2)
         });
 
+        List<String> solverNames = Arrays.asList("PIBT", "CBS", "CBSt", "PrP", "PrPt");
+        long responseTime = 5000;
         int replanningPeriod = 1;
-        List<String> solverNames = Arrays.asList("PIBT", "CBS", "CBSt", "PrP", "PrPt", "LaCAM", "LaCAMt");
         List<I_Solver> solvers = Arrays.asList(
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), CanonicalSolversFactory.createPIBTtSolver(), null, null, null, null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver(), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
                 new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().createLaCAM(), null, null, new TerminateFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLaCAM(),null, null, new TerminateFailPolicy(), null, null)
+                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, null, null), null, new DisallowedPartialSolutionsStrategy(), new TerminateFailPolicy(), null, null)
         );
 
         List<RunParameters> parameters = Arrays.asList(
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500),
-                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), null, 500)
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500),
+                new LifelongRunParameters(new RunParametersBuilder().setInstanceReport(new InstanceReport()).createRP(), responseTime, 500)
         );
 
         solveAndPrintSolutionReportForMultipleSolvers(solvers, solverNames, testInstance, parameters,
-                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAt500", "totalOfflineSolverRuntimeMS"));
+                Arrays.asList("Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)",  "SOC", "SST", "throughputAtT500", "totalOfflineSolverRuntimeMS"));
     }
 
     private static void solveAndPrintSolutionReportForMultipleSolvers(List<I_Solver> solvers, List<String> solverNames, MAPF_Instance testInstance, List<RunParameters> parameters, List<String> fields) {
