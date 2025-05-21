@@ -114,8 +114,6 @@ public abstract class A_LifelongRunManager extends A_RunManager {
         List<I_Solver> solvers = new ArrayList<>();
 
         solvers.add(LifelongSolversFactory.PIBTt_h10());
-        solvers.add(LifelongSolversFactory.LaCAM_h10());
-        solvers.add(LifelongSolversFactory.LaCAMt_h10());
         solvers.add(LifelongSolversFactory.LNS_h10());
         solvers.add(LifelongSolversFactory.LNSt_h10());
         solvers.add(LifelongSolversFactory.PrP_h10());
