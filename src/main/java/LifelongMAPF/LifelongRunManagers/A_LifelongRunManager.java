@@ -111,15 +111,15 @@ public abstract class A_LifelongRunManager extends A_RunManager {
 
     @NotNull
     public static Collection<? extends I_Solver> getSolvers() {
-        int replanningPeriod = 5;
-        int RHCR_horizon = 10;
-        List<I_Solver> solvers = Arrays.asList(
-                new LifelongSimulationSolver(null, new AllAgentsSelector(new PeriodicSelector(replanningPeriod)), new PIBT_Solver(null, RHCR_horizon, null, TransientMAPFSettings.defaultTransientMAPF), null, null, null, null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new LNSBuilder().setRHCR_Horizon(RHCR_horizon).createLNS(), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new LNSBuilder().setRHCR_Horizon(RHCR_horizon).setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLNS(), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, null, new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultRegularMAPF, RHCR_horizon, null), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null),
-                new LifelongSimulationSolver(null, new StationaryAgentsSubsetSelector(new PeriodicSelector(replanningPeriod)), new PrioritisedPlanning_Solver(new SingleAgentAStar_Solver(), null, new SumServiceTimes(), new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 10000, RestartsStrategy.reorderingStrategy.randomRestarts, null), null, null, TransientMAPFSettings.defaultTransientMAPF, RHCR_horizon, null), null, new DeepPartialSolutionsStrategy(), new StayFailPolicy(), null, null)
-        );
+        List<I_Solver> solvers = new ArrayList<>();
+
+        solvers.add(LifelongSolversFactory.PIBTt_h10());
+        solvers.add(LifelongSolversFactory.LaCAM_h10());
+        solvers.add(LifelongSolversFactory.LaCAMt_h10());
+        solvers.add(LifelongSolversFactory.LNS_h10());
+        solvers.add(LifelongSolversFactory.LNSt_h10());
+        solvers.add(LifelongSolversFactory.PrP_h10());
+        solvers.add(LifelongSolversFactory.PrPt_h10());
         return solvers;
     }
 
