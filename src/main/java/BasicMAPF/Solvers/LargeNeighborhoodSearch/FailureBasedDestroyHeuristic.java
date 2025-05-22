@@ -8,6 +8,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Map;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPPS_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
@@ -21,7 +22,7 @@ import static BasicMAPF.Solvers.LargeNeighborhoodSearch.CollisionGraphUtils.addR
 public class FailureBasedDestroyHeuristic implements I_DestroyHeuristic{
 
     @Override
-    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map) {
+    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map, SingleAgentGAndH heuristic) {
         List<Agent> neighborhood = new ArrayList<>();
         Map<Agent, Set<Agent>> collisionGraph = CollisionGraphUtils.createCollisionGraph(currentSolution);
 

@@ -4,6 +4,8 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.DataTypesAndStructures.Move;
+import Environment.Config;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class A_Conflict {
     public final Agent agent1;
@@ -53,6 +55,20 @@ public abstract class A_Conflict {
             }
         }
         return null;
+    }
+
+    /**
+     * Checks if the target move has a conflict with the given move. Specifically excludes a vertex conflict (where both moves have the same time).
+     * @param lastMove @NotNull - a last move of staying at the target location.
+     * @param move @NotNull - a move to check for a conflict with.
+     * @return true if the last move has a target (goal) conflict with the given move.
+     */
+    public static boolean lastMoveHasTargetConflictWith(@NotNull Move lastMove, @NotNull Move move){
+        if (Config.WARNING >= 1 && lastMove.timeNow == move.timeNow){
+            System.err.println("Suspicious call to A_Conflict.hasTargetConflict with lastMove.timeNow == move.timeNow. Only checks for target conflicts. lastMove: " + lastMove + ", move: " + move);
+        }
+        return lastMove.timeNow < move.timeNow
+                && lastMove.currLocation.equals(move.currLocation);
     }
 
     @Override

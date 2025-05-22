@@ -140,7 +140,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
                     }
                 }
                 else {
-                    if (!(heuristic instanceof MapBasedDestroyHeuristic || heuristic instanceof RandomDestroyHeuristic)) {
+                    if (!(heuristic instanceof MapBasedDestroyHeuristic || heuristic instanceof RandomDestroyHeuristic || heuristic instanceof AgentBasedDestroyHeuristic)) {
                         throw new IllegalArgumentException("Invalid destroy heuristic for LNS1: " + heuristic.getClass().getSimpleName());
                     }
                 }
@@ -221,7 +221,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             // select neighborhood (destroy heuristic)
             int destroyHeuristicIndex = selectDestroyHeuristicIndex();
             I_DestroyHeuristic destroyHeuristic = this.destroyHeuristics.get(destroyHeuristicIndex);
-            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()-1), random, instance.map));
+            Set<Agent> agentsSubset = new HashSet<>(destroyHeuristic.selectNeighborhood(bestSolution, Math.min(neighborhoodSize, agents.size()-1), random, instance.map, this.subSolverHeuristic));
 
             // get solution without selected agents
             Solution destroyedSolution = new Solution(); // non-neighborhood

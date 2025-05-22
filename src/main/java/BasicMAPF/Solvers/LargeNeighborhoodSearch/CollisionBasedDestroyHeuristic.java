@@ -6,6 +6,7 @@ import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Instances.Maps.I_Map;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 
 import java.util.*;
 
@@ -16,7 +17,7 @@ public class CollisionBasedDestroyHeuristic implements I_DestroyHeuristic{
     private static final int MAX_NUM_ITERATIONS = 50;
     private static final double PROBABILITY_TO_CHOOSE_AGENT_IN_RANDOM_WALK = 0.7;
     @Override
-    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map) {
+    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map, SingleAgentGAndH heuristic) {
         List<Agent> neighborhood = new ArrayList<>();
         Map<Agent, Set<Agent>> collisionGraph = CollisionGraphUtils.createCollisionGraph(currentSolution);
 
