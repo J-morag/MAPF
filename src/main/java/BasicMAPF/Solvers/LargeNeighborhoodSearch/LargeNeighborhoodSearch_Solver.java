@@ -128,7 +128,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             if (this.LNS2) {
                 this.destroyHeuristics = List.of(new CollisionBasedDestroyHeuristic());
             } else {
-                this.destroyHeuristics = List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic());
+                this.destroyHeuristics = List.of(new RandomDestroyHeuristic(), new MapBasedDestroyHeuristic(), new AgentBasedDestroyHeuristic());
             }
         } else {
             this.destroyHeuristics = destroyHeuristics;

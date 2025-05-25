@@ -184,37 +184,38 @@ public class CanonicalSolversFactory {
 
         regs.put(LNS1_NAME, new SolverRegistration<>(
                 LNS1_NAME,
-                "Large Neighborhood Search 1",
+                "(Adaptive) Large Neighborhood Search 1, with Random, Map-based, and Agent-based destroy heuristics",
                 CanonicalSolversFactory::createLNS1Solver
         ));
 
         regs.put(LNS1_SIPP_NAME, new SolverRegistration<>(
                 LNS1_SIPP_NAME,
-                "Large Neighborhood Search 1 using SIPP",
+                "(Adaptive) Large Neighborhood Search 1 using SIPP",
                 CanonicalSolversFactory::createLNS1SIPPSolver
         ));
 
         regs.put(LNS1_SIPPt_NAME, new SolverRegistration<>(
                 LNS1_SIPPt_NAME,
-                "Large Neighborhood Search 1 using SIPPt with Transient MAPF",
+                "(Adaptive) Large Neighborhood Search 1 using SIPPt with Transient MAPF",
                 CanonicalSolversFactory::createLNS1SIPPtSolver
         ));
 
         regs.put(LNS1t_NAME, new SolverRegistration<>(
                 LNS1t_NAME,
-                "Large Neighborhood Search 1 with Transient MAPF",
+                "(Adaptive) Large Neighborhood Search 1 with Transient MAPF",
                 CanonicalSolversFactory::createLNS1tSolver
         ));
 
         regs.put(LNS2_NAME, new SolverRegistration<>(
                 LNS2_NAME,
-                "Large Neighborhood Search 2",
+                // Experiments showed using just Collision-based generally performed best.
+                "Large Neighborhood Search 2, with Collision-based destroy heuristic",
                 CanonicalSolversFactory::createLNS2Solver
         ));
 
         regs.put(LNS2t_NAME, new SolverRegistration<>(
                 LNS2t_NAME,
-                "Large Neighborhood Search 2 with Transient MAPF",
+                "Large Neighborhood Search 2, with Collision-based destroy heuristic, with Transient MAPF",
                 CanonicalSolversFactory::createLNS2tSolver
         ));
 
