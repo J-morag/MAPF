@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class PCSHeuristicSIPP implements I_PCSHeuristic {
+public class PaPSHeuristicSIPP implements I_PaPSHeuristic {
     private final SingleAgentAStarSIPP_Solver sippSolver = new SingleAgentAStarSIPP_Solver();
     @Override
     public int @Nullable [] getH(Agent[] priorityOrderedAgents, int numMDDsAlreadyInNode, @NotNull I_ConstraintSet constraints,

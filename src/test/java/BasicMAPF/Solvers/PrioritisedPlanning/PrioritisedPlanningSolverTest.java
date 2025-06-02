@@ -125,7 +125,7 @@ class PrioritisedPlanningSolverTest {
         // should return "no solution" (is a complete algorithm, exhausts the orderings search space)
         assertNull(solved);
         // should perform 3 + 21 attempts
-        assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
+        assertNotNull(instanceReport.getIntegerValue("ordering#3 randomization#1 totalTime"));
         assertEquals(3, instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
         assertEquals(21, instanceReport.getIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR));
     }
@@ -145,7 +145,7 @@ class PrioritisedPlanningSolverTest {
         // should return "no solution" (is a complete algorithm)
         assertNull(solved);
         // should perform 3 + 1 attempts
-        assertNotNull(instanceReport.getIntegerValue("attempt #2 time"));
+        assertNotNull(instanceReport.getIntegerValue("ordering#3 randomization#1 totalTime"));
         assertEquals(3, instanceReport.getIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR));
         assertEquals(1, instanceReport.getIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR));
     }

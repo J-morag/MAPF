@@ -153,13 +153,24 @@ class PriorityConstrainedSearchTest {
 
     @Test
     void comparativeTestHeuristics(){
-        I_Solver baselineSolver = new PCSBuilder().setPCSHeuristic(new PCSHeuristicDefault()).createPCS();
+        I_Solver baselineSolver = new PaPSBuilder().setNoAgentsSplit(true).setPaPSHeuristic(new PaPSHeuristicDefault()).createPaPS();
         String nameBaseline = "PCSDefault";
 
-        I_Solver competitorSolver = new PCSBuilder().setPCSHeuristic(new PCSHeuristicSIPP()).createPCS();
+        I_Solver competitorSolver = new PaPSBuilder().setNoAgentsSplit(true).setPaPSHeuristic(new PaPSHeuristicSIPP()).createPaPS();
         String nameExperimental = "PCSSIPP";
         TestUtils.comparativeTest(baselineSolver, nameBaseline, true, true, competitorSolver,
                 nameExperimental, true, true, new int[]{15}, 3, 1);
+    }
+
+    @Test
+    void comparativeTestDuplicateDetection(){
+        I_Solver baselineSolver = new PaPSBuilder().setNoAgentsSplit(true).setUseDuplicateDetection(false).createPaPS();
+        String nameBaseline = "PCS-noClosedList";
+
+        I_Solver competitorSolver = new PaPSBuilder().setNoAgentsSplit(true).setUseDuplicateDetection(true).createPaPS();
+        String nameExperimental = "PCS-ClosedList";
+        TestUtils.comparativeTest(baselineSolver, nameBaseline, true, true, competitorSolver,
+                nameExperimental, true, true, new int[]{10}, 10, 1);
     }
 
 }

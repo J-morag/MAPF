@@ -14,6 +14,7 @@ public interface I_SolutionCostFunction {
         report.putIntegerValue(Makespan.NAME, Makespan.instance.solutionCost(solution));
         report.putIntegerValue(SumServiceTimes.NAME, SumServiceTimes.instance.solutionCost(solution));
         report.putIntegerValue(MakespanServiceTime.NAME, MakespanServiceTime.instance.solutionCost(solution));
+        report.putStringValue(PathCosts.NAME, PathCosts.instance.getPathCostsString(solution));
     }
 
 }

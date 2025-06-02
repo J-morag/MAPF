@@ -1,6 +1,5 @@
 package BasicMAPF.Solvers.AStar.GoalConditions;
 
-import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import org.jetbrains.annotations.NotNull;
@@ -17,10 +16,5 @@ public class VisitedTargetAndBlacklistAStarGoalCondition extends VisitedTargetAS
     @Override
     public boolean isAGoal(SingleAgentAStar_Solver.@NotNull AStarState state) {
         return super.isAGoal(state) && !blacklist.contains(state.move.currLocation.getCoordinate());
-    }
-
-    @Override
-    public boolean isAGoal(@NotNull Move move, boolean visitedTarget) {
-        return super.isAGoal(move, visitedTarget) && !blacklist.contains(move.currLocation.getCoordinate());
     }
 }

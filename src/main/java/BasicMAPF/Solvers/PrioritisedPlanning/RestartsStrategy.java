@@ -32,8 +32,7 @@ public class RestartsStrategy {
     /**
      * Whether to randomize the A* search.
      */
-    public final boolean randomizeAStar;
-
+    public boolean randomizeAStar;
     /**
      * @param initialRestarts     how to do initial restarts
      * @param minAttempts non-negative. Will try to do at least this number of attempts, unless interrupted.
@@ -50,8 +49,7 @@ public class RestartsStrategy {
         this.contingencyRestarts = Objects.requireNonNullElse(contingencyRestarts, reorderingStrategy.none);
         this.randomizeAStar = Objects.requireNonNullElse(randomizeAStar, false);
 
-        if ((this.initialRestarts == reorderingStrategy.none && !this.randomizeAStar && this.minAttempts > 1 ) ||
-                ( (this.initialRestarts != reorderingStrategy.none || this.randomizeAStar) && this.minAttempts == 1)){
+        if ((this.initialRestarts == reorderingStrategy.none && !this.randomizeAStar && this.minAttempts > 1 ) ){
             throw new IllegalArgumentException("initial restarts kind and number must make sense together.");
         }
 

@@ -2,7 +2,6 @@ package BasicMAPF.Solvers.PIBT;
 
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
 import BasicMAPF.CostFunctions.SumOfCosts;
-import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
@@ -11,7 +10,6 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.A_Solver;
@@ -96,6 +94,11 @@ public class PIBT_Solver extends A_Solver {
     private Set<List<I_Location>> configurations;
 
     /**
+     * variable indicates whether the solution returned by the algorithm is transient.
+     */
+    private final TransientMAPFSettings transientMAPFSettings;
+
+    /**
      * Map saving for each agent its goal location, representing the goal configuration.
      */
     private HashMap<Agent, I_Location> goalConfiguration;
@@ -111,12 +114,9 @@ public class PIBT_Solver extends A_Solver {
      * constructor.
      */
     public PIBT_Solver(I_SolutionCostFunction solutionCostFunction, Integer RHCR_Horizon, TransientMAPFSettings transientMAPFSettings) {
+        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, SumOfCosts::new);
         this.RHCR_Horizon = Objects.requireNonNullElse(RHCR_Horizon, Integer.MAX_VALUE);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
-        this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, () -> this.transientMAPFSettings.isTransientMAPF() ? new SumServiceTimes() : new SumOfCosts());
-        if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction.name() + " " + this.transientMAPFSettings);
-        }
         super.name = "PIBT" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
@@ -124,7 +124,7 @@ public class PIBT_Solver extends A_Solver {
      * Default constructor.
      */
     public PIBT_Solver() {
-        this(null, null, TransientMAPFSettings.defaultTransientMAPF);
+        this(null, null, null);
     }
 
     @Override
@@ -169,11 +169,7 @@ public class PIBT_Solver extends A_Solver {
         }
 
         // distance between every vertex in the graph to each agent's goal
-        this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> this.transientMAPFSettings.isTransientMAPF() ?
-                new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(instance.agents, instance.map)) : new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
-        if (this.transientMAPFSettings.isTransientMAPF() ^ this.heuristic.isTransient()){
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.heuristic.getClass().getSimpleName() + " " + this.transientMAPFSettings);
-        }
+        this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
 
         // init agent's priority to unique number
         initPriority(instance);

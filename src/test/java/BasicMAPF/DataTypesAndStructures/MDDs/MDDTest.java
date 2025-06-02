@@ -18,11 +18,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;;
+import static org.junit.jupiter.api.Assertions.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordiantes.*;
+
 class MDDTest {
+
     @BeforeEach
     void setUp(TestInfo testInfo) {
         System.out.printf("test started: %s: %s\n", testInfo.getTestClass().isPresent() ? testInfo.getTestClass().get() : "", testInfo.getDisplayName());
@@ -734,7 +736,7 @@ class MDDTest {
         MDD mdd1Copy = new MDD(mdd1, constraintSet);
         System.out.println("mdd1 = " + mdd1);
         System.out.println("mdd1Copy = " + mdd1Copy);
-        assertTrue(mdd1.levelsEquals(mdd1Copy)); // doesn't check MDD edges
+        assertEquals(mdd1, mdd1Copy);
 
 
         A_MDDSearcher searcher2 = new AStarMDDBuilder(new Timeout(Timeout.getCurrentTimeMS_NSAccuracy(), 1000L),
@@ -743,7 +745,7 @@ class MDDTest {
         MDD mdd2Copy = new MDD(mdd2, constraintSet);
         System.out.println("mdd2 = " + mdd2);
         System.out.println("mdd2Copy = " + mdd2Copy);
-        assertTrue(mdd2.levelsEquals(mdd2Copy)); // doesn't check MDD edges
+        assertEquals(mdd2, mdd2Copy);
     }
 
     @Test
@@ -845,7 +847,7 @@ class MDDTest {
         System.out.println(mdd1);
         MDD mdd1Constrained = mdd1.shallowCopyWithConstraint(positiveConstraint, true);
         System.out.println(mdd1Constrained);
-        assertTrue(mdd1.levelsEquals(mdd1Constrained)); // doesn't check MDD edges
+        assertEquals(mdd1, mdd1Constrained);
 
         // without the option of waiting at the first vertex
         MDD mdd2 = searcher1.continueSearching(4);
@@ -894,7 +896,7 @@ class MDDTest {
         System.out.println(mdd1);
         MDD mdd1Constrained = mdd1.shallowCopyWithConstraint(positiveConstraint, true);
         System.out.println(mdd1Constrained);
-        assertTrue(mdd1.levelsEquals(mdd1Constrained)); // doesn't check MDD edges
+        assertEquals(mdd1, mdd1Constrained);
 
         // without the option of waiting at the first vertex
         MDD mdd2 = searcher1.continueSearching(4);
@@ -943,7 +945,7 @@ class MDDTest {
         System.out.println(mdd1);
         MDD mdd1Constrained = mdd1.shallowCopyWithConstraint(positiveConstraint, true);
         System.out.println(mdd1Constrained);
-        assertTrue(mdd1.levelsEquals(mdd1Constrained)); // doesn't check MDD edges
+        assertEquals(mdd1, mdd1Constrained);
 
         // without the option of waiting at the first vertex
         MDD mdd2 = searcher1.continueSearching(4);

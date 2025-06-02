@@ -1,8 +1,8 @@
 # MAPF - Multi-Agent Path Finding
 ## A Java implementation of several MAPF algorithms
 
-[![CI-tests](https://github.com/J-morag/MAPF/actions/workflows/CI-tests.yml/badge.svg)](https://github.com/J-morag/MAPF/actions/workflows/CI-tests.yml)
-&emsp;[Continuous Benchmark](https://j-morag.github.io/MAPF/dev/bench/master/)
+[![CI-tests](https://github.com/J-morag/MAPF_dev/actions/workflows/CI-tests.yml/badge.svg)](https://github.com/J-morag/MAPF_dev/actions/workflows/CI-tests.yml)
+&emsp;[Continuous Benchmark](https://j-morag.github.io/MAPF_dev/dev/bench/master/)
 
 ## Getting Started
 ### Running the project using the CLI
@@ -28,14 +28,9 @@ The default instance format is from the [MovingAI benchmark](https://movingai.co
 Modify the `Main.java` file to run your experiment. Examples are provided in the `ExampleMain.java` file.
 
 ## News
-* 2025-05: 
-  * Assorted bug fixes and performance and functionality improvements
-  * Added the LNS2 algorithm
-  * Improvements to visualisation
-  * Added selecting solvers as a command line argument
-* 2024-10: Added Config class, support for loading arbitrary graphs instance format. Added various small performance and usability improvements/fixes.
-* 2024-07: Added the LaCAM algorithm
-* 2024-04: Added the PCS algorithm
+* 2025–02: Added selecting solvers as a command line argument
+* 2024-07: Added LaCAM algorithm
+* 2024-04: Added PCS algorithm
   
 ## Usage Notes
 

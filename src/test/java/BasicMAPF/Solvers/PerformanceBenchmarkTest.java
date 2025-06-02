@@ -21,7 +21,6 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -59,7 +58,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void CBS_SIPPStressTest() {
-        CBS_Solver solver = CanonicalSolversFactory.createCBS_SIPPSolver();
+        CBS_Solver solver = new CBSBuilder().setLowLevelSolver(new SingleAgentAStarSIPP_Solver()).createCBS_Solver();
         solver.name = "CBS_SIPP";
         long timeout = 1000 * 30;
         int numAgents = 30;
@@ -76,9 +75,17 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void PCSStressTest() {
-        I_Solver solver = new PCSBuilder().createPCS();
+        I_Solver solver = CanonicalSolversFactory.createPCSSolver();
         long timeout = 1000 * 30;
         int numAgents = 20;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
+    public void PaPSStressTest() {
+        I_Solver solver = CanonicalSolversFactory.createPaPSSolver();
+        long timeout = 1000 * 30;
+        int numAgents = 10;
         stressTest(solver, timeout, numAgents, false);
     }
 
@@ -111,16 +118,8 @@ public class PerformanceBenchmarkTest {
     }
 
     @Test
-    public void LNS2StressTest() {
-        I_Solver solver = CanonicalSolversFactory.createLNS2Solver();
-        long timeout = 1000 * 3;
-        int numAgents = 200;
-        stressTest(solver, timeout, numAgents, false);
-    }
-
-    @Test
     public void PIBTStressTest() {
-        I_Solver solver = CanonicalSolversFactory.createPIBTSolver();
+        I_Solver solver = new PIBT_Solver(null, null, null);
         long timeout = 1000 * 30;
         int numAgents = 500;
         stressTest(solver, timeout, numAgents, false);

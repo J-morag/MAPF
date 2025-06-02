@@ -3,7 +3,6 @@ package BasicMAPF.DataTypesAndStructures;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 
@@ -12,7 +11,7 @@ import java.util.Set;
 
 public class RunParametersBuilder {
     private long timeout = 1000*60*5 /*5 minutes*/;
-    private long softTimeout = timeout;
+    private long softTimeout = -1;
     private I_ConstraintSet constraints = null;
     private InstanceReport instanceReport = null;
     private Solution existingSolution = null;
@@ -21,7 +20,6 @@ public class RunParametersBuilder {
     public Random randomNumberGenerator;
     public Agent[] priorityOrder;
     public Set<I_Location> separatingVertices;
-    public I_ConflictAvoidanceTable conflictAvoidanceTable;
 
     public RunParametersBuilder copy(RunParameters rp) {
         this.timeout = rp.timeout;
@@ -34,7 +32,6 @@ public class RunParametersBuilder {
         this.randomNumberGenerator = rp.randomNumberGenerator;
         this.priorityOrder = rp.priorityOrder;
         this.separatingVertices = rp.separatingVertices;
-        this.conflictAvoidanceTable = rp.conflictAvoidanceTable;
         return this;
     }
 
@@ -43,7 +40,9 @@ public class RunParametersBuilder {
      */
     public RunParametersBuilder setTimeout(long timeout) {
         this.timeout = timeout;
-        this.softTimeout = Math.min(timeout, softTimeout);
+        if (this.softTimeout == -1) {
+            this.softTimeout = timeout;
+        }
         return this;
     }
 
@@ -114,20 +113,15 @@ public class RunParametersBuilder {
     /**
      * @see RunParameters#separatingVertices
      */
-    public RunParametersBuilder setSeparatingVertices(Set<I_Location> separatingVertices) {
+    public RunParametersBuilder setseparatingVertices(Set<I_Location> separatingVertices) {
         this.separatingVertices = separatingVertices;
         return this;
     }
 
-    /**
-     * @see RunParameters#conflictAvoidanceTable;
-     */
-    public RunParametersBuilder setConflictAvoidanceTable(I_ConflictAvoidanceTable conflictAvoidanceTable) {
-        this.conflictAvoidanceTable = conflictAvoidanceTable;
-        return this;
-    }
-
     public RunParameters createRP() {
-        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, singleAgentGAndH, problemStartTime, randomNumberGenerator, priorityOrder, separatingVertices, conflictAvoidanceTable);
+        if (this.softTimeout == -1) {
+            this.softTimeout = this.timeout;
+        }
+        return new RunParameters(timeout, constraints, instanceReport, existingSolution, softTimeout, singleAgentGAndH, problemStartTime, randomNumberGenerator, priorityOrder, separatingVertices);
     }
 }

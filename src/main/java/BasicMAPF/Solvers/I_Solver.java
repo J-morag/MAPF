@@ -3,7 +3,6 @@ package BasicMAPF.Solvers;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.MAPF_Instance;
-import TransientMAPF.TransientMAPFSettings;
 
 /**
  * A class which implements {@link I_Solver} is called a solver.
@@ -58,10 +57,5 @@ public interface I_Solver {
      */
     I_Solver setDescription(String description);
 
-    /**
-     * returns the Transient MAPF (TMAPF) settings of the solver.
-     * @return the Transient MAPF (TMAPF) settings of the solver.
-     */
-    TransientMAPFSettings getTransientMAPFSettings();
 
 }

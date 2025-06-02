@@ -18,8 +18,8 @@ public class MDDManager {
     public Map<SourceTargetAgent, A_MDDSearcher> searchers = new HashMap<>();
     final private I_MDDSearcherFactory searcherFactory;
     final public SourceTargetAgent keyDummy = new SourceTargetAgent(null, null, null);
-    private Timeout timeout;
-    private SingleAgentGAndH heuristic;
+    private final Timeout timeout;
+    private final SingleAgentGAndH heuristic;
     private int expandedLowLevelNodes;
     private int generatedLowLevelNodes;
 

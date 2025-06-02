@@ -21,6 +21,7 @@ import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import TransientMAPF.TransientMAPFUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -82,9 +83,15 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      * If true, agents staying at their source (since the start) will not conflict
      */
     public boolean sharedSources;
-    public boolean reportIndvAttempts = false;
+    private final TransientMAPFSettings transientMAPFSettings;
+    public boolean reportIndvAttempts = true;
+    public boolean stableAStarAsSeed = true; //todo tmp for optimal PP experiments - make all solvers behave the same even if not using path randomization
+    public boolean twiceEach = false;
+    public int reserveBudgetForRandomizedAStar = Integer.MAX_VALUE;
+    public int pathRandomizationAttemptsPerOrdering = 1;
 
     private Set<I_Coordinate> separatingVerticesSet;
+
 
     /*  = Constructors =  */
 
@@ -165,7 +172,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         }
         // if we were given a specific priority order to use for this instance, overwrite the order given by the comparator.
         if(parameters.priorityOrder != null && parameters.priorityOrder.length > 0) {
-            reorderAgentsByPriority(parameters.priorityOrder, this.agents);
+            reorderAgentsByPriority(parameters.priorityOrder);
         }
         
         // heuristic
@@ -184,23 +191,19 @@ public class PrioritisedPlanning_Solver extends A_Solver {
             }
         }
 
-        //transient MAPF
-        if (this.transientMAPFSettings.isTransientMAPF() ^ this.singleAgentGAndH.isTransient()){
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.singleAgentGAndH.getClass().getSimpleName() + " " + this.transientMAPFSettings);
-        }
         if (this.transientMAPFSettings.avoidSeparatingVertices()) {
             this.separatingVerticesSet = TransientMAPFUtils.createSeparatingVerticesSetOfCoordinates(instance, parameters);
         }
     }
 
-    public static void reorderAgentsByPriority(Agent[] requestedOrder, List<Agent> agents) {
-        HashSet<Agent> tmpAgents = new HashSet<>(agents);
-        agents.clear();
+    private void reorderAgentsByPriority(Agent[] requestedOrder) {
+        HashSet<Agent> tmpAgents = new HashSet<>(this.agents);
+        this.agents.clear();
 
         for (Agent orderedAgent: //add by order
                 requestedOrder) {
             if(tmpAgents.contains(orderedAgent)){
-                agents.add(orderedAgent);
+                this.agents.add(orderedAgent);
                 tmpAgents.remove(orderedAgent);
             }
         }
@@ -236,125 +239,173 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         RestartsStrategy.reorderingStrategy reorderingStrategy = null;
 
         // if using any sort of restarts, try more than once
-        for (int attemptNumber = 1 ; ; attemptNumber++) {
-            Solution solution = new Solution();
-            ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
-            Agent agentWeFailedOn = null;
-            // get a heuristic per agent according to the current order
-            int[] h = agents.stream().mapToInt(agent -> singleAgentGAndH.getHToTargetFromLocation(agent.target, instance.map.getMapLocation(agent.source))).toArray();
-            int naiveLowerBound = Arrays.stream(h).sum();
-            int currentH = naiveLowerBound;
-            int currentCost = 0;
-
-            // solve for each agent while avoiding the plans of previous agents (standard PrP)
-            for (int i = 0; i < agents.size(); i++) {
-                Agent agent = agents.get(i);
+        for (int attemptNumber = 1; ; attemptNumber++) {
+            PPOrderingSolution bestPPOrderingSolution = null;
+            for (int randomizationAttempt = 1; randomizationAttempt <= pathRandomizationAttemptsPerOrdering; randomizationAttempt++) {
+                PPOrderingSolution ppOrderingSolution = getPpOrderingSolution(instance, initialConstraints, bestSolution, bestSolutionCost, randomizationAttempt);
+                if (bestPPOrderingSolution == null){
+                    bestPPOrderingSolution = ppOrderingSolution;
+                }
+                else if (ppOrderingSolution.solution() != null && (bestPPOrderingSolution.solution() == null || ppOrderingSolution.solution().sumIndividualCosts() < bestPPOrderingSolution.solution().sumIndividualCosts())){
+                    bestPPOrderingSolution = ppOrderingSolution;
+                }
+                // report the completed attempt
+                if ((attemptNumber == 1 && randomizationAttempt == 1) || randomizationAttempt == pathRandomizationAttemptsPerOrdering || randomizationAttempt % 10 == 0){
+                    reportCompletedAttempt(attemptNumber, chooseBestSolution(bestSolution, bestPPOrderingSolution.solution()), randomizationAttempt);
+                }
                 if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
-
-                // if the cost of the next agent increases current cost beyond the current best, no need to finish search/iteration. // TODO add heuristic here too (or only here?)
-                float maxCost = bestSolution != null ?
-                        bestSolutionCost - solutionCostFunction.solutionCost(solution)
-                        : Float.POSITIVE_INFINITY;
-                // solve the subproblem for one agent
-                SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints, maxCost, solution, this.restartsStrategy.randomizeAStar);
-
-                // if an agent is unsolvable, then we can't return a valid solution for the instance (at least for this order of planning). return null.
-                if (planForAgent == null) {
-                    solution = null;
-                    agentWeFailedOn = agent;
-                    break;
-                }
-                //save the plan for this agent
-                solution.putPlan(planForAgent);
-
-                // if the lower bound on the cost of the solution is already higher than the best solution, we can stop
-                int newPlanCost = singleAgentGAndH.cost(planForAgent);
-                currentCost += newPlanCost;
-                currentH -= h[i];
-                if (bestSolution != null && currentCost + currentH >= bestSolutionCost) {
-                    if (Config.INFO >= 2){
-                        System.out.println("PrP: Stopping attempt early after " + (i+1) + " agents planned, due to lower bound. Solution cost: "
-                                + currentCost + " solution h: " + currentH + " (lower bound = " + (currentCost+currentH) + ")"
-                                + ", best cost: " + bestSolutionCost);
-                    }
-                    solution = null;
-                    break;
-                }
-
-
-                //add constraints to prevent the next agents from conflicting with the new plan
-                currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
             }
 
             /* = random/deterministic restarts = */
 
             if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
-            bestSolution = chooseBestSolution(bestSolution, solution);
+            bestSolution = chooseBestSolution(bestSolution, bestPPOrderingSolution.solution());
             bestSolutionCost = bestSolution != null ? this.solutionCostFunction.solutionCost(bestSolution) : bestSolutionCost;
 
-            // report the completed attempt
-            reportCompletedAttempt(attemptNumber, bestSolution);
-
-            if (attemptedOrderings.size() == numPossibleOrderings && !restartsStrategy.randomizeAStar){
+            if (attemptedOrderings.size() == numPossibleOrderings && !restartsStrategy.randomizeAStar) {
                 break; // exhausted all possible orderings
-            }
-            else if (bestSolutionCost == naiveLowerBound){
-                if (Config.INFO >= 2){
+            } else if (bestSolutionCost == bestPPOrderingSolution.naiveLowerBound()) {
+                if (Config.INFO >= 2) {
                     System.out.println("PrP: Stopping early due to finding optimal solution");
                 }
                 break; // found optimal solution
             }
 
-            if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.minAttempts){
-                reorderingStrategy = restartsStrategy.initialRestarts;
-            }
-            else if (bestSolution == null && attemptNumber >= restartsStrategy.minAttempts && restartsStrategy.hasContingency()){
-                reorderingStrategy = restartsStrategy.contingencyRestarts;
-            }
-            else if (!restartsStrategy.randomizeAStar){
-                break;
+            // Decide if we should continue randomizing orderings or switch to randomized A* only
+            if (attemptNumber >= reserveBudgetForRandomizedAStar) {
+                // Stop changing the ordering, only randomize A* on the current ordering
+                restartsStrategy.randomizeAStar = true;
+                reorderingStrategy = null;
+            } else {
+                // Apply the appropriate reordering strategy based on the restart strategy settings
+                if (restartsStrategy.hasInitial() && attemptNumber < restartsStrategy.minAttempts) {
+                    reorderingStrategy = restartsStrategy.initialRestarts;
+                } else if (bestSolution == null && attemptNumber >= restartsStrategy.minAttempts && restartsStrategy.hasContingency()) {
+                    reorderingStrategy = restartsStrategy.contingencyRestarts;
+                } else
+//                    if (!restartsStrategy.randomizeAStar) {
+                    break;
+//                }
             }
 
-            if (reorderingStrategy == RestartsStrategy.reorderingStrategy.randomRestarts){
-                do { // do not repeat orderings unless A* is randomized
+            // Execute the chosen reordering strategy
+            if (reorderingStrategy == RestartsStrategy.reorderingStrategy.randomRestarts) {
+                do {
                     Collections.shuffle(this.agents, this.orderingsRNG);
-                }
-                while (!restartsStrategy.randomizeAStar && (attemptedOrderings.contains(this.agents) || deterministicOrderings.contains(this.agents)) );
+                } while (!restartsStrategy.randomizeAStar && (attemptedOrderings.contains(this.agents) || deterministicOrderings.contains(this.agents)));
 
                 attemptedOrderings.add(new ArrayList<>(this.agents));
-            }
-            else if (reorderingStrategy == RestartsStrategy.reorderingStrategy.deterministicRescheduling){
-                if (agentWeFailedOn != null){
-                    this.agents.remove(agentWeFailedOn);
-                    this.agents.add(0, agentWeFailedOn);
-                    if (!restartsStrategy.randomizeAStar && deterministicOrderings.contains(this.agents)){
-                        break; // deterministic ordering can end up in a loop - terminates if repeats itself
+            } else if (reorderingStrategy == RestartsStrategy.reorderingStrategy.deterministicRescheduling) {
+                if (bestPPOrderingSolution.agentWeFailedOn() != null) {
+                    this.agents.remove(bestPPOrderingSolution.agentWeFailedOn());
+                    this.agents.add(0, bestPPOrderingSolution.agentWeFailedOn());
+                    if (!restartsStrategy.randomizeAStar && deterministicOrderings.contains(this.agents)) {
+                        break; // avoid infinite loop in deterministic ordering
                     }
 
                     ArrayList<Agent> newOrdering = new ArrayList<>(this.agents);
                     deterministicOrderings.add(newOrdering);
                     attemptedOrderings.add(newOrdering);
-                }
-                else { // deterministic restarts only restarts if no solution was found
+                } else {
                     break;
                 }
             }
-            // else: don't re-order. if the single agent solver is deterministic, nothing will change
         }
 
         return finalizeSolution(bestSolution);
     }
 
-    private void reportCompletedAttempt(int attemptNumber, Solution bestSolution) {
-        if (attemptNumber <= restartsStrategy.minAttempts){
-            if (reportIndvAttempts){
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " cost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
-                this.instanceReport.putIntegerValue("attempt #" + attemptNumber + " time", (int)((System.nanoTime()/1000000)-super.startTime));
+    private @NotNull PPOrderingSolution getPpOrderingSolution(MAPF_Instance instance, I_ConstraintSet initialConstraints, Solution bestSolution, int bestSolutionCost, int randomizationNumber) {
+        Solution solution = new Solution();
+        ConstraintSet currentConstraints = new ConstraintSet(initialConstraints);
+        Agent agentWeFailedOn = null;
+
+        // get a heuristic per agent according to the current order
+        int[] h = agents.stream().mapToInt(agent -> singleAgentGAndH.getHToTargetFromLocation(agent.target, instance.map.getMapLocation(agent.source))).toArray();
+        int naiveLowerBound = Arrays.stream(h).sum();
+        int currentH = naiveLowerBound;
+        int currentCost = 0;
+
+        // solve for each agent while avoiding the plans of previous agents (standard PrP)
+        for (int i = 0; i < agents.size(); i++) {
+            Agent agent = agents.get(i);
+            if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
+
+            // check if the cost of the next agent would exceed the best known solution
+            float maxCost = bestSolution != null ?
+                    bestSolutionCost - solutionCostFunction.solutionCost(solution)
+                    : Float.POSITIVE_INFINITY;
+
+            //todo tmp - can just set seed once per randomizationNumber rather than before each agent. This is like this to do the same amount of work per iteration in PRR* and PP or PrPr (PP-RR)
+            if (this.restartsStrategy.randomizeAStar){
+                singleAgentSolverRNG.setSeed(42 + randomizationNumber - 1);
             }
-            this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, attemptNumber);
+            else if (stableAStarAsSeed){
+                singleAgentSolverRNG.setSeed(42);
+            }
+
+            // solve the subproblem for one agent
+            SingleAgentPlan planForAgent = solveSubproblem(agent, instance, currentConstraints, maxCost, solution, this.restartsStrategy.randomizeAStar);
+
+            // Handle twiceEach condition
+            if (twiceEach) {
+                if (!this.restartsStrategy.randomizeAStar) {
+                    throw new IllegalArgumentException("twiceEach is only supported with randomizeAStar");
+                }
+                SingleAgentPlan planForAgent2 = solveSubproblem(agent, instance, currentConstraints, maxCost, solution, this.restartsStrategy.randomizeAStar);
+                if (planForAgent2 != null && planForAgent != null && planForAgent2.getCost() < planForAgent.getCost()){
+                    throw new IllegalStateException("A* isn't optimal");
+                }
+                if (planForAgent2 != null && planForAgent == null){
+                    planForAgent = planForAgent2;
+                }
+            }
+
+            if (planForAgent == null) {
+                solution = null;
+                agentWeFailedOn = agent;
+                break;
+            }
+
+            // save the plan for this agent
+            solution.putPlan(planForAgent);
+
+            // check if the lower bound on the cost is already higher than the best solution
+            int newPlanCost = singleAgentGAndH.cost(planForAgent);
+            currentCost += newPlanCost;
+            currentH -= h[i];
+            if (bestSolution != null && currentCost + currentH >= bestSolutionCost) {
+                if (Config.INFO >= 2) {
+                    System.out.println("PrP: Stopping attempt early after " + (i + 1) + " agents planned, due to lower bound. Solution cost: "
+                            + currentCost + " solution h: " + currentH + " (lower bound = " + (currentCost + currentH) + ")"
+                            + ", best cost: " + bestSolutionCost);
+                }
+                solution = null;
+                break;
+            }
+
+            // add constraints to prevent conflicts with this new plan
+            currentConstraints.addAll(currentConstraints.allConstraintsForPlan(planForAgent));
         }
-        else if (attemptNumber > restartsStrategy.minAttempts && restartsStrategy.hasContingency()){
-            this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, attemptNumber - restartsStrategy.minAttempts);
+
+        return new PPOrderingSolution(solution, agentWeFailedOn, naiveLowerBound);
+    }
+
+    private record PPOrderingSolution(Solution solution, Agent agentWeFailedOn, int naiveLowerBound) {
+    }
+
+
+    private void reportCompletedAttempt(int orderingNumber, Solution bestSolution, int randomizationNumber) {
+        if (orderingNumber <= restartsStrategy.minAttempts){
+            if (reportIndvAttempts){
+                this.instanceReport.putIntegerValue("ordering#" + orderingNumber + " randomization#" + randomizationNumber + " hasSolution", bestSolution != null ? 1 : 0);
+                this.instanceReport.putIntegerValue("ordering#" + orderingNumber + " randomization#" + randomizationNumber + " bestCost", bestSolution != null ? Math.round(this.solutionCostFunction.solutionCost(bestSolution)) : -1);
+                this.instanceReport.putIntegerValue("ordering#" + orderingNumber + " randomization#" + randomizationNumber + " totalTime", (int)((System.nanoTime()/1000000)-super.startTime));
+            }
+            this.instanceReport.putIntegerValue(COMPLETED_INITIAL_ATTEMPTS_STR, orderingNumber);
+        }
+        else if (orderingNumber > restartsStrategy.minAttempts && restartsStrategy.hasContingency()){
+            this.instanceReport.putIntegerValue(COMPLETED_CONTINGENCY_ATTEMPTS_STR, orderingNumber - restartsStrategy.minAttempts);
         }
     }
 
@@ -412,7 +463,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
         long timeLeftToTimeout = Math.max(super.maximumRuntime - (System.nanoTime()/1000000 - super.startTime), 0);
         RunParameters_SAAStar params = new RunParameters_SAAStar(new RunParametersBuilder().setTimeout(timeLeftToTimeout).
                 setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
-        if (randomizeAStar){
+        if (randomizeAStar || stableAStarAsSeed){
             params.randomNumberGenerator = this.singleAgentSolverRNG;
         }
         params.fBudget = maxCost;

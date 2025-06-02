@@ -50,9 +50,4 @@ public class ServiceTimeGAndH implements SingleAgentGAndH {
         }
         return cost(move);
     }
-
-    @Override
-    public boolean isTransient() {
-        return true;
-    }
 }

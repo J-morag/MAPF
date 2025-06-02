@@ -245,48 +245,6 @@ public class SingleAgentPlan implements Iterable<Move> {
     }
 
     /**
-     * Returns the number of conflicts between this and the other plan.
-     * @param other another {@link SingleAgentPlan}.
-     * @param sharedGoalsEnabled if agents can share the same goal location
-     * @param sharedSourcesEnabled if agents share the same source and so don't conflict if one of them has been staying there since the start
-     * @return the number of conflicts between this and the other plan.
-     */
-    public int countConflicts(SingleAgentPlan other, boolean sharedGoalsEnabled, boolean sharedSourcesEnabled){
-        int totalNumberOfConflicts = 0;
-        // find lower and upper bound for time, and check only in that range
-        //the min time to check is the max first move time
-        int minTime = Math.max(this.getFirstMoveTime(), other.getFirstMoveTime());
-        //the max time to check is the min last move time
-        int maxTime = Math.min(this.getEndTime(), other.getEndTime());
-        // if they both get to their goals at the same time and share it, it can't have a conflict
-        if (sharedGoalsEnabled && this.moveAt(this.getEndTime()).currLocation.equals(other.moveAt(other.getEndTime()).currLocation)
-                && this.getEndTime() == other.getEndTime()){
-            maxTime -= 1;
-        }
-        boolean localStayingAtSource = true;
-        boolean otherStayingAtSource = true;
-
-        for(int time = minTime; time<= maxTime; time++){
-            Move localMove = this.moveAt(time);
-            localStayingAtSource &= localMove.prevLocation.equals(localMove.currLocation);
-            Move otherMoveAtTime = other.moveAt(time);
-            otherStayingAtSource &= otherMoveAtTime.prevLocation.equals(otherMoveAtTime.currLocation);
-
-            A_Conflict firstConflict = A_Conflict.conflictBetween(localMove, otherMoveAtTime);
-            if(firstConflict != null && !(sharedSourcesEnabled && localStayingAtSource && otherStayingAtSource)){
-                totalNumberOfConflicts++;
-            }
-        }
-
-        // if we've made it all the way here, the plans don't conflict in their shared timespan.
-        // now check if one plan ended and then the other plan had a move that conflicts with the first plan's last position (goal)
-        if (firstConflictAtGoal(other, maxTime, sharedGoalsEnabled) != null) {
-            totalNumberOfConflicts++;
-        }
-        return totalNumberOfConflicts;
-    }
-
-    /**
      * Compares with another {@link SingleAgentPlan}, looking for vertex conflicts ({@link VertexConflict}) or
      * swapping conflicts ({@link SwappingConflict}). Runtime is O(the number of moves in this plan).
      * @return true if a conflict exists between the plans.

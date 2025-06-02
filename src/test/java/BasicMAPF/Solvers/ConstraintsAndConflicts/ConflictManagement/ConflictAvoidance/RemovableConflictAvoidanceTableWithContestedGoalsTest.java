@@ -3,12 +3,6 @@ package BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvo
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.Agent;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
-import BasicMAPF.Instances.InstanceManager;
-import BasicMAPF.Instances.InstanceProperties;
-import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import Environment.IO_Package.IO_Manager;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -291,71 +285,5 @@ class RemovableConflictAvoidanceTableWithContestedGoalsTest {
         Agent queryingAgent = new Agent(2, coor05, coor04);
         int conflicts = conflictAvoidanceTable.numConflicts(new Move(queryingAgent, 1, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor04)), false);
         assertEquals(0, conflicts);
-    }
-
-
-    @Test
-    void testFirstConflictTime_IdentifiesSwappingConflict_BetweenTwoPlans() {
-        String path = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, "Instances", "MovingAI"});
-        // use map empty-48-48, instance empty-48-48-even-5, agents 1 and 7
-        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(), new InstanceProperties(null, -1d, new int[]{10}));
-        MAPF_Instance instance;
-        boolean foundInstance = false;
-        while ((instance = instanceManager.getNextInstance()) != null) {
-            if (! instance.extendedName.equals("empty-48-48-even-5.scen")) {
-                continue;
-            }
-            foundInstance = true;
-            System.out.println("Testing instance: " + instance.extendedName);
-            Agent agent1 = instance.agents.get(1);
-            Agent agent7 = instance.agents.get(7);
-            // plan agent 1
-            SingleAgentPlan plan1 = new SingleAgentPlan(agent1);
-            plan1.addMoves(List.of(
-                    new Move(agent1, 189, instance.map.getMapLocation(new Coordinate_2D(36, 36)), instance.map.getMapLocation(new Coordinate_2D(36, 36))),
-                    new Move(agent1, 190, instance.map.getMapLocation(new Coordinate_2D(36, 36)), instance.map.getMapLocation(new Coordinate_2D(36, 35))),
-                    new Move(agent1, 191, instance.map.getMapLocation(new Coordinate_2D(36, 35)), instance.map.getMapLocation(new Coordinate_2D(36, 34))),
-                    new Move(agent1, 192, instance.map.getMapLocation(new Coordinate_2D(36, 34)), instance.map.getMapLocation(new Coordinate_2D(36, 33))),
-                    new Move(agent1, 193, instance.map.getMapLocation(new Coordinate_2D(36, 33)), instance.map.getMapLocation(new Coordinate_2D(36, 32))),
-                    new Move(agent1, 194, instance.map.getMapLocation(new Coordinate_2D(36, 32)), instance.map.getMapLocation(new Coordinate_2D(36, 31))),
-                    new Move(agent1, 195, instance.map.getMapLocation(new Coordinate_2D(36, 31)), instance.map.getMapLocation(new Coordinate_2D(36, 30))),
-                    new Move(agent1, 196, instance.map.getMapLocation(new Coordinate_2D(36, 30)), instance.map.getMapLocation(new Coordinate_2D(36, 29))),
-                    new Move(agent1, 197, instance.map.getMapLocation(new Coordinate_2D(36, 29)), instance.map.getMapLocation(new Coordinate_2D(36, 28))),
-                    new Move(agent1, 198, instance.map.getMapLocation(new Coordinate_2D(36, 28)), instance.map.getMapLocation(new Coordinate_2D(37, 28))),
-                    new Move(agent1, 199, instance.map.getMapLocation(new Coordinate_2D(37, 28)), instance.map.getMapLocation(new Coordinate_2D(38, 28))),
-                    new Move(agent1, 200, instance.map.getMapLocation(new Coordinate_2D(38, 28)), instance.map.getMapLocation(new Coordinate_2D(39, 28))),
-                    new Move(agent1, 201, instance.map.getMapLocation(new Coordinate_2D(39, 28)), instance.map.getMapLocation(new Coordinate_2D(40, 28)))
-            ));
-            // plan agent 7
-            SingleAgentPlan plan7 = new SingleAgentPlan(agent7);
-            plan7.addMoves(List.of(
-                    new Move(agent7, 189, instance.map.getMapLocation(new Coordinate_2D(36, 29)), instance.map.getMapLocation(new Coordinate_2D(36, 29))),
-                    new Move(agent7, 190, instance.map.getMapLocation(new Coordinate_2D(36, 29)), instance.map.getMapLocation(new Coordinate_2D(36, 30))),
-                    new Move(agent7, 191, instance.map.getMapLocation(new Coordinate_2D(36, 30)), instance.map.getMapLocation(new Coordinate_2D(36, 31))),
-                    new Move(agent7, 192, instance.map.getMapLocation(new Coordinate_2D(36, 31)), instance.map.getMapLocation(new Coordinate_2D(36, 32))),
-                    new Move(agent7, 193, instance.map.getMapLocation(new Coordinate_2D(36, 32)), instance.map.getMapLocation(new Coordinate_2D(36, 33))),
-                    new Move(agent7, 194, instance.map.getMapLocation(new Coordinate_2D(36, 33)), instance.map.getMapLocation(new Coordinate_2D(36, 34))),
-                    new Move(agent7, 195, instance.map.getMapLocation(new Coordinate_2D(36, 34)), instance.map.getMapLocation(new Coordinate_2D(35, 34))),
-                    new Move(agent7, 196, instance.map.getMapLocation(new Coordinate_2D(35, 34)), instance.map.getMapLocation(new Coordinate_2D(34, 34))),
-                    new Move(agent7, 197, instance.map.getMapLocation(new Coordinate_2D(34, 34)), instance.map.getMapLocation(new Coordinate_2D(33, 34))),
-                    new Move(agent7, 198, instance.map.getMapLocation(new Coordinate_2D(33, 34)), instance.map.getMapLocation(new Coordinate_2D(32, 34))),
-                    new Move(agent7, 199, instance.map.getMapLocation(new Coordinate_2D(32, 34)), instance.map.getMapLocation(new Coordinate_2D(31, 34))),
-                    new Move(agent7, 200, instance.map.getMapLocation(new Coordinate_2D(31, 34)), instance.map.getMapLocation(new Coordinate_2D(30, 34))),
-                    new Move(agent7, 201, instance.map.getMapLocation(new Coordinate_2D(30, 34)), instance.map.getMapLocation(new Coordinate_2D(29, 34)))
-            ));
-
-            RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
-            conflictAvoidanceTable.addPlan(plan1);
-
-            System.out.println("Adding plan 1");
-            assertEquals(193, conflictAvoidanceTable.firstConflictTime(plan7.moveAt(193), false));
-
-            conflictAvoidanceTable.removePlan(plan1);
-
-            System.out.println("Adding plan 7");
-            conflictAvoidanceTable.addPlan(plan7);
-            assertEquals(193, conflictAvoidanceTable.firstConflictTime(plan1.moveAt(193), false));
-        }
-        assertTrue(foundInstance, "No instance found with name empty-48-48-even-5.scen");
     }
 }
