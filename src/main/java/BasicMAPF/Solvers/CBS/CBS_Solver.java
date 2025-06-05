@@ -231,7 +231,7 @@ public class CBS_Solver extends A_Solver {
             I_ConflictManager cat = getConflictManagerFor(node);
             node.setSelectedConflict(cat.selectConflict());
 
-            if(isGoal(node)){
+            if(isGoal(node)){ // todo early goal test
                 return node;
             }
             else {

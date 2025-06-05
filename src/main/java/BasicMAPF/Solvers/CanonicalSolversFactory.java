@@ -3,6 +3,7 @@ package BasicMAPF.Solvers;
 import BasicMAPF.CostFunctions.ConflictsCount;
 import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPPS_Solver;
+import BasicMAPF.DataTypesAndStructures.MDDs.OnePathAStarMDDBuilderFactory;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
@@ -16,10 +17,9 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.solutionsGeneratorForLNS2;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PriorityConstrainedSearch;
+import BasicMAPF.Solvers.PathAndPrioritySearch.*;
 import TransientMAPF.TransientMAPFSettings;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSCompLexical;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -53,6 +53,12 @@ public class CanonicalSolversFactory {
     public final static String LNS2t_NAME = "LNS2t";
     public final static String PCS_NAME = "PCS";
     public final static String PCS_LEXICAL_NAME = "PCS_Lexical";
+    public final static String PaPS_NAME = "PaPS";
+    public final static String NAIVE_PaPS_NAME = "NaivePaPS";
+    public final static String NAIVE_PaPS_UNIFIED_OPEN_NAME = "NaivePaPSUnifiedOpen";
+    public final static String PP_BY_USING_PaPS = "PP_byUsingPaPS";
+    public final static String PFCS_NAME = "PFCS";
+    public final static String NAIVE_PFCS_UNIFIED_OPEN_NAME = "NaivePFCSUnifiedOpen";
     public final static String ASTAR_NAME = "AStar";
     public final static String SIPP_NAME = "SIPP";
     public final static String SIPPS_NAME = "SIPPS";
@@ -229,6 +235,42 @@ public class CanonicalSolversFactory {
                 PCS_LEXICAL_NAME,
                 "Priority Constrained Search with Lexical cost function",
                 CanonicalSolversFactory::createPCSLexicalSolver
+        ));
+
+        regs.put(PaPS_NAME, new SolverRegistration<>(
+                PaPS_NAME,
+                "Path and Priority Search",
+                CanonicalSolversFactory::createPaPSSolver
+        ));
+
+        regs.put(NAIVE_PaPS_NAME, new SolverRegistration<>(
+                NAIVE_PaPS_NAME,
+                "Naive Path and Priority Search",
+                CanonicalSolversFactory::createNaivePaPSSolver
+        ));
+
+        regs.put(NAIVE_PaPS_UNIFIED_OPEN_NAME, new SolverRegistration<>(
+                NAIVE_PaPS_UNIFIED_OPEN_NAME,
+                "Naive Path and Priority Search with Unified Open List",
+                CanonicalSolversFactory::createNaivePaPSUnifiedOpenSolver
+        ));
+
+        regs.put(PP_BY_USING_PaPS, new SolverRegistration<>(
+                PP_BY_USING_PaPS,
+                "PP by using PaPS with one ordering and paths instead of MDDs",
+                CanonicalSolversFactory::createPP_byUsingPaPS
+        ));
+
+        regs.put(PFCS_NAME, new SolverRegistration<>(
+                PFCS_NAME,
+                "Path-Function Constrained Search",
+                CanonicalSolversFactory::createPFCSSolver
+        ));
+
+        regs.put(NAIVE_PFCS_UNIFIED_OPEN_NAME, new SolverRegistration<>(
+                NAIVE_PFCS_UNIFIED_OPEN_NAME,
+                "Naive Path-Function Constrained Search with Unified Open List",
+                CanonicalSolversFactory::createNaivePFCSUnifiedOpenSolver
         ));
 
         regs.put(ASTAR_NAME, new SolverRegistration<>(
@@ -453,12 +495,48 @@ public class CanonicalSolversFactory {
                 .setSolutionCostFunction(new ConflictsCount(false, false)).setLNS2(true).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLNS();
     }
 
-    public static PriorityConstrainedSearch createPCSSolver() {
-        return new PCSBuilder().createPCS();
+    public static PathAndPrioritySearch createPCSSolver() {
+        PathAndPrioritySearch pcsSolver = new PaPSBuilder().setNoAgentsSplit(true).createPaPS();
+        pcsSolver.setName(PCS_NAME);
+        return pcsSolver;
     }
 
-    public static PriorityConstrainedSearch createPCSLexicalSolver() {
-        return new PCSBuilder().setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPCS();
+    public static PathAndPrioritySearch createPCSLexicalSolver() {
+        PathAndPrioritySearch pcsLexicalSolver = new PaPSBuilder().setNoAgentsSplit(true).setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPaPS();;
+        pcsLexicalSolver.setName(PCS_LEXICAL_NAME);
+        return pcsLexicalSolver;
+    }
+
+    public static PathAndPrioritySearch createPaPSSolver() {
+        return new PaPSBuilder().createPaPS();
+    }
+
+    public static NaivePaPS createNaivePaPSSolver() {
+        return new NaivePaPS(null, null, -1);
+    }
+
+    public static PathAndPrioritySearch createNaivePaPSUnifiedOpenSolver() {
+        PathAndPrioritySearch unifiedOpenSolver = new PaPSBuilder().setRootGenerator(new NaivePaPSUnifiedOpenPCSRG()).createPaPS();
+        unifiedOpenSolver.setName(NAIVE_PaPS_UNIFIED_OPEN_NAME);
+        return unifiedOpenSolver;
+    }
+
+    public static PathAndPrioritySearch createPP_byUsingPaPS() {
+        throw new NotImplementedException("PP by using PaPS is not implemented yet.");
+        // todo still needs an appropriate goal condition too
+//        return new PaPSBuilder().setMddSearcherFactory(new OnePathAStarMDDBuilderFactory()).setNodeComparator((a, b) -> Integer.compare(b.MDDs().size(), a.MDDs().size())).createPaPS();
+    }
+
+    public static PathAndPrioritySearch createPFCSSolver() {
+        PathAndPrioritySearch pfcsSolver = new PaPSBuilder().setMddSearcherFactory(new OnePathAStarMDDBuilderFactory()).createPaPS();;
+        pfcsSolver.setName(PFCS_NAME);
+        return pfcsSolver;
+    }
+
+    public static PathAndPrioritySearch createNaivePFCSUnifiedOpenSolver() {
+        PathAndPrioritySearch PFCSUnifiedOpenSolver = new PaPSBuilder().setMddSearcherFactory(new OnePathAStarMDDBuilderFactory()).setRootGenerator(new NaivePaPSUnifiedOpenPCSRG()).createPaPS();
+        PFCSUnifiedOpenSolver.setName(NAIVE_PFCS_UNIFIED_OPEN_NAME);
+        return PFCSUnifiedOpenSolver;
     }
 
     public static SingleAgentAStar_Solver createAStarSolver() {

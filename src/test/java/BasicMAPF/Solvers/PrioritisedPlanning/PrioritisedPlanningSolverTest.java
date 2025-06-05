@@ -9,6 +9,7 @@ import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.TestUtils;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import Environment.Config;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -332,7 +333,7 @@ class PrioritisedPlanningSolverTest {
         String nameExperimental = competitorSolver.getName();
 
         TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
-                nameExperimental, false, false, new int[]{100}, 10, 0);
+                nameExperimental, false, false, new int[]{100}, 5 * Config.TESTS_SCOPE, 0);
     }
 
     @Test
@@ -346,7 +347,7 @@ class PrioritisedPlanningSolverTest {
         String nameExperimental = "AStar Restarts";
 
         TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
-                nameExperimental, false, false, new int[]{100}, 10, 0);
+                nameExperimental, false, false, new int[]{100}, 5 * Config.TESTS_SCOPE, 0);
     }
 
 
@@ -361,7 +362,7 @@ class PrioritisedPlanningSolverTest {
         String nameExperimental = "AStar Restarts";
 
         TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
-                nameExperimental, false, false, new int[]{100}, 10, 0);
+                nameExperimental, false, false, new int[]{100}, 5 * Config.TESTS_SCOPE, 0);
     }
 
     @Test

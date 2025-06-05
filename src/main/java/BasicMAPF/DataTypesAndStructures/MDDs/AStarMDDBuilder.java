@@ -6,6 +6,7 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
+import Environment.Config;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,14 +63,22 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                 openList.add(node);
                 contentOfOpen.put(node, node);
             } else if (node.getG() == inOpen.getG()) {
-                inOpen.addParents(node.getParents()); // without time ceiling, only this is needed (unconditionally)
+                if (Config.DEBUG >= 2){
+                    for (MDDSearchNode parent : node.getParents()) {
+                        if (inOpen.getParents().contains((parent))){
+                            throw new IllegalStateException("parents should have been a set?");
+                        }
+                    }
+                }
+                addNodeParents(inOpen, node.getParents()); // without time ceiling, only this is needed (unconditionally)
             }
         }
         else if((inClosed = closeList.get(node)) != null){
             if (node.getG() < inClosed.getG()){
                 throw new IllegalStateException("Should not enter here, because we should not get a new node if it is in closed list with a lower g");
+                // todo should not happen for "==" either? because we don't allow duplicates in OPEN, so that would imply 0 cost edges?
             } else if (node.getG() == inClosed.getG()) {
-                inClosed.addParents(node.getParents());
+                addNodeParents(inClosed, node.getParents());
             }
         }
         else{
@@ -113,7 +122,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                 return null;
             MDDSearchNode current = pollFromOpen();
             if (VERBOSE >= 3) System.out.println(this.getClass().getSimpleName() + "current is " + current.getLocation() + " at time " + current.getT() + " with g=" + current.getG() + " and h=" + current.getH());
-            if(depthOfSolution > -1 && current.getF() > depthOfSolution)
+            if(pausingCondition(depthOfSolution, current, goal))
             {
                 addToOpen(current);
                 break;
@@ -142,6 +151,10 @@ public class AStarMDDBuilder extends A_MDDSearcher {
         return goal;
     }
 
+    protected boolean pausingCondition(int depthOfSolution, MDDSearchNode current, MDDSearchNode goal) {
+        return depthOfSolution > -1 && current.getF() > depthOfSolution;
+    }
+
     @Override
     public MDD searchToFirstSolution(@Nullable I_ConstraintSet constraints) {
         if (openList != null)
@@ -153,7 +166,7 @@ public class AStarMDDBuilder extends A_MDDSearcher {
     }
 
     @Nullable
-    private MDD MDDFromGoalNode(MDDSearchNode goal) {
+    protected MDD MDDFromGoalNode(MDDSearchNode goal) {
         return goal == null ? null : new MDD(goal);
     }
 
@@ -187,10 +200,18 @@ public class AStarMDDBuilder extends A_MDDSearcher {
                     constraints.rejects(new Move(agent, newTime, parent.getLocation(), location)))
                 continue;
             MDDSearchNode neighbor = new MDDSearchNode(agent, location, newG, newH, newTime);
-            neighbor.addParent(parent);
+            addNodeParent(neighbor, parent);
             addToOpen(neighbor);
         }
         addToClose(parent);
+    }
+
+    protected void addNodeParents(@NotNull MDDSearchNode node, @NotNull List<MDDSearchNode> parents) {
+        node.addParents(parents);
+    }
+
+    protected void addNodeParent(@NotNull MDDSearchNode node, @NotNull MDDSearchNode parent) {
+        node.addParent(parent);
     }
 
     protected boolean isGoalState(MDDSearchNode node) {

@@ -139,7 +139,6 @@ public abstract class A_Solver implements I_Solver{
         instanceReport.putIntegerValue(InstanceReport.StandardFields.generatedNodes, this.generatedNodes);
         instanceReport.putFloatValue(InstanceReport.StandardFields.generationRate, (float) this.generatedNodes / ((float) (elapsedTime) / 1000f));
 
-        //todo bring expanded and generated nodes up here, add rates
         if(solution != null){
             instanceReport.putIntegerValue(InstanceReport.StandardFields.runtimeToFirstSolution,
                     runtimeToFirstSolution >= 0 ? runtimeToFirstSolution : (int)(endTime-startTime));

@@ -21,7 +21,6 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
 import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -76,9 +75,17 @@ public class PerformanceBenchmarkTest {
 
     @Test
     public void PCSStressTest() {
-        I_Solver solver = new PCSBuilder().createPCS();
+        I_Solver solver = CanonicalSolversFactory.createPCSSolver();
         long timeout = 1000 * 30;
         int numAgents = 20;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
+    public void PaPSStressTest() {
+        I_Solver solver = CanonicalSolversFactory.createPaPSSolver();
+        long timeout = 1000 * 30;
+        int numAgents = 10;
         stressTest(solver, timeout, numAgents, false);
     }
 

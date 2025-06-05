@@ -102,6 +102,23 @@ jobs:
 
       - env:
           SOLVER:
+            PaPS
+        name: Store benchmark result - ${{ env.SOLVER }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ env.SOLVER }} Benchmark
+          tool: 'customSmallerIsBetter'
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DATA_DIR_PATH }}
+          output-file-path: src/test/out/bench-result-${{ env.SOLVER }}.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: ${{ env.FAIL_ON_ALERT }}
+
+      - env:
+          SOLVER:
             "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts"
         name: Store benchmark result - ${{ env.SOLVER }}
         uses: benchmark-action/github-action-benchmark@v1
