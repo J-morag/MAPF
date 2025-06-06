@@ -19,7 +19,6 @@ import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.Solvers.PathAndPrioritySearch.*;
 import TransientMAPF.TransientMAPFSettings;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -56,7 +55,6 @@ public class CanonicalSolversFactory {
     public final static String PaPS_NAME = "PaPS";
     public final static String NAIVE_PaPS_NAME = "NaivePaPS";
     public final static String NAIVE_PaPS_UNIFIED_OPEN_NAME = "NaivePaPSUnifiedOpen";
-    public final static String PP_BY_USING_PaPS = "PP_byUsingPaPS";
     public final static String PFCS_NAME = "PFCS";
     public final static String NAIVE_PFCS_UNIFIED_OPEN_NAME = "NaivePFCSUnifiedOpen";
     public final static String ASTAR_NAME = "AStar";
@@ -253,12 +251,6 @@ public class CanonicalSolversFactory {
                 NAIVE_PaPS_UNIFIED_OPEN_NAME,
                 "Naive Path and Priority Search with Unified Open List",
                 CanonicalSolversFactory::createNaivePaPSUnifiedOpenSolver
-        ));
-
-        regs.put(PP_BY_USING_PaPS, new SolverRegistration<>(
-                PP_BY_USING_PaPS,
-                "PP by using PaPS with one ordering and paths instead of MDDs",
-                CanonicalSolversFactory::createPP_byUsingPaPS
         ));
 
         regs.put(PFCS_NAME, new SolverRegistration<>(
@@ -508,7 +500,9 @@ public class CanonicalSolversFactory {
     }
 
     public static PathAndPrioritySearch createPaPSSolver() {
-        return new PaPSBuilder().createPaPS();
+        PathAndPrioritySearch PaPS = new PaPSBuilder().createPaPS();
+        PaPS.setName(PaPS_NAME);
+        return PaPS;
     }
 
     public static NaivePaPS createNaivePaPSSolver() {
@@ -519,12 +513,6 @@ public class CanonicalSolversFactory {
         PathAndPrioritySearch unifiedOpenSolver = new PaPSBuilder().setRootGenerator(new NaivePaPSUnifiedOpenPCSRG()).createPaPS();
         unifiedOpenSolver.setName(NAIVE_PaPS_UNIFIED_OPEN_NAME);
         return unifiedOpenSolver;
-    }
-
-    public static PathAndPrioritySearch createPP_byUsingPaPS() {
-        throw new NotImplementedException("PP by using PaPS is not implemented yet.");
-        // todo still needs an appropriate goal condition too
-//        return new PaPSBuilder().setMddSearcherFactory(new OnePathAStarMDDBuilderFactory()).setNodeComparator((a, b) -> Integer.compare(b.MDDs().size(), a.MDDs().size())).createPaPS();
     }
 
     public static PathAndPrioritySearch createPFCSSolver() {

@@ -197,18 +197,4 @@ class PathAndPrioritySearchTest {
                 nameExperimental, false, false, new int[]{5, 9, 12}, 5 * Config.TESTS_SCOPE, 0);
     }
 
-    // todo - not implemented yet
-//    @Test
-//    void comparativeTestPrioritisedPlanningVsPP_byUsingPaPS(){
-//        // the one that uses PaPS is a little stronger since it can backtrack if it
-//        I_Solver baselineSolver = CanonicalSolversFactory.createPPSolver();
-//        String nameBaseline = baselineSolver.getName();
-//
-//        I_Solver competitorSolver = CanonicalSolversFactory.createPP_byUsingPaPS();
-//        String nameExperimental = competitorSolver.getName();
-//
-//        TestUtils.comparativeTest(baselineSolver, nameBaseline, false, false, competitorSolver,
-//                nameExperimental, false, false, new int[]{10, 15, 20}, 5 * Config.TESTS_SCOPE, 0);
-//    }
-
 }

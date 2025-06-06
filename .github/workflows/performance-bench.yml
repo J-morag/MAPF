@@ -85,7 +85,7 @@ jobs:
 
       - env:
           SOLVER:
-            Priority Constrained Search
+            PCS
         name: Store benchmark result - ${{ env.SOLVER }}
         uses: benchmark-action/github-action-benchmark@v1
         with:
