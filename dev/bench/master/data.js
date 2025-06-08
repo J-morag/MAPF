@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1749397601009,
+  "lastUpdate": 1749397602030,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -29995,6 +29995,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "LNS2-CollisionBasedDestroyHeuristic - Average Expansions Low Level",
             "value": 93876.24,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4a099d12b7b7aea2df6abd9172c92c571c8253d",
+          "message": "V0.13.0 - P-MAPF (#107)\n\n* Add LNS1 agent based destroy heuristic\n* Prioritised MAPF (P-MAPF), with Path and Priority Search (PaPS)\n* Priotiry Constrained MAPF (PC-MAPF), with PCS. Existed before, but now refactored to be a modification of PaPS.\n* Path-Function Constrained MAPF (PFC-MAPF), with PFCS",
+          "timestamp": "2025-06-08T17:00:45+03:00",
+          "tree_id": "b26dd57532d13c82cf38a7d0c0046d73f6450a2f",
+          "url": "https://github.com/J-morag/MAPF/commit/b4a099d12b7b7aea2df6abd9172c92c571c8253d"
+        },
+        "date": 1749397601731,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Fails",
+            "value": 14,
+            "unit": "Instances"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Cost",
+            "value": 22829.895,
+            "unit": "SOC"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Runtime",
+            "value": 2121.2727,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Runtime Low Level",
+            "value": 1358.8485,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Expansions Low Level",
+            "value": 100100.37,
             "unit": "Expansions"
           }
         ]
