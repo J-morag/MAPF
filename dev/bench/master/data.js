@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1749398623993,
+  "lastUpdate": 1749398625037,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -31997,6 +31997,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PaPS - Average Expansions Low Level",
             "value": 3778531.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a76f86a200eb3757dafe540bbb6edf1ea66e5234",
+          "message": "Update README.md",
+          "timestamp": "2025-06-08T17:17:25+03:00",
+          "tree_id": "e6a149df7a3394dc5f48ad13afb3872b2f608698",
+          "url": "https://github.com/J-morag/MAPF/commit/a76f86a200eb3757dafe540bbb6edf1ea66e5234"
+        },
+        "date": 1749398624726,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PaPS - Fails",
+            "value": 11,
+            "unit": "Instances"
+          },
+          {
+            "name": "PaPS - Average Cost",
+            "value": 1224.0454,
+            "unit": "SOC"
+          },
+          {
+            "name": "PaPS - Average Runtime",
+            "value": 12201.637,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Expansions High Level",
+            "value": 3730.4243,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PaPS - Average Expansions Low Level",
+            "value": 3747686.5,
             "unit": "Expansions"
           }
         ]
