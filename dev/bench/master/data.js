@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1749397596899,
+  "lastUpdate": 1749397597944,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -29889,6 +29889,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "PCS - Average Expansions Low Level",
             "value": 2447483,
+            "unit": "Expansions"
+          }
+        ]
+      }
+    ],
+    "PaPS Benchmark": [
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4a099d12b7b7aea2df6abd9172c92c571c8253d",
+          "message": "V0.13.0 - P-MAPF (#107)\n\n* Add LNS1 agent based destroy heuristic\n* Prioritised MAPF (P-MAPF), with Path and Priority Search (PaPS)\n* Priotiry Constrained MAPF (PC-MAPF), with PCS. Existed before, but now refactored to be a modification of PaPS.\n* Path-Function Constrained MAPF (PFC-MAPF), with PFCS",
+          "timestamp": "2025-06-08T17:00:45+03:00",
+          "tree_id": "b26dd57532d13c82cf38a7d0c0046d73f6450a2f",
+          "url": "https://github.com/J-morag/MAPF/commit/b4a099d12b7b7aea2df6abd9172c92c571c8253d"
+        },
+        "date": 1749397597621,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PaPS - Fails",
+            "value": 11,
+            "unit": "Instances"
+          },
+          {
+            "name": "PaPS - Average Cost",
+            "value": 1224.0454,
+            "unit": "SOC"
+          },
+          {
+            "name": "PaPS - Average Runtime",
+            "value": 12156.546,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Expansions High Level",
+            "value": 3734.7576,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PaPS - Average Expansions Low Level",
+            "value": 3819439.8,
             "unit": "Expansions"
           }
         ]
