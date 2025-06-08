@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1749397604076,
+  "lastUpdate": 1749397605100,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -19432,6 +19432,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "AStar - Average Runtime",
             "value": 1696.7758,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "AStar - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "AStar - Average Expansions Low Level",
+            "value": 538202.3,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4a099d12b7b7aea2df6abd9172c92c571c8253d",
+          "message": "V0.13.0 - P-MAPF (#107)\n\n* Add LNS1 agent based destroy heuristic\n* Prioritised MAPF (P-MAPF), with Path and Priority Search (PaPS)\n* Priotiry Constrained MAPF (PC-MAPF), with PCS. Existed before, but now refactored to be a modification of PaPS.\n* Path-Function Constrained MAPF (PFC-MAPF), with PFCS",
+          "timestamp": "2025-06-08T17:00:45+03:00",
+          "tree_id": "b26dd57532d13c82cf38a7d0c0046d73f6450a2f",
+          "url": "https://github.com/J-morag/MAPF/commit/b4a099d12b7b7aea2df6abd9172c92c571c8253d"
+        },
+        "date": 1749397604805,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "AStar - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "AStar - Average Cost",
+            "value": 359.34546,
+            "unit": "SOC"
+          },
+          {
+            "name": "AStar - Average Runtime",
+            "value": 1439.9152,
             "unit": "Milliseconds"
           },
           {
