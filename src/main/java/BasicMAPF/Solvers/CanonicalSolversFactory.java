@@ -3,6 +3,7 @@ package BasicMAPF.Solvers;
 import BasicMAPF.CostFunctions.ConflictsCount;
 import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPPS_Solver;
+import BasicMAPF.DataTypesAndStructures.MDDs.OnePathAStarMDDBuilderFactory;
 import BasicMAPF.Solvers.AStar.SingleAgentAStarSIPP_Solver;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CBS.CBSBuilder;
@@ -16,10 +17,8 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.solutionsGeneratorForLNS2;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSBuilder;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PriorityConstrainedSearch;
+import BasicMAPF.Solvers.PathAndPrioritySearch.*;
 import TransientMAPF.TransientMAPFSettings;
-import BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees.PCSCompLexical;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -53,6 +52,11 @@ public class CanonicalSolversFactory {
     public final static String LNS2t_NAME = "LNS2t";
     public final static String PCS_NAME = "PCS";
     public final static String PCS_LEXICAL_NAME = "PCS_Lexical";
+    public final static String PaPS_NAME = "PaPS";
+    public final static String NAIVE_PaPS_NAME = "NaivePaPS";
+    public final static String NAIVE_PaPS_UNIFIED_OPEN_NAME = "NaivePaPSUnifiedOpen";
+    public final static String PFCS_NAME = "PFCS";
+    public final static String NAIVE_PFCS_UNIFIED_OPEN_NAME = "NaivePFCSUnifiedOpen";
     public final static String ASTAR_NAME = "AStar";
     public final static String SIPP_NAME = "SIPP";
     public final static String SIPPS_NAME = "SIPPS";
@@ -184,37 +188,38 @@ public class CanonicalSolversFactory {
 
         regs.put(LNS1_NAME, new SolverRegistration<>(
                 LNS1_NAME,
-                "Large Neighborhood Search 1",
+                "(Adaptive) Large Neighborhood Search 1, with Random, Map-based, and Agent-based destroy heuristics",
                 CanonicalSolversFactory::createLNS1Solver
         ));
 
         regs.put(LNS1_SIPP_NAME, new SolverRegistration<>(
                 LNS1_SIPP_NAME,
-                "Large Neighborhood Search 1 using SIPP",
+                "(Adaptive) Large Neighborhood Search 1 using SIPP",
                 CanonicalSolversFactory::createLNS1SIPPSolver
         ));
 
         regs.put(LNS1_SIPPt_NAME, new SolverRegistration<>(
                 LNS1_SIPPt_NAME,
-                "Large Neighborhood Search 1 using SIPPt with Transient MAPF",
+                "(Adaptive) Large Neighborhood Search 1 using SIPPt with Transient MAPF",
                 CanonicalSolversFactory::createLNS1SIPPtSolver
         ));
 
         regs.put(LNS1t_NAME, new SolverRegistration<>(
                 LNS1t_NAME,
-                "Large Neighborhood Search 1 with Transient MAPF",
+                "(Adaptive) Large Neighborhood Search 1 with Transient MAPF",
                 CanonicalSolversFactory::createLNS1tSolver
         ));
 
         regs.put(LNS2_NAME, new SolverRegistration<>(
                 LNS2_NAME,
-                "Large Neighborhood Search 2",
+                // Experiments showed using just Collision-based generally performed best.
+                "Large Neighborhood Search 2, with Collision-based destroy heuristic",
                 CanonicalSolversFactory::createLNS2Solver
         ));
 
         regs.put(LNS2t_NAME, new SolverRegistration<>(
                 LNS2t_NAME,
-                "Large Neighborhood Search 2 with Transient MAPF",
+                "Large Neighborhood Search 2, with Collision-based destroy heuristic, with Transient MAPF",
                 CanonicalSolversFactory::createLNS2tSolver
         ));
 
@@ -228,6 +233,36 @@ public class CanonicalSolversFactory {
                 PCS_LEXICAL_NAME,
                 "Priority Constrained Search with Lexical cost function",
                 CanonicalSolversFactory::createPCSLexicalSolver
+        ));
+
+        regs.put(PaPS_NAME, new SolverRegistration<>(
+                PaPS_NAME,
+                "Path and Priority Search",
+                CanonicalSolversFactory::createPaPSSolver
+        ));
+
+        regs.put(NAIVE_PaPS_NAME, new SolverRegistration<>(
+                NAIVE_PaPS_NAME,
+                "Naive Path and Priority Search",
+                CanonicalSolversFactory::createNaivePaPSSolver
+        ));
+
+        regs.put(NAIVE_PaPS_UNIFIED_OPEN_NAME, new SolverRegistration<>(
+                NAIVE_PaPS_UNIFIED_OPEN_NAME,
+                "Naive Path and Priority Search with Unified Open List",
+                CanonicalSolversFactory::createNaivePaPSUnifiedOpenSolver
+        ));
+
+        regs.put(PFCS_NAME, new SolverRegistration<>(
+                PFCS_NAME,
+                "Path-Function Constrained Search",
+                CanonicalSolversFactory::createPFCSSolver
+        ));
+
+        regs.put(NAIVE_PFCS_UNIFIED_OPEN_NAME, new SolverRegistration<>(
+                NAIVE_PFCS_UNIFIED_OPEN_NAME,
+                "Naive Path-Function Constrained Search with Unified Open List",
+                CanonicalSolversFactory::createNaivePFCSUnifiedOpenSolver
         ));
 
         regs.put(ASTAR_NAME, new SolverRegistration<>(
@@ -452,12 +487,44 @@ public class CanonicalSolversFactory {
                 .setSolutionCostFunction(new ConflictsCount(false, false)).setLNS2(true).setTransientMAPFBehaviour(TransientMAPFSettings.defaultTransientMAPF).createLNS();
     }
 
-    public static PriorityConstrainedSearch createPCSSolver() {
-        return new PCSBuilder().createPCS();
+    public static PathAndPrioritySearch createPCSSolver() {
+        PathAndPrioritySearch pcsSolver = new PaPSBuilder().setNoAgentsSplit(true).createPaPS();
+        pcsSolver.setName(PCS_NAME);
+        return pcsSolver;
     }
 
-    public static PriorityConstrainedSearch createPCSLexicalSolver() {
-        return new PCSBuilder().setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPCS();
+    public static PathAndPrioritySearch createPCSLexicalSolver() {
+        PathAndPrioritySearch pcsLexicalSolver = new PaPSBuilder().setNoAgentsSplit(true).setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPaPS();;
+        pcsLexicalSolver.setName(PCS_LEXICAL_NAME);
+        return pcsLexicalSolver;
+    }
+
+    public static PathAndPrioritySearch createPaPSSolver() {
+        PathAndPrioritySearch PaPS = new PaPSBuilder().createPaPS();
+        PaPS.setName(PaPS_NAME);
+        return PaPS;
+    }
+
+    public static NaivePaPS createNaivePaPSSolver() {
+        return new NaivePaPS(null, null, -1);
+    }
+
+    public static PathAndPrioritySearch createNaivePaPSUnifiedOpenSolver() {
+        PathAndPrioritySearch unifiedOpenSolver = new PaPSBuilder().setRootGenerator(new NaivePaPSUnifiedOpenPCSRG()).createPaPS();
+        unifiedOpenSolver.setName(NAIVE_PaPS_UNIFIED_OPEN_NAME);
+        return unifiedOpenSolver;
+    }
+
+    public static PathAndPrioritySearch createPFCSSolver() {
+        PathAndPrioritySearch pfcsSolver = new PaPSBuilder().setMddSearcherFactory(new OnePathAStarMDDBuilderFactory()).createPaPS();;
+        pfcsSolver.setName(PFCS_NAME);
+        return pfcsSolver;
+    }
+
+    public static PathAndPrioritySearch createNaivePFCSUnifiedOpenSolver() {
+        PathAndPrioritySearch PFCSUnifiedOpenSolver = new PaPSBuilder().setMddSearcherFactory(new OnePathAStarMDDBuilderFactory()).setRootGenerator(new NaivePaPSUnifiedOpenPCSRG()).createPaPS();
+        PFCSUnifiedOpenSolver.setName(NAIVE_PFCS_UNIFIED_OPEN_NAME);
+        return PFCSUnifiedOpenSolver;
     }
 
     public static SingleAgentAStar_Solver createAStarSolver() {

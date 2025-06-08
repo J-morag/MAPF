@@ -8,6 +8,7 @@ import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.DataTypesAndStructures.Solution;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -18,7 +19,7 @@ public class MapBasedDestroyHeuristic implements I_DestroyHeuristic {
     private List<I_Location> cachedMapIntersections;
 
     @Override
-    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map) {
+    public List<Agent> selectNeighborhood(Solution currentSolution, int neighborhoodSize, Random rnd, I_Map map, SingleAgentGAndH heuristic) {
         Map<I_Location, List<AgentTime>> intersectionsToAgentsSortedByTime = getIntersectionsToAgentsSortedByTime(currentSolution, map);
 
         List<I_Location> allIntersections = getAndCacheAllIntersections(map, intersectionsToAgentsSortedByTime);

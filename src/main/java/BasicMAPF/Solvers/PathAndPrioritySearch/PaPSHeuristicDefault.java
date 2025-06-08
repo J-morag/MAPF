@@ -1,4 +1,4 @@
-package BasicMAPF.Solvers.PrioritisedPlanningWithGuarantees;
+package BasicMAPF.Solvers.PathAndPrioritySearch;
 
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -12,11 +12,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class PCSHeuristicDefault implements I_PCSHeuristic {
+public class PaPSHeuristicDefault implements I_PaPSHeuristic {
     @Override
     public int @Nullable [] getH(Agent[] priorityOrderedAgents, int numMDDsAlreadyInNode, @NotNull I_ConstraintSet constraints,
                                  MAPF_Instance currentInstance, SingleAgentGAndH singleAgentHeuristic,
                                  @Nullable Map<I_Location, List<TimeInterval>> safeIntervalsByLocation) {
-        return I_PCSHeuristic.super.getH(priorityOrderedAgents, numMDDsAlreadyInNode, constraints, currentInstance, singleAgentHeuristic, safeIntervalsByLocation);
+        return I_PaPSHeuristic.super.getH(priorityOrderedAgents, numMDDsAlreadyInNode, constraints, currentInstance, singleAgentHeuristic, safeIntervalsByLocation);
     }
 }

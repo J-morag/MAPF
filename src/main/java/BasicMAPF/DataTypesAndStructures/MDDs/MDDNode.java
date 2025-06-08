@@ -8,16 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MDDNode implements Comparable<MDDNode>{
+    /**
+     * The default capacity of the neighbors list is 5, because typically we can move in 4 directions, or stay.
+     */
+    private static final int DEFAULT_NEIGHBORS_CAPACITY = 5;
+
     private final List<MDDNode> neighbors;
     private final I_Location location;
     private final int depth;
     private final Agent agent;
 
     public MDDNode(MDDSearchNode current) {
-        neighbors = new ArrayList<>(5); // 5 because typically we can move in 4 directions, or stay
-        this.location = current.getLocation();
-        this.depth = current.getG();
-        this.agent = current.getAgent();
+        this(current.getLocation(), current.getG(), current.getAgent(), DEFAULT_NEIGHBORS_CAPACITY);
     }
 
     /**
@@ -29,7 +31,11 @@ public class MDDNode implements Comparable<MDDNode>{
     }
 
     public MDDNode(I_Location location, int depth, Agent agent) {
-        neighbors = new ArrayList<>(5); // 5 because typically we can move in 4 directions, or stay
+        this(location, depth, agent, DEFAULT_NEIGHBORS_CAPACITY);
+    }
+
+    public MDDNode(I_Location location, int depth, Agent agent, int neighborsCapacity) {
+        neighbors = new ArrayList<>(neighborsCapacity);
         this.location = location;
         this.depth = depth;
         this.agent = agent;
@@ -56,7 +62,7 @@ public class MDDNode implements Comparable<MDDNode>{
     }
 
     @Override
-    public int hashCode() { // todo cache it?
+    public int hashCode() {
         int result = location.hashCode();
         result = 31 * result + depth;
         result = 31 * result + agent.hashCode();

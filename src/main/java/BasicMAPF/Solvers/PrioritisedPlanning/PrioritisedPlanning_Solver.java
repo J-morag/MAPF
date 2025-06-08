@@ -83,6 +83,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
      */
     public boolean sharedSources;
     public boolean reportIndvAttempts = false;
+    public boolean stableAStarAsSeed = false;
 
     private Set<I_Coordinate> separatingVerticesSet;
 
@@ -414,6 +415,9 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                 setConstraints(new UnmodifiableConstraintSet(constraints)).setInstanceReport(subproblemReport).setAStarGAndH(this.singleAgentGAndH).createRP());
         if (randomizeAStar){
             params.randomNumberGenerator = this.singleAgentSolverRNG;
+        }
+        else if (stableAStarAsSeed){
+            params.randomNumberGenerator = new Random(42);
         }
         params.fBudget = maxCost;
         if (transientMAPFSettings.isTransientMAPF()) {

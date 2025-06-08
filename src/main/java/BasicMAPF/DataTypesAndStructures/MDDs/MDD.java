@@ -27,6 +27,7 @@ public class MDD {
      * Unmodifiable.
      */
     private List<List<MDDNode>> levels;
+    private int levelsHash = -1;
 
     public MDD(@NotNull MDDSearchNode goal){
         initialize(goal);
@@ -292,9 +293,10 @@ public class MDD {
             List<MDDNode> currentLevel = new ArrayList<>(currentLevelSet);
             Collections.sort(currentLevel);
             levels.add(Collections.unmodifiableList(currentLevel));
-        }
-        if (depth == getDepth()){
-            levels = Collections.unmodifiableList(levels);
+            if (i == getDepth()){
+                levels = Collections.unmodifiableList(levels);
+                levelsHash = hashLevels();
+            }
         }
     }
 
@@ -492,7 +494,49 @@ public class MDD {
         return sb.toString();
     }
 
-    // todo equals and hashcode (cached)
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MDD mdd)) return false;
+
+        return numNodes == mdd.numNodes && Objects.equals(start, mdd.start) && Objects.equals(goal, mdd.goal) &&
+                (levelsHash == mdd.levelsHash || levelsHash == -1 || mdd.levelsHash == -1) &&
+                levelsEquals(mdd);
+    }
+
+    @Override
+    public int hashCode() { // todo cache the whole thing?
+        if (levelsHash == -1){
+            levelsHash = hashLevels();
+        }
+        int result = Objects.hashCode(start);
+        result = 31 * result + Objects.hashCode(goal);
+        result = 31 * result + numNodes;
+        result = 31 * result + levelsHash;
+        return result;
+    }
+
+
+//    @Override
+//    public final boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof MDD mdd)) return false;
+//
+//        return numNodes == mdd.numNodes && start.equals(mdd.start) && goal.equals(mdd.goal) &&
+//                (levelsHash == mdd.levelsHash || levelsHash == -1 || mdd.levelsHash == -1) && levelsEquals(mdd);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        if (levelsHash == -1){
+//            levelsHash = hashLevels();
+//        }
+//        int result = start.hashCode();
+//        result = 31 * result + goal.hashCode();
+//        result = 31 * result + numNodes;
+//        result = 31 * result + levelsHash;
+//        return result;
+//    }
 
     public boolean levelsEquals(MDD other){
         if (this == other) return true;
@@ -504,9 +548,32 @@ public class MDD {
             if (level.size() != otherLevel.size()) return false;
             for (int j = 0; j < level.size(); j++) {
                 if (! level.get(j).equals(otherLevel.get(j))) return false;
+                // check edges
+                List<MDDNode> neighbors = level.get(j).getNeighbors();
+                List<MDDNode> otherNeighbors = otherLevel.get(j).getNeighbors();
+                if (neighbors.size() != otherNeighbors.size()) return false;
+                for (int k = 0; k < neighbors.size(); k++) {
+                    if (! neighbors.get(k).equals(otherNeighbors.get(k))) return false;
+                }
             }
         }
         return true;
+    }
+
+    private int hashLevels(){ // todo test me
+        initializeUpToLevel(getDepth());
+        int result = 0;
+        for (int i = 0; i < getDepth(); i++) {
+            List<MDDNode> level = getLevel(i);
+            for (MDDNode mddNode : level) {
+                result = 31 * result + mddNode.hashCode();
+                List<MDDNode> neighbors = mddNode.getNeighbors();
+                for (MDDNode neighbor : neighbors) {
+                    result = 31 * result + neighbor.hashCode();
+                }
+            }
+        }
+        return result;
     }
 
     public boolean acceptedBy(I_ConstraintSet constraints) {

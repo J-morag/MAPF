@@ -300,12 +300,21 @@ public class TestUtils {
         int sumRuntimeExperimental = 0;
         int sumCostBaseline = 0;
         int sumCostExperimental = 0;
+        // expansions
         int sumHighLevelExpandedBaselineOnAll = 0;
         int sumHighLevelExpandedBaselineOnSolved = 0;
         int sumHighLevelExpandedExperimentalOnAll = 0;
         int sumHighLevelExpandedExperimentalOnSolved = 0;
         float sumHighLevelExpansionRateOnSolvedBaseline = 0f;
         float sumHighLevelExpansionRateOnSolvedExperimental = 0f;
+        // generations
+        int sumHighLevelGeneratedBaselineOnAll = 0;
+        int sumHighLevelGeneratedBaselineOnSolved = 0;
+        int sumHighLevelGeneratedExperimentalOnAll = 0;
+        int sumHighLevelGeneratedExperimentalOnSolved = 0;
+        float sumHighLevelGenerationRateOnSolvedBaseline = 0f;
+        float sumHighLevelGenerationRateOnSolvedExperimental = 0f;
+
         while ((instance = instanceManager.getNextInstance()) != null) {
             for (int j = 0; j <= rerunsWithShuffledAgents; j++) {
                 System.out.println("---------- solving "  + instance.extendedName + " with " + instance.agents.size() + " agents ----------");
@@ -356,6 +365,8 @@ public class TestUtils {
 
                 int highLevelExpandedBaseline = 0;
                 float highLevelExpansionRateBaseline = 0;
+                int highLevelGeneratedBaseline = 0;
+                float highLevelGenerationRateBaseline = 0;
 
                 if(solutionBaseline != null){
                     boolean valid = solutionBaseline.solves(instance);
@@ -366,6 +377,10 @@ public class TestUtils {
                         sumHighLevelExpandedBaselineOnSolved += highLevelExpandedBaseline;
                         highLevelExpansionRateBaseline = reportBaseline.getFloatValue(InstanceReport.StandardFields.expansionRate);
                         sumHighLevelExpansionRateOnSolvedBaseline += highLevelExpansionRateBaseline;
+                        highLevelGeneratedBaseline = reportBaseline.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
+                        sumHighLevelGeneratedBaselineOnSolved += highLevelGeneratedBaseline;
+                        highLevelGenerationRateBaseline = reportBaseline.getFloatValue(InstanceReport.StandardFields.generationRate);
+                        sumHighLevelGenerationRateOnSolvedBaseline += highLevelGenerationRateBaseline;
                     }
                     catch (NullPointerException e){
                     }
@@ -376,6 +391,8 @@ public class TestUtils {
 
                 int highLevelExpandedExperimental = 0;
                 float highLevelExpansionRateExperimental = 0;
+                int highLevelGeneratedExperimental = 0;
+                float highLevelGenerationRateExperimental = 0;
 
                 if(solutionExperimental != null){
                     boolean valid = solutionExperimental.solves(instance);
@@ -386,19 +403,39 @@ public class TestUtils {
                         sumHighLevelExpandedExperimentalOnSolved += highLevelExpandedExperimental;
                         highLevelExpansionRateExperimental = reportExperimental.getFloatValue(InstanceReport.StandardFields.expansionRate);
                         sumHighLevelExpansionRateOnSolvedExperimental += highLevelExpansionRateExperimental;
+                        highLevelGeneratedExperimental = reportExperimental.getIntegerValue(InstanceReport.StandardFields.generatedNodes);
+                        sumHighLevelGeneratedExperimentalOnSolved += highLevelGeneratedExperimental;
+                        highLevelGenerationRateExperimental = reportExperimental.getFloatValue(InstanceReport.StandardFields.generationRate);
+                        sumHighLevelGenerationRateOnSolvedExperimental += highLevelGenerationRateExperimental;
                     }
                     catch (NullPointerException e){
                     }
                 }
                 else System.out.println();
 
-                sumHighLevelExpandedBaselineOnAll += highLevelExpandedBaseline;
                 System.out.print(nameBaseline + " expanded nodes: " + highLevelExpandedBaseline + " ; ");
                 System.out.printf(nameBaseline + " expansion rate: %.2f\n", highLevelExpansionRateBaseline);
+                sumHighLevelExpandedBaselineOnAll += highLevelExpandedBaseline;
+                // print low level expansion rate
+                System.out.println(nameBaseline + " low level expanded nodes: " + reportBaseline.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) + " ; ");
 
-                sumHighLevelExpandedExperimentalOnAll += highLevelExpandedExperimental;
+                System.out.print(nameBaseline + " generated nodes: " + highLevelGeneratedBaseline + " ; ");
+                System.out.printf(nameBaseline + " generation rate: %.2f\n", highLevelGenerationRateBaseline);
+                sumHighLevelGeneratedBaselineOnAll += highLevelGeneratedBaseline;
+                // print low level generation rate
+                System.out.println(nameBaseline + " low level generated nodes: " + reportBaseline.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel) + " ; ");
+
                 System.out.print(nameExperimental + " expanded nodes: " + highLevelExpandedExperimental + " ; ");
                 System.out.printf(nameExperimental + " expansion rate: %.2f\n", highLevelExpansionRateExperimental);
+                sumHighLevelExpandedExperimentalOnAll += highLevelExpandedExperimental;
+                // print low level expansion rate
+                System.out.println(nameExperimental + " low level expanded nodes: " + reportExperimental.getIntegerValue(InstanceReport.StandardFields.expandedNodesLowLevel) + " ; ");
+
+                System.out.print(nameExperimental + " generated nodes: " + highLevelGeneratedExperimental + " ; ");
+                System.out.printf(nameExperimental + " generation rate: %.2f\n", highLevelGenerationRateExperimental);
+                sumHighLevelGeneratedExperimentalOnAll += highLevelGeneratedExperimental;
+                // print low level generation rate
+                System.out.println(nameExperimental + " low level generated nodes: " + reportExperimental.getIntegerValue(InstanceReport.StandardFields.generatedNodesLowLevel) + " ; ");
 
                 int runtimeBaseline = reportBaseline.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
                 int runtimeExperimental = reportExperimental.getIntegerValue(InstanceReport.StandardFields.elapsedTimeMS);
@@ -482,24 +519,33 @@ public class TestUtils {
             }
         }
 
-        outputResults(timeout, nameBaseline, nameExperimental, solvedByBaseline, solvedByExperimental,
-                sumHighLevelExpandedExperimentalOnAll, sumRuntimeBaseline, sumRuntimeExperimental, sumCostBaseline,
-                sumCostExperimental, sumHighLevelExpandedExperimentalOnSolved, sumHighLevelExpandedBaselineOnAll,
-                sumHighLevelExpandedBaselineOnSolved, sumHighLevelExpansionRateOnSolvedBaseline,
-                sumHighLevelExpansionRateOnSolvedExperimental, solvedByBoth);
+        outputResults(timeout, solvedByBoth, nameBaseline, nameExperimental, solvedByBaseline, solvedByExperimental,
+                sumRuntimeBaseline, sumRuntimeExperimental, sumCostBaseline, sumCostExperimental, sumHighLevelExpandedExperimentalOnAll,
+                sumHighLevelExpandedExperimentalOnSolved, sumHighLevelExpandedBaselineOnAll, sumHighLevelExpandedBaselineOnSolved,
+                sumHighLevelExpansionRateOnSolvedBaseline, sumHighLevelExpansionRateOnSolvedExperimental,
+                sumHighLevelGeneratedExperimentalOnAll, sumHighLevelGeneratedExperimentalOnSolved,
+                sumHighLevelGeneratedBaselineOnAll, sumHighLevelGeneratedBaselineOnSolved,
+                sumHighLevelGenerationRateOnSolvedBaseline, sumHighLevelGenerationRateOnSolvedExperimental);
     }
 
-    public static void outputResults(long timeout, String nameBaseline, String nameExperimental, int solvedByBaseline,
-                                     int solvedByExperimental, int sumHighLevelExpandedExperimentalOnAll, int runtimeBaseline,
-                                     int runtimeExperimental, int sumCostBaseline, int sumCostExperimental, int sumHighLevelExpandedExperimentalOnSolved,
+    public static void outputResults(long timeout, int solvedByBoth, String nameBaseline, String nameExperimental,
+                                     int solvedByBaseline, int solvedByExperimental, int runtimeBaseline,
+                                     int runtimeExperimental, int sumCostBaseline, int sumCostExperimental,
+                                     int sumHighLevelExpandedExperimentalOnAll, int sumHighLevelExpandedExperimentalOnSolved,
                                      int sumHighLevelExpandedBaselineOnAll, int sumHighLevelExpandedBaselineOnSolved,
-                                     float sumHighLevelExpansionRateOnSolvedBaseline, float sumHighLevelExpansionRateOnSolvedExperimental, int solvedByBoth) {
+                                     float sumHighLevelExpansionRateOnSolvedBaseline, float sumHighLevelExpansionRateOnSolvedExperimental,
+                                     int sumHighLevelGeneratedExperimentalOnAll, int sumHighLevelGeneratedExperimentalOnSolved,
+                                     int sumHighLevelGeneratedBaselineOnAll, int sumHighLevelGeneratedBaselineOnSolved,
+                                     float sumHighLevelGenerationRateOnSolvedBaseline, float sumHighLevelGenerationRateOnSolvedExperimental) {
+
         System.out.println("--- TOTALS: ---");
         System.out.println("timeout for each (seconds): " + (timeout / 1000));
         System.out.println(nameBaseline + " solved: " + solvedByBaseline);
         System.out.println(nameExperimental + " solved: " + solvedByExperimental);
         System.out.println(nameBaseline + " expanded nodes: " + sumHighLevelExpandedBaselineOnAll);
         System.out.println(nameExperimental + " expanded nodes: " + sumHighLevelExpandedExperimentalOnAll);
+        System.out.println(nameBaseline + " generated nodes: " + sumHighLevelGeneratedBaselineOnAll);
+        System.out.println(nameExperimental + " generated nodes: " + sumHighLevelGeneratedExperimentalOnAll);
 
         System.out.println("totals (on instances where both solved) :");
         System.out.println(nameBaseline + " time: " + runtimeBaseline);
@@ -510,6 +556,11 @@ public class TestUtils {
         System.out.printf(nameExperimental + " avg. expanded nodes: %.2f\n", (double) sumHighLevelExpandedExperimentalOnSolved / solvedByBoth);
         System.out.printf(nameBaseline + " avg. expansion rate: %.2f\n", (double) sumHighLevelExpansionRateOnSolvedBaseline / solvedByBoth);
         System.out.printf(nameExperimental + " avg. expansion rate: %.2f\n", (double) sumHighLevelExpansionRateOnSolvedExperimental / solvedByBoth);
+        System.out.printf(nameBaseline + " avg. generated nodes: %.2f\n", (double) sumHighLevelGeneratedBaselineOnSolved / solvedByBoth);
+        System.out.printf(nameExperimental + " avg. generated nodes: %.2f\n", (double) sumHighLevelGeneratedExperimentalOnSolved / solvedByBoth);
+        System.out.printf(nameBaseline + " avg. generation rate: %.2f\n", (double) sumHighLevelGenerationRateOnSolvedBaseline / solvedByBoth);
+        System.out.printf(nameExperimental + " avg. generation rate: %.2f\n", (double) sumHighLevelGenerationRateOnSolvedExperimental / solvedByBoth);
+
 
         //save results
         DateFormat dateFormat = Metrics.DEFAULT_DATE_FORMAT;
