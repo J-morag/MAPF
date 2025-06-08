@@ -28,7 +28,7 @@ The default instance format is from the [MovingAI benchmark](https://movingai.co
 Modify the `Main.java` file to run your experiment. Examples are provided in the `ExampleMain.java` file.
 
 ## News
-* 2025-06: Added the PaPS algorithm. PCS still exists, now as an special case of PaPS, and was PFCS added in the same manner.
+* 2025-06: Added the PaPS algorithm. PCS still exists, now as a special case of PaPS, and was PFCS added in the same manner.
 * 2025-05: 
   * Assorted bug fixes and performance and functionality improvements
   * Added the LNS2 algorithm
