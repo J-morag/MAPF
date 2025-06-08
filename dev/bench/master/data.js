@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1749397597944,
+  "lastUpdate": 1749397598884,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -29397,6 +29397,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
             "value": 6871206,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4a099d12b7b7aea2df6abd9172c92c571c8253d",
+          "message": "V0.13.0 - P-MAPF (#107)\n\n* Add LNS1 agent based destroy heuristic\n* Prioritised MAPF (P-MAPF), with Path and Priority Search (PaPS)\n* Priotiry Constrained MAPF (PC-MAPF), with PCS. Existed before, but now refactored to be a modification of PaPS.\n* Path-Function Constrained MAPF (PFC-MAPF), with PFCS",
+          "timestamp": "2025-06-08T17:00:45+03:00",
+          "tree_id": "b26dd57532d13c82cf38a7d0c0046d73f6450a2f",
+          "url": "https://github.com/J-morag/MAPF/commit/b4a099d12b7b7aea2df6abd9172c92c571c8253d"
+        },
+        "date": 1749397598599,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 9,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 12504.125,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 17296.363,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 17033.848,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (AStar) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 7600208,
             "unit": "Expansions"
           }
         ]
