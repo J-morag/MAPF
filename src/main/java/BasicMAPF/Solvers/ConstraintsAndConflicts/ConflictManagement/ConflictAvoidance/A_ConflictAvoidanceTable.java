@@ -42,6 +42,11 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
     public boolean removeOccupancyListsWhenEmptied;
 
     public int lastOccupancyStartTime;
+    
+    /**
+     * The effects of conflicts that happen at a time greater than this value will be ignored.
+     */
+    protected int lastTimeToConsiderConflicts = Integer.MAX_VALUE;
 
     /**
      * Constructor
@@ -102,6 +107,10 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
      * {@inheritDoc}
      */
     public int numConflicts(Move move, boolean isALastMove) {
+        if (move.timeNow > lastTimeToConsiderConflicts) {
+            return 0;
+        }
+        
         TimeLocation from = reusableTimeLocation1.setTo(move.timeNow - 1, move.prevLocation);
 
         TimeLocation to = reusableTimeLocation2.setTo(move.timeNow, move.currLocation);
@@ -186,6 +195,10 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
     }
 
     public int getNumberOfEdgeConflicts(Move move) {
+        if (move.timeNow > lastTimeToConsiderConflicts) {
+            return 0;
+        }
+        
         TimeLocation from = reusableTimeLocation1.setTo(move.timeNow - 1, move.prevLocation);
 
         TimeLocation to = reusableTimeLocation2.setTo(move.timeNow, move.currLocation);
@@ -197,5 +210,15 @@ public abstract class A_ConflictAvoidanceTable implements I_ConflictAvoidanceTab
         reverseTo.time += 1;
 
         return getNumSwappingConflicts(reverseFrom, reverseTo);
+    }
+    
+    @Override
+    public int getLastTimeToConsiderConflicts() {
+        return lastTimeToConsiderConflicts;
+    }
+
+    @Override
+    public void setLastTimeToConsiderConflicts(int lastTimeToConsiderConflicts) {
+        this.lastTimeToConsiderConflicts = lastTimeToConsiderConflicts;
     }
 }

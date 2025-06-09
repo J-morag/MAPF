@@ -358,4 +358,192 @@ class RemovableConflictAvoidanceTableWithContestedGoalsTest {
         }
         assertTrue(foundInstance, "No instance found with name empty-48-48-even-5.scen");
     }
+
+    @Test
+    void testLastTimeToConsiderConflicts_IgnoresConflictsAfterSpecifiedTime() {
+        // Arrange
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent agentToAvoid = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(agentToAvoid);
+        planToAvoid.addMoves(List.of(
+                new Move(agentToAvoid, 1, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(agentToAvoid, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(agentToAvoid, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(agentToAvoid, 4, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(agentToAvoid, 5, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+        Agent queryingAgent = new Agent(2, coor05, coor15);
+
+        // Act & Assert - Without time limit
+        int conflictsAtTime3 = conflictAvoidanceTable.numConflicts(new Move(queryingAgent, 3, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor05)), false);
+        assertEquals(1, conflictsAtTime3);
+        
+        int conflictsAtTime4 = conflictAvoidanceTable.numConflicts(new Move(queryingAgent, 4, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor05)), false);
+        assertEquals(1, conflictsAtTime4);
+        
+        // Set time limit to 3
+        conflictAvoidanceTable.setLastTimeToConsiderConflicts(3);
+        
+        // Act & Assert - With time limit
+        int conflictsAtTime3WithLimit = conflictAvoidanceTable.numConflicts(new Move(queryingAgent, 3, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor05)), false);
+        assertEquals(1, conflictsAtTime3WithLimit, "Conflicts at time 3 should still be counted");
+        
+        int conflictsAtTime4WithLimit = conflictAvoidanceTable.numConflicts(new Move(queryingAgent, 4, instanceEmpty1.map.getMapLocation(coor04), instanceEmpty1.map.getMapLocation(coor05)), false);
+        assertEquals(0, conflictsAtTime4WithLimit, "Conflicts at time 4 should be ignored");
+    }
+
+    @Test
+    void testLastTimeToConsiderConflicts_WithEdgeConflicts() {
+        // Arrange
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent agentToAvoid = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(agentToAvoid);
+        planToAvoid.addMoves(List.of(
+                new Move(agentToAvoid, 1, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor14)),
+                new Move(agentToAvoid, 2, instanceEmpty1.map.getMapLocation(coor14), instanceEmpty1.map.getMapLocation(coor13)),
+                new Move(agentToAvoid, 3, instanceEmpty1.map.getMapLocation(coor13), instanceEmpty1.map.getMapLocation(coor14)),
+                new Move(agentToAvoid, 4, instanceEmpty1.map.getMapLocation(coor14), instanceEmpty1.map.getMapLocation(coor15))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+        Agent queryingAgent = new Agent(2, coor05, coor15);
+
+        // Act & Assert - Without time limit
+        // Edge conflict at time 3
+        int edgeConflicts = conflictAvoidanceTable.getNumberOfEdgeConflicts(
+                new Move(queryingAgent, 3, instanceEmpty1.map.getMapLocation(coor14), instanceEmpty1.map.getMapLocation(coor13))
+        );
+        assertEquals(1, edgeConflicts, "Should detect edge conflict at time 3");
+
+        // Set time limit to 2
+        conflictAvoidanceTable.setLastTimeToConsiderConflicts(2);
+        
+        // Act & Assert - With time limit
+        int edgeConflictsWithLimit = conflictAvoidanceTable.getNumberOfEdgeConflicts(
+                new Move(queryingAgent, 3, instanceEmpty1.map.getMapLocation(coor14), instanceEmpty1.map.getMapLocation(coor13))
+        );
+        assertEquals(0, edgeConflictsWithLimit, "Edge conflicts after time 2 should be ignored");
+    }
+
+    @Test
+    void testLastTimeToConsiderConflicts_WithGoalConflicts() {
+        // Arrange
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent agentToAvoid = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(agentToAvoid);
+        planToAvoid.addMoves(List.of(
+                new Move(agentToAvoid, 1, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(agentToAvoid, 2, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05)),
+                new Move(agentToAvoid, 3, instanceEmpty1.map.getMapLocation(coor05), instanceEmpty1.map.getMapLocation(coor05))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+        Agent queryingAgent = new Agent(2, coor15, coor05);
+
+        // Act & Assert - Without time limit
+        // Last move (goal conflict)
+        Move lastMove = new Move(queryingAgent, 5, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor05));
+        int goalConflicts = conflictAvoidanceTable.numConflicts(lastMove, true);
+        assertEquals(1, goalConflicts, "Should detect goal conflict");
+
+        // Set time limit to 4 (before the goal move)
+        conflictAvoidanceTable.setLastTimeToConsiderConflicts(4);
+        
+        // Act & Assert - With time limit
+        int goalConflictsWithLimit = conflictAvoidanceTable.numConflicts(lastMove, true);
+        assertEquals(0, goalConflictsWithLimit, "Goal conflicts after time 4 should be ignored");
+    }
+
+    @Test
+    void testLastTimeToConsiderConflicts_WithFirstConflictTime() {
+        // Arrange
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent agentToAvoid = new Agent(1, coor15, coor05);
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(agentToAvoid);
+        planToAvoid.addMoves(List.of(
+                new Move(agentToAvoid, 1, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor14)),
+                new Move(agentToAvoid, 2, instanceEmpty1.map.getMapLocation(coor14), instanceEmpty1.map.getMapLocation(coor13)),
+                new Move(agentToAvoid, 3, instanceEmpty1.map.getMapLocation(coor13), instanceEmpty1.map.getMapLocation(coor12)),
+                new Move(agentToAvoid, 4, instanceEmpty1.map.getMapLocation(coor12), instanceEmpty1.map.getMapLocation(coor11)),
+                new Move(agentToAvoid, 5, instanceEmpty1.map.getMapLocation(coor11), instanceEmpty1.map.getMapLocation(coor10))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+        Agent queryingAgent = new Agent(2, coor10, coor15);
+
+        // Act & Assert - Without time limit
+        // This plan conflicts at multiple times, firstConflictTime should return the earliest one
+        Move queryMove = new Move(queryingAgent, 1, instanceEmpty1.map.getMapLocation(coor10), instanceEmpty1.map.getMapLocation(coor10));
+        int firstConflictTime = conflictAvoidanceTable.firstConflictTime(queryMove, true);
+        assertEquals(5, firstConflictTime, "Should detect first conflict at time 5");
+
+        // Set time limit to 4
+        conflictAvoidanceTable.setLastTimeToConsiderConflicts(4);
+        
+        // Act & Assert - With time limit
+        int firstConflictTimeWithLimit = conflictAvoidanceTable.firstConflictTime(queryMove, true);
+        assertEquals(-1, firstConflictTimeWithLimit, "Should not detect any conflicts when limited to time 4");
+    }
+
+    @Test
+    void testLastTimeToConsiderConflicts_QueryLastMoveWithRegularMove() {
+        // Arrange - Create a plan where one agent occupies a location but isn't at its goal
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent agentToAvoid = new Agent(1, coor15, coor03); // target is coor03
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(agentToAvoid);
+        planToAvoid.addMoves(List.of(
+                new Move(agentToAvoid, 1, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor14)),
+                new Move(agentToAvoid, 2, instanceEmpty1.map.getMapLocation(coor14), instanceEmpty1.map.getMapLocation(coor13)),
+                new Move(agentToAvoid, 3, instanceEmpty1.map.getMapLocation(coor13), instanceEmpty1.map.getMapLocation(coor12)),
+                new Move(agentToAvoid, 4, instanceEmpty1.map.getMapLocation(coor12), instanceEmpty1.map.getMapLocation(coor10)),
+                new Move(agentToAvoid, 5, instanceEmpty1.map.getMapLocation(coor10), instanceEmpty1.map.getMapLocation(coor10))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+        
+        // Query agent's last move conflicts with a regular move of the other agent
+        Agent queryingAgent = new Agent(2, coor15, coor10);
+
+        // Act & Assert - Without time limit
+        // Create a last move that conflicts with agentToAvoid's regular move at time 5
+        Move lastMove = new Move(queryingAgent, 4, instanceEmpty1.map.getMapLocation(coor11), instanceEmpty1.map.getMapLocation(coor10));
+        int conflicts = conflictAvoidanceTable.numConflicts(lastMove, true);
+        assertEquals(3, conflicts, "Expecting conflicts at time 4, 5, and then target(/goal) conflict at time 6");
+
+        // Set time limit to 3
+        conflictAvoidanceTable.setLastTimeToConsiderConflicts(3);
+        
+        // Act & Assert - With time limit
+        int conflictsWithLimit = conflictAvoidanceTable.numConflicts(lastMove, true);
+        assertEquals(0, conflictsWithLimit, "Conflicts after time 3 should be ignored");
+    }
+
+    @Test
+    void testLastTimeToConsiderConflicts_QueryRegularMoveWithLastMove() {
+        // Arrange - Create a plan where one agent is at its goal
+        RemovableConflictAvoidanceTableWithContestedGoals conflictAvoidanceTable = new RemovableConflictAvoidanceTableWithContestedGoals();
+        Agent agentToAvoid = new Agent(1, coor15, coor10); // target is coor10
+        SingleAgentPlan planToAvoid = new SingleAgentPlan(agentToAvoid);
+        planToAvoid.addMoves(List.of(
+                new Move(agentToAvoid, 1, instanceEmpty1.map.getMapLocation(coor15), instanceEmpty1.map.getMapLocation(coor14)),
+                new Move(agentToAvoid, 2, instanceEmpty1.map.getMapLocation(coor14), instanceEmpty1.map.getMapLocation(coor13)),
+                new Move(agentToAvoid, 3, instanceEmpty1.map.getMapLocation(coor13), instanceEmpty1.map.getMapLocation(coor12)),
+                new Move(agentToAvoid, 4, instanceEmpty1.map.getMapLocation(coor12), instanceEmpty1.map.getMapLocation(coor11)),
+                new Move(agentToAvoid, 5, instanceEmpty1.map.getMapLocation(coor11), instanceEmpty1.map.getMapLocation(coor10))
+        ));
+        conflictAvoidanceTable.addPlan(planToAvoid);
+        
+        // Create a regular move that conflicts with agentToAvoid's goal occupancy
+        Agent queryingAgent = new Agent(2, coor15, coor05);
+
+        // Act & Assert - Without time limit
+        // Non-last move that would conflict with goal occupancy at time 7 (goal occupancy starts at time 6)
+        Move regularMove = new Move(queryingAgent, 7, instanceEmpty1.map.getMapLocation(coor11), instanceEmpty1.map.getMapLocation(coor10));
+        int conflicts = conflictAvoidanceTable.numConflicts(regularMove, false);
+        assertEquals(1, conflicts, "Regular move should conflict with goal occupancy");
+
+        // Set time limit to 6
+        conflictAvoidanceTable.setLastTimeToConsiderConflicts(6);
+        
+        // Act & Assert - With time limit
+        int conflictsWithLimit = conflictAvoidanceTable.numConflicts(regularMove, false);
+        assertEquals(0, conflictsWithLimit, "Conflicts after time 6 should be ignored");
+    }
 }

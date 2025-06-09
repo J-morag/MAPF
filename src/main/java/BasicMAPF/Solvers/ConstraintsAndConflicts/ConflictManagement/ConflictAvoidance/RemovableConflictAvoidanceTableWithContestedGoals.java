@@ -98,6 +98,9 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
 
     @Override
     int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove) {
+        if (move.timeNow > lastTimeToConsiderConflicts) {
+            return 0; // no conflicts after the last time to consider conflicts
+        }
         int numConflicts = 0;
 
         if ( ! (sharedGoals && isALastMove)){
@@ -107,7 +110,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
                 for (AgentAtGoal agentAtGoal : agentsAtGoal) { // TODO more efficient with sorted list?
                     if (agentAtGoal.time <= to.time
                             // Only relevant if agents may finish their plans at locations other than their targets (any two last moves to the same location conflict)
-                            || isALastMove
+                            || (isALastMove && agentAtGoal.time <= lastTimeToConsiderConflicts)
                     ) {
                         numConflicts++;
                     }
@@ -127,11 +130,31 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
                         timeIndex++;
                     }
                     numConflicts += sortedMovesAtLocation.size() - timeIndex - 1;
-
+                    if (lastTimeToConsiderConflicts < Integer.MAX_VALUE){ // correct for the last time to consider conflicts
+                        timeIndex++; // move to the next time, to indices where time is larger than the start of the goal occupancy
+                        for (; timeIndex < sortedMovesAtLocation.size(); timeIndex++) {
+                            Move otherMove = sortedMovesAtLocation.get(timeIndex);
+                            if (otherMove.timeNow > lastTimeToConsiderConflicts) {
+                                // remove all conflicts after the last time to consider conflicts
+                                numConflicts -= sortedMovesAtLocation.size() - timeIndex;
+                                break;
+                            }
+                        }
+                    }
                 }
-                else { // timeIndex < 0
-                    int numSmallerOrEqualElements = -timeIndex - 1;
-                    numConflicts += sortedMovesAtLocation.size() - numSmallerOrEqualElements;
+                else { // timeIndex < 0 (the time is not in the list)
+                    int numSmallerElements = -timeIndex - 1;
+                    numConflicts += sortedMovesAtLocation.size() - numSmallerElements;
+                    if (lastTimeToConsiderConflicts < Integer.MAX_VALUE){ // correct for the last time to consider conflicts
+                        for (int i = numSmallerElements; i < sortedMovesAtLocation.size(); i++) {
+                            Move otherMove = sortedMovesAtLocation.get(i);
+                            if (otherMove.timeNow > lastTimeToConsiderConflicts) {
+                                // remove all conflicts after the last time to consider conflicts
+                                numConflicts -= sortedMovesAtLocation.size() - i;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -194,6 +217,10 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     }
 
     public int firstConflictTime(Move move, boolean isALastMove) {
+        if (move.timeNow > lastTimeToConsiderConflicts) {
+            return -1;
+        }
+
         TimeLocation from = reusableTimeLocation1.setTo(move.timeNow - 1, move.prevLocation);
 
         TimeLocation to = reusableTimeLocation2.setTo(move.timeNow, move.currLocation);
@@ -224,6 +251,9 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
     }
 
     private int getFirstGoalConflict(Move move, TimeLocation to, boolean isALastMove) {
+        if (move.timeNow > lastTimeToConsiderConflicts) {
+            return 0; // no conflicts after the last time to consider conflicts
+        }
         int earliestGoalConflict = -1;
 
         if ( ! (sharedGoals && isALastMove)){
@@ -235,7 +265,7 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
                         if (earliestGoalConflict == -1 || to.time < earliestGoalConflict) {
                             earliestGoalConflict = to.time;
                         }
-                    } else if (isALastMove) {
+                    } else if (isALastMove && agentAtGoal.time <= lastTimeToConsiderConflicts) {
                         // Only relevant if agents may finish their plans at locations other than their targets (any two last moves to the same location conflict)
                         if (earliestGoalConflict == -1 || agentAtGoal.time < earliestGoalConflict) {
                             earliestGoalConflict = agentAtGoal.time;
@@ -256,6 +286,9 @@ public class RemovableConflictAvoidanceTableWithContestedGoals extends A_Conflic
                 }
                 for (int i = timeIndex; i < sortedMovesAtLocation.size(); i++){
                     Move otherMove = sortedMovesAtLocation.get(i);
+                    if (otherMove.timeNow > lastTimeToConsiderConflicts) {
+                        break; // no conflicts after the last time to consider conflicts
+                    }
                     if (earliestGoalConflict > -1 && otherMove.timeNow >= earliestGoalConflict){
                         break;
                     }

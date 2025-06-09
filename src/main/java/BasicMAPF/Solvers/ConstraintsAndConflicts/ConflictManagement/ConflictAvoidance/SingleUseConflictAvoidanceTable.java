@@ -54,7 +54,9 @@ public class SingleUseConflictAvoidanceTable extends A_ConflictAvoidanceTable {
     protected int getNumGoalConflicts(Move move, TimeLocation to, boolean isALastMove){
         int numGoalConflicts = 0;
         // check for a goal occupancy conflicting with this move
-        if(goalOccupancies.containsKey(to.location) && goalOccupancies.get(to.location) <= to.time){
+        if(goalOccupancies.containsKey(to.location) &&
+           goalOccupancies.get(to.location) <= to.time &&
+           goalOccupancies.get(to.location) <= lastTimeToConsiderConflicts){
             if (!(sharedGoals && move.currLocation.getCoordinate().equals(move.agent.target))){
                 numGoalConflicts++;
             }
