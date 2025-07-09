@@ -19,6 +19,8 @@ import Environment.Visualization.I_VisualizeSolution;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,12 +116,29 @@ public class Experiment {
         instanceReport.putIntegerValue(InstanceReport.StandardFields.numAgents, instance.agents.size());
         // get the freespace path cost for the agents
         int sumOfFreespacePathCosts = 0;
-        for (Agent agent : instance.agents) {
-            sumOfFreespacePathCosts += NoStateTimeSearches.uniformCostSearch(instance.map.getMapLocation(agent.target),
+
+        // Build the freespace costs string as we calculate each agent's freespace cost
+        StringBuilder freespaceString = new StringBuilder();
+        // Sort agents by ID for consistent string representation
+        List<Agent> sortedAgents = new ArrayList<>(instance.agents);
+        sortedAgents.sort(Comparator.comparingInt(a -> a.iD));
+
+        for (Agent agent : sortedAgents) {
+            int freespaceCost = NoStateTimeSearches.uniformCostSearch(instance.map.getMapLocation(agent.target),
                     instance.map.getMapLocation(agent.source), new UnitCostsAndManhattanDistance(agent.target), agent)
                     .size()-1;
+            sumOfFreespacePathCosts += freespaceCost;
+
+            if (Config.Misc.RECORD_SOLUTION_AGENT_COSTS_STRING){
+                // Add to the string: agentID:freespaceCost,
+                freespaceString.append(agent.iD).append(":").append(freespaceCost).append(",");
+            }
         }
+
         instanceReport.putIntegerValue(InstanceReport.StandardFields.sumFreespaceCosts, sumOfFreespacePathCosts);
+        if (Config.Misc.RECORD_SOLUTION_AGENT_COSTS_STRING) {
+            instanceReport.putStringValue("FreespaceCosts", freespaceString.toString());
+        }
     }
 
 

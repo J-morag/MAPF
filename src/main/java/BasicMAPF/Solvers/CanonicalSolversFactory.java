@@ -494,7 +494,7 @@ public class CanonicalSolversFactory {
     }
 
     public static PathAndPrioritySearch createPCSLexicalSolver() {
-        PathAndPrioritySearch pcsLexicalSolver = new PaPSBuilder().setNoAgentsSplit(true).setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPaPS();;
+        PathAndPrioritySearch pcsLexicalSolver = new PaPSBuilder().setNoAgentsSplit(true).setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPaPS();
         pcsLexicalSolver.setName(PCS_LEXICAL_NAME);
         return pcsLexicalSolver;
     }
