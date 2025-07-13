@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1752411985994,
+  "lastUpdate": 1752411987695,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -25013,6 +25013,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 6763931,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "db0cf5dd465dcda71ff694c64d24fb59087d0084",
+          "message": "Bump org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0 (#108)\n\nBumps org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0.\n\n---\nupdated-dependencies:\n- dependency-name: org.apache.commons:commons-lang3\n  dependency-version: 3.18.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2025-07-13T14:21:38+03:00",
+          "tree_id": "73a3d1a03f2756b78109cf03c2e25c38773ffdfd",
+          "url": "https://github.com/J-morag/MAPF/commit/db0cf5dd465dcda71ff694c64d24fb59087d0084"
+        },
+        "date": 1752411986977,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 5241.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 18786.242,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 6959.5757,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 24372.363,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 6738422,
             "unit": "Expansions"
           }
         ]
