@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1749398633692,
+  "lastUpdate": 1752411985994,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -4157,6 +4157,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 6861769,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "db0cf5dd465dcda71ff694c64d24fb59087d0084",
+          "message": "Bump org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0 (#108)\n\nBumps org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0.\n\n---\nupdated-dependencies:\n- dependency-name: org.apache.commons:commons-lang3\n  dependency-version: 3.18.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2025-07-13T14:21:38+03:00",
+          "tree_id": "73a3d1a03f2756b78109cf03c2e25c38773ffdfd",
+          "url": "https://github.com/J-morag/MAPF/commit/db0cf5dd465dcda71ff694c64d24fb59087d0084"
+        },
+        "date": 1752411984082,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 4376.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 19044.94,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 10263.484,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 19240.637,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 6998027.5,
             "unit": "Expansions"
           }
         ]
