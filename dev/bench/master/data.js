@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1752411991074,
+  "lastUpdate": 1752411992765,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -32699,6 +32699,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PaPS - Average Expansions Low Level",
             "value": 3747686.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "db0cf5dd465dcda71ff694c64d24fb59087d0084",
+          "message": "Bump org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0 (#108)\n\nBumps org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0.\n\n---\nupdated-dependencies:\n- dependency-name: org.apache.commons:commons-lang3\n  dependency-version: 3.18.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2025-07-13T14:21:38+03:00",
+          "tree_id": "73a3d1a03f2756b78109cf03c2e25c38773ffdfd",
+          "url": "https://github.com/J-morag/MAPF/commit/db0cf5dd465dcda71ff694c64d24fb59087d0084"
+        },
+        "date": 1752411992077,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PaPS - Fails",
+            "value": 11,
+            "unit": "Instances"
+          },
+          {
+            "name": "PaPS - Average Cost",
+            "value": 1224.0454,
+            "unit": "SOC"
+          },
+          {
+            "name": "PaPS - Average Runtime",
+            "value": 12103.182,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Expansions High Level",
+            "value": 3768.9092,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PaPS - Average Expansions Low Level",
+            "value": 3849434.5,
             "unit": "Expansions"
           }
         ]
