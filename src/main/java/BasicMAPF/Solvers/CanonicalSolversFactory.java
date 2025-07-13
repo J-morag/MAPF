@@ -14,6 +14,7 @@ import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.solutionsGeneratorForLNS2;
+import BasicMAPF.Solvers.MultiAgentAStar.MultiAgentAStar;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -64,6 +65,7 @@ public class CanonicalSolversFactory {
     public final static String PIEt_NAME = "PIEt";
     public final static String PIE_SIPP_NAME = "PIE_SIPP";
     public final static String PIE_SIPPt_NAME = "PIE_SIPPt";
+    public final static String MA_ASTAR_NAME = "MA_AStar";
 
 
     // A map of solver names to their registrations.
@@ -267,7 +269,7 @@ public class CanonicalSolversFactory {
 
         regs.put(ASTAR_NAME, new SolverRegistration<>(
                 ASTAR_NAME,
-                "A*",
+                "Single Agent A*",
                 CanonicalSolversFactory::createAStarSolver
         ));
 
@@ -281,6 +283,12 @@ public class CanonicalSolversFactory {
                 SIPPS_NAME,
                 " Safe Interval Path Planning with Soft constraints",
                 CanonicalSolversFactory::createSIPPSSolver
+        ));
+
+        regs.put(MA_ASTAR_NAME, new SolverRegistration<>(
+                MA_ASTAR_NAME,
+                "Multi-Agent A* - joint state space search",
+                CanonicalSolversFactory::createMultiAgentAStarSolver
         ));
 
         regs.put(PIE_NAME, new SolverRegistration<>(
@@ -528,15 +536,27 @@ public class CanonicalSolversFactory {
     }
 
     public static SingleAgentAStar_Solver createAStarSolver() {
-        return new SingleAgentAStar_Solver();
+        SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
+        solver.setName(ASTAR_NAME);
+        return solver;
     }
 
     public static SingleAgentAStarSIPP_Solver createSIPPSolver() {
-        return new SingleAgentAStarSIPP_Solver();
+        SingleAgentAStarSIPP_Solver solver = new SingleAgentAStarSIPP_Solver();
+        solver.setName(SIPP_NAME);
+        return solver;
     }
 
-    public static SingleAgentAStarSIPP_Solver createSIPPSSolver() {
-        return new SingleAgentAStarSIPPS_Solver();
+    public static SingleAgentAStarSIPPS_Solver createSIPPSSolver() {
+        SingleAgentAStarSIPPS_Solver solver = new SingleAgentAStarSIPPS_Solver();
+        solver.setName(SIPPS_NAME);
+        return solver;
+    }
+
+    public static MultiAgentAStar createMultiAgentAStarSolver() {
+        MultiAgentAStar MAAStar = new MultiAgentAStar();
+        MAAStar.setName(MA_ASTAR_NAME);
+        return MAAStar;
     }
 
     public static I_Solver createPIESolver() {

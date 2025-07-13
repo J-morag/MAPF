@@ -17,6 +17,10 @@ public class Timeout {
         return isTimeoutExceeded(timeoutTimestampMS);
     }
 
+    public long getTimeoutTimeRemainingMS() {
+        return timeoutTimestampMS - getCurrentTimeMS_NSAccuracy();
+    }
+
     public static boolean isTimeoutExceeded(long timeoutTimestampMS) {
         return getCurrentTimeMS_NSAccuracy() > timeoutTimestampMS;
     }
