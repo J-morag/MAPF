@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1752411999429,
+  "lastUpdate": 1752412001149,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -16460,6 +16460,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 26834.092,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "db0cf5dd465dcda71ff694c64d24fb59087d0084",
+          "message": "Bump org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0 (#108)\n\nBumps org.apache.commons:commons-lang3 from 3.13.0 to 3.18.0.\n\n---\nupdated-dependencies:\n- dependency-name: org.apache.commons:commons-lang3\n  dependency-version: 3.18.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2025-07-13T14:21:38+03:00",
+          "tree_id": "73a3d1a03f2756b78109cf03c2e25c38773ffdfd",
+          "url": "https://github.com/J-morag/MAPF/commit/db0cf5dd465dcda71ff694c64d24fb59087d0084"
+        },
+        "date": 1752412000418,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 31,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 158915.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 26869.879,
             "unit": "Milliseconds"
           },
           {
