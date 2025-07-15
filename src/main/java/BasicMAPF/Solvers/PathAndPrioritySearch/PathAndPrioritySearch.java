@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.PathAndPrioritySearch;
 
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.DataTypesAndStructures.MDDs.*;
 import BasicMAPF.Instances.Agent;
@@ -628,8 +629,9 @@ public class PathAndPrioritySearch extends A_Solver {
         // depends on the specific times when we paused generating a node, and so created a concrete object
         super.instanceReport.putIntegerValue(GENERATED_NODE_INSTANCES_STR, runningNodeID);
 
+        super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction,
+                this.nodeComparator == PaPSCompTieBreakSmallerMDDs.DEFAULT_INSTANCE ? SumOfCosts.NAME : this.getClass().getSimpleName());
         if(solution != null){
-            super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction, "SOC");
             super.instanceReport.putFloatValue(InstanceReport.StandardFields.solutionCost, solution.sumIndividualCosts());
         }
     }

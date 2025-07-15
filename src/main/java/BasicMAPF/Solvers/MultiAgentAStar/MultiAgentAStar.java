@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.MultiAgentAStar;
 
+import BasicMAPF.CostFunctions.SumOfCosts;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
@@ -7,10 +8,13 @@ import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.A_Solver;
+import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.A_Conflict;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Config;
+import Environment.Metrics.InstanceReport;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -23,6 +27,11 @@ import java.util.concurrent.TimeoutException;
  */
 public class MultiAgentAStar extends A_Solver {
 
+    /* = Static fields = */
+    private static final Comparator<MAAStarState> EQUAL_STATES_PREFER_SMALLER_G = Comparator.comparingDouble(MAAStarState::getG)
+            .thenComparingInt(state -> state.id); // Tie-breaker based on id
+    private static final Comparator<MAAStarState> F_THEN_H_SOC_OPEN_LIST_COMP = MAAStarState::compareTo;
+
     /* = Fields = */
     private I_OpenList<MAAStarState> openList;
     private HashSet<MAAStarState> closedList;
@@ -31,12 +40,16 @@ public class MultiAgentAStar extends A_Solver {
     private List<Agent> agents;
     private List<I_Location> goalLocations;
     private int numRegeneratedNodes;
-    private static final Comparator<MAAStarState> equalStatesPreferSmallerG = Comparator.comparingDouble(MAAStarState::getG)
-            .thenComparingInt(state -> state.id); // Tie-breaker based on id
     private int problemStartTime;
+    private final Comparator<MAAStarState> openListComparator;
+
+    public MultiAgentAStar(@Nullable Comparator<MAAStarState> openListComparator) {
+        super.name = CanonicalSolversFactory.MAASTAR_NAME;
+        this.openListComparator = Objects.requireNonNullElse(openListComparator, F_THEN_H_SOC_OPEN_LIST_COMP);
+    }
 
     public MultiAgentAStar() {
-        super.name = "MA_AStar";
+        this(null);
     }
 
     /* = A_Solver overrides = */
@@ -45,7 +58,7 @@ public class MultiAgentAStar extends A_Solver {
     protected void init(MAPF_Instance instance, RunParameters parameters) {
         super.init(instance, parameters);
         this.agents = new ArrayList<>(instance.agents);
-        this.openList = new OpenListTree<>();
+        this.openList = new OpenListTree<>(this.openListComparator);
         this.closedList = new HashSet<>();
         this.expandedNodes = 0;
         this.generatedNodes = 0;
@@ -63,8 +76,8 @@ public class MultiAgentAStar extends A_Solver {
         }
 
         // Create and add the root state
-        float initialH = calculateHeuristic(startLocations);
-        MAAStarState root = getMaaStarState(null, startLocations, problemStartTime, 0, initialH);
+        float[] initialHArr = calculateHeuristicArray(startLocations);
+        MAAStarState root = getMaaStarState(null, startLocations, problemStartTime, new float[this.agents.size()] /*zeros*/, initialHArr);
         this.openList.add(root);
     }
 
@@ -100,14 +113,14 @@ public class MultiAgentAStar extends A_Solver {
         return null; // No solution found
     }
 
-    private float calculateHeuristic(List<I_Location> locations) {
-        float totalH = 0;
+    private float[] calculateHeuristicArray(List<I_Location> locations) {
+        float[] hArr = new float[agents.size()];
         for (int i = 0; i < agents.size(); i++) {
             Agent agent = agents.get(i);
             I_Location currentLocation = locations.get(i);
-            totalH += singleAgentGAndH.getHToTargetFromLocation(agent.target, currentLocation);
+            hArr[i] = singleAgentGAndH.getHToTargetFromLocation(agent.target, currentLocation);
         }
-        return totalH;
+        return hArr;
     }
 
     /**
@@ -139,10 +152,12 @@ public class MultiAgentAStar extends A_Solver {
                     return false;
                 }
                 if (isValidJointMove(parentState.locations, nextLocations, time)) {
-                    float stepCost = calculateStepCost(parentState, nextLocations, time);
-                    float newG = parentState.g + stepCost;
-                    float newH = calculateHeuristic(nextLocations);
-                    MAAStarState successor = getMaaStarState(parentState, nextLocations, time, newG, newH);
+                    float[] newGArr = calculateStepCosts(parentState, nextLocations, time);
+                    for (int i = 0; i < newGArr.length; i++) {
+                        newGArr[i] += parentState.gArr[i]; // Add the cost of the step to the parent's g for each agent
+                    }
+                    float[] newHArr = calculateHeuristicArray(nextLocations);
+                    MAAStarState successor = getMaaStarState(parentState, nextLocations, time, newGArr, newHArr);
                     addToOpenList(successor);
                 }
             }
@@ -164,8 +179,8 @@ public class MultiAgentAStar extends A_Solver {
         return true;
     }
 
-    private @NotNull MAAStarState getMaaStarState(MAAStarState parentState, List<I_Location> nextLocations, int time, float newG, float newH) {
-        return new MAAStarState(time, nextLocations, newG, newH, parentState, generatedNodes++);
+    private @NotNull MAAStarState getMaaStarState(MAAStarState parentState, List<I_Location> nextLocations, int time, float[] gArr, float[] hArr) {
+        return new MAAStarState(time, nextLocations, gArr, hArr, parentState, generatedNodes++);
     }
 
     protected void addToOpenList(@NotNull MAAStarState state) {
@@ -183,7 +198,7 @@ public class MultiAgentAStar extends A_Solver {
 
     protected void keepTheStateWithMinG(MAAStarState existingState, MAAStarState newState) {
         // decide which state to keep, seeing as how they are both equal and in open.
-        MAAStarState dropped = openList.keepOne(existingState, newState, equalStatesPreferSmallerG);
+        MAAStarState dropped = openList.keepOne(existingState, newState, EQUAL_STATES_PREFER_SMALLER_G);
         if (dropped == existingState){
             this.numRegeneratedNodes++;
         }
@@ -239,12 +254,12 @@ public class MultiAgentAStar extends A_Solver {
      * Calculates the cost of a joint move. As long as an agent is immobile at its target location, it has no cost.
      * Once it moves, it incurs the cost of all the time steps it spent waiting at the target location.
      */
-    private float calculateStepCost(MAAStarState parentState, List<I_Location> nextLocations, int time) {
+    private float[] calculateStepCosts(MAAStarState parentState, List<I_Location> nextLocations, int time) {
         if (time == 0){
             // handles the case where there are no constraints at all, giving all states time 0
             time = 1; // to generate valid moves
         }
-        float totalCost = 0.0f;
+        float[] gArr = new float[agents.size()];
         for (int i = 0; i < agents.size(); i++) {
             I_Location currentLoc = parentState.locations.get(i);
             I_Location nextLoc = nextLocations.get(i);
@@ -253,7 +268,7 @@ public class MultiAgentAStar extends A_Solver {
             // todo - maybe creating too many Move objects here, could be optimised
             if (!(currentLoc.getCoordinate().equals(agent.target) && nextLoc.getCoordinate().equals(agent.target))){
                 // unless the agent is waiting at its target location, it incurs a cost for moving
-                totalCost += singleAgentGAndH.cost(new Move(agent, time, currentLoc, nextLoc));
+                gArr[i] += singleAgentGAndH.cost(new Move(agent, time, currentLoc, nextLoc));
             }
             // If the agent steps out of its target location, walk back through parents and add the costs of all the
             // wait-at-target actions that we got for free
@@ -264,7 +279,7 @@ public class MultiAgentAStar extends A_Solver {
                 while (currentParent != null && !done) {
                     if (currentParent.locations.get(i).getCoordinate().equals(agent.target)) {
                         // The agent was at the target location in the previous state, so it was waiting there
-                        totalCost += singleAgentGAndH.cost(new Move(agent, time, currentParent.locations.get(i), currentState.locations.get(i)));
+                        gArr[i]  += singleAgentGAndH.cost(new Move(agent, time, currentParent.locations.get(i), currentState.locations.get(i)));
                         currentState = currentParent;
                         currentParent = currentParent.parent;
                     } else {
@@ -273,7 +288,7 @@ public class MultiAgentAStar extends A_Solver {
                 }
             }
         }
-        return totalCost;
+        return gArr;
     }
 
     private boolean isGoal(MAAStarState currentState) {
@@ -339,6 +354,8 @@ public class MultiAgentAStar extends A_Solver {
     @Override
     protected void writeMetricsToReport(Solution solution) {
         super.writeMetricsToReport(solution);
+        super.instanceReport.putStringValue(InstanceReport.StandardFields.solutionCostFunction,
+                this.openListComparator == F_THEN_H_SOC_OPEN_LIST_COMP ? SumOfCosts.NAME : this.openListComparator.getClass().getSimpleName());
     }
 
     @Override

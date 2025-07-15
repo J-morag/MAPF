@@ -14,6 +14,7 @@ import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.solutionsGeneratorForLNS2;
+import BasicMAPF.Solvers.MultiAgentAStar.MAAStarStateCompLexical;
 import BasicMAPF.Solvers.MultiAgentAStar.MultiAgentAStar;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
@@ -65,7 +66,8 @@ public class CanonicalSolversFactory {
     public final static String PIEt_NAME = "PIEt";
     public final static String PIE_SIPP_NAME = "PIE_SIPP";
     public final static String PIE_SIPPt_NAME = "PIE_SIPPt";
-    public final static String MA_ASTAR_NAME = "MA_AStar";
+    public final static String MAASTAR_NAME = "MAAStar";
+    public final static String MAASTAR_LEXICAL_NAME = "MAAStar_Lexical";
 
 
     // A map of solver names to their registrations.
@@ -285,10 +287,16 @@ public class CanonicalSolversFactory {
                 CanonicalSolversFactory::createSIPPSSolver
         ));
 
-        regs.put(MA_ASTAR_NAME, new SolverRegistration<>(
-                MA_ASTAR_NAME,
+        regs.put(MAASTAR_NAME, new SolverRegistration<>(
+                MAASTAR_NAME,
                 "Multi-Agent A* - joint state space search",
                 CanonicalSolversFactory::createMultiAgentAStarSolver
+        ));
+
+        regs.put(MAASTAR_LEXICAL_NAME, new SolverRegistration<>(
+                MAASTAR_LEXICAL_NAME,
+                "Multi-Agent A* - joint state space search. Using Lexical cost function",
+                CanonicalSolversFactory::createMultiAgentAStarLexicalSolver
         ));
 
         regs.put(PIE_NAME, new SolverRegistration<>(
@@ -555,8 +563,14 @@ public class CanonicalSolversFactory {
 
     public static MultiAgentAStar createMultiAgentAStarSolver() {
         MultiAgentAStar MAAStar = new MultiAgentAStar();
-        MAAStar.setName(MA_ASTAR_NAME);
+        MAAStar.setName(MAASTAR_NAME);
         return MAAStar;
+    }
+
+    public static MultiAgentAStar createMultiAgentAStarLexicalSolver() {
+        MultiAgentAStar MAAStar_Lexical = new MultiAgentAStar(MAAStarStateCompLexical.DEFAULT_INSTANCE);
+        MAAStar_Lexical.setName(MAASTAR_LEXICAL_NAME);
+        return MAAStar_Lexical;
     }
 
     public static I_Solver createPIESolver() {

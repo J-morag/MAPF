@@ -2,6 +2,9 @@ package BasicMAPF.Solvers.MultiAgentAStar;
 
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
+import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
+import BasicMAPF.Instances.InstanceManager;
+import BasicMAPF.Instances.InstanceProperties;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
@@ -10,6 +13,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.TestUtils;
 import Environment.Config;
+import Environment.IO_Package.IO_Manager;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.*;
@@ -24,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MultiAgentAStarTest {
 
     MultiAgentAStar maAStarSolver = CanonicalSolversFactory.createMultiAgentAStarSolver();
+    MultiAgentAStar maAStarLexicalSolver = CanonicalSolversFactory.createMultiAgentAStarLexicalSolver();
     private final CBS_Solver cbsSolver = CanonicalSolversFactory.createCBSSolver(); // Used as a baseline for optimal solutions
     InstanceReport instanceReport;
 
@@ -385,5 +390,57 @@ class MultiAgentAStarTest {
         }
     }
 
-    // todo - tests with constraints, verifying that it is optimal and complete with them and obeys constraints
+    @Test
+    void lexicalOptimalityWithConstraintsTest() {
+        // Test lexical optimality with external constraints
+        // Does not fully verify lexical optimality, so false positives (passing tests) are possible
+        MAPF_Instance instance = new MAPF_Instance("lexicalWithConstraintsTest", mapEmpty, new Agent[]{
+                new Agent(0, coor00, coor22),
+                new Agent(1, coor10, coor32)
+        });
+
+        // Add constraints that force agent 0 to take a specific path
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.add(new Constraint(instance.agents.get(0), 1, instance.map.getMapLocation(coor01)));
+
+        // Solve with constraints
+        Solution socSolution = maAStarSolver.solve(instance,
+                new RunParametersBuilder().setConstraints(constraintSet).createRP());
+        Solution lexicalSolution = maAStarLexicalSolver.solve(instance,
+                new RunParametersBuilder().setConstraints(constraintSet).createRP());
+
+        assertNotNull(socSolution, "SOC solution with constraints should exist");
+        assertNotNull(lexicalSolution, "Lexical solution with constraints should exist");
+
+        System.out.println("SOC Solution with constraints: " + socSolution);
+        System.out.println("Lexical Solution with constraints: " + lexicalSolution);
+
+        // Check if first agent with different cost has lower cost in lexical solution
+        for (Agent agent : instance.agents) {
+            int socCost = socSolution.getPlanFor(agent).getCost();
+            int lexicalCost = lexicalSolution.getPlanFor(agent).getCost();
+
+            if (socCost != lexicalCost) {
+                assertTrue(lexicalCost <= socCost,
+                        "First agent with cost difference (agent " + agent.iD + ") should have lower cost in lexical solution with constraints");
+                System.out.println("Found first cost difference at agent " + agent.iD + ": Lexical = " +
+                        lexicalCost + ", SOC = " + socCost);
+                break;
+            }
+        }
+    }
+
+    @Test
+    void lexicalOptimalityDiverseInstancesTest() {
+        int[] agentCounts = Config.TESTS_SCOPE >= 3 ? new int[]{3,4,5,6} :
+                Config.TESTS_SCOPE == 2 ? new int[]{4, 5} : new int[]{5};
+        TestUtils.verifyLexicalOptimalityOnDiverseInstances(maAStarSolver, maAStarLexicalSolver, agentCounts, 3000 * Config.TESTS_SCOPE);
+    }
+
+    @Test
+    void lexicalOptimalityVSPCS_Lexical() {
+        int[] agentCounts = Config.TESTS_SCOPE >= 3 ? new int[]{3,4,5,6} :
+                Config.TESTS_SCOPE == 2 ? new int[]{4, 5} : new int[]{5};
+        TestUtils.compareLexicalSolvers(CanonicalSolversFactory.createPCSLexicalSolver(), maAStarLexicalSolver, agentCounts, 3000 * Config.TESTS_SCOPE);
+    }
 }

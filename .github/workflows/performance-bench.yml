@@ -256,7 +256,7 @@ jobs:
 
       - env:
           SOLVER:
-            MA_AStar
+            MAAStar
         name: Store benchmark result - ${{ env.SOLVER }}
         uses: benchmark-action/github-action-benchmark@v1
         with:
