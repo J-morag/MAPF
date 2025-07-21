@@ -22,6 +22,8 @@ public class MAAStarState implements Comparable<MAAStarState> {
     final int id; // For tie-breaking
     final int depth; // Depth in the search tree
 
+    final int cachedHashCode;
+
     public MAAStarState(int time, @NotNull List<I_Location> locations, Move[] moves, float[] gArr, float[] hArr, @Nullable MAAStarState parent, int id) {
         if (Config.DEBUG >= 2) {
             validateMoves(time, locations, moves);
@@ -52,6 +54,8 @@ public class MAAStarState implements Comparable<MAAStarState> {
         this.id = id;
 
         this.depth = parent == null ? 0 : parent.depth + 1;
+
+        this.cachedHashCode = Objects.hash(time, locations);
     }
 
     protected void validateMoves(int time, @NotNull List<I_Location> locations, Move[] moves) {
@@ -81,14 +85,18 @@ public class MAAStarState implements Comparable<MAAStarState> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         MAAStarState that = (MAAStarState) o;
+        // Quick check using cached hash codes - if they differ, objects cannot be equal
+        if (this.cachedHashCode != that.cachedHashCode) return false;
+
         // A state is defined by the locations of all agents at a specific time
         return time == that.time && locations.equals(that.locations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(time, locations);
+        return cachedHashCode;
     }
 
     public double getG() {
