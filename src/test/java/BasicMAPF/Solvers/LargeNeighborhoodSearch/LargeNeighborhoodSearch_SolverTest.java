@@ -1,6 +1,5 @@
 package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
-import BasicMAPF.CostFunctions.ConflictsCount;
 import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.Agent;
@@ -26,7 +25,7 @@ import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Maps.*;
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Instances.*;
 import static org.junit.jupiter.api.Assertions.*;
 

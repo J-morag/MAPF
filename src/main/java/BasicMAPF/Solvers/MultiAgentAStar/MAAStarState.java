@@ -1,5 +1,6 @@
 package BasicMAPF.Solvers.MultiAgentAStar;
 
+import BasicMAPF.DataTypesAndStructures.Move;
 import BasicMAPF.Instances.Maps.I_Location;
 import Environment.Config;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +12,7 @@ import java.util.Objects;
 public class MAAStarState implements Comparable<MAAStarState> {
     final int time;
     final List<I_Location> locations;
+    final Move[] moves;
     final float[] gArr; // Cost so far for each agent
     final float[] hArr; // Heuristic for each agent
     final float g; // Sum of costs so far
@@ -20,9 +22,13 @@ public class MAAStarState implements Comparable<MAAStarState> {
     final int id; // For tie-breaking
     final int depth; // Depth in the search tree
 
-    public MAAStarState(int time, @NotNull List<I_Location> locations, float[] gArr, float[] hArr, @Nullable MAAStarState parent, int id) {
+    public MAAStarState(int time, @NotNull List<I_Location> locations, Move[] moves, float[] gArr, float[] hArr, @Nullable MAAStarState parent, int id) {
+        if (Config.DEBUG >= 2) {
+            validateMoves(time, locations, moves);
+        }
         this.time = time;
         this.locations = locations;
+        this.moves = moves;
         this.gArr = gArr;
         this.hArr = hArr;
         if (gArr.length != hArr.length || gArr.length != locations.size()) {
@@ -46,6 +52,19 @@ public class MAAStarState implements Comparable<MAAStarState> {
         this.id = id;
 
         this.depth = parent == null ? 0 : parent.depth + 1;
+    }
+
+    protected void validateMoves(int time, @NotNull List<I_Location> locations, Move[] moves) {
+        for (int i = 0; i < moves.length; i++) {
+            if (moves[i] != null) {
+                if (time != moves[i].timeNow && ! (time == 0 && moves[i].timeNow == 1) ) {
+                    throw new IllegalArgumentException("All moves must have the same time as the state except for time 0, which can have moves with time 1 (patched to create valid move objects). Got time " + time + " but move " + i + " has time " + moves[i].timeNow);
+                }
+                if (! moves[i].currLocation.equals(locations.get(i))) {
+                    throw new IllegalArgumentException("All moves must match the current locations of agents");
+                }
+            }
+        }
     }
 
     @Override

@@ -21,8 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static BasicMAPF.TestConstants.Agents.*;
-import static BasicMAPF.TestConstants.Coordiantes.*;
-import static BasicMAPF.TestConstants.Coordiantes.coor12;
+import static BasicMAPF.TestConstants.Coordinates.*;
+import static BasicMAPF.TestConstants.Coordinates.coor12;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Instances.*;
 import static org.junit.jupiter.api.Assertions.*;

@@ -13,8 +13,8 @@ import org.junit.jupiter.api.*;
 
 import static BasicMAPF.TestConstants.Agents.agent43to53;
 import static BasicMAPF.TestConstants.Agents.agent55to34;
-import static BasicMAPF.TestConstants.Coordiantes.coor12;
-import static BasicMAPF.TestConstants.Coordiantes.coor33;
+import static BasicMAPF.TestConstants.Coordinates.coor12;
+import static BasicMAPF.TestConstants.Coordinates.coor33;
 import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestConstants.Maps.mapCircle;
 import static BasicMAPF.TestConstants.Maps.mapWithPocket;

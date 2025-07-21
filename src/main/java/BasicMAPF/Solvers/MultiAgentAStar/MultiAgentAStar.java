@@ -27,21 +27,23 @@ import java.util.concurrent.TimeoutException;
  */
 public class MultiAgentAStar extends A_Solver {
 
-    /* = Static fields = */
+    /* = Constants = */
     private static final Comparator<MAAStarState> EQUAL_STATES_PREFER_SMALLER_G = Comparator.comparingDouble(MAAStarState::getG)
             .thenComparingInt(state -> state.id); // Tie-breaker based on id
     private static final Comparator<MAAStarState> F_THEN_H_SOC_OPEN_LIST_COMP = MAAStarState::compareTo;
 
-    /* = Fields = */
+    /* = Solver fields = */
+    private final Comparator<MAAStarState> openListComparator;
+
+    /* = Run fields = */
     private I_OpenList<MAAStarState> openList;
     private HashSet<MAAStarState> closedList;
-    private SingleAgentGAndH singleAgentGAndH;
-    private I_ConstraintSet externalConstraints;
-    private List<Agent> agents;
+    protected SingleAgentGAndH singleAgentGAndH;
+    protected I_ConstraintSet externalConstraints;
+    protected List<Agent> agents;
     private List<I_Location> goalLocations;
     private int numRegeneratedNodes;
-    private int problemStartTime;
-    private final Comparator<MAAStarState> openListComparator;
+    protected int problemStartTime;
 
     public MultiAgentAStar(@Nullable Comparator<MAAStarState> openListComparator) {
         super.name = CanonicalSolversFactory.MAASTAR_NAME;
@@ -67,7 +69,6 @@ public class MultiAgentAStar extends A_Solver {
         this.singleAgentGAndH = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> new DistanceTableSingleAgentHeuristic(this.agents, instance.map));
         this.externalConstraints = parameters.constraints;
 
-        // Set up goal locations
         this.goalLocations = new ArrayList<>(agents.size());
         List<I_Location> startLocations = new ArrayList<>(agents.size());
         for (Agent agent : this.agents) {
@@ -76,9 +77,13 @@ public class MultiAgentAStar extends A_Solver {
         }
 
         // Create and add the root state
-        float[] initialHArr = calculateHeuristicArray(startLocations);
-        MAAStarState root = getMaaStarState(null, startLocations, problemStartTime, new float[this.agents.size()] /*zeros*/, initialHArr);
+        float[] initialHArr = calculateHeuristicArray(startLocations, null);
+        MAAStarState root = getRootState(startLocations, initialHArr);
         this.openList.add(root);
+    }
+
+    protected @NotNull MAAStarState getRootState(List<I_Location> startLocations, float[] initialHArr) {
+        return getMaaStarState(null, startLocations, new Move[startLocations.size()], problemStartTime, new float[this.agents.size()] /*zeros*/, initialHArr);
     }
 
     @Override
@@ -113,7 +118,7 @@ public class MultiAgentAStar extends A_Solver {
         return null; // No solution found
     }
 
-    private float[] calculateHeuristicArray(List<I_Location> locations) {
+    protected float[] calculateHeuristicArray(List<I_Location> locations, @Nullable MAAStarState parentState) {
         float[] hArr = new float[agents.size()];
         for (int i = 0; i < agents.size(); i++) {
             Agent agent = agents.get(i);
@@ -129,6 +134,26 @@ public class MultiAgentAStar extends A_Solver {
      * @return true if expansion was successful, false if a timeout occurred or reached a combinatorial explosion
      */
     private boolean expand(MAAStarState parentState) {
+        // Check if we're after the last constraint time
+        boolean afterLastConstraint = externalConstraints == null || parentState.time > externalConstraints.getLastConstraintStartTime();
+        int time = getNextTime(parentState, afterLastConstraint);
+        return expandHelper(parentState, time);
+    }
+
+    protected int getNextTime(MAAStarState parentState, boolean afterLastConstraint) {
+        // Cap the time if we're after the last constraint time, similar to how it's done in SingleAgentAStar
+        return  !afterLastConstraint ? parentState.time + 1 : parentState.time;
+    }
+
+    /**
+     * Generates all possible joint moves for the agents based on their individual possible moves.
+     * This method uses a Cartesian product to generate all combinations of moves.
+     * If the Cartesian product is too large, it will exit gracefully due to a timeout.
+     * @param parentState the state to expand
+     * @param time the time step for the joint move
+     * @return true if expansion was successful, false if a timeout occurred or reached a combinatorial explosion
+     */
+    protected boolean expandHelper(MAAStarState parentState, int time) {
         List<List<I_Location>> individualAgentMoves = new ArrayList<>();
         for (int i = 0; i < agents.size(); i++) {
             I_Location currentLoc = parentState.locations.get(i);
@@ -136,14 +161,8 @@ public class MultiAgentAStar extends A_Solver {
             possibleMoves.add(currentLoc); // Add stay move
             individualAgentMoves.add(possibleMoves);
         }
-
-        // Check if we're after the last constraint time
-        boolean afterLastConstraint = externalConstraints == null || parentState.time > externalConstraints.getLastConstraintStartTime();
-
-        // Generate all combinations of joint moves
-        // Cap the time if we're after the last constraint time, similar to how it's done in SingleAgentAStar
-        int time = !afterLastConstraint ? parentState.time + 1 : parentState.time;
         try {
+            // Generate all combinations of joint moves
             // this call can lead to a combinatorial explosion, so we use a timeout to handle it gracefully
             List<List<I_Location>> jointMoves = CartesianProductWithTimeout.cartesianProductWithTimeout(individualAgentMoves,
                     super.getTimeout().getTimeoutTimeRemainingMS(), TimeUnit.MILLISECONDS);
@@ -151,15 +170,7 @@ public class MultiAgentAStar extends A_Solver {
                 if (checkTimeout()) {
                     return false;
                 }
-                if (isValidJointMove(parentState.locations, nextLocations, time)) {
-                    float[] newGArr = calculateStepCosts(parentState, nextLocations, time);
-                    for (int i = 0; i < newGArr.length; i++) {
-                        newGArr[i] += parentState.gArr[i]; // Add the cost of the step to the parent's g for each agent
-                    }
-                    float[] newHArr = calculateHeuristicArray(nextLocations);
-                    MAAStarState successor = getMaaStarState(parentState, nextLocations, time, newGArr, newHArr);
-                    addToOpenList(successor);
-                }
+                expandHelper2(parentState, time, nextLocations);
             }
         }
         catch (ExecutionException e) {
@@ -168,7 +179,7 @@ public class MultiAgentAStar extends A_Solver {
                         " to the combinatorial explosion. Given " + agents.size() + " agents" +
                         ", the Cartesian product of their moves is too large to handle. Exiting search.");
             }
-            return false; // Early exit for large problems
+            return false;
         }
         catch (TimeoutException e) {
             // Timeout occurred while generating joint moves
@@ -179,8 +190,36 @@ public class MultiAgentAStar extends A_Solver {
         return true;
     }
 
-    private @NotNull MAAStarState getMaaStarState(MAAStarState parentState, List<I_Location> nextLocations, int time, float[] gArr, float[] hArr) {
-        return new MAAStarState(time, nextLocations, gArr, hArr, parentState, generatedNodes++);
+    protected void expandHelper2(MAAStarState parentState, int time, List<I_Location> nextLocations) {
+        Move[] moves = getMovesToNextLocations(parentState, nextLocations, time);
+        if (isValidJointMove(moves, parentState)) {
+            float[] newGArr = calculateStepCosts(parentState, moves);
+            for (int i = 0; i < newGArr.length; i++) {
+                newGArr[i] += parentState.gArr[i]; // Add the cost of the step to the parent's g for each agent
+            }
+            float[] newHArr = calculateHeuristicArray(nextLocations, parentState);
+            MAAStarState successor = getMaaStarState(parentState, nextLocations, moves, time, newGArr, newHArr);
+            addToOpenList(successor);
+        }
+    }
+
+    protected Move[] getMovesToNextLocations(MAAStarState parentState, List<I_Location> nextLocations, int time) {
+        if (time == 0){
+            // handles the case where there are no constraints at all, giving all states time 0
+            time = 1; // to generate valid moves
+        }
+        Move[] moves = new Move[agents.size()];
+        for (int i = 0; i < agents.size(); i++) {
+            Agent agent = agents.get(i);
+            I_Location currentLoc = parentState.locations.get(i);
+            I_Location nextLoc = nextLocations.get(i);
+            moves[i] = new Move(agent, time, currentLoc, nextLoc);
+        }
+        return moves;
+    }
+
+    protected @NotNull MAAStarState getMaaStarState(MAAStarState parentState, List<I_Location> nextLocations, Move[] moves, int time, float[] gArr, float[] hArr) {
+        return new MAAStarState(time, nextLocations, moves, gArr, hArr, parentState, generatedNodes++);
     }
 
     protected void addToOpenList(@NotNull MAAStarState state) {
@@ -209,31 +248,17 @@ public class MultiAgentAStar extends A_Solver {
      * 1. Vertex collision: Two agents cannot be at the same location at the same time.
      * 2. Swapping/Edge collision: Two agents cannot swap locations along an edge.
      *
-     * @param currentLocations The list of locations at time t.
-     * @param nextLocations    The list of locations at time t+1.
-     * @param time           The time step for the joint move.
+     * @param moves            The joint moves to check for collisions.
+     * @param parentState
      * @return true if the joint move is valid, false otherwise.
      */
-    private boolean isValidJointMove(List<I_Location> currentLocations, List<I_Location> nextLocations, int time) {
-        if (time == 0){
-            // handles the case where there are no constraints at all, giving all states time 0
-            time = 1; // to generate valid moves
-        }
-        // convert to Move objects for standardised processing
-        if (currentLocations.size() != nextLocations.size() || currentLocations.size() != agents.size()) {
-            throw new IllegalArgumentException("Current and next locations must match the number of agents.");
-        }
-        Move[] currentMoves = new Move[agents.size()];
-        for (int i = 0; i < agents.size(); i++) {
-            currentMoves[i] = new Move(agents.get(i), time, currentLocations.get(i), nextLocations.get(i));
-        }
-
-        for (int i = 0; i < currentMoves.length - 1; i++) {
-            Move move1 = currentMoves[i];
+    protected boolean isValidJointMove(Move[] moves, MAAStarState parentState) {
+        for (int i = 0; i < moves.length - 1; i++) {
+            Move move1 = moves[i];
 
             // check for internal conflicts
-            for (int j = i + 1; j < currentMoves.length; j++) {
-                Move move2 = currentMoves[j];
+            for (int j = i + 1; j < moves.length; j++) {
+                Move move2 = moves[j];
                 if (A_Conflict.haveConflicts(move1, move2)) {
                     return false;
                 }
@@ -254,55 +279,58 @@ public class MultiAgentAStar extends A_Solver {
      * Calculates the cost of a joint move. As long as an agent is immobile at its target location, it has no cost.
      * Once it moves, it incurs the cost of all the time steps it spent waiting at the target location.
      */
-    private float[] calculateStepCosts(MAAStarState parentState, List<I_Location> nextLocations, int time) {
-        if (time == 0){
-            // handles the case where there are no constraints at all, giving all states time 0
-            time = 1; // to generate valid moves
-        }
+    private float[] calculateStepCosts(MAAStarState parentState, Move[] moves) {
         float[] gArr = new float[agents.size()];
-        for (int i = 0; i < agents.size(); i++) {
-            I_Location currentLoc = parentState.locations.get(i);
-            I_Location nextLoc = nextLocations.get(i);
-            Agent agent = agents.get(i);
-
-            // todo - maybe creating too many Move objects here, could be optimised
-            if (!(currentLoc.getCoordinate().equals(agent.target) && nextLoc.getCoordinate().equals(agent.target))){
-                // unless the agent is waiting at its target location, it incurs a cost for moving
-                gArr[i] += singleAgentGAndH.cost(new Move(agent, time, currentLoc, nextLoc));
-            }
-            // If the agent steps out of its target location, walk back through parents and add the costs of all the
-            // wait-at-target actions that we got for free
-            if (currentLoc.getCoordinate().equals(agent.target) && !nextLoc.getCoordinate().equals(agent.target)) {
-                boolean done = false;
-                MAAStarState currentParent = parentState.parent;
-                MAAStarState currentState = parentState;
-                while (currentParent != null && !done) {
-                    if (currentParent.locations.get(i).getCoordinate().equals(agent.target)) {
-                        // The agent was at the target location in the previous state, so it was waiting there
-                        gArr[i]  += singleAgentGAndH.cost(new Move(agent, time, currentParent.locations.get(i), currentState.locations.get(i)));
-                        currentState = currentParent;
-                        currentParent = currentParent.parent;
-                    } else {
-                        done = true; // before started waiting at the target location
-                    }
-                }
-            }
-        }
+        calculateStepCostsHelper(parentState, moves, gArr);
         return gArr;
     }
 
-    private boolean isGoal(MAAStarState currentState) {
+    protected void calculateStepCostsHelper(MAAStarState parentState, Move[] moves, float[] gArr) {
+        for (int i = 0; i < agents.size(); i++) {
+            updateIndexAgentMoveCost(parentState, moves[i], i, gArr);
+        }
+    }
+
+    protected void updateIndexAgentMoveCost(MAAStarState parentState, Move move, int i, float[] gArr) {
+        Agent agent = agents.get(i);
+        int currentAgentMoveCost = 0;
+
+        if (!(move.prevLocation.getCoordinate().equals(agent.target) && move.currLocation.getCoordinate().equals(agent.target))){
+            // unless the agent is waiting at its target location, it incurs a cost
+            currentAgentMoveCost += singleAgentGAndH.cost(move);
+        }
+        int costOfSkippedWaitAtTargetActions = getCostOfSkippedWaitAtTargetActions(parentState, move, i, agent);
+        gArr[i] = currentAgentMoveCost + costOfSkippedWaitAtTargetActions;
+    }
+
+    protected int getCostOfSkippedWaitAtTargetActions(MAAStarState parentState, Move move, int i, Agent agent) {
+        int costOfSkippedWaitAtTargetActions = 0;
+        // If the agent steps out of its target location, walk back through parents and add the costs of all the
+        // wait-at-target actions that we got for free
+        if (move.prevLocation.getCoordinate().equals(agent.target) && !move.currLocation.getCoordinate().equals(agent.target)) {
+            boolean done = false;
+            MAAStarState currentParent = parentState.parent;
+            MAAStarState currentState = parentState;
+            while (currentParent != null && !done) {
+                if (currentParent.locations.get(i).getCoordinate().equals(agent.target)) {
+                    // The agent was at the target location in the previous state, so it was waiting there
+                    costOfSkippedWaitAtTargetActions += singleAgentGAndH.cost(currentState.moves[i]);
+                    currentState = currentParent;
+                    currentParent = currentParent.parent;
+                } else {
+                    done = true; // before started waiting at the target location
+                }
+            }
+        }
+        return costOfSkippedWaitAtTargetActions;
+    }
+
+    protected boolean isGoal(MAAStarState currentState) {
         return currentState.locations.equals(goalLocations);
     }
 
     private Solution reconstructSolution(MAAStarState goalState) {
-        ArrayList<MAAStarState> solutionStatesSequence = new ArrayList<>();
-        solutionStatesSequence.add(goalState);
-        while (goalState.parent != null) {
-            goalState = goalState.parent;
-            solutionStatesSequence.add(goalState);
-        }
-        Collections.reverse(solutionStatesSequence); // Reverse to get the correct order from start to goal
+        ArrayList<MAAStarState> solutionStatesSequence = getSolutionStatesSequence(goalState);
 
         ArrayList<ArrayList<Move>> plans = new ArrayList<>(agents.size());
         for (Agent agent : agents) {
@@ -311,14 +339,21 @@ public class MultiAgentAStar extends A_Solver {
 
         for (int stateIndex = 1; stateIndex < solutionStatesSequence.size(); stateIndex++) {
             MAAStarState state = solutionStatesSequence.get(stateIndex);
-            for (int i = 0; i < agents.size(); i++) {
-                Agent agent = agents.get(i);
-                I_Location currentLoc = state.locations.get(i);
-                I_Location prevLoc = state.parent.locations.get(i);
-                // patch move times in case we had moves that don't progress time, because they were after last constraint time
-                int correctedTime = state.parent.time == state.time ? problemStartTime + stateIndex : state.time;
-                Move move = new Move(agent, correctedTime, prevLoc, currentLoc);
-                plans.get(i).add(move);
+            for (int agentIdx = 0; agentIdx < agents.size(); agentIdx++) {
+                Agent agent = agents.get(agentIdx);
+
+                Move move;
+                if (solutionStatesSequence.get(stateIndex-1).time == state.time){
+                    // patch move times in case we had moves that don't progress time, because they were after last constraint time
+                    I_Location currentLoc = state.locations.get(agentIdx);
+                    I_Location prevLoc = solutionStatesSequence.get(stateIndex-1).locations.get(agentIdx);
+                    int correctedTime = problemStartTime + stateIndex;
+                    move = new Move(agent, correctedTime, prevLoc, currentLoc);
+                }
+                else{
+                    move = state.moves[agentIdx];
+                }
+                plans.get(agentIdx).add(move);
             }
         }
 
@@ -339,7 +374,7 @@ public class MultiAgentAStar extends A_Solver {
             solution.putPlan(singleAgentPlan);
         }
 
-        if (Config.DEBUG >= 2){
+        if (Config.DEBUG >= 2 && openListComparator == F_THEN_H_SOC_OPEN_LIST_COMP) {
             if (Math.round(goalState.g) != solution.sumIndividualCosts() ) {
                 throw new IllegalStateException("The total cost of the solution does not match the cost of the goal state. " +
                         "Goal state cost: " + Math.round(goalState.g) + ", Solution cost: " + solution.sumIndividualCosts());
@@ -349,6 +384,17 @@ public class MultiAgentAStar extends A_Solver {
             }
         }
         return solution;
+    }
+
+    protected @NotNull ArrayList<MAAStarState> getSolutionStatesSequence(MAAStarState goalState) {
+        ArrayList<MAAStarState> solutionStatesSequence = new ArrayList<>();
+        solutionStatesSequence.add(goalState);
+        while (goalState.parent != null) {
+            goalState = goalState.parent;
+            solutionStatesSequence.add(goalState);
+        }
+        Collections.reverse(solutionStatesSequence); // Reverse to get the correct order from start to goal
+        return solutionStatesSequence;
     }
 
     @Override

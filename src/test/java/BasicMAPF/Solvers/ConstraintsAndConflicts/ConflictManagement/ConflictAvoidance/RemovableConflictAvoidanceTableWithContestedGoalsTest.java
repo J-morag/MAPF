@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static BasicMAPF.TestConstants.Coordiantes.*;
-import static BasicMAPF.TestConstants.Coordiantes.coor04;
+import static BasicMAPF.TestConstants.Coordinates.*;
+import static BasicMAPF.TestConstants.Coordinates.coor04;
 import static BasicMAPF.TestConstants.Instances.instanceEmpty1;
 import static org.junit.jupiter.api.Assertions.*;
 

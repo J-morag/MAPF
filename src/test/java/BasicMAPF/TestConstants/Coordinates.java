@@ -3,7 +3,7 @@ package BasicMAPF.TestConstants;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 
-public class Coordiantes {
+public class Coordinates {
     public final static I_Coordinate coor12 = new Coordinate_2D(1,2);
     public final static I_Coordinate coor13 = new Coordinate_2D(1,3);
     public final static I_Coordinate coor14 = new Coordinate_2D(1,4);

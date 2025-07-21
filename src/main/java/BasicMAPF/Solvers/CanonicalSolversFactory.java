@@ -16,6 +16,7 @@ import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.solutionsGeneratorForLNS2;
 import BasicMAPF.Solvers.MultiAgentAStar.MAAStarStateCompLexical;
 import BasicMAPF.Solvers.MultiAgentAStar.MultiAgentAStar;
+import BasicMAPF.Solvers.MultiAgentAStar.MultiAgentAStarOperatorDecomp;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -68,6 +69,8 @@ public class CanonicalSolversFactory {
     public final static String PIE_SIPPt_NAME = "PIE_SIPPt";
     public final static String MAASTAR_NAME = "MAAStar";
     public final static String MAASTAR_LEXICAL_NAME = "MAAStar_Lexical";
+    public final static String MAASTAR_OD_NAME = "MAAStarOD";
+    public final static String MAASTAR_OD_LEXICAL_NAME = "MAAStarOD_Lexical";
 
 
     // A map of solver names to their registrations.
@@ -297,6 +300,18 @@ public class CanonicalSolversFactory {
                 MAASTAR_LEXICAL_NAME,
                 "Multi-Agent A* - joint state space search. Using Lexical cost function",
                 CanonicalSolversFactory::createMultiAgentAStarLexicalSolver
+        ));
+
+        regs.put(MAASTAR_OD_NAME, new SolverRegistration<>(
+                MAASTAR_OD_NAME,
+                "Multi-Agent A* - operator decomposition search",
+                CanonicalSolversFactory::createMultiAgentAStarOperatorDecompSolver
+        ));
+
+        regs.put(MAASTAR_OD_LEXICAL_NAME, new SolverRegistration<>(
+                MAASTAR_OD_LEXICAL_NAME,
+                "Multi-Agent A* - operator decomposition search. Using Lexical cost function",
+                CanonicalSolversFactory::createMultiAgentAStarOperatorDecompLexicalSolver
         ));
 
         regs.put(PIE_NAME, new SolverRegistration<>(
@@ -571,6 +586,18 @@ public class CanonicalSolversFactory {
         MultiAgentAStar MAAStar_Lexical = new MultiAgentAStar(MAAStarStateCompLexical.DEFAULT_INSTANCE);
         MAAStar_Lexical.setName(MAASTAR_LEXICAL_NAME);
         return MAAStar_Lexical;
+    }
+
+    public static MultiAgentAStarOperatorDecomp createMultiAgentAStarOperatorDecompSolver() {
+        MultiAgentAStarOperatorDecomp MAAStar_OD = new MultiAgentAStarOperatorDecomp();
+        MAAStar_OD.setName(MAASTAR_OD_NAME);
+        return MAAStar_OD;
+    }
+
+    public static MultiAgentAStarOperatorDecomp createMultiAgentAStarOperatorDecompLexicalSolver() {
+        MultiAgentAStarOperatorDecomp MAAStar_OD_Lexical = new MultiAgentAStarOperatorDecomp(MAAStarStateCompLexical.DEFAULT_INSTANCE);
+        MAAStar_OD_Lexical.setName(MAASTAR_OD_LEXICAL_NAME);
+        return MAAStar_OD_Lexical;
     }
 
     public static I_Solver createPIESolver() {

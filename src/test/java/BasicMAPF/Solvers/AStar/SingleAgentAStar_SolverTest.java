@@ -28,7 +28,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.*;
 
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestUtils.unitCostAndNoHeuristic;

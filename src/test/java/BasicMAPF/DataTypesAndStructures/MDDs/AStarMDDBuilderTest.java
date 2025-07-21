@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Random;
 
 import static BasicMAPF.TestConstants.Agents.*;
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestConstants.Maps.mapEmpty;
 import static BasicMAPF.TestConstants.Maps.mapWithPocket;

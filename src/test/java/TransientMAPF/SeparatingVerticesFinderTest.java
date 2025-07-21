@@ -2,7 +2,6 @@ package TransientMAPF;
 
 import BasicMAPF.Instances.Maps.*;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import Environment.Visualization.GridCentralityVisualizer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -10,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 

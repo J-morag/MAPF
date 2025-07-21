@@ -7,8 +7,8 @@ import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Agents.agent33to12;
 import static BasicMAPF.TestConstants.Agents.agent53to05;
-import static BasicMAPF.TestConstants.Coordiantes.coor14;
-import static BasicMAPF.TestConstants.Coordiantes.coor15;
+import static BasicMAPF.TestConstants.Coordinates.coor14;
+import static BasicMAPF.TestConstants.Coordinates.coor15;
 import static BasicMAPF.TestConstants.Maps.mapEmpty;
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -2,7 +2,6 @@ package BasicMAPF.Solvers.LargeNeighborhoodSearch;
 
 import BasicMAPF.CostFunctions.ConflictsCount;
 import BasicMAPF.CostFunctions.I_SolutionCostFunction;
-import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
@@ -10,12 +9,8 @@ import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
-import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.PIBT.PIBT_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
-import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
@@ -28,10 +23,9 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.util.ArrayList;
 
-import static BasicMAPF.TestConstants.Coordiantes.*;
-import static BasicMAPF.TestConstants.Coordiantes.coor02;
+import static BasicMAPF.TestConstants.Coordinates.*;
+import static BasicMAPF.TestConstants.Coordinates.coor02;
 import static BasicMAPF.TestConstants.Instances.*;
-import static BasicMAPF.TestConstants.Instances.instanceUnsolvable;
 import static BasicMAPF.TestConstants.Maps.mapCorridor;
 import static org.junit.jupiter.api.Assertions.*;
 

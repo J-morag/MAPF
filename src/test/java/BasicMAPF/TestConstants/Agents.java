@@ -2,7 +2,7 @@ package BasicMAPF.TestConstants;
 
 import BasicMAPF.Instances.Agent;
 
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 
 public class Agents {
     private static int serialID = 0;

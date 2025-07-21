@@ -1,6 +1,9 @@
 package BasicMAPF.Solvers.MultiAgentAStar;
 
-import BasicMAPF.DataTypesAndStructures.*;
+import BasicMAPF.DataTypesAndStructures.RunParameters;
+import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
+import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Solvers.CBS.CBS_Solver;
@@ -12,19 +15,22 @@ import BasicMAPF.TestUtils;
 import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import static BasicMAPF.TestConstants.Agents.agent04to00;
 import static BasicMAPF.TestConstants.Coordinates.*;
-import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Instances.*;
+import static BasicMAPF.TestConstants.Instances.instanceSmallMaze;
+import static BasicMAPF.TestConstants.Maps.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class MultiAgentAStarTest {
+class MultiAgentAStarOperatorDecompTest {
 
-    MultiAgentAStar maAStarSolver = CanonicalSolversFactory.createMultiAgentAStarSolver();
-    MultiAgentAStar maAStarLexicalSolver = CanonicalSolversFactory.createMultiAgentAStarLexicalSolver();
+    MultiAgentAStar MAAStarOD = CanonicalSolversFactory.createMultiAgentAStarOperatorDecompSolver();
+    MultiAgentAStar MAAStarOD_Lexical = CanonicalSolversFactory.createMultiAgentAStarOperatorDecompLexicalSolver();
     private final CBS_Solver cbsSolver = CanonicalSolversFactory.createCBSSolver(); // Used as a baseline for optimal solutions
     InstanceReport instanceReport;
 
@@ -50,7 +56,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = new MAPF_Instance("singleAgentAtTarget", mapCircle, new Agent[]{agent});
 
         RunParameters params = new RunParametersBuilder().setTimeout(5000).createRP();
-        Solution solution = maAStarSolver.solve(testInstance, params);
+        Solution solution = MAAStarOD.solve(testInstance, params);
 
         assertNotNull(solution, "Solution should exist for trivial case");
         assertTrue(solution.solves(testInstance));
@@ -65,7 +71,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = new MAPF_Instance("twoAgentsNoConflict", mapCircle,
                 new Agent[]{agent1, agent2});
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
 
         assertNotNull(solution, "Solution should exist for non-conflicting agents");
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
@@ -89,7 +95,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = new MAPF_Instance("twoAgentsNoConflictEmpty", mapEmpty,
                 new Agent[]{agent1, agent2});
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
         assertNotNull(solution, "Solution should exist for non-conflicting agents");
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
 
@@ -113,7 +119,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = new MAPF_Instance("twoAgentsSwapping", mapCircle,
                 new Agent[]{agent1, agent2});
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
 
         assertNotNull(solution, "Solution should exist for two agents swapping");
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
@@ -128,7 +134,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = new MAPF_Instance("emptyMapTwoAgents", mapEmpty,
                 new Agent[]{agent1, agent2});
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
         assertNotNull(solution, "Solution should exist for two agents on empty map");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
@@ -140,7 +146,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = instanceEmpty1;
 
         RunParameters params = new RunParametersBuilder().setTimeout(3000).createRP();
-        Solution solution = maAStarSolver.solve(testInstance, params);
+        Solution solution = MAAStarOD.solve(testInstance, params);
         assertNotNull(solution, "Solution should exist for complex instance");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
@@ -152,12 +158,12 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = instanceCircle1;
 
         RunParameters params = new RunParametersBuilder().setTimeout(3000).createRP();
-        Solution solution = maAStarSolver.solve(testInstance, params);
+        Solution solution = MAAStarOD.solve(testInstance, params);
         assertNotNull(solution, "Solution should exist for circle instance");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
         assertEquals(cbsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(3000).createRP()).sumIndividualCosts(), solution.sumIndividualCosts(),
-                maAStarSolver.getName() + " should find optimal cost for " + testInstance.extendedName);
+                MAAStarOD.getName() + " should find optimal cost for " + testInstance.extendedName);
     }
 
     @Test
@@ -165,24 +171,24 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = instanceCircle2;
 
         RunParameters params = new RunParametersBuilder().setTimeout(3000).createRP();
-        Solution solution = maAStarSolver.solve(testInstance, params);
+        Solution solution = MAAStarOD.solve(testInstance, params);
         assertNotNull(solution, "Solution should exist for circle instance");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
         assertEquals(cbsSolver.solve(testInstance, new RunParametersBuilder().setTimeout(3000).createRP()).sumIndividualCosts(), solution.sumIndividualCosts(),
-                maAStarSolver.getName() + " should find optimal cost for " + testInstance.extendedName);
+                MAAStarOD.getName() + " should find optimal cost for " + testInstance.extendedName);
     }
 
     @Test
     void instanceEmptyEasyTest() {
         MAPF_Instance testInstance = instanceEmptyEasy;
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
         assertNotNull(solution, "Solution should exist for easy empty instance");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
         assertEquals(cbsSolver.solve(testInstance, new RunParametersBuilder().createRP()).sumIndividualCosts(), solution.sumIndividualCosts(),
-                maAStarSolver.getName() + " should find optimal cost for " + testInstance.extendedName);
+                MAAStarOD.getName() + " should find optimal cost for " + testInstance.extendedName);
     }
 
     @Test
@@ -193,7 +199,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = new MAPF_Instance("threeAgentsNoConflict", mapEmpty,
                 new Agent[]{agent1, agent2, agent3});
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
         assertNotNull(solution, "Solution should exist for three agents on empty map");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
@@ -206,7 +212,7 @@ class MultiAgentAStarTest {
         Agent agent = new Agent(0, coor00, coor22);
         MAPF_Instance testInstance = new MAPF_Instance("singleAgentOptimal", mapEmpty, new Agent[]{agent});
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
         assertNotNull(solution, "Solution should exist for single agent case");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
@@ -221,7 +227,7 @@ class MultiAgentAStarTest {
         MAPF_Instance testInstance = new MAPF_Instance("twoAgentsSequential", mapCircle,
                 new Agent[]{agent1, agent2});
 
-        Solution solution = maAStarSolver.solve(testInstance, new RunParametersBuilder().createRP());
+        Solution solution = MAAStarOD.solve(testInstance, new RunParametersBuilder().createRP());
         assertNotNull(solution, "Solution should exist for two agents with sequential targets");
         System.out.println("Solution: " + solution);
         assertTrue(solution.solves(testInstance), "Solution should solve the instance");
@@ -244,7 +250,7 @@ class MultiAgentAStarTest {
         Solution cbsSolution = cbsSolver.solve(instance, new RunParametersBuilder().createRP());
         int optimalCost = cbsSolution.sumIndividualCosts();
 
-        Solution maSolution = maAStarSolver.solve(instance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
+        Solution maSolution = MAAStarOD.solve(instance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         assertNotNull(maSolution, "MA-A* should find a solution for three agents");
         assertTrue(maSolution.solves(instance), "MA-A* solution should solve the instance");
         assertEquals(optimalCost, maSolution.sumIndividualCosts(), "MA-A* should find the optimal cost for three agents");
@@ -256,7 +262,7 @@ class MultiAgentAStarTest {
 
     @Test
     void TestingBenchmark(){
-        TestUtils.TestingBenchmark(maAStarSolver, 3 * Config.TESTS_SCOPE, true, false);
+        TestUtils.TestingBenchmark(MAAStarOD, 3 * Config.TESTS_SCOPE, true, false);
     }
 
     @Test
@@ -264,17 +270,19 @@ class MultiAgentAStarTest {
         I_Solver baselineSolver = cbsSolver;
         String nameBaseline = baselineSolver.getName();
 
-        I_Solver competitorSolver = maAStarSolver;
+        I_Solver competitorSolver = MAAStarOD;
         String nameExperimental = competitorSolver.getName();
 
+        int[] agentCounts = Config.TESTS_SCOPE >= 3 ? new int[]{5, 10, 15, 20, 25} :
+                Config.TESTS_SCOPE == 2 ? new int[]{10, 15} : new int[]{15};
         TestUtils.comparativeTest(baselineSolver, nameBaseline, true, true, competitorSolver,
-                nameExperimental, true, true, new int[]{6}, 4 * Config.TESTS_SCOPE, 0);
+                nameExperimental, true, true, agentCounts, 4 * Config.TESTS_SCOPE, 0);
     }
 
     @Test
     void startAdjacentGoAroundValidityTest() {
         MAPF_Instance testInstance = instanceStartAdjacentGoAround;
-        Solution solved = maAStarSolver.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
+        Solution solved = MAAStarOD.solve(testInstance, new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         assertNotNull(solved, "Solution should exist for start adjacent go around instance");
         System.out.println("Solution: " + solved);
         assertTrue(solved.solves(testInstance), "Solution should solve the instance");
@@ -289,7 +297,7 @@ class MultiAgentAStarTest {
         int timeout = 10000;
         InstanceReport instanceReport = new InstanceReport();
         RunParameters params = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP();
-        Solution solution = maAStarSolver.solve(testInstance, params);
+        Solution solution = MAAStarOD.solve(testInstance, params);
 
         // Should return null for unsolvable instances without timing out
         assertNull(solution, "Should return null for unsolvable instance");
@@ -303,7 +311,7 @@ class MultiAgentAStarTest {
                 new Agent(2, coor01, coor02)
         });
 
-        Solution solved = maAStarSolver.solve(testInstance, new RunParametersBuilder()
+        Solution solved = MAAStarOD.solve(testInstance, new RunParametersBuilder()
                 .setTimeout(10000)
                 .setInstanceReport(instanceReport)
                 .createRP());
@@ -321,7 +329,7 @@ class MultiAgentAStarTest {
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor04)));
         constraintSet.add(new Constraint(agent04to00, 1, testInstance.map.getMapLocation(coor14)));
         int timeout = 5000;
-        Solution solved = maAStarSolver.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).setTimeout(timeout).createRP());
+        Solution solved = MAAStarOD.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).setTimeout(timeout).createRP());
         Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -339,7 +347,7 @@ class MultiAgentAStarTest {
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor13)));
         constraintSet.add(new Constraint(agent04to00, 2, testInstance.map.getMapLocation(coor15)));
         int timeout = 5000;
-        Solution solved = maAStarSolver.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).setTimeout(timeout).createRP());
+        Solution solved = MAAStarOD.solve(testInstance, new RunParametersBuilder().setConstraints(constraintSet).setInstanceReport(instanceReport).setTimeout(timeout).createRP());
         Metrics.removeReport(instanceReport);
 
         assertNull(solved);
@@ -354,7 +362,7 @@ class MultiAgentAStarTest {
                 new Agent(2, coor11, coor12)
         });
 
-        Solution solved = maAStarSolver.solve(testInstance, new RunParametersBuilder()
+        Solution solved = MAAStarOD.solve(testInstance, new RunParametersBuilder()
                 .setTimeout(5000)
                 .setInstanceReport(instanceReport)
                 .createRP());
@@ -371,18 +379,18 @@ class MultiAgentAStarTest {
 
         // First solve with CBS to get optimal baseline
         Solution cbsSolution = cbsSolver.solve(testInstance,
-            new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
+                new RunParametersBuilder().setInstanceReport(instanceReport).createRP());
         assertNotNull(cbsSolution, "CBS should be able to solve this instance");
 
         // Now solve with Multi-Agent A*
-        Solution maSolution = maAStarSolver.solve(testInstance,
-            new RunParametersBuilder().setInstanceReport(instanceReport).setTimeout(10000).createRP());
+        Solution maSolution = MAAStarOD.solve(testInstance,
+                new RunParametersBuilder().setInstanceReport(instanceReport).setTimeout(10000).createRP());
 
         if (maSolution != null) {
             assertTrue(maSolution.isValidSolution(), "Solution should be valid");
             assertTrue(maSolution.solves(testInstance), "Solution should solve the instance");
             assertEquals(cbsSolution.sumIndividualCosts(), maSolution.sumIndividualCosts(),
-                "MA* should find optimal solution");
+                    "MA* should find optimal solution");
         }
     }
 
@@ -400,9 +408,9 @@ class MultiAgentAStarTest {
         constraintSet.add(new Constraint(instance.agents.get(0), 1, instance.map.getMapLocation(coor01)));
 
         // Solve with constraints
-        Solution socSolution = maAStarSolver.solve(instance,
+        Solution socSolution = MAAStarOD.solve(instance,
                 new RunParametersBuilder().setConstraints(constraintSet).createRP());
-        Solution lexicalSolution = maAStarLexicalSolver.solve(instance,
+        Solution lexicalSolution = MAAStarOD_Lexical.solve(instance,
                 new RunParametersBuilder().setConstraints(constraintSet).createRP());
 
         assertNotNull(socSolution, "SOC solution with constraints should exist");
@@ -430,13 +438,14 @@ class MultiAgentAStarTest {
     void lexicalOptimalityDiverseInstancesTest() {
         int[] agentCounts = Config.TESTS_SCOPE >= 3 ? new int[]{3,4,5,6} :
                 Config.TESTS_SCOPE == 2 ? new int[]{4, 5} : new int[]{5};
-        TestUtils.verifyLexicalOptimalityOnDiverseInstances(maAStarSolver, maAStarLexicalSolver, agentCounts, 3000 * Config.TESTS_SCOPE);
+        TestUtils.verifyLexicalOptimalityOnDiverseInstances(MAAStarOD, MAAStarOD_Lexical, agentCounts, 3000 * Config.TESTS_SCOPE);
     }
 
     @Test
     void lexicalOptimalityVSPCS_Lexical() {
         int[] agentCounts = Config.TESTS_SCOPE >= 3 ? new int[]{3,4,5,6} :
                 Config.TESTS_SCOPE == 2 ? new int[]{4, 5} : new int[]{5};
-        TestUtils.compareLexicalSolvers(CanonicalSolversFactory.createPCSLexicalSolver(), maAStarLexicalSolver, agentCounts, 3000 * Config.TESTS_SCOPE);
+        TestUtils.compareLexicalSolvers(CanonicalSolversFactory.createPCSLexicalSolver(), MAAStarOD_Lexical, agentCounts, 3000 * Config.TESTS_SCOPE);
     }
+
 }

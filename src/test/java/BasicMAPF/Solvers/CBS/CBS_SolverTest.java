@@ -29,7 +29,7 @@ import org.junit.jupiter.api.TestInfo;
 import java.util.Arrays;
 import java.util.List;
 
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Instances.*;

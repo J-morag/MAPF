@@ -749,12 +749,12 @@ public class TestUtils {
      * @param lexicalSolver1 First lexically optimal solver
      * @param lexicalSolver2 Second lexically optimal solver
      * @param agentNums Number of agents to test with
-     * @param timeout Timeout in milliseconds
+     * @param timeoutMS Timeout in milliseconds
      */
     public static void compareLexicalSolvers(I_Solver lexicalSolver1,
                                              I_Solver lexicalSolver2,
                                              int[] agentNums,
-                                             int timeout) {
+                                             int timeoutMS) {
         String path = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, "ComparativeDiverseTestSet"});
         InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
                 new InstanceProperties(null, -1d, agentNums));
@@ -767,8 +767,7 @@ public class TestUtils {
                 " with " + lexicalSolver2.getName());
 
         RunParameters params = new RunParametersBuilder()
-                .setTimeout(timeout)
-                .setSoftTimeout(timeout/2)
+                .setTimeout(timeoutMS)
                 .createRP();
 
         while ((instance = instanceManager.getNextInstance()) != null) {
