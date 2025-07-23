@@ -412,4 +412,8 @@ public class SingleAgentPlan implements Iterable<Move> {
     public Spliterator<Move> spliterator() {
         return this.moves.spliterator();
     }
+
+    int serviceTime() {
+        return firstVisitToTargetTime() - getPlanStartTime();
+    }
 }
