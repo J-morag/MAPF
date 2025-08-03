@@ -334,7 +334,7 @@ public class GridVisualizer extends JPanel {
         pauseIteration(); // Pause the animation while saving
 
         // Create a dialog for selecting file format
-        String[] formats = {"GIF Animation (*.gif)", "AVI Video (*.avi)"};
+        String[] formats = {"GIF Animation (*.gif)", "AVI Video (*.avi)", "WebM Video (*.webm)"};
         String selectedFormat = (String) JOptionPane.showInputDialog(
                 parentFrame,
                 "Choose export format:",
@@ -349,7 +349,14 @@ public class GridVisualizer extends JPanel {
         }
 
         // Determine file extension from selected format
-        String extension = selectedFormat.contains("gif") ? "gif" : "avi";
+        String extension;
+        if (selectedFormat.contains("gif")) {
+            extension = "gif";
+        } else if (selectedFormat.contains("webm")) {
+            extension = "webm";
+        } else {
+            extension = "avi";
+        }
 
         // Use system's native file dialog
         FileDialog fileDialog = new FileDialog(parentFrame, "Save Visualization As", FileDialog.SAVE);
@@ -391,6 +398,8 @@ public class GridVisualizer extends JPanel {
                         // Choose export method based on selected format
                         if (extension.equals("gif")) {
                             exportAsGif(selectedFile);
+                        } else if (extension.equals("webm")) {
+                            exportAsWebM(selectedFile);
                         } else if (extension.equals("avi")) {
                             exportAsVideo(selectedFile);
                         }
@@ -451,6 +460,78 @@ public class GridVisualizer extends JPanel {
             // Restore original index
             currentIndex = originalIndex;
             repaint();
+        }
+    }
+
+    /**
+     * Export the visualization as a WebM video
+     */
+    private void exportAsWebM(File outputFile) throws IOException {
+        // Calculate dimensions with integer scaling
+        int pixelsPerCell = (cellSize * scaleNumerator) / scaleDenominator;
+        int frameWidth = gridWidth * pixelsPerCell;
+        int frameHeight = gridHeight * pixelsPerCell;
+
+        // Create a JavaCV frame recorder with WebM codec settings
+        FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputFile, frameWidth, frameHeight);
+
+        // Configure for WebM (VP9 codec)
+        recorder.setVideoCodec(avcodec.AV_CODEC_ID_VP9);
+        recorder.setFormat("webm");
+        recorder.setFrameRate(DEFAULT_EXPORT_FPS);
+        recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+
+        // Quality settings for VP9
+        recorder.setVideoQuality(15); // Lower is better quality, range 0-51
+        recorder.setVideoBitrate(500000); // Bit rate in bits/s (0.5 Mbps)
+
+        Java2DFrameConverter converter = new Java2DFrameConverter();
+
+        try {
+            recorder.start();
+
+            // Save original position
+            int originalIndex = currentIndex;
+            currentIndex = 0;
+
+            // Add each frame to the video
+            for (int i = 0; i < grids.size(); i++) {
+                // Create a fresh BufferedImage with accurate colors
+                BufferedImage image = new BufferedImage(
+                        frameWidth, frameHeight,
+                        BufferedImage.TYPE_3BYTE_BGR);
+
+                Graphics2D g = image.createGraphics();
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+                // Paint the current grid with precise colors and integer scaling
+                Color[][] grid = grids.get(currentIndex);
+                for (int column = 0; column < gridWidth; column++) {
+                    for (int row = 0; row < gridHeight; row++) {
+                        Color color = grid[column][row];
+                        g.setColor(color != null ? color : Color.WHITE);
+                        g.fillRect(
+                            column * pixelsPerCell,
+                            row * pixelsPerCell,
+                            pixelsPerCell,
+                            pixelsPerCell
+                        );
+                    }
+                }
+
+                g.dispose();
+                Frame frame = converter.convert(image);
+                recorder.record(frame);
+                currentIndex = (currentIndex + 1) % grids.size();
+            }
+
+            // Restore original position
+            currentIndex = originalIndex;
+            repaint();
+        } finally {
+            recorder.stop();
+            recorder.release();
         }
     }
 
