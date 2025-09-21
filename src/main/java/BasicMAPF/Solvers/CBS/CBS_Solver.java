@@ -131,8 +131,9 @@ public class CBS_Solver extends A_Solver {
         if (this.costFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
             throw new IllegalArgumentException("CBS Solver: cost function and transient MAPF settings are mismatched: " + this.costFunction + " " + this.transientMAPFSettings);
         }
+
         this.staticObstaclesForUnassignedAgents = Objects.requireNonNullElse(staticObstaclesForUnassignedAgents, false);;
-        super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
+        super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "_RO" : "");
     }
 
     /**

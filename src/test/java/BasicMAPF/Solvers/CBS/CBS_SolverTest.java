@@ -5,9 +5,13 @@ import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
+import Environment.Visualization.GridSolutionVisualizer;
 import BasicMAPF.TestUtils;
 import Environment.Config;
 import Environment.IO_Package.IO_Manager;
@@ -23,6 +27,7 @@ import BasicMAPF.Solvers.I_Solver;
 import BasicMAPF.DataTypesAndStructures.RunParameters;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import TransientMAPF.TransientMAPFSettings;
+import TransientMAPF.dummyGoals.HighestDegreeDummyGoals;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -383,9 +388,9 @@ class CBS_SolverTest {
         List<String> solverNames = Arrays.asList("CBS", "CBSt", "CBSt_blacklist", "CBSt_locally");
         List<I_Solver> solvers = Arrays.asList(
                 new CBSBuilder().createCBS_Solver(),
-                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
-                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, true, true, false)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
-                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, true)).setCostFunction(new SumServiceTimes()).createCBS_Solver()
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, false, null)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, true, true, false, null)).setCostFunction(new SumServiceTimes()).createCBS_Solver(),
+                new CBSBuilder().setTransientMAPFSettings(new TransientMAPFSettings(true, false, false, true, null)).setCostFunction(new SumServiceTimes()).createCBS_Solver()
         );
         List<RunParameters> parameters = Arrays.asList(
                 new RunParametersBuilder().setTimeout(3000).setSoftTimeout(500).setInstanceReport(instanceReport).createRP(),

@@ -155,7 +155,7 @@ public class LargeNeighborhoodSearch_Solver extends A_Solver {
             System.err.println("Warning: " + this.name + " has shared goals and is set to transient MAPF. Shared goals is unnecessary if transient.");
         }
 
-        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + (this.initialSolver instanceof LaCAM_Solver ? "PIE" : "LNS") + (this.LNS2 ? "2" : "") + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.destroyHeuristics.size() == 1 ? "-" + this.destroyHeuristics.get(0).getClass().getSimpleName() : "");    }
+        super.name = (this.destroyHeuristics.size() > 1 ? "A" : "") + (this.initialSolver instanceof LaCAM_Solver ? "PIE" : "LNS") + (this.LNS2 ? "2" : "") + (this.transientMAPFSettings.isTransientMAPF() ? "_RO" : "") + (this.destroyHeuristics.size() == 1 ? "-" + this.destroyHeuristics.get(0).getClass().getSimpleName() : "");    }
 
     /*  = initialization =  */
 

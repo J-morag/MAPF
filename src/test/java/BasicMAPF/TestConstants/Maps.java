@@ -9,6 +9,76 @@ import java.util.*;
 public class Maps {
     private final static Enum_MapLocationType e = Enum_MapLocationType.EMPTY;
     private final static Enum_MapLocationType w = Enum_MapLocationType.WALL;
+
+    public static final  Enum_MapLocationType[][] map_2D_empty_32x32 = {
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e}
+
+    };
+    public static final I_ExplicitMap empty32x32 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty_32x32);
+
+    public static final  Enum_MapLocationType[][] map_2D_empty_16x16 = {
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e}
+    };
+    public static final I_ExplicitMap empty16x16 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty_16x16);
+
+    public static final  Enum_MapLocationType[][] map_2D_empty_8x8 = {
+            {e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e},
+            {e, e, e, e, e, e, e, e}
+    };
+    public static final I_ExplicitMap empty8x8 = MapFactory.newSimple4Connected2D_GraphMap(map_2D_empty_8x8);
+
     public static final  Enum_MapLocationType[][] map_2D_circle = {
             {w, w, w, w, w, w},
             {w, w, e, e, e, w},

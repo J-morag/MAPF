@@ -6,7 +6,10 @@ import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
+import BasicMAPF.Instances.Maps.GraphBasedGridMap;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
+import BasicMAPF.Instances.Maps.I_GridMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
@@ -75,8 +78,10 @@ public class LaCAM_Solver extends A_Solver {
     protected Comparator<I_Location> separatingVerticesComparator;
     protected int timeStep;
     protected HashMap<Agent, Boolean> currentAgentsReachedGoalsMap;
+    private HashMap<Agent, I_Location> agentToDummyGoalMapping;
     private final boolean staticObstaclesForUnassignedAgents;
     private List<Agent> unassignedAgents = null;
+
     /**
      * Constructor.
      * @param solutionCostFunction how to calculate the cost of a solution
@@ -89,8 +94,8 @@ public class LaCAM_Solver extends A_Solver {
         if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction.name() + " " + this.transientMAPFSettings);
         }
-        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "") +
-                (staticObstaclesForUnassignedAgents ? "_staticUA" : "");
+        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "_RO" : "") + (this.transientMAPFSettings.dummyGoalsHeuristic() != null ? "_" + this.transientMAPFSettings.dummyGoalsHeuristic().getClass().getSimpleName() : "")
+                + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
     }
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
@@ -148,6 +153,9 @@ public class LaCAM_Solver extends A_Solver {
         // distance between every vertex in the graph to each agent's goal
         this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> this.transientMAPFSettings.isTransientMAPF() ?
                 new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(this.instance.agents, this.instance.map)) : new DistanceTableSingleAgentHeuristic(this.instance.agents, this.instance.map));
+        if (transientMAPFSettings.dummyGoalsHeuristic() != null) {
+            this.agentToDummyGoalMapping = TransientMAPFUtils.getDummyGoalsMappingAndHeuristic(this.instance, transientMAPFSettings.dummyGoalsHeuristic(), this.heuristic, parameters);
+        }
         if (this.transientMAPFSettings.isTransientMAPF() ^ this.heuristic.isTransient()){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.heuristic.getClass().getSimpleName() + " " + this.transientMAPFSettings);
         }
@@ -155,8 +163,8 @@ public class LaCAM_Solver extends A_Solver {
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
         HashMap<Agent, I_Location> initialConfiguration = new HashMap<>();
-        for (Agent agent : instance.agents) {
-            initialConfiguration.put(agent, instance.map.getMapLocation(agent.source));
+        for (Agent agent : this.instance.agents) {
+            initialConfiguration.put(agent, this.instance.map.getMapLocation(agent.source));
             this.agents.put(agent.iD, agent);
         }
         LowLevelNode C_init = initNewLowLevelNode();
@@ -197,7 +205,7 @@ public class LaCAM_Solver extends A_Solver {
 
             // low-level search successors
             LowLevelNode C = N.tree.poll();
-            if (C.depth < instance.agents.size()) {
+            if (C.depth < this.instance.agents.size()) {
                 Agent chosenAgent = N.order.get(C.depth);
                 I_Location chosenLocation = N.configuration.get(chosenAgent);
                 List<I_Location> locations = new ArrayList<>(findAllNeighbors(chosenLocation));
@@ -424,7 +432,7 @@ public class LaCAM_Solver extends A_Solver {
 
         // init an empty solution
         Solution solution = transientMAPFSettings.isTransientMAPF() ? new TransientMAPFSolution() : new Solution();
-        for (Agent agent : instance.agents) {
+        for (Agent agent : this.instance.agents) {
             SingleAgentPlan plan = agentPlans.get(agent);
             // trim the plan to remove excess "stay" moves at the end
 
@@ -629,12 +637,20 @@ public class LaCAM_Solver extends A_Solver {
             candidates.add(currentLocation);
         }
 
+        I_Coordinate agentTarget;
+        if (this.transientMAPFSettings.dummyGoalsHeuristic() != null && this.currentAgentsReachedGoalsMap.get(currentAgent)) {
+            agentTarget = this.agentToDummyGoalMapping.get(currentAgent).getCoordinate();
+        }
+        else {
+            agentTarget = currentAgent.target;
+        }
+
         // Create a Random instance
         Random random = new Random();
         // sort in ascending order of the distance between location to agent's target
         candidates.sort((loc1, loc2) ->
-                Double.compare(this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + random.nextFloat(),
-                        this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + random.nextFloat()));
+                Double.compare(this.heuristic.getHToTargetFromLocation(agentTarget, loc1) + random.nextFloat(),
+                        this.heuristic.getHToTargetFromLocation(agentTarget, loc2) + random.nextFloat()));
 
         if (this.transientMAPFSettings.avoidSeparatingVertices() && this.currentAgentsReachedGoalsMap.get(currentAgent)) {
             // sort candidates so that all SV vertices are at the end of the list

@@ -73,7 +73,7 @@ public class TransientMAPFExampleMain {
 
             PrioritisedPlanning_Solver PrPT_SST_Blacklist = new PrioritisedPlanning_Solver(null, null, new SumServiceTimes(),
                     new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 101, RestartsStrategy.reorderingStrategy.randomRestarts, null),
-                    null, null, new TransientMAPFSettings(true, true, false, false));
+                    null, null, new TransientMAPFSettings(true, true, false, false, null));
 
             genericRunManager.overrideSolvers(Arrays.asList(PrP_SOC, PrPT_SOC, PrP_SST, PrPT_SST, PrPT_SST_Blacklist));
             genericRunManager.runAllExperiments();
