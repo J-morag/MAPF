@@ -7,6 +7,13 @@
 ![til](./resources/images/MAPF_text_bold_splash_delay.gif)
 
 ## Getting Started
+
+### Requirements
+
+* JDK 18 or higher for compiling and running the main application
+  * Or JRE 18 or higher for just running the jar file
+* Maven 3.6+ for building the project
+
 ### Running the project using the CLI
 
 Example arguments to solve all instances in a directory, with 10 agents:<br>
