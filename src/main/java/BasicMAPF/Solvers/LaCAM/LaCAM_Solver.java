@@ -87,10 +87,10 @@ public class LaCAM_Solver extends A_Solver {
      * @param solutionCostFunction how to calculate the cost of a solution
      * @param transientMAPFSettings indicates whether to solve transient-MAPF.
      */
-    LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings, boolean staticObstaclesForUnassignedAgents) {
+    LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings, Boolean staticObstaclesForUnassignedAgents) {
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, () -> this.transientMAPFSettings.isTransientMAPF() ? new SumServiceTimes() : new SumOfCosts());
-        this.staticObstaclesForUnassignedAgents = staticObstaclesForUnassignedAgents;
+        this.staticObstaclesForUnassignedAgents = Objects.requireNonNullElse(staticObstaclesForUnassignedAgents, false);
         if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction.name() + " " + this.transientMAPFSettings);
         }
