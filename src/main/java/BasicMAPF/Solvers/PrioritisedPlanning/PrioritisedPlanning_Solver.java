@@ -250,9 +250,7 @@ public class PrioritisedPlanning_Solver extends A_Solver {
                     bestPPOrderingSolution = ppOrderingSolution;
                 }
                 // report the completed attempt
-                if ((attemptNumber == 1 && randomizationAttempt == 1) || randomizationAttempt == pathRandomizationAttemptsPerOrdering || randomizationAttempt % 10 == 0){
-                    reportCompletedAttempt(attemptNumber, chooseBestSolution(bestSolution, bestPPOrderingSolution.solution()), randomizationAttempt);
-                }
+                reportCompletedAttempt(attemptNumber, chooseBestSolution(bestSolution, bestPPOrderingSolution.solution()), randomizationAttempt);
                 if (checkTimeout() || (bestSolution != null && checkSoftTimeout())) break;
             }
 

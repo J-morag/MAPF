@@ -119,21 +119,56 @@ public class GenericRunManager extends A_RunManager {
 
         // Pseudo Oracle
 
-        int orderings = 150;
-
-        PrioritisedPlanning_Solver orderings150PathRandomization01 = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, orderings, RestartsStrategy.reorderingStrategy.none, true),
+        // 150 orderings, 1 path each
+        PrioritisedPlanning_Solver orderings150PathRandomization1 = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 150, RestartsStrategy.reorderingStrategy.none, true),
                 null, null, null);
-        orderings150PathRandomization01.pathRandomizationAttemptsPerOrdering = 1;
-        orderings150PathRandomization01.name = "orderings" + orderings + "PathRandomizations" + 1;
-        super.solvers.add(orderings150PathRandomization01);
+        orderings150PathRandomization1.pathRandomizationAttemptsPerOrdering = 1;
+        orderings150PathRandomization1.name = "orderings" + 150 + "PathRandomizations" + 1;
+        super.solvers.add(orderings150PathRandomization1);
 
+        // 150 orderings, 50 paths each
         PrioritisedPlanning_Solver orderings150PathRandomization50 = new PrioritisedPlanning_Solver(null, null, null,
-                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, orderings, RestartsStrategy.reorderingStrategy.none, true),
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 150, RestartsStrategy.reorderingStrategy.none, true),
                 null, null, null);
         orderings150PathRandomization50.pathRandomizationAttemptsPerOrdering = 50;
-        orderings150PathRandomization50.name = "orderings" + orderings + "PathRandomizations" + 50;
+        orderings150PathRandomization50.name = "orderings" + 150 + "PathRandomizations" + 50;
         super.solvers.add(orderings150PathRandomization50);
+
+        // Pseudo Oracle By Runs
+
+        // 300 orderings, 1 path each
+        PrioritisedPlanning_Solver orderings300PathRandomization1 = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 300, RestartsStrategy.reorderingStrategy.none, true),
+                null, null, null);
+        orderings300PathRandomization1.pathRandomizationAttemptsPerOrdering = 1;
+        orderings300PathRandomization1.name = "orderings" + 300 + "PathRandomizations" + 1;
+        super.solvers.add(orderings300PathRandomization1);
+
+        // 6 orderings, 50 paths each
+        PrioritisedPlanning_Solver orderings6PathRandomization50 = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 6, RestartsStrategy.reorderingStrategy.none, true),
+                null, null, null);
+        orderings6PathRandomization50.pathRandomizationAttemptsPerOrdering = 50;
+        orderings6PathRandomization50.name = "orderings" + 6 + "PathRandomizations" + 50;
+        super.solvers.add(orderings6PathRandomization50);
+
+
+        // 150 orderings, 2 paths each
+        PrioritisedPlanning_Solver orderings150PathRandomization2 = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 150, RestartsStrategy.reorderingStrategy.none, true),
+                null, null, null);
+        orderings150PathRandomization2.pathRandomizationAttemptsPerOrdering = 2;
+        orderings150PathRandomization2.name = "orderings" + 150 + "PathRandomizations" + 2;
+        super.solvers.add(orderings150PathRandomization2);
+
+        // 100 orderings, 3 paths each
+        PrioritisedPlanning_Solver orderings100PathRandomization3 = new PrioritisedPlanning_Solver(null, null, null,
+                new RestartsStrategy(RestartsStrategy.reorderingStrategy.randomRestarts, 100, RestartsStrategy.reorderingStrategy.none, true),
+                null, null, null);
+        orderings100PathRandomization3.pathRandomizationAttemptsPerOrdering = 3;
+        orderings100PathRandomization3.name = "orderings" + 100 + "PathRandomizations" + 3;
+        super.solvers.add(orderings100PathRandomization3);
 
     }
 
