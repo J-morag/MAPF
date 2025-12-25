@@ -7,9 +7,7 @@ import BasicMAPF.DataTypesAndStructures.*;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
-import BasicMAPF.Instances.Maps.GraphBasedGridMap;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
-import BasicMAPF.Instances.Maps.I_GridMap;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
@@ -476,7 +474,7 @@ public class LaCAM_Solver extends A_Solver {
      */
     protected HashMap<Agent, Float> initPriorities(HashMap <Agent, I_Location> currentConfiguration) {
         HashMap<Agent, Float> priorities = new HashMap<>();
-        int numberOfAgents = currentConfiguration.keySet().size();
+        int numberOfAgents = currentConfiguration.size();
         for (Map.Entry<Agent, I_Location> entry : currentConfiguration.entrySet()) {
             Agent agent = entry.getKey();
             I_Location location = entry.getValue();
@@ -640,13 +638,6 @@ public class LaCAM_Solver extends A_Solver {
         else {
             candidates.add(currentLocation);
         }
-
-        // Pre-generate deterministic noise for each candidate
-        Map<I_Location, Float> noise = new HashMap<>();
-        for (I_Location loc : candidates) {
-            noise.put(loc, this.rnd.nextFloat());  // rng = your seeded shared RNG
-        }
-
         I_Coordinate agentTarget;
         if (this.transientMAPFSettings.dummyGoalsHeuristic() != null && this.currentAgentsReachedGoalsMap.get(currentAgent)) {
             agentTarget = this.agentToDummyGoalMapping.get(currentAgent).getCoordinate();
@@ -654,11 +645,9 @@ public class LaCAM_Solver extends A_Solver {
         else {
             agentTarget = currentAgent.target;
         }
-
-        // Deterministic sort
         candidates.sort((loc1, loc2) -> {
-            double h1 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + noise.get(loc1);
-            double h2 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + noise.get(loc2);
+            double h1 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + this.rnd.nextFloat();
+            double h2 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + this.rnd.nextFloat();
             return Double.compare(h1, h2);
         });
 
