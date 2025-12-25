@@ -82,6 +82,8 @@ public class LaCAM_Solver extends A_Solver {
     private final boolean staticObstaclesForUnassignedAgents;
     private List<Agent> unassignedAgents = null;
 
+    private long seed;
+    private Random rnd;
     /**
      * Constructor.
      * @param solutionCostFunction how to calculate the cost of a solution
@@ -100,6 +102,8 @@ public class LaCAM_Solver extends A_Solver {
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
+        this.seed = 12345L;
+        this.rnd = new Random(seed);
         this.constraintsSet = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
 
         if (this.staticObstaclesForUnassignedAgents) {
@@ -215,7 +219,7 @@ public class LaCAM_Solver extends A_Solver {
 
                 // instead of random inserting of low-level nodes
                 // shuffle the order of the location so that the inserting will be randomized
-                Collections.shuffle(locations);
+                Collections.shuffle(locations, this.rnd);
 
                 LowLevelNode tmpC = C;
                 while (tmpC.who != null) {
@@ -637,6 +641,12 @@ public class LaCAM_Solver extends A_Solver {
             candidates.add(currentLocation);
         }
 
+        // Pre-generate deterministic noise for each candidate
+        Map<I_Location, Float> noise = new HashMap<>();
+        for (I_Location loc : candidates) {
+            noise.put(loc, this.rnd.nextFloat());  // rng = your seeded shared RNG
+        }
+
         I_Coordinate agentTarget;
         if (this.transientMAPFSettings.dummyGoalsHeuristic() != null && this.currentAgentsReachedGoalsMap.get(currentAgent)) {
             agentTarget = this.agentToDummyGoalMapping.get(currentAgent).getCoordinate();
@@ -645,12 +655,12 @@ public class LaCAM_Solver extends A_Solver {
             agentTarget = currentAgent.target;
         }
 
-        // Create a Random instance
-        Random random = new Random();
-        // sort in ascending order of the distance between location to agent's target
-        candidates.sort((loc1, loc2) ->
-                Double.compare(this.heuristic.getHToTargetFromLocation(agentTarget, loc1) + random.nextFloat(),
-                        this.heuristic.getHToTargetFromLocation(agentTarget, loc2) + random.nextFloat()));
+        // Deterministic sort
+        candidates.sort((loc1, loc2) -> {
+            double h1 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + noise.get(loc1);
+            double h2 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + noise.get(loc2);
+            return Double.compare(h1, h2);
+        });
 
         if (this.transientMAPFSettings.avoidSeparatingVertices() && this.currentAgentsReachedGoalsMap.get(currentAgent)) {
             // sort candidates so that all SV vertices are at the end of the list
