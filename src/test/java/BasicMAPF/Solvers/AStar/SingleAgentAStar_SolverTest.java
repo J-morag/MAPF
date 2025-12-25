@@ -1042,6 +1042,31 @@ class SingleAgentAStar_SolverTest {
         assertEquals(coor15, solved1.getPlanFor(agent).moveAt(8).currLocation.getCoordinate());
     }
 
+    @Test
+    void testIdentifiesSourceEqualsTargetSoVisitedAtTime0_Transient() {
+        I_Coordinate coor = coor14;
+        MAPF_Instance testInstance = new MAPF_Instance("Single agent source equals target", instanceEmpty1.map, new Agent[]{new Agent(0, coor, coor)});
+        Agent agent = new Agent(0, coor, coor); // source equals target
+
+        // constraint on target at time 1
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,1, null, instanceEmpty1.map.getMapLocation(coor));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = aStar.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+
+        // visited at time 0, so plan has size 1, and contributes 0 cost to SST
+        assertEquals(1, solved1.getPlanFor(agent).size());
+        assertEquals(coor, solved1.getPlanFor(agent).getFirstMove().prevLocation.getCoordinate());
+        assertEquals(0, solved1.sumServiceTimes());
+        // blocked at time 1, so cannot stay in place
+        assertNotEquals(coor, solved1.getPlanFor(agent).getFirstMove().currLocation.getCoordinate());
+    }
+
     /* Test against other search implementations */
 
     @Test
@@ -1115,7 +1140,7 @@ class SingleAgentAStar_SolverTest {
         }
     }
     @Test
-    void optimalVsUCSDDynamicWithManhattanDistanceHeuristic(){
+    void optimalVsUCSDynamicWithManhattanDistanceHeuristic(){
         Map<I_ExplicitMap, String> maps = singleStronglyConnectedComponentGridMapsWithNames; // grid maps only!
         for (I_ExplicitMap testMap :
                 maps.keySet()) {

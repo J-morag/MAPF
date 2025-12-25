@@ -239,4 +239,32 @@ class LargeNeighborhoodSearch_SolverTest {
         Solution solvedByLNS = solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
         assertNull(solvedByLNS);
     }
+
+    @Test
+    void testLNS1tTransientSourceEqualsTargetWithCompetingAgentAtTime1() {
+        // Agent 0 starts and ends at coor14
+        Agent agent0 = new Agent(0, coor14, coor14);
+        // Agent 1 starts at coor13 and targets coor15 (must pass through coor14 at t=1)
+        Agent agent1 = new Agent(1, coor13, new BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D(1,5));
+        MAPF_Instance testInstance = new MAPF_Instance("LNS1t source equals target with competing agent", mapEmpty, new Agent[]{agent0, agent1});
+
+        Solution solved = CanonicalSolversFactory.createLNS1tSolver().solve(testInstance, new RunParametersBuilder().setInstanceReport(Metrics.newInstanceReport()).createRP());
+        assertNotNull(solved, "LNS1t did not return a solution");
+
+        System.out.println("Solution found:\n" + solved);
+        // Agent 0: visited at time 0, so plan has size 1, and contributes 0 cost to SST
+        assertEquals(1, solved.getPlanFor(agent0).size());
+        assertEquals(coor14, solved.getPlanFor(agent0).getFirstMove().prevLocation.getCoordinate());
+        // agent 1 competes for coor14 at time 1, so agent 0 should clear it at time 1, to reduce solution cost
+        assertNotEquals(coor14, solved.getPlanFor(agent0).getFirstMove().currLocation.getCoordinate());
+        // Solution should be valid
+        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
+        // agent 1 should have cost 2 (move to coor14 at t=1, then to coor15 at t=2)
+        assertEquals(2, solved.getPlanFor(agent1).getCost());
+        // agent 1 should have two moves
+        assertEquals(2, solved.getPlanFor(agent1).size());
+        // total SST should be 2
+        assertEquals(2, solved.sumServiceTimes());
+    }
 }

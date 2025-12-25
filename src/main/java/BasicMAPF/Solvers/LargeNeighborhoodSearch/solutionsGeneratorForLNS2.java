@@ -53,8 +53,8 @@ public class solutionsGeneratorForLNS2 extends A_Solver {
 
     public solutionsGeneratorForLNS2(@Nullable I_Solver lowLevelSolver, @Nullable TransientMAPFSettings transientMAPFSettings, @Nullable Boolean sharedGoals,
                                      @Nullable Boolean sharedSources, @Nullable I_SolutionCostFunction costFunction) {
-        this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStarSIPPS_Solver::new);
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
+        this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, () -> new SingleAgentAStarSIPPS_Solver(this.transientMAPFSettings));
         this.sharedGoals = Objects.requireNonNullElse(sharedGoals, false);
         this.sharedSources = Objects.requireNonNullElse(sharedSources, false);
         this.costFunction = Objects.requireNonNullElseGet(costFunction, () -> new ConflictsCount(false, false));

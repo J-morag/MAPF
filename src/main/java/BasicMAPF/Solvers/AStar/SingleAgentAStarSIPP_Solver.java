@@ -16,6 +16,8 @@ import java.util.*;
  * <p>
  *     Based on the paper:
  *     <i>Phillips, Mike, and Maxim Likhachev. "Sipp: Safe interval path planning for dynamic environments." 2011 IEEE international conference on robotics and automation. IEEE, 2011.</i>
+ *   </p>
+ *  Less generic than SingleAgentAStar_Solver as it assumes a very strong connection  between cost and time.
  */
 public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     protected static final List<TimeInterval> DEFAULT_SINGLETON_LIST_OF_INF_INTERVAL = Collections.singletonList(TimeInterval.DEFAULT_INTERVAL);
@@ -69,7 +71,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
                     break;
                 }
             }
-            addToOpenList(createNewState(lastExistingMove, null, existingPlanTotalCost, super.gAndH, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget()), 0));
+            addToOpenList(createNewState(lastExistingMove, null, existingPlanTotalCost, super.gAndH, 0, lastMoveInterval, visitedTarget(null, existingPlan.containsTarget(), false), 0));
 
         } else { // the existing plan is empty (no existing plan)
             I_Location sourceLocation = map.getMapLocation(this.sourceCoor);
@@ -87,7 +89,7 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
 
     protected void addInitialNodesToOpen(I_Location destination, I_Location sourceLocation) {
         Move possibleMove = new Move(agent, problemStartTime + 1, sourceLocation, destination);
-        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), super.gAndH, 0, null, visitedTarget(null, isMoveToTarget(possibleMove)), 0);
+        AStarState rootState = createNewState(possibleMove, null, getG(null, possibleMove), super.gAndH, 0, null, visitedTarget(null, isMoveToTarget(possibleMove), isMoveFromTarget(possibleMove)), 0);
         moveToNeighborLocation(rootState, possibleMove, true);
     }
 
@@ -104,10 +106,11 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
         boolean isLastMove = false;
         if (timeInterval != null && timeInterval.end() == Integer.MAX_VALUE) {
             if (this.goalCondition instanceof VisitedTargetAStarGoalCondition && prev != null) {
-                isLastMove = prev.visitedTarget || move.currLocation.getCoordinate().equals(move.agent.target);
-            }
-            else {
-                isLastMove = move.currLocation.getCoordinate().equals(move.agent.target);
+                isLastMove = prev.visitedTarget || move.currLocation.getCoordinate().equals(targetCoor);
+            } else if (this.goalCondition instanceof VisitedTargetAStarGoalCondition) {
+                isLastMove = move.prevLocation.getCoordinate().equals(targetCoor);
+            } else {
+                isLastMove = move.currLocation.getCoordinate().equals(targetCoor);
             }
         }
         return isLastMove;
@@ -144,13 +147,13 @@ public class SingleAgentAStarSIPP_Solver extends SingleAgentAStar_Solver {
     protected AStarState generateChildState(Move move, AStarState state, TimeInterval interval, boolean init, int intervalID) {
         // todo - I think we always have isALastMove as false in SIPP. So we don't count conflicts resulting from staying at target. Probably need to split the state to include it
         if (init) {
-            return createNewState(move, null, getG(null, move), super.gAndH, state.conflicts + numConflicts(move, false), interval, visitedTarget(null, isMoveToTarget(move)), intervalID);
+            return createNewState(move, null, getG(null, move), super.gAndH, state.conflicts + numConflicts(move, false), interval, visitedTarget(null, isMoveToTarget(move), isMoveFromTarget(move)), intervalID);
         }
-        return createNewState(move, state, getG(state, move), super.gAndH, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
+        return createNewState(move, state, getG(state, move), super.gAndH, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move), isMoveFromTarget(move)), intervalID);
     }
 
     protected AStarState lightGenerateIntermediateChildState(Move move, AStarState state, TimeInterval interval, int intervalID, boolean first) {
-        return createNewState(move, state, getG(state, move), SameAsParentSingleAgentGAndH.INSTANCE, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
+        return createNewState(move, state, getG(state, move), SameAsParentSingleAgentGAndH.INSTANCE, state.conflicts + numConflicts(move, false), interval, visitedTarget(state, isMoveToTarget(move), isMoveFromTarget(move)), intervalID);
     }
 
     /**

@@ -5,6 +5,9 @@ import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
@@ -21,6 +24,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -540,5 +544,31 @@ class SingleAgentAStarSIPPS_SolverTest {
         assertEquals(4, solved.getPlanFor(agent).size());
         assertEquals(expected, solved);
 
+    }
+
+    @Test
+    void testTransientIdentifiesSourceEqualsTargetSoVisitedAtTime0() {
+        SingleAgentAStarSIPPS_Solver sippst = new SingleAgentAStarSIPPS_Solver(TransientMAPFSettings.defaultTransientMAPF);
+        I_Coordinate coor = coor14;
+        MAPF_Instance testInstance = new MAPF_Instance("Single agent source equals target", instanceEmpty1.map, new Agent[]{new Agent(0, coor, coor)});
+        Agent agent = new Agent(0, coor, coor); // source equals target
+
+        // constraint on target at time 1
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,1, null, instanceEmpty1.map.getMapLocation(coor));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = sippst.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+
+        // visited at time 0, so plan has size 1, and contributes 0 cost to SST
+        assertEquals(1, solved1.getPlanFor(agent).size());
+        assertEquals(coor, solved1.getPlanFor(agent).getFirstMove().prevLocation.getCoordinate());
+        assertEquals(0, solved1.sumServiceTimes());
+        // blocked at time 1, so cannot stay in place
+        assertNotEquals(coor, solved1.getPlanFor(agent).getFirstMove().currLocation.getCoordinate());
     }
 }
