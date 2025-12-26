@@ -41,7 +41,7 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
     public SingleAgentAStarSIPPS_Solver(@Nullable TransientMAPFSettings transientMAPFSettings) {
         super(new TieBreakingForLessConflictsLowerFAndHigherG());
         super.name = "SIPPS";
-        if (transientMAPFSettings != null) {
+        if (transientMAPFSettings != null) { // only override super initialization if transientMAPFSettings is given
             this.transientMAPFSettings = transientMAPFSettings;
         }
     }
@@ -75,13 +75,16 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
 
         List<TimeInterval> safeIntervalsForGoal = this.sortedSafeIntervalsByLocation.get(instance.map.getMapLocation(this.agent.target));
         int lowerBoundOnTravelTime;
-        if (safeIntervalsForGoal != null && // there are safe intervals for the goal
-                !(transientMAPFSettings.isTransientMAPF() && targetCoor.equals(sourceCoor)) // not a transient MAPF agent that starts at the target
-        ) {
-            TimeInterval lastInterval = safeIntervalsForGoal.get(safeIntervalsForGoal.size()-1);
-            lowerBoundOnTravelTime = lastInterval.start();
-        }
-        else {
+        if (safeIntervalsForGoal != null) { // there are safe intervals for the goal
+            if (transientMAPFSettings.isTransientMAPF()) {
+                TimeInterval firstInterval = safeIntervalsForGoal.get(0);
+                lowerBoundOnTravelTime = firstInterval.start();
+            }
+            else {
+                TimeInterval lastInterval = safeIntervalsForGoal.get(safeIntervalsForGoal.size()-1);
+                lowerBoundOnTravelTime = lastInterval.start();
+            }
+        } else {
             lowerBoundOnTravelTime = 0;
         }
         this.gAndH = new SIPPSHeuristic(super.gAndH, lowerBoundOnTravelTime);

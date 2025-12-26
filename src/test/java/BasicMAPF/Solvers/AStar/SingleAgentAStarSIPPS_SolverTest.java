@@ -571,4 +571,32 @@ class SingleAgentAStarSIPPS_SolverTest {
         // blocked at time 1, so cannot stay in place
         assertNotEquals(coor, solved1.getPlanFor(agent).getFirstMove().currLocation.getCoordinate());
     }
+
+    @Test
+    void testEarlyTargetVisitPreferred_transient() {
+        // Agent starts at (0,0), target at (2,0), constraint at (2,0) at t=3 (future conflict)
+        Enum_MapLocationType E = Enum_MapLocationType.EMPTY;
+        I_ExplicitMap map3x1 = MapFactory.newSimple4Connected2D_GraphMap(new Enum_MapLocationType[][]{
+                {E}, {E}, {E}
+        });
+        Agent agent = new Agent(0, new Coordinate_2D(0,0), new Coordinate_2D(2,0));
+        MAPF_Instance instance = new MAPF_Instance("earlyTarget", map3x1, new Agent[]{agent});
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 3, null, map3x1.getMapLocation(new Coordinate_2D(2,0))));
+        RunParameters params = new RunParametersBuilder()
+                .setTimeout(1000)
+                .setConstraints(constraints)
+                .createRP();
+        I_Solver solver = CanonicalSolversFactory.createLNS2tSolver();
+        Solution sol = solver.solve(instance, params);
+        SingleAgentPlan plan = sol.getPlanFor(agent);
+        assertNotNull(plan, "Plan should not be null");
+        assertEquals(2, plan.firstVisitToTargetTime(), "Agent should reach target at t=2");
+        int visits = 0;
+        for (var move : plan) {
+            if (move.currLocation.getCoordinate().equals(agent.target)) visits++;
+        }
+        assertEquals(1, visits, "Agent should visit target only once");
+        assertEquals(3, plan.size(), "Plan size should be 3 (reach target at t=2, leave at t=3 to avoid constraint)");
+    }
 }
