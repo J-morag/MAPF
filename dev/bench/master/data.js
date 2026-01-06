@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767716536308,
+  "lastUpdate": 1767716537874,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -8479,6 +8479,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 106433.39,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f845132facc3978738b3abf187cb80029379f025",
+          "message": "v0.14.0 Multi-agent A* (#109)\n\n* ConflictAvoidanceTable horizon support\n\n* remove unnecessary copying of lastConstraintTime in ConstraintSet copy constructor, that could lead to errors\n\n* add support for a limited time horizon in ConflictAvoidanceTable s\n\n* add PathDelays and FreespaceCosts metrics (vectors) \n\n* Multi Agent A*\n\n* MAA* Lexical cost function\n\n* MultiAgent A* with Operator Decomposition",
+          "timestamp": "2026-01-06T16:34:47+02:00",
+          "tree_id": "b8ab45720c11f5e9cc0d23a959aaa64f70be163e",
+          "url": "https://github.com/J-morag/MAPF/commit/f845132facc3978738b3abf187cb80029379f025"
+        },
+        "date": 1767716537489,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 24,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4421.1113,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 23110.576,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 8987.697,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 106436.91,
             "unit": "Expansions"
           }
         ]
