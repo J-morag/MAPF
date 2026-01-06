@@ -23,8 +23,8 @@ import java.util.Random;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Agents.agent53to15;
-import static BasicMAPF.TestConstants.Coordiantes.coor34;
-import static BasicMAPF.TestConstants.Coordiantes.coor43;
+import static BasicMAPF.TestConstants.Coordinates.coor34;
+import static BasicMAPF.TestConstants.Coordinates.coor43;
 import static BasicMAPF.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 

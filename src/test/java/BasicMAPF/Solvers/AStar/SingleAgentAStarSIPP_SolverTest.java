@@ -33,7 +33,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 import static BasicMAPF.Solvers.AStar.SingleAgentAStar_SolverTest.*;
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestUtils.addRandomConstraints;

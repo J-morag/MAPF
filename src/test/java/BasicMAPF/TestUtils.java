@@ -628,4 +628,183 @@ public class TestUtils {
             System.out.println();
         }
     }
+
+    /**
+     * Verifies that a lexical solver produces solutions that are lexically optimal compared to a standard solver.
+     * Checks that the first agent with a cost difference has a lower cost in the lexical solution.
+     *
+     * @param instance The MAPF instance to solve
+     * @param standardSolver The solver that optimizes for sum of costs
+     * @param lexicalSolver The solver that optimizes lexically
+     * @param runParams Run parameters to use for solving
+     * @return 0 if found no difference, 1 if a difference is found on some agent, -1 if one or both solutions are null. Will fail if the lexical solution has a higher cost than the standard solution for the first agent with a cost difference.
+     */
+    public static int verifyLexicalOptimality(MAPF_Instance instance,
+                                             I_Solver standardSolver,
+                                             I_Solver lexicalSolver,
+                                             RunParameters runParams) {
+        System.out.println("Testing lexical optimality on instance: " + instance.name);
+
+        Solution socSolution = standardSolver.solve(instance, runParams);
+        Solution lexicalSolution = lexicalSolver.solve(instance, runParams);
+
+        if (socSolution == null || lexicalSolution == null) {
+            System.out.println("One or both solutions are null for instance: " + instance.name);
+            return -1;
+        }
+
+        // Verify that both solutions solve the instance
+        if (!socSolution.solves(instance) || !lexicalSolution.solves(instance)) {
+            throw new IllegalStateException("One or both solutions do not solve the instance: " + instance.name);
+        }
+
+        System.out.println("SOC Solution: " + socSolution);
+        System.out.println("Lexical Solution: " + lexicalSolution);
+
+        // Compare agent costs
+        for (Agent agent : instance.agents) {
+            int socCost = socSolution.getPlanFor(agent).getCost();
+            int lexicalCost = lexicalSolution.getPlanFor(agent).getCost();
+
+            if (socCost != lexicalCost) {
+                // The first agent with a different cost should have lower cost in lexical solution
+                if (lexicalCost > socCost) {
+                    fail("Lexical solution has higher cost for agent " + agent.iD +
+                            ": Lexical = " + lexicalCost + ", SOC = " + socCost);
+                }
+                System.out.println("Found first cost difference at agent " + agent.iD + ": Lexical = " +
+                        lexicalCost + ", SOC = " + socCost);
+                return 1;
+            }
+        }
+
+        // If solutions have different total costs but we didn't find an agent with different cost, something is wrong
+        if (socSolution.sumIndividualCosts() != lexicalSolution.sumIndividualCosts()) {
+            throw new RuntimeException("Solutions have different total costs but no agent with different cost found: " +
+                    "Lexical = " + lexicalSolution.sumIndividualCosts() + ", SOC = " + socSolution.sumIndividualCosts());
+        }
+
+        return 0;
+    }
+
+    /**
+     * Runs lexical optimality verification on diverse instances from the ComparativeDiverseTestSet
+     * Does not fully verify lexical optimality, so false positives (passing tests) are possible.
+     * @param standardSolver Solver optimizing for sum of costs
+     * @param lexicalSolver Solver optimizing lexically
+     * @param agentNums Number of agents to test with
+     * @param timeout Timeout in milliseconds
+     */
+    public static void verifyLexicalOptimalityOnDiverseInstances(I_Solver standardSolver,
+                                                             I_Solver lexicalSolver,
+                                                             int[] agentNums,
+                                                             int timeout) {
+        String path = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, "ComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+                new InstanceProperties(null, -1d, agentNums));
+
+        MAPF_Instance instance;
+        int verifiedInstances = 0;
+        int totalInstances = 0;
+        int instancesWithAnyDifference = 0;
+
+        System.out.println("Testing lexical optimality comparing " + standardSolver.getName() +
+                " with " + lexicalSolver.getName());
+
+        RunParameters params = new RunParametersBuilder()
+                .setTimeout(timeout)
+                .setSoftTimeout(timeout/2)
+                .createRP();
+
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            System.out.println("\nTesting instance: " + instance.name +
+                    " with " + instance.agents.size() + " agents");
+            totalInstances++;
+
+            int res = verifyLexicalOptimality(instance, standardSolver, lexicalSolver, params);
+            if (res == -1) {
+                System.out.println("Instance " + instance.name + " failed");
+            } else {
+                verifiedInstances++;
+                if (res == 1) {
+                    instancesWithAnyDifference++;
+                    System.out.println("Instance " + instance.name + " has a cost difference between solutions.");
+                } else {
+                    System.out.println("Instance " + instance.name + " passed with no cost differences.");
+                }
+            }
+        }
+
+        System.out.println("\n\nLexical optimality verification completed. " +
+                "Total instances verified: " + verifiedInstances +
+                ", Instances with any cost difference: " + instancesWithAnyDifference +
+                ", Total instances tested: " + totalInstances);
+    }
+
+    /**
+     * Compares two presumed lexically optimal solvers to verify they produce identical costs for all agents.
+     * Since lexical optimality has a unique solution (in terms of costs), both solvers should return
+     * solutions with identical costs for each agent.
+     *
+     * @param lexicalSolver1 First lexically optimal solver
+     * @param lexicalSolver2 Second lexically optimal solver
+     * @param agentNums Number of agents to test with
+     * @param timeoutMS Timeout in milliseconds
+     */
+    public static void compareLexicalSolvers(I_Solver lexicalSolver1,
+                                             I_Solver lexicalSolver2,
+                                             int[] agentNums,
+                                             int timeoutMS) {
+        String path = IO_Manager.buildPath(new String[]{IO_Manager.testResources_Directory, "ComparativeDiverseTestSet"});
+        InstanceManager instanceManager = new InstanceManager(path, new InstanceBuilder_MovingAI(),
+                new InstanceProperties(null, -1d, agentNums));
+
+        MAPF_Instance instance;
+        int verifiedInstances = 0;
+        int totalInstances = 0;
+
+        System.out.println("Testing lexical optimality comparing " + lexicalSolver1.getName() +
+                " with " + lexicalSolver2.getName());
+
+        RunParameters params = new RunParametersBuilder()
+                .setTimeout(timeoutMS)
+                .createRP();
+
+        while ((instance = instanceManager.getNextInstance()) != null) {
+            System.out.println("\nTesting instance: " + instance.name +
+                    " with " + instance.agents.size() + " agents");
+            totalInstances++;
+
+            Solution solution1 = lexicalSolver1.solve(instance, params);
+            Solution solution2 = lexicalSolver2.solve(instance, params);
+            if (solution1 == null || solution2 == null) {
+                System.out.println("One or both solutions are null for instance: " + instance.name);
+                continue;
+            }
+            if (!solution1.solves(instance) || !solution2.solves(instance)) {
+                throw new RuntimeException("One or both solutions do not solve the instance: " + instance.name);
+            }
+
+            verifiedInstances++;
+            System.out.println("Solution 1: " + solution1);
+            System.out.println("Solution 2: " + solution2);
+
+            for (Agent agent : instance.agents) {
+                int cost1 = solution1.getPlanFor(agent).getCost();
+                int cost2 = solution2.getPlanFor(agent).getCost();
+
+                if (cost1 != cost2) {
+                    System.out.println("Cost mismatch for agent " + agent.iD + ": " +
+                            "Solver 1 = " + cost1 + ", Solver 2 = " + cost2);
+                    fail("Lexical solvers produced different costs for agent " + agent.iD +
+                            ": " + lexicalSolver1.getName() + " = " + cost1 +
+                            ", " + lexicalSolver2.getName() + " = " + cost2);
+                }
+            }
+        }
+
+        System.out.println("\n\nLexical optimality verification completed. " +
+                "Total instances verified: " + verifiedInstances +
+                ", Total instances tested: " + totalInstances);
+    }
 }

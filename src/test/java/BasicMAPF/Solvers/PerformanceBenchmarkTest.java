@@ -156,7 +156,23 @@ public class PerformanceBenchmarkTest {
         int numAgents = 5;
         stressTest(solver, timeout, numAgents, true);
     }
-    
+
+    @Test
+    public void MAAStarStressTest() {
+        I_Solver solver = CanonicalSolversFactory.createMultiAgentAStarSolver();
+        long timeout = 1000 * 5;
+        int numAgents = 5;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
+    @Test
+    public void MAAStarODStressTest() {
+        I_Solver solver = CanonicalSolversFactory.createMultiAgentAStarOperatorDecompSolver();
+        long timeout = 1000 * 5;
+        int numAgents = 5;
+        stressTest(solver, timeout, numAgents, false);
+    }
+
     private static void stressTest(I_Solver solver, long timeout, int numAgents, boolean singleAgentSolver) {
         Metrics.clearAll();
 

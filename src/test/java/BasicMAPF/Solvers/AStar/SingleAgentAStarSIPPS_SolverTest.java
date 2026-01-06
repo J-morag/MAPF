@@ -1,14 +1,10 @@
 package BasicMAPF.Solvers.AStar;
 
 import BasicMAPF.DataTypesAndStructures.*;
-import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_MovingAI;
 import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
-import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
-import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
@@ -27,14 +23,9 @@ import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.util.*;
 
-import static BasicMAPF.Solvers.AStar.SingleAgentAStar_SolverTest.*;
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Maps.*;
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestUtils.addRandomConstraints;

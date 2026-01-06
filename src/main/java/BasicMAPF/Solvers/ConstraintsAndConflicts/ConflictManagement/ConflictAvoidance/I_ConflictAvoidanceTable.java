@@ -19,4 +19,18 @@ public interface I_ConflictAvoidanceTable {
     int getLastOccupancyTime();
 
     int getNumberOfEdgeConflicts(Move move);
+    
+    /**
+     * Gets the maximum time up to which conflicts should be considered.
+     * Conflicts at times after this value are ignored.
+     * @return the maximum time up to which conflicts should be considered
+     */
+    int getLastTimeToConsiderConflicts();
+    
+    /**
+     * Sets the maximum time up to which conflicts should be considered.
+     * Conflicts at times after this value are ignored.
+     * @param lastTimeToConsiderConflicts the maximum time up to which conflicts should be considered
+     */
+    void setLastTimeToConsiderConflicts(int lastTimeToConsiderConflicts);
 }

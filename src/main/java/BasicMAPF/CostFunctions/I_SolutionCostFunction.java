@@ -17,6 +17,7 @@ public interface I_SolutionCostFunction {
         report.putIntegerValue(MakespanServiceTime.NAME, MakespanServiceTime.instance.solutionCost(solution));
         if (Config.Misc.RECORD_SOLUTION_AGENT_COSTS_STRING){
             report.putStringValue(PathCosts.NAME, PathCosts.instance.getPathCostsString(solution));
+            report.putStringValue(PathDelays.NAME, PathDelays.instance.getPathDelaysString(solution, report));
         }
     }
 

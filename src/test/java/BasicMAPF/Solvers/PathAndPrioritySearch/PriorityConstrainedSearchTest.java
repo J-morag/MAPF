@@ -13,8 +13,8 @@ import org.junit.jupiter.api.*;
 
 import static BasicMAPF.TestConstants.Agents.agent43to53;
 import static BasicMAPF.TestConstants.Agents.agent55to34;
-import static BasicMAPF.TestConstants.Coordiantes.coor12;
-import static BasicMAPF.TestConstants.Coordiantes.coor33;
+import static BasicMAPF.TestConstants.Coordinates.coor12;
+import static BasicMAPF.TestConstants.Coordinates.coor33;
 import static BasicMAPF.TestConstants.Instances.*;
 import static BasicMAPF.TestConstants.Maps.mapCircle;
 import static BasicMAPF.TestConstants.Maps.mapWithPocket;
@@ -25,6 +25,7 @@ class PriorityConstrainedSearchTest {
     private final MAPF_Instance instanceUnsolvableBecauseOrderWithInfiniteWait = new MAPF_Instance("instanceUnsolvableWithInfiniteWait", mapWithPocket, new Agent[]{agent43to53, agent55to34});
 
     I_Solver PCSSolver = CanonicalSolversFactory.createPCSSolver();
+    I_Solver PCSLexicalSolver = CanonicalSolversFactory.createPCSLexicalSolver();
 
     InstanceReport instanceReport;
 
@@ -174,4 +175,10 @@ class PriorityConstrainedSearchTest {
                 nameExperimental, true, true, new int[]{10}, 10, 1);
     }
 
+    @Test
+    void lexicalOptimalityDiverseInstancesTest() {
+        int[] agentCounts = Config.TESTS_SCOPE >= 3 ? new int[]{10,15,20,25,30} :
+                Config.TESTS_SCOPE == 2 ? new int[]{20, 25} : new int[]{20};
+        TestUtils.verifyLexicalOptimalityOnDiverseInstances(PCSSolver, PCSLexicalSolver, agentCounts, 3000 * Config.TESTS_SCOPE);
+    }
 }

@@ -14,6 +14,9 @@ import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.LargeNeighborhoodSearch_Solver;
 import BasicMAPF.Solvers.LargeNeighborhoodSearch.solutionsGeneratorForLNS2;
+import BasicMAPF.Solvers.MultiAgentAStar.MAAStarStateCompLexical;
+import BasicMAPF.Solvers.MultiAgentAStar.MultiAgentAStar;
+import BasicMAPF.Solvers.MultiAgentAStar.MultiAgentAStarOperatorDecomp;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
 import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
@@ -64,6 +67,10 @@ public class CanonicalSolversFactory {
     public final static String PIEt_NAME = "PIEt";
     public final static String PIE_SIPP_NAME = "PIE_SIPP";
     public final static String PIE_SIPPt_NAME = "PIE_SIPPt";
+    public final static String MAASTAR_NAME = "MAAStar";
+    public final static String MAASTAR_LEXICAL_NAME = "MAAStar_Lexical";
+    public final static String MAASTAR_OD_NAME = "MAAStarOD";
+    public final static String MAASTAR_OD_LEXICAL_NAME = "MAAStarOD_Lexical";
 
 
     // A map of solver names to their registrations.
@@ -267,7 +274,7 @@ public class CanonicalSolversFactory {
 
         regs.put(ASTAR_NAME, new SolverRegistration<>(
                 ASTAR_NAME,
-                "A*",
+                "Single Agent A*",
                 CanonicalSolversFactory::createAStarSolver
         ));
 
@@ -281,6 +288,30 @@ public class CanonicalSolversFactory {
                 SIPPS_NAME,
                 " Safe Interval Path Planning with Soft constraints",
                 CanonicalSolversFactory::createSIPPSSolver
+        ));
+
+        regs.put(MAASTAR_NAME, new SolverRegistration<>(
+                MAASTAR_NAME,
+                "Multi-Agent A* - joint state space search",
+                CanonicalSolversFactory::createMultiAgentAStarSolver
+        ));
+
+        regs.put(MAASTAR_LEXICAL_NAME, new SolverRegistration<>(
+                MAASTAR_LEXICAL_NAME,
+                "Multi-Agent A* - joint state space search. Using Lexical cost function",
+                CanonicalSolversFactory::createMultiAgentAStarLexicalSolver
+        ));
+
+        regs.put(MAASTAR_OD_NAME, new SolverRegistration<>(
+                MAASTAR_OD_NAME,
+                "Multi-Agent A* - operator decomposition search",
+                CanonicalSolversFactory::createMultiAgentAStarOperatorDecompSolver
+        ));
+
+        regs.put(MAASTAR_OD_LEXICAL_NAME, new SolverRegistration<>(
+                MAASTAR_OD_LEXICAL_NAME,
+                "Multi-Agent A* - operator decomposition search. Using Lexical cost function",
+                CanonicalSolversFactory::createMultiAgentAStarOperatorDecompLexicalSolver
         ));
 
         regs.put(PIE_NAME, new SolverRegistration<>(
@@ -494,7 +525,7 @@ public class CanonicalSolversFactory {
     }
 
     public static PathAndPrioritySearch createPCSLexicalSolver() {
-        PathAndPrioritySearch pcsLexicalSolver = new PaPSBuilder().setNoAgentsSplit(true).setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPaPS();;
+        PathAndPrioritySearch pcsLexicalSolver = new PaPSBuilder().setNoAgentsSplit(true).setNodeComparator(PCSCompLexical.DEFAULT_INSTANCE).createPaPS();
         pcsLexicalSolver.setName(PCS_LEXICAL_NAME);
         return pcsLexicalSolver;
     }
@@ -528,15 +559,45 @@ public class CanonicalSolversFactory {
     }
 
     public static SingleAgentAStar_Solver createAStarSolver() {
-        return new SingleAgentAStar_Solver();
+        SingleAgentAStar_Solver solver = new SingleAgentAStar_Solver();
+        solver.setName(ASTAR_NAME);
+        return solver;
     }
 
     public static SingleAgentAStarSIPP_Solver createSIPPSolver() {
-        return new SingleAgentAStarSIPP_Solver();
+        SingleAgentAStarSIPP_Solver solver = new SingleAgentAStarSIPP_Solver();
+        solver.setName(SIPP_NAME);
+        return solver;
     }
 
-    public static SingleAgentAStarSIPP_Solver createSIPPSSolver() {
-        return new SingleAgentAStarSIPPS_Solver();
+    public static SingleAgentAStarSIPPS_Solver createSIPPSSolver() {
+        SingleAgentAStarSIPPS_Solver solver = new SingleAgentAStarSIPPS_Solver();
+        solver.setName(SIPPS_NAME);
+        return solver;
+    }
+
+    public static MultiAgentAStar createMultiAgentAStarSolver() {
+        MultiAgentAStar MAAStar = new MultiAgentAStar();
+        MAAStar.setName(MAASTAR_NAME);
+        return MAAStar;
+    }
+
+    public static MultiAgentAStar createMultiAgentAStarLexicalSolver() {
+        MultiAgentAStar MAAStar_Lexical = new MultiAgentAStar(MAAStarStateCompLexical.DEFAULT_INSTANCE);
+        MAAStar_Lexical.setName(MAASTAR_LEXICAL_NAME);
+        return MAAStar_Lexical;
+    }
+
+    public static MultiAgentAStarOperatorDecomp createMultiAgentAStarOperatorDecompSolver() {
+        MultiAgentAStarOperatorDecomp MAAStar_OD = new MultiAgentAStarOperatorDecomp();
+        MAAStar_OD.setName(MAASTAR_OD_NAME);
+        return MAAStar_OD;
+    }
+
+    public static MultiAgentAStarOperatorDecomp createMultiAgentAStarOperatorDecompLexicalSolver() {
+        MultiAgentAStarOperatorDecomp MAAStar_OD_Lexical = new MultiAgentAStarOperatorDecomp(MAAStarStateCompLexical.DEFAULT_INSTANCE);
+        MAAStar_OD_Lexical.setName(MAASTAR_OD_LEXICAL_NAME);
+        return MAAStar_OD_Lexical;
     }
 
     public static I_Solver createPIESolver() {

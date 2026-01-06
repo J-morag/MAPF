@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static BasicMAPF.TestConstants.Agents.agent33to12;
-import static BasicMAPF.TestConstants.Coordiantes.*;
+import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Instances.instanceEmpty1;
 import static BasicMAPF.TestConstants.Maps.mapCircle;
 import static org.junit.jupiter.api.Assertions.*;

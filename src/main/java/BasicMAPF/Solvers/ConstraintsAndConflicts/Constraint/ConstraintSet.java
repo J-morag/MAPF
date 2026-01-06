@@ -59,7 +59,6 @@ public class ConstraintSet implements I_ConstraintSet {
         this.sharedSources = toCopy.isSharedSources();
         this.lastTimeToConsiderConstraints = toCopy.getLastTimeToConsiderConstraints();
         this.addAll(toCopy);
-        this.lastConstraintTime = toCopy.getLastConstraintStartTime();
     }
     public ConstraintSet(Collection<? extends Constraint> seedConstraints) {
         this();

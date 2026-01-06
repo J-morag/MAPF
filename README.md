@@ -28,6 +28,7 @@ The default instance format is from the [MovingAI benchmark](https://movingai.co
 Modify the `Main.java` file to run your experiment. Examples are provided in the `ExampleMain.java` file.
 
 ## News
+* 2026-01: Added the Multi-agent A* (MAAStar) algorithm.
 * 2025-06: Added the PaPS algorithm. PCS still exists, now as a special case of PaPS, and PFCS was added in the same manner.
 * 2025-05: 
   * Assorted bug fixes and performance and functionality improvements
