@@ -14,7 +14,7 @@ on:
 
 jobs:
   qodana:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
