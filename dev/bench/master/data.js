@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767716537874,
+  "lastUpdate": 1767716539515,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -33075,6 +33075,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PCS - Average Expansions Low Level",
             "value": 2521180.2,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f845132facc3978738b3abf187cb80029379f025",
+          "message": "v0.14.0 Multi-agent A* (#109)\n\n* ConflictAvoidanceTable horizon support\n\n* remove unnecessary copying of lastConstraintTime in ConstraintSet copy constructor, that could lead to errors\n\n* add support for a limited time horizon in ConflictAvoidanceTable s\n\n* add PathDelays and FreespaceCosts metrics (vectors) \n\n* Multi Agent A*\n\n* MAA* Lexical cost function\n\n* MultiAgent A* with Operator Decomposition",
+          "timestamp": "2026-01-06T16:34:47+02:00",
+          "tree_id": "b8ab45720c11f5e9cc0d23a959aaa64f70be163e",
+          "url": "https://github.com/J-morag/MAPF/commit/f845132facc3978738b3abf187cb80029379f025"
+        },
+        "date": 1767716539116,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PCS - Fails",
+            "value": 16,
+            "unit": "Instances"
+          },
+          {
+            "name": "PCS - Average Cost",
+            "value": 2173.4119,
+            "unit": "SOC"
+          },
+          {
+            "name": "PCS - Average Runtime",
+            "value": 16380.151,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Expansions High Level",
+            "value": 7194.758,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PCS - Average Expansions Low Level",
+            "value": 2474342.2,
             "unit": "Expansions"
           }
         ]
