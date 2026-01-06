@@ -339,6 +339,14 @@ public class PerformanceBenchmarkTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // suggest garbage collection to free memory between runs
+        System.gc();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Solution solveOneInstance(InstanceReport report, String nameSolver, MAPF_Instance instance, RunParameters rp, I_Solver solver, MAPF_Instance subproblem) {
