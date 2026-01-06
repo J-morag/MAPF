@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1752412006234,
+  "lastUpdate": 1767716534593,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -4211,6 +4211,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 6998027.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f845132facc3978738b3abf187cb80029379f025",
+          "message": "v0.14.0 Multi-agent A* (#109)\n\n* ConflictAvoidanceTable horizon support\n\n* remove unnecessary copying of lastConstraintTime in ConstraintSet copy constructor, that could lead to errors\n\n* add support for a limited time horizon in ConflictAvoidanceTable s\n\n* add PathDelays and FreespaceCosts metrics (vectors) \n\n* Multi Agent A*\n\n* MAA* Lexical cost function\n\n* MultiAgent A* with Operator Decomposition",
+          "timestamp": "2026-01-06T16:34:47+02:00",
+          "tree_id": "b8ab45720c11f5e9cc0d23a959aaa64f70be163e",
+          "url": "https://github.com/J-morag/MAPF/commit/f845132facc3978738b3abf187cb80029379f025"
+        },
+        "date": 1767716533267,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 4376.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 19067.879,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 10198.97,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 18782.637,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 6874169,
             "unit": "Expansions"
           }
         ]
