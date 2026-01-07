@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767782775619,
+  "lastUpdate": 1767782776966,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -25661,6 +25661,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 6724834.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "999bfc2610237fda55626cf3b143be8b36095848",
+          "message": "v0.15.0 (#110)\n\n* fix service time (SST) over-counting when an agent starts at its target\n\n* fix SST when plan start time != 0\n\n* CBSt: add testMultipleRandomlyGeneratedInstances \n\n* Add SaveAs to viz",
+          "timestamp": "2026-01-07T10:57:15+02:00",
+          "tree_id": "3061af99c33a74121b66cfed5b5588217a819bc2",
+          "url": "https://github.com/J-morag/MAPF/commit/999bfc2610237fda55626cf3b143be8b36095848"
+        },
+        "date": 1767782776575,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 5241.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 18811.727,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 6811.4243,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 24193.697,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 6737000.5,
             "unit": "Expansions"
           }
         ]
