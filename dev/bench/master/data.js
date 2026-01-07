@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767782782004,
+  "lastUpdate": 1767782783202,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -32963,6 +32963,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
             "value": 630476.2,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "999bfc2610237fda55626cf3b143be8b36095848",
+          "message": "v0.15.0 (#110)\n\n* fix service time (SST) over-counting when an agent starts at its target\n\n* fix SST when plan start time != 0\n\n* CBSt: add testMultipleRandomlyGeneratedInstances \n\n* Add SaveAs to viz",
+          "timestamp": "2026-01-07T10:57:15+02:00",
+          "tree_id": "3061af99c33a74121b66cfed5b5588217a819bc2",
+          "url": "https://github.com/J-morag/MAPF/commit/999bfc2610237fda55626cf3b143be8b36095848"
+        },
+        "date": 1767782782816,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 3,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 21678.867,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 5846.091,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 5577.242,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 629543.5,
             "unit": "Expansions"
           }
         ]
