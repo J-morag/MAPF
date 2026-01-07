@@ -4,10 +4,12 @@ import BasicMAPF.CostFunctions.SOCWithPriorities;
 import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.Instances.InstanceBuilders.Priorities;
+import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.TestUtils;
+import Environment.Config;
 import Environment.IO_Package.IO_Manager;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.InstanceBuilders.InstanceBuilder_BGU;
@@ -26,8 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static BasicMAPF.TestConstants.Coordinates.*;
 import static BasicMAPF.TestConstants.Maps.*;
@@ -302,6 +303,8 @@ class CBS_SolverTest {
         }
     }
 
+    /* = TMAPF (Transient MAPF) tests = */
+
     @Test
     void worksWithTMAPFPaths() {
         I_Solver CBSt = new CBSBuilder().setTransientMAPFSettings(TransientMAPFSettings.defaultTransientMAPF).setCostFunction(new SumServiceTimes()).createCBS_Solver();
@@ -394,4 +397,91 @@ class CBS_SolverTest {
                 Arrays.asList( "Solved", "SOC", "SST", "Expanded Nodes (High Level)", "Expanded Nodes (Low Level)", "Total Low Level Time (ms)", "Elapsed Time (ms)"));
     }
 
+    @Test
+    void testTMAPFOnMultipleRandomlyGeneratedInstances() {
+        // if CBS were to solve an instance and CBSt not, it would be suspicious
+
+        int[] agentNumbers = Config.TESTS_SCOPE <= 1 ? new int[]{2, 3} :
+                new int[]{2, 3, 4}; // number of agents to generate and test
+        I_ExplicitMap[] maps = {mapCircle, mapSmallMaze, mapNarrowCorridorWithRoom, mapHLong};
+        String[] mapNames = {"Circle", "SmallMaze", "NarrowCorridorWithRoom", "HLong"};
+        int timeout = 5000 * Config.TESTS_SCOPE; // milliseconds
+        int numSeeds = 5 * Config.TESTS_SCOPE;
+        boolean startAndTargetMustDiffer = false; // ensure start and goal are different
+        I_Solver regularCBSSolver = cbsSolver;
+        I_Solver CBStSolver = CanonicalSolversFactory.createCBStSolver();
+
+        int numAttemptedInstances = 0;
+        int sumSolvedCBS = 0;
+        int sumSolvedCBSt = 0;
+
+        for (int seed = 0; seed < numSeeds; seed++) {
+            for (int numAgents : agentNumbers) {
+                for (I_ExplicitMap map : maps) {
+                    numAttemptedInstances++;
+                    Collection<? extends I_Location> locations = map.getAllLocations();
+                    I_Coordinate [] coordinates = locations.stream()
+                            .map(I_Location::getCoordinate)
+                            .toArray(I_Coordinate[]::new);
+                    Agent[] agents = new Agent[numAgents];
+                    Set<I_Coordinate> usedStarts = new HashSet<>(numAgents);
+                    Set<I_Coordinate> usedTargets = new HashSet<>(numAgents);
+                    assertTrue(coordinates.length >= numAgents, "Malformed test: Not enough coordinates for " + numAgents + " agents on map: " + mapNames[Arrays.asList(maps).indexOf(map)]);
+                    for (int a = 0; a < numAgents; a++) {
+                        I_Coordinate start = coordinates[(int) (Math.random() * coordinates.length)];
+                        // ensure start is not already used
+                        while (usedStarts.contains(start)) {
+                            start = coordinates[(int) (Math.random() * coordinates.length)];
+                        }
+                        usedStarts.add(start);
+
+                        I_Coordinate target;
+                        do {
+                            target = coordinates[(int) (Math.random() * coordinates.length)];
+                        } while ((startAndTargetMustDiffer && target.equals(start)) || usedTargets.contains(target));
+                        usedTargets.add(target);
+
+                        agents[a] = new Agent(a, start, target);
+                    }
+                    MAPF_Instance instance = new MAPF_Instance("RandomInstance_" + seed + "_" + numAgents + "_" + mapNames[Arrays.asList(maps).indexOf(map)],
+                            map, agents);
+                    System.out.println("Generated instance: " + instance.name + " with seed: " + seed + " and agents " + Arrays.toString(agents) + " on map: " + mapNames[Arrays.asList(maps).indexOf(map)]);
+
+                    System.out.println("\nTesting instance: " + instance.name + " using regular CBS solver");
+                    InstanceReport report = Metrics.newInstanceReport();
+                    RunParameters runParameters = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(report).createRP();
+                    Solution solutionCBS = regularCBSSolver.solve(instance, runParameters);
+                    if (solutionCBS != null) {
+                        assertTrue(solutionCBS.solves(instance));
+                        sumSolvedCBS += 1;
+                        System.out.println("Solution found: " + solutionCBS);
+                    } else {
+                        System.out.println("No solution found for instance: " + instance.name);
+                    }
+                    System.out.println("Solved instances so far with CBS: " + sumSolvedCBS + " out of " + numAttemptedInstances + " (out of " + (numSeeds * agentNumbers.length * maps.length) + " total)");
+
+                    System.out.println("\nTesting instance: " + instance.name + " using CBSt solver");
+                    InstanceReport reportCBSt = Metrics.newInstanceReport();
+                    RunParameters runParametersCBSt = new RunParametersBuilder().setTimeout(timeout).setInstanceReport(reportCBSt).createRP();
+                    Solution solutionCBSt = CBStSolver.solve(instance, runParametersCBSt);
+                    if (solutionCBSt != null) {
+                        assertTrue(solutionCBSt.solves(instance));
+                        sumSolvedCBSt += 1;
+                        System.out.println("Solution found: " + solutionCBSt);
+                    } else {
+                        System.out.println("No solution found for instance: " + instance.name);
+                    }
+                    System.out.println("Solved instances so far with CBSt: " + sumSolvedCBSt + " out of " + numAttemptedInstances + " (out of " + (numSeeds * agentNumbers.length * maps.length) + " total)");
+
+                    if (solutionCBS != null) {
+                        assertNotNull(solutionCBSt, "CBSt did not solve instance " + instance.name + " while CBS did. Suspicious.");
+                    }
+                }
+            }
+        }
+
+        System.out.println("\nTesting completed.");
+        System.out.println("Total solved instances with CBS: " + sumSolvedCBS + " out of " + (numSeeds * agentNumbers.length * maps.length));
+        System.out.println("Total solved instances with CBSt: " + sumSolvedCBSt + " out of " + (numSeeds * agentNumbers.length * maps.length));
+    }
 }

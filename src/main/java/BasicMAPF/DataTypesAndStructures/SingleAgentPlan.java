@@ -16,6 +16,10 @@ import java.util.function.Consumer;
 public class SingleAgentPlan implements Iterable<Move> {
     private List<Move> moves;
     public final Agent agent;
+    /**
+     * The time of the first visit to the agent's target location, or -1 if the agent never visited its target.
+     * If the agent starts at its target, this is 0.
+     */
     private int firstVisitToTargetTime = -1;
 
     /**
@@ -76,7 +80,10 @@ public class SingleAgentPlan implements Iterable<Move> {
     public void addMove(Move newMove){
         if(isValidNextMoveForAgent(this.moves, newMove, this.agent)){
             this.moves.add(newMove);
-            if (newMove.currLocation.getCoordinate().equals(agent.target) && firstVisitToTargetTime == -1){
+            if (this.moves.size() == 1 && newMove.prevLocation.getCoordinate().equals(agent.target)) {
+                firstVisitToTargetTime = newMove.timeNow - 1; // started at target
+            }
+            else if (newMove.currLocation.getCoordinate().equals(agent.target) && firstVisitToTargetTime == -1){
                 firstVisitToTargetTime = newMove.timeNow;
             }
         }
@@ -115,10 +122,16 @@ public class SingleAgentPlan implements Iterable<Move> {
         ArrayList<Move> localMovesCopy = Lists.newArrayList(newMoves);
         if(!isValidMoveSequenceForAgent(localMovesCopy, agent)) throw new IllegalArgumentException("invalid move sequence for agent");
         this.moves = localMovesCopy;
-        for (Move move: this.moves) {
-            if (move.currLocation.getCoordinate().equals(agent.target)){
-                this.firstVisitToTargetTime = move.timeNow;
-                break;
+
+        if (! this.moves.isEmpty() && this.moves.get(0).prevLocation.getCoordinate().equals(agent.target)) {
+            firstVisitToTargetTime = this.moves.get(0).timeNow - 1; // started at target
+        }
+        else{
+            for (Move move: this.moves) {
+                if (move.currLocation.getCoordinate().equals(agent.target)){
+                    this.firstVisitToTargetTime = move.timeNow;
+                    break;
+                }
             }
         }
     }
@@ -172,6 +185,12 @@ public class SingleAgentPlan implements Iterable<Move> {
         return firstVisitToTargetTime != -1;
     }
 
+    /**
+     * Returns the time of the first visit to the agent's target location, or -1 if the agent never visited its target.
+     * If the agent starts at its target, this is 0.
+     * @return the time of the first visit to the agent's target location, or -1 if the agent never visited its target.
+     *         If the agent starts at its target, this is 0.
+     */
     public int firstVisitToTargetTime(){
         return firstVisitToTargetTime;
     }
@@ -392,5 +411,9 @@ public class SingleAgentPlan implements Iterable<Move> {
     @Override
     public Spliterator<Move> spliterator() {
         return this.moves.spliterator();
+    }
+
+    int serviceTime() {
+        return firstVisitToTargetTime() - getPlanStartTime();
     }
 }

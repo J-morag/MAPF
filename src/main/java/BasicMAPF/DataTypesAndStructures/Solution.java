@@ -283,7 +283,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
     public int sumServiceTimes() {
         int sumServiceTimes = 0;
         for (SingleAgentPlan plan : this) {
-            sumServiceTimes += plan.firstVisitToTargetTime();
+            sumServiceTimes += plan.serviceTime();
         }
         return sumServiceTimes;
     }
@@ -301,7 +301,7 @@ public class Solution implements Iterable<SingleAgentPlan>{
         int maxCost = 0;
         for (SingleAgentPlan plan :
                 agentPlans.values()) {
-            maxCost = Math.max(maxCost, plan.firstVisitToTargetTime());
+            maxCost = Math.max(maxCost, plan.serviceTime());
         }
         return maxCost;
     }
