@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767716558220,
+  "lastUpdate": 1767782775619,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -4265,6 +4265,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 6874169,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "999bfc2610237fda55626cf3b143be8b36095848",
+          "message": "v0.15.0 (#110)\n\n* fix service time (SST) over-counting when an agent starts at its target\n\n* fix SST when plan start time != 0\n\n* CBSt: add testMultipleRandomlyGeneratedInstances \n\n* Add SaveAs to viz",
+          "timestamp": "2026-01-07T10:57:15+02:00",
+          "tree_id": "3061af99c33a74121b66cfed5b5588217a819bc2",
+          "url": "https://github.com/J-morag/MAPF/commit/999bfc2610237fda55626cf3b143be8b36095848"
+        },
+        "date": 1767782774244,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 4376.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 19094.363,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 10215.03,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 19204.363,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 6871207.5,
             "unit": "Expansions"
           }
         ]
