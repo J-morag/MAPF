@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767782776966,
+  "lastUpdate": 1767782778167,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -8587,6 +8587,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 106436.91,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "999bfc2610237fda55626cf3b143be8b36095848",
+          "message": "v0.15.0 (#110)\n\n* fix service time (SST) over-counting when an agent starts at its target\n\n* fix SST when plan start time != 0\n\n* CBSt: add testMultipleRandomlyGeneratedInstances \n\n* Add SaveAs to viz",
+          "timestamp": "2026-01-07T10:57:15+02:00",
+          "tree_id": "3061af99c33a74121b66cfed5b5588217a819bc2",
+          "url": "https://github.com/J-morag/MAPF/commit/999bfc2610237fda55626cf3b143be8b36095848"
+        },
+        "date": 1767782777795,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 24,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4421.1113,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 23168.727,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 8781.97,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 106395.305,
             "unit": "Expansions"
           }
         ]
