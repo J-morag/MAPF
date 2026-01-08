@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868920537,
+  "lastUpdate": 1767868921819,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -36908,6 +36908,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "MAAStar - Average Expansions High Level",
             "value": 766.7273,
+            "unit": "Expansions"
+          },
+          {
+            "name": "MAAStar - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c06457ed732e13ef427624a324a2950f5242e71",
+          "message": "v.0.16.0 unassigned agents as obstacles (#111)\n\n* Add all code related to unassigned agents as obstacles to LaCAM_Solver\n\n* Add all code related to unassigned agents as obstacles to CBS_Solver",
+          "timestamp": "2026-01-08T10:38:49+02:00",
+          "tree_id": "6df654d1a220fdc41ab653e0c60fcafa9ce08b75",
+          "url": "https://github.com/J-morag/MAPF/commit/2c06457ed732e13ef427624a324a2950f5242e71"
+        },
+        "date": 1767868921432,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MAAStar - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "MAAStar - Average Cost",
+            "value": 429.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "MAAStar - Average Runtime",
+            "value": 2423.121,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Expansions High Level",
+            "value": 789.5455,
             "unit": "Expansions"
           },
           {
