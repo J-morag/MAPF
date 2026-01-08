@@ -6,6 +6,7 @@ import TransientMAPF.TransientMAPFSettings;
 public class LaCAMBuilder {
     private I_SolutionCostFunction solutionCostFunction = null;
     private TransientMAPFSettings transientMAPFSettings = null;
+    private boolean staticObstaclesForUnassignedAgents = false;
 
     public LaCAMBuilder setSolutionCostFunction(I_SolutionCostFunction solutionCostFunction) {
         this.solutionCostFunction = solutionCostFunction;
@@ -17,7 +18,12 @@ public class LaCAMBuilder {
         return this;
     }
 
+    public LaCAMBuilder setStaticObstaclesForUnassignedAgents(boolean staticObstaclesForUnassignedAgents) {
+        this.staticObstaclesForUnassignedAgents = staticObstaclesForUnassignedAgents;
+        return this;
+    }
+
     public LaCAM_Solver createLaCAM() {
-        return new LaCAM_Solver(solutionCostFunction, transientMAPFSettings);
+        return new LaCAM_Solver(solutionCostFunction, transientMAPFSettings, staticObstaclesForUnassignedAgents);
     }
 }

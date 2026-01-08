@@ -15,10 +15,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictMana
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.CorridorConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.I_ConflictManager;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.SingleUseConflictAvoidanceTable;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
-import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.UnmodifiableConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.*;
 import Environment.Config;
 import Environment.Metrics.InstanceReport;
 import BasicMAPF.Solvers.*;
@@ -99,6 +96,9 @@ public class CBS_Solver extends A_Solver {
     private final boolean sharedSources;
     private Set<I_Coordinate> separatingVerticesSet;
 
+    private final boolean staticObstaclesForUnassignedAgents;
+    private List<Agent> unassignedAgents = null;
+
     /*  = Constructors =  */
 
     /**
@@ -113,7 +113,7 @@ public class CBS_Solver extends A_Solver {
      */
     CBS_Solver(@Nullable I_Solver lowLevelSolver, @Nullable I_OpenList<CBS_Node> openList, @Nullable OpenListManagementMode openListManagementMode,
                       @Nullable I_SolutionCostFunction costFunction, @Nullable Comparator<? super CBS_Node> cbsNodeComparator, @Nullable Boolean useCorridorReasoning,
-                      @Nullable Boolean sharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings) {
+                      @Nullable Boolean sharedGoals, @Nullable Boolean sharedSources, @Nullable TransientMAPFSettings transientMAPFSettings, @Nullable Boolean staticObstaclesForUnassignedAgents) {
         this.lowLevelSolver = Objects.requireNonNullElseGet(lowLevelSolver, SingleAgentAStar_Solver::new);
         this.openList = Objects.requireNonNullElseGet(openList, OpenListHeap::new);
         this.openListManagementMode = openListManagementMode != null ? openListManagementMode : OpenListManagementMode.AUTOMATIC;
@@ -131,6 +131,7 @@ public class CBS_Solver extends A_Solver {
         if (this.costFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
             throw new IllegalArgumentException("CBS Solver: cost function and transient MAPF settings are mismatched: " + this.costFunction + " " + this.transientMAPFSettings);
         }
+        this.staticObstaclesForUnassignedAgents = Objects.requireNonNullElse(staticObstaclesForUnassignedAgents, false);;
         super.name = "CBS" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "");
     }
 
@@ -138,7 +139,7 @@ public class CBS_Solver extends A_Solver {
      * Default constructor.
      */
     CBS_Solver() {
-        this(null, null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null, null);
     }
 
     /*  = initialization =  */
@@ -147,6 +148,27 @@ public class CBS_Solver extends A_Solver {
     protected void init(MAPF_Instance instance, RunParameters runParameters) {
         super.init(instance, runParameters);
         this.initialConstraints = Objects.requireNonNullElseGet(runParameters.constraints, ConstraintSet::new);
+
+        if (this.staticObstaclesForUnassignedAgents) {
+            // add all unassigned agents' location as infinite constraint
+            // delete all unassigned agents from the instance
+            this.unassignedAgents = new ArrayList<>();
+            List<Agent> newAgentsList = new ArrayList<>();
+            for (Agent agent : instance.agents) {
+                // unassigned agent
+                if (agent.target.equals(agent.source)) {
+                    // add infinite constraint
+                    Constraint infiniteConstraint = new GoalConstraint(null, 1, null, instance.map.getMapLocation(agent.source), agent);
+                    this.initialConstraints.add(infiniteConstraint);
+                    this.unassignedAgents.add(agent);
+                }
+                else {
+                    newAgentsList.add(agent);
+                }
+            }
+            instance = new MAPF_Instance(instance.name, instance.map, newAgentsList.toArray(new Agent[0]));
+        }
+
         this.currentConstraints = new ConstraintSet();
         this.generatedNodes = 0;
         this.expandedNodes = 0;
@@ -184,7 +206,7 @@ public class CBS_Solver extends A_Solver {
      */
     @Override
     protected Solution runAlgorithm(MAPF_Instance instance, RunParameters parameters) {
-        initOpen(Objects.requireNonNullElseGet(parameters.constraints, ConstraintSet::new));
+        initOpen(Objects.requireNonNullElseGet(this.initialConstraints, ConstraintSet::new));
         CBS_Node goal = mainLoop();
         return solutionFromGoal(goal);
     }
@@ -423,6 +445,15 @@ public class CBS_Solver extends A_Solver {
             return null;
         }
         else{
+            if (this.staticObstaclesForUnassignedAgents) {
+                for (Agent agent : this.unassignedAgents) {
+                    SingleAgentPlan plan = new SingleAgentPlan(agent);
+                    // TODO - in lifelong, needs to be set to problemStartTime + 1
+                    Move move = new Move(agent, 1, this.instance.map.getMapLocation(agent.source), this.instance.map.getMapLocation(agent.target));
+                    plan.addMove(move);
+                    goal.solution.putPlan(plan);
+                }
+            }
             return goal.solution;
         }
     }

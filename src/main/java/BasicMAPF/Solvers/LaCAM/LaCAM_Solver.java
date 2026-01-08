@@ -12,7 +12,9 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuris
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.A_Solver;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
+import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.I_ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import TransientMAPF.SeparatingVerticesFinder;
@@ -73,27 +75,51 @@ public class LaCAM_Solver extends A_Solver {
     protected Comparator<I_Location> separatingVerticesComparator;
     protected int timeStep;
     protected HashMap<Agent, Boolean> currentAgentsReachedGoalsMap;
+    private final boolean staticObstaclesForUnassignedAgents;
+    private List<Agent> unassignedAgents = null;
     /**
      * Constructor.
      * @param solutionCostFunction how to calculate the cost of a solution
      * @param transientMAPFSettings indicates whether to solve transient-MAPF.
      */
-    LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings) {
+    LaCAM_Solver(I_SolutionCostFunction solutionCostFunction, TransientMAPFSettings transientMAPFSettings, boolean staticObstaclesForUnassignedAgents) {
         this.transientMAPFSettings = Objects.requireNonNullElse(transientMAPFSettings, TransientMAPFSettings.defaultRegularMAPF);
         this.solutionCostFunction = Objects.requireNonNullElseGet(solutionCostFunction, () -> this.transientMAPFSettings.isTransientMAPF() ? new SumServiceTimes() : new SumOfCosts());
+        this.staticObstaclesForUnassignedAgents = staticObstaclesForUnassignedAgents;
         if (this.solutionCostFunction instanceof SumServiceTimes ^ this.transientMAPFSettings.isTransientMAPF()){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": cost function and transient MAPF settings are mismatched: " + this.solutionCostFunction.name() + " " + this.transientMAPFSettings);
         }
-        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "");
+        super.name = "LaCAM" + (this.transientMAPFSettings.isTransientMAPF() ? "t" : "") + (this.transientMAPFSettings.avoidSeparatingVertices() ? "_SV" : "") +
+                (staticObstaclesForUnassignedAgents ? "_staticUA" : "");
     }
 
     protected void init(MAPF_Instance instance, RunParameters parameters){
         super.init(instance, parameters);
         this.constraintsSet = parameters.constraints == null ? new ConstraintSet(): parameters.constraints;
+
+        if (this.staticObstaclesForUnassignedAgents) {
+            // add all unassigned agents' location as infinite constraint
+            // delete all unassigned agents from the instance
+            this.unassignedAgents = new ArrayList<>();
+            List<Agent> newAgentsList = new ArrayList<>();
+            for (Agent agent : instance.agents) {
+                // unassigned agent
+                if (agent.target.equals(agent.source)) {
+                    // add infinite constraint
+                    Constraint infiniteConstraint = new GoalConstraint(null, 1, null, instance.map.getMapLocation(agent.source), agent);
+                    this.constraintsSet.add(infiniteConstraint);
+                    this.unassignedAgents.add(agent);
+                } else {
+                    newAgentsList.add(agent);
+                }
+            }
+            instance = new MAPF_Instance(instance.name, instance.map, newAgentsList.toArray(new Agent[0]));
+        }
+
         this.open = new Stack<>();
-        this.needToHandleConstraints = !this.constraintsSet.isEmpty();
+        this.needToHandleConstraints = !this.constraintsSet.isEmpty() || this.staticObstaclesForUnassignedAgents;
         this.explored = new HashMap<>();
-        if (!this.constraintsSet.isEmpty()) {
+        if (this.needToHandleConstraints) {
             this.exploredWithExternalConstraints = new HashMap<>();
         }
         this.agents = new HashMap<>();
@@ -121,7 +147,7 @@ public class LaCAM_Solver extends A_Solver {
         }
         // distance between every vertex in the graph to each agent's goal
         this.heuristic = Objects.requireNonNullElseGet(parameters.singleAgentGAndH, () -> this.transientMAPFSettings.isTransientMAPF() ?
-                new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(instance.agents, instance.map)) : new DistanceTableSingleAgentHeuristic(instance.agents, instance.map));
+                new ServiceTimeGAndH(new DistanceTableSingleAgentHeuristic(this.instance.agents, this.instance.map)) : new DistanceTableSingleAgentHeuristic(this.instance.agents, this.instance.map));
         if (this.transientMAPFSettings.isTransientMAPF() ^ this.heuristic.isTransient()){
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": GAndH and transient MAPF settings are mismatched: " + this.heuristic.getClass().getSimpleName() + " " + this.transientMAPFSettings);
         }
@@ -417,6 +443,17 @@ public class LaCAM_Solver extends A_Solver {
             }
             else solution.putPlan(agentPlans.get(agent));
         }
+
+        if (this.staticObstaclesForUnassignedAgents) {
+            for (Agent agent : this.unassignedAgents) {
+                SingleAgentPlan plan = new SingleAgentPlan(agent);
+                // TODO - in lifelong, needs to be set to problemStartTime + 1
+                Move move = new Move(agent, 1, this.instance.map.getMapLocation(agent.source), this.instance.map.getMapLocation(agent.target));
+                plan.addMove(move);
+                solution.putPlan(plan);
+            }
+        }
+
         return solution;
     }
 
