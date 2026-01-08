@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767883876069,
+  "lastUpdate": 1767883877182,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -38800,6 +38800,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "MAAStarOD - Average Expansions High Level",
             "value": 230630.22,
+            "unit": "Expansions"
+          },
+          {
+            "name": "MAAStarOD - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c",
+          "message": "v0.17.1 (#113)\n\n* Fix AStar (TMAPF/RO) ignoring when target is visited at time 0 \n\n* fix SIPPS heuristic in TMAPF (lower bound was MAPF-style)\n\n* fix flaky test `prepareInstances_Instance_16_0_7`\n\n* add Quodana CI workflow\n\n* suggest garbage collection and delay between benchmark runs to improve performance stability",
+          "timestamp": "2026-01-08T15:00:59+02:00",
+          "tree_id": "70ac236ef9ecc724d26b19199e6b985a73e3e996",
+          "url": "https://github.com/J-morag/MAPF/commit/f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c"
+        },
+        "date": 1767883876866,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MAAStarOD - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "MAAStarOD - Average Cost",
+            "value": 919.38464,
+            "unit": "SOC"
+          },
+          {
+            "name": "MAAStarOD - Average Runtime",
+            "value": 1176.8182,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStarOD - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStarOD - Average Expansions High Level",
+            "value": 237673.52,
             "unit": "Expansions"
           },
           {
