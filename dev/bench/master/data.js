@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868172411,
+  "lastUpdate": 1767868174057,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -35019,6 +35019,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PCS - Average Expansions Low Level",
             "value": 2401130.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "fce4740fd0730cafee20345fe805304c7a8ca8df",
+          "message": "simplify LaCAM rng seed use (#90)\n\n(cherry picked from commit 827a76aa9928abfbfdf89fedfbf35241ce23266d)",
+          "timestamp": "2026-01-08T10:41:13+02:00",
+          "tree_id": "0ef16a57ba99e6941618c94558ad9586d9bdf59e",
+          "url": "https://github.com/J-morag/MAPF/commit/fce4740fd0730cafee20345fe805304c7a8ca8df"
+        },
+        "date": 1767868173378,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PCS - Fails",
+            "value": 16,
+            "unit": "Instances"
+          },
+          {
+            "name": "PCS - Average Cost",
+            "value": 2173.4119,
+            "unit": "SOC"
+          },
+          {
+            "name": "PCS - Average Runtime",
+            "value": 16360.576,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Expansions High Level",
+            "value": 7103.212,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PCS - Average Expansions Low Level",
+            "value": 2436363,
             "unit": "Expansions"
           }
         ]
