@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868923031,
+  "lastUpdate": 1767876702627,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -4481,6 +4481,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS - Average Expansions Low Level",
             "value": 6937897,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d039a9f28811d05e098ffbd1396b6d544579c785",
+          "message": "v0.17.0 (#112)\n\n* Dummy goals with LaCAM \n\n* Make LaCAM deterministic",
+          "timestamp": "2026-01-08T12:59:20+02:00",
+          "tree_id": "0ef16a57ba99e6941618c94558ad9586d9bdf59e",
+          "url": "https://github.com/J-morag/MAPF/commit/d039a9f28811d05e098ffbd1396b6d544579c785"
+        },
+        "date": 1767876700448,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS - Fails",
+            "value": 20,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS - Average Cost",
+            "value": 3320.077,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS - Average Runtime",
+            "value": 19318.092,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Runtime Low Level",
+            "value": 10391.121,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS - Average Expansions High Level",
+            "value": 17943.969,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS - Average Expansions Low Level",
+            "value": 6090476,
             "unit": "Expansions"
           }
         ]
