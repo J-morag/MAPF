@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868909847,
+  "lastUpdate": 1767868911042,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -36209,6 +36209,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PaPS - Average Expansions Low Level",
             "value": 3818762.8,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c06457ed732e13ef427624a324a2950f5242e71",
+          "message": "v.0.16.0 unassigned agents as obstacles (#111)\n\n* Add all code related to unassigned agents as obstacles to LaCAM_Solver\n\n* Add all code related to unassigned agents as obstacles to CBS_Solver",
+          "timestamp": "2026-01-08T10:38:49+02:00",
+          "tree_id": "6df654d1a220fdc41ab653e0c60fcafa9ce08b75",
+          "url": "https://github.com/J-morag/MAPF/commit/2c06457ed732e13ef427624a324a2950f5242e71"
+        },
+        "date": 1767868910668,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PaPS - Fails",
+            "value": 11,
+            "unit": "Instances"
+          },
+          {
+            "name": "PaPS - Average Cost",
+            "value": 1224.0454,
+            "unit": "SOC"
+          },
+          {
+            "name": "PaPS - Average Runtime",
+            "value": 12216.909,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Expansions High Level",
+            "value": 3737.5454,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PaPS - Average Expansions Low Level",
+            "value": 3800087.2,
             "unit": "Expansions"
           }
         ]
