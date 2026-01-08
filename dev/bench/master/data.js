@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767883874969,
+  "lastUpdate": 1767883876069,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -38420,6 +38420,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "MAAStar - Average Expansions High Level",
             "value": 684.2727,
+            "unit": "Expansions"
+          },
+          {
+            "name": "MAAStar - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c",
+          "message": "v0.17.1 (#113)\n\n* Fix AStar (TMAPF/RO) ignoring when target is visited at time 0 \n\n* fix SIPPS heuristic in TMAPF (lower bound was MAPF-style)\n\n* fix flaky test `prepareInstances_Instance_16_0_7`\n\n* add Quodana CI workflow\n\n* suggest garbage collection and delay between benchmark runs to improve performance stability",
+          "timestamp": "2026-01-08T15:00:59+02:00",
+          "tree_id": "70ac236ef9ecc724d26b19199e6b985a73e3e996",
+          "url": "https://github.com/J-morag/MAPF/commit/f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c"
+        },
+        "date": 1767883875772,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MAAStar - Fails",
+            "value": 13,
+            "unit": "Instances"
+          },
+          {
+            "name": "MAAStar - Average Cost",
+            "value": 429.25,
+            "unit": "SOC"
+          },
+          {
+            "name": "MAAStar - Average Runtime",
+            "value": 2433.5151,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Expansions High Level",
+            "value": 753.4545,
             "unit": "Expansions"
           },
           {
