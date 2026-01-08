@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767876717043,
+  "lastUpdate": 1767876718792,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -17756,6 +17756,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PIBT - Average Runtime",
             "value": 26816.727,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PIBT - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PIBT - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d039a9f28811d05e098ffbd1396b6d544579c785",
+          "message": "v0.17.0 (#112)\n\n* Dummy goals with LaCAM \n\n* Make LaCAM deterministic",
+          "timestamp": "2026-01-08T12:59:20+02:00",
+          "tree_id": "0ef16a57ba99e6941618c94558ad9586d9bdf59e",
+          "url": "https://github.com/J-morag/MAPF/commit/d039a9f28811d05e098ffbd1396b6d544579c785"
+        },
+        "date": 1767876718068,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PIBT - Fails",
+            "value": 31,
+            "unit": "Instances"
+          },
+          {
+            "name": "PIBT - Average Cost",
+            "value": 158915.5,
+            "unit": "SOC"
+          },
+          {
+            "name": "PIBT - Average Runtime",
+            "value": 26933.576,
             "unit": "Milliseconds"
           },
           {
