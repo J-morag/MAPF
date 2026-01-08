@@ -10,8 +10,10 @@ import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SameAsParentSingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
+import TransientMAPF.TransientMAPFSettings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -32,10 +34,16 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
      */
     private Map<AStarSIPPSState, HashSet<AStarSIPPSState>> identicalNodesMap;
 
-
     public SingleAgentAStarSIPPS_Solver() {
+        this(null);
+    }
+
+    public SingleAgentAStarSIPPS_Solver(@Nullable TransientMAPFSettings transientMAPFSettings) {
         super(new TieBreakingForLessConflictsLowerFAndHigherG());
         super.name = "SIPPS";
+        if (transientMAPFSettings != null) { // only override super initialization if transientMAPFSettings is given
+            this.transientMAPFSettings = transientMAPFSettings;
+        }
     }
 
     @Override
@@ -67,11 +75,16 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
 
         List<TimeInterval> safeIntervalsForGoal = this.sortedSafeIntervalsByLocation.get(instance.map.getMapLocation(this.agent.target));
         int lowerBoundOnTravelTime;
-        if (safeIntervalsForGoal != null) {
-            TimeInterval lastInterval = safeIntervalsForGoal.get(safeIntervalsForGoal.size()-1);
-            lowerBoundOnTravelTime = lastInterval.start();
-        }
-        else {
+        if (safeIntervalsForGoal != null) { // there are safe intervals for the goal
+            if (transientMAPFSettings.isTransientMAPF()) {
+                TimeInterval firstInterval = safeIntervalsForGoal.get(0);
+                lowerBoundOnTravelTime = firstInterval.start();
+            }
+            else {
+                TimeInterval lastInterval = safeIntervalsForGoal.get(safeIntervalsForGoal.size()-1);
+                lowerBoundOnTravelTime = lastInterval.start();
+            }
+        } else {
             lowerBoundOnTravelTime = 0;
         }
         this.gAndH = new SIPPSHeuristic(super.gAndH, lowerBoundOnTravelTime);
@@ -222,7 +235,7 @@ public class SingleAgentAStarSIPPS_Solver extends SingleAgentAStarSIPP_Solver{
                 // if the previous state in the chain added conflicts then we are inside a soft conflicts interval, and should count conflicts every time we stay in place.
                 // todo - add support for counting vertex conflicts in a range, to do so once, more efficiently, rather than one by one.
                 state.conflicts + (first || (state.prev == null && state.conflicts > 0) || (state.prev != null && state.prev.conflicts < state.conflicts) ? numConflicts(move, false) : 0),
-                interval, visitedTarget(state, isMoveToTarget(move)), intervalID);
+                interval, visitedTarget(state, isMoveToTarget(move), isMoveFromTarget(move)), intervalID);
     }
 
     @Override

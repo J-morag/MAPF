@@ -489,4 +489,40 @@ class CBS_SolverTest {
         System.out.println("Total solved instances with CBS: " + sumSolvedCBS + " out of " + (numSeeds * agentNumbers.length * maps.length));
         System.out.println("Total solved instances with CBSt: " + sumSolvedCBSt + " out of " + (numSeeds * agentNumbers.length * maps.length));
     }
+
+    @Test
+    void testCBStTransientSourceEqualsTargetWithCompetingAgentAtTime1() {
+        // Agent 0 starts and ends at coor14
+        I_Coordinate coor = BasicMAPF.TestConstants.Coordinates.coor14;
+        Agent agent0 = new Agent(0, coor, coor);
+        // Agent 1 starts at coor13 and targets coor15 (must pass through coor14 at t=1)
+        I_Coordinate coor13 = BasicMAPF.TestConstants.Coordinates.coor13;
+        I_Coordinate coor15 = new BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D(1,5);
+        Agent agent1 = new Agent(1, coor13, coor15);
+        MAPF_Instance testInstance = new MAPF_Instance("CBSt source equals target with competing agent", BasicMAPF.TestConstants.Maps.mapEmpty, new Agent[]{agent0, agent1});
+
+        // Use CBSt solver
+        I_Solver CBSt = CanonicalSolversFactory.createCBStSolver();
+        RunParameters runParameters = new RunParametersBuilder()
+                .setInstanceReport(Metrics.newInstanceReport())
+                .createRP();
+        Solution solved = CBSt.solve(testInstance, runParameters);
+        assertNotNull(solved, "CBSt did not return a solution");
+
+        System.out.println("Solution found:\n" + solved);
+        // Agent 0: visited at time 0, so plan has size 1, and contributes 0 cost to SST
+        assertEquals(1, solved.getPlanFor(agent0).size());
+        assertEquals(coor, solved.getPlanFor(agent0).getFirstMove().prevLocation.getCoordinate());
+        // agent 1 competes for coor14 at time 1, so agent 0 should clear it at time 1, to reduce solution cost
+        assertNotEquals(coor, solved.getPlanFor(agent0).getFirstMove().currLocation.getCoordinate());
+        // Solution should be valid
+        assertTrue(solved.isValidSolution());
+        assertTrue(solved.solves(testInstance));
+        // agent 1 should have cost 2 (move to coor14 at t=1, then to coor15 at t=2)
+        assertEquals(2, solved.getPlanFor(agent1).getCost());
+        // agent 1 should have two moves
+        assertEquals(2, solved.getPlanFor(agent1).size());
+        // total SST should be 2
+        assertEquals(2, solved.sumServiceTimes());
+    }
 }

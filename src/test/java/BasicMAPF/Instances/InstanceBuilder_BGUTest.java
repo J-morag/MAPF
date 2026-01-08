@@ -57,6 +57,13 @@ public class InstanceBuilder_BGUTest {
     @Test
     public void prepareInstances_Instance_16_0_7() {
 
+        // Otherwise the test is flaky when running in parallel. Something to do with test resources loading?
+        try {
+            Thread.sleep((2000));
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+
         /*  Set properties  */
        InstanceProperties instanceProperties = new InstanceProperties(
                                                                 new MapDimensions(new int[]{16,16}),

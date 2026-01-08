@@ -7,7 +7,6 @@ import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.Enum_MapLocationType;
 import BasicMAPF.Instances.Maps.I_Map;
 import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
 import BasicMAPF.Solvers.AStar.GoalConditions.I_AStarGoalCondition;
@@ -224,7 +223,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
             // We assume that we cannot change the existing plan, so if it is rejected by constraints, we can't initialise OPEN.
             if(constraints.rejects(lastExistingMove)) {return false;}
 
-            generate(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, visitedTarget(null, existingPlan.containsTarget()));
+            generate(existingPlan.moveAt(existingPlan.getEndTime()),null, 0, visitedTarget(null, existingPlan.containsTarget(), false));
         }
         else { // the existing plan is empty (no existing plan)
 
@@ -241,7 +240,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
                     possibleMove.isStayAtSource = true;
                 }
                 if (constraints.accepts(possibleMove)) { //move not prohibited by existing constraint
-                    generate(possibleMove, null, getG(null, possibleMove), visitedTarget(null, isMoveToTarget(possibleMove)));
+                    generate(possibleMove, null, getG(null, possibleMove), visitedTarget(null, isMoveToTarget(possibleMove), isMoveFromTarget(possibleMove)));
                 }
             }
 
@@ -274,7 +273,7 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
             // move not prohibited by existing constraint
             if (constraints.accepts(possibleMove)) {
-                generate(possibleMove, state, getG(state, possibleMove), visitedTarget(state, isMoveToTarget(possibleMove)));
+                generate(possibleMove, state, getG(state, possibleMove), visitedTarget(state, isMoveToTarget(possibleMove), isMoveFromTarget(possibleMove)));
             }
         }
     }
@@ -309,6 +308,9 @@ public class SingleAgentAStar_Solver extends A_Solver {
 
     boolean isMoveToTarget(Move possibleMove) {
         return possibleMove.currLocation.getCoordinate().equals(targetCoor);
+    }
+    boolean isMoveFromTarget(Move possibleMove) {
+        return possibleMove.prevLocation.getCoordinate().equals(targetCoor);
     }
     protected boolean isGoalState(AStarState state) {
         return this.goalCondition.isAGoal(state);
@@ -528,16 +530,22 @@ public class SingleAgentAStar_Solver extends A_Solver {
     } ////////// end AStarState
 
     /**
+     * Checks whether the agent has visited its target location before, either now or in the past.
+     * @param prevState the previous state of the agent.
+     * @param isMoveToTargetLocation true if the agent is moving to its target location now.
+     * @param isMoveFromTargetLocation true if the agent is moving from its target location now. Can be left as false
+     *                                 without checking so long as prevState is not null. Needed to check if the agent
+     *                                 starts on its target location.
      * @return true if the agent has visited its target location before, either now or in the past.
      */
-    protected boolean visitedTarget(@Nullable AStarState prevState, boolean isMoveToTargetLocation) {
+    protected boolean visitedTarget(@Nullable AStarState prevState, boolean isMoveToTargetLocation, boolean isMoveFromTargetLocation) {
         return goalCondition instanceof VisitedTargetAStarGoalCondition &&
-                (isMoveToTargetLocation || (prevState != null && prevState.visitedTarget));
+                (isMoveToTargetLocation || (prevState != null && prevState.visitedTarget) || isMoveFromTargetLocation);
     }
 
     protected int getG(@Nullable AStarState prev, Move move){
         return prev != null ? prev.g + gAndH.cost(move, prev.visitedTarget /*so we visited in the past, not first time now*/)
-                : gAndH.cost(move);
+                : gAndH.cost(move, isMoveFromTarget(move) /*when we start at target*/);
     }
 
 

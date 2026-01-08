@@ -37,6 +37,9 @@ public class ServiceTimeGAndH implements SingleAgentGAndH {
     public float getH(SingleAgentAStar_Solver.@NotNull AStarState state) {
         if (state.getPrev() != null && state.getPrev().visitedTarget) {
             return 0;
+        } else if (state.getPrev() == null && state.visitedTarget) { // when starting at the target
+            return 0;
+
         }
         return getHToTargetFromLocation(state.getMove().agent.target, state.getMove().currLocation);
     }

@@ -5,6 +5,9 @@ import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.UnitCostsAndManhattanDistance;
+import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.I_ConflictAvoidanceTable;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.ConflictManagement.ConflictAvoidance.RemovableConflictAvoidanceTableWithContestedGoals;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.GoalConstraint;
@@ -21,6 +24,7 @@ import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import TransientMAPF.TransientMAPFSettings;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -540,5 +544,59 @@ class SingleAgentAStarSIPPS_SolverTest {
         assertEquals(4, solved.getPlanFor(agent).size());
         assertEquals(expected, solved);
 
+    }
+
+    @Test
+    void testTransientIdentifiesSourceEqualsTargetSoVisitedAtTime0() {
+        SingleAgentAStarSIPPS_Solver sippst = new SingleAgentAStarSIPPS_Solver(TransientMAPFSettings.defaultTransientMAPF);
+        I_Coordinate coor = coor14;
+        MAPF_Instance testInstance = new MAPF_Instance("Single agent source equals target", instanceEmpty1.map, new Agent[]{new Agent(0, coor, coor)});
+        Agent agent = new Agent(0, coor, coor); // source equals target
+
+        // constraint on target at time 1
+        Constraint constraintAtTimeAfterReachingGoal1 = new Constraint(agent,1, null, instanceEmpty1.map.getMapLocation(coor));
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(constraintAtTimeAfterReachingGoal1);
+
+        RunParameters_SAAStar runParameters = new RunParameters_SAAStar(new RunParametersBuilder().setConstraints(constraints).setInstanceReport(new InstanceReport()).setAStarGAndH(new ServiceTimeGAndH(new UnitCostsAndManhattanDistance(agent.target))).createRP());
+        runParameters.goalCondition = new VisitedTargetAStarGoalCondition();
+
+        Solution solved1 = sippst.solve(testInstance, runParameters);
+        System.out.println(solved1.getPlanFor(agent));
+
+        // visited at time 0, so plan has size 1, and contributes 0 cost to SST
+        assertEquals(1, solved1.getPlanFor(agent).size());
+        assertEquals(coor, solved1.getPlanFor(agent).getFirstMove().prevLocation.getCoordinate());
+        assertEquals(0, solved1.sumServiceTimes());
+        // blocked at time 1, so cannot stay in place
+        assertNotEquals(coor, solved1.getPlanFor(agent).getFirstMove().currLocation.getCoordinate());
+    }
+
+    @Test
+    void testEarlyTargetVisitPreferred_transient() {
+        // Agent starts at (0,0), target at (2,0), constraint at (2,0) at t=3 (future conflict)
+        Enum_MapLocationType E = Enum_MapLocationType.EMPTY;
+        I_ExplicitMap map3x1 = MapFactory.newSimple4Connected2D_GraphMap(new Enum_MapLocationType[][]{
+                {E}, {E}, {E}
+        });
+        Agent agent = new Agent(0, new Coordinate_2D(0,0), new Coordinate_2D(2,0));
+        MAPF_Instance instance = new MAPF_Instance("earlyTarget", map3x1, new Agent[]{agent});
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.add(new Constraint(agent, 3, null, map3x1.getMapLocation(new Coordinate_2D(2,0))));
+        RunParameters params = new RunParametersBuilder()
+                .setTimeout(1000)
+                .setConstraints(constraints)
+                .createRP();
+        I_Solver solver = CanonicalSolversFactory.createLNS2tSolver();
+        Solution sol = solver.solve(instance, params);
+        SingleAgentPlan plan = sol.getPlanFor(agent);
+        assertNotNull(plan, "Plan should not be null");
+        assertEquals(2, plan.firstVisitToTargetTime(), "Agent should reach target at t=2");
+        int visits = 0;
+        for (var move : plan) {
+            if (move.currLocation.getCoordinate().equals(agent.target)) visits++;
+        }
+        assertEquals(1, visits, "Agent should visit target only once");
+        assertEquals(3, plan.size(), "Plan size should be 3 (reach target at t=2, leave at t=3 to avoid constraint)");
     }
 }

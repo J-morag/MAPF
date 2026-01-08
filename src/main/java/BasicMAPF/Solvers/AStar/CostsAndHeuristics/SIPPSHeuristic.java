@@ -1,5 +1,7 @@
 package BasicMAPF.Solvers.AStar.CostsAndHeuristics;
 
+import BasicMAPF.DataTypesAndStructures.Move;
+import BasicMAPF.DataTypesAndStructures.SingleAgentPlan;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_Location;
 import BasicMAPF.Solvers.AStar.SingleAgentAStar_Solver;
@@ -23,6 +25,21 @@ public class SIPPSHeuristic implements SingleAgentGAndH{
             return Math.max(hVal, lowerBoundOnTravelTime - g);
         }
         return hVal;
+    }
+
+    @Override
+    public int cost(Move move, boolean isAfterTargetExcludingFirstMoveToTarget) {
+        return wrappedHeuristic.cost(move, isAfterTargetExcludingFirstMoveToTarget);
+    }
+
+    @Override
+    public int cost(Move move) {
+        return wrappedHeuristic.cost(move);
+    }
+
+    @Override
+    public int cost(SingleAgentPlan planForAgent) {
+        return wrappedHeuristic.cost(planForAgent);
     }
 
     @Override
