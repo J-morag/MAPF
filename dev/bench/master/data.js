@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767883862989,
+  "lastUpdate": 1767883864043,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -9127,6 +9127,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 106469.58,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c",
+          "message": "v0.17.1 (#113)\n\n* Fix AStar (TMAPF/RO) ignoring when target is visited at time 0 \n\n* fix SIPPS heuristic in TMAPF (lower bound was MAPF-style)\n\n* fix flaky test `prepareInstances_Instance_16_0_7`\n\n* add Quodana CI workflow\n\n* suggest garbage collection and delay between benchmark runs to improve performance stability",
+          "timestamp": "2026-01-08T15:00:59+02:00",
+          "tree_id": "70ac236ef9ecc724d26b19199e6b985a73e3e996",
+          "url": "https://github.com/J-morag/MAPF/commit/f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c"
+        },
+        "date": 1767883863744,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 24,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4421.1113,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 23182.879,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 8639.546,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 106362.03,
             "unit": "Expansions"
           }
         ]
