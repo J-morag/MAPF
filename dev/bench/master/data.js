@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868906232,
+  "lastUpdate": 1767868907480,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -26633,6 +26633,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 6688260,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c06457ed732e13ef427624a324a2950f5242e71",
+          "message": "v.0.16.0 unassigned agents as obstacles (#111)\n\n* Add all code related to unassigned agents as obstacles to LaCAM_Solver\n\n* Add all code related to unassigned agents as obstacles to CBS_Solver",
+          "timestamp": "2026-01-08T10:38:49+02:00",
+          "tree_id": "6df654d1a220fdc41ab653e0c60fcafa9ce08b75",
+          "url": "https://github.com/J-morag/MAPF/commit/2c06457ed732e13ef427624a324a2950f5242e71"
+        },
+        "date": 1767868907108,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 5241.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 18797.06,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 7045.212,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 24543.727,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 6702127,
             "unit": "Expansions"
           }
         ]
