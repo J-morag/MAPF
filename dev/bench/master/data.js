@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767883861834,
+  "lastUpdate": 1767883862989,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -27281,6 +27281,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 5964488,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c",
+          "message": "v0.17.1 (#113)\n\n* Fix AStar (TMAPF/RO) ignoring when target is visited at time 0 \n\n* fix SIPPS heuristic in TMAPF (lower bound was MAPF-style)\n\n* fix flaky test `prepareInstances_Instance_16_0_7`\n\n* add Quodana CI workflow\n\n* suggest garbage collection and delay between benchmark runs to improve performance stability",
+          "timestamp": "2026-01-08T15:00:59+02:00",
+          "tree_id": "70ac236ef9ecc724d26b19199e6b985a73e3e996",
+          "url": "https://github.com/J-morag/MAPF/commit/f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c"
+        },
+        "date": 1767883862693,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 5241.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 18839.121,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 6805.121,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 23912.363,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 6620407,
             "unit": "Expansions"
           }
         ]
