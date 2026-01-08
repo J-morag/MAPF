@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868189796,
+  "lastUpdate": 1767868191541,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -36152,6 +36152,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "MAAStar - Average Expansions High Level",
             "value": 754.24243,
+            "unit": "Expansions"
+          },
+          {
+            "name": "MAAStar - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "fce4740fd0730cafee20345fe805304c7a8ca8df",
+          "message": "simplify LaCAM rng seed use (#90)\n\n(cherry picked from commit 827a76aa9928abfbfdf89fedfbf35241ce23266d)",
+          "timestamp": "2026-01-08T10:41:13+02:00",
+          "tree_id": "0ef16a57ba99e6941618c94558ad9586d9bdf59e",
+          "url": "https://github.com/J-morag/MAPF/commit/fce4740fd0730cafee20345fe805304c7a8ca8df"
+        },
+        "date": 1767868190859,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MAAStar - Fails",
+            "value": 14,
+            "unit": "Instances"
+          },
+          {
+            "name": "MAAStar - Average Cost",
+            "value": 401.3684,
+            "unit": "SOC"
+          },
+          {
+            "name": "MAAStar - Average Runtime",
+            "value": 2418.697,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Expansions High Level",
+            "value": 766.7273,
             "unit": "Expansions"
           },
           {
