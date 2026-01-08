@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868919343,
+  "lastUpdate": 1767868920537,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -29806,6 +29806,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "SIPP - Average Runtime",
             "value": 397.58182,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "SIPP - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "SIPP - Average Expansions Low Level",
+            "value": 33255.965,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c06457ed732e13ef427624a324a2950f5242e71",
+          "message": "v.0.16.0 unassigned agents as obstacles (#111)\n\n* Add all code related to unassigned agents as obstacles to LaCAM_Solver\n\n* Add all code related to unassigned agents as obstacles to CBS_Solver",
+          "timestamp": "2026-01-08T10:38:49+02:00",
+          "tree_id": "6df654d1a220fdc41ab653e0c60fcafa9ce08b75",
+          "url": "https://github.com/J-morag/MAPF/commit/2c06457ed732e13ef427624a324a2950f5242e71"
+        },
+        "date": 1767868920160,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "SIPP - Fails",
+            "value": 0,
+            "unit": "Instances"
+          },
+          {
+            "name": "SIPP - Average Cost",
+            "value": 359.34546,
+            "unit": "SOC"
+          },
+          {
+            "name": "SIPP - Average Runtime",
+            "value": 430.38788,
             "unit": "Milliseconds"
           },
           {
