@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767883868390,
+  "lastUpdate": 1767883869502,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -13557,6 +13557,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ALNS - Average Expansions Low Level",
             "value": 12871369,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c",
+          "message": "v0.17.1 (#113)\n\n* Fix AStar (TMAPF/RO) ignoring when target is visited at time 0 \n\n* fix SIPPS heuristic in TMAPF (lower bound was MAPF-style)\n\n* fix flaky test `prepareInstances_Instance_16_0_7`\n\n* add Quodana CI workflow\n\n* suggest garbage collection and delay between benchmark runs to improve performance stability",
+          "timestamp": "2026-01-08T15:00:59+02:00",
+          "tree_id": "70ac236ef9ecc724d26b19199e6b985a73e3e996",
+          "url": "https://github.com/J-morag/MAPF/commit/f8a0e472b8e402a2d0b9bf37c3a885a9f9211a3c"
+        },
+        "date": 1767883869205,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ALNS - Fails",
+            "value": 8,
+            "unit": "Instances"
+          },
+          {
+            "name": "ALNS - Average Cost",
+            "value": 11135.44,
+            "unit": "SOC"
+          },
+          {
+            "name": "ALNS - Average Runtime",
+            "value": 30004.092,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Runtime Low Level",
+            "value": 27193.182,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ALNS - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ALNS - Average Expansions Low Level",
+            "value": 13960984,
             "unit": "Expansions"
           }
         ]
