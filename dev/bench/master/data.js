@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868115646,
+  "lastUpdate": 1767868117331,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -33503,6 +33503,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
             "value": 629543.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c06457ed732e13ef427624a324a2950f5242e71",
+          "message": "v.0.16.0 unassigned agents as obstacles (#111)\n\n* Add all code related to unassigned agents as obstacles to LaCAM_Solver\n\n* Add all code related to unassigned agents as obstacles to CBS_Solver",
+          "timestamp": "2026-01-08T10:38:49+02:00",
+          "tree_id": "6df654d1a220fdc41ab653e0c60fcafa9ce08b75",
+          "url": "https://github.com/J-morag/MAPF/commit/2c06457ed732e13ef427624a324a2950f5242e71"
+        },
+        "date": 1767868116666,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Fails",
+            "value": 4,
+            "unit": "Instances"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Cost",
+            "value": 16807.45,
+            "unit": "SOC"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime",
+            "value": 5832.485,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Runtime Low Level",
+            "value": 5585.5757,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PrP (SIPP) + min. 10 attempts, initial reorderings: randomRestarts - Average Expansions Low Level",
+            "value": 624449.06,
             "unit": "Expansions"
           }
         ]
