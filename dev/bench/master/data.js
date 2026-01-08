@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767868108721,
+  "lastUpdate": 1767868110483,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -8695,6 +8695,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "ICTS_Solver_S2P - Average Expansions Low Level",
             "value": 106395.305,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c06457ed732e13ef427624a324a2950f5242e71",
+          "message": "v.0.16.0 unassigned agents as obstacles (#111)\n\n* Add all code related to unassigned agents as obstacles to LaCAM_Solver\n\n* Add all code related to unassigned agents as obstacles to CBS_Solver",
+          "timestamp": "2026-01-08T10:38:49+02:00",
+          "tree_id": "6df654d1a220fdc41ab653e0c60fcafa9ce08b75",
+          "url": "https://github.com/J-morag/MAPF/commit/2c06457ed732e13ef427624a324a2950f5242e71"
+        },
+        "date": 1767868109784,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ICTS_Solver_S2P - Fails",
+            "value": 24,
+            "unit": "Instances"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Cost",
+            "value": 4421.1113,
+            "unit": "SOC"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime",
+            "value": 23232.242,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions High Level",
+            "value": 8593.303,
+            "unit": "Expansions"
+          },
+          {
+            "name": "ICTS_Solver_S2P - Average Expansions Low Level",
+            "value": 106316.664,
             "unit": "Expansions"
           }
         ]
