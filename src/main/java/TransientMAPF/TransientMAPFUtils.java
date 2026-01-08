@@ -7,8 +7,13 @@ import BasicMAPF.Instances.MAPF_Instance;
 import BasicMAPF.Instances.Maps.Coordinates.I_Coordinate;
 import BasicMAPF.Instances.Maps.I_ExplicitMap;
 import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.DistanceTableSingleAgentHeuristic;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.ServiceTimeGAndH;
+import BasicMAPF.Solvers.AStar.CostsAndHeuristics.SingleAgentGAndH;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAStarGoalCondition;
 import BasicMAPF.Solvers.AStar.GoalConditions.VisitedTargetAndBlacklistAStarGoalCondition;
+import TransientMAPF.dummyGoals.I_DummyGoalsHeuristics;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -65,5 +70,15 @@ public class TransientMAPFUtils {
         else {
             return new VisitedTargetAndBlacklistAStarGoalCondition(blackList);
         }
+    }
+
+    public static HashMap<Agent, I_Location> getDummyGoalsMappingAndHeuristic(@NotNull MAPF_Instance instance, @NotNull I_DummyGoalsHeuristics dummyGoalsHeuristic, @NotNull SingleAgentGAndH heuristic, RunParameters parameters) {
+        HashMap<Agent, I_Location> agentToDummyGoalMapping = dummyGoalsHeuristic.createDummyGoalsMapping(instance, heuristic);
+        SingleAgentGAndH innerHeuristic = ((ServiceTimeGAndH) heuristic).getWrappedHeuristic();
+        for (Map.Entry<Agent, I_Location> entry : agentToDummyGoalMapping.entrySet()) {
+            I_Location location = entry.getValue();
+            ((DistanceTableSingleAgentHeuristic) innerHeuristic).addTargetToHeuristic(location);
+        }
+        return agentToDummyGoalMapping;
     }
 }

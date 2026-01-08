@@ -176,7 +176,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPF() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, false, false, false))
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, false, false, false, null))
                 .setSolutionCostFunction(new SumServiceTimes()).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);
@@ -200,7 +200,7 @@ class LargeNeighborhoodSearch_SolverTest {
 
     @Test
     void worksWithTMAPFAndBlacklist() {
-        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false, false))
+        I_Solver LNSt = new LNSBuilder().setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false, false, null))
                 .setSolutionCostFunction(new SumServiceTimes()).createLNS();
         Agent agent1 = new Agent(0, coor42, coor02, 1);
         Agent agent2 = new Agent(1, coor10, coor12, 1);

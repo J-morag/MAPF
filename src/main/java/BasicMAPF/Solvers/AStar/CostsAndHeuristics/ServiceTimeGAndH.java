@@ -51,6 +51,10 @@ public class ServiceTimeGAndH implements SingleAgentGAndH {
         return cost(move);
     }
 
+    public SingleAgentGAndH getWrappedHeuristic() {
+        return this.gAndH;
+    }
+
     @Override
     public boolean isTransient() {
         return true;

@@ -5,19 +5,28 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
+import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
+import BasicMAPF.Instances.Maps.I_Location;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
+import Environment.Visualization.GridSolutionVisualizer;
+import Environment.Visualization.GridVisualizer;
 import TransientMAPF.TransientMAPFSettings;
+import TransientMAPF.dummyGoals.HighestDegreeDummyGoals;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+
+import java.util.*;
 
 import static BasicMAPF.TestConstants.Agents.*;
 import static BasicMAPF.TestConstants.Coordinates.*;
@@ -304,6 +313,30 @@ public class LaCAM_SolverTest {
 
         System.out.println(solvedLaCAM);
         System.out.println(solvedLaCAMt);
+    }
+
+    @Test
+    void worksWithTMAPFPathsWithInitialLocationsAsDummyGoals() {
+        I_Solver LaCAMt_initialDummies = new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false, false, new HighestDegreeDummyGoals())).createLaCAM();
+        I_Solver LaCAMt = new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(new TransientMAPFSettings(true, true, false, false, null)).createLaCAM();
+
+        Agent agentXMoving = new Agent(0, coor42, coor02, 1);
+        Agent agentYMoving = new Agent(1, coor10, coor12, 1);
+        MAPF_Instance testInstance = new MAPF_Instance("testInstance", mapEmpty, new Agent[]{agentXMoving, agentYMoving});
+
+        Solution solvedLaCAM = LaCAM_Solver.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAM.solves(testInstance));
+
+        Solution solvedLaCAMt = LaCAMt.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMt.solves(testInstance));
+
+        Solution solvedLaCAMtDummies = LaCAMt_initialDummies.solve(testInstance, new RunParametersBuilder().setTimeout(1000L).setInstanceReport(instanceReport).createRP());
+        assertTrue(solvedLaCAMtDummies.solves(testInstance));
+
+        System.out.println(solvedLaCAM);
+        System.out.println(solvedLaCAMt);
+        System.out.println(solvedLaCAMtDummies);
+
     }
 
     @Test

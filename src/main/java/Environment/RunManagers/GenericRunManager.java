@@ -1,12 +1,22 @@
 package Environment.RunManagers;
 
+import BasicMAPF.CostFunctions.SumServiceTimes;
 import BasicMAPF.Instances.InstanceBuilders.I_InstanceBuilder;
 import BasicMAPF.Instances.InstanceManager;
 import BasicMAPF.Instances.InstanceProperties;
+import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.I_Solver;
+import BasicMAPF.Solvers.LaCAM.LaCAMBuilder;
+import BasicMAPF.Solvers.LaCAM.LaCAM_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.PrioritisedPlanning_Solver;
+import BasicMAPF.Solvers.PrioritisedPlanning.RestartsStrategy;
 import Environment.Experiment;
 import Environment.Visualization.I_VisualizeSolution;
+import TransientMAPF.TransientMAPFSettings;
+import TransientMAPF.dummyGoals.HighestDegreeAndClosestDummyGoals;
+import TransientMAPF.dummyGoals.HighestDegreeDummyGoals;
+import TransientMAPF.dummyGoals.NonSeparatingVerticesDummyGoals;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
