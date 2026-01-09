@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767969494735,
+  "lastUpdate": 1767969496061,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -39017,6 +39017,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PaPS - Average Expansions Low Level",
             "value": 3426794,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "91051870482d99f03382f457e021aa269987f438",
+          "message": "v.0.17.3 update README.md",
+          "timestamp": "2026-01-09T14:48:48+02:00",
+          "tree_id": "f63a12eb9fcff4bb9b7beb5179ad5ff6a8794ad2",
+          "url": "https://github.com/J-morag/MAPF/commit/91051870482d99f03382f457e021aa269987f438"
+        },
+        "date": 1767969495604,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PaPS - Fails",
+            "value": 11,
+            "unit": "Instances"
+          },
+          {
+            "name": "PaPS - Average Cost",
+            "value": 1224.0454,
+            "unit": "SOC"
+          },
+          {
+            "name": "PaPS - Average Runtime",
+            "value": 12341.879,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Expansions High Level",
+            "value": 3692.8484,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PaPS - Average Expansions Low Level",
+            "value": 3605558.8,
             "unit": "Expansions"
           }
         ]
