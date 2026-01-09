@@ -22,20 +22,16 @@ Example arguments to solve all instances in a directory, with 10 agents:<br>
 Other common arguments:
 * `-iRegex <instance_name_regex>`
 * `-resDir <results_output_dir>`
-* `-s <solver_name>` to select a solver (can select multiple solvers). Use `-h` to see the list of all defined solvers.
+* `-s <solver_name>` to select a solver (can select multiple solvers). Use `-h` to see the list of all defined solvers. The following algorithms are set to run by default: CBS and Prioritised Planning.
 * `-t <timeout_milliseconds>` for each run of solver + instance in the experiment.
 * `-v` to visualize the solution. Avoid when solving numerous instances.
 
+If compiling the code yourself:
+* Run the main function with the argument `-h` to see all available options.
 
-* If compiling the code yourself:
-  * Run the main function with the argument `-h` to see the available options.
-* If running the code from a jar file:
-  * Run the jar file with the argument `-h` to see the available options.
-  * Example: `java -jar MAPF.jar -h`
-
-
-The following algorithms are set to run by default: CBS and Prioritised Planning. 
-Other algorithms can be selected using the `-s` flag. Use `-h` to see the available options.
+If running the code from a jar file:
+* Run the jar file with the argument `-h` to see the available options.
+* Example: `java -jar MAPF.jar -h`
 
 The default instance format is from the [MovingAI benchmark](https://movingai.com/benchmarks/mapf/index.html).
 
