@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767969500100,
+  "lastUpdate": 1767969501463,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -37717,6 +37717,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "LNS2-CollisionBasedDestroyHeuristic - Average Expansions Low Level",
             "value": 93626.85,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "91051870482d99f03382f457e021aa269987f438",
+          "message": "v.0.17.3 update README.md",
+          "timestamp": "2026-01-09T14:48:48+02:00",
+          "tree_id": "f63a12eb9fcff4bb9b7beb5179ad5ff6a8794ad2",
+          "url": "https://github.com/J-morag/MAPF/commit/91051870482d99f03382f457e021aa269987f438"
+        },
+        "date": 1767969500997,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Fails",
+            "value": 17,
+            "unit": "Instances"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Cost",
+            "value": 18238.688,
+            "unit": "SOC"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Runtime",
+            "value": 2165.606,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Runtime Low Level",
+            "value": 1380.6364,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Expansions High Level",
+            "value": 0,
+            "unit": "Expansions"
+          },
+          {
+            "name": "LNS2-CollisionBasedDestroyHeuristic - Average Expansions Low Level",
+            "value": 96302.79,
             "unit": "Expansions"
           }
         ]
