@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767969280949,
+  "lastUpdate": 1767969282661,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -34255,6 +34255,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "LaCAM - Average Expansions Low Level",
             "value": 333919.12,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "9a951f6901bfcbd5e59498ad59f7a28bb10619cd",
+          "message": "v.0.17.2 update README.md",
+          "timestamp": "2026-01-09T14:43:58+02:00",
+          "tree_id": "6582481986654bcbd9d8ed6ed9165e31619639f8",
+          "url": "https://github.com/J-morag/MAPF/commit/9a951f6901bfcbd5e59498ad59f7a28bb10619cd"
+        },
+        "date": 1767969281984,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "LaCAM - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "LaCAM - Average Cost",
+            "value": 113724.195,
+            "unit": "SOC"
+          },
+          {
+            "name": "LaCAM - Average Runtime",
+            "value": 8073.8184,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LaCAM - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "LaCAM - Average Expansions High Level",
+            "value": 2139.6667,
+            "unit": "Expansions"
+          },
+          {
+            "name": "LaCAM - Average Expansions Low Level",
+            "value": 347411.28,
             "unit": "Expansions"
           }
         ]
