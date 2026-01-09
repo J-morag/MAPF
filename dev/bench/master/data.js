@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767969493290,
+  "lastUpdate": 1767969494735,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -38259,6 +38259,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PCS - Average Expansions Low Level",
             "value": 2286786,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "91051870482d99f03382f457e021aa269987f438",
+          "message": "v.0.17.3 update README.md",
+          "timestamp": "2026-01-09T14:48:48+02:00",
+          "tree_id": "f63a12eb9fcff4bb9b7beb5179ad5ff6a8794ad2",
+          "url": "https://github.com/J-morag/MAPF/commit/91051870482d99f03382f457e021aa269987f438"
+        },
+        "date": 1767969494262,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PCS - Fails",
+            "value": 16,
+            "unit": "Instances"
+          },
+          {
+            "name": "PCS - Average Cost",
+            "value": 2173.4119,
+            "unit": "SOC"
+          },
+          {
+            "name": "PCS - Average Runtime",
+            "value": 16429.092,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Expansions High Level",
+            "value": 6996.091,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PCS - Average Expansions Low Level",
+            "value": 2408029.5,
             "unit": "Expansions"
           }
         ]
