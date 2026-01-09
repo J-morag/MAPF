@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767969270445,
+  "lastUpdate": 1767969272170,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -38315,6 +38315,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PaPS - Average Expansions Low Level",
             "value": 3575419,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "9a951f6901bfcbd5e59498ad59f7a28bb10619cd",
+          "message": "v.0.17.2 update README.md",
+          "timestamp": "2026-01-09T14:43:58+02:00",
+          "tree_id": "6582481986654bcbd9d8ed6ed9165e31619639f8",
+          "url": "https://github.com/J-morag/MAPF/commit/9a951f6901bfcbd5e59498ad59f7a28bb10619cd"
+        },
+        "date": 1767969271515,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PaPS - Fails",
+            "value": 11,
+            "unit": "Instances"
+          },
+          {
+            "name": "PaPS - Average Cost",
+            "value": 1224.0454,
+            "unit": "SOC"
+          },
+          {
+            "name": "PaPS - Average Runtime",
+            "value": 12766.516,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PaPS - Average Expansions High Level",
+            "value": 3681.394,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PaPS - Average Expansions Low Level",
+            "value": 3426794,
             "unit": "Expansions"
           }
         ]
