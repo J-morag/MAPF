@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767969508073,
+  "lastUpdate": 1767969509399,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -40420,6 +40420,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "MAAStarOD - Average Expansions High Level",
             "value": 239304.42,
+            "unit": "Expansions"
+          },
+          {
+            "name": "MAAStarOD - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "91051870482d99f03382f457e021aa269987f438",
+          "message": "v.0.17.3 update README.md",
+          "timestamp": "2026-01-09T14:48:48+02:00",
+          "tree_id": "f63a12eb9fcff4bb9b7beb5179ad5ff6a8794ad2",
+          "url": "https://github.com/J-morag/MAPF/commit/91051870482d99f03382f457e021aa269987f438"
+        },
+        "date": 1767969508943,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MAAStarOD - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "MAAStarOD - Average Cost",
+            "value": 919.38464,
+            "unit": "SOC"
+          },
+          {
+            "name": "MAAStarOD - Average Runtime",
+            "value": 1178.8788,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStarOD - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStarOD - Average Expansions High Level",
+            "value": 238022.48,
             "unit": "Expansions"
           },
           {
