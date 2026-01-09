@@ -19,6 +19,13 @@
 Example arguments to solve all instances in a directory, with 10 agents:<br>
 `-a 10 -iDir <instances_path>`
 
+Other common arguments:
+* `-iRegex <instance_name_regex>`
+* `-resDir <results_output_dir>`
+* `-s <solver_name>` to select a solver (can select multiple solvers). Use `-h` to see the list of all defined solvers.
+* `-t <timeout_milliseconds>` for each run of solver + instance in the experiment.
+* `-v` to visualize the solution. Avoid when solving numerous instances.
+
 
 * If compiling the code yourself:
   * Run the main function with the argument `-h` to see the available options.
