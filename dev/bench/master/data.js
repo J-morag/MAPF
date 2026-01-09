@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767969490653,
+  "lastUpdate": 1767969491939,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -27929,6 +27929,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "CBS_SIPP - Average Expansions Low Level",
             "value": 6622631,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "J-morag",
+            "username": "J-morag"
+          },
+          "distinct": true,
+          "id": "91051870482d99f03382f457e021aa269987f438",
+          "message": "v.0.17.3 update README.md",
+          "timestamp": "2026-01-09T14:48:48+02:00",
+          "tree_id": "f63a12eb9fcff4bb9b7beb5179ad5ff6a8794ad2",
+          "url": "https://github.com/J-morag/MAPF/commit/91051870482d99f03382f457e021aa269987f438"
+        },
+        "date": 1767969491500,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "CBS_SIPP - Fails",
+            "value": 19,
+            "unit": "Instances"
+          },
+          {
+            "name": "CBS_SIPP - Average Cost",
+            "value": 5241.5713,
+            "unit": "SOC"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime",
+            "value": 18867,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Runtime Low Level",
+            "value": 7072.4546,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions High Level",
+            "value": 24164.06,
+            "unit": "Expansions"
+          },
+          {
+            "name": "CBS_SIPP - Average Expansions Low Level",
+            "value": 6597916.5,
             "unit": "Expansions"
           }
         ]
