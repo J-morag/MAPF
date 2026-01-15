@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768509502854,
+  "lastUpdate": 1768509503886,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -41230,6 +41230,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "MAAStarOD - Average Expansions High Level",
             "value": 238022.48,
+            "unit": "Expansions"
+          },
+          {
+            "name": "MAAStarOD - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c1e904d3de5678cca4ba8faba34cd44dd033c23",
+          "message": "v.0.17.4 bugfix - LaCAM ignoring dummy goal policy (#114)",
+          "timestamp": "2026-01-15T20:48:43+02:00",
+          "tree_id": "fbd3f2435bb4265b1cae46cdd23e1127f71d7045",
+          "url": "https://github.com/J-morag/MAPF/commit/2c1e904d3de5678cca4ba8faba34cd44dd033c23"
+        },
+        "date": 1768509503583,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MAAStarOD - Fails",
+            "value": 7,
+            "unit": "Instances"
+          },
+          {
+            "name": "MAAStarOD - Average Cost",
+            "value": 919.38464,
+            "unit": "SOC"
+          },
+          {
+            "name": "MAAStarOD - Average Runtime",
+            "value": 1183.909,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStarOD - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStarOD - Average Expansions High Level",
+            "value": 248730.3,
             "unit": "Expansions"
           },
           {
