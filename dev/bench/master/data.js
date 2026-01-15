@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768509491305,
+  "lastUpdate": 1768509492359,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -38907,6 +38907,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "PCS - Average Expansions Low Level",
             "value": 2408029.5,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c1e904d3de5678cca4ba8faba34cd44dd033c23",
+          "message": "v.0.17.4 bugfix - LaCAM ignoring dummy goal policy (#114)",
+          "timestamp": "2026-01-15T20:48:43+02:00",
+          "tree_id": "fbd3f2435bb4265b1cae46cdd23e1127f71d7045",
+          "url": "https://github.com/J-morag/MAPF/commit/2c1e904d3de5678cca4ba8faba34cd44dd033c23"
+        },
+        "date": 1768509492049,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PCS - Fails",
+            "value": 16,
+            "unit": "Instances"
+          },
+          {
+            "name": "PCS - Average Cost",
+            "value": 2173.4119,
+            "unit": "SOC"
+          },
+          {
+            "name": "PCS - Average Runtime",
+            "value": 16510.727,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "PCS - Average Expansions High Level",
+            "value": 7122.8184,
+            "unit": "Expansions"
+          },
+          {
+            "name": "PCS - Average Expansions Low Level",
+            "value": 2395748.8,
             "unit": "Expansions"
           }
         ]
