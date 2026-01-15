@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768509501799,
+  "lastUpdate": 1768509502854,
   "repoUrl": "https://github.com/J-morag/MAPF",
   "entries": {
     "CBS Benchmark": [
@@ -40688,6 +40688,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "MAAStar - Average Expansions High Level",
             "value": 707.2121,
+            "unit": "Expansions"
+          },
+          {
+            "name": "MAAStar - Average Expansions Low Level",
+            "value": 0,
+            "unit": "Expansions"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38430800+J-morag@users.noreply.github.com",
+            "name": "Jonathan Morag",
+            "username": "J-morag"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c1e904d3de5678cca4ba8faba34cd44dd033c23",
+          "message": "v.0.17.4 bugfix - LaCAM ignoring dummy goal policy (#114)",
+          "timestamp": "2026-01-15T20:48:43+02:00",
+          "tree_id": "fbd3f2435bb4265b1cae46cdd23e1127f71d7045",
+          "url": "https://github.com/J-morag/MAPF/commit/2c1e904d3de5678cca4ba8faba34cd44dd033c23"
+        },
+        "date": 1768509502559,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MAAStar - Fails",
+            "value": 12,
+            "unit": "Instances"
+          },
+          {
+            "name": "MAAStar - Average Cost",
+            "value": 471.90475,
+            "unit": "SOC"
+          },
+          {
+            "name": "MAAStar - Average Runtime",
+            "value": 2397.606,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Runtime Low Level",
+            "value": 0,
+            "unit": "Milliseconds"
+          },
+          {
+            "name": "MAAStar - Average Expansions High Level",
+            "value": 753.0606,
             "unit": "Expansions"
           },
           {
