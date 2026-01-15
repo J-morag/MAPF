@@ -646,8 +646,8 @@ public class LaCAM_Solver extends A_Solver {
             agentTarget = currentAgent.target;
         }
         candidates.sort((loc1, loc2) -> {
-            double h1 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc1) + this.rnd.nextFloat();
-            double h2 = this.heuristic.getHToTargetFromLocation(currentAgent.target, loc2) + this.rnd.nextFloat();
+            double h1 = this.heuristic.getHToTargetFromLocation(agentTarget, loc1) + this.rnd.nextFloat();
+            double h2 = this.heuristic.getHToTargetFromLocation(agentTarget, loc2) + this.rnd.nextFloat();
             return Double.compare(h1, h2);
         });
 

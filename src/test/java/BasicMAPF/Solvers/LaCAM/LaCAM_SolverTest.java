@@ -5,22 +5,21 @@ import BasicMAPF.DataTypesAndStructures.RunParametersBuilder;
 import BasicMAPF.DataTypesAndStructures.Solution;
 import BasicMAPF.Instances.Agent;
 import BasicMAPF.Instances.MAPF_Instance;
-import BasicMAPF.Instances.Maps.Coordinates.Coordinate_2D;
-import BasicMAPF.Instances.Maps.I_Location;
-import BasicMAPF.Solvers.CBS.CBSBuilder;
 import BasicMAPF.Solvers.CanonicalSolversFactory;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.Constraint;
 import BasicMAPF.Solvers.ConstraintsAndConflicts.Constraint.ConstraintSet;
 import BasicMAPF.Solvers.I_Solver;
-import BasicMAPF.Solvers.LargeNeighborhoodSearch.LNSBuilder;
 import BasicMAPF.Solvers.PIBT.PIBT_Solver;
 import BasicMAPF.TestUtils;
 import Environment.Metrics.InstanceReport;
 import Environment.Metrics.Metrics;
-import Environment.Visualization.GridSolutionVisualizer;
-import Environment.Visualization.GridVisualizer;
 import TransientMAPF.TransientMAPFSettings;
 import TransientMAPF.dummyGoals.HighestDegreeDummyGoals;
+import TransientMAPF.dummyGoals.I_DummyGoalsHeuristics;
+import TransientMAPF.dummyGoals.InitialLocationsDummyGoals;
+import TransientMAPF.dummyGoals.NonSeparatingVerticesDummyGoals;
+import TransientMAPF.dummyGoals.RandomLocationsDummyGoals;
+import TransientMAPF.dummyGoals.HighestDegreeAndClosestDummyGoals;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -366,5 +365,43 @@ public class LaCAM_SolverTest {
 
         TestUtils.comparativeTest(LaCAMSolver, nameLaCAM, false, false, LaCAMStar_Solver, nameLaCAMStar,
                 false, true, new int[]{100}, 10, 0);
+    }
+
+    @Test
+    void testAllDummyGoalPoliciesOnHardInstance() {
+        // Define all dummy goal policies
+        List<I_DummyGoalsHeuristics> dummyGoalPolicies = Arrays.asList(
+            new InitialLocationsDummyGoals(),
+            new RandomLocationsDummyGoals(),
+            new NonSeparatingVerticesDummyGoals(),
+            new HighestDegreeDummyGoals(),
+            new HighestDegreeAndClosestDummyGoals(),
+                null
+        );
+
+        // Use a hard instance
+        MAPF_Instance hardInstance = instanceEmptyHarder;
+
+        // Solve with each policy and collect results
+        List<Solution> solutions = new ArrayList<>();
+        for (I_DummyGoalsHeuristics policy : dummyGoalPolicies) {
+            TransientMAPFSettings settings = new TransientMAPFSettings(true, true, false, false, policy);
+            I_Solver solver = new LaCAMBuilder().setSolutionCostFunction(new SumServiceTimes()).setTransientMAPFBehaviour(settings).createLaCAM();
+
+            Solution solution = solver.solve(hardInstance, new RunParametersBuilder().setTimeout(timeout).setInstanceReport(instanceReport).createRP());
+            solutions.add(solution);
+
+            // Print each solution for debugging
+            System.out.println("Solution with policy " + (policy != null ? policy.getClass().getSimpleName() : "null") + ": " + solution);
+        }
+
+        // Ensure solutions are not the same
+        for (int i = 0; i < solutions.size(); i++) {
+            for (int j = i + 1; j < solutions.size(); j++) {
+                if (solutions.get(i).solves(hardInstance) && solutions.get(j).solves(hardInstance)) {
+                    assertNotEquals(solutions.get(i), solutions.get(j), "Solutions should differ for different dummy goal policies.");
+                }
+            }
+        }
     }
 }
