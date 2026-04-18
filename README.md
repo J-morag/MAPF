@@ -37,7 +37,7 @@ The default instance format is from the [MovingAI benchmark](https://movingai.co
 
 ### Running the project by modifying the code
 
-Modify the `Main.java` file to run your experiment. Examples are provided in the `ExampleMain.java` file.
+Use `GenericRunManager` directly in code for programmatic experiments, or extend `A_RunManager` for deeper customization. See `ExampleMain.java` for working examples and the [Usage Notes](#usage-notes) section below for details.
 
 ## News
 * 2026-01: Added the Multi-agent A* (MAAStar) algorithm.
@@ -53,49 +53,87 @@ Modify the `Main.java` file to run your experiment. Examples are provided in the
   
 ## Usage Notes
 
-* How to create a single instance
-    
-        In order to create a single MAPF_Instance you will need:
-        1. An InstanceManager
-           public InstanceManager(I_InstanceBuilder instanceBuilder)
-           1.1 Instance Builders parse instance files
-                examples: 'InstanceBuilder_MovingAI', 'InstanceBuilder_BGU'
-  
-        2. An absolute path to the file, wrapped as an InstancePath object
-        
-        In the Environment.RunManagers.A_RunManager class there is a static method you can call:
-        public static MAPF_Instance getInstanceFromPath(InstanceManager manager, 
-                                                        InstanceManager.InstancePath absolutePath)
-                                                        
-* How to run single\multiple Experiments
-        
-        In order to run experiments you can use GenericRunManager.
-        Alternatively, you can create you own RunManager class that extends Environment.RunManagers.A_RunManager, 
-        and implements the following methods:
-        1.  abstract void setSolvers(); // choose solvers to add (one or more)
-            Example: solvers.add(new CBS_Solver())
-            
-        2.  abstract void setExperiments(); // choose experiments
-            
-            * You can view or modify the default report fields in method 'setReport'. 
-            Add an Experiment class:
-            public Experiment(String experimentName, InstanceManager instanceManager, int numOfInstances)
-                2.1 Experiment name: give it a unique name, to differentiate between experiment
-                2.2 An InstanceManager       
-                    public InstanceManager(String sourceDirectory,
-                                               I_InstanceBuilder instanceBuilder,
-                                               InstanceProperties properties)
-                    2.2.1   sourceDirectory - A path to the directory with the instances
-                    2.2.2   Instance Builders  parse instance files
-                            examples: 'InstanceBuilder_MovingAI', 'InstanceBuilder_BGU'
-                    2.2.3   Instance Properties - In case you want to filter instances by criteria
-                            Constructor:
-                            @param mapSize - {@link MapDimensions} indicates the Axis lengths. 0 for unknown
-                            @param obstacles - For unknown obstacles enter -1
-                            @param numOfAgents - An array of different amounts of agents. 
-            
-                2.3 numOfInstances - You can choose how many instances you want for the experiment
-                                     Note: default = unlimited
+### CLI Usage (Recommended)
+
+The primary way to run experiments is via the command line. Example:
+
+```
+java -jar MAPF.jar -a 10,20,50 -iDir <instances_path>
+```
+
+Key options:
+* `-a <nums>` – comma-separated agent counts to try, e.g. `-a 10,20,50` (required)
+* `-iDir <path>` – path to the directory containing map and scenario files (required)
+* `-s <solver>` – select solver(s) by name, comma-separated. Use `-h` to see available solvers. Default: CBS and Prioritised Planning.
+* `-t <timeout_ms>` – timeout per run in milliseconds
+* `-iRegex <regex>` – filter instances by regex pattern
+* `-resDir <path>` – directory to save results (created if it doesn't exist)
+* `-v` – visualize solutions (not recommended for large batch runs)
+* `-h` – show full help and the list of available solvers
+
+Run `java -jar MAPF.jar -h` for the complete list of options.
+
+### Programmatic Usage
+
+For programmatic experiments without modifying the CLI, use `GenericRunManager` directly:
+
+```java
+new GenericRunManager(
+    instancesDir,                  // path to instances directory
+    new int[]{10, 20},             // agent counts to try
+    new InstanceBuilder_MovingAI(),// instance format parser
+    "My Experiment",               // experiment name
+    false,                         // skip remaining agent counts after a failure
+    null,                          // optional regex filter on instance names
+    resultsOutputDir,              // where to save results
+    "myResults",                   // results file prefix
+    null,                          // optional visualizer
+    60_000,                        // timeout per run in milliseconds
+    null                           // solver override (null = use defaults)
+).runAllExperiments();
+```
+
+See `ExampleMain.java` for more usage examples, including solving a single instance and running experiments with visualization.
+
+### Custom Instances and Deeper Modifications
+
+* **How to create a single instance**
+
+  To create a single `MAPF_Instance` you will need:
+  1. An `InstanceManager`:
+     ```java
+     new InstanceManager(I_InstanceBuilder instanceBuilder)
+     ```
+     Instance builders parse instance files. Examples: `InstanceBuilder_MovingAI`, `InstanceBuilder_BGU`.
+  2. An absolute path to the file, wrapped as an `InstanceManager.InstancePath` object.
+
+  In `A_RunManager` there is a static helper method:
+  ```java
+  public static MAPF_Instance getInstanceFromPath(InstanceManager manager,
+                                                  InstanceManager.InstancePath absolutePath)
+  ```
+
+* **How to create a custom RunManager**
+
+  Extend `A_RunManager` and implement two methods:
+  1. `void setSolvers()` – add one or more solvers, e.g. `solvers.add(new CBS_Solver())`
+  2. `void setExperiments()` – add `Experiment` objects:
+     ```java
+     new Experiment(String experimentName, InstanceManager instanceManager, int numOfInstances)
+     ```
+     * `experimentName` – a unique name for the experiment.
+     * `instanceManager`:
+       ```java
+       new InstanceManager(String sourceDirectory,
+                           I_InstanceBuilder instanceBuilder,
+                           InstanceProperties properties)
+       ```
+       * `sourceDirectory` – path to the directory with the instances.
+       * `instanceBuilder` – parses instance files (e.g. `InstanceBuilder_MovingAI`, `InstanceBuilder_BGU`).
+       * `properties` – optionally filter instances by map size, obstacle rate, or agent counts.
+     * `numOfInstances` – maximum number of instances to run (default: unlimited).
+
+  See `RunManagerSimpleExample.java` for a complete example.
 
 ## Acknowledgements 
     Originally designed by Jonathan Morag and Yonatan Zax.
