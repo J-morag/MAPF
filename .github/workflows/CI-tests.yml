@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  run_unit_tests:
+  infrastructure-tests:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
@@ -21,23 +21,236 @@ jobs:
       - name: Set up JDK 18
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' 
+          distribution: 'temurin'
           java-version: 18
           cache: maven
       - name: Check mvn version
         run: mvn -version
-
       - name: Build
         run: mvn --batch-mode -DskipTests package
-
       - name: Test
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest=!*PerformanceBenchmarkTest* test
-
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="MetricsTest,ReaderTest,WriterTest,IO_ManagerTest,InstanceBuilder_BGUTest,I_InstanceBuilderTest,InstanceBuilder_MovingAITest,MapFactoryTest,AStarMDDBuilderTest,MDDTest,MDDManagerTest,SeparatingVerticesFinderTest,ConstraintSetTest,ConstraintTest,SingleAgentPlanTest,CanonicalSolversFactoryTest,UnmodifiableConstraintSetTest,SwappingConflictTest,CorridorConflictManagerTest,ConflictManagerTest,RemovableConflictAvoidanceTableWithContestedGoalsTest" test
       - name: Report
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: Unit Tests
+          name: Infrastructure Tests
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-astar:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="SingleAgentAStar_SolverTest,SingleAgentAStarSIPP_SolverTest,SingleAgentAStarSIPPS_SolverTest,DistanceTableAStarHeuristicTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - A*
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-cbs:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="CBS_SolverTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - CBS
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-icts:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="ICTS_SolverTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - ICTS
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-lacam:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="LaCAM_SolverTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - LaCAM
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-path-priority:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="NaivePathAndPrioritySearchTest,PathAndPrioritySearchTest,PriorityConstrainedSearchTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - Path and Priority Search
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-lns:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="LargeNeighborhoodSearch_SolverTest,LargeNeighborhoodSearch2_SolverTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - LNS
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-pp:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="PrioritisedPlanningSolverTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - Prioritised Planning
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  solver-tests-maa-pibt:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 18
+          cache: maven
+      - name: Check mvn version
+        run: mvn -version
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Djunit.jupiter.execution.parallel.mode.classes.default=same_thread -Dtest="MultiAgentAStarTest,MultiAgentAStarOperatorDecompTest,PIBT_SolverTest" test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Solver Tests - Multi-Agent A* and PIBT
           path: target/surefire-reports/*.xml
           reporter: java-junit
           fail-on-error: true
